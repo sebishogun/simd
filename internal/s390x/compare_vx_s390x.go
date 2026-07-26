@@ -16,94 +16,49 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
 //go:noescape
-func selectFloat32VX(dst []float32, mask []bool, yes []float32, no []float32)
+func eqScalarFloat32MaskVX(dst []bool, a []float32, v float32)
 
 //go:noescape
-func eqFloat64MaskVX(dst []bool, a []float64, b []float64)
+func neScalarFloat32MaskVX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func ltScalarFloat32MaskVX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func leScalarFloat32MaskVX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func gtScalarFloat32MaskVX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func geScalarFloat32MaskVX(dst []bool, a []float32, v float32)
 
 //go:noescape
 func eqScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 
 //go:noescape
-func neFloat64MaskVX(dst []bool, a []float64, b []float64)
-
-//go:noescape
 func neScalarFloat64MaskVX(dst []bool, a []float64, v float64)
-
-//go:noescape
-func ltFloat64MaskVX(dst []bool, a []float64, b []float64)
 
 //go:noescape
 func ltScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 
 //go:noescape
-func leFloat64MaskVX(dst []bool, a []float64, b []float64)
-
-//go:noescape
 func leScalarFloat64MaskVX(dst []bool, a []float64, v float64)
-
-//go:noescape
-func gtFloat64MaskVX(dst []bool, a []float64, b []float64)
 
 //go:noescape
 func gtScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 
 //go:noescape
-func geFloat64MaskVX(dst []bool, a []float64, b []float64)
-
-//go:noescape
 func geScalarFloat64MaskVX(dst []bool, a []float64, v float64)
-
-//go:noescape
-func selectFloat64VX(dst []float64, mask []bool, yes []float64, no []float64)
-
-//go:noescape
-func selectInt32VX(dst []int32, mask []bool, yes []int32, no []int32)
-
-//go:noescape
-func eqInt64MaskVX(dst []bool, a []int64, b []int64)
-
-//go:noescape
-func eqScalarInt64MaskVX(dst []bool, a []int64, v int64)
-
-//go:noescape
-func neInt64MaskVX(dst []bool, a []int64, b []int64)
-
-//go:noescape
-func neScalarInt64MaskVX(dst []bool, a []int64, v int64)
-
-//go:noescape
-func ltInt64MaskVX(dst []bool, a []int64, b []int64)
-
-//go:noescape
-func ltScalarInt64MaskVX(dst []bool, a []int64, v int64)
-
-//go:noescape
-func leInt64MaskVX(dst []bool, a []int64, b []int64)
-
-//go:noescape
-func leScalarInt64MaskVX(dst []bool, a []int64, v int64)
-
-//go:noescape
-func gtInt64MaskVX(dst []bool, a []int64, b []int64)
-
-//go:noescape
-func gtScalarInt64MaskVX(dst []bool, a []int64, v int64)
-
-//go:noescape
-func geInt64MaskVX(dst []bool, a []int64, b []int64)
-
-//go:noescape
-func geScalarInt64MaskVX(dst []bool, a []int64, v int64)
-
-//go:noescape
-func selectInt64VX(dst []int64, mask []bool, yes []int64, no []int64)
 
 //go:noescape
 func maskAllVX(m []bool) bool
 
 //go:noescape
 func maskAnyVX(m []bool) bool
+
+//go:noescape
+func maskCountVX(m []bool) int
 
 //go:noescape
 func maskAndVX(dst []bool, a []bool, b []bool)

@@ -109,6 +109,35 @@ func fillBytesVSXGuarded(dst []byte, v byte) {
 	fillBytesVSX(dst, v)
 }
 
+func compareBytesVSXGuarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CompareBytes(a, b)
+	}
+	return compareBytesVSX(a, b)
+}
+
+func equalFoldASCIIVSXGuarded(a []byte, b []byte) bool {
+	n := min(len(a), len(b))
+	if n < 64 || len(a) != len(b) {
+		return ref.EqualFoldASCII(a, b)
+	}
+	return equalFoldASCIIVSX(a[:n:n], b)
+}
+
+func countAnyVSXGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.CountAny(b, chars)
+	}
+	return countAnyVSX(b, chars)
+}
+
+func hexEncodeVSXGuarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.HexEncode(dst, b)
+	}
+	return hexEncodeVSX(dst, b)
+}
+
 func toUpperASCIIVSXGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -151,6 +180,10 @@ func init() {
 	s.Bytes.AndNot = bitAndNotVSXGuarded
 	s.Bytes.Not = bitNotVSXGuarded
 	s.Bytes.Fill = fillBytesVSXGuarded
+	s.Bytes.Compare = compareBytesVSXGuarded
+	s.Bytes.EqualFoldASCII = equalFoldASCIIVSXGuarded
+	s.Bytes.CountAny = countAnyVSXGuarded
+	s.Bytes.HexEncode = hexEncodeVSXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIIVSXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIIVSXGuarded
 	s.Bytes.ReplaceByte = replaceByteVSXGuarded

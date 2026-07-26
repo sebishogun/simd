@@ -8,6 +8,8 @@
 // The rules from arith.c apply here too: no function calls, __restrict on
 // every pointer, signed loop counters.
 
+#include "goabi.h"
+
 typedef long isize;
 
 // The reductions below accumulate into exactly SUM_LANES independent lanes and
@@ -251,6 +253,27 @@ FLOAT_REDUCTIONS(double, f64xL, f64, __builtin_elementwise_abs)
                             const T *__restrict b, isize n) {                \
     T s = 0;                                                                \
     for (isize i = 0; i < n; i++) s += (a[i] - b[i]) * (a[i] - b[i]);       \
+    *out = s;                                                               \
+  }                                                                          \
+  /* Integer absolute value is written through unsigned arithmetic because  */ \
+  /* negating the most negative value is undefined in C, and the wrap it    */ \
+  /* produces is the answer the Go reference gives.                         */ \
+  void simd_l1norm_##SUF(T *__restrict out, const T *__restrict a,          \
+                         isize n) {                                          \
+    T s = 0;                                                                \
+    for (isize i = 0; i < n; i++) {                                         \
+      T v = a[i];                                                           \
+      s += v < 0 ? (T)(0u - (unsigned long long)v) : v;                     \
+    }                                                                        \
+    *out = s;                                                               \
+  }                                                                          \
+  void simd_l1diff_##SUF(T *__restrict out, const T *__restrict a,          \
+                         const T *__restrict b, isize n) {                   \
+    T s = 0;                                                                \
+    for (isize i = 0; i < n; i++) {                                         \
+      T v = (T)((unsigned long long)a[i] - (unsigned long long)b[i]);       \
+      s += v < 0 ? (T)(0u - (unsigned long long)v) : v;                     \
+    }                                                                        \
     *out = s;                                                               \
   }
 

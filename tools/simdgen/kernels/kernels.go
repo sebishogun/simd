@@ -315,6 +315,8 @@ func Reduce() []spec.Kernel {
 			reduce1("sum", "Sum", "SumInt", e),
 			reduce1("prod", "Prod", "ProdInt", e),
 			reduce2("dot", "Dot", "DotInt", e),
+			reduce1("l1norm", "L1Norm", "L1NormInt", e),
+			reduce2("l1diff", "L1Diff", "L1DiffInt", e),
 		)
 	}
 	return ks
@@ -493,6 +495,56 @@ func Bytes() []spec.Kernel {
 			Group: "Bytes", Field: "Fill", RefFunc: "FillBytes",
 			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("v", spec.U8)},
 			CArgs:     []spec.CArg{base("dst"), val("v"), lenOf("dst")},
+			Threshold: thBytes,
+		},
+
+		{
+			// Two lengths, because Compare's answer depends on both: content
+			// decides it where the slices differ, and length where one is a
+			// prefix of the other. The guard leaves a two-length kernel to
+			// reconcile them itself.
+			CName: "simd_compare_bytes", GoName: "compareBytes",
+			Group: "Bytes", Field: "Compare", RefFunc: "CompareBytes",
+			Params:    []spec.Param{sl("a", spec.SliceU8), sl("b", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a"), lenOf("b")},
+			Threshold: thScan,
+		},
+		{
+			CName: "simd_equal_fold_ascii", GoName: "equalFoldASCII",
+			Group: "Bytes", Field: "EqualFoldASCII", RefFunc: "EqualFoldASCII",
+			Params:    []spec.Param{sl("a", spec.SliceU8), sl("b", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.B},
+			CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a")},
+			RefWhen:   "len(a) != len(b)",
+			Threshold: thScan,
+		},
+		{
+			// The set length is a second length, so the guard does not try to
+			// clamp the haystack against it.
+			CName: "simd_index_any", GoName: "indexAny",
+			Group: "Bytes", Field: "IndexAny", RefFunc: "IndexAny",
+			Params:    []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars")},
+			Threshold: thScan,
+		},
+		{
+			CName: "simd_count_any", GoName: "countAny",
+			Group: "Bytes", Field: "CountAny", RefFunc: "CountAny",
+			Params:    []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars")},
+			Threshold: thScan,
+		},
+		{
+			// Also two lengths: the output holds two bytes per input byte, so
+			// clamping them together would give the wrong count for either.
+			CName: "simd_hex_encode", GoName: "hexEncode",
+			Group: "Bytes", Field: "HexEncode", RefFunc: "HexEncode",
+			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("dst"), base("b"), lenOf("dst"), lenOf("b")},
 			Threshold: thBytes,
 		},
 

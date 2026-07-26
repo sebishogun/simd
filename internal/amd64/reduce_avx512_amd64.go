@@ -121,6 +121,12 @@ func prodInt32AVX512(a []int32) int32
 func dotInt32AVX512(a []int32, b []int32) int32
 
 //go:noescape
+func l1normInt32AVX512(a []int32) int32
+
+//go:noescape
+func l1diffInt32AVX512(a []int32, b []int32) int32
+
+//go:noescape
 func sumInt64AVX512(a []int64) int64
 
 //go:noescape
@@ -128,3 +134,9 @@ func prodInt64AVX512(a []int64) int64
 
 //go:noescape
 func dotInt64AVX512(a []int64, b []int64) int64
+
+//go:noescape
+func l1normInt64AVX512(a []int64) int64
+
+//go:noescape
+func l1diffInt64AVX512(a []int64, b []int64) int64

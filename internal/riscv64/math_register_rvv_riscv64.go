@@ -128,6 +128,105 @@ func hypotFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
 	hypotFloat32RVV(dst[:n:n], a, b)
 }
 
+func expFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp(dst, a)
+		return
+	}
+	expFloat64RVV(dst[:n:n], a)
+}
+
+func exp2Float64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp2(dst, a)
+		return
+	}
+	exp2Float64RVV(dst[:n:n], a)
+}
+
+func sigmoidFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sigmoid(dst, a)
+		return
+	}
+	sigmoidFloat64RVV(dst[:n:n], a)
+}
+
+func sinFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sin(dst, a)
+		return
+	}
+	sinFloat64RVV(dst[:n:n], a)
+}
+
+func cosFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cos(dst, a)
+		return
+	}
+	cosFloat64RVV(dst[:n:n], a)
+}
+
+func tanFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tan(dst, a)
+		return
+	}
+	tanFloat64RVV(dst[:n:n], a)
+}
+
+func asinFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asin(dst, a)
+		return
+	}
+	asinFloat64RVV(dst[:n:n], a)
+}
+
+func acosFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acos(dst, a)
+		return
+	}
+	acosFloat64RVV(dst[:n:n], a)
+}
+
+func atanFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atan(dst, a)
+		return
+	}
+	atanFloat64RVV(dst[:n:n], a)
+}
+
+func coshFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cosh(dst, a)
+		return
+	}
+	coshFloat64RVV(dst[:n:n], a)
+}
+
+func atan2Float64RVVGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Atan2(dst, a, b)
+		return
+	}
+	atan2Float64RVV(dst[:n:n], a, b)
+}
+
 func hypotFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -153,5 +252,16 @@ func init() {
 	s.F32.Cosh = coshFloat32RVVGuarded
 	s.F32.Atan2 = atan2Float32RVVGuarded
 	s.F32.Hypot = hypotFloat32RVVGuarded
+	s.F64.Exp = expFloat64RVVGuarded
+	s.F64.Exp2 = exp2Float64RVVGuarded
+	s.F64.Sigmoid = sigmoidFloat64RVVGuarded
+	s.F64.Sin = sinFloat64RVVGuarded
+	s.F64.Cos = cosFloat64RVVGuarded
+	s.F64.Tan = tanFloat64RVVGuarded
+	s.F64.Asin = asinFloat64RVVGuarded
+	s.F64.Acos = acosFloat64RVVGuarded
+	s.F64.Atan = atanFloat64RVVGuarded
+	s.F64.Cosh = coshFloat64RVVGuarded
+	s.F64.Atan2 = atan2Float64RVVGuarded
 	s.F64.Hypot = hypotFloat64RVVGuarded
 }

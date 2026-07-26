@@ -116,6 +116,42 @@ func fillBytesNEONGuarded(dst []byte, v byte) {
 	fillBytesNEON(dst, v)
 }
 
+func compareBytesNEONGuarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CompareBytes(a, b)
+	}
+	return compareBytesNEON(a, b)
+}
+
+func equalFoldASCIINEONGuarded(a []byte, b []byte) bool {
+	n := min(len(a), len(b))
+	if n < 64 || len(a) != len(b) {
+		return ref.EqualFoldASCII(a, b)
+	}
+	return equalFoldASCIINEON(a[:n:n], b)
+}
+
+func indexAnyNEONGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexAny(b, chars)
+	}
+	return indexAnyNEON(b, chars)
+}
+
+func countAnyNEONGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.CountAny(b, chars)
+	}
+	return countAnyNEON(b, chars)
+}
+
+func hexEncodeNEONGuarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.HexEncode(dst, b)
+	}
+	return hexEncodeNEON(dst, b)
+}
+
 func toUpperASCIINEONGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -159,6 +195,11 @@ func init() {
 	s.Bytes.AndNot = bitAndNotNEONGuarded
 	s.Bytes.Not = bitNotNEONGuarded
 	s.Bytes.Fill = fillBytesNEONGuarded
+	s.Bytes.Compare = compareBytesNEONGuarded
+	s.Bytes.EqualFoldASCII = equalFoldASCIINEONGuarded
+	s.Bytes.IndexAny = indexAnyNEONGuarded
+	s.Bytes.CountAny = countAnyNEONGuarded
+	s.Bytes.HexEncode = hexEncodeNEONGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIINEONGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIINEONGuarded
 	s.Bytes.ReplaceByte = replaceByteNEONGuarded

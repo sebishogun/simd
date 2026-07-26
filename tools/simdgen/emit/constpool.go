@@ -63,7 +63,25 @@ var alignedInteger = map[string]bool{
 }
 
 // unalignedLoads already tolerate any address and need no patch.
+//
+// leaq is in the list because it is not a load at all: it computes the
+// address and never dereferences it, so alignment cannot apply. It was being
+// rejected as "a legacy SSE instruction that requires 16-byte alignment",
+// which is both wrong and the reason cbrt ran on the portable path.
+// The scalar forms — the ones suffixed ss or sd — are here for the same
+// reason: an alignment requirement applies to a 128-bit access, and these
+// touch four or eight bytes. Only the packed legacy forms (movaps, mulps,
+// pand, pxor and the rest) genuinely need the pool 16-byte aligned, and those
+// are the ones that stay on the portable path.
 var unalignedLoads = map[string]bool{
+	"lea": true, "leaq": true, "leal": true,
+	"addsd": true, "addss": true, "subsd": true, "subss": true,
+	"mulsd": true, "mulss": true, "divsd": true, "divss": true,
+	"minsd": true, "minss": true, "maxsd": true, "maxss": true,
+	"sqrtsd": true, "sqrtss": true,
+	"ucomisd": true, "ucomiss": true, "comisd": true, "comiss": true,
+	"cvtsi2sd": true, "cvtsi2ss": true, "cvtsd2ss": true, "cvtss2sd": true,
+	"cvttsd2si": true, "cvttss2si": true,
 	"movups": true, "movupd": true, "movss": true, "movsd": true,
 	"vmovups": true, "vmovupd": true, "vmovss": true, "vmovsd": true,
 	"vmovddup": true, "vbroadcastss": true, "vbroadcastsd": true,
@@ -81,6 +99,12 @@ func resolvePool(fn *objfile.Func, instrs []Instr, tgt target.Target) ([]byte, e
 		// Handled below: one RIP-relative displacement per reference.
 	case target.ARM64:
 		return resolvePoolARM64(fn)
+	case target.S390X:
+		return resolvePoolS390X(fn)
+	case target.LOONG64:
+		return resolvePoolLoong64(fn)
+	case target.RISCV64:
+		return resolvePoolRISCV64(fn)
 	default:
 		return nil, fmt.Errorf("constant pools are not resolved on %s; the address is "+
 			"built from a high/low instruction pair that this generator does not yet "+

@@ -52,6 +52,21 @@ func bitNotSSE2(dst []byte, b []byte)
 func fillBytesSSE2(dst []byte, v byte)
 
 //go:noescape
+func compareBytesSSE2(a []byte, b []byte) int
+
+//go:noescape
+func equalFoldASCIISSE2(a []byte, b []byte) bool
+
+//go:noescape
+func indexAnySSE2(b []byte, chars []byte) int
+
+//go:noescape
+func countAnySSE2(b []byte, chars []byte) int
+
+//go:noescape
+func hexEncodeSSE2(dst []byte, b []byte) int
+
+//go:noescape
 func toUpperASCIISSE2(dst []byte, b []byte)
 
 //go:noescape

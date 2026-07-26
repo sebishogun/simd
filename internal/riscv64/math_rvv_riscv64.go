@@ -52,4 +52,37 @@ func atan2Float32RVV(dst []float32, a []float32, b []float32)
 func hypotFloat32RVV(dst []float32, a []float32, b []float32)
 
 //go:noescape
+func expFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func exp2Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func sigmoidFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func sinFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func cosFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func tanFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func asinFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func acosFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func atanFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func coshFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func atan2Float64RVV(dst []float64, a []float64, b []float64)
+
+//go:noescape
 func hypotFloat64RVV(dst []float64, a []float64, b []float64)

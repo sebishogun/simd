@@ -29,6 +29,42 @@ func hypotFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
 	hypotFloat32SSE2(dst[:n:n], a, b)
 }
 
+func log1pFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	log1pFloat64SSE2(dst[:n:n], a)
+}
+
+func cbrtFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	cbrtFloat64SSE2(dst[:n:n], a)
+}
+
+func asinFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asin(dst, a)
+		return
+	}
+	asinFloat64SSE2(dst[:n:n], a)
+}
+
+func atan2Float64SSE2Guarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Atan2(dst, a, b)
+		return
+	}
+	atan2Float64SSE2(dst[:n:n], a, b)
+}
+
 func hypotFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -43,5 +79,9 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sse2")
 	s.F32.Hypot = hypotFloat32SSE2Guarded
+	s.F64.Log1p = log1pFloat64SSE2Guarded
+	s.F64.Cbrt = cbrtFloat64SSE2Guarded
+	s.F64.Asin = asinFloat64SSE2Guarded
+	s.F64.Atan2 = atan2Float64SSE2Guarded
 	s.F64.Hypot = hypotFloat64SSE2Guarded
 }

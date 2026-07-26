@@ -52,6 +52,21 @@ func bitNotAVX512(dst []byte, b []byte)
 func fillBytesAVX512(dst []byte, v byte)
 
 //go:noescape
+func compareBytesAVX512(a []byte, b []byte) int
+
+//go:noescape
+func equalFoldASCIIAVX512(a []byte, b []byte) bool
+
+//go:noescape
+func indexAnyAVX512(b []byte, chars []byte) int
+
+//go:noescape
+func countAnyAVX512(b []byte, chars []byte) int
+
+//go:noescape
+func hexEncodeAVX512(dst []byte, b []byte) int
+
+//go:noescape
 func toUpperASCIIAVX512(dst []byte, b []byte)
 
 //go:noescape

@@ -20,11 +20,18 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func indexByteVXGuarded(b []byte, c byte) int {
+func lastIndexByteVXGuarded(b []byte, c byte) int {
 	if len(b) < 64 {
-		return ref.IndexByte(b, c)
+		return ref.LastIndexByte(b, c)
 	}
-	return indexByteVX(b, c)
+	return lastIndexByteVX(b, c)
+}
+
+func popCountVXGuarded(b []byte) int {
+	if len(b) < 64 {
+		return ref.PopCount(b)
+	}
+	return popCountVX(b)
 }
 
 func isASCIIVXGuarded(b []byte) bool {
@@ -95,6 +102,13 @@ func fillBytesVXGuarded(dst []byte, v byte) {
 	fillBytesVX(dst, v)
 }
 
+func hexEncodeVXGuarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.HexEncode(dst, b)
+	}
+	return hexEncodeVX(dst, b)
+}
+
 func toUpperASCIIVXGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -126,7 +140,8 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vx")
-	s.Bytes.IndexByte = indexByteVXGuarded
+	s.Bytes.LastIndexByte = lastIndexByteVXGuarded
+	s.Bytes.PopCount = popCountVXGuarded
 	s.Bytes.IsASCII = isASCIIVXGuarded
 	s.Bytes.Equal = equalBytesVXGuarded
 	s.Bytes.And = bitAndVXGuarded
@@ -135,6 +150,7 @@ func init() {
 	s.Bytes.AndNot = bitAndNotVXGuarded
 	s.Bytes.Not = bitNotVXGuarded
 	s.Bytes.Fill = fillBytesVXGuarded
+	s.Bytes.HexEncode = hexEncodeVXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIIVXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIIVXGuarded
 	s.Bytes.ReplaceByte = replaceByteVXGuarded

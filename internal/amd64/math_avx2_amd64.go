@@ -37,6 +37,9 @@ func log10Float32AVX2(dst []float32, a []float32)
 func log1pFloat32AVX2(dst []float32, a []float32)
 
 //go:noescape
+func cbrtFloat32AVX2(dst []float32, a []float32)
+
+//go:noescape
 func sigmoidFloat32AVX2(dst []float32, a []float32)
 
 //go:noescape
@@ -95,6 +98,9 @@ func log10Float64AVX2(dst []float64, a []float64)
 
 //go:noescape
 func log1pFloat64AVX2(dst []float64, a []float64)
+
+//go:noescape
+func cbrtFloat64AVX2(dst []float64, a []float64)
 
 //go:noescape
 func sigmoidFloat64AVX2(dst []float64, a []float64)

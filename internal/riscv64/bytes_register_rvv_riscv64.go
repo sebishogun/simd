@@ -48,6 +48,13 @@ func popCountRVVGuarded(b []byte) int {
 	return popCountRVV(b)
 }
 
+func isASCIIRVVGuarded(b []byte) bool {
+	if len(b) < 64 {
+		return ref.IsASCII(b)
+	}
+	return isASCIIRVV(b)
+}
+
 func equalBytesRVVGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -109,6 +116,42 @@ func fillBytesRVVGuarded(dst []byte, v byte) {
 	fillBytesRVV(dst, v)
 }
 
+func compareBytesRVVGuarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CompareBytes(a, b)
+	}
+	return compareBytesRVV(a, b)
+}
+
+func equalFoldASCIIRVVGuarded(a []byte, b []byte) bool {
+	n := min(len(a), len(b))
+	if n < 64 || len(a) != len(b) {
+		return ref.EqualFoldASCII(a, b)
+	}
+	return equalFoldASCIIRVV(a[:n:n], b)
+}
+
+func indexAnyRVVGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexAny(b, chars)
+	}
+	return indexAnyRVV(b, chars)
+}
+
+func countAnyRVVGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.CountAny(b, chars)
+	}
+	return countAnyRVV(b, chars)
+}
+
+func hexEncodeRVVGuarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.HexEncode(dst, b)
+	}
+	return hexEncodeRVV(dst, b)
+}
+
 func toUpperASCIIRVVGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -144,6 +187,7 @@ func init() {
 	s.Bytes.IndexByte = indexByteRVVGuarded
 	s.Bytes.LastIndexByte = lastIndexByteRVVGuarded
 	s.Bytes.PopCount = popCountRVVGuarded
+	s.Bytes.IsASCII = isASCIIRVVGuarded
 	s.Bytes.Equal = equalBytesRVVGuarded
 	s.Bytes.And = bitAndRVVGuarded
 	s.Bytes.Or = bitOrRVVGuarded
@@ -151,6 +195,11 @@ func init() {
 	s.Bytes.AndNot = bitAndNotRVVGuarded
 	s.Bytes.Not = bitNotRVVGuarded
 	s.Bytes.Fill = fillBytesRVVGuarded
+	s.Bytes.Compare = compareBytesRVVGuarded
+	s.Bytes.EqualFoldASCII = equalFoldASCIIRVVGuarded
+	s.Bytes.IndexAny = indexAnyRVVGuarded
+	s.Bytes.CountAny = countAnyRVVGuarded
+	s.Bytes.HexEncode = hexEncodeRVVGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIIRVVGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIIRVVGuarded
 	s.Bytes.ReplaceByte = replaceByteRVVGuarded

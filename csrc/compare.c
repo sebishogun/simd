@@ -10,6 +10,7 @@
 // NotEqual is not the negation of Equal. Writing one as `!other` would be
 // wrong, so each is generated from its own operator.
 
+#include "goabi.h"
 #include "fold.h"
 
 #define CMP(NAME, T, SUF, OP)                                            \

@@ -34,22 +34,6 @@ func sumsqdevFloat32VXGuarded(a []float32, c float32) float32 {
 	return sumsqdevFloat32VX(a, c)
 }
 
-func sumsqdiffFloat32VXGuarded(a []float32, b []float32) float32 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.SumSqDiffFloat(a, b)
-	}
-	return sumsqdiffFloat32VX(a[:n:n], b)
-}
-
-func diffFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
-		ref.Diff(dst, a)
-		return
-	}
-	diffFloat32VX(dst, a)
-}
-
 func sumsqFloat64VXGuarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumSquaresFloat(a)
@@ -62,36 +46,6 @@ func sumsqdevFloat64VXGuarded(a []float64, c float64) float64 {
 		return ref.SumSqDevFloat(a, c)
 	}
 	return sumsqdevFloat64VX(a, c)
-}
-
-func sumsqdiffFloat64VXGuarded(a []float64, b []float64) float64 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.SumSqDiffFloat(a, b)
-	}
-	return sumsqdiffFloat64VX(a[:n:n], b)
-}
-
-func diffFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
-		ref.Diff(dst, a)
-		return
-	}
-	diffFloat64VX(dst, a)
-}
-
-func minrInt32VXGuarded(a []int32) int32 {
-	if len(a) < 1 {
-		return ref.MinReduceInt(a)
-	}
-	return minrInt32VX(a)
-}
-
-func maxrInt32VXGuarded(a []int32) int32 {
-	if len(a) < 1 {
-		return ref.MaxReduceInt(a)
-	}
-	return maxrInt32VX(a)
 }
 
 func sumsqInt32VXGuarded(a []int32) int32 {
@@ -116,71 +70,11 @@ func sumsqdiffInt32VXGuarded(a []int32, b []int32) int32 {
 	return sumsqdiffInt32VX(a[:n:n], b)
 }
 
-func diffInt32VXGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
-		ref.Diff(dst, a)
-		return
-	}
-	diffInt32VX(dst, a)
-}
-
-func minrInt64VXGuarded(a []int64) int64 {
-	if len(a) < 1 {
-		return ref.MinReduceInt(a)
-	}
-	return minrInt64VX(a)
-}
-
-func maxrInt64VXGuarded(a []int64) int64 {
-	if len(a) < 1 {
-		return ref.MaxReduceInt(a)
-	}
-	return maxrInt64VX(a)
-}
-
-func sumsqInt64VXGuarded(a []int64) int64 {
-	if len(a) < 0 {
-		return ref.SumSquaresInt(a)
-	}
-	return sumsqInt64VX(a)
-}
-
-func sumsqdevInt64VXGuarded(a []int64, c int64) int64 {
-	if len(a) < 0 {
-		return ref.SumSqDevInt(a, c)
-	}
-	return sumsqdevInt64VX(a, c)
-}
-
-func sumsqdiffInt64VXGuarded(a []int64, b []int64) int64 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.SumSqDiffInt(a, b)
-	}
-	return sumsqdiffInt64VX(a[:n:n], b)
-}
-
-func diffInt64VXGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
-		ref.Diff(dst, a)
-		return
-	}
-	diffInt64VX(dst, a)
-}
-
 func sumFloat32VXGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
 	}
 	return sumFloat32VX(a)
-}
-
-func dotFloat32VXGuarded(a []float32, b []float32) float32 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.DotFloat(a, b)
-	}
-	return dotFloat32VX(a[:n:n], b)
 }
 
 func l1normFloat32VXGuarded(a []float32) float32 {
@@ -190,14 +84,6 @@ func l1normFloat32VXGuarded(a []float32) float32 {
 	return l1normFloat32VX(a)
 }
 
-func l1diffFloat32VXGuarded(a []float32, b []float32) float32 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.L1DiffFloat(a, b)
-	}
-	return l1diffFloat32VX(a[:n:n], b)
-}
-
 func sumFloat64VXGuarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -205,27 +91,11 @@ func sumFloat64VXGuarded(a []float64) float64 {
 	return sumFloat64VX(a)
 }
 
-func dotFloat64VXGuarded(a []float64, b []float64) float64 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.DotFloat(a, b)
-	}
-	return dotFloat64VX(a[:n:n], b)
-}
-
 func l1normFloat64VXGuarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.L1NormFloat(a)
 	}
 	return l1normFloat64VX(a)
-}
-
-func l1diffFloat64VXGuarded(a []float64, b []float64) float64 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.L1DiffFloat(a, b)
-	}
-	return l1diffFloat64VX(a[:n:n], b)
 }
 
 func sumInt32VXGuarded(a []int32) int32 {
@@ -250,11 +120,41 @@ func dotInt32VXGuarded(a []int32, b []int32) int32 {
 	return dotInt32VX(a[:n:n], b)
 }
 
+func l1normInt32VXGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt32VX(a)
+}
+
+func l1diffInt32VXGuarded(a []int32, b []int32) int32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt32VX(a[:n:n], b)
+}
+
 func sumInt64VXGuarded(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt64VX(a)
+}
+
+func l1normInt64VXGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt64VX(a)
+}
+
+func l1diffInt64VXGuarded(a []int64, b []int64) int64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt64VX(a[:n:n], b)
 }
 
 func init() {
@@ -263,34 +163,21 @@ func init() {
 	s := backend.For("vx")
 	s.F32.SumSquares = sumsqFloat32VXGuarded
 	s.F32.SumSqDev = sumsqdevFloat32VXGuarded
-	s.F32.SumSqDiff = sumsqdiffFloat32VXGuarded
-	s.F32.Diff = diffFloat32VXGuarded
 	s.F64.SumSquares = sumsqFloat64VXGuarded
 	s.F64.SumSqDev = sumsqdevFloat64VXGuarded
-	s.F64.SumSqDiff = sumsqdiffFloat64VXGuarded
-	s.F64.Diff = diffFloat64VXGuarded
-	s.I32.Min = minrInt32VXGuarded
-	s.I32.Max = maxrInt32VXGuarded
 	s.I32.SumSquares = sumsqInt32VXGuarded
 	s.I32.SumSqDev = sumsqdevInt32VXGuarded
 	s.I32.SumSqDiff = sumsqdiffInt32VXGuarded
-	s.I32.Diff = diffInt32VXGuarded
-	s.I64.Min = minrInt64VXGuarded
-	s.I64.Max = maxrInt64VXGuarded
-	s.I64.SumSquares = sumsqInt64VXGuarded
-	s.I64.SumSqDev = sumsqdevInt64VXGuarded
-	s.I64.SumSqDiff = sumsqdiffInt64VXGuarded
-	s.I64.Diff = diffInt64VXGuarded
 	s.F32.Sum = sumFloat32VXGuarded
-	s.F32.Dot = dotFloat32VXGuarded
 	s.F32.L1Norm = l1normFloat32VXGuarded
-	s.F32.L1Diff = l1diffFloat32VXGuarded
 	s.F64.Sum = sumFloat64VXGuarded
-	s.F64.Dot = dotFloat64VXGuarded
 	s.F64.L1Norm = l1normFloat64VXGuarded
-	s.F64.L1Diff = l1diffFloat64VXGuarded
 	s.I32.Sum = sumInt32VXGuarded
 	s.I32.Prod = prodInt32VXGuarded
 	s.I32.Dot = dotInt32VXGuarded
+	s.I32.L1Norm = l1normInt32VXGuarded
+	s.I32.L1Diff = l1diffInt32VXGuarded
 	s.I64.Sum = sumInt64VXGuarded
+	s.I64.L1Norm = l1normInt64VXGuarded
+	s.I64.L1Diff = l1diffInt64VXGuarded
 }

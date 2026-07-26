@@ -51,6 +51,7 @@
 // generator cannot rewrite. Every constant is either an immediate or a
 // literal the compiler can materialize.
 
+#include "goabi.h"
 #include "poly.h"
 
 typedef long isize;

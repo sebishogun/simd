@@ -109,6 +109,12 @@ func prodInt32SVE2(a []int32) int32
 func dotInt32SVE2(a []int32, b []int32) int32
 
 //go:noescape
+func l1normInt32SVE2(a []int32) int32
+
+//go:noescape
+func l1diffInt32SVE2(a []int32, b []int32) int32
+
+//go:noescape
 func sumInt64SVE2(a []int64) int64
 
 //go:noescape
@@ -116,3 +122,9 @@ func prodInt64SVE2(a []int64) int64
 
 //go:noescape
 func dotInt64SVE2(a []int64, b []int64) int64
+
+//go:noescape
+func l1normInt64SVE2(a []int64) int64
+
+//go:noescape
+func l1diffInt64SVE2(a []int64, b []int64) int64

@@ -250,6 +250,21 @@ func dotInt32RVVGuarded(a []int32, b []int32) int32 {
 	return dotInt32RVV(a[:n:n], b)
 }
 
+func l1normInt32RVVGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt32RVV(a)
+}
+
+func l1diffInt32RVVGuarded(a []int32, b []int32) int32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt32RVV(a[:n:n], b)
+}
+
 func sumInt64RVVGuarded(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
@@ -270,6 +285,21 @@ func dotInt64RVVGuarded(a []int64, b []int64) int64 {
 		return ref.DotInt(a, b)
 	}
 	return dotInt64RVV(a[:n:n], b)
+}
+
+func l1normInt64RVVGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt64RVV(a)
+}
+
+func l1diffInt64RVVGuarded(a []int64, b []int64) int64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt64RVV(a[:n:n], b)
 }
 
 func init() {
@@ -307,7 +337,11 @@ func init() {
 	s.I32.Sum = sumInt32RVVGuarded
 	s.I32.Prod = prodInt32RVVGuarded
 	s.I32.Dot = dotInt32RVVGuarded
+	s.I32.L1Norm = l1normInt32RVVGuarded
+	s.I32.L1Diff = l1diffInt32RVVGuarded
 	s.I64.Sum = sumInt64RVVGuarded
 	s.I64.Prod = prodInt64RVVGuarded
 	s.I64.Dot = dotInt64RVVGuarded
+	s.I64.L1Norm = l1normInt64RVVGuarded
+	s.I64.L1Diff = l1diffInt64RVVGuarded
 }

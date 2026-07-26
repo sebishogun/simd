@@ -228,11 +228,41 @@ func dotInt32NEONGuarded(a []int32, b []int32) int32 {
 	return dotInt32NEON(a[:n:n], b)
 }
 
+func l1normInt32NEONGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt32NEON(a)
+}
+
+func l1diffInt32NEONGuarded(a []int32, b []int32) int32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt32NEON(a[:n:n], b)
+}
+
 func sumInt64NEONGuarded(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt64NEON(a)
+}
+
+func l1normInt64NEONGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt64NEON(a)
+}
+
+func l1diffInt64NEONGuarded(a []int64, b []int64) int64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt64NEON(a[:n:n], b)
 }
 
 func init() {
@@ -267,5 +297,9 @@ func init() {
 	s.I32.Sum = sumInt32NEONGuarded
 	s.I32.Prod = prodInt32NEONGuarded
 	s.I32.Dot = dotInt32NEONGuarded
+	s.I32.L1Norm = l1normInt32NEONGuarded
+	s.I32.L1Diff = l1diffInt32NEONGuarded
 	s.I64.Sum = sumInt64NEONGuarded
+	s.I64.L1Norm = l1normInt64NEONGuarded
+	s.I64.L1Diff = l1diffInt64NEONGuarded
 }

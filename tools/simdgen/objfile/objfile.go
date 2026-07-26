@@ -244,7 +244,7 @@ func (f *File) relocsIn(sec *elf.Section, start, size uint64) ([]Reloc, error) {
 					// subtracting one there would name the constant four bytes
 					// before the right one — which decodes perfectly and
 					// returns a wrong number.
-					rel.TargetOff = sym.Value + uint64(rAddend) + pcAdjust(f.elf.Machine)
+					rel.TargetOff = uint64(int64(sym.Value) + rAddend + pcAdjust(f.elf.Machine))
 				}
 			}
 			out = append(out, rel)
@@ -301,12 +301,30 @@ func relocTypeName(m elf.Machine, t uint32) string {
 	return fmt.Sprintf("reloc(%d)", t)
 }
 
-// pcAdjust is the part of a relocation addend that compensates for where the
-// architecture measures its PC-relative displacement from, rather than
-// naming a position in the pool.
-func pcAdjust(m elf.Machine) uint64 {
-	if m == elf.EM_X86_64 {
-		return 4 // R_X86_64_PC32 measures from the end of the field
+// pcAdjust undoes the part of a relocation addend that compensates for where
+// the architecture measures its PC-relative displacement from, leaving only
+// the part that names a position in the pool.
+//
+// Every value here is negative of what the assembler put in, so that adding it
+// back leaves the symbol's own offset:
+//
+//	x86-64   R_X86_64_PC32 measures from the end of the four-byte field, so
+//	         the addend carries -4.
+//	s390x    R_390_PC32DBL is written by larl, whose displacement is measured
+//	         from the start of the six-byte instruction while the field sits
+//	         two bytes in, so the addend carries +2.
+//	aarch64  the page-and-offset pair measures from the instruction itself and
+//	         carries no adjustment at all.
+//	loong64  likewise.
+//
+// Getting one of these wrong names a constant a few bytes from the right one,
+// which decodes perfectly and returns a wrong number.
+func pcAdjust(m elf.Machine) int64 {
+	switch m {
+	case elf.EM_X86_64:
+		return 4
+	case elf.EM_S390:
+		return -2
 	}
 	return 0
 }

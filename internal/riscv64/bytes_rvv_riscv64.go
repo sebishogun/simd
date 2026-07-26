@@ -28,6 +28,9 @@ func lastIndexByteRVV(b []byte, c byte) int
 func popCountRVV(b []byte) int
 
 //go:noescape
+func isASCIIRVV(b []byte) bool
+
+//go:noescape
 func equalBytesRVV(a []byte, b []byte) bool
 
 //go:noescape
@@ -47,6 +50,21 @@ func bitNotRVV(dst []byte, b []byte)
 
 //go:noescape
 func fillBytesRVV(dst []byte, v byte)
+
+//go:noescape
+func compareBytesRVV(a []byte, b []byte) int
+
+//go:noescape
+func equalFoldASCIIRVV(a []byte, b []byte) bool
+
+//go:noescape
+func indexAnyRVV(b []byte, chars []byte) int
+
+//go:noescape
+func countAnyRVV(b []byte, chars []byte) int
+
+//go:noescape
+func hexEncodeRVV(dst []byte, b []byte) int
 
 //go:noescape
 func toUpperASCIIRVV(dst []byte, b []byte)

@@ -909,3 +909,11 @@ func SumInt[T ~int32 | ~int64](a []T) T    { return sumInt(a) }
 func DotInt[T ~int32 | ~int64](a, b []T) T { return dotInt(a, b) }
 func ProdInt[T ~int32 | ~int64](a []T) T   { return prod(a) }
 func Diff[T Number](dst, a []T)            { diff(dst, a) }
+
+func L1NormInt[T ~int32 | ~int64](a []T) T    { return l1NormInt(a) }
+func L1DiffInt[T ~int32 | ~int64](a, b []T) T { return l1DiffInt(a, b) }
+func CompareBytes(a, b []byte) int            { return compareBytes(a, b) }
+func EqualFoldASCII(a, b []byte) bool         { return equalFoldASCII(a, b) }
+func IndexAny(b, chars []byte) int            { return indexAny(b, chars) }
+func CountAny(b, chars []byte) int            { return countAny(b, chars) }
+func HexEncode(dst, src []byte) int           { return hexEncode(dst, src) }

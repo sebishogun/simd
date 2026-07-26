@@ -151,6 +151,15 @@ func emitFunc(b *strings.Builder, k spec.Kernel, fn *objfile.Func, instrs []Inst
 	frame := LayoutFrame(k)
 
 	fmt.Fprintf(b, "// func %s(%s)%s\n", k.GoName, goParams(k), goResult(k))
+
+	// Where the C ABI expects its caller to have provided a register save
+	// area, the kernel is emitted as two symbols and the compiled body is
+	// called rather than fallen into. See target.SaveArea and the comment on
+	// emitTrampoline.
+	if tgt.SaveArea > 0 {
+		return emitTrampoline(b, k, fn, instrs, tgt, pools, frame)
+	}
+
 	fmt.Fprintf(b, "TEXT ·%s(SB), NOSPLIT|NOFRAME, $0-%d\n", k.GoName, frame.Size)
 
 	prologue, err := prologueFor(k, frame, tgt)
@@ -174,6 +183,67 @@ func emitFunc(b *strings.Builder, k spec.Kernel, fn *objfile.Func, instrs []Inst
 	//
 	// The trailing RET is unreachable and exists only so the assembler sees a
 	// terminated function.
+	b.WriteString("\tRET\n\n")
+	return nil
+}
+
+// emitTrampoline emits a kernel as a framed caller plus a frameless body.
+//
+// The s390x ELF ABI puts the register save area at the *caller's* stack
+// pointer: every non-trivial kernel begins "stmg %r14, %r15, 112(%r15)",
+// storing above its own SP into memory the caller promised. Go promises no
+// such thing, so those bytes are the calling Go function's locals, and the
+// symptom is a slice header with a length past its capacity panicking
+// somewhere else entirely.
+//
+// Giving the kernel a Go frame puts the save area in the right place but
+// breaks the return: the compiled body ends in its own branch to the link
+// register and never reaches the epilogue that would pop the frame, so
+// control returns to Go with the stack pointer still lowered. Appending an
+// epilogue is not possible either — LLVM lays basic blocks out after the
+// return instruction, so there is no position after the body that always
+// executes.
+//
+// Splitting the two apart solves both at once:
+//
+//	TEXT ·kernel(SB), NOSPLIT, $168-40      // frame, so the save area is ours
+//	    ...load arguments into C registers...
+//	    BL   ·kernelBody(SB)
+//	    RET                                 // Go's epilogue restores SP
+//
+//	TEXT ·kernelBody(SB), NOSPLIT|NOFRAME, $0-0
+//	    ...compiled bytes, unchanged...
+//
+// The body's save-area writes now land in the trampoline's frame, and its
+// branch to the link register returns to the trampoline rather than to Go,
+// with the stack pointer exactly as the body found it. Go's own epilogue then
+// runs. The cost is one branch-and-link per call, against a kernel that is
+// about to walk a whole slice.
+//
+// Go stores the link register at 0(SP) and puts locals above it, while the
+// save area's occupied slots start at offset 48, so the two do not overlap.
+func emitTrampoline(b *strings.Builder, k spec.Kernel, fn *objfile.Func,
+	instrs []Instr, tgt target.Target, pools *poolSet, frame Frame) error {
+
+	body := k.GoName + "Body"
+
+	fmt.Fprintf(b, "TEXT ·%s(SB), NOSPLIT, $%d-%d\n", k.GoName, tgt.SaveArea, frame.Size)
+	prologue, err := prologueFor(k, frame, tgt)
+	if err != nil {
+		return err
+	}
+	for _, line := range prologue {
+		fmt.Fprintf(b, "\t%s\n", line)
+	}
+	fmt.Fprintf(b, "\tBL ·%s(SB)\n", body)
+	fmt.Fprintf(b, "\tRET\n\n")
+
+	fmt.Fprintf(b, "// %s is the compiled kernel, called by the trampoline above so that\n", body)
+	fmt.Fprintf(b, "// the register save area it writes belongs to the trampoline's frame.\n")
+	fmt.Fprintf(b, "TEXT ·%s(SB), NOSPLIT|NOFRAME, $0-0\n", body)
+	if err := emitRelocated(b, fn, instrs, tgt, pools, k.GoName); err != nil {
+		return err
+	}
 	b.WriteString("\tRET\n\n")
 	return nil
 }
@@ -275,8 +345,15 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 // constpool_arm64.go is about. The remaining targets have no rewriter yet and
 // keep the portable implementation for any kernel that needs a pool.
 func CanLift(fn *objfile.Func, instrs []Instr, tgt target.Target) (bool, string) {
-	if tgt.Arch == target.ARM64 {
+	switch tgt.Arch {
+	case target.ARM64:
 		return canLiftARM64(fn)
+	case target.S390X:
+		return canLiftS390X(fn)
+	case target.LOONG64:
+		return canLiftLoong64(fn)
+	case target.RISCV64:
+		return canLiftRISCV64(fn)
 	}
 	for _, r := range fn.Relocs {
 		if isSelfRelative(r.TypeName) {

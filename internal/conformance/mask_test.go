@@ -350,6 +350,121 @@ func checkBytes(t *testing.T, tier string, got, want kernel.Bytes) {
 		}
 	}
 
+	if got.Compare != nil && want.Compare != nil {
+		for _, n := range byteLens {
+			a := genBytes(n, r)
+			// Equal, differing at each end and in the middle, and differing
+			// only in length — which is the case a kernel handed one length
+			// cannot see, and the one Compare's contract turns on.
+			cases := [][2][]byte{{a, append([]byte(nil), a...)}}
+			if n > 0 {
+				for _, at := range []int{0, n / 2, n - 1} {
+					for _, delta := range []int{-1, +1} {
+						c := append([]byte(nil), a...)
+						c[at] = byte(int(c[at]) + delta)
+						cases = append(cases, [2][]byte{a, c})
+					}
+				}
+				cases = append(cases, [2][]byte{a, a[:n-1]}, [2][]byte{a[:n-1], a})
+			}
+			for _, c := range cases {
+				g, w := got.Compare(c[0], c[1]), want.Compare(c[0], c[1])
+				if g != w {
+					t.Fatalf("%s/Bytes.Compare len=%d,%d: got %d want %d",
+						tier, len(c[0]), len(c[1]), g, w)
+				}
+			}
+		}
+	}
+
+	if got.EqualFoldASCII != nil && want.EqualFoldASCII != nil {
+		for _, n := range byteLens {
+			a := make([]byte, n)
+			for i := range a {
+				a[i] = byte(i)
+			}
+			// The same bytes with ASCII letters case-flipped must still
+			// compare equal, and a flipped byte outside those ranges must not.
+			flipped := append([]byte(nil), a...)
+			for i, c := range flipped {
+				switch {
+				case c >= 'a' && c <= 'z':
+					flipped[i] = c - 32
+				case c >= 'A' && c <= 'Z':
+					flipped[i] = c + 32
+				}
+			}
+			cases := [][2][]byte{{a, a}, {a, flipped}}
+			if n > 0 {
+				// 0x80 and 0xa0 differ by the same bit as 'A' and 'a', which
+				// is exactly what a fold that forgot to range-check would get
+				// wrong.
+				hi := append([]byte(nil), a...)
+				hi[n-1] = 0x80
+				hi2 := append([]byte(nil), a...)
+				hi2[n-1] = 0xa0
+				cases = append(cases, [2][]byte{hi, hi2}, [2][]byte{a, a[:n-1]})
+			}
+			for _, c := range cases {
+				g, w := got.EqualFoldASCII(c[0], c[1]), want.EqualFoldASCII(c[0], c[1])
+				if g != w {
+					t.Fatalf("%s/Bytes.EqualFoldASCII len=%d,%d: got %v want %v",
+						tier, len(c[0]), len(c[1]), g, w)
+				}
+			}
+		}
+	}
+
+	sets := [][]byte{{}, {'a'}, {'a', 'z'}, {0x00, 0x7f, 0x80, 0xff}, []byte("aeiou{}")}
+	if got.IndexAny != nil && want.IndexAny != nil {
+		for _, n := range byteLens {
+			b := genBytes(n, r)
+			for _, set := range sets {
+				if g, w := got.IndexAny(b, set), want.IndexAny(b, set); g != w {
+					t.Fatalf("%s/Bytes.IndexAny n=%d set=%q: got %d want %d",
+						tier, n, set, g, w)
+				}
+			}
+		}
+	}
+	if got.CountAny != nil && want.CountAny != nil {
+		for _, n := range byteLens {
+			b := genBytes(n, r)
+			for _, set := range sets {
+				if g, w := got.CountAny(b, set), want.CountAny(b, set); g != w {
+					t.Fatalf("%s/Bytes.CountAny n=%d set=%q: got %d want %d",
+						tier, n, set, g, w)
+				}
+			}
+		}
+	}
+
+	if got.HexEncode != nil && want.HexEncode != nil {
+		for _, n := range byteLens {
+			b := make([]byte, n)
+			for i := range b {
+				b[i] = byte(i)
+			}
+			// The destination is deliberately sized short, exact and long, so
+			// the count the kernel reports is checked rather than assumed.
+			for _, dn := range []int{0, n, 2*n - 1, 2 * n, 2*n + 3} {
+				if dn < 0 {
+					continue
+				}
+				gd, wd := make([]byte, dn), make([]byte, dn)
+				g, w := got.HexEncode(gd, b), want.HexEncode(wd, b)
+				if g != w {
+					t.Fatalf("%s/Bytes.HexEncode n=%d dst=%d: wrote %d want %d",
+						tier, n, dn, g, w)
+				}
+				if i, ok := same(gd, wd); !ok {
+					t.Fatalf("%s/Bytes.HexEncode n=%d dst=%d i=%d: got %#02x want %#02x",
+						tier, n, dn, i, gd[i], wd[i])
+				}
+			}
+		}
+	}
+
 	if got.ReplaceByte != nil && want.ReplaceByte != nil {
 		for _, n := range byteLens {
 			b := genBytes(n, r)

@@ -14,6 +14,8 @@
 //     hardware instruction does. Doing the arithmetic in the unsigned type and
 //     converting back is well defined and produces exactly that.
 
+#include "goabi.h"
+
 typedef long isize;
 
 // ---------- IEEE 754 minimum and maximum ----------

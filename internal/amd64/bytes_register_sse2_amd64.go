@@ -116,6 +116,42 @@ func fillBytesSSE2Guarded(dst []byte, v byte) {
 	fillBytesSSE2(dst, v)
 }
 
+func compareBytesSSE2Guarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CompareBytes(a, b)
+	}
+	return compareBytesSSE2(a, b)
+}
+
+func equalFoldASCIISSE2Guarded(a []byte, b []byte) bool {
+	n := min(len(a), len(b))
+	if n < 64 || len(a) != len(b) {
+		return ref.EqualFoldASCII(a, b)
+	}
+	return equalFoldASCIISSE2(a[:n:n], b)
+}
+
+func indexAnySSE2Guarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexAny(b, chars)
+	}
+	return indexAnySSE2(b, chars)
+}
+
+func countAnySSE2Guarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.CountAny(b, chars)
+	}
+	return countAnySSE2(b, chars)
+}
+
+func hexEncodeSSE2Guarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.HexEncode(dst, b)
+	}
+	return hexEncodeSSE2(dst, b)
+}
+
 func toUpperASCIISSE2Guarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -159,6 +195,11 @@ func init() {
 	s.Bytes.AndNot = bitAndNotSSE2Guarded
 	s.Bytes.Not = bitNotSSE2Guarded
 	s.Bytes.Fill = fillBytesSSE2Guarded
+	s.Bytes.Compare = compareBytesSSE2Guarded
+	s.Bytes.EqualFoldASCII = equalFoldASCIISSE2Guarded
+	s.Bytes.IndexAny = indexAnySSE2Guarded
+	s.Bytes.CountAny = countAnySSE2Guarded
+	s.Bytes.HexEncode = hexEncodeSSE2Guarded
 	s.Bytes.ToUpperASCII = toUpperASCIISSE2Guarded
 	s.Bytes.ToLowerASCII = toLowerASCIISSE2Guarded
 	s.Bytes.ReplaceByte = replaceByteSSE2Guarded

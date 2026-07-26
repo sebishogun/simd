@@ -19,4 +19,16 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 func hypotFloat32SSE2(dst []float32, a []float32, b []float32)
 
 //go:noescape
+func log1pFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func cbrtFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func asinFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func atan2Float64SSE2(dst []float64, a []float64, b []float64)
+
+//go:noescape
 func hypotFloat64SSE2(dst []float64, a []float64, b []float64)

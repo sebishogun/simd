@@ -3,7 +3,7 @@
 // Source:  csrc/reduce.c
 // Target:  riscv64/rvv
 // Clang:   clang version 22.1.8
-// Command: clang --target=riscv64-linux-gnu -march=rv64gv -mno-relax -O3 -ffreestanding -fno-builtin -fno-builtin-memset -fno-builtin-memcpy -fno-jump-tables -fno-math-errno -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -fomit-frame-pointer -fno-stack-protector -mllvm -inline-threshold=1000 -ffp-contract=off -c ../csrc/reduce.c -o ../tools/build/tmp/reduce_riscv64_rvv.o
+// Command: clang --target=riscv64-linux-gnu -march=rv64gv -mno-relax -O3 -ffreestanding -fno-builtin -fno-builtin-memset -fno-builtin-memcpy -fno-jump-tables -fno-math-errno -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -fomit-frame-pointer -fno-stack-protector -mllvm -inline-threshold=1000 -ffp-contract=off -ffixed-x27 -c ../csrc/reduce.c -o ../tools/build/tmp/reduce_riscv64_rvv.o
 //
 // The instruction bytes below are the compiled function verbatim. Branches
 // inside a function are PC-relative and remain correct because the whole
@@ -4358,6 +4358,70 @@ TEXT ·dotInt32RVV(SB), NOSPLIT|NOFRAME, $0-52
 	WORD $0x00008067
 	RET
 
+// func l1normInt32RVV(a []int32) int32
+TEXT ·l1normInt32RVV(SB), NOSPLIT|NOFRAME, $0-28
+	MOV $ret+24(FP), X10
+	MOV a_base+0(FP), X11
+	MOV a_len+8(FP), X12
+	WORD $0x04c05a63
+	WORD $0x00000693
+	WORD $0x0d107757
+	WORD $0x5e003457
+	WORD $0x0d167757
+	WORD $0x00269793
+	WORD $0x00f587b3
+	WORD $0x0207e507
+	WORD $0x40e60633
+	WORD $0x0ea03657
+	WORD $0x1ea60557
+	WORD $0x09107057
+	WORD $0x02a40457
+	WORD $0x00e686b3
+	WORD $0xfc061ce3
+	WORD $0x0d1075d7
+	WORD $0x42006557
+	WORD $0x02852457
+	WORD $0x428025d7
+	WORD $0x00b52023
+	WORD $0x00008067
+	WORD $0x00052023
+	WORD $0x00008067
+	RET
+
+// func l1diffInt32RVV(a []int32, b []int32) int32
+TEXT ·l1diffInt32RVV(SB), NOSPLIT|NOFRAME, $0-52
+	MOV $ret+48(FP), X10
+	MOV a_base+0(FP), X11
+	MOV b_base+24(FP), X12
+	MOV a_len+8(FP), X13
+	WORD $0x06d05063
+	WORD $0x00000713
+	WORD $0x0d1077d7
+	WORD $0x5e003457
+	WORD $0x0d16f7d7
+	WORD $0x00271813
+	WORD $0x010588b3
+	WORD $0x01060833
+	WORD $0x0208e507
+	WORD $0x02086607
+	WORD $0x40f686b3
+	WORD $0x0aa60557
+	WORD $0x0ea03657
+	WORD $0x1ea60557
+	WORD $0x09107057
+	WORD $0x02a40457
+	WORD $0x00f70733
+	WORD $0xfc0696e3
+	WORD $0x0d1075d7
+	WORD $0x42006557
+	WORD $0x02852457
+	WORD $0x428025d7
+	WORD $0x00b52023
+	WORD $0x00008067
+	WORD $0x00052023
+	WORD $0x00008067
+	RET
+
 // func sumInt64RVV(a []int64) int64
 TEXT ·sumInt64RVV(SB), NOSPLIT|NOFRAME, $0-32
 	MOV $ret+24(FP), X10
@@ -4456,6 +4520,70 @@ TEXT ·dotInt64RVV(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0xb6a62457
 	WORD $0x00f70733
 	WORD $0xfc069ce3
+	WORD $0x0d9075d7
+	WORD $0x42006557
+	WORD $0x02852457
+	WORD $0x428025d7
+	WORD $0x00b53023
+	WORD $0x00008067
+	WORD $0x00053023
+	WORD $0x00008067
+	RET
+
+// func l1normInt64RVV(a []int64) int64
+TEXT ·l1normInt64RVV(SB), NOSPLIT|NOFRAME, $0-32
+	MOV $ret+24(FP), X10
+	MOV a_base+0(FP), X11
+	MOV a_len+8(FP), X12
+	WORD $0x04c05a63
+	WORD $0x00000693
+	WORD $0x0d907757
+	WORD $0x5e003457
+	WORD $0x0d967757
+	WORD $0x00369793
+	WORD $0x00f587b3
+	WORD $0x0207f507
+	WORD $0x40e60633
+	WORD $0x0ea03657
+	WORD $0x1ea60557
+	WORD $0x09907057
+	WORD $0x02a40457
+	WORD $0x00e686b3
+	WORD $0xfc061ce3
+	WORD $0x0d9075d7
+	WORD $0x42006557
+	WORD $0x02852457
+	WORD $0x428025d7
+	WORD $0x00b53023
+	WORD $0x00008067
+	WORD $0x00053023
+	WORD $0x00008067
+	RET
+
+// func l1diffInt64RVV(a []int64, b []int64) int64
+TEXT ·l1diffInt64RVV(SB), NOSPLIT|NOFRAME, $0-56
+	MOV $ret+48(FP), X10
+	MOV a_base+0(FP), X11
+	MOV b_base+24(FP), X12
+	MOV a_len+8(FP), X13
+	WORD $0x06d05063
+	WORD $0x00000713
+	WORD $0x0d9077d7
+	WORD $0x5e003457
+	WORD $0x0d96f7d7
+	WORD $0x00371813
+	WORD $0x010588b3
+	WORD $0x01060833
+	WORD $0x0208f507
+	WORD $0x02087607
+	WORD $0x40f686b3
+	WORD $0x0aa60557
+	WORD $0x0ea03657
+	WORD $0x1ea60557
+	WORD $0x09907057
+	WORD $0x02a40457
+	WORD $0x00f70733
+	WORD $0xfc0696e3
 	WORD $0x0d9075d7
 	WORD $0x42006557
 	WORD $0x02852457

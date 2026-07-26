@@ -20,22 +20,58 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func selectFloat32VXGuarded(dst []float32, mask []bool, yes []float32, no []float32) {
-	n := min(len(dst), len(mask), len(yes), len(no))
+func eqScalarFloat32MaskVXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
 	if n < 16 {
-		ref.Select(dst, mask, yes, no)
+		ref.EqualScalarMask(dst, a, v)
 		return
 	}
-	selectFloat32VX(dst[:n:n], mask, yes, no)
+	eqScalarFloat32MaskVX(dst[:n:n], a, v)
 }
 
-func eqFloat64MaskVXGuarded(dst []bool, a []float64, b []float64) {
-	n := min(len(dst), len(a), len(b))
+func neScalarFloat32MaskVXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
 	if n < 16 {
-		ref.EqualMask(dst, a, b)
+		ref.NotEqualScalarMask(dst, a, v)
 		return
 	}
-	eqFloat64MaskVX(dst[:n:n], a, b)
+	neScalarFloat32MaskVX(dst[:n:n], a, v)
+}
+
+func ltScalarFloat32MaskVXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarFloat32MaskVX(dst[:n:n], a, v)
+}
+
+func leScalarFloat32MaskVXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarFloat32MaskVX(dst[:n:n], a, v)
+}
+
+func gtScalarFloat32MaskVXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarFloat32MaskVX(dst[:n:n], a, v)
+}
+
+func geScalarFloat32MaskVXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarFloat32MaskVX(dst[:n:n], a, v)
 }
 
 func eqScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
@@ -47,15 +83,6 @@ func eqScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 	eqScalarFloat64MaskVX(dst[:n:n], a, v)
 }
 
-func neFloat64MaskVXGuarded(dst []bool, a []float64, b []float64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.NotEqualMask(dst, a, b)
-		return
-	}
-	neFloat64MaskVX(dst[:n:n], a, b)
-}
-
 func neScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -63,15 +90,6 @@ func neScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 		return
 	}
 	neScalarFloat64MaskVX(dst[:n:n], a, v)
-}
-
-func ltFloat64MaskVXGuarded(dst []bool, a []float64, b []float64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.LessMask(dst, a, b)
-		return
-	}
-	ltFloat64MaskVX(dst[:n:n], a, b)
 }
 
 func ltScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
@@ -83,15 +101,6 @@ func ltScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 	ltScalarFloat64MaskVX(dst[:n:n], a, v)
 }
 
-func leFloat64MaskVXGuarded(dst []bool, a []float64, b []float64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.LessEqualMask(dst, a, b)
-		return
-	}
-	leFloat64MaskVX(dst[:n:n], a, b)
-}
-
 func leScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -99,15 +108,6 @@ func leScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 		return
 	}
 	leScalarFloat64MaskVX(dst[:n:n], a, v)
-}
-
-func gtFloat64MaskVXGuarded(dst []bool, a []float64, b []float64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.GreaterMask(dst, a, b)
-		return
-	}
-	gtFloat64MaskVX(dst[:n:n], a, b)
 }
 
 func gtScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
@@ -119,15 +119,6 @@ func gtScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 	gtScalarFloat64MaskVX(dst[:n:n], a, v)
 }
 
-func geFloat64MaskVXGuarded(dst []bool, a []float64, b []float64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.GreaterEqualMask(dst, a, b)
-		return
-	}
-	geFloat64MaskVX(dst[:n:n], a, b)
-}
-
 func geScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -135,141 +126,6 @@ func geScalarFloat64MaskVXGuarded(dst []bool, a []float64, v float64) {
 		return
 	}
 	geScalarFloat64MaskVX(dst[:n:n], a, v)
-}
-
-func selectFloat64VXGuarded(dst []float64, mask []bool, yes []float64, no []float64) {
-	n := min(len(dst), len(mask), len(yes), len(no))
-	if n < 16 {
-		ref.Select(dst, mask, yes, no)
-		return
-	}
-	selectFloat64VX(dst[:n:n], mask, yes, no)
-}
-
-func selectInt32VXGuarded(dst []int32, mask []bool, yes []int32, no []int32) {
-	n := min(len(dst), len(mask), len(yes), len(no))
-	if n < 16 {
-		ref.Select(dst, mask, yes, no)
-		return
-	}
-	selectInt32VX(dst[:n:n], mask, yes, no)
-}
-
-func eqInt64MaskVXGuarded(dst []bool, a []int64, b []int64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.EqualMask(dst, a, b)
-		return
-	}
-	eqInt64MaskVX(dst[:n:n], a, b)
-}
-
-func eqScalarInt64MaskVXGuarded(dst []bool, a []int64, v int64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.EqualScalarMask(dst, a, v)
-		return
-	}
-	eqScalarInt64MaskVX(dst[:n:n], a, v)
-}
-
-func neInt64MaskVXGuarded(dst []bool, a []int64, b []int64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.NotEqualMask(dst, a, b)
-		return
-	}
-	neInt64MaskVX(dst[:n:n], a, b)
-}
-
-func neScalarInt64MaskVXGuarded(dst []bool, a []int64, v int64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.NotEqualScalarMask(dst, a, v)
-		return
-	}
-	neScalarInt64MaskVX(dst[:n:n], a, v)
-}
-
-func ltInt64MaskVXGuarded(dst []bool, a []int64, b []int64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.LessMask(dst, a, b)
-		return
-	}
-	ltInt64MaskVX(dst[:n:n], a, b)
-}
-
-func ltScalarInt64MaskVXGuarded(dst []bool, a []int64, v int64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.LessScalarMask(dst, a, v)
-		return
-	}
-	ltScalarInt64MaskVX(dst[:n:n], a, v)
-}
-
-func leInt64MaskVXGuarded(dst []bool, a []int64, b []int64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.LessEqualMask(dst, a, b)
-		return
-	}
-	leInt64MaskVX(dst[:n:n], a, b)
-}
-
-func leScalarInt64MaskVXGuarded(dst []bool, a []int64, v int64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.LessEqualScalarMask(dst, a, v)
-		return
-	}
-	leScalarInt64MaskVX(dst[:n:n], a, v)
-}
-
-func gtInt64MaskVXGuarded(dst []bool, a []int64, b []int64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.GreaterMask(dst, a, b)
-		return
-	}
-	gtInt64MaskVX(dst[:n:n], a, b)
-}
-
-func gtScalarInt64MaskVXGuarded(dst []bool, a []int64, v int64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.GreaterScalarMask(dst, a, v)
-		return
-	}
-	gtScalarInt64MaskVX(dst[:n:n], a, v)
-}
-
-func geInt64MaskVXGuarded(dst []bool, a []int64, b []int64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.GreaterEqualMask(dst, a, b)
-		return
-	}
-	geInt64MaskVX(dst[:n:n], a, b)
-}
-
-func geScalarInt64MaskVXGuarded(dst []bool, a []int64, v int64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.GreaterEqualScalarMask(dst, a, v)
-		return
-	}
-	geScalarInt64MaskVX(dst[:n:n], a, v)
-}
-
-func selectInt64VXGuarded(dst []int64, mask []bool, yes []int64, no []int64) {
-	n := min(len(dst), len(mask), len(yes), len(no))
-	if n < 16 {
-		ref.Select(dst, mask, yes, no)
-		return
-	}
-	selectInt64VX(dst[:n:n], mask, yes, no)
 }
 
 func maskAllVXGuarded(m []bool) bool {
@@ -284,6 +140,13 @@ func maskAnyVXGuarded(m []bool) bool {
 		return ref.MaskAny(m)
 	}
 	return maskAnyVX(m)
+}
+
+func maskCountVXGuarded(m []bool) int {
+	if len(m) < 32 {
+		return ref.MaskCount(m)
+	}
+	return maskCountVX(m)
 }
 
 func maskAndVXGuarded(dst []bool, a []bool, b []bool) {
@@ -326,36 +189,21 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vx")
-	s.F32.Select = selectFloat32VXGuarded
-	s.F64.EqualMask = eqFloat64MaskVXGuarded
+	s.F32.EqualScalarMask = eqScalarFloat32MaskVXGuarded
+	s.F32.NotEqualScalarMask = neScalarFloat32MaskVXGuarded
+	s.F32.LessScalarMask = ltScalarFloat32MaskVXGuarded
+	s.F32.LessEqualScalarMask = leScalarFloat32MaskVXGuarded
+	s.F32.GreaterScalarMask = gtScalarFloat32MaskVXGuarded
+	s.F32.GreaterEqualScalarMask = geScalarFloat32MaskVXGuarded
 	s.F64.EqualScalarMask = eqScalarFloat64MaskVXGuarded
-	s.F64.NotEqualMask = neFloat64MaskVXGuarded
 	s.F64.NotEqualScalarMask = neScalarFloat64MaskVXGuarded
-	s.F64.LessMask = ltFloat64MaskVXGuarded
 	s.F64.LessScalarMask = ltScalarFloat64MaskVXGuarded
-	s.F64.LessEqualMask = leFloat64MaskVXGuarded
 	s.F64.LessEqualScalarMask = leScalarFloat64MaskVXGuarded
-	s.F64.GreaterMask = gtFloat64MaskVXGuarded
 	s.F64.GreaterScalarMask = gtScalarFloat64MaskVXGuarded
-	s.F64.GreaterEqualMask = geFloat64MaskVXGuarded
 	s.F64.GreaterEqualScalarMask = geScalarFloat64MaskVXGuarded
-	s.F64.Select = selectFloat64VXGuarded
-	s.I32.Select = selectInt32VXGuarded
-	s.I64.EqualMask = eqInt64MaskVXGuarded
-	s.I64.EqualScalarMask = eqScalarInt64MaskVXGuarded
-	s.I64.NotEqualMask = neInt64MaskVXGuarded
-	s.I64.NotEqualScalarMask = neScalarInt64MaskVXGuarded
-	s.I64.LessMask = ltInt64MaskVXGuarded
-	s.I64.LessScalarMask = ltScalarInt64MaskVXGuarded
-	s.I64.LessEqualMask = leInt64MaskVXGuarded
-	s.I64.LessEqualScalarMask = leScalarInt64MaskVXGuarded
-	s.I64.GreaterMask = gtInt64MaskVXGuarded
-	s.I64.GreaterScalarMask = gtScalarInt64MaskVXGuarded
-	s.I64.GreaterEqualMask = geInt64MaskVXGuarded
-	s.I64.GreaterEqualScalarMask = geScalarInt64MaskVXGuarded
-	s.I64.Select = selectInt64VXGuarded
 	s.Mask.All = maskAllVXGuarded
 	s.Mask.Any = maskAnyVXGuarded
+	s.Mask.Count = maskCountVXGuarded
 	s.Mask.And = maskAndVXGuarded
 	s.Mask.Or = maskOrVXGuarded
 	s.Mask.Xor = maskXorVXGuarded

@@ -250,6 +250,21 @@ func dotInt32LASXGuarded(a []int32, b []int32) int32 {
 	return dotInt32LASX(a[:n:n], b)
 }
 
+func l1normInt32LASXGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt32LASX(a)
+}
+
+func l1diffInt32LASXGuarded(a []int32, b []int32) int32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt32LASX(a[:n:n], b)
+}
+
 func sumInt64LASXGuarded(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
@@ -270,6 +285,21 @@ func dotInt64LASXGuarded(a []int64, b []int64) int64 {
 		return ref.DotInt(a, b)
 	}
 	return dotInt64LASX(a[:n:n], b)
+}
+
+func l1normInt64LASXGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt64LASX(a)
+}
+
+func l1diffInt64LASXGuarded(a []int64, b []int64) int64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt64LASX(a[:n:n], b)
 }
 
 func init() {
@@ -307,7 +337,11 @@ func init() {
 	s.I32.Sum = sumInt32LASXGuarded
 	s.I32.Prod = prodInt32LASXGuarded
 	s.I32.Dot = dotInt32LASXGuarded
+	s.I32.L1Norm = l1normInt32LASXGuarded
+	s.I32.L1Diff = l1diffInt32LASXGuarded
 	s.I64.Sum = sumInt64LASXGuarded
 	s.I64.Prod = prodInt64LASXGuarded
 	s.I64.Dot = dotInt64LASXGuarded
+	s.I64.L1Norm = l1normInt64LASXGuarded
+	s.I64.L1Diff = l1diffInt64LASXGuarded
 }

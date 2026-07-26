@@ -116,6 +116,42 @@ func fillBytesLASXGuarded(dst []byte, v byte) {
 	fillBytesLASX(dst, v)
 }
 
+func compareBytesLASXGuarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CompareBytes(a, b)
+	}
+	return compareBytesLASX(a, b)
+}
+
+func equalFoldASCIILASXGuarded(a []byte, b []byte) bool {
+	n := min(len(a), len(b))
+	if n < 64 || len(a) != len(b) {
+		return ref.EqualFoldASCII(a, b)
+	}
+	return equalFoldASCIILASX(a[:n:n], b)
+}
+
+func indexAnyLASXGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexAny(b, chars)
+	}
+	return indexAnyLASX(b, chars)
+}
+
+func countAnyLASXGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.CountAny(b, chars)
+	}
+	return countAnyLASX(b, chars)
+}
+
+func hexEncodeLASXGuarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.HexEncode(dst, b)
+	}
+	return hexEncodeLASX(dst, b)
+}
+
 func toUpperASCIILASXGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -159,6 +195,11 @@ func init() {
 	s.Bytes.AndNot = bitAndNotLASXGuarded
 	s.Bytes.Not = bitNotLASXGuarded
 	s.Bytes.Fill = fillBytesLASXGuarded
+	s.Bytes.Compare = compareBytesLASXGuarded
+	s.Bytes.EqualFoldASCII = equalFoldASCIILASXGuarded
+	s.Bytes.IndexAny = indexAnyLASXGuarded
+	s.Bytes.CountAny = countAnyLASXGuarded
+	s.Bytes.HexEncode = hexEncodeLASXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIILASXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIILASXGuarded
 	s.Bytes.ReplaceByte = replaceByteLASXGuarded

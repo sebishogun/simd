@@ -109,6 +109,12 @@ func prodInt32RVV(a []int32) int32
 func dotInt32RVV(a []int32, b []int32) int32
 
 //go:noescape
+func l1normInt32RVV(a []int32) int32
+
+//go:noescape
+func l1diffInt32RVV(a []int32, b []int32) int32
+
+//go:noescape
 func sumInt64RVV(a []int64) int64
 
 //go:noescape
@@ -116,3 +122,9 @@ func prodInt64RVV(a []int64) int64
 
 //go:noescape
 func dotInt64RVV(a []int64, b []int64) int64
+
+//go:noescape
+func l1normInt64RVV(a []int64) int64
+
+//go:noescape
+func l1diffInt64RVV(a []int64, b []int64) int64

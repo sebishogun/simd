@@ -49,6 +49,18 @@ func bitNotVSX(dst []byte, b []byte)
 func fillBytesVSX(dst []byte, v byte)
 
 //go:noescape
+func compareBytesVSX(a []byte, b []byte) int
+
+//go:noescape
+func equalFoldASCIIVSX(a []byte, b []byte) bool
+
+//go:noescape
+func countAnyVSX(b []byte, chars []byte) int
+
+//go:noescape
+func hexEncodeVSX(dst []byte, b []byte) int
+
+//go:noescape
 func toUpperASCIIVSX(dst []byte, b []byte)
 
 //go:noescape

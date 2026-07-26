@@ -16,7 +16,10 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
 //go:noescape
-func indexByteVX(b []byte, c byte) int
+func lastIndexByteVX(b []byte, c byte) int
+
+//go:noescape
+func popCountVX(b []byte) int
 
 //go:noescape
 func isASCIIVX(b []byte) bool
@@ -41,6 +44,9 @@ func bitNotVX(dst []byte, b []byte)
 
 //go:noescape
 func fillBytesVX(dst []byte, v byte)
+
+//go:noescape
+func hexEncodeVX(dst []byte, b []byte) int
 
 //go:noescape
 func toUpperASCIIVX(dst []byte, b []byte)

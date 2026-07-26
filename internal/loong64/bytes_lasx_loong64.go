@@ -52,6 +52,21 @@ func bitNotLASX(dst []byte, b []byte)
 func fillBytesLASX(dst []byte, v byte)
 
 //go:noescape
+func compareBytesLASX(a []byte, b []byte) int
+
+//go:noescape
+func equalFoldASCIILASX(a []byte, b []byte) bool
+
+//go:noescape
+func indexAnyLASX(b []byte, chars []byte) int
+
+//go:noescape
+func countAnyLASX(b []byte, chars []byte) int
+
+//go:noescape
+func hexEncodeLASX(dst []byte, b []byte) int
+
+//go:noescape
 func toUpperASCIILASX(dst []byte, b []byte)
 
 //go:noescape

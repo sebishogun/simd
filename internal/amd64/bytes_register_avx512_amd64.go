@@ -116,6 +116,42 @@ func fillBytesAVX512Guarded(dst []byte, v byte) {
 	fillBytesAVX512(dst, v)
 }
 
+func compareBytesAVX512Guarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CompareBytes(a, b)
+	}
+	return compareBytesAVX512(a, b)
+}
+
+func equalFoldASCIIAVX512Guarded(a []byte, b []byte) bool {
+	n := min(len(a), len(b))
+	if n < 64 || len(a) != len(b) {
+		return ref.EqualFoldASCII(a, b)
+	}
+	return equalFoldASCIIAVX512(a[:n:n], b)
+}
+
+func indexAnyAVX512Guarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexAny(b, chars)
+	}
+	return indexAnyAVX512(b, chars)
+}
+
+func countAnyAVX512Guarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.CountAny(b, chars)
+	}
+	return countAnyAVX512(b, chars)
+}
+
+func hexEncodeAVX512Guarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.HexEncode(dst, b)
+	}
+	return hexEncodeAVX512(dst, b)
+}
+
 func toUpperASCIIAVX512Guarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -159,6 +195,11 @@ func init() {
 	s.Bytes.AndNot = bitAndNotAVX512Guarded
 	s.Bytes.Not = bitNotAVX512Guarded
 	s.Bytes.Fill = fillBytesAVX512Guarded
+	s.Bytes.Compare = compareBytesAVX512Guarded
+	s.Bytes.EqualFoldASCII = equalFoldASCIIAVX512Guarded
+	s.Bytes.IndexAny = indexAnyAVX512Guarded
+	s.Bytes.CountAny = countAnyAVX512Guarded
+	s.Bytes.HexEncode = hexEncodeAVX512Guarded
 	s.Bytes.ToUpperASCII = toUpperASCIIAVX512Guarded
 	s.Bytes.ToLowerASCII = toLowerASCIIAVX512Guarded
 	s.Bytes.ReplaceByte = replaceByteAVX512Guarded

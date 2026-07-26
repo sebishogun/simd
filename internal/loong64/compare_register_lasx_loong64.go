@@ -20,6 +20,114 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
+func eqFloat32MaskLASXGuarded(dst []bool, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.EqualMask(dst, a, b)
+		return
+	}
+	eqFloat32MaskLASX(dst[:n:n], a, b)
+}
+
+func eqScalarFloat32MaskLASXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.EqualScalarMask(dst, a, v)
+		return
+	}
+	eqScalarFloat32MaskLASX(dst[:n:n], a, v)
+}
+
+func neFloat32MaskLASXGuarded(dst []bool, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.NotEqualMask(dst, a, b)
+		return
+	}
+	neFloat32MaskLASX(dst[:n:n], a, b)
+}
+
+func neScalarFloat32MaskLASXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NotEqualScalarMask(dst, a, v)
+		return
+	}
+	neScalarFloat32MaskLASX(dst[:n:n], a, v)
+}
+
+func ltFloat32MaskLASXGuarded(dst []bool, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessMask(dst, a, b)
+		return
+	}
+	ltFloat32MaskLASX(dst[:n:n], a, b)
+}
+
+func ltScalarFloat32MaskLASXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarFloat32MaskLASX(dst[:n:n], a, v)
+}
+
+func leFloat32MaskLASXGuarded(dst []bool, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessEqualMask(dst, a, b)
+		return
+	}
+	leFloat32MaskLASX(dst[:n:n], a, b)
+}
+
+func leScalarFloat32MaskLASXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarFloat32MaskLASX(dst[:n:n], a, v)
+}
+
+func gtFloat32MaskLASXGuarded(dst []bool, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterMask(dst, a, b)
+		return
+	}
+	gtFloat32MaskLASX(dst[:n:n], a, b)
+}
+
+func gtScalarFloat32MaskLASXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarFloat32MaskLASX(dst[:n:n], a, v)
+}
+
+func geFloat32MaskLASXGuarded(dst []bool, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterEqualMask(dst, a, b)
+		return
+	}
+	geFloat32MaskLASX(dst[:n:n], a, b)
+}
+
+func geScalarFloat32MaskLASXGuarded(dst []bool, a []float32, v float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarFloat32MaskLASX(dst[:n:n], a, v)
+}
+
 func selectFloat32LASXGuarded(dst []float32, mask []bool, yes []float32, no []float32) {
 	n := min(len(dst), len(mask), len(yes), len(no))
 	if n < 16 {
@@ -144,6 +252,114 @@ func selectFloat64LASXGuarded(dst []float64, mask []bool, yes []float64, no []fl
 		return
 	}
 	selectFloat64LASX(dst[:n:n], mask, yes, no)
+}
+
+func eqInt32MaskLASXGuarded(dst []bool, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.EqualMask(dst, a, b)
+		return
+	}
+	eqInt32MaskLASX(dst[:n:n], a, b)
+}
+
+func eqScalarInt32MaskLASXGuarded(dst []bool, a []int32, v int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.EqualScalarMask(dst, a, v)
+		return
+	}
+	eqScalarInt32MaskLASX(dst[:n:n], a, v)
+}
+
+func neInt32MaskLASXGuarded(dst []bool, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.NotEqualMask(dst, a, b)
+		return
+	}
+	neInt32MaskLASX(dst[:n:n], a, b)
+}
+
+func neScalarInt32MaskLASXGuarded(dst []bool, a []int32, v int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NotEqualScalarMask(dst, a, v)
+		return
+	}
+	neScalarInt32MaskLASX(dst[:n:n], a, v)
+}
+
+func ltInt32MaskLASXGuarded(dst []bool, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessMask(dst, a, b)
+		return
+	}
+	ltInt32MaskLASX(dst[:n:n], a, b)
+}
+
+func ltScalarInt32MaskLASXGuarded(dst []bool, a []int32, v int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarInt32MaskLASX(dst[:n:n], a, v)
+}
+
+func leInt32MaskLASXGuarded(dst []bool, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessEqualMask(dst, a, b)
+		return
+	}
+	leInt32MaskLASX(dst[:n:n], a, b)
+}
+
+func leScalarInt32MaskLASXGuarded(dst []bool, a []int32, v int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarInt32MaskLASX(dst[:n:n], a, v)
+}
+
+func gtInt32MaskLASXGuarded(dst []bool, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterMask(dst, a, b)
+		return
+	}
+	gtInt32MaskLASX(dst[:n:n], a, b)
+}
+
+func gtScalarInt32MaskLASXGuarded(dst []bool, a []int32, v int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarInt32MaskLASX(dst[:n:n], a, v)
+}
+
+func geInt32MaskLASXGuarded(dst []bool, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterEqualMask(dst, a, b)
+		return
+	}
+	geInt32MaskLASX(dst[:n:n], a, b)
+}
+
+func geScalarInt32MaskLASXGuarded(dst []bool, a []int32, v int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarInt32MaskLASX(dst[:n:n], a, v)
 }
 
 func selectInt32LASXGuarded(dst []int32, mask []bool, yes []int32, no []int32) {
@@ -333,6 +549,18 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("lasx")
+	s.F32.EqualMask = eqFloat32MaskLASXGuarded
+	s.F32.EqualScalarMask = eqScalarFloat32MaskLASXGuarded
+	s.F32.NotEqualMask = neFloat32MaskLASXGuarded
+	s.F32.NotEqualScalarMask = neScalarFloat32MaskLASXGuarded
+	s.F32.LessMask = ltFloat32MaskLASXGuarded
+	s.F32.LessScalarMask = ltScalarFloat32MaskLASXGuarded
+	s.F32.LessEqualMask = leFloat32MaskLASXGuarded
+	s.F32.LessEqualScalarMask = leScalarFloat32MaskLASXGuarded
+	s.F32.GreaterMask = gtFloat32MaskLASXGuarded
+	s.F32.GreaterScalarMask = gtScalarFloat32MaskLASXGuarded
+	s.F32.GreaterEqualMask = geFloat32MaskLASXGuarded
+	s.F32.GreaterEqualScalarMask = geScalarFloat32MaskLASXGuarded
 	s.F32.Select = selectFloat32LASXGuarded
 	s.F64.EqualMask = eqFloat64MaskLASXGuarded
 	s.F64.EqualScalarMask = eqScalarFloat64MaskLASXGuarded
@@ -347,6 +575,18 @@ func init() {
 	s.F64.GreaterEqualMask = geFloat64MaskLASXGuarded
 	s.F64.GreaterEqualScalarMask = geScalarFloat64MaskLASXGuarded
 	s.F64.Select = selectFloat64LASXGuarded
+	s.I32.EqualMask = eqInt32MaskLASXGuarded
+	s.I32.EqualScalarMask = eqScalarInt32MaskLASXGuarded
+	s.I32.NotEqualMask = neInt32MaskLASXGuarded
+	s.I32.NotEqualScalarMask = neScalarInt32MaskLASXGuarded
+	s.I32.LessMask = ltInt32MaskLASXGuarded
+	s.I32.LessScalarMask = ltScalarInt32MaskLASXGuarded
+	s.I32.LessEqualMask = leInt32MaskLASXGuarded
+	s.I32.LessEqualScalarMask = leScalarInt32MaskLASXGuarded
+	s.I32.GreaterMask = gtInt32MaskLASXGuarded
+	s.I32.GreaterScalarMask = gtScalarInt32MaskLASXGuarded
+	s.I32.GreaterEqualMask = geInt32MaskLASXGuarded
+	s.I32.GreaterEqualScalarMask = geScalarInt32MaskLASXGuarded
 	s.I32.Select = selectInt32LASXGuarded
 	s.I64.EqualMask = eqInt64MaskLASXGuarded
 	s.I64.EqualScalarMask = eqScalarInt64MaskLASXGuarded

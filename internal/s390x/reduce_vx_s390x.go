@@ -22,28 +22,10 @@ func sumsqFloat32VX(a []float32) float32
 func sumsqdevFloat32VX(a []float32, c float32) float32
 
 //go:noescape
-func sumsqdiffFloat32VX(a []float32, b []float32) float32
-
-//go:noescape
-func diffFloat32VX(dst []float32, a []float32)
-
-//go:noescape
 func sumsqFloat64VX(a []float64) float64
 
 //go:noescape
 func sumsqdevFloat64VX(a []float64, c float64) float64
-
-//go:noescape
-func sumsqdiffFloat64VX(a []float64, b []float64) float64
-
-//go:noescape
-func diffFloat64VX(dst []float64, a []float64)
-
-//go:noescape
-func minrInt32VX(a []int32) int32
-
-//go:noescape
-func maxrInt32VX(a []int32) int32
 
 //go:noescape
 func sumsqInt32VX(a []int32) int32
@@ -55,49 +37,16 @@ func sumsqdevInt32VX(a []int32, c int32) int32
 func sumsqdiffInt32VX(a []int32, b []int32) int32
 
 //go:noescape
-func diffInt32VX(dst []int32, a []int32)
-
-//go:noescape
-func minrInt64VX(a []int64) int64
-
-//go:noescape
-func maxrInt64VX(a []int64) int64
-
-//go:noescape
-func sumsqInt64VX(a []int64) int64
-
-//go:noescape
-func sumsqdevInt64VX(a []int64, c int64) int64
-
-//go:noescape
-func sumsqdiffInt64VX(a []int64, b []int64) int64
-
-//go:noescape
-func diffInt64VX(dst []int64, a []int64)
-
-//go:noescape
 func sumFloat32VX(a []float32) float32
-
-//go:noescape
-func dotFloat32VX(a []float32, b []float32) float32
 
 //go:noescape
 func l1normFloat32VX(a []float32) float32
 
 //go:noescape
-func l1diffFloat32VX(a []float32, b []float32) float32
-
-//go:noescape
 func sumFloat64VX(a []float64) float64
 
 //go:noescape
-func dotFloat64VX(a []float64, b []float64) float64
-
-//go:noescape
 func l1normFloat64VX(a []float64) float64
-
-//go:noescape
-func l1diffFloat64VX(a []float64, b []float64) float64
 
 //go:noescape
 func sumInt32VX(a []int32) int32
@@ -109,4 +58,16 @@ func prodInt32VX(a []int32) int32
 func dotInt32VX(a []int32, b []int32) int32
 
 //go:noescape
+func l1normInt32VX(a []int32) int32
+
+//go:noescape
+func l1diffInt32VX(a []int32, b []int32) int32
+
+//go:noescape
 func sumInt64VX(a []int64) int64
+
+//go:noescape
+func l1normInt64VX(a []int64) int64
+
+//go:noescape
+func l1diffInt64VX(a []int64, b []int64) int64

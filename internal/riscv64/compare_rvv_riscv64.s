@@ -3,7 +3,7 @@
 // Source:  csrc/compare.c
 // Target:  riscv64/rvv
 // Clang:   clang version 22.1.8
-// Command: clang --target=riscv64-linux-gnu -march=rv64gv -mno-relax -O3 -ffreestanding -fno-builtin -fno-builtin-memset -fno-builtin-memcpy -fno-jump-tables -fno-math-errno -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -fomit-frame-pointer -fno-stack-protector -mllvm -inline-threshold=1000 -ffp-contract=off -c ../csrc/compare.c -o ../tools/build/tmp/compare_riscv64_rvv.o
+// Command: clang --target=riscv64-linux-gnu -march=rv64gv -mno-relax -O3 -ffreestanding -fno-builtin -fno-builtin-memset -fno-builtin-memcpy -fno-jump-tables -fno-math-errno -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -fomit-frame-pointer -fno-stack-protector -mllvm -inline-threshold=1000 -ffp-contract=off -ffixed-x27 -c ../csrc/compare.c -o ../tools/build/tmp/compare_riscv64_rvv.o
 //
 // The instruction bytes below are the compiled function verbatim. Branches
 // inside a function are PC-relative and remain correct because the whole

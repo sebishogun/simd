@@ -228,11 +228,41 @@ func dotInt32VSXGuarded(a []int32, b []int32) int32 {
 	return dotInt32VSX(a[:n:n], b)
 }
 
+func l1normInt32VSXGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt32VSX(a)
+}
+
+func l1diffInt32VSXGuarded(a []int32, b []int32) int32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt32VSX(a[:n:n], b)
+}
+
 func sumInt64VSXGuarded(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt64VSX(a)
+}
+
+func l1normInt64VSXGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt64VSX(a)
+}
+
+func l1diffInt64VSXGuarded(a []int64, b []int64) int64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt64VSX(a[:n:n], b)
 }
 
 func init() {
@@ -267,5 +297,9 @@ func init() {
 	s.I32.Sum = sumInt32VSXGuarded
 	s.I32.Prod = prodInt32VSXGuarded
 	s.I32.Dot = dotInt32VSXGuarded
+	s.I32.L1Norm = l1normInt32VSXGuarded
+	s.I32.L1Diff = l1diffInt32VSXGuarded
 	s.I64.Sum = sumInt64VSXGuarded
+	s.I64.L1Norm = l1normInt64VSXGuarded
+	s.I64.L1Diff = l1diffInt64VSXGuarded
 }

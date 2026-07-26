@@ -109,6 +109,12 @@ func prodInt32LASX(a []int32) int32
 func dotInt32LASX(a []int32, b []int32) int32
 
 //go:noescape
+func l1normInt32LASX(a []int32) int32
+
+//go:noescape
+func l1diffInt32LASX(a []int32, b []int32) int32
+
+//go:noescape
 func sumInt64LASX(a []int64) int64
 
 //go:noescape
@@ -116,3 +122,9 @@ func prodInt64LASX(a []int64) int64
 
 //go:noescape
 func dotInt64LASX(a []int64, b []int64) int64
+
+//go:noescape
+func l1normInt64LASX(a []int64) int64
+
+//go:noescape
+func l1diffInt64LASX(a []int64, b []int64) int64

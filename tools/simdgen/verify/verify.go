@@ -224,7 +224,25 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 				"DisasmFlags.", n, tgt.Tier))
 	}
 
-	// 5. The function returns at all. Multiple returns are fine — the body is
+	// 5. No instruction touches a register the Go runtime owns.
+	//
+	// This is the backstop, and it is needed because neither mechanism that
+	// should have prevented it is reliable: clang has no -ffixed for SystemZ,
+	// and it accepts the global register variable in csrc/goabi.h there
+	// without honouring it — measured, 86 uses of r13 survived the
+	// declaration. Nine kernels in arith.c alone used Go's goroutine pointer
+	// as a scratch register and did not even save it, which is not a crash at
+	// the point of the clobber but corruption of whatever the runtime does
+	// next.
+	//
+	// A save-and-restore pair is allowed through: it leaves the register
+	// intact for the caller, and it is how a C prologue treats any
+	// callee-saved register.
+	if reg, ok := usesGoRegister(instrs, tgt); ok {
+		r.Unsupported = fmt.Sprintf("uses %s, which the Go runtime owns", reg)
+	}
+
+	// 6. The function returns at all. Multiple returns are fine — the body is
 	// copied whole and nothing is appended after it — but a kernel that never
 	// returns would run off the end of its own code into whatever the linker
 	// placed next.
@@ -257,6 +275,60 @@ func countUndecoded(instrs []Instr) int {
 }
 
 // isReturn reports whether the instruction returns from the function.
+// saveRestore reports whether an instruction is a bulk register save or
+// restore rather than a use. These move a range of registers to or from the
+// frame and leave every one of them as it was.
+func saveRestore(m string) bool {
+	switch m {
+	case "stmg", "lmg", "stm", "lm", // s390x
+		"stp", "ldp", // arm64
+		"stmw", "lmw", "std", "ld": // ppc64
+		return true
+	}
+	return false
+}
+
+// usesGoRegister reports whether any instruction names a register the Go
+// runtime owns, and which one.
+func usesGoRegister(instrs []Instr, tgt target.Target) (string, bool) {
+	if len(tgt.GoOwned) == 0 {
+		return "", false
+	}
+	for _, in := range instrs {
+		if saveRestore(in.Mnemonic) {
+			continue
+		}
+		for _, reg := range tgt.GoOwned {
+			if mentionsRegister(in.Operands, reg) {
+				return reg, true
+			}
+		}
+	}
+	return "", false
+}
+
+// mentionsRegister reports whether an operand list names a register, matching
+// whole names only: r2 must not match r22, and x27 must not match x270.
+func mentionsRegister(ops, reg string) bool {
+	for i := 0; i+len(reg) <= len(ops); i++ {
+		if ops[i:i+len(reg)] != reg {
+			continue
+		}
+		if i > 0 && isRegNameByte(ops[i-1]) {
+			continue
+		}
+		if j := i + len(reg); j < len(ops) && isRegNameByte(ops[j]) {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+func isRegNameByte(c byte) bool {
+	return c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_'
+}
+
 func isReturn(in Instr, arch target.Arch) bool {
 	switch arch {
 	case target.AMD64:
@@ -573,6 +645,20 @@ func disassemble(objPath string, tgt target.Target, objdump string) (map[string]
 	for sc.Scan() {
 		line := sc.Text()
 		if m := reFuncHeader.FindStringSubmatch(strings.TrimSpace(line)); m != nil {
+			// A local label inside a function is printed in exactly this
+			// shape — "0000000000007460 <.L0 >:" — and treating it as the
+			// start of a new function silently truncates the one it is
+			// inside. That is not a cosmetic bug: everything after the first
+			// internal label goes unchecked, including by the feature gate
+			// that exists to keep an AVX-512 instruction out of an AVX2 file.
+			// It cost 23 loong64 kernels, which looked like tail calls to
+			// libm because their return happened to sit past a label.
+			//
+			// Local labels are the ones beginning with a dot; a kernel is
+			// never named that way.
+			if strings.HasPrefix(m[2], ".") {
+				continue
+			}
 			// llvm-objdump prints addresses relative to the section, while the
 			// object file's relocations are relative to the symbol. Everything
 			// downstream matches the two up by offset, so normalise here to the

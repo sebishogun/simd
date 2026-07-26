@@ -13,214 +13,682 @@
 
 #include "textflag.h"
 
-// func indexByteVX(b []byte, c byte) int
-TEXT ·indexByteVX(SB), NOSPLIT|NOFRAME, $0-40
+// func lastIndexByteVX(b []byte, c byte) int
+TEXT ·lastIndexByteVX(SB), NOSPLIT, $160-40
 	MOVD $ret+32(FP), R2
 	MOVD b_base+0(FP), R3
 	MOVBZ c+24(FP), R4
 	MOVD b_len+8(FP), R5
-	WORD $0xebbff058
-	WORD $0x0024a7fb
-	WORD $0xff58a719
-	WORD $0x0000ec5a
-	WORD $0x003e407c
-	WORD $0xa7e9ffff
-	WORD $0xec150032
-	WORD $0xa064e300
-	WORD $0x5ffdff71
-	WORD $0xe3d05ffe
-	WORD $0xff71e3c0
-	WORD $0x5fffff71
-	WORD $0xe3b13000
-	WORD $0x0094ecb4
-	WORD $0x01478076
-	WORD $0xecc10020
-	WORD $0x8064e3b1
-	WORD $0x30010094
-	WORD $0xecb40147
-	WORD $0x8076ecd1
-	WORD $0x00178064
-	WORD $0xe3b13002
-	WORD $0x0094ecb4
-	WORD $0x01478076
-	WORD $0xec01000e
-	WORD $0x8064e3b1
-	WORD $0x30030094
-	WORD $0xecb40147
-	WORD $0x80764110
-	WORD $0x1004ec51
-	WORD $0xffdd6064
-	WORD $0xe3e02000
-	WORD $0x0024ebbf
-	WORD $0xf1000004
-	WORD $0x07fee704
-	WORD $0x40000062
-	WORD $0xe7000007
-	WORD $0x004da7c9
-	WORD $0x0040a7e9
-	WORD $0x0000b904
-	WORD $0x00d3e71e
-	WORD $0x30000006
-	WORD $0xe72e3010
-	WORD $0x0006e711
-	WORD $0x000000f8
-	WORD $0xe7220000
-	WORD $0x00f8e711
-	WORD $0x2000006a
-	WORD $0xe72e3020
-	WORD $0x0006e722
-	WORD $0x000000f8
-	WORD $0xe7112000
-	WORD $0x006ae72e
-	WORD $0x30300006
-	WORD $0xe7220000
-	WORD $0x00f8e711
-	WORD $0x2000006a
-	WORD $0xe7010000
-	WORD $0x0021b904
-	WORD $0x001ce7c1
-	WORD $0x00010021
-	WORD $0xec001090
-	WORD $0x0f51ec0c
-	WORD $0x31310e56
-	WORD $0xe7c10002
-	WORD $0x0021ec0c
-	WORD $0x32320d56
-	WORD $0xe7c10003
-	WORD $0x0021ec0c
-	WORD $0x33330c56
-	WORD $0xe7c10004
-	WORD $0x0021ec0c
-	WORD $0x34340b56
-	WORD $0xe7c10005
-	WORD $0x0021ec0c
-	WORD $0x35350a56
-	WORD $0xe7c10006
-	WORD $0x0021ec0c
-	WORD $0x36360956
-	WORD $0xe7c10007
-	WORD $0x0021ec0c
-	WORD $0x37370856
-	WORD $0xe7c10008
-	WORD $0x0021ec0c
-	WORD $0x38380756
-	WORD $0xe7c10009
-	WORD $0x0021ec0c
-	WORD $0x39390656
-	WORD $0xe7c1000a
-	WORD $0x0021ec0c
-	WORD $0x3a3a0556
-	WORD $0xe7c1000b
-	WORD $0x0021ec0c
-	WORD $0x3b3b0456
-	WORD $0xe7c1000c
-	WORD $0x0021ec0c
-	WORD $0x3c3c0356
-	WORD $0xe7c1000d
-	WORD $0x0021ec0c
-	WORD $0x3d3d0256
-	WORD $0xe7c1000e
-	WORD $0x0021ec0c
-	WORD $0x3e3e0156
-	WORD $0xe7c1000f
-	WORD $0x0021ec0c
-	WORD $0x3f3f0056
-	WORD $0xa701ffff
-	WORD $0xa7840039
-	WORD $0xa7c90000
-	WORD $0xe30cd000
-	WORD $0x0094ec04
-	WORD $0x003d8076
-	WORD $0xe30cd001
-	WORD $0x0094ec04
-	WORD $0x00408076
-	WORD $0xe30cd002
-	WORD $0x0094ec04
-	WORD $0x00438076
-	WORD $0xe30cd003
-	WORD $0x0094ec04
-	WORD $0x00468076
-	WORD $0xe30cd004
-	WORD $0x0094ec04
-	WORD $0x00498076
-	WORD $0xe30cd005
-	WORD $0x0094ec04
-	WORD $0x004c8076
-	WORD $0xe30cd006
-	WORD $0x0094ec04
-	WORD $0x004f8076
-	WORD $0xe30cd007
-	WORD $0x0094ec04
-	WORD $0x00528076
-	WORD $0x41c0c008
-	WORD $0xecc6ffce
-	WORD $0x407c41c0
-	WORD $0x104041e0
-	WORD $0xe04041d0
-	WORD $0xd040ecc5
-	WORD $0xff3cc064
-	WORD $0xa7f4fef2
-	WORD $0xb90800ec
-	WORD $0xe3e02000
-	WORD $0x0024ebbf
-	WORD $0xf1000004
-	WORD $0x07fe41ec
-	WORD $0xe001e3e0
-	WORD $0x20000024
-	WORD $0xebbff100
-	WORD $0x000407fe
-	WORD $0x41ece002
-	WORD $0xe3e02000
-	WORD $0x0024ebbf
-	WORD $0xf1000004
-	WORD $0x07fe41ec
-	WORD $0xe003e3e0
-	WORD $0x20000024
-	WORD $0xebbff100
-	WORD $0x000407fe
-	WORD $0x41ece004
-	WORD $0xe3e02000
-	WORD $0x0024ebbf
-	WORD $0xf1000004
-	WORD $0x07fe41ec
-	WORD $0xe005e3e0
-	WORD $0x20000024
-	WORD $0xebbff100
-	WORD $0x000407fe
-	WORD $0x41ece006
-	WORD $0xe3e02000
-	WORD $0x0024ebbf
-	WORD $0xf1000004
-	WORD $0x07fe41ec
-	WORD $0xe007e3e0
-	WORD $0x20000024
-	WORD $0xebbff100
-	WORD $0x000407fe
-	WORD $0xb90400e1
-	WORD $0xe3e02000
-	WORD $0x0024ebbf
-	WORD $0xf1000004
-	WORD $0x07fe41e0
-	WORD $0x1001e3e0
-	WORD $0x20000024
-	WORD $0xebbff100
-	WORD $0x000407fe
-	WORD $0x41e01002
-	WORD $0xe3e02000
-	WORD $0x0024ebbf
-	WORD $0xf1000004
-	WORD $0x07fe41e0
-	WORD $0x1003e3e0
-	WORD $0x20000024
-	WORD $0xebbff100
-	WORD $0x000407fe
+	BL ·lastIndexByteVXBody(SB)
 	RET
 
-// func isASCIIVX(b []byte) bool
-TEXT ·isASCIIVX(SB), NOSPLIT|NOFRAME, $0-25
+// lastIndexByteVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lastIndexByteVXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xebeff070
+	WORD $0x0024a7fb
+	WORD $0xff58ec54
+	WORD $0x00f2407c
+	WORD $0xe7044000
+	WORD $0x0062c0e0
+	WORD $0x000001b1
+	WORD $0xe710e000
+	WORD $0x3006e700
+	WORD $0x0007004d
+	WORD $0xe3135fff
+	WORD $0xff71e3e5
+	WORD $0x3ff0ff71
+	WORD $0xe720e000
+	WORD $0x0006e3e5
+	WORD $0x3fe0ff71
+	WORD $0xe730e000
+	WORD $0x0006e722
+	WORD $0x2000108c
+	WORD $0xe7333000
+	WORD $0x108ce722
+	WORD $0x000000f8
+	WORD $0xe7330000
+	WORD $0x00f8e3e5
+	WORD $0x3fd0ff71
+	WORD $0xe7223000
+	WORD $0x006ae730
+	WORD $0xe0000006
+	WORD $0xe7333000
+	WORD $0x108ce733
+	WORD $0x000000f8
+	WORD $0xe3e53fc0
+	WORD $0xff71e722
+	WORD $0x3000006a
+	WORD $0xe730e000
+	WORD $0x0006e733
+	WORD $0x3000108c
+	WORD $0xe7330000
+	WORD $0x00f8e722
+	WORD $0x3000006a
+	WORD $0xe7020000
+	WORD $0x0021e7e2
+	WORD $0x00010021
+	WORD $0xec001090
+	WORD $0x0f51ec0e
+	WORD $0x31310e56
+	WORD $0xe7e20002
+	WORD $0x0021ec0e
+	WORD $0x32320d56
+	WORD $0xe7e20003
+	WORD $0x0021ec0e
+	WORD $0x33330c56
+	WORD $0xe7e20004
+	WORD $0x0021ec0e
+	WORD $0x34340b56
+	WORD $0xe7e20005
+	WORD $0x0021ec0e
+	WORD $0x35350a56
+	WORD $0xe7e20006
+	WORD $0x0021ec0e
+	WORD $0x36360956
+	WORD $0xe7e20007
+	WORD $0x0021ec0e
+	WORD $0x37370856
+	WORD $0xe7e20008
+	WORD $0x0021ec0e
+	WORD $0x38380756
+	WORD $0xe7e20009
+	WORD $0x0021ec0e
+	WORD $0x39390656
+	WORD $0xe7e2000a
+	WORD $0x0021ec0e
+	WORD $0x3a3a0556
+	WORD $0xe7e2000b
+	WORD $0x0021ec0e
+	WORD $0x3b3b0456
+	WORD $0xe7e2000c
+	WORD $0x0021ec0e
+	WORD $0x3c3c0356
+	WORD $0xe7e2000d
+	WORD $0x0021ec0e
+	WORD $0x3d3d0256
+	WORD $0xe7e2000e
+	WORD $0x0021ec0e
+	WORD $0x3e3e0156
+	WORD $0xe7e2000f
+	WORD $0x0021ec0e
+	WORD $0x3f3f0056
+	WORD $0xa701ffff
+	WORD $0xa7840038
+	WORD $0xa7e90040
+	WORD $0xe30e1fc0
+	WORD $0xff94ec04
+	WORD $0x007c8076
+	WORD $0xe30e1fbf
+	WORD $0xff94ec04
+	WORD $0x00808076
+	WORD $0xe30e1fbe
+	WORD $0xff94ec04
+	WORD $0x008e8076
+	WORD $0xe30e1fbd
+	WORD $0xff94ec04
+	WORD $0x00928076
+	WORD $0xe30e1fbc
+	WORD $0xff94ec04
+	WORD $0x00a08076
+	WORD $0xe30e1fbb
+	WORD $0xff94ec04
+	WORD $0x00a48076
+	WORD $0xe30e1fba
+	WORD $0xff94ec04
+	WORD $0x00a88076
+	WORD $0xe30e1fb9
+	WORD $0xff94ec04
+	WORD $0x00ac8076
+	WORD $0xa7ebfff8
+	WORD $0xa764ffce
+	WORD $0xe3e05fc0
+	WORD $0xff71a71b
+	WORD $0xffc0a75f
+	WORD $0x007fb904
+	WORD $0x005ea724
+	WORD $0xff24a7f4
+	WORD $0x0004b904
+	WORD $0x00e5a709
+	WORD $0xffffecec
+	WORD $0x0029007c
+	WORD $0xe31e3fff
+	WORD $0xff94ec14
+	WORD $0x002a8076
+	WORD $0xece80020
+	WORD $0x017ce31e
+	WORD $0x3ffeff94
+	WORD $0xec14003f
+	WORD $0x8076ece4
+	WORD $0x0017037c
+	WORD $0xe31e3ffd
+	WORD $0xff94ec14
+	WORD $0x00548076
+	WORD $0xece8000e
+	WORD $0x037ce31e
+	WORD $0x3ffcff94
+	WORD $0xe300effc
+	WORD $0xff71b904
+	WORD $0x00e0ec14
+	WORD $0xffd86076
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07feec0e
+	WORD $0xffff00d9
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fee30e
+	WORD $0x5fbfff71
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fee30e
+	WORD $0x5fbeff71
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07feec0e
+	WORD $0xfffe00d9
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fee30e
+	WORD $0x5fbdff71
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fee30e
+	WORD $0x5fbcff71
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07feec0e
+	WORD $0xfffd00d9
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fee30e
+	WORD $0x5fbbff71
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fee30e
+	WORD $0x5fbaff71
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fee30e
+	WORD $0x5fb9ff71
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fee30e
+	WORD $0x5fb8ff71
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf1180004
+	WORD $0x07fe0000
+	WORD $0x00000000
+	WORD $0x0000000c
+	WORD $0x0000000d
+	WORD $0x0000000e
+	WORD $0x0000000f
+	WORD $0x00000008
+	WORD $0x00000009
+	WORD $0x0000000a
+	WORD $0x0000000b
+	WORD $0x00000004
+	WORD $0x00000005
+	WORD $0x00000006
+	WORD $0x00000007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x0f0e0d0c
+	WORD $0x0b0a0908
+	WORD $0x07060504
+	WORD $0x03020100
+	WORD $0x0000001c
+	WORD $0x0000001d
+	WORD $0x0000001e
+	WORD $0x0000001f
+	WORD $0x00000018
+	WORD $0x00000019
+	WORD $0x0000001a
+	WORD $0x0000001b
+	WORD $0x00000014
+	WORD $0x00000015
+	WORD $0x00000016
+	WORD $0x00000017
+	WORD $0x00000010
+	WORD $0x00000011
+	WORD $0x00000012
+	WORD $0x00000013
+	WORD $0x00101010
+	WORD $0x10101010
+	WORD $0x10101010
+	WORD $0x10101010
+	WORD $0x0000000c
+	WORD $0x0000000d
+	WORD $0x0000000e
+	WORD $0x0000000f
+	WORD $0x00000008
+	WORD $0x00000009
+	WORD $0x0000000a
+	WORD $0x0000000b
+	WORD $0x00000004
+	WORD $0x00000005
+	WORD $0x00000006
+	WORD $0x00000007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	RET
+
+// func popCountVX(b []byte) int
+TEXT ·popCountVX(SB), NOSPLIT, $160-32
 	MOVD $ret+24(FP), R2
 	MOVD b_base+0(FP), R3
 	MOVD b_len+8(FP), R4
+	BL ·popCountVXBody(SB)
+	RET
+
+// popCountVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·popCountVXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xebeff070
+	WORD $0x0024e700
+	WORD $0x00000044
+	WORD $0xec4a0019
+	WORD $0x107ce710
+	WORD $0x00000044
+	WORD $0xe7400000
+	WORD $0x0044e730
+	WORD $0x00000044
+	WORD $0xe7200000
+	WORD $0x0044a719
+	WORD $0x0000ec14
+	WORD $0x01164064
+	WORD $0xe7500000
+	WORD $0x0044a7f4
+	WORD $0x011eec54
+	WORD $0xfff000d9
+	WORD $0xeb150004
+	WORD $0x000c4110
+	WORD $0x1001ec01
+	WORD $0x3ebf0059
+	WORD $0xec5a0015
+	WORD $0x307de710
+	WORD $0x00000044
+	WORD $0xa7190000
+	WORD $0xa7590010
+	WORD $0xe7400000
+	WORD $0x0044e730
+	WORD $0x00000044
+	WORD $0xe7200000
+	WORD $0x0044a7f4
+	WORD $0x00aec0e0
+	WORD $0x0000025d
+	WORD $0xe750e000
+	WORD $0x3006c0e0
+	WORD $0x0000025f
+	WORD $0xe760e000
+	WORD $0x3006c0e0
+	WORD $0x00000261
+	WORD $0xe770e000
+	WORD $0x3006c0e0
+	WORD $0x00000263
+	WORD $0xe700e000
+	WORD $0x3806e710
+	WORD $0x00000044
+	WORD $0xe7400000
+	WORD $0x0044e730
+	WORD $0x00000044
+	WORD $0xe7200000
+	WORD $0x0044ec51
+	WORD $0x03bd0059
+	WORD $0xa7190000
+	WORD $0xe7113000
+	WORD $0x0806e711
+	WORD $0x00000c50
+	WORD $0xa75bfffc
+	WORD $0xe7251000
+	WORD $0x5a8ce736
+	WORD $0x10006a8c
+	WORD $0xe7471000
+	WORD $0x7a8ce710
+	WORD $0x10000f8c
+	WORD $0xe7111000
+	WORD $0x22f3e711
+	WORD $0x30100806
+	WORD $0xe7110000
+	WORD $0x0c50e744
+	WORD $0x400022f3
+	WORD $0xe7333000
+	WORD $0x22f3e722
+	WORD $0x200022f3
+	WORD $0xe7301000
+	WORD $0x0f8ce727
+	WORD $0x10007a8c
+	WORD $0xe7461000
+	WORD $0x6a8ce715
+	WORD $0x10005a8c
+	WORD $0xe7221000
+	WORD $0x22f3e711
+	WORD $0x30200806
+	WORD $0xe7110000
+	WORD $0x0c50e733
+	WORD $0x400022f3
+	WORD $0xe7442000
+	WORD $0x22f3e711
+	WORD $0x300022f3
+	WORD $0xe7251000
+	WORD $0x5a8ce746
+	WORD $0x10006a8c
+	WORD $0xe7571000
+	WORD $0x7a8ce710
+	WORD $0x10000f8c
+	WORD $0xe7111000
+	WORD $0x22f3e711
+	WORD $0x30300806
+	WORD $0x41101040
+	WORD $0xe7110000
+	WORD $0x0c50e744
+	WORD $0x500022f3
+	WORD $0xe7334000
+	WORD $0x22f3e722
+	WORD $0x200022f3
+	WORD $0xe7201000
+	WORD $0x0f8ce737
+	WORD $0x10007a8c
+	WORD $0xe7461000
+	WORD $0x6a8ce715
+	WORD $0x10005a8c
+	WORD $0xe7221000
+	WORD $0x22f3e733
+	WORD $0x400022f3
+	WORD $0xe7443000
+	WORD $0x22f3e711
+	WORD $0x200022f3
+	WORD $0xa774ff84
+	WORD $0x41501010
+	WORD $0xec08003f
+	WORD $0x007cc0e0
+	WORD $0x000001c9
+	WORD $0xe750e000
+	WORD $0x3006c0e0
+	WORD $0x000001bb
+	WORD $0xe760e000
+	WORD $0x3006c0e0
+	WORD $0x000001ad
+	WORD $0xe770e000
+	WORD $0x3006c0e0
+	WORD $0x0000019f
+	WORD $0xe700e000
+	WORD $0x3806e711
+	WORD $0x30000806
+	WORD $0xe7110000
+	WORD $0x0c50b904
+	WORD $0x0015e725
+	WORD $0x10005a8c
+	WORD $0xe7361000
+	WORD $0x6a8ce747
+	WORD $0x10007a8c
+	WORD $0xe7101000
+	WORD $0x0f8ce722
+	WORD $0x100022f3
+	WORD $0xe7334000
+	WORD $0x22f3e744
+	WORD $0x300022f3
+	WORD $0xe7112000
+	WORD $0x22f34150
+	WORD $0x5010a707
+	WORD $0xffdeec14
+	WORD $0x01bb0059
+	WORD $0xec14fef0
+	WORD $0xa064e301
+	WORD $0x30000090
+	WORD $0xb9e10000
+	WORD $0xe7000000
+	WORD $0x0044e750
+	WORD $0x00000044
+	WORD $0xe7000000
+	WORD $0x2022e760
+	WORD $0x00000044
+	WORD $0xe7700000
+	WORD $0x00444150
+	WORD $0x1001ec54
+	WORD $0x00784064
+	WORD $0x41501002
+	WORD $0xec540080
+	WORD $0x40644150
+	WORD $0x1003ec54
+	WORD $0x00884064
+	WORD $0x41501004
+	WORD $0xec540090
+	WORD $0x40644150
+	WORD $0x1005ec54
+	WORD $0x00984064
+	WORD $0x41501006
+	WORD $0xec5400a0
+	WORD $0x40644150
+	WORD $0x1007ec54
+	WORD $0x00a84064
+	WORD $0x41501008
+	WORD $0xec5400b0
+	WORD $0x40644150
+	WORD $0x1009ec54
+	WORD $0x00b84064
+	WORD $0x4150100a
+	WORD $0xec5400c0
+	WORD $0x40644150
+	WORD $0x100bec54
+	WORD $0x00c84064
+	WORD $0x4150100c
+	WORD $0xec5400d0
+	WORD $0x40644150
+	WORD $0x100dec54
+	WORD $0x00d84064
+	WORD $0x4150100e
+	WORD $0xec5400e0
+	WORD $0x40644110
+	WORD $0x100fec14
+	WORD $0x000ba064
+	WORD $0xe3013000
+	WORD $0x0090b9e1
+	WORD $0x0000e770
+	WORD $0x00032022
+	WORD $0xe7454000
+	WORD $0x20f3e727
+	WORD $0x200020f3
+	WORD $0xe7001000
+	WORD $0x20f3e716
+	WORD $0x300020f3
+	WORD $0xe7001000
+	WORD $0x20f3e714
+	WORD $0x200020f3
+	WORD $0xe7001000
+	WORD $0x20f3e710
+	WORD $0x00000044
+	WORD $0xe7001000
+	WORD $0x2067e700
+	WORD $0x00013021
+	WORD $0xb9160000
+	WORD $0xe3002000
+	WORD $0x0024ebef
+	WORD $0xf0700004
+	WORD $0x07fee305
+	WORD $0x30000090
+	WORD $0xb9e10000
+	WORD $0xe7000001
+	WORD $0x20224150
+	WORD $0x1002ec54
+	WORD $0xff86a064
+	WORD $0xe3053000
+	WORD $0x0090b9e1
+	WORD $0x0000e700
+	WORD $0x00022022
+	WORD $0x41501003
+	WORD $0xec54ff7e
+	WORD $0xa064e305
+	WORD $0x30000090
+	WORD $0xb9e10000
+	WORD $0xe7000003
+	WORD $0x20224150
+	WORD $0x1004ec54
+	WORD $0xff76a064
+	WORD $0xe3053000
+	WORD $0x0090b9e1
+	WORD $0x0000e750
+	WORD $0x00002022
+	WORD $0x41501005
+	WORD $0xec54ff6e
+	WORD $0xa064e305
+	WORD $0x30000090
+	WORD $0xb9e10000
+	WORD $0xe7500001
+	WORD $0x20224150
+	WORD $0x1006ec54
+	WORD $0xff66a064
+	WORD $0xe3053000
+	WORD $0x0090b9e1
+	WORD $0x0000e750
+	WORD $0x00022022
+	WORD $0x41501007
+	WORD $0xec54ff5e
+	WORD $0xa064e305
+	WORD $0x30000090
+	WORD $0xb9e10000
+	WORD $0xe7500003
+	WORD $0x20224150
+	WORD $0x1008ec54
+	WORD $0xff56a064
+	WORD $0xe3053000
+	WORD $0x0090b9e1
+	WORD $0x0000e760
+	WORD $0x00002022
+	WORD $0x41501009
+	WORD $0xec54ff4e
+	WORD $0xa064e305
+	WORD $0x30000090
+	WORD $0xb9e10000
+	WORD $0xe7600001
+	WORD $0x20224150
+	WORD $0x100aec54
+	WORD $0xff46a064
+	WORD $0xe3053000
+	WORD $0x0090b9e1
+	WORD $0x0000e760
+	WORD $0x00022022
+	WORD $0x4150100b
+	WORD $0xec54ff3e
+	WORD $0xa064e305
+	WORD $0x30000090
+	WORD $0xb9e10000
+	WORD $0xe7600003
+	WORD $0x20224150
+	WORD $0x100cec54
+	WORD $0xff36a064
+	WORD $0xe3053000
+	WORD $0x0090b9e1
+	WORD $0x0000e770
+	WORD $0x00002022
+	WORD $0x4150100d
+	WORD $0xec54ff2e
+	WORD $0xa064e305
+	WORD $0x30000090
+	WORD $0xb9e10000
+	WORD $0xe7700001
+	WORD $0x20224150
+	WORD $0x100eec54
+	WORD $0xff26a064
+	WORD $0xe3053000
+	WORD $0x0090b9e1
+	WORD $0x0000e770
+	WORD $0x00022022
+	WORD $0x4110100f
+	WORD $0xec14ff1e
+	WORD $0x4064a7f4
+	WORD $0xff230000
+	WORD $0x0000000c
+	WORD $0x0000000d
+	WORD $0x0000000e
+	WORD $0x0000000f
+	WORD $0x00000008
+	WORD $0x00000009
+	WORD $0x0000000a
+	WORD $0x0000000b
+	WORD $0x00000004
+	WORD $0x00000005
+	WORD $0x00000006
+	WORD $0x00000007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x0f0e0d0c
+	WORD $0x0b0a0908
+	WORD $0x07060504
+	WORD $0x03020100
+	WORD $0x0000001c
+	WORD $0x0000001d
+	WORD $0x0000001e
+	WORD $0x0000001f
+	WORD $0x00000018
+	WORD $0x00000019
+	WORD $0x0000001a
+	WORD $0x0000001b
+	WORD $0x00000014
+	WORD $0x00000015
+	WORD $0x00000016
+	WORD $0x00000017
+	WORD $0x00000010
+	WORD $0x00000011
+	WORD $0x00000012
+	WORD $0x00000013
+	WORD $0x00101010
+	WORD $0x10101010
+	WORD $0x10101010
+	WORD $0x10101010
+	WORD $0x0000000c
+	WORD $0x0000000d
+	WORD $0x0000000e
+	WORD $0x0000000f
+	WORD $0x00000008
+	WORD $0x00000009
+	WORD $0x0000000a
+	WORD $0x0000000b
+	WORD $0x00000004
+	WORD $0x00000005
+	WORD $0x00000006
+	WORD $0x00000007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	RET
+
+// func isASCIIVX(b []byte) bool
+TEXT ·isASCIIVX(SB), NOSPLIT, $160-25
+	MOVD $ret+24(FP), R2
+	MOVD b_base+0(FP), R3
+	MOVD b_len+8(FP), R4
+	BL ·isASCIIVXBody(SB)
+	RET
+
+// isASCIIVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·isASCIIVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xe700ff80
 	WORD $0x0045a719
 	WORD $0x00004100
@@ -752,11 +1220,17 @@ TEXT ·isASCIIVX(SB), NOSPLIT|NOFRAME, $0-25
 	RET
 
 // func equalBytesVX(a []byte, b []byte) bool
-TEXT ·equalBytesVX(SB), NOSPLIT|NOFRAME, $0-49
+TEXT ·equalBytesVX(SB), NOSPLIT, $160-49
 	MOVD $ret+48(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD b_base+24(FP), R4
 	MOVD a_len+8(FP), R5
+	BL ·equalBytesVXBody(SB)
+	RET
+
+// equalBytesVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·equalBytesVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024a719
 	WORD $0x00004100
@@ -1313,11 +1787,17 @@ TEXT ·equalBytesVX(SB), NOSPLIT|NOFRAME, $0-49
 	RET
 
 // func bitAndVX(dst []byte, a []byte, b []byte)
-TEXT ·bitAndVX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·bitAndVX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·bitAndVXBody(SB)
+	RET
+
+// bitAndVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·bitAndVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x002e007c
@@ -1349,11 +1829,17 @@ TEXT ·bitAndVX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func bitOrVX(dst []byte, a []byte, b []byte)
-TEXT ·bitOrVX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·bitOrVX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·bitOrVXBody(SB)
+	RET
+
+// bitOrVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·bitOrVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x002e007c
@@ -1385,11 +1871,17 @@ TEXT ·bitOrVX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func bitXorVX(dst []byte, a []byte, b []byte)
-TEXT ·bitXorVX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·bitXorVX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·bitXorVXBody(SB)
+	RET
+
+// bitXorVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·bitXorVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x002e007c
@@ -1421,11 +1913,17 @@ TEXT ·bitXorVX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func bitAndNotVX(dst []byte, a []byte, b []byte)
-TEXT ·bitAndNotVX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·bitAndNotVX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·bitAndNotVXBody(SB)
+	RET
+
+// bitAndNotVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·bitAndNotVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0031007c
@@ -1457,10 +1955,16 @@ TEXT ·bitAndNotVX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func bitNotVX(dst []byte, b []byte)
-TEXT ·bitNotVX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·bitNotVX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD b_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·bitNotVXBody(SB)
+	RET
+
+// bitNotVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·bitNotVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4ce000
 	WORD $0x00fca719
 	WORD $0x0000ec44
@@ -1487,10 +1991,16 @@ TEXT ·bitNotVX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func fillBytesVX(dst []byte, v byte)
-TEXT ·fillBytesVX(SB), NOSPLIT|NOFRAME, $0-25
+TEXT ·fillBytesVX(SB), NOSPLIT, $160-25
 	MOVD dst_base+0(FP), R2
 	MOVBZ v+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·fillBytesVXBody(SB)
+	RET
+
+// fillBytesVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillBytesVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c002b
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -1515,11 +2025,112 @@ TEXT ·fillBytesVX(SB), NOSPLIT|NOFRAME, $0-25
 	WORD $0xfffc07fe
 	RET
 
+// func hexEncodeVX(dst []byte, b []byte) int
+TEXT ·hexEncodeVX(SB), NOSPLIT, $160-56
+	MOVD $ret+48(FP), R2
+	MOVD dst_base+0(FP), R3
+	MOVD b_base+24(FP), R4
+	MOVD dst_len+8(FP), R5
+	MOVD b_len+32(FP), R6
+	BL ·hexEncodeVXBody(SB)
+	RET
+
+// hexEncodeVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·hexEncodeVXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024eb05
+	WORD $0x003f000c
+	WORD $0xb9080005
+	WORD $0xeb000001
+	WORD $0x000ab920
+	WORD $0x0006b9e2
+	WORD $0x4060eb06
+	WORD $0x0001000d
+	WORD $0xe3002000
+	WORD $0x0024ec6c
+	WORD $0x0087007c
+	WORD $0xa7090000
+	WORD $0xec640053
+	WORD $0x107dec06
+	WORD $0x01bb0059
+	WORD $0xe700000f
+	WORD $0x0045e710
+	WORD $0xffa00045
+	WORD $0xe7200030
+	WORD $0x0045e730
+	WORD $0x00570045
+	WORD $0xe740000a
+	WORD $0x0045b904
+	WORD $0x0014b904
+	WORD $0x0023b904
+	WORD $0x0050e750
+	WORD $0x10000006
+	WORD $0xe7650004
+	WORD $0x0038e775
+	WORD $0x00000068
+	WORD $0xe7515000
+	WORD $0x00f9e706
+	WORD $0x2000086a
+	WORD $0xe7663000
+	WORD $0x00f3e750
+	WORD $0x6000548d
+	WORD $0xe7647000
+	WORD $0x00f9e707
+	WORD $0x2000086a
+	WORD $0xe7773000
+	WORD $0x00f3a75b
+	WORD $0xfff0e760
+	WORD $0x7000648d
+	WORD $0xe7756000
+	WORD $0x0061e755
+	WORD $0x60000060
+	WORD $0xe7502010
+	WORD $0x000ee770
+	WORD $0x2000000e
+	WORD $0x41101010
+	WORD $0x41202020
+	WORD $0xa764ffcd
+	WORD $0xec600032
+	WORD $0x8064b909
+	WORD $0x0060b908
+	WORD $0x0040eb00
+	WORD $0x0001000d
+	WORD $0xb9080030
+	WORD $0xe3004000
+	WORD $0x0094eb10
+	WORD $0x000400de
+	WORD $0xec510057
+	WORD $0x00d8a51b
+	WORD $0x0030a70e
+	WORD $0x00a0ec20
+	WORD $0x1c9f0051
+	WORD $0xb9f2a015
+	WORD $0x18024210
+	WORD $0x3000a50b
+	WORD $0x0030ec12
+	WORD $0x005700d8
+	WORD $0xa72e000a
+	WORD $0xb9f24010
+	WORD $0x42103001
+	WORD $0x41404001
+	WORD $0x41303002
+	WORD $0xa767ffdc
+	WORD $0xeb6ff030
+	WORD $0x000407fe
+	RET
+
 // func toUpperASCIIVX(dst []byte, b []byte)
-TEXT ·toUpperASCIIVX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·toUpperASCIIVX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD b_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·toUpperASCIIVXBody(SB)
+	RET
+
+// toUpperASCIIVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·toUpperASCIIVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec4c
 	WORD $0x0045007c
@@ -1561,10 +2172,16 @@ TEXT ·toUpperASCIIVX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func toLowerASCIIVX(dst []byte, b []byte)
-TEXT ·toLowerASCIIVX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·toLowerASCIIVX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD b_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·toLowerASCIIVXBody(SB)
+	RET
+
+// toLowerASCIIVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·toLowerASCIIVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec4c
 	WORD $0x0045007c
@@ -1606,12 +2223,18 @@ TEXT ·toLowerASCIIVX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func replaceByteVX(dst []byte, b []byte, old byte, with byte)
-TEXT ·replaceByteVX(SB), NOSPLIT|NOFRAME, $0-50
+TEXT ·replaceByteVX(SB), NOSPLIT, $160-50
 	MOVD dst_base+0(FP), R2
 	MOVD b_base+24(FP), R3
 	MOVBZ old+48(FP), R4
 	MOVBZ with+49(FP), R5
 	MOVD dst_len+8(FP), R6
+	BL ·replaceByteVXBody(SB)
+	RET
+
+// replaceByteVXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·replaceByteVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec6c
 	WORD $0x0039007c

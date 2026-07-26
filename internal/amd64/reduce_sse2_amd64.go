@@ -109,7 +109,19 @@ func prodInt32SSE2(a []int32) int32
 func dotInt32SSE2(a []int32, b []int32) int32
 
 //go:noescape
+func l1normInt32SSE2(a []int32) int32
+
+//go:noescape
+func l1diffInt32SSE2(a []int32, b []int32) int32
+
+//go:noescape
 func sumInt64SSE2(a []int64) int64
 
 //go:noescape
 func dotInt64SSE2(a []int64, b []int64) int64
+
+//go:noescape
+func l1normInt64SSE2(a []int64) int64
+
+//go:noescape
+func l1diffInt64SSE2(a []int64, b []int64) int64

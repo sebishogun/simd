@@ -172,9 +172,6 @@ func clampInt64VX(dst []int64, a []int64, lo int64, hi int64)
 func fillInt64VX(dst []int64, v int64)
 
 //go:noescape
-func lerpInt64VX(dst []int64, a []int64, b []int64, t int64)
-
-//go:noescape
 func divFloat32VX(dst []float32, a []float32, b []float32)
 
 //go:noescape

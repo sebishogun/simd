@@ -100,4 +100,16 @@ func prodInt32NEON(a []int32) int32
 func dotInt32NEON(a []int32, b []int32) int32
 
 //go:noescape
+func l1normInt32NEON(a []int32) int32
+
+//go:noescape
+func l1diffInt32NEON(a []int32, b []int32) int32
+
+//go:noescape
 func sumInt64NEON(a []int64) int64
+
+//go:noescape
+func l1normInt64NEON(a []int64) int64
+
+//go:noescape
+func l1diffInt64NEON(a []int64, b []int64) int64

@@ -83,6 +83,15 @@ func log1pFloat32AVX2Guarded(dst []float32, a []float32) {
 	log1pFloat32AVX2(dst[:n:n], a)
 }
 
+func cbrtFloat32AVX2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	cbrtFloat32AVX2(dst[:n:n], a)
+}
+
 func sigmoidFloat32AVX2Guarded(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -263,6 +272,15 @@ func log1pFloat64AVX2Guarded(dst []float64, a []float64) {
 	log1pFloat64AVX2(dst[:n:n], a)
 }
 
+func cbrtFloat64AVX2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	cbrtFloat64AVX2(dst[:n:n], a)
+}
+
 func sigmoidFloat64AVX2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -391,6 +409,7 @@ func init() {
 	s.F32.Log2 = log2Float32AVX2Guarded
 	s.F32.Log10 = log10Float32AVX2Guarded
 	s.F32.Log1p = log1pFloat32AVX2Guarded
+	s.F32.Cbrt = cbrtFloat32AVX2Guarded
 	s.F32.Sigmoid = sigmoidFloat32AVX2Guarded
 	s.F32.Sin = sinFloat32AVX2Guarded
 	s.F32.Cos = cosFloat32AVX2Guarded
@@ -411,6 +430,7 @@ func init() {
 	s.F64.Log2 = log2Float64AVX2Guarded
 	s.F64.Log10 = log10Float64AVX2Guarded
 	s.F64.Log1p = log1pFloat64AVX2Guarded
+	s.F64.Cbrt = cbrtFloat64AVX2Guarded
 	s.F64.Sigmoid = sigmoidFloat64AVX2Guarded
 	s.F64.Sin = sinFloat64AVX2Guarded
 	s.F64.Cos = cosFloat64AVX2Guarded

@@ -80,6 +80,97 @@ none of these kernels.
 `TestTranscendentalTiersAgree` therefore compares only pairs that both generated the kernel, and
 compares those exactly. Accuracy of a fallback tier is covered by the ULP bound instead.
 
+## 4a. The register the Go runtime owns
+
+The worst bug in the project, and the one that only emulation could have found.
+
+Go keeps the current goroutine's descriptor in a fixed register on every
+architecture here, and reads it without warning — at a preemption check, at a
+stack-growth check, and from the signal handler. The C ABI knows nothing about
+this and treats the same register as ordinary callee-saved state:
+
+| GOARCH | Go's g register | What clang does about it |
+|---|---|---|
+| arm64 | x28 | `-ffixed-x28` works |
+| riscv64 | x27 | `-ffixed-x27` works |
+| loong64 | r22 | no `-ffixed`; a global register variable works |
+| ppc64le | r30 (and r2 = TOC) | no `-ffixed`; a global register variable works |
+| s390x | r13 | **no mechanism at all** |
+| amd64 | R14, X15 | nothing needed — ABI0 leaves them undefined |
+
+Only arm64 was reserved. On s390x, `arith.c` alone used r13 as a scratch
+register **86 times**, and nine of its kernels did not even save it — so the
+goroutine pointer was simply destroyed by an arithmetic kernel that had
+already returned successfully.
+
+The symptom is not a crash at the clobber. It is a panic in unrelated Go code,
+later, with a nonsense slice header: `slice bounds out of range [::16] with
+capacity 0` inside the portable reference, raised from a function whose input
+was a zero-length slice.
+
+clang accepts the global register variable on SystemZ and then allocates the
+register anyway. So the last word has to be a check on the generated code, and
+package verify now drops any kernel that names a register the runtime owns. It
+costs s390x about eighty kernels, which is the right trade: the alternative was
+memory corruption that no amount of testing on amd64 would ever have shown.
+
+## 4b. The save area the caller is supposed to provide
+
+The register mismatch above has a twin that is about memory, and it is subtler
+because the generated code looks perfectly reasonable.
+
+The s390x ELF ABI puts the register save area **at the caller's stack
+pointer**: the caller reserves 160 bytes at the top of its own frame and the
+callee stores its registers there. Every non-trivial kernel therefore begins
+
+    stmg %r14, %r15, 112(%r15)
+
+A positive displacement from the stack pointer is memory *above* it, which
+belongs to whoever called us. Under C that is fine — the caller promised those
+bytes. Under Go nobody promised anything, so the kernel writes sixteen bytes
+into the middle of the calling Go function's locals.
+
+arm64, riscv64, loong64 and amd64 do not do this; their callees allocate what
+they need below the stack pointer, and the measured count of stores above it is
+zero on all four. amd64 additionally has `-mno-red-zone`, which forbids the
+one case where it could.
+
+### Why the obvious fix does not work
+
+Declaring a Go frame of 176 bytes puts the save area in the right place — and
+breaks the return. The compiled body ends in its own branch to the link
+register and never reaches the epilogue that would pop the frame, so control
+arrives back in Go with the stack pointer still lowered. The next symptom is
+worse than the first: `unexpected return pc`.
+
+Appending an epilogue is not an option either, for the same reason reductions
+write through an out-pointer: LLVM lays basic blocks out *after* the return
+instruction, so there is no position after the body that always executes.
+
+### What does work
+
+Emit two symbols and call the body rather than falling into it:
+
+    TEXT ·kernel(SB), NOSPLIT, $160-28      // a frame, so the area is ours
+        MOVD $ret+24(FP), R2
+        MOVD a_base+0(FP), R3
+        MOVD a_len+8(FP), R4
+        BL   ·kernelBody(SB)
+        RET                                  // Go's epilogue restores SP
+
+    TEXT ·kernelBody(SB), NOSPLIT|NOFRAME, $0-0
+        WORD $0xebeff070                     // stmg %r14, %r15, 112(%r15)
+        ...
+
+The body's save-area writes now land in the trampoline's frame. Its branch to
+the link register returns to the trampoline, with the stack pointer exactly as
+it found it, and Go's own epilogue then runs. Go stores the link register at
+0(SP) and clang's save area starts at offset 48, so the two never overlap.
+
+The cost is one branch-and-link per call, against a kernel that is about to
+walk a whole slice. Without it, s390x would have had to drop 196 of its 245
+kernels — the alternative that was measured before this was found.
+
 ## 5. Constant pools on AArch64
 
 clang reaches a pool with `adrp x11, sym` + `ldr d1, [x11, :lo12:sym]`. `adrp` computes
@@ -113,6 +204,22 @@ would get a SIGSEGV out of this library with no plausible way to trace it back. 
 and keeping the portable path costs a few percent on a tier a machine only reaches if it predates
 AVX2.
 
+## 6a. The disassembly parser stopped at the first internal label
+
+llvm-objdump prints a local label inside a function in the same shape as a
+function header — `0000000000007460 <.L0 >:` — and the parser treated it as
+the start of a new function. Everything after the first internal label went
+into a phantom entry and was never checked.
+
+That is not cosmetic. The instruction-vs-tier check is the one thing standing
+between a mis-gated kernel and a SIGILL on a user's machine, and it was seeing
+truncated bodies. It also made 23 loong64 kernels look like tail calls to libm,
+because their `ret` happened to sit past a label, and it hid the `leaq` in
+cbrt that made the kernel unliftable.
+
+Fixing it moved kernel counts in both directions, which is what a fixed checker
+should do.
+
 ## 7. Shapes that decide whether LLVM vectorizes
 
 Four cases where the obvious C is the unvectorizable one, all found by reading generated assembly.
@@ -123,6 +230,13 @@ Four cases where the obvious C is the unvectorizable one, all found by reading g
 | an accumulator array with a runtime-indexed tail | gives the array an address, spilling all 16 lanes | `ext_vector_type` accumulator with a blended tail |
 | a byte reduction ending in a horizontal fold | a `tbl` whose index vector is loaded from `.rodata` | fold by hand through 64-bit lane extracts |
 | a three-way `rem` select in `cbrt` | a jump table — a constant pool of code addresses, the one kind that cannot be relocated | `m * pow2(rem)` |
+
+One more that is a diagnosis rather than a shape: `leaq` was being rejected as
+"a legacy SSE instruction that requires 16-byte alignment". It is not a load at
+all — it computes an address and never dereferences it — and neither are the
+scalar `ss`/`sd` forms, which touch four or eight bytes. Only the packed
+128-bit legacy forms genuinely need the pool aligned. Correcting that
+recovered cbrt on amd64 and four more kernels on the baseline tier.
 
 And two on the numerical side: `__builtin_sqrtf` emits a libm call because C requires it to set
 errno, while `__builtin_elementwise_sqrt` does not; and a search written to accumulate over the

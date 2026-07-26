@@ -100,4 +100,16 @@ func prodInt32VSX(a []int32) int32
 func dotInt32VSX(a []int32, b []int32) int32
 
 //go:noescape
+func l1normInt32VSX(a []int32) int32
+
+//go:noescape
+func l1diffInt32VSX(a []int32, b []int32) int32
+
+//go:noescape
 func sumInt64VSX(a []int64) int64
+
+//go:noescape
+func l1normInt64VSX(a []int64) int64
+
+//go:noescape
+func l1diffInt64VSX(a []int64, b []int64) int64

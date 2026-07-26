@@ -77,9 +77,41 @@ type Target struct {
 	AddrOf string
 
 	// Reserved are registers the Go runtime owns, which clang must be told
-	// not to allocate. Empty where the C ABI already avoids them, or where
-	// clang has no flag for it.
+	// not to allocate, spelled the way -ffixed wants them. Empty where clang
+	// has no such flag for the target — s390x, loongarch and ppc64 have none
+	// — in which case csrc/goabi.h declares a global register variable
+	// instead, which reserves it for the whole translation unit.
 	Reserved []string
+
+	// SaveArea is how many bytes of Go frame the kernel must reserve for a
+	// register save area the C ABI expects its *caller* to have provided.
+	//
+	// This is the one place the two conventions disagree about memory rather
+	// than registers, and it is not survivable. The s390x ELF ABI puts a
+	// 160-byte save area at the caller's stack pointer and the callee writes
+	// its registers there: every reduction kernel starts with
+	// "stmg %r14, %r15, 112(%r15)". Go provides no such area, so those eight
+	// bytes land in the middle of the calling Go function's frame. The symptom
+	// is a slice header with a length larger than its capacity, panicking
+	// somewhere else entirely.
+	//
+	// Declaring a Go frame of at least that size moves the stack pointer down
+	// far enough that the writes land in the kernel's own frame. Zero means
+	// the callee allocates everything it needs, which is the case on arm64,
+	// riscv64, loong64 and amd64 — the last because -mno-red-zone already
+	// forbids writing below the stack pointer.
+	SaveArea int
+
+	// GoOwned are the same registers spelled the way the disassembler prints
+	// them, for the backstop check in package verify.
+	//
+	// Neither mechanism above is guaranteed: clang accepts the global register
+	// variable on s390x and then allocates the register anyway. So the last
+	// word is a check on the generated code, because a kernel that uses Go's
+	// goroutine pointer for a loop counter does not fail where it is written.
+	// It corrupts whatever the runtime touches next, and the panic surfaces in
+	// unrelated Go code with a nonsense slice header.
+	GoOwned []string
 
 	// DisasmFlags are passed to llvm-objdump so it can decode this target's
 	// instructions.
@@ -254,6 +286,7 @@ var All = []Target{
 		// R27 and R28 are reserved by Go's compiler and linker; R18 is the OS
 		// platform register. Unlike x86, clang honours -ffixed for these.
 		Reserved:   []string{"x28", "x27", "x18"},
+		GoOwned:    []string{"x28", "x27", "x18"},
 		MinFeature: FeatNEON,
 	},
 	{
@@ -272,6 +305,7 @@ var All = []Target{
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBU",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
 		Reserved:    []string{"x28", "x27", "x18"},
+		GoOwned:     []string{"x28", "x27", "x18"},
 		DisasmFlags: []string{"--mattr=+sve2"},
 		MinFeature:  FeatSVE2,
 	},
@@ -286,7 +320,11 @@ var All = []Target{
 		// -mno-relax because linker relaxation is meaningless here: nothing
 		// links this object, and the R_RISCV_RELAX hints it emits are not
 		// fixups at all, just markers saying a sequence *could* be shortened.
-		MArch:      []string{"-march=rv64gv", "-mno-relax"},
+		MArch: []string{"-march=rv64gv", "-mno-relax"},
+		// X27 is Go's goroutine pointer (REG_G in cmd/internal/obj/riscv).
+		// clang accepts -ffixed for it, unlike s390x, loongarch and ppc64.
+		Reserved:   []string{"x27"},
+		GoOwned:    []string{"s11", "x27"},
 		InstrWidth: 4,
 		Directives: dirWord,
 		IntArgs:    []string{"X10", "X11", "X12", "X13", "X14", "X15", "X16", "X17"},
@@ -299,7 +337,12 @@ var All = []Target{
 	},
 	{
 		Arch: S390X, Tier: "vx", Triple: "s390x-linux-gnu",
-		MArch:      []string{"-march=z14"},
+		MArch: []string{"-march=z14"},
+		// No Reserved: clang has no -ffixed for SystemZ at all, and it accepts
+		// the global register variable in csrc/goabi.h without honouring it.
+		// The backstop below is what actually keeps r13 safe here.
+		GoOwned:    []string{"r13"},
+		SaveArea:   160, // the zSeries ABI register save area
 		InstrWidth: 0,
 		Directives: dirS390X,
 		BigEndian:  true,
@@ -313,7 +356,10 @@ var All = []Target{
 	},
 	{
 		Arch: LOONG64, Tier: "lasx", Triple: "loongarch64-linux-gnu",
-		MArch:      []string{"-march=la464"},
+		MArch: []string{"-march=la464"},
+		// Reserved by the global register variable in csrc/goabi.h, which
+		// clang does honour here.
+		GoOwned:    []string{"r22"},
 		InstrWidth: 4,
 		Directives: dirWord,
 		IntArgs:    []string{"R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11"},
@@ -326,6 +372,10 @@ var All = []Target{
 	},
 	{
 		Arch: PPC64LE, Tier: "vsx", Triple: "powerpc64le-linux-gnu",
+		GoOwned: []string{"r30", "r2"},
+		// ELFv2 reserves 32 bytes at the caller's stack pointer — backchain,
+		// condition register, link register and TOC. 64 leaves room to spare.
+		SaveArea: 64,
 		// The one target with a non-trivial relocation model: constants are
 		// reached through the TOC, which needs its own handling. Scheduled
 		// last for that reason.

@@ -14,11 +14,17 @@
 #include "textflag.h"
 
 // func hypotFloat32VX(dst []float32, a []float32, b []float32)
-TEXT ·hypotFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·hypotFloat32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·hypotFloat32VXBody(SB)
+	RET
+
+// hypotFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·hypotFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0078007c
@@ -132,11 +138,17 @@ TEXT ·hypotFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func hypotFloat64VX(dst []float64, a []float64, b []float64)
-TEXT ·hypotFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·hypotFloat64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·hypotFloat64VXBody(SB)
+	RET
+
+// hypotFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·hypotFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0078007c

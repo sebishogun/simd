@@ -14,11 +14,17 @@
 #include "textflag.h"
 
 // func addFloat32VX(dst []float32, a []float32, b []float32)
-TEXT ·addFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·addFloat32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·addFloat32VXBody(SB)
+	RET
+
+// addFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -52,11 +58,17 @@ TEXT ·addFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func subFloat32VX(dst []float32, a []float32, b []float32)
-TEXT ·subFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·subFloat32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·subFloat32VXBody(SB)
+	RET
+
+// subFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -90,11 +102,17 @@ TEXT ·subFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func mulFloat32VX(dst []float32, a []float32, b []float32)
-TEXT ·mulFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·mulFloat32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·mulFloat32VXBody(SB)
+	RET
+
+// mulFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·mulFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -128,11 +146,17 @@ TEXT ·mulFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func minimumFloat32VX(dst []float32, a []float32, b []float32)
-TEXT ·minimumFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·minimumFloat32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·minimumFloat32VXBody(SB)
+	RET
+
+// minimumFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x006f007c
@@ -219,11 +243,17 @@ TEXT ·minimumFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func maximumFloat32VX(dst []float32, a []float32, b []float32)
-TEXT ·maximumFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·maximumFloat32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·maximumFloat32VXBody(SB)
+	RET
+
+// maximumFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x006f007c
@@ -309,10 +339,16 @@ TEXT ·maximumFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func absFloat32VX(dst []float32, a []float32)
-TEXT ·absFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·absFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·absFloat32VXBody(SB)
+	RET
+
+// absFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0031
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -341,10 +377,16 @@ TEXT ·absFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func negFloat32VX(dst []float32, a []float32)
-TEXT ·negFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·negFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·negFloat32VXBody(SB)
+	RET
+
+// negFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0031
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -373,11 +415,17 @@ TEXT ·negFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func scaleFloat32VX(dst []float32, a []float32, s float32)
-TEXT ·scaleFloat32VX(SB), NOSPLIT|NOFRAME, $0-52
+TEXT ·scaleFloat32VX(SB), NOSPLIT, $160-52
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS s+48(FP), F0
 	MOVD dst_len+8(FP), R4
+	BL ·scaleFloat32VXBody(SB)
+	RET
+
+// scaleFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·scaleFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0033
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -407,11 +455,17 @@ TEXT ·scaleFloat32VX(SB), NOSPLIT|NOFRAME, $0-52
 	RET
 
 // func addScalarFloat32VX(dst []float32, a []float32, s float32)
-TEXT ·addScalarFloat32VX(SB), NOSPLIT|NOFRAME, $0-52
+TEXT ·addScalarFloat32VX(SB), NOSPLIT, $160-52
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS s+48(FP), F0
 	MOVD dst_len+8(FP), R4
+	BL ·addScalarFloat32VXBody(SB)
+	RET
+
+// addScalarFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0033
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -441,11 +495,17 @@ TEXT ·addScalarFloat32VX(SB), NOSPLIT|NOFRAME, $0-52
 	RET
 
 // func subScalarFloat32VX(dst []float32, a []float32, s float32)
-TEXT ·subScalarFloat32VX(SB), NOSPLIT|NOFRAME, $0-52
+TEXT ·subScalarFloat32VX(SB), NOSPLIT, $160-52
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS s+48(FP), F0
 	MOVD dst_len+8(FP), R4
+	BL ·subScalarFloat32VXBody(SB)
+	RET
+
+// subScalarFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0034
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -477,12 +537,18 @@ TEXT ·subScalarFloat32VX(SB), NOSPLIT|NOFRAME, $0-52
 	RET
 
 // func clampFloat32VX(dst []float32, a []float32, lo float32, hi float32)
-TEXT ·clampFloat32VX(SB), NOSPLIT|NOFRAME, $0-56
+TEXT ·clampFloat32VX(SB), NOSPLIT, $160-56
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS lo+48(FP), F0
 	FMOVS hi+52(FP), F2
 	MOVD dst_len+8(FP), R4
+	BL ·clampFloat32VXBody(SB)
+	RET
+
+// clampFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c007e
 	WORD $0x007cb309
 	WORD $0x0000a714
@@ -708,10 +774,16 @@ TEXT ·clampFloat32VX(SB), NOSPLIT|NOFRAME, $0-56
 	RET
 
 // func fillFloat32VX(dst []float32, v float32)
-TEXT ·fillFloat32VX(SB), NOSPLIT|NOFRAME, $0-28
+TEXT ·fillFloat32VX(SB), NOSPLIT, $160-28
 	MOVD dst_base+0(FP), R2
 	FMOVS v+24(FP), F0
 	MOVD dst_len+8(FP), R3
+	BL ·fillFloat32VXBody(SB)
+	RET
+
+// fillFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec3c002b
 	WORD $0x007ca709
 	WORD $0x0000ec34
@@ -737,12 +809,18 @@ TEXT ·fillFloat32VX(SB), NOSPLIT|NOFRAME, $0-28
 	RET
 
 // func lerpFloat32VX(dst []float32, a []float32, b []float32, t float32)
-TEXT ·lerpFloat32VX(SB), NOSPLIT|NOFRAME, $0-76
+TEXT ·lerpFloat32VX(SB), NOSPLIT, $160-76
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	FMOVS t+72(FP), F0
 	MOVD dst_len+8(FP), R5
+	BL ·lerpFloat32VXBody(SB)
+	RET
+
+// lerpFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lerpFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0045007c
@@ -784,12 +862,18 @@ TEXT ·lerpFloat32VX(SB), NOSPLIT|NOFRAME, $0-76
 	RET
 
 // func addScaledFloat32VX(dst []float32, a []float32, b []float32, s float32)
-TEXT ·addScaledFloat32VX(SB), NOSPLIT|NOFRAME, $0-76
+TEXT ·addScaledFloat32VX(SB), NOSPLIT, $160-76
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	FMOVS s+72(FP), F0
 	MOVD dst_len+8(FP), R5
+	BL ·addScaledFloat32VXBody(SB)
+	RET
+
+// addScaledFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScaledFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x003c007c
@@ -828,11 +912,17 @@ TEXT ·addScaledFloat32VX(SB), NOSPLIT|NOFRAME, $0-76
 	RET
 
 // func addFloat64VX(dst []float64, a []float64, b []float64)
-TEXT ·addFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·addFloat64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·addFloat64VXBody(SB)
+	RET
+
+// addFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0034007c
@@ -867,11 +957,17 @@ TEXT ·addFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func subFloat64VX(dst []float64, a []float64, b []float64)
-TEXT ·subFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·subFloat64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·subFloat64VXBody(SB)
+	RET
+
+// subFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0034007c
@@ -906,11 +1002,17 @@ TEXT ·subFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func mulFloat64VX(dst []float64, a []float64, b []float64)
-TEXT ·mulFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·mulFloat64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·mulFloat64VXBody(SB)
+	RET
+
+// mulFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·mulFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0034007c
@@ -945,11 +1047,17 @@ TEXT ·mulFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func minimumFloat64VX(dst []float64, a []float64, b []float64)
-TEXT ·minimumFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·minimumFloat64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·minimumFloat64VXBody(SB)
+	RET
+
+// minimumFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x006f007c
@@ -1035,11 +1143,17 @@ TEXT ·minimumFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func maximumFloat64VX(dst []float64, a []float64, b []float64)
-TEXT ·maximumFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·maximumFloat64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·maximumFloat64VXBody(SB)
+	RET
+
+// maximumFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x006f007c
@@ -1124,10 +1238,16 @@ TEXT ·maximumFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func absFloat64VX(dst []float64, a []float64)
-TEXT ·absFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·absFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·absFloat64VXBody(SB)
+	RET
+
+// absFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0030
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -1157,10 +1277,16 @@ TEXT ·absFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func negFloat64VX(dst []float64, a []float64)
-TEXT ·negFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·negFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·negFloat64VXBody(SB)
+	RET
+
+// negFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0030
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -1190,11 +1316,17 @@ TEXT ·negFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func scaleFloat64VX(dst []float64, a []float64, s float64)
-TEXT ·scaleFloat64VX(SB), NOSPLIT|NOFRAME, $0-56
+TEXT ·scaleFloat64VX(SB), NOSPLIT, $160-56
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD s+48(FP), F0
 	MOVD dst_len+8(FP), R4
+	BL ·scaleFloat64VXBody(SB)
+	RET
+
+// scaleFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·scaleFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0033
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -1224,11 +1356,17 @@ TEXT ·scaleFloat64VX(SB), NOSPLIT|NOFRAME, $0-56
 	RET
 
 // func addScalarFloat64VX(dst []float64, a []float64, s float64)
-TEXT ·addScalarFloat64VX(SB), NOSPLIT|NOFRAME, $0-56
+TEXT ·addScalarFloat64VX(SB), NOSPLIT, $160-56
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD s+48(FP), F0
 	MOVD dst_len+8(FP), R4
+	BL ·addScalarFloat64VXBody(SB)
+	RET
+
+// addScalarFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0033
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -1258,11 +1396,17 @@ TEXT ·addScalarFloat64VX(SB), NOSPLIT|NOFRAME, $0-56
 	RET
 
 // func subScalarFloat64VX(dst []float64, a []float64, s float64)
-TEXT ·subScalarFloat64VX(SB), NOSPLIT|NOFRAME, $0-56
+TEXT ·subScalarFloat64VX(SB), NOSPLIT, $160-56
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD s+48(FP), F0
 	MOVD dst_len+8(FP), R4
+	BL ·subScalarFloat64VXBody(SB)
+	RET
+
+// subScalarFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0033
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -1292,12 +1436,18 @@ TEXT ·subScalarFloat64VX(SB), NOSPLIT|NOFRAME, $0-56
 	RET
 
 // func clampFloat64VX(dst []float64, a []float64, lo float64, hi float64)
-TEXT ·clampFloat64VX(SB), NOSPLIT|NOFRAME, $0-64
+TEXT ·clampFloat64VX(SB), NOSPLIT, $160-64
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD lo+48(FP), F0
 	FMOVD hi+56(FP), F2
 	MOVD dst_len+8(FP), R4
+	BL ·clampFloat64VXBody(SB)
+	RET
+
+// clampFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0071
 	WORD $0x007cb319
 	WORD $0x0000a709
@@ -1521,10 +1671,16 @@ TEXT ·clampFloat64VX(SB), NOSPLIT|NOFRAME, $0-64
 	RET
 
 // func fillFloat64VX(dst []float64, v float64)
-TEXT ·fillFloat64VX(SB), NOSPLIT|NOFRAME, $0-32
+TEXT ·fillFloat64VX(SB), NOSPLIT, $160-32
 	MOVD dst_base+0(FP), R2
 	FMOVD v+24(FP), F0
 	MOVD dst_len+8(FP), R3
+	BL ·fillFloat64VXBody(SB)
+	RET
+
+// fillFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec3c002b
 	WORD $0x007ca709
 	WORD $0x0000ec38
@@ -1550,12 +1706,18 @@ TEXT ·fillFloat64VX(SB), NOSPLIT|NOFRAME, $0-32
 	RET
 
 // func lerpFloat64VX(dst []float64, a []float64, b []float64, t float64)
-TEXT ·lerpFloat64VX(SB), NOSPLIT|NOFRAME, $0-80
+TEXT ·lerpFloat64VX(SB), NOSPLIT, $160-80
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	FMOVD t+72(FP), F0
 	MOVD dst_len+8(FP), R5
+	BL ·lerpFloat64VXBody(SB)
+	RET
+
+// lerpFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lerpFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0043007c
@@ -1596,12 +1758,18 @@ TEXT ·lerpFloat64VX(SB), NOSPLIT|NOFRAME, $0-80
 	RET
 
 // func addScaledFloat64VX(dst []float64, a []float64, b []float64, s float64)
-TEXT ·addScaledFloat64VX(SB), NOSPLIT|NOFRAME, $0-80
+TEXT ·addScaledFloat64VX(SB), NOSPLIT, $160-80
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	FMOVD s+72(FP), F0
 	MOVD dst_len+8(FP), R5
+	BL ·addScaledFloat64VXBody(SB)
+	RET
+
+// addScaledFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScaledFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x003c007c
@@ -1640,11 +1808,17 @@ TEXT ·addScaledFloat64VX(SB), NOSPLIT|NOFRAME, $0-80
 	RET
 
 // func addInt32VX(dst []int32, a []int32, b []int32)
-TEXT ·addInt32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·addInt32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·addInt32VXBody(SB)
+	RET
+
+// addInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0033007c
@@ -1677,11 +1851,17 @@ TEXT ·addInt32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func subInt32VX(dst []int32, a []int32, b []int32)
-TEXT ·subInt32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·subInt32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·subInt32VXBody(SB)
+	RET
+
+// subInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0033007c
@@ -1714,11 +1894,17 @@ TEXT ·subInt32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func mulInt32VX(dst []int32, a []int32, b []int32)
-TEXT ·mulInt32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·mulInt32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·mulInt32VXBody(SB)
+	RET
+
+// mulInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·mulInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0033007c
@@ -1751,11 +1937,17 @@ TEXT ·mulInt32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func minimumInt32VX(dst []int32, a []int32, b []int32)
-TEXT ·minimumInt32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·minimumInt32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·minimumInt32VXBody(SB)
+	RET
+
+// minimumInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0036007c
@@ -1791,11 +1983,17 @@ TEXT ·minimumInt32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func maximumInt32VX(dst []int32, a []int32, b []int32)
-TEXT ·maximumInt32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·maximumInt32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·maximumInt32VXBody(SB)
+	RET
+
+// maximumInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0036007c
@@ -1831,10 +2029,16 @@ TEXT ·maximumInt32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func absInt32VX(dst []int32, a []int32)
-TEXT ·absInt32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·absInt32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·absInt32VXBody(SB)
+	RET
+
+// absInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c002f
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -1862,10 +2066,16 @@ TEXT ·absInt32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func negInt32VX(dst []int32, a []int32)
-TEXT ·negInt32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·negInt32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·negInt32VXBody(SB)
+	RET
+
+// negInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0030
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -1895,11 +2105,17 @@ TEXT ·negInt32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func scaleInt32VX(dst []int32, a []int32, s int32)
-TEXT ·scaleInt32VX(SB), NOSPLIT|NOFRAME, $0-52
+TEXT ·scaleInt32VX(SB), NOSPLIT, $160-52
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVW s+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·scaleInt32VXBody(SB)
+	RET
+
+// scaleInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·scaleInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -1933,11 +2149,17 @@ TEXT ·scaleInt32VX(SB), NOSPLIT|NOFRAME, $0-52
 	RET
 
 // func addScalarInt32VX(dst []int32, a []int32, s int32)
-TEXT ·addScalarInt32VX(SB), NOSPLIT|NOFRAME, $0-52
+TEXT ·addScalarInt32VX(SB), NOSPLIT, $160-52
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVW s+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·addScalarInt32VXBody(SB)
+	RET
+
+// addScalarInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -1971,11 +2193,17 @@ TEXT ·addScalarInt32VX(SB), NOSPLIT|NOFRAME, $0-52
 	RET
 
 // func subScalarInt32VX(dst []int32, a []int32, s int32)
-TEXT ·subScalarInt32VX(SB), NOSPLIT|NOFRAME, $0-52
+TEXT ·subScalarInt32VX(SB), NOSPLIT, $160-52
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVW s+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·subScalarInt32VXBody(SB)
+	RET
+
+// subScalarInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -2009,12 +2237,18 @@ TEXT ·subScalarInt32VX(SB), NOSPLIT|NOFRAME, $0-52
 	RET
 
 // func clampInt32VX(dst []int32, a []int32, lo int32, hi int32)
-TEXT ·clampInt32VX(SB), NOSPLIT|NOFRAME, $0-56
+TEXT ·clampInt32VX(SB), NOSPLIT, $160-56
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVW lo+48(FP), R4
 	MOVW hi+52(FP), R5
 	MOVD dst_len+8(FP), R6
+	BL ·clampInt32VXBody(SB)
+	RET
+
+// clampInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xeb6ff030
 	WORD $0x0024ec6c
 	WORD $0x0043007c
@@ -2055,10 +2289,16 @@ TEXT ·clampInt32VX(SB), NOSPLIT|NOFRAME, $0-56
 	RET
 
 // func fillInt32VX(dst []int32, v int32)
-TEXT ·fillInt32VX(SB), NOSPLIT|NOFRAME, $0-28
+TEXT ·fillInt32VX(SB), NOSPLIT, $160-28
 	MOVD dst_base+0(FP), R2
 	MOVW v+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·fillInt32VXBody(SB)
+	RET
+
+// fillInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c002e
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2087,12 +2327,18 @@ TEXT ·fillInt32VX(SB), NOSPLIT|NOFRAME, $0-28
 	RET
 
 // func lerpInt32VX(dst []int32, a []int32, b []int32, t int32)
-TEXT ·lerpInt32VX(SB), NOSPLIT|NOFRAME, $0-76
+TEXT ·lerpInt32VX(SB), NOSPLIT, $160-76
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVW t+72(FP), R5
 	MOVD dst_len+8(FP), R6
+	BL ·lerpInt32VXBody(SB)
+	RET
+
+// lerpInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lerpInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xeb6ff030
 	WORD $0x0024ec6c
 	WORD $0x0040007c
@@ -2133,12 +2379,18 @@ TEXT ·lerpInt32VX(SB), NOSPLIT|NOFRAME, $0-76
 	RET
 
 // func addScaledInt32VX(dst []int32, a []int32, b []int32, s int32)
-TEXT ·addScaledInt32VX(SB), NOSPLIT|NOFRAME, $0-76
+TEXT ·addScaledInt32VX(SB), NOSPLIT, $160-76
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVW s+72(FP), R5
 	MOVD dst_len+8(FP), R6
+	BL ·addScaledInt32VXBody(SB)
+	RET
+
+// addScaledInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScaledInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xeb6ff030
 	WORD $0x0024ec6c
 	WORD $0x003a007c
@@ -2176,11 +2428,17 @@ TEXT ·addScaledInt32VX(SB), NOSPLIT|NOFRAME, $0-76
 	RET
 
 // func addInt64VX(dst []int64, a []int64, b []int64)
-TEXT ·addInt64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·addInt64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·addInt64VXBody(SB)
+	RET
+
+// addInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0036007c
@@ -2216,11 +2474,17 @@ TEXT ·addInt64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func subInt64VX(dst []int64, a []int64, b []int64)
-TEXT ·subInt64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·subInt64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·subInt64VXBody(SB)
+	RET
+
+// subInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0036007c
@@ -2256,11 +2520,17 @@ TEXT ·subInt64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func minimumInt64VX(dst []int64, a []int64, b []int64)
-TEXT ·minimumInt64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·minimumInt64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·minimumInt64VXBody(SB)
+	RET
+
+// minimumInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x003a007c
@@ -2298,11 +2568,17 @@ TEXT ·minimumInt64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func maximumInt64VX(dst []int64, a []int64, b []int64)
-TEXT ·maximumInt64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·maximumInt64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·maximumInt64VXBody(SB)
+	RET
+
+// maximumInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x003a007c
@@ -2340,10 +2616,16 @@ TEXT ·maximumInt64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func absInt64VX(dst []int64, a []int64)
-TEXT ·absInt64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·absInt64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·absInt64VXBody(SB)
+	RET
+
+// absInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0032
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -2374,10 +2656,16 @@ TEXT ·absInt64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func negInt64VX(dst []int64, a []int64)
-TEXT ·negInt64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·negInt64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·negInt64VXBody(SB)
+	RET
+
+// negInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0032
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -2408,11 +2696,17 @@ TEXT ·negInt64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func addScalarInt64VX(dst []int64, a []int64, s int64)
-TEXT ·addScalarInt64VX(SB), NOSPLIT|NOFRAME, $0-56
+TEXT ·addScalarInt64VX(SB), NOSPLIT, $160-56
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD s+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·addScalarInt64VXBody(SB)
+	RET
+
+// addScalarInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -2446,11 +2740,17 @@ TEXT ·addScalarInt64VX(SB), NOSPLIT|NOFRAME, $0-56
 	RET
 
 // func subScalarInt64VX(dst []int64, a []int64, s int64)
-TEXT ·subScalarInt64VX(SB), NOSPLIT|NOFRAME, $0-56
+TEXT ·subScalarInt64VX(SB), NOSPLIT, $160-56
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD s+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·subScalarInt64VXBody(SB)
+	RET
+
+// subScalarInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -2484,12 +2784,18 @@ TEXT ·subScalarInt64VX(SB), NOSPLIT|NOFRAME, $0-56
 	RET
 
 // func clampInt64VX(dst []int64, a []int64, lo int64, hi int64)
-TEXT ·clampInt64VX(SB), NOSPLIT|NOFRAME, $0-64
+TEXT ·clampInt64VX(SB), NOSPLIT, $160-64
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD lo+48(FP), R4
 	MOVD hi+56(FP), R5
 	MOVD dst_len+8(FP), R6
+	BL ·clampInt64VXBody(SB)
+	RET
+
+// clampInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xeb6ff030
 	WORD $0x0024ec6c
 	WORD $0x0041007c
@@ -2529,10 +2835,16 @@ TEXT ·clampInt64VX(SB), NOSPLIT|NOFRAME, $0-64
 	RET
 
 // func fillInt64VX(dst []int64, v int64)
-TEXT ·fillInt64VX(SB), NOSPLIT|NOFRAME, $0-32
+TEXT ·fillInt64VX(SB), NOSPLIT, $160-32
 	MOVD dst_base+0(FP), R2
 	MOVD v+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·fillInt64VXBody(SB)
+	RET
+
+// fillInt64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c002c
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -2559,67 +2871,18 @@ TEXT ·fillInt64VX(SB), NOSPLIT|NOFRAME, $0-32
 	BYTE $0xfe
 	RET
 
-// func lerpInt64VX(dst []int64, a []int64, b []int64, t int64)
-TEXT ·lerpInt64VX(SB), NOSPLIT|NOFRAME, $0-80
-	MOVD dst_base+0(FP), R2
-	MOVD a_base+24(FP), R3
-	MOVD b_base+48(FP), R4
-	MOVD t+72(FP), R5
-	MOVD dst_len+8(FP), R6
-	WORD $0xeb6ff030
-	WORD $0x0024ec6c
-	WORD $0x0055007c
-	WORD $0xa7090000
-	WORD $0xec680038
-	WORD $0x017ce705
-	WORD $0x50000062
-	WORD $0xe7e00001
-	WORD $0x3021e7d0
-	WORD $0x00003021
-	WORD $0xec0601be
-	WORD $0x0059a719
-	WORD $0x0000b904
-	WORD $0x00c0e701
-	WORD $0x30003006
-	WORD $0xe7114000
-	WORD $0x3006e711
-	WORD $0x000030f7
-	WORD $0xe7b10001
-	WORD $0x3021e7a1
-	WORD $0x00003021
-	WORD $0xb9ede0bb
-	WORD $0xb9edd0aa
-	WORD $0xe71ab000
-	WORD $0x0062e701
-	WORD $0x000030f3
-	WORD $0xe7012000
-	WORD $0x300ea7cb
-	WORD $0xfffe4110
-	WORD $0x1010a774
-	WORD $0xffe0ec60
-	WORD $0x001b8064
-	WORD $0xb9090060
-	WORD $0xeb100003
-	WORD $0x000de301
-	WORD $0x30000004
-	WORD $0xe3e14000
-	WORD $0x0004b909
-	WORD $0x00e0b9ed
-	WORD $0x50eeb908
-	WORD $0x000ee301
-	WORD $0x20000024
-	WORD $0x41101008
-	WORD $0xa767ffef
-	WORD $0xeb6ff030
-	WORD $0x000407fe
-	RET
-
 // func divFloat32VX(dst []float32, a []float32, b []float32)
-TEXT ·divFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·divFloat32VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·divFloat32VXBody(SB)
+	RET
+
+// divFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·divFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0035007c
@@ -2653,11 +2916,17 @@ TEXT ·divFloat32VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func divScalarFloat32VX(dst []float32, a []float32, s float32)
-TEXT ·divScalarFloat32VX(SB), NOSPLIT|NOFRAME, $0-52
+TEXT ·divScalarFloat32VX(SB), NOSPLIT, $160-52
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS s+48(FP), F0
 	MOVD dst_len+8(FP), R4
+	BL ·divScalarFloat32VXBody(SB)
+	RET
+
+// divScalarFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·divScalarFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0034
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2689,10 +2958,16 @@ TEXT ·divScalarFloat32VX(SB), NOSPLIT|NOFRAME, $0-52
 	RET
 
 // func sqrtFloat32VX(dst []float32, a []float32)
-TEXT ·sqrtFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·sqrtFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·sqrtFloat32VXBody(SB)
+	RET
+
+// sqrtFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·sqrtFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c002f
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2720,10 +2995,16 @@ TEXT ·sqrtFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func reciprocalFloat32VX(dst []float32, a []float32)
-TEXT ·reciprocalFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·reciprocalFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·reciprocalFloat32VXBody(SB)
+	RET
+
+// reciprocalFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·reciprocalFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0035
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2754,10 +3035,16 @@ TEXT ·reciprocalFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func floorFloat32VX(dst []float32, a []float32)
-TEXT ·floorFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·floorFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·floorFloat32VXBody(SB)
+	RET
+
+// floorFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·floorFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0031
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2786,10 +3073,16 @@ TEXT ·floorFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func ceilFloat32VX(dst []float32, a []float32)
-TEXT ·ceilFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·ceilFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·ceilFloat32VXBody(SB)
+	RET
+
+// ceilFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·ceilFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0031
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2818,10 +3111,16 @@ TEXT ·ceilFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func truncFloat32VX(dst []float32, a []float32)
-TEXT ·truncFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·truncFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·truncFloat32VXBody(SB)
+	RET
+
+// truncFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·truncFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0031
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2850,10 +3149,16 @@ TEXT ·truncFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func roundFloat32VX(dst []float32, a []float32)
-TEXT ·roundFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·roundFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·roundFloat32VXBody(SB)
+	RET
+
+// roundFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·roundFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0031
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2882,10 +3187,16 @@ TEXT ·roundFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func roundToEvenFloat32VX(dst []float32, a []float32)
-TEXT ·roundToEvenFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·roundToEvenFloat32VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·roundToEvenFloat32VXBody(SB)
+	RET
+
+// roundToEvenFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·roundToEvenFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0031
 	WORD $0x007ca709
 	WORD $0x0000ec44
@@ -2914,11 +3225,17 @@ TEXT ·roundToEvenFloat32VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func divFloat64VX(dst []float64, a []float64, b []float64)
-TEXT ·divFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
+TEXT ·divFloat64VX(SB), NOSPLIT, $160-72
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
 	MOVD dst_len+8(FP), R5
+	BL ·divFloat64VXBody(SB)
+	RET
+
+// divFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·divFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xebeff070
 	WORD $0x0024ec5c
 	WORD $0x0034007c
@@ -2953,11 +3270,17 @@ TEXT ·divFloat64VX(SB), NOSPLIT|NOFRAME, $0-72
 	RET
 
 // func divScalarFloat64VX(dst []float64, a []float64, s float64)
-TEXT ·divScalarFloat64VX(SB), NOSPLIT|NOFRAME, $0-56
+TEXT ·divScalarFloat64VX(SB), NOSPLIT, $160-56
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD s+48(FP), F0
 	MOVD dst_len+8(FP), R4
+	BL ·divScalarFloat64VXBody(SB)
+	RET
+
+// divScalarFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·divScalarFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0033
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -2987,10 +3310,16 @@ TEXT ·divScalarFloat64VX(SB), NOSPLIT|NOFRAME, $0-56
 	RET
 
 // func sqrtFloat64VX(dst []float64, a []float64)
-TEXT ·sqrtFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·sqrtFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·sqrtFloat64VXBody(SB)
+	RET
+
+// sqrtFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·sqrtFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c002f
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -3018,10 +3347,16 @@ TEXT ·sqrtFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func reciprocalFloat64VX(dst []float64, a []float64)
-TEXT ·reciprocalFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·reciprocalFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·reciprocalFloat64VXBody(SB)
+	RET
+
+// reciprocalFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·reciprocalFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0035
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -3052,10 +3387,16 @@ TEXT ·reciprocalFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func floorFloat64VX(dst []float64, a []float64)
-TEXT ·floorFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·floorFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·floorFloat64VXBody(SB)
+	RET
+
+// floorFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·floorFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0030
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -3085,10 +3426,16 @@ TEXT ·floorFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func ceilFloat64VX(dst []float64, a []float64)
-TEXT ·ceilFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·ceilFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·ceilFloat64VXBody(SB)
+	RET
+
+// ceilFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·ceilFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0030
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -3118,10 +3465,16 @@ TEXT ·ceilFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func truncFloat64VX(dst []float64, a []float64)
-TEXT ·truncFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·truncFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·truncFloat64VXBody(SB)
+	RET
+
+// truncFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·truncFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0030
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -3151,10 +3504,16 @@ TEXT ·truncFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func roundFloat64VX(dst []float64, a []float64)
-TEXT ·roundFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·roundFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·roundFloat64VXBody(SB)
+	RET
+
+// roundFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·roundFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0030
 	WORD $0x007ca709
 	WORD $0x0000ec48
@@ -3184,10 +3543,16 @@ TEXT ·roundFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
 	RET
 
 // func roundToEvenFloat64VX(dst []float64, a []float64)
-TEXT ·roundToEvenFloat64VX(SB), NOSPLIT|NOFRAME, $0-48
+TEXT ·roundToEvenFloat64VX(SB), NOSPLIT, $160-48
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
+	BL ·roundToEvenFloat64VXBody(SB)
+	RET
+
+// roundToEvenFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·roundToEvenFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xec4c0030
 	WORD $0x007ca709
 	WORD $0x0000ec48

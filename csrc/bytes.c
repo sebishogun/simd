@@ -12,6 +12,7 @@
 // assembly for. The dispatcher's threshold is what keeps the short case on the
 // portable path where the early exit is still available.
 
+#include "goabi.h"
 #include "fold.h"
 
 typedef unsigned char u8;
@@ -149,5 +150,129 @@ void simd_replace_byte(u8 *__restrict d, const u8 *__restrict b, u8 old,
   for (isize i = 0; i < n; i++) {
     u8 c = b[i];
     d[i] = (c == old) ? with : c;
+  }
+}
+
+// ---------- comparison and search over a set ----------
+
+// simd_compare_bytes orders a before, equal to, or after b, matching
+// bytes.Compare: by content at the first differing byte, and by length if one
+// is a prefix of the other.
+//
+// The first difference is found by the same blocked scan simd_index_byte
+// uses — each block is tested without branching and only a block containing
+// one is walked — so the common case of a long common prefix stays vector
+// code, while the answer is still the *first* difference rather than any.
+void simd_compare_bytes(isize *__restrict out, const u8 *__restrict a,
+                        const u8 *__restrict b, isize na, isize nb) {
+  isize n = na < nb ? na : nb;
+  const isize block = 64;
+  isize i = 0;
+  for (; i + block <= n; i += block) {
+    unsigned char diff = 0;
+    for (isize j = 0; j < block; j++) diff |= (unsigned char)(a[i + j] ^ b[i + j]);
+    if (diff) break;
+  }
+  for (; i < n; i++)
+    if (a[i] != b[i]) {
+      *out = a[i] < b[i] ? -1 : 1;
+      return;
+    }
+  *out = na < nb ? -1 : na > nb ? 1 : 0;
+}
+
+// simd_equal_fold_ascii compares with the ASCII letters folded to one case.
+//
+// Folding both sides and reducing the difference keeps this branchless, which
+// is what lets it vectorize; the early exit comes from the block structure in
+// OR_ESCAPE rather than from a test per byte.
+#define FOLD(c) ((u8)(((c) >= 'A' && (c) <= 'Z') ? (c) + 32 : (c)))
+
+// VFOLD is the same fold a whole register at a time. A vector comparison
+// yields all-ones in the lanes that match, so masking 32 with it adds the
+// case bit exactly where the byte is an uppercase letter and nowhere else.
+#define VFOLD(P, Q)                                                      \
+  ({                                                                     \
+    u8xB c_ = VLOAD(P, Q);                                               \
+    c_ + ((c_ >= 'A') & (c_ <= 'Z') & (u8xB)32);                         \
+  })
+
+void simd_equal_fold_ascii(_Bool *__restrict out, const u8 *__restrict a,
+                           const u8 *__restrict b, isize n) {
+  OR_ESCAPE(VFOLD(a, q) ^ VFOLD(b, q), FOLD(a[p]) ^ FOLD(b[p]))
+  *out = !hit;
+}
+
+// simd_index_any returns the offset of the first byte of b that appears in
+// set, or -1; simd_count_any counts how many do.
+//
+// Both compare against each member of the set in turn rather than testing a
+// 256-bit membership table. A table lookup is a gather, which does not
+// vectorize from plain C on any target here; comparing k times does k times
+// the work but does it a register at a time, and k is small for the sets
+// callers actually pass — whitespace, delimiters, a handful of punctuation.
+void simd_index_any(isize *__restrict out, const u8 *__restrict b,
+                    const u8 *__restrict set, isize n, isize k) {
+  const isize block = 64;
+  isize i = 0;
+  for (; i + block <= n; i += block) {
+    unsigned char hit = 0;
+    for (isize s = 0; s < k; s++)
+      for (isize j = 0; j < block; j++) hit |= (b[i + j] == set[s]);
+    if (hit) break;
+  }
+  for (; i < n; i++)
+    for (isize s = 0; s < k; s++)
+      if (b[i] == set[s]) {
+        *out = i;
+        return;
+      }
+  *out = -1;
+}
+
+void simd_count_any(isize *__restrict out, const u8 *__restrict b,
+                    const u8 *__restrict set, isize n, isize k) {
+  isize total = 0;
+  for (isize s = 0; s < k; s++) {
+    u32xC acc = 0;
+    isize i = 0;
+    u8 c = set[s];
+    for (; i + COUNT_LANES <= n; i += COUNT_LANES) {
+      u32xC v;
+      for (int j = 0; j < COUNT_LANES; j++) v[j] = (b[i + j] == c);
+      acc += v;
+    }
+    u32xC t = 0;
+    for (int j = 0; j < COUNT_LANES; j++)
+      if (i + j < n) t[j] = (b[i + j] == c);
+    acc += t;
+    unsigned r[COUNT_LANES];
+    *(u32xC *)r = acc;
+    for (int w = COUNT_LANES / 2; w >= 1; w /= 2)
+      for (int j = 0; j < w; j++) r[j] += r[j + w];
+    total += r[0];
+  }
+  *out = total;
+}
+
+// simd_hex_encode writes two lowercase hex digits per input byte and reports
+// how many bytes it wrote.
+//
+// The digit is computed rather than looked up: a table would be a constant
+// pool, and on a RISC target that is an address built from an instruction
+// pair.
+//
+// It takes both lengths and works out the count itself, because the output is
+// twice the size of the input and the caller's guard clamps to the shortest
+// slice — which would be the wrong number for either one.
+void simd_hex_encode(isize *__restrict out, u8 *__restrict d,
+                     const u8 *__restrict b, isize nd, isize nb) {
+  isize n = nd / 2 < nb ? nd / 2 : nb;
+  *out = n * 2;
+  for (isize i = 0; i < n; i++) {
+    u8 v = b[i];
+    u8 hi = (u8)(v >> 4), lo = (u8)(v & 0x0f);
+    d[i * 2] = (u8)(hi < 10 ? '0' + hi : 'a' + hi - 10);
+    d[i * 2 + 1] = (u8)(lo < 10 ? '0' + lo : 'a' + lo - 10);
   }
 }

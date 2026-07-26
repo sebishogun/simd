@@ -484,15 +484,6 @@ func fillInt64VXGuarded(dst []int64, v int64) {
 	fillInt64VX(dst, v)
 }
 
-func lerpInt64VXGuarded(dst []int64, a []int64, b []int64, t int64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.Lerp(dst, a, b, t)
-		return
-	}
-	lerpInt64VX(dst[:n:n], a, b, t)
-}
-
 func divFloat32VXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -711,7 +702,6 @@ func init() {
 	s.I64.SubScalar = subScalarInt64VXGuarded
 	s.I64.Clamp = clampInt64VXGuarded
 	s.I64.Fill = fillInt64VXGuarded
-	s.I64.Lerp = lerpInt64VXGuarded
 	s.F32.Div = divFloat32VXGuarded
 	s.F32.DivScalar = divScalarFloat32VXGuarded
 	s.F32.Sqrt = sqrtFloat32VXGuarded

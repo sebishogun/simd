@@ -52,6 +52,21 @@ func bitNotSVE2(dst []byte, b []byte)
 func fillBytesSVE2(dst []byte, v byte)
 
 //go:noescape
+func compareBytesSVE2(a []byte, b []byte) int
+
+//go:noescape
+func equalFoldASCIISVE2(a []byte, b []byte) bool
+
+//go:noescape
+func indexAnySVE2(b []byte, chars []byte) int
+
+//go:noescape
+func countAnySVE2(b []byte, chars []byte) int
+
+//go:noescape
+func hexEncodeSVE2(dst []byte, b []byte) int
+
+//go:noescape
 func toUpperASCIISVE2(dst []byte, b []byte)
 
 //go:noescape

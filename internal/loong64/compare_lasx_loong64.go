@@ -16,6 +16,42 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
 //go:noescape
+func eqFloat32MaskLASX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func eqScalarFloat32MaskLASX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func neFloat32MaskLASX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func neScalarFloat32MaskLASX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func ltFloat32MaskLASX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func ltScalarFloat32MaskLASX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func leFloat32MaskLASX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func leScalarFloat32MaskLASX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func gtFloat32MaskLASX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func gtScalarFloat32MaskLASX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func geFloat32MaskLASX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func geScalarFloat32MaskLASX(dst []bool, a []float32, v float32)
+
+//go:noescape
 func selectFloat32LASX(dst []float32, mask []bool, yes []float32, no []float32)
 
 //go:noescape
@@ -56,6 +92,42 @@ func geScalarFloat64MaskLASX(dst []bool, a []float64, v float64)
 
 //go:noescape
 func selectFloat64LASX(dst []float64, mask []bool, yes []float64, no []float64)
+
+//go:noescape
+func eqInt32MaskLASX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func eqScalarInt32MaskLASX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func neInt32MaskLASX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func neScalarInt32MaskLASX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func ltInt32MaskLASX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func ltScalarInt32MaskLASX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func leInt32MaskLASX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func leScalarInt32MaskLASX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func gtInt32MaskLASX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func gtScalarInt32MaskLASX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func geInt32MaskLASX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func geScalarInt32MaskLASX(dst []bool, a []int32, v int32)
 
 //go:noescape
 func selectInt32LASX(dst []int32, mask []bool, yes []int32, no []int32)
