@@ -7,131 +7,131 @@
 
 package riscv64
 
-import "github.com/sebishogun/simd/internal/backend"
-
-// refSetRVV is the portable reference, used below the thresholds.
-var refSetRVV = backend.Base()
+import (
+	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/ref"
+)
 
 func addFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetRVV.F32.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addFloat32RVV(dst, a, b)
 }
 
 func addFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetRVV.F64.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addFloat64RVV(dst, a, b)
 }
 
 func subFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetRVV.F32.Sub(dst, a, b)
+	if len(dst) < 16 {
+		ref.Sub(dst, a, b)
 		return
 	}
 	subFloat32RVV(dst, a, b)
 }
 
 func subFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetRVV.F64.Sub(dst, a, b)
+	if len(dst) < 16 {
+		ref.Sub(dst, a, b)
 		return
 	}
 	subFloat64RVV(dst, a, b)
 }
 
 func mulFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetRVV.F32.Mul(dst, a, b)
+	if len(dst) < 16 {
+		ref.Mul(dst, a, b)
 		return
 	}
 	mulFloat32RVV(dst, a, b)
 }
 
 func mulFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetRVV.F64.Mul(dst, a, b)
+	if len(dst) < 16 {
+		ref.Mul(dst, a, b)
 		return
 	}
 	mulFloat64RVV(dst, a, b)
 }
 
 func addInt32RVVGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 32 {
-		refSetRVV.I32.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addInt32RVV(dst, a, b)
 }
 
 func addInt64RVVGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 32 {
-		refSetRVV.I64.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addInt64RVV(dst, a, b)
 }
 
 func scaleFloat32RVVGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 32 {
-		refSetRVV.F32.Scale(dst, a, s)
+	if len(dst) < 16 {
+		ref.Scale(dst, a, s)
 		return
 	}
 	scaleFloat32RVV(dst, a, s)
 }
 
 func scaleFloat64RVVGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 32 {
-		refSetRVV.F64.Scale(dst, a, s)
+	if len(dst) < 16 {
+		ref.Scale(dst, a, s)
 		return
 	}
 	scaleFloat64RVV(dst, a, s)
 }
 
 func addScaledFloat32RVVGuarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 32 {
-		refSetRVV.F32.AddScaled(dst, a, b, s)
+	if len(dst) < 16 {
+		ref.AddScaled(dst, a, b, s)
 		return
 	}
 	addScaledFloat32RVV(dst, a, b, s)
 }
 
 func addScaledFloat64RVVGuarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 32 {
-		refSetRVV.F64.AddScaled(dst, a, b, s)
+	if len(dst) < 16 {
+		ref.AddScaled(dst, a, b, s)
 		return
 	}
 	addScaledFloat64RVV(dst, a, b, s)
 }
 
 func sumFloat32RVVGuarded(a []float32) float32 {
-	if len(a) < 32 {
-		return refSetRVV.F32.Sum(a)
+	if len(a) < 0 {
+		return ref.SumFloat(a)
 	}
 	return sumFloat32RVV(a)
 }
 
 func sumFloat64RVVGuarded(a []float64) float64 {
-	if len(a) < 32 {
-		return refSetRVV.F64.Sum(a)
+	if len(a) < 0 {
+		return ref.SumFloat(a)
 	}
 	return sumFloat64RVV(a)
 }
 
 func dotFloat32RVVGuarded(a []float32, b []float32) float32 {
-	if len(a) < 32 {
-		return refSetRVV.F32.Dot(a, b)
+	if len(a) < 0 {
+		return ref.DotFloat(a, b)
 	}
 	return dotFloat32RVV(a, b)
 }
 
 func dotFloat64RVVGuarded(a []float64, b []float64) float64 {
-	if len(a) < 32 {
-		return refSetRVV.F64.Dot(a, b)
+	if len(a) < 0 {
+		return ref.DotFloat(a, b)
 	}
 	return dotFloat64RVV(a, b)
 }

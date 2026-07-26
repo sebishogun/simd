@@ -7,131 +7,131 @@
 
 package arm64
 
-import "github.com/sebishogun/simd/internal/backend"
-
-// refSetSVE2 is the portable reference, used below the thresholds.
-var refSetSVE2 = backend.Base()
+import (
+	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/ref"
+)
 
 func addFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetSVE2.F32.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addFloat32SVE2(dst, a, b)
 }
 
 func addFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetSVE2.F64.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addFloat64SVE2(dst, a, b)
 }
 
 func subFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetSVE2.F32.Sub(dst, a, b)
+	if len(dst) < 16 {
+		ref.Sub(dst, a, b)
 		return
 	}
 	subFloat32SVE2(dst, a, b)
 }
 
 func subFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetSVE2.F64.Sub(dst, a, b)
+	if len(dst) < 16 {
+		ref.Sub(dst, a, b)
 		return
 	}
 	subFloat64SVE2(dst, a, b)
 }
 
 func mulFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetSVE2.F32.Mul(dst, a, b)
+	if len(dst) < 16 {
+		ref.Mul(dst, a, b)
 		return
 	}
 	mulFloat32SVE2(dst, a, b)
 }
 
 func mulFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetSVE2.F64.Mul(dst, a, b)
+	if len(dst) < 16 {
+		ref.Mul(dst, a, b)
 		return
 	}
 	mulFloat64SVE2(dst, a, b)
 }
 
 func addInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 32 {
-		refSetSVE2.I32.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addInt32SVE2(dst, a, b)
 }
 
 func addInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 32 {
-		refSetSVE2.I64.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addInt64SVE2(dst, a, b)
 }
 
 func scaleFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 32 {
-		refSetSVE2.F32.Scale(dst, a, s)
+	if len(dst) < 16 {
+		ref.Scale(dst, a, s)
 		return
 	}
 	scaleFloat32SVE2(dst, a, s)
 }
 
 func scaleFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 32 {
-		refSetSVE2.F64.Scale(dst, a, s)
+	if len(dst) < 16 {
+		ref.Scale(dst, a, s)
 		return
 	}
 	scaleFloat64SVE2(dst, a, s)
 }
 
 func addScaledFloat32SVE2Guarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 32 {
-		refSetSVE2.F32.AddScaled(dst, a, b, s)
+	if len(dst) < 16 {
+		ref.AddScaled(dst, a, b, s)
 		return
 	}
 	addScaledFloat32SVE2(dst, a, b, s)
 }
 
 func addScaledFloat64SVE2Guarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 32 {
-		refSetSVE2.F64.AddScaled(dst, a, b, s)
+	if len(dst) < 16 {
+		ref.AddScaled(dst, a, b, s)
 		return
 	}
 	addScaledFloat64SVE2(dst, a, b, s)
 }
 
 func sumFloat32SVE2Guarded(a []float32) float32 {
-	if len(a) < 32 {
-		return refSetSVE2.F32.Sum(a)
+	if len(a) < 0 {
+		return ref.SumFloat(a)
 	}
 	return sumFloat32SVE2(a)
 }
 
 func sumFloat64SVE2Guarded(a []float64) float64 {
-	if len(a) < 32 {
-		return refSetSVE2.F64.Sum(a)
+	if len(a) < 0 {
+		return ref.SumFloat(a)
 	}
 	return sumFloat64SVE2(a)
 }
 
 func dotFloat32SVE2Guarded(a []float32, b []float32) float32 {
-	if len(a) < 32 {
-		return refSetSVE2.F32.Dot(a, b)
+	if len(a) < 0 {
+		return ref.DotFloat(a, b)
 	}
 	return dotFloat32SVE2(a, b)
 }
 
 func dotFloat64SVE2Guarded(a []float64, b []float64) float64 {
-	if len(a) < 32 {
-		return refSetSVE2.F64.Dot(a, b)
+	if len(a) < 0 {
+		return ref.DotFloat(a, b)
 	}
 	return dotFloat64SVE2(a, b)
 }

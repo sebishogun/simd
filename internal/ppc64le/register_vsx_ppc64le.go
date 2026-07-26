@@ -7,131 +7,131 @@
 
 package ppc64le
 
-import "github.com/sebishogun/simd/internal/backend"
-
-// refSetVSX is the portable reference, used below the thresholds.
-var refSetVSX = backend.Base()
+import (
+	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/ref"
+)
 
 func addFloat32VSXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetVSX.F32.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addFloat32VSX(dst, a, b)
 }
 
 func addFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetVSX.F64.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addFloat64VSX(dst, a, b)
 }
 
 func subFloat32VSXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetVSX.F32.Sub(dst, a, b)
+	if len(dst) < 16 {
+		ref.Sub(dst, a, b)
 		return
 	}
 	subFloat32VSX(dst, a, b)
 }
 
 func subFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetVSX.F64.Sub(dst, a, b)
+	if len(dst) < 16 {
+		ref.Sub(dst, a, b)
 		return
 	}
 	subFloat64VSX(dst, a, b)
 }
 
 func mulFloat32VSXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetVSX.F32.Mul(dst, a, b)
+	if len(dst) < 16 {
+		ref.Mul(dst, a, b)
 		return
 	}
 	mulFloat32VSX(dst, a, b)
 }
 
 func mulFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetVSX.F64.Mul(dst, a, b)
+	if len(dst) < 16 {
+		ref.Mul(dst, a, b)
 		return
 	}
 	mulFloat64VSX(dst, a, b)
 }
 
 func addInt32VSXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 32 {
-		refSetVSX.I32.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addInt32VSX(dst, a, b)
 }
 
 func addInt64VSXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 32 {
-		refSetVSX.I64.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addInt64VSX(dst, a, b)
 }
 
 func scaleFloat32VSXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 32 {
-		refSetVSX.F32.Scale(dst, a, s)
+	if len(dst) < 16 {
+		ref.Scale(dst, a, s)
 		return
 	}
 	scaleFloat32VSX(dst, a, s)
 }
 
 func scaleFloat64VSXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 32 {
-		refSetVSX.F64.Scale(dst, a, s)
+	if len(dst) < 16 {
+		ref.Scale(dst, a, s)
 		return
 	}
 	scaleFloat64VSX(dst, a, s)
 }
 
 func addScaledFloat32VSXGuarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 32 {
-		refSetVSX.F32.AddScaled(dst, a, b, s)
+	if len(dst) < 16 {
+		ref.AddScaled(dst, a, b, s)
 		return
 	}
 	addScaledFloat32VSX(dst, a, b, s)
 }
 
 func addScaledFloat64VSXGuarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 32 {
-		refSetVSX.F64.AddScaled(dst, a, b, s)
+	if len(dst) < 16 {
+		ref.AddScaled(dst, a, b, s)
 		return
 	}
 	addScaledFloat64VSX(dst, a, b, s)
 }
 
 func sumFloat32VSXGuarded(a []float32) float32 {
-	if len(a) < 32 {
-		return refSetVSX.F32.Sum(a)
+	if len(a) < 0 {
+		return ref.SumFloat(a)
 	}
 	return sumFloat32VSX(a)
 }
 
 func sumFloat64VSXGuarded(a []float64) float64 {
-	if len(a) < 32 {
-		return refSetVSX.F64.Sum(a)
+	if len(a) < 0 {
+		return ref.SumFloat(a)
 	}
 	return sumFloat64VSX(a)
 }
 
 func dotFloat32VSXGuarded(a []float32, b []float32) float32 {
-	if len(a) < 32 {
-		return refSetVSX.F32.Dot(a, b)
+	if len(a) < 0 {
+		return ref.DotFloat(a, b)
 	}
 	return dotFloat32VSX(a, b)
 }
 
 func dotFloat64VSXGuarded(a []float64, b []float64) float64 {
-	if len(a) < 32 {
-		return refSetVSX.F64.Dot(a, b)
+	if len(a) < 0 {
+		return ref.DotFloat(a, b)
 	}
 	return dotFloat64VSX(a, b)
 }

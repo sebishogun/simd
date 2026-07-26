@@ -813,3 +813,36 @@ func Set() kernel.Set {
 		Mask: maskOps(),
 	}
 }
+
+// Exported entry points for generated code.
+//
+// A generated kernel guards itself with a length threshold and runs the
+// portable implementation below it. Reaching that implementation through the
+// kernel.Set function pointer costs an indirect call the purego build never
+// pays, which showed up as the accelerated build being *slower* than the
+// portable one on short slices — 0.85x at n=8 — even though the assembly
+// itself was faster.
+//
+// Calling these directly instead lets the compiler monomorphize and inline the
+// loop into the guard, so the short-slice path costs no more than it does in a
+// purego build. They are the same functions the kernel set is built from, so
+// there is one definition of the semantics and no way for the two paths to
+// disagree.
+type (
+	// Number is any element type the kernels handle.
+	Number interface {
+		~float32 | ~float64 | ~int32 | ~int64
+	}
+	// Float is the element types with a fixed-tree reduction.
+	Float interface{ ~float32 | ~float64 }
+)
+
+func Add[T Number](dst, a, b []T) { add(dst, a, b) }
+func Sub[T Number](dst, a, b []T) { sub(dst, a, b) }
+func Mul[T Number](dst, a, b []T) { mul(dst, a, b) }
+
+func Scale[T Number](dst, a []T, s T)        { scale(dst, a, s) }
+func AddScaled[T Number](dst, a, b []T, s T) { addScaled(dst, a, b, s) }
+
+func SumFloat[T Float](a []T) T    { return sumFloat(a) }
+func DotFloat[T Float](a, b []T) T { return dotFloat(a, b) }

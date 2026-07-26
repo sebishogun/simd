@@ -153,6 +153,12 @@ type Kernel struct {
 	// CArgs maps Go parameters onto the C function's arguments, in C order.
 	CArgs []CArg
 
+	// RefFunc is the exported function in internal/ref that implements this
+	// kernel portably. The generated threshold guard calls it directly rather
+	// than through the kernel set, so the short-slice path costs no indirect
+	// call; see the comment on those functions.
+	RefFunc string
+
 	// Group and Field name the kernel.Ops slot this kernel fills, so the
 	// generator can emit the registration that installs it: Group "F32" and
 	// Field "Add" means the generated function is assigned to
@@ -230,6 +236,9 @@ func (k Kernel) Validate() error {
 			return fmt.Errorf("kernel %s: C argument %d passes slice %q by value",
 				k.GoName, i, a.From)
 		}
+	}
+	if k.RefFunc == "" {
+		return fmt.Errorf("kernel %s: RefFunc is required for the threshold guard", k.GoName)
 	}
 	if k.Group == "" || k.Field == "" {
 		return fmt.Errorf("kernel %s: Group and Field are required to register it", k.GoName)

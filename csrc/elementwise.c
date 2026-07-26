@@ -97,55 +97,83 @@ void simd_addscaled_f64(double *__restrict d, const double *__restrict a,
 // SUM_LANES must equal kernel.SumLanes.
 #define SUM_LANES 16
 
-// Reductions write their answer through an out-pointer rather than returning
-// it, and that is not a stylistic choice.
+// The accumulators are an explicit vector type, and the remainder is blended
+// into a second vector before a single whole-block add. Both details are
+// load-bearing and were arrived at by reading the generated code.
 //
-// The generator copies a compiled function's bytes verbatim. If the kernel
-// returned a value in a register, the generator would have to append an
-// instruction storing that register into Go's result slot — but the compiled
-// body ends with its own return, and LLVM is free to lay basic blocks out
-// after it. Measured: the AVX2 build of the dot product has a jmp *past* its
-// return instruction. There is no safe place to append anything.
+// Written the obvious way — a T acc[16] array with a runtime-indexed
+// remainder loop — LLVM has to give the array an address, so the sixteen
+// accumulators live on the stack instead of in registers. Measured spills in
+// the float64 sum, and the cost on this machine:
 //
-// Writing through a pointer removes the problem entirely. The Go side passes
-// the address of its own result slot, the kernel stores into it, and the
-// compiled return is the only return there needs to be.
-#define REDUCE_SUM(T)                                       \
-  T acc[SUM_LANES];                                         \
-  for (int j = 0; j < SUM_LANES; j++) acc[j] = 0;           \
-  isize i = 0;                                              \
-  for (; i + SUM_LANES <= n; i += SUM_LANES)                \
-    for (int j = 0; j < SUM_LANES; j++) acc[j] += a[i + j]; \
-  for (int j = 0; i < n; i++, j++) acc[j] += a[i];          \
-  for (int w = SUM_LANES / 2; w >= 1; w /= 2)               \
-    for (int j = 0; j < w; j++) acc[j] += acc[j + w];       \
-  *out = acc[0];
+//	                    neon   sve2   avx512   sse2
+//	array + runtime tail  16     16       21     33   stack references
+//	vector + blended tail  0      0        0      0
+//
+//	n=16   2.40 ns      n=20  10.92 ns
+//	n=32   2.44 ns      n=24  11.23 ns
+//
+// Every length that was a multiple of 16 ran fast and every other length was
+// four to five times slower, for less work, because the tail forced the spill.
+//
+// Guarding the remainder without the vector type does fix amd64 — spills fall
+// to zero — but makes LLVM abandon vectorization entirely on arm64, emitting
+// 220 scalar instructions and not one vector instruction. The generator's
+// vectorization check catches that, which is how it was found. Declaring the
+// accumulator as a vector rather than hoping the array is discovered to be one
+// removes the guesswork: all four targets now keep it in registers.
+//
+// Adding the blended tail is exact. Lanes with no element contribute +0, acc
+// starts at +0, and x+0 is x for every finite value, infinity and NaN. Each
+// element still lands in lane i%SUM_LANES, so the numerical contract in
+// package kernel holds bit for bit.
+typedef float f32xL __attribute__((ext_vector_type(SUM_LANES), aligned(1)));
+typedef double f64xL __attribute__((ext_vector_type(SUM_LANES), aligned(1)));
+
+#define REDUCE_SUM(T, V)                                  \
+  V acc = 0;                                              \
+  isize i = 0;                                            \
+  for (; i + SUM_LANES <= n; i += SUM_LANES)              \
+    acc += *(const V *)(a + i);                           \
+  V t = 0;                                                \
+  for (int j = 0; j < SUM_LANES; j++)                     \
+    if (i + j < n) t[j] = a[i + j];                       \
+  acc += t;                                               \
+  T r[SUM_LANES];                                         \
+  *(V *)r = acc;                                          \
+  for (int w = SUM_LANES / 2; w >= 1; w /= 2)             \
+    for (int j = 0; j < w; j++) r[j] += r[j + w];         \
+  *out = r[0];
 
 void simd_sum_f32(float *__restrict out, const float *__restrict a, isize n) {
-  REDUCE_SUM(float)
+  REDUCE_SUM(float, f32xL)
 }
 
 void simd_sum_f64(double *__restrict out, const double *__restrict a, isize n) {
-  REDUCE_SUM(double)
+  REDUCE_SUM(double, f64xL)
 }
 
-#define REDUCE_DOT(T)                                                \
-  T acc[SUM_LANES];                                                  \
-  for (int j = 0; j < SUM_LANES; j++) acc[j] = 0;                    \
-  isize i = 0;                                                       \
-  for (; i + SUM_LANES <= n; i += SUM_LANES)                         \
-    for (int j = 0; j < SUM_LANES; j++) acc[j] += a[i + j] * b[i + j]; \
-  for (int j = 0; i < n; i++, j++) acc[j] += a[i] * b[i];            \
-  for (int w = SUM_LANES / 2; w >= 1; w /= 2)                        \
-    for (int j = 0; j < w; j++) acc[j] += acc[j + w];                \
-  *out = acc[0];
+#define REDUCE_DOT(T, V)                                  \
+  V acc = 0;                                              \
+  isize i = 0;                                            \
+  for (; i + SUM_LANES <= n; i += SUM_LANES)              \
+    acc += *(const V *)(a + i) * *(const V *)(b + i);     \
+  V t = 0;                                                \
+  for (int j = 0; j < SUM_LANES; j++)                     \
+    if (i + j < n) t[j] = a[i + j] * b[i + j];            \
+  acc += t;                                               \
+  T r[SUM_LANES];                                         \
+  *(V *)r = acc;                                          \
+  for (int w = SUM_LANES / 2; w >= 1; w /= 2)             \
+    for (int j = 0; j < w; j++) r[j] += r[j + w];         \
+  *out = r[0];
 
 void simd_dot_f32(float *__restrict out, const float *__restrict a,
                   const float *__restrict b, isize n) {
-  REDUCE_DOT(float)
+  REDUCE_DOT(float, f32xL)
 }
 
 void simd_dot_f64(double *__restrict out, const double *__restrict a,
                   const double *__restrict b, isize n) {
-  REDUCE_DOT(double)
+  REDUCE_DOT(double, f64xL)
 }

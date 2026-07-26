@@ -576,7 +576,9 @@ func Backend(kernels []spec.Kernel, tgt target.Target, pkg string, prov Provenan
 	fmt.Fprintf(&b, "// Source: %s\n// Target: %s\n\n", prov.Source, tgt)
 	fmt.Fprintf(&b, "//go:build %s\n\n", tgt.BuildTag())
 	fmt.Fprintf(&b, "package %s\n\n", pkg)
-	fmt.Fprintf(&b, "import %q\n\n", "github.com/sebishogun/simd/internal/backend")
+	fmt.Fprintf(&b, "import (\n\t%q\n\t%q\n)\n\n",
+		"github.com/sebishogun/simd/internal/backend",
+		"github.com/sebishogun/simd/internal/ref")
 
 	// The kernels arrive with their tier already in their names; only the
 	// file-scope helpers need a suffix to stay distinct between tiers.
@@ -585,9 +587,6 @@ func Backend(kernels []spec.Kernel, tgt target.Target, pkg string, prov Provenan
 	// The guards are named functions rather than closures so the fast path is
 	// a direct call to the assembly rather than an indirect one through a
 	// captured variable.
-	fmt.Fprintf(&b, "// refSet%s is the portable reference, used below the thresholds.\n", suffix)
-	fmt.Fprintf(&b, "var refSet%s = backend.Base()\n\n", suffix)
-
 	for _, k := range kernels {
 		emitGuard(&b, k, suffix)
 	}
@@ -624,10 +623,14 @@ func emitGuard(b *strings.Builder, k spec.Kernel, suffix string) {
 
 	fmt.Fprintf(b, "func %s(%s)%s {\n", guardName(k, suffix), params, result)
 	fmt.Fprintf(b, "\tif %s < %d {\n", lenExpr, k.Threshold)
+	// Call the portable implementation directly rather than through the
+	// kernel set. Going via the function pointer costs an indirect call that a
+	// purego build never pays, which made the accelerated build slower than
+	// the portable one on short slices.
 	if k.Result != nil {
-		fmt.Fprintf(b, "\t\treturn refSet%s.%s.%s(%s)\n", suffix, k.Group, k.Field, argNames(k))
+		fmt.Fprintf(b, "\t\treturn ref.%s(%s)\n", k.RefFunc, argNames(k))
 	} else {
-		fmt.Fprintf(b, "\t\trefSet%s.%s.%s(%s)\n\t\treturn\n", suffix, k.Group, k.Field, argNames(k))
+		fmt.Fprintf(b, "\t\tref.%s(%s)\n\t\treturn\n", k.RefFunc, argNames(k))
 	}
 	fmt.Fprintf(b, "\t}\n")
 	if k.Result != nil {

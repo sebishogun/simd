@@ -7,131 +7,131 @@
 
 package amd64
 
-import "github.com/sebishogun/simd/internal/backend"
-
-// refSetAVX2 is the portable reference, used below the thresholds.
-var refSetAVX2 = backend.Base()
+import (
+	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/ref"
+)
 
 func addFloat32AVX2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetAVX2.F32.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addFloat32AVX2(dst, a, b)
 }
 
 func addFloat64AVX2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetAVX2.F64.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addFloat64AVX2(dst, a, b)
 }
 
 func subFloat32AVX2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetAVX2.F32.Sub(dst, a, b)
+	if len(dst) < 16 {
+		ref.Sub(dst, a, b)
 		return
 	}
 	subFloat32AVX2(dst, a, b)
 }
 
 func subFloat64AVX2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetAVX2.F64.Sub(dst, a, b)
+	if len(dst) < 16 {
+		ref.Sub(dst, a, b)
 		return
 	}
 	subFloat64AVX2(dst, a, b)
 }
 
 func mulFloat32AVX2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 32 {
-		refSetAVX2.F32.Mul(dst, a, b)
+	if len(dst) < 16 {
+		ref.Mul(dst, a, b)
 		return
 	}
 	mulFloat32AVX2(dst, a, b)
 }
 
 func mulFloat64AVX2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 32 {
-		refSetAVX2.F64.Mul(dst, a, b)
+	if len(dst) < 16 {
+		ref.Mul(dst, a, b)
 		return
 	}
 	mulFloat64AVX2(dst, a, b)
 }
 
 func addInt32AVX2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 32 {
-		refSetAVX2.I32.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addInt32AVX2(dst, a, b)
 }
 
 func addInt64AVX2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 32 {
-		refSetAVX2.I64.Add(dst, a, b)
+	if len(dst) < 16 {
+		ref.Add(dst, a, b)
 		return
 	}
 	addInt64AVX2(dst, a, b)
 }
 
 func scaleFloat32AVX2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 32 {
-		refSetAVX2.F32.Scale(dst, a, s)
+	if len(dst) < 16 {
+		ref.Scale(dst, a, s)
 		return
 	}
 	scaleFloat32AVX2(dst, a, s)
 }
 
 func scaleFloat64AVX2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 32 {
-		refSetAVX2.F64.Scale(dst, a, s)
+	if len(dst) < 16 {
+		ref.Scale(dst, a, s)
 		return
 	}
 	scaleFloat64AVX2(dst, a, s)
 }
 
 func addScaledFloat32AVX2Guarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 32 {
-		refSetAVX2.F32.AddScaled(dst, a, b, s)
+	if len(dst) < 16 {
+		ref.AddScaled(dst, a, b, s)
 		return
 	}
 	addScaledFloat32AVX2(dst, a, b, s)
 }
 
 func addScaledFloat64AVX2Guarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 32 {
-		refSetAVX2.F64.AddScaled(dst, a, b, s)
+	if len(dst) < 16 {
+		ref.AddScaled(dst, a, b, s)
 		return
 	}
 	addScaledFloat64AVX2(dst, a, b, s)
 }
 
 func sumFloat32AVX2Guarded(a []float32) float32 {
-	if len(a) < 32 {
-		return refSetAVX2.F32.Sum(a)
+	if len(a) < 0 {
+		return ref.SumFloat(a)
 	}
 	return sumFloat32AVX2(a)
 }
 
 func sumFloat64AVX2Guarded(a []float64) float64 {
-	if len(a) < 32 {
-		return refSetAVX2.F64.Sum(a)
+	if len(a) < 0 {
+		return ref.SumFloat(a)
 	}
 	return sumFloat64AVX2(a)
 }
 
 func dotFloat32AVX2Guarded(a []float32, b []float32) float32 {
-	if len(a) < 32 {
-		return refSetAVX2.F32.Dot(a, b)
+	if len(a) < 0 {
+		return ref.DotFloat(a, b)
 	}
 	return dotFloat32AVX2(a, b)
 }
 
 func dotFloat64AVX2Guarded(a []float64, b []float64) float64 {
-	if len(a) < 32 {
-		return refSetAVX2.F64.Dot(a, b)
+	if len(a) < 0 {
+		return ref.DotFloat(a, b)
 	}
 	return dotFloat64AVX2(a, b)
 }
