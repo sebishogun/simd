@@ -270,9 +270,14 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 //
 // The generator asks before emitting so an unsupported kernel is dropped and
 // the portable implementation kept, rather than failing the whole target.
-// Only amd64 is handled: the RISC targets build a constant address from a
-// high/low instruction pair, which has to be rewritten as a unit.
+// amd64 resolves a reference as a single RIP-relative displacement; arm64
+// turns the page-relative pair into a byte-relative one, which is what
+// constpool_arm64.go is about. The remaining targets have no rewriter yet and
+// keep the portable implementation for any kernel that needs a pool.
 func CanLift(fn *objfile.Func, instrs []Instr, tgt target.Target) (bool, string) {
+	if tgt.Arch == target.ARM64 {
+		return canLiftARM64(fn)
+	}
 	for _, r := range fn.Relocs {
 		if isSelfRelative(r.TypeName) {
 			continue

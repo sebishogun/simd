@@ -103,9 +103,19 @@ type Options struct {
 	// ObjdumpPath is the llvm-objdump binary. Defaults to "llvm-objdump".
 	ObjdumpPath string
 	// MaxStackBytes is the largest stack adjustment tolerated in a NOSPLIT
-	// function. Go's own nosplit budget is around 800 bytes for a whole call
-	// chain; a kernel should be using far less than that or it is doing
-	// something a kernel should not.
+	// function.
+	//
+	// The real limit is the linker's: abi.StackNosplitBase is 800 bytes for a
+	// whole nosplit call chain, and cmd/link/internal/ld/stackcheck.go rejects
+	// anything over it. These kernels are leaves and make no calls, so the
+	// chain is one deep and the budget is nearly all theirs. This check is not
+	// that check — it exists to fail here, with the kernel's name and a clear
+	// reason, rather than at link time in a consumer's build.
+	//
+	// 512 leaves comfortable headroom under 800 while accommodating the widest
+	// transcendental, which spills around 288 bytes on the AVX2 tier. A kernel
+	// wanting materially more than this is doing something a kernel should
+	// not, and the message says so.
 	MaxStackBytes int
 	// RequireVector fails a kernel whose body contains no vector instruction
 	// at all, which means LLVM did not vectorize it.
@@ -114,7 +124,7 @@ type Options struct {
 
 // DefaultOptions are the settings used by the generator.
 func DefaultOptions() Options {
-	return Options{ObjdumpPath: "llvm-objdump", MaxStackBytes: 256, RequireVector: true}
+	return Options{ObjdumpPath: "llvm-objdump", MaxStackBytes: 512, RequireVector: true}
 }
 
 // Object disassembles an object file and verifies every named function in it.

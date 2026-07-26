@@ -50,6 +50,66 @@ func binary[T float](f func(x, y float64) float64) func(dst, a, b []T) {
 	}
 }
 
+// Three of the standard library's functions lose most of their significant
+// digits in part of their range, because each is written as an identity that
+// cancels. This library promises a ULP bound that holds on every tier, and the
+// portable path is a tier — the one a -tags purego build uses everywhere and
+// the one the baseline x86-64 backend falls back to — so it has to meet the
+// bound too.
+//
+// Each replacement below is the same function computed through an identity
+// that does not cancel, using the standard library only where it is accurate.
+// Checked against glibc: at the points where these and math disagree, these
+// are glibc's answer to the bit.
+
+// log2Accurate avoids math.Log2's cancellation.
+//
+// math.Log2 splits x with Frexp and returns log(frac)*(1/Ln2) + float64(exp).
+// For x a little above 1 that is exp=1 and frac just above 1/2, so it adds two
+// numbers near 1 to get an answer near 0: at x = 1.0139 it is 26 ULP out.
+// Dividing the logarithm has no such step.
+func log2Accurate(x float64) float64 {
+	if x == 1 {
+		return 0
+	}
+	return math.Log(x) / math.Ln2
+}
+
+// asinAccurate avoids math.Asin's cancellation near the ends of its domain.
+//
+// math.Asin computes Atan(x/Sqrt(1-x*x)), and 1-x*x loses half its digits as
+// |x| approaches 1. The half-angle identity moves the argument to where the
+// standard library is accurate, and 1-|x| is exact there by Sterbenz's lemma.
+func asinAccurate(x float64) float64 {
+	ax := math.Abs(x)
+	if ax <= 0.5 || ax > 1 || math.IsNaN(x) {
+		return math.Asin(x)
+	}
+	v := math.Pi/2 - 2*math.Asin(math.Sqrt((1-ax)/2))
+	if x < 0 {
+		return -v
+	}
+	return v
+}
+
+// acosAccurate avoids math.Acos's cancellation near 1.
+//
+// math.Acos is pi/2 - Asin(x). Near x=1 both terms are near pi/2 and the
+// answer is near 0, so the subtraction throws away about seven digits — 971
+// ULP at x = 0.9999. The half-angle form has no subtraction of like-sized
+// quantities.
+func acosAccurate(x float64) float64 {
+	ax := math.Abs(x)
+	if ax <= 0.5 || ax > 1 || math.IsNaN(x) {
+		return math.Acos(x)
+	}
+	a := 2 * math.Asin(math.Sqrt((1-ax)/2))
+	if x < 0 {
+		return math.Pi - a
+	}
+	return a
+}
+
 // sigmoid is the logistic function, 1/(1+exp(-x)).
 //
 // It is computed in the branch that avoids overflow: exp(x) overflows for
@@ -73,7 +133,7 @@ func lerp[T number](dst, a, b []T, t T) {
 	n := min(len(dst), len(a), len(b))
 	dst, a, b = dst[:n], a[:n], b[:n]
 	for i := range dst {
-		dst[i] = a[i] + (b[i]-a[i])*t
+		dst[i] = a[i] + T((b[i]-a[i])*t)
 	}
 }
 
@@ -189,7 +249,7 @@ func floatMathOps[T float](o *kernel.Ops[T]) {
 	o.Exp2 = unary[T](math.Exp2)
 	o.Expm1 = unary[T](math.Expm1)
 	o.Log = unary[T](math.Log)
-	o.Log2 = unary[T](math.Log2)
+	o.Log2 = unary[T](log2Accurate)
 	o.Log10 = unary[T](math.Log10)
 	o.Log1p = unary[T](math.Log1p)
 	o.Cbrt = unary[T](math.Cbrt)
@@ -198,8 +258,8 @@ func floatMathOps[T float](o *kernel.Ops[T]) {
 	o.Sin = unary[T](math.Sin)
 	o.Cos = unary[T](math.Cos)
 	o.Tan = unary[T](math.Tan)
-	o.Asin = unary[T](math.Asin)
-	o.Acos = unary[T](math.Acos)
+	o.Asin = unary[T](asinAccurate)
+	o.Acos = unary[T](acosAccurate)
 	o.Atan = unary[T](math.Atan)
 	o.Sinh = unary[T](math.Sinh)
 	o.Cosh = unary[T](math.Cosh)
@@ -228,3 +288,49 @@ func intMathOps[T integer](o *kernel.Ops[T]) {
 	o.Diff = diff[T]
 	o.Prod = prod[T]
 }
+
+// Exported entry points for generated code.
+//
+// The threshold guard in each generated backend calls these directly rather
+// than reaching through the kernel set, so a short slice costs no indirect
+// call through a function-pointer table. They are the same computation the
+// closures above perform.
+
+func mapUnary[T float](dst, a []T, f func(float64) float64) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	for i := range dst {
+		dst[i] = T(f(float64(a[i])))
+	}
+}
+
+func mapBinary[T float](dst, a, b []T, f func(x, y float64) float64) {
+	n := min(len(dst), len(a), len(b))
+	dst, a, b = dst[:n], a[:n], b[:n]
+	for i := range dst {
+		dst[i] = T(f(float64(a[i]), float64(b[i])))
+	}
+}
+
+func Exp[T float](dst, a []T)     { mapUnary(dst, a, math.Exp) }
+func Exp2[T float](dst, a []T)    { mapUnary(dst, a, math.Exp2) }
+func Expm1[T float](dst, a []T)   { mapUnary(dst, a, math.Expm1) }
+func Log[T float](dst, a []T)     { mapUnary(dst, a, math.Log) }
+func Log2[T float](dst, a []T)    { mapUnary(dst, a, log2Accurate) }
+func Log10[T float](dst, a []T)   { mapUnary(dst, a, math.Log10) }
+func Log1p[T float](dst, a []T)   { mapUnary(dst, a, math.Log1p) }
+func Cbrt[T float](dst, a []T)    { mapUnary(dst, a, math.Cbrt) }
+func Sigmoid[T float](dst, a []T) { mapUnary(dst, a, sigmoid) }
+func Sin[T float](dst, a []T)     { mapUnary(dst, a, math.Sin) }
+func Cos[T float](dst, a []T)     { mapUnary(dst, a, math.Cos) }
+func Tan[T float](dst, a []T)     { mapUnary(dst, a, math.Tan) }
+func Asin[T float](dst, a []T)    { mapUnary(dst, a, asinAccurate) }
+func Acos[T float](dst, a []T)    { mapUnary(dst, a, acosAccurate) }
+func Atan[T float](dst, a []T)    { mapUnary(dst, a, math.Atan) }
+func Sinh[T float](dst, a []T)    { mapUnary(dst, a, math.Sinh) }
+func Cosh[T float](dst, a []T)    { mapUnary(dst, a, math.Cosh) }
+func Tanh[T float](dst, a []T)    { mapUnary(dst, a, math.Tanh) }
+
+func Pow[T float](dst, a, b []T)   { mapBinary(dst, a, b, math.Pow) }
+func Atan2[T float](dst, a, b []T) { mapBinary(dst, a, b, math.Atan2) }
+func Hypot[T float](dst, a, b []T) { mapBinary(dst, a, b, math.Hypot) }

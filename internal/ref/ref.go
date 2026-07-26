@@ -294,13 +294,25 @@ func fill[T number](dst []T, v T) {
 	}
 }
 
-// addScaled is AXPY: dst[i] = a[i] + b[i]*s, in one pass over memory. It does
-// not fuse the multiply and add, for the same reason Dot does not.
+// addScaled is AXPY: dst[i] = a[i] + b[i]*s, in one pass over memory.
+//
+// The conversion around the product is not decoration and is not a no-op.
+// Go's spec lets an implementation fuse a multiply and a following add into a
+// single rounding, and gc takes that licence on arm64, ppc64, s390x and
+// riscv64 but not on amd64 — so the obvious spelling returns different bits on
+// different machines, which is the one thing this library promises it will
+// not do. An explicit floating-point conversion rounds, and the spec says a
+// fusion that would discard that rounding is then forbidden.
+//
+// The same conversion appears at every multiply that feeds an add in this
+// package, for the same reason; TestNoFusedMultiplyAdd pins it down. The
+// kernels are compiled with -ffp-contract=off and so never fuse either, which
+// is what lets the two paths be compared bit for bit.
 func addScaled[T number](dst, a, b []T, s T) {
 	n := min(len(dst), len(a), len(b))
 	dst, a, b = dst[:n], a[:n], b[:n]
 	for i := range dst {
-		dst[i] = a[i] + b[i]*s
+		dst[i] = a[i] + T(b[i]*s)
 	}
 }
 
@@ -357,11 +369,11 @@ func dotFloat[T float](a, b []T) T {
 		x := a[i : i+kernel.SumLanes : i+kernel.SumLanes]
 		y := b[i : i+kernel.SumLanes : i+kernel.SumLanes]
 		for j := range kernel.SumLanes {
-			acc[j] += x[j] * y[j]
+			acc[j] += T(x[j] * y[j])
 		}
 	}
 	for j := 0; i < n; i, j = i+1, j+1 {
-		acc[j] += a[i] * b[i]
+		acc[j] += T(a[i] * b[i])
 	}
 	return kernel.CombineTree(&acc)
 }
@@ -371,7 +383,7 @@ func dotInt[T integer](a, b []T) T {
 	a, b = a[:n], b[:n]
 	var s T
 	for i := range a {
-		s += a[i] * b[i]
+		s += T(a[i] * b[i])
 	}
 	return s
 }
@@ -427,12 +439,12 @@ func sumSqDevFloat[T float](a []T, c T) T {
 		blk := a[i : i+kernel.SumLanes : i+kernel.SumLanes]
 		for j := range kernel.SumLanes {
 			d := blk[j] - c
-			acc[j] += d * d
+			acc[j] += T(d * d)
 		}
 	}
 	for j := 0; i < len(a); i, j = i+1, j+1 {
 		d := a[i] - c
-		acc[j] += d * d
+		acc[j] += T(d * d)
 	}
 	return kernel.CombineTree(&acc)
 }
@@ -447,12 +459,12 @@ func sumSqDiffFloat[T float](a, b []T) T {
 		y := b[i : i+kernel.SumLanes : i+kernel.SumLanes]
 		for j := range kernel.SumLanes {
 			d := x[j] - y[j]
-			acc[j] += d * d
+			acc[j] += T(d * d)
 		}
 	}
 	for j := 0; i < n; i, j = i+1, j+1 {
 		d := a[i] - b[i]
-		acc[j] += d * d
+		acc[j] += T(d * d)
 	}
 	return kernel.CombineTree(&acc)
 }
@@ -479,7 +491,7 @@ func sumSqDevInt[T integer](a []T, c T) T {
 	var s T
 	for _, v := range a {
 		d := v - c
-		s += d * d
+		s += T(d * d)
 	}
 	return s
 }
@@ -490,7 +502,7 @@ func sumSqDiffInt[T integer](a, b []T) T {
 	var s T
 	for i := range a {
 		d := a[i] - b[i]
-		s += d * d
+		s += T(d * d)
 	}
 	return s
 }

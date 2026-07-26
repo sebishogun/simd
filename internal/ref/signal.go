@@ -30,7 +30,7 @@ func polyEval[T number](dst, x, coeffs []T) {
 	for i := range dst {
 		acc := coeffs[last]
 		for k := last - 1; k >= 0; k-- {
-			acc = acc*x[i] + coeffs[k]
+			acc = T(acc*x[i]) + coeffs[k]
 		}
 		dst[i] = acc
 	}
@@ -50,7 +50,7 @@ func convolve[T number](dst, sig, ker []T) {
 		var acc T
 		w := sig[i : i+m : i+m]
 		for j := range m {
-			acc += w[j] * ker[m-1-j]
+			acc += T(w[j] * ker[m-1-j])
 		}
 		dst[i] = acc
 	}
@@ -70,7 +70,7 @@ func correlate[T number](dst, sig, ker []T) {
 		var acc T
 		w := sig[i : i+m : i+m]
 		for j := range m {
-			acc += w[j] * ker[j]
+			acc += T(w[j] * ker[j])
 		}
 		dst[i] = acc
 	}
@@ -114,7 +114,7 @@ func ema[T number](dst, a []T, alpha T) {
 	prev := a[0]
 	dst[0] = prev
 	for i := 1; i < n; i++ {
-		prev = alpha*a[i] + (1-alpha)*prev
+		prev = T(alpha*a[i]) + T((1-alpha)*prev)
 		dst[i] = prev
 	}
 }

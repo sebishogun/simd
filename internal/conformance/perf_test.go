@@ -181,3 +181,47 @@ func perfCases(n int, got, want kernel.Set) []perfCase {
 }
 
 var _ = fmt.Sprintf
+
+// TestPerfTranscendentals is the measurement that decides whether the
+// polynomial kernels were worth writing.
+//
+// The portable path is a call into the standard library per element, so the
+// comparison is not against a tuned scalar loop but against the only thing Go
+// offers — which is what a caller actually gives up by not having these.
+func TestPerfTranscendentals(t *testing.T) {
+	if testing.Short() {
+		t.Skip("repetition testing needs time")
+	}
+	opt := perf.DefaultOptions()
+	opt.Patience = 60 * time.Millisecond
+
+	want := ref.Set()
+	for tier, got := range tiers(t) {
+		t.Logf("\n=== %s ===", tier)
+		for _, n := range []int{16, 1024, 65536} {
+			t.Logf("\n  n=%d", n)
+			r := rand.New(rand.NewPCG(31, 32))
+			a := genF64(n, r)
+			for i := range a {
+				// Keep arguments inside every function's domain so the
+				// measurement is of arithmetic rather than of special cases.
+				a[i] = float64(i%97)/97*2 - 1
+			}
+			a32 := make([]float32, n)
+			for i := range a {
+				a32[i] = float32(a[i])
+			}
+			d, d32 := make([]float64, n), make([]float32, n)
+			for _, c := range unaryCases() {
+				g64, w64 := c.get64(got), c.get64(want)
+				g32 := c.get32(got)
+				bytes := int64(n) * 16
+				x := perf.Measure("", bytes, func() { g64(d, a) }, opt)
+				y := perf.Measure("", bytes, func() { w64(d, a) }, opt)
+				z := perf.Measure("", int64(n)*8, func() { g32(d32, a32) }, opt)
+				t.Logf("    %-8s f64 asm %8.1f ns  portable %9.1f ns  %6.2fx   f32 asm %8.1f ns",
+					c.name, x.Min, y.Min, y.Min/x.Min, z.Min)
+			}
+		}
+	}
+}

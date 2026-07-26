@@ -510,6 +510,62 @@ func Bytes() []spec.Kernel {
 	}
 }
 
+// ---------- transcendentals ----------
+
+// Transcendentals do more arithmetic per element than anything else here — a
+// double-precision exp is a Cody-Waite reduction and a degree-12 polynomial —
+// so the call is repaid at a much shorter length than an add is. The portable
+// path is a call into math per element, which is not close.
+const thMath = 4
+
+// mathUnary is a transcendental of one argument. It shares the shape of
+// `unary` but takes the C name unchanged, because these are already spelled
+// the way Go spells them.
+func mathUnary(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "_" + e.c, GoName: op + e.goName,
+		Group: e.group, Field: field, RefFunc: field,
+		Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
+		Threshold: thMath,
+	}
+}
+
+func mathBinary(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "_" + e.c, GoName: op + e.goName,
+		Group: e.group, Field: field, RefFunc: field,
+		Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice), sl("b", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), lenOf("dst")},
+		Threshold: thMath,
+	}
+}
+
+// Math is everything in csrc/math.c.
+func Math() []spec.Kernel {
+	unaries := []struct{ op, field string }{
+		{"exp", "Exp"}, {"exp2", "Exp2"}, {"expm1", "Expm1"},
+		{"log", "Log"}, {"log2", "Log2"}, {"log10", "Log10"},
+		{"log1p", "Log1p"}, {"cbrt", "Cbrt"}, {"sigmoid", "Sigmoid"},
+		{"sin", "Sin"}, {"cos", "Cos"}, {"tan", "Tan"},
+		{"asin", "Asin"}, {"acos", "Acos"}, {"atan", "Atan"},
+		{"sinh", "Sinh"}, {"cosh", "Cosh"}, {"tanh", "Tanh"},
+	}
+	binaries := []struct{ op, field string }{
+		{"pow", "Pow"}, {"atan2", "Atan2"}, {"hypot", "Hypot"},
+	}
+	var ks []spec.Kernel
+	for _, e := range floats() {
+		for _, u := range unaries {
+			ks = append(ks, mathUnary(u.op, u.field, e))
+		}
+		for _, b := range binaries {
+			ks = append(ks, mathBinary(b.op, b.field, e))
+		}
+	}
+	return ks
+}
+
 // Source is a C file and the kernels compiled from it.
 type Source struct {
 	// Path is relative to the repository root.
@@ -524,4 +580,5 @@ var All = []Source{
 	{Path: "csrc/reduce.c", Kernels: Reduce()},
 	{Path: "csrc/compare.c", Kernels: Compare()},
 	{Path: "csrc/bytes.c", Kernels: Bytes()},
+	{Path: "csrc/math.c", Kernels: Math()},
 }

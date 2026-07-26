@@ -76,10 +76,15 @@ var unalignedLoads = map[string]bool{
 // It returns the new body, which is the original code followed by the pools,
 // and reports whether anything needed doing.
 func resolvePool(fn *objfile.Func, instrs []Instr, tgt target.Target) ([]byte, error) {
-	if tgt.Arch != target.AMD64 {
-		return nil, fmt.Errorf("constant pools are only resolved on amd64; on %s a "+
-			"constant address is built from a high/low instruction pair, which has to "+
-			"be rewritten as a unit", tgt.Arch)
+	switch tgt.Arch {
+	case target.AMD64:
+		// Handled below: one RIP-relative displacement per reference.
+	case target.ARM64:
+		return resolvePoolARM64(fn)
+	default:
+		return nil, fmt.Errorf("constant pools are not resolved on %s; the address is "+
+			"built from a high/low instruction pair that this generator does not yet "+
+			"rewrite", tgt.Arch)
 	}
 
 	code := append([]byte(nil), fn.Code...)

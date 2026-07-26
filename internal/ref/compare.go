@@ -86,7 +86,7 @@ func scatter[T number](dst []T, idx []int32, src []T) {
 // also what lets a vector unit compute a whole register at once.
 func ramp[T number](dst []T, start, step T) {
 	for i := range dst {
-		dst[i] = start + T(i)*step
+		dst[i] = start + T(T(i)*step)
 	}
 }
 
@@ -309,7 +309,7 @@ func matMul[T number](dst, a, b []T, m, k, n int) {
 			}
 			br := b[p*n : (p+1)*n : (p+1)*n]
 			for j := range row {
-				row[j] += s * br[j]
+				row[j] += T(s * br[j])
 			}
 		}
 	}

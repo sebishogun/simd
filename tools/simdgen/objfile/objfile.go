@@ -233,10 +233,18 @@ func (f *File) relocsIn(sec *elf.Section, start, size uint64) ([]Reloc, error) {
 					rel.Target = data
 					rel.TargetSection = sec
 					rel.TargetAlign = align
-					// A PC-relative relocation carries an addend of -4 because
-					// the displacement is measured from the end of the field.
-					// Anything beyond that is a real offset into the pool.
-					rel.TargetOff = sym.Value + uint64(rAddend+4)
+					// How much of the addend is a real offset into the pool
+					// depends on what the rest of it is compensating for.
+					//
+					// x86-64's R_X86_64_PC32 measures its displacement from the
+					// end of the four-byte field, so every such relocation
+					// carries -4 that has nothing to do with which constant is
+					// being named. AArch64's page-and-offset pair measures from
+					// the instruction itself and carries no such adjustment, so
+					// subtracting one there would name the constant four bytes
+					// before the right one — which decodes perfectly and
+					// returns a wrong number.
+					rel.TargetOff = sym.Value + uint64(rAddend) + pcAdjust(f.elf.Machine)
 				}
 			}
 			out = append(out, rel)
@@ -291,4 +299,14 @@ func relocTypeName(m elf.Machine, t uint32) string {
 		return elf.R_LARCH(t).String()
 	}
 	return fmt.Sprintf("reloc(%d)", t)
+}
+
+// pcAdjust is the part of a relocation addend that compensates for where the
+// architecture measures its PC-relative displacement from, rather than
+// naming a position in the pool.
+func pcAdjust(m elf.Machine) uint64 {
+	if m == elf.EM_X86_64 {
+		return 4 // R_X86_64_PC32 measures from the end of the field
+	}
+	return 0
 }
