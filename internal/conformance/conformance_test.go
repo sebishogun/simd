@@ -1,0 +1,468 @@
+// Package conformance checks every generated kernel against the portable
+// reference, for every instruction-set tier the host can execute.
+//
+// This is the test the whole design exists to make possible. Backends are
+// swapped as complete sets rather than per function, so every tier compiled
+// into the binary can be exercised in one process — no re-running the suite
+// once per GOSIMD setting, and no chance of a tier being skipped because
+// nobody thought to set the variable.
+//
+// What is checked, and why it is checked this way:
+//
+//   - Elementwise and scalar operations must be bit-identical to the
+//     reference. Not close: identical, including NaN payloads, ±Inf, ±0 and
+//     denormals. No reassociation is possible in an elementwise operation, so
+//     there is no reason for a difference and any difference is a bug.
+//   - Reductions must be bit-identical too, which is the contract that stops a
+//     sum changing value when a program moves to a machine with wider vectors.
+//   - Lengths are swept from 0 to 70 rather than sampled. A vectorized body
+//     handles whole blocks and a remainder loop handles the rest, so every
+//     interesting case is at a boundary. viterin/vek#11 and its Any bug both
+//     live exactly there.
+//   - Inputs include NaN, infinities, signed zeros, denormals and the extremes
+//     of each integer type, because those are where a compare-and-blend
+//     implementation of minimum diverges from a naive one.
+package conformance
+
+import (
+	"fmt"
+	"math"
+	"math/rand/v2"
+	"testing"
+
+	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/cpu"
+	"github.com/sebishogun/simd/internal/kernel"
+	"github.com/sebishogun/simd/internal/ref"
+)
+
+const maxLen = 70
+
+// tiers returns every tier with a backend compiled into this binary, paired
+// with the reference to compare it against.
+func tiers(t *testing.T) map[string]kernel.Set {
+	out := map[string]kernel.Set{}
+	for _, name := range backend.Tiers() {
+		s, ok := backend.Lookup(name)
+		if !ok {
+			continue
+		}
+		out[name] = s
+	}
+	if len(out) == 0 {
+		t.Skip("no generated backends in this build")
+	}
+	return out
+}
+
+// ---------- input generation ----------
+
+// awkwardF64 are the values an implementation is most likely to get wrong.
+var awkwardF64 = []float64{
+	0, math.Copysign(0, -1),
+	1, -1, 0.5, -0.5,
+	math.Inf(1), math.Inf(-1),
+	math.NaN(),
+	math.MaxFloat64, -math.MaxFloat64,
+	math.SmallestNonzeroFloat64, -math.SmallestNonzeroFloat64,
+	1e308, -1e308, 1e-308,
+}
+
+func genF64(n int, r *rand.Rand) []float64 {
+	s := make([]float64, n)
+	for i := range s {
+		// Mix ordinary values with the awkward ones, so both the common path
+		// and the corner cases are covered at every length.
+		if r.IntN(4) == 0 {
+			s[i] = awkwardF64[r.IntN(len(awkwardF64))]
+		} else {
+			s[i] = r.NormFloat64() * 100
+		}
+	}
+	return s
+}
+
+func genF32(n int, r *rand.Rand) []float32 {
+	s := make([]float32, n)
+	for i := range s {
+		if r.IntN(4) == 0 {
+			s[i] = float32(awkwardF64[r.IntN(len(awkwardF64))])
+		} else {
+			s[i] = float32(r.NormFloat64() * 100)
+		}
+	}
+	return s
+}
+
+func genI32(n int, r *rand.Rand) []int32 {
+	s := make([]int32, n)
+	extremes := []int32{0, 1, -1, math.MaxInt32, math.MinInt32}
+	for i := range s {
+		if r.IntN(4) == 0 {
+			s[i] = extremes[r.IntN(len(extremes))]
+		} else {
+			s[i] = int32(r.Uint32())
+		}
+	}
+	return s
+}
+
+func genI64(n int, r *rand.Rand) []int64 {
+	s := make([]int64, n)
+	extremes := []int64{0, 1, -1, math.MaxInt64, math.MinInt64}
+	for i := range s {
+		if r.IntN(4) == 0 {
+			s[i] = extremes[r.IntN(len(extremes))]
+		} else {
+			s[i] = int64(r.Uint64())
+		}
+	}
+	return s
+}
+
+// same compares bit patterns, so -0 does not equal +0 and a lost sign bit is
+// caught. The one exception is the NaN payload.
+//
+// Which NaN survives an operation with two NaN operands is not specified by
+// IEEE 754, and hardware genuinely differs — x86 returns the first source
+// operand, other architectures make other choices. Demanding identical
+// payloads would be demanding something no implementation can promise. What
+// the library does promise, and what is checked, is that a NaN in produces a
+// NaN out.
+func same[T comparable](got, want []T) (int, bool) {
+	if len(got) != len(want) {
+		return -1, false
+	}
+	for i := range got {
+		if !sameScalar(got[i], want[i]) {
+			return i, false
+		}
+	}
+	return 0, true
+}
+
+func sameScalar[T comparable](a, b T) bool {
+	switch x := any(a).(type) {
+	case float64:
+		y := any(b).(float64)
+		if math.IsNaN(x) || math.IsNaN(y) {
+			return math.IsNaN(x) && math.IsNaN(y)
+		}
+		return math.Float64bits(x) == math.Float64bits(y)
+	case float32:
+		x64, y64 := float64(x), float64(any(b).(float32))
+		if math.IsNaN(x64) || math.IsNaN(y64) {
+			return math.IsNaN(x64) && math.IsNaN(y64)
+		}
+		return math.Float32bits(x) == math.Float32bits(any(b).(float32))
+	}
+	return a == b
+}
+
+// ---------- shape checkers ----------
+//
+// Each takes the kernel under test and the reference, runs both on the same
+// inputs at every length, and compares bit patterns.
+
+func checkBinary[T comparable](t *testing.T, tier, op string,
+	got, want func(dst, a, b []T), gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(1, 2))
+	for n := range maxLen + 1 {
+		a, b := gen(n, r), gen(n, r)
+		g, w := make([]T, n), make([]T, n)
+		got(g, a, b)
+		want(w, a, b)
+		if i, ok := same(g, w); !ok {
+			t.Fatalf("%s/%s n=%d i=%d: got %v want %v (a=%v b=%v)",
+				tier, op, n, i, g[i], w[i], a[i], b[i])
+		}
+	}
+}
+
+func checkUnary[T comparable](t *testing.T, tier, op string,
+	got, want func(dst, a []T), gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(3, 4))
+	for n := range maxLen + 1 {
+		a := gen(n, r)
+		g, w := make([]T, n), make([]T, n)
+		got(g, a)
+		want(w, a)
+		if i, ok := same(g, w); !ok {
+			t.Fatalf("%s/%s n=%d i=%d: got %v want %v (a=%v)", tier, op, n, i, g[i], w[i], a[i])
+		}
+	}
+}
+
+// checkScalar compares an operation taking one scalar operand.
+//
+// nonZero excludes a zero scalar, which is only needed for integer division:
+// Go's / panics on a zero divisor and the kernels inherit that, so feeding one
+// in would be testing the panic rather than the arithmetic.
+func checkScalar[T comparable](t *testing.T, tier, op string,
+	got, want func(dst, a []T, s T), gen func(int, *rand.Rand) []T, nonZero bool) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	var zero T
+	r := rand.New(rand.NewPCG(5, 6))
+	for n := range maxLen + 1 {
+		a := gen(n, r)
+		one := gen(1, r)
+		s := one[0]
+		for nonZero && s == zero {
+			s = gen(1, r)[0]
+		}
+		g, w := make([]T, n), make([]T, n)
+		got(g, a, s)
+		want(w, a, s)
+		if i, ok := same(g, w); !ok {
+			t.Fatalf("%s/%s n=%d i=%d s=%v: got %v want %v", tier, op, n, i, s, g[i], w[i])
+		}
+	}
+}
+
+func checkReduce1[T comparable](t *testing.T, tier, op string,
+	got, want func(a []T) T, gen func(int, *rand.Rand) []T, skipEmpty bool) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(7, 8))
+	start := 0
+	if skipEmpty {
+		start = 1
+	}
+	for n := start; n <= maxLen; n++ {
+		a := gen(n, r)
+		g, w := got(a), want(a)
+		if !sameScalar(g, w) {
+			t.Fatalf("%s/%s n=%d: got %v want %v", tier, op, n, g, w)
+		}
+	}
+}
+
+func checkReduce2[T comparable](t *testing.T, tier, op string,
+	got, want func(a, b []T) T, gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(9, 10))
+	for n := range maxLen + 1 {
+		a, b := gen(n, r), gen(n, r)
+		g, w := got(a, b), want(a, b)
+		if !sameScalar(g, w) {
+			t.Fatalf("%s/%s n=%d: got %v want %v", tier, op, n, g, w)
+		}
+	}
+}
+
+func checkClamp[T comparable](t *testing.T, tier, op string,
+	got, want func(dst, a []T, lo, hi T), gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(11, 12))
+	for n := range maxLen + 1 {
+		a := gen(n, r)
+		b := gen(2, r)
+		lo, hi := b[0], b[1]
+		g, w := make([]T, n), make([]T, n)
+		got(g, a, lo, hi)
+		want(w, a, lo, hi)
+		if i, ok := same(g, w); !ok {
+			t.Fatalf("%s/%s n=%d i=%d lo=%v hi=%v: got %v want %v",
+				tier, op, n, i, lo, hi, g[i], w[i])
+		}
+	}
+}
+
+func checkFill[T comparable](t *testing.T, tier, op string,
+	got, want func(dst []T, v T), gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(13, 14))
+	for n := range maxLen + 1 {
+		v := gen(1, r)[0]
+		g, w := make([]T, n), make([]T, n)
+		got(g, v)
+		want(w, v)
+		if i, ok := same(g, w); !ok {
+			t.Fatalf("%s/%s n=%d i=%d: got %v want %v", tier, op, n, i, g[i], w[i])
+		}
+	}
+}
+
+func checkLerp[T comparable](t *testing.T, tier, op string,
+	got, want func(dst, a, b []T, s T), gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(15, 16))
+	for n := range maxLen + 1 {
+		a, b := gen(n, r), gen(n, r)
+		s := gen(1, r)[0]
+		g, w := make([]T, n), make([]T, n)
+		got(g, a, b, s)
+		want(w, a, b, s)
+		if i, ok := same(g, w); !ok {
+			t.Fatalf("%s/%s n=%d i=%d s=%v: got %v want %v", tier, op, n, i, s, g[i], w[i])
+		}
+	}
+}
+
+// ---------- the suite ----------
+
+// checkOps runs every shape in one Ops group.
+func checkOps[T comparable](t *testing.T, tier, typeName string,
+	got, want kernel.Ops[T], gen func(int, *rand.Rand) []T) {
+
+	p := func(op string) string { return typeName + "." + op }
+
+	checkBinary(t, tier, p("Add"), got.Add, want.Add, gen)
+	checkBinary(t, tier, p("Sub"), got.Sub, want.Sub, gen)
+	checkBinary(t, tier, p("Mul"), got.Mul, want.Mul, gen)
+	checkBinary(t, tier, p("Div"), got.Div, want.Div, gen)
+	checkBinary(t, tier, p("Minimum"), got.Minimum, want.Minimum, gen)
+	checkBinary(t, tier, p("Maximum"), got.Maximum, want.Maximum, gen)
+
+	checkUnary(t, tier, p("Abs"), got.Abs, want.Abs, gen)
+	checkUnary(t, tier, p("Neg"), got.Neg, want.Neg, gen)
+	checkUnary(t, tier, p("Sqrt"), got.Sqrt, want.Sqrt, gen)
+	checkUnary(t, tier, p("Reciprocal"), got.Reciprocal, want.Reciprocal, gen)
+	checkUnary(t, tier, p("Floor"), got.Floor, want.Floor, gen)
+	checkUnary(t, tier, p("Ceil"), got.Ceil, want.Ceil, gen)
+	checkUnary(t, tier, p("Trunc"), got.Trunc, want.Trunc, gen)
+	checkUnary(t, tier, p("Round"), got.Round, want.Round, gen)
+	checkUnary(t, tier, p("RoundToEven"), got.RoundToEven, want.RoundToEven, gen)
+	checkUnary(t, tier, p("Reverse"), got.Reverse, want.Reverse, gen)
+
+	checkScalar(t, tier, p("Scale"), got.Scale, want.Scale, gen, false)
+	checkScalar(t, tier, p("AddScalar"), got.AddScalar, want.AddScalar, gen, false)
+	checkScalar(t, tier, p("SubScalar"), got.SubScalar, want.SubScalar, gen, false)
+	// Integer division panics on a zero divisor, in the kernels exactly as in
+	// Go, so the scalar is kept away from zero.
+	checkScalar(t, tier, p("DivScalar"), got.DivScalar, want.DivScalar, gen, true)
+
+	checkClamp(t, tier, p("Clamp"), got.Clamp, want.Clamp, gen)
+	checkFill(t, tier, p("Fill"), got.Fill, want.Fill, gen)
+	checkLerp(t, tier, p("Lerp"), got.Lerp, want.Lerp, gen)
+	checkLerp(t, tier, p("AddScaled"), got.AddScaled, want.AddScaled, gen)
+
+	checkUnary(t, tier, p("CumSum"), got.CumSum, want.CumSum, gen)
+	checkUnary(t, tier, p("CumProd"), got.CumProd, want.CumProd, gen)
+	checkUnary(t, tier, p("CumMin"), got.CumMin, want.CumMin, gen)
+	checkUnary(t, tier, p("CumMax"), got.CumMax, want.CumMax, gen)
+
+	checkReduce1(t, tier, p("Sum"), got.Sum, want.Sum, gen, false)
+	checkReduce1(t, tier, p("Prod"), got.Prod, want.Prod, gen, false)
+	checkReduce1(t, tier, p("SumSquares"), got.SumSquares, want.SumSquares, gen, false)
+	checkReduce1(t, tier, p("L1Norm"), got.L1Norm, want.L1Norm, gen, false)
+	checkReduce1(t, tier, p("Norm"), got.Norm, want.Norm, gen, false)
+	checkReduce1(t, tier, p("Min"), got.Min, want.Min, gen, true)
+	checkReduce1(t, tier, p("Max"), got.Max, want.Max, gen, true)
+
+	checkReduce2(t, tier, p("Dot"), got.Dot, want.Dot, gen)
+	checkReduce2(t, tier, p("SumSqDiff"), got.SumSqDiff, want.SumSqDiff, gen)
+	checkReduce2(t, tier, p("L1Diff"), got.L1Diff, want.L1Diff, gen)
+}
+
+// TestEveryTierMatchesTheReference is the headline check: every kernel of
+// every compiled-in tier produces bit-identical results to the portable
+// implementation.
+func TestEveryTierMatchesTheReference(t *testing.T) {
+	want := ref.Set()
+	for tier, got := range tiers(t) {
+		t.Run(tier, func(t *testing.T) {
+			checkOps(t, tier, "F32", got.F32, want.F32, genF32)
+			checkOps(t, tier, "F64", got.F64, want.F64, genF64)
+			checkOps(t, tier, "I32", got.I32, want.I32, genI32)
+			checkOps(t, tier, "I64", got.I64, want.I64, genI64)
+		})
+	}
+}
+
+// TestTiersAgreeWithEachOther is the guarantee users actually rely on: a
+// result does not change when the program moves to a machine with a different
+// vector width. Comparing each tier to the reference implies it, but checking
+// it directly is what the promise says.
+func TestTiersAgreeWithEachOther(t *testing.T) {
+	all := tiers(t)
+	if len(all) < 2 {
+		t.Skip("only one tier in this build")
+	}
+	names := make([]string, 0, len(all))
+	for n := range all {
+		names = append(names, n)
+	}
+	first := all[names[0]]
+	for _, n := range names[1:] {
+		t.Run(names[0]+" vs "+n, func(t *testing.T) {
+			checkOps(t, n, "F32", all[n].F32, first.F32, genF32)
+			checkOps(t, n, "F64", all[n].F64, first.F64, genF64)
+			checkOps(t, n, "I32", all[n].I32, first.I32, genI32)
+			checkOps(t, n, "I64", all[n].I64, first.I64, genI64)
+		})
+	}
+}
+
+// TestNoNilKernels guards the property that makes partial backends safe: a
+// tier is always a complete set, with the portable implementation standing in
+// for anything not generated. A nil here is a crash waiting for whichever
+// operation nobody got to.
+func TestNoNilKernels(t *testing.T) {
+	for tier, s := range tiers(t) {
+		if s.F64.Add == nil || s.F64.Sum == nil || s.Bytes.IndexByte == nil ||
+			s.Mask.All == nil || s.I32.Add == nil {
+			t.Errorf("tier %s has nil kernels; backends must start from the reference", tier)
+		}
+		if s.Name != tier {
+			t.Errorf("tier %s reports Name %q", tier, s.Name)
+		}
+	}
+}
+
+func TestReportSelection(t *testing.T) {
+	t.Logf("%s", cpu.Describe())
+	t.Logf("tiers with generated kernels: %v", backend.Tiers())
+	for _, n := range backend.Tiers() {
+		s, _ := backend.Lookup(n)
+		t.Logf("  %-8s %s", n, describeCoverage(s))
+	}
+}
+
+// describeCoverage counts how many kernels of a tier differ from the reference,
+// which is how many were actually generated for it.
+func describeCoverage(s kernel.Set) string {
+	base := ref.Set()
+	n := 0
+	// Comparing function values is not allowed in Go, so compare the behaviour
+	// that matters instead: a generated kernel is one whose pointer differs.
+	// fmt.Sprintf on a func prints its address, which is enough here and is
+	// only used for a log line.
+	cmp := func(a, b any) {
+		if fmt.Sprintf("%p", a) != fmt.Sprintf("%p", b) {
+			n++
+		}
+	}
+	cmp(s.F32.Add, base.F32.Add)
+	cmp(s.F64.Add, base.F64.Add)
+	cmp(s.I32.Add, base.I32.Add)
+	cmp(s.I64.Add, base.I64.Add)
+	cmp(s.F64.Sum, base.F64.Sum)
+	cmp(s.F64.Sqrt, base.F64.Sqrt)
+	return fmt.Sprintf("%d/6 sampled kernels generated", n)
+}

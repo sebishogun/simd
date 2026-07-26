@@ -56,6 +56,15 @@ var amd64LoadForms = map[string]string{
 	"vmovups":   "VMOVUPS",
 	"vmovdqu":   "VMOVDQU",
 
+	// Scalar loads. A broadcast of a constant often lowers to a scalar load
+	// followed by a shuffle, so these turn up wherever a kernel multiplies by
+	// a literal.
+	"vmovss": "VMOVSS",
+	"vmovsd": "VMOVSD",
+
+	// Broadcast-from-memory forms. LLVM reaches for these when a kernel needs
+	// the same constant in every lane, which rounding does for its 0.5.
+	"vmovddup":     "VMOVDDUP",
 	"vbroadcastss": "VBROADCASTSS",
 	"vbroadcastsd": "VBROADCASTSD",
 	"vpbroadcastd": "VPBROADCASTD",
@@ -77,7 +86,7 @@ var amd64LoadForms = map[string]string{
 // reference and a register, which is what a constant-pool load looks like.
 // Anything else — an arithmetic instruction with a memory operand, say — is
 // refused rather than guessed at.
-func respellAMD64(mnemonic, operands, sym string) (respelled, error) {
+func respellAMD64(mnemonic, operands, sym string, off uint64) (respelled, error) {
 	plan9, ok := amd64LoadForms[mnemonic]
 	if !ok {
 		return respelled{}, fmt.Errorf(
@@ -103,8 +112,12 @@ func respellAMD64(mnemonic, operands, sym string) (respelled, error) {
 	}
 	// AT&T and Plan 9 both write source before destination, so the order is
 	// already right.
+	ref := fmt.Sprintf("%s<>(SB)", sym)
+	if off != 0 {
+		ref = fmt.Sprintf("%s<>+%d(SB)", sym, off)
+	}
 	return respelled{
-		Text:    fmt.Sprintf("%s %s<>(SB), %s", plan9, sym, dst),
+		Text:    fmt.Sprintf("%s %s, %s", plan9, ref, dst),
 		Comment: fmt.Sprintf("%s %s", mnemonic, operands),
 	}, nil
 }
@@ -149,10 +162,10 @@ func splitOperands(s string) []string {
 }
 
 // respell dispatches to the architecture's rewriter.
-func respell(arch target.Arch, mnemonic, operands, sym string) (respelled, error) {
+func respell(arch target.Arch, mnemonic, operands, sym string, off uint64) (respelled, error) {
 	switch arch {
 	case target.AMD64:
-		return respellAMD64(mnemonic, operands, sym)
+		return respellAMD64(mnemonic, operands, sym, off)
 	}
 	return respelled{}, fmt.Errorf(
 		"lifting constant pools is not implemented for %s. On this architecture a "+

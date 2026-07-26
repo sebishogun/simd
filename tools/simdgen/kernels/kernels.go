@@ -5,138 +5,256 @@
 // makes gorse-io/goat unreliable, and it is also the only place the two
 // signatures can be reconciled — Go passes a slice as three words while C
 // wants a pointer and a length, so something has to say which Go parameter
-// supplies the length.
+// supplies the length. Package astcheck verifies the two agree.
+//
+// The entries are built by loops over an element-type table rather than
+// written out one at a time. There are close to ninety and they differ only in
+// the type, so spelling each out invites exactly the sort of copy-and-paste
+// slip — a float64 kernel wired to the F32 group — that nothing downstream
+// would catch.
 package kernels
 
 import "github.com/sebishogun/simd/tools/simdgen/spec"
 
+// elem describes one element type in every spelling the generator needs.
+type elem struct {
+	c      string    // suffix in the C symbol name: f32
+	goName string    // suffix in the Go function name: Float32
+	slice  spec.Type // []float32
+	scalar spec.Type // float32
+	group  string    // the kernel.Ops group: F32
+	float  bool
+}
+
+var elems = []elem{
+	{"f32", "Float32", spec.SliceF32, spec.F32, "F32", true},
+	{"f64", "Float64", spec.SliceF64, spec.F64, "F64", true},
+	{"i32", "Int32", spec.SliceI32, spec.I32, "I32", false},
+	{"i64", "Int64", spec.SliceI64, spec.I64, "I64", false},
+}
+
+func floats() []elem {
+	var out []elem
+	for _, e := range elems {
+		if e.float {
+			out = append(out, e)
+		}
+	}
+	return out
+}
+
+// ref picks the reference function for an element type. Some operations need
+// different implementations for floats and integers: IEEE minimum is not the
+// same operation as integer minimum, and integer Abs wraps where float Abs
+// clears a sign bit.
+func (e elem) ref(base string) string {
+	if e.float {
+		return base + "Float"
+	}
+	return base + "Int"
+}
+
+// Thresholds, in elements, below which the dispatcher runs the portable path.
+//
+// Measured, not guessed — see TestPerfCrossover in internal/amd64. The
+// elementwise figure is not the raw crossover of 8 but the point where the
+// assembly's margin exceeds the threshold guard's own call cost, which is 16.
+// Reductions are worth calling at any length at all.
+const (
+	thElementwise = 16
+	thReduction   = 0
+)
+
+func base(n string) spec.CArg  { return spec.CArg{From: n, Part: spec.Base} }
+func lenOf(n string) spec.CArg { return spec.CArg{From: n, Part: spec.Len} }
+func val(n string) spec.CArg   { return spec.CArg{From: n, Part: spec.Value} }
+func out() spec.CArg           { return spec.CArg{Part: spec.ResultAddr} }
+
 func sl(name string, t spec.Type) spec.Param { return spec.Param{Name: name, Type: t} }
 
-func base(n string) spec.CArg   { return spec.CArg{From: n, Part: spec.Base} }
-func length(n string) spec.CArg { return spec.CArg{From: n, Part: spec.Len} }
-func val(n string) spec.CArg    { return spec.CArg{From: n, Part: spec.Value} }
+// ---------- kernel shapes ----------
 
-// out passes the address of the Go result slot, so the kernel can write its
-// answer there instead of returning it in a register.
-func out() spec.CArg { return spec.CArg{Part: spec.ResultAddr} }
-
-// binary builds a three-slice elementwise kernel: dst = a op b.
-//
-// The length passed to C is dst's, because every operation in this library
-// processes the minimum of its slice lengths and the caller-side wrapper has
-// already narrowed all three to that minimum.
-// group maps a slice element type to the kernel.Ops group that holds it.
-func group(t spec.Type) string {
-	switch t {
-	case spec.SliceF32:
-		return "F32"
-	case spec.SliceF64:
-		return "F64"
-	case spec.SliceI32:
-		return "I32"
-	case spec.SliceI64:
-		return "I64"
-	}
-	panic("kernels: no Ops group for " + t.GoString())
-}
-
-func binary(cName, goName, field string, t spec.Type, threshold int) spec.Kernel {
+func binary(op, field, refFunc string, e elem, skip ...string) spec.Kernel {
 	return spec.Kernel{
-		CName: cName, GoName: goName, Group: group(t), Field: field, RefFunc: field,
-		Params:    []spec.Param{sl("dst", t), sl("a", t), sl("b", t)},
-		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), length("dst")},
-		Threshold: threshold,
+		CName: "simd_" + op + "_" + e.c, GoName: op2go(op) + e.goName,
+		Group: e.group, Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice), sl("b", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), lenOf("dst")},
+		Threshold: thElementwise, SkipOn: skip,
 	}
 }
 
-// scaled builds dst = a * s or dst = a + b*s.
-func scaleK(cName, goName, field string, slice, scalar spec.Type, threshold int) spec.Kernel {
+func unary(op, field, refFunc string, e elem, skip ...string) spec.Kernel {
 	return spec.Kernel{
-		CName: cName, GoName: goName, Group: group(slice), Field: field, RefFunc: field,
-		Params:    []spec.Param{sl("dst", slice), sl("a", slice), sl("s", scalar)},
-		CArgs:     []spec.CArg{base("dst"), base("a"), val("s"), length("dst")},
-		Threshold: threshold,
+		CName: "simd_" + op + "_" + e.c, GoName: op2go(op) + e.goName,
+		Group: e.group, Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
+		Threshold: thElementwise, SkipOn: skip,
 	}
 }
 
-func axpy(cName, goName, field string, slice, scalar spec.Type, threshold int) spec.Kernel {
+func scalarOp(op, field, refFunc string, e elem, skip ...string) spec.Kernel {
 	return spec.Kernel{
-		CName: cName, GoName: goName, Group: group(slice), Field: field, RefFunc: field,
-		Params:    []spec.Param{sl("dst", slice), sl("a", slice), sl("b", slice), sl("s", scalar)},
-		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), val("s"), length("dst")},
-		Threshold: threshold,
+		CName: "simd_" + op + "_" + e.c, GoName: op2go(op) + e.goName,
+		Group: e.group, Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice), sl("s", e.scalar)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), val("s"), lenOf("dst")},
+		Threshold: thElementwise, SkipOn: skip,
 	}
 }
 
-// reduce1 builds a one-slice reduction returning a scalar.
-func reduce1(cName, goName, field string, slice, scalar spec.Type, threshold int) spec.Kernel {
+func clampK(e elem) spec.Kernel {
 	return spec.Kernel{
-		CName: cName, GoName: goName, Group: group(slice), Field: field, RefFunc: field + "Float",
-		Params:    []spec.Param{sl("a", slice)},
-		Result:    &spec.Param{Name: "ret", Type: scalar},
-		CArgs:     []spec.CArg{out(), base("a"), length("a")},
-		Threshold: threshold,
+		CName: "simd_clamp_" + e.c, GoName: "clamp" + e.goName,
+		Group: e.group, Field: "Clamp", RefFunc: e.ref("Clamp"),
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			sl("lo", e.scalar), sl("hi", e.scalar)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), val("lo"), val("hi"), lenOf("dst")},
+		Threshold: thElementwise,
 	}
 }
 
-// reduce2 builds a two-slice reduction returning a scalar.
-func reduce2(cName, goName, field string, slice, scalar spec.Type, threshold int) spec.Kernel {
+func fillK(e elem) spec.Kernel {
 	return spec.Kernel{
-		CName: cName, GoName: goName, Group: group(slice), Field: field, RefFunc: field + "Float",
-		Params:    []spec.Param{sl("a", slice), sl("b", slice)},
-		Result:    &spec.Param{Name: "ret", Type: scalar},
-		CArgs:     []spec.CArg{out(), base("a"), base("b"), length("a")},
-		Threshold: threshold,
+		CName: "simd_fill_" + e.c, GoName: "fill" + e.goName,
+		Group: e.group, Field: "Fill", RefFunc: "Fill",
+		Params:    []spec.Param{sl("dst", e.slice), sl("v", e.scalar)},
+		CArgs:     []spec.CArg{base("dst"), val("v"), lenOf("dst")},
+		Threshold: thElementwise,
 	}
 }
 
-// Elementwise is the manifest for csrc/elementwise.c.
-//
-// The thresholds below are measured, not guessed — see TestPerfCrossover in
-// internal/amd64. They differ per operation because the crossover does:
-//
-//	Add float64   asm overtakes portable Go at n=8   (3.86ns vs 3.91ns)
-//	Sum float64   at n=1                             (3.72ns vs 8.75ns)
-//	Dot float64   at n=1                             (3.96ns vs 9.76ns)
-//
-// Reductions are worth calling at any length at all, which was not true
-// before the accumulators were moved into an explicit vector type — see the
-// comment in csrc/elementwise.c. Previously a reduction over a length that
-// was not a multiple of 16 spilled its accumulators to the stack and took
-// four to five times longer, so the threshold had to hide lengths below 16.
-// With the spill gone, Sum is 2.35x faster than portable Go at n=1.
-//
-// Elementwise operations are set to 16 rather than to their raw crossover of
-// 8, because the raw crossover is the wrong number to use. At n=8 the assembly
-// beats portable Go by 0.05ns (3.86 vs 3.91) — but reaching it costs the
-// threshold guard's own call, about 0.5ns, which the ref path in a purego
-// build never pays. The break-even is therefore where the assembly wins by
-// more than the guard costs, which is n=12 (0.59ns) and comfortably n=16
-// (1.41ns).
-//
-// A threshold set too high is not a missed optimization, it is a pessimization:
-// the earlier placeholder of 32 sent Add down the portable path at n=16 for
-// 5.73ns when the assembly would have taken 3.20ns.
-var Elementwise = []spec.Kernel{
-	binary("simd_add_f32", "addFloat32", "Add", spec.SliceF32, 16),
-	binary("simd_add_f64", "addFloat64", "Add", spec.SliceF64, 16),
-	binary("simd_sub_f32", "subFloat32", "Sub", spec.SliceF32, 16),
-	binary("simd_sub_f64", "subFloat64", "Sub", spec.SliceF64, 16),
-	binary("simd_mul_f32", "mulFloat32", "Mul", spec.SliceF32, 16),
-	binary("simd_mul_f64", "mulFloat64", "Mul", spec.SliceF64, 16),
-	binary("simd_add_i32", "addInt32", "Add", spec.SliceI32, 16),
-	binary("simd_add_i64", "addInt64", "Add", spec.SliceI64, 16),
+func rampK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_ramp_" + e.c, GoName: "ramp" + e.goName,
+		Group: e.group, Field: "Ramp", RefFunc: "Ramp",
+		Params:    []spec.Param{sl("dst", e.slice), sl("start", e.scalar), sl("step", e.scalar)},
+		CArgs:     []spec.CArg{base("dst"), val("start"), val("step"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
 
-	scaleK("simd_scale_f32", "scaleFloat32", "Scale", spec.SliceF32, spec.F32, 16),
-	scaleK("simd_scale_f64", "scaleFloat64", "Scale", spec.SliceF64, spec.F64, 16),
+func lerpK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_lerp_" + e.c, GoName: "lerp" + e.goName,
+		Group: e.group, Field: "Lerp", RefFunc: "Lerp",
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			sl("b", e.slice), sl("t", e.scalar)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), val("t"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
 
-	axpy("simd_addscaled_f32", "addScaledFloat32", "AddScaled", spec.SliceF32, spec.F32, 16),
-	axpy("simd_addscaled_f64", "addScaledFloat64", "AddScaled", spec.SliceF64, spec.F64, 16),
+func axpyK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_addscaled_" + e.c, GoName: "addScaled" + e.goName,
+		Group: e.group, Field: "AddScaled", RefFunc: "AddScaled",
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			sl("b", e.slice), sl("s", e.scalar)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), val("s"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
 
-	reduce1("simd_sum_f32", "sumFloat32", "Sum", spec.SliceF32, spec.F32, 0),
-	reduce1("simd_sum_f64", "sumFloat64", "Sum", spec.SliceF64, spec.F64, 0),
-	reduce2("simd_dot_f32", "dotFloat32", "Dot", spec.SliceF32, spec.F32, 0),
-	reduce2("simd_dot_f64", "dotFloat64", "Dot", spec.SliceF64, spec.F64, 0),
+func reduce1(op, field, refFunc string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "_" + e.c, GoName: op2go(op) + e.goName,
+		Group: e.group, Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("a", e.slice)},
+		Result:    &spec.Param{Name: "ret", Type: e.scalar},
+		CArgs:     []spec.CArg{out(), base("a"), lenOf("a")},
+		Threshold: thReduction,
+	}
+}
+
+func reduce2(op, field, refFunc string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "_" + e.c, GoName: op2go(op) + e.goName,
+		Group: e.group, Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("a", e.slice), sl("b", e.slice)},
+		Result:    &spec.Param{Name: "ret", Type: e.scalar},
+		CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a")},
+		Threshold: thReduction,
+	}
+}
+
+// op2go turns a C operation name into the Go identifier prefix, where the two
+// spellings differ.
+func op2go(op string) string {
+	switch op {
+	case "recip":
+		return "reciprocal"
+	case "roundeven":
+		return "roundToEven"
+	case "addscalar":
+		return "addScalar"
+	case "subscalar":
+		return "subScalar"
+	case "divscalar":
+		return "divScalar"
+	case "addscaled":
+		return "addScaled"
+	}
+	return op
+}
+
+// ---------- the manifest ----------
+
+// Arith is everything in csrc/arith.c.
+func Arith() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range elems {
+		ks = append(ks,
+			binary("add", "Add", "Add", e),
+			binary("sub", "Sub", "Sub", e),
+			binary("mul", "Mul", "Mul", e),
+			binary("minimum", "Minimum", e.ref("Minimum"), e),
+			binary("maximum", "Maximum", e.ref("Maximum"), e),
+			unary("abs", "Abs", e.ref("Abs"), e),
+			unary("neg", "Neg", e.ref("Neg"), e),
+			scalarOp("scale", "Scale", "Scale", e),
+			scalarOp("addscalar", "AddScalar", "AddScalar", e),
+			scalarOp("subscalar", "SubScalar", "SubScalar", e),
+			clampK(e), fillK(e), lerpK(e), axpyK(e),
+			// Ramp and Reverse are deliberately absent. Ramp needs an index
+			// vector [0,1,2,...] as a constant, which on every architecture but
+			// amd64 is reached through a high/low instruction pair this
+			// generator does not rewrite. Reverse is a permutation that LLVM
+			// will not vectorize from a plain loop; it needs target-specific
+			// shuffles. Both stay portable, and neither is usually hot.
+		)
+	}
+	for _, e := range floats() {
+		ks = append(ks,
+			binary("div", "Div", "Div", e),
+			scalarOp("divscalar", "DivScalar", "DivScalar", e),
+			unary("sqrt", "Sqrt", "Sqrt", e),
+			unary("recip", "Reciprocal", "Reciprocal", e),
+			// Rounding arrived with SSE4.1, so the baseline x86-64 tier has no
+			// instruction for any of these and clang emits a libm call — which
+			// cannot be linked in Plan 9 assembly. ppc64le has no roundeven
+			// and loong64 has no round, for the same reason.
+			unary("floor", "Floor", "Floor", e, "amd64/sse2"),
+			unary("ceil", "Ceil", "Ceil", e, "amd64/sse2"),
+			unary("trunc", "Trunc", "Trunc", e, "amd64/sse2"),
+			unary("round", "Round", "Round", e, "amd64/sse2", "loong64"),
+			unary("roundeven", "RoundToEven", "RoundToEven", e, "amd64/sse2", "ppc64le"),
+		)
+	}
+	return ks
+}
+
+// Reduce is everything in csrc/reduce.c.
+func Reduce() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range floats() {
+		ks = append(ks,
+			reduce1("sum", "Sum", "SumFloat", e),
+			reduce2("dot", "Dot", "DotFloat", e),
+		)
+	}
+	return ks
 }
 
 // Source is a C file and the kernels compiled from it.
@@ -149,5 +267,6 @@ type Source struct {
 
 // All is every source file the generator processes.
 var All = []Source{
-	{Path: "csrc/elementwise.c", Kernels: Elementwise},
+	{Path: "csrc/arith.c", Kernels: Arith()},
+	{Path: "csrc/reduce.c", Kernels: Reduce()},
 }

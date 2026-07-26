@@ -153,6 +153,21 @@ type Kernel struct {
 	// CArgs maps Go parameters onto the C function's arguments, in C order.
 	CArgs []CArg
 
+	// SkipOn names targets this kernel cannot be built for, either as a whole
+	// GOARCH ("loong64") or as one tier of one ("amd64/sse2").
+	//
+	// Not every target can express every operation without a libm call, and a
+	// libm call is fatal: Plan 9 assembly has no procedure linkage table. The
+	// granularity has to be per tier, not per architecture, because the
+	// baseline x86-64 has no rounding instruction at all — floor, ceil, trunc
+	// and round arrived with SSE4.1 — while the avx2 and avx512 tiers of the
+	// same architecture have them.
+	//
+	// A skipped kernel is simply not registered, and the backend keeps the
+	// portable implementation it was built from. That is what makes partial
+	// backends safe: there is never a hole, only a slower path.
+	SkipOn []string
+
 	// RefFunc is the exported function in internal/ref that implements this
 	// kernel portably. The generated threshold guard calls it directly rather
 	// than through the kernel set, so the short-slice path costs no indirect
@@ -201,6 +216,17 @@ func (k Kernel) Param(name string) (Param, bool) {
 // Validate reports whether the kernel is self-consistent. It is called before
 // anything is compiled, so a typo in a manifest is a clear error rather than a
 // mysterious mis-generated prologue.
+// Skips reports whether this kernel is excluded from a target, given its
+// GOARCH and tier.
+func (k Kernel) Skips(arch, tier string) bool {
+	for _, s := range k.SkipOn {
+		if s == arch || s == arch+"/"+tier {
+			return true
+		}
+	}
+	return false
+}
+
 func (k Kernel) Validate() error {
 	if k.CName == "" || k.GoName == "" {
 		return fmt.Errorf("kernel %q/%q: both CName and GoName are required", k.CName, k.GoName)

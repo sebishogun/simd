@@ -21,7 +21,8 @@
 package ref
 
 import (
-	"math"
+	gomath "math"
+
 	"math/bits"
 
 	"github.com/sebishogun/simd/internal/kernel"
@@ -152,12 +153,12 @@ func absFloat[T float](dst, a []T) {
 	case []float32:
 		s := any(a).([]float32)[:n]
 		for i := range d {
-			d[i] = math.Float32frombits(math.Float32bits(s[i]) &^ (1 << 31))
+			d[i] = gomath.Float32frombits(gomath.Float32bits(s[i]) &^ (1 << 31))
 		}
 	case []float64:
 		s := any(a).([]float64)[:n]
 		for i := range d {
-			d[i] = math.Float64frombits(math.Float64bits(s[i]) &^ (1 << 63))
+			d[i] = gomath.Float64frombits(gomath.Float64bits(s[i]) &^ (1 << 63))
 		}
 	}
 }
@@ -170,12 +171,12 @@ func negFloat[T float](dst, a []T) {
 	case []float32:
 		s := any(a).([]float32)[:n]
 		for i := range d {
-			d[i] = math.Float32frombits(math.Float32bits(s[i]) ^ (1 << 31))
+			d[i] = gomath.Float32frombits(gomath.Float32bits(s[i]) ^ (1 << 31))
 		}
 	case []float64:
 		s := any(a).([]float64)[:n]
 		for i := range d {
-			d[i] = math.Float64frombits(math.Float64bits(s[i]) ^ (1 << 63))
+			d[i] = gomath.Float64frombits(gomath.Float64bits(s[i]) ^ (1 << 63))
 		}
 	}
 }
@@ -183,7 +184,7 @@ func negFloat[T float](dst, a []T) {
 // signbit reports whether v is negative, including for -0 and negative NaN.
 // Converting float32 to float64 preserves the sign bit exactly, so one
 // implementation covers both widths.
-func signbit[T float](v T) bool { return math.Signbit(float64(v)) }
+func signbit[T float](v T) bool { return gomath.Signbit(float64(v)) }
 
 // absInt wraps on the most negative value, matching PABSD/PABSQ.
 func absInt[T integer](dst, a []T) {
@@ -210,7 +211,7 @@ func sqrt[T float](dst, a []T) {
 	n := min(len(dst), len(a))
 	dst, a = dst[:n], a[:n]
 	for i := range dst {
-		dst[i] = T(math.Sqrt(float64(a[i])))
+		dst[i] = T(gomath.Sqrt(float64(a[i])))
 	}
 }
 
@@ -413,7 +414,7 @@ func l1NormInt[T integer](a []T) T {
 	return s
 }
 
-func normFloat[T float](a []T) T { return T(math.Sqrt(float64(sumSquaresFloat(a)))) }
+func normFloat[T float](a []T) T { return T(gomath.Sqrt(float64(sumSquaresFloat(a)))) }
 
 // sumSqDevFloat is sum((a[i]-c)^2), the second pass of a two-pass variance.
 // Computing it directly rather than as SumSquares - n*mean^2 avoids the
@@ -846,3 +847,33 @@ func AddScaled[T Number](dst, a, b []T, s T) { addScaled(dst, a, b, s) }
 
 func SumFloat[T Float](a []T) T    { return sumFloat(a) }
 func DotFloat[T Float](a, b []T) T { return dotFloat(a, b) }
+
+func Div[T Float](dst, a, b []T)                  { div(dst, a, b) }
+func MinimumFloat[T Float](dst, a, b []T)         { minimumFloat(dst, a, b) }
+func MaximumFloat[T Float](dst, a, b []T)         { maximumFloat(dst, a, b) }
+func MinimumInt[T ~int32 | ~int64](dst, a, b []T) { minimumInt(dst, a, b) }
+func MaximumInt[T ~int32 | ~int64](dst, a, b []T) { maximumInt(dst, a, b) }
+
+func AbsFloat[T Float](dst, a []T)         { absFloat(dst, a) }
+func NegFloat[T Float](dst, a []T)         { negFloat(dst, a) }
+func AbsInt[T ~int32 | ~int64](dst, a []T) { absInt(dst, a) }
+func NegInt[T ~int32 | ~int64](dst, a []T) { negInt(dst, a) }
+func Sqrt[T Float](dst, a []T)             { sqrt(dst, a) }
+func Reciprocal[T Float](dst, a []T)       { reciprocal(dst, a) }
+func Reverse[T Number](dst, a []T)         { reverse(dst, a) }
+
+func AddScalar[T Number](dst, a []T, s T) { addScalar(dst, a, s) }
+func SubScalar[T Number](dst, a []T, s T) { subScalar(dst, a, s) }
+func DivScalar[T Number](dst, a []T, s T) { divScalar(dst, a, s) }
+
+func ClampFloat[T Float](dst, a []T, lo, hi T)         { clampFloat(dst, a, lo, hi) }
+func ClampInt[T ~int32 | ~int64](dst, a []T, lo, hi T) { clampInt(dst, a, lo, hi) }
+func Fill[T Number](dst []T, v T)                      { fill(dst, v) }
+func Ramp[T Number](dst []T, start, step T)            { ramp(dst, start, step) }
+func Lerp[T Number](dst, a, b []T, t T)                { lerp(dst, a, b, t) }
+
+func Floor[T Float](dst, a []T)       { unary[T](gomath.Floor)(dst, a) }
+func Ceil[T Float](dst, a []T)        { unary[T](gomath.Ceil)(dst, a) }
+func Trunc[T Float](dst, a []T)       { unary[T](gomath.Trunc)(dst, a) }
+func Round[T Float](dst, a []T)       { unary[T](gomath.Round)(dst, a) }
+func RoundToEven[T Float](dst, a []T) { unary[T](gomath.RoundToEven)(dst, a) }

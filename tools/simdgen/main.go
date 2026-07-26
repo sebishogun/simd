@@ -70,6 +70,10 @@ func main() {
 	}
 }
 
+// lastSkipped carries the kernels dropped by the most recent build, so the
+// caller can report them. The generator is single-threaded.
+var lastSkipped []string
+
 func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, verbose, dryRun bool) error {
 	// Validate the manifest before touching a compiler, so a typo in a
 	// declaration is an immediate, precise error.
@@ -129,6 +133,10 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 				continue
 			}
 			fmt.Printf("  %-14s %-8s %d kernels\n", tgt.Arch, tgt.Tier, n)
+			if len(lastSkipped) > 0 {
+				fmt.Printf("  %-14s %-8s %d not supported here: %s\n", "", "",
+					len(lastSkipped), strings.Join(lastSkipped, ", "))
+			}
 		}
 	}
 	if len(failures) > 0 {
@@ -161,21 +169,28 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 	// table, so a call out of the object can never be resolved. This is what
 	// -ffreestanding and -fno-builtin are guarding against, and checking it
 	// here means a regression in those flags surfaces immediately.
-	if undef := obj.UndefinedSymbols(); len(undef) > 0 {
-		return 0, fmt.Errorf("object references %d undefined symbol(s): %v\n"+
-			"Plan 9 assembly cannot call out of the object. A libm call usually means a\n"+
-			"__builtin_ slipped in; a memset or memcpy means a loop was pattern-matched\n"+
-			"despite -fno-builtin", len(undef), undef)
-	}
+	// Undefined symbols are checked per extracted function rather than for the
+	// object as a whole, below: a kernel this target cannot express may well
+	// have lowered to a libm call, and that is only fatal if the kernel is one
+	// being generated.
 
 	// Retarget the kernel names for this tier. Two tiers of one architecture
 	// are compiled into the same package, so they cannot share a symbol.
-	tiered := make([]spec.Kernel, len(src.Kernels))
-	cNames := make([]string, len(src.Kernels))
-	for i, k := range src.Kernels {
+	var tiered []spec.Kernel
+	var cNames []string
+	var skipped []string
+	for _, k := range src.Kernels {
+		if k.Skips(string(tgt.Arch), tgt.Tier) {
+			skipped = append(skipped, k.GoName)
+			continue
+		}
 		k.GoName = k.GoName + tierSuffix(tgt.Tier)
-		tiered[i] = k
-		cNames[i] = k.CName
+		tiered = append(tiered, k)
+		cNames = append(cNames, k.CName)
+	}
+
+	if len(tiered) == 0 {
+		return 0, nil
 	}
 
 	reports, disasm, err := verify.ObjectWithDisasm(res.ObjPath, tgt, cNames, opt)
@@ -183,6 +198,7 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		return 0, err
 	}
 	var problems []string
+	unusable := map[string]string{}
 	for _, r := range reports {
 		if verbose {
 			fmt.Printf("      %s\n", r.Summary())
@@ -190,9 +206,42 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		for _, p := range r.Problems {
 			problems = append(problems, fmt.Sprintf("%s: %s", r.Func, p))
 		}
+		if r.Unsupported != "" {
+			unusable[r.Func] = r.Unsupported
+		}
 	}
 	if len(problems) > 0 {
 		return 0, fmt.Errorf("verification failed:\n  - %s", strings.Join(problems, "\n  - "))
+	}
+
+	// Drop kernels this target cannot express, and any that reach a symbol the
+	// object does not define — a libm call that survived because the target
+	// lacks the instruction. The backend keeps the portable implementation for
+	// those, so there is never a hole, only a slower path.
+	kept := tiered[:0]
+	for _, k := range tiered {
+		if why, bad := unusable[k.CName]; bad {
+			skipped = append(skipped, k.CName+" ("+why+")")
+			continue
+		}
+		fn, err := obj.Func(k.CName)
+		if err != nil {
+			return 0, err
+		}
+		if undef := obj.UndefinedRefs(fn); len(undef) > 0 {
+			skipped = append(skipped, fmt.Sprintf("%s (calls %v)", k.CName, undef))
+			continue
+		}
+		if ok, why := emit.CanLift(fn, tgt); !ok {
+			skipped = append(skipped, fmt.Sprintf("%s (%s)", k.CName, why))
+			continue
+		}
+		kept = append(kept, k)
+	}
+	tiered = kept
+	lastSkipped = skipped
+	if len(tiered) == 0 {
+		return 0, nil
 	}
 
 	fns := map[string]*objfile.Func{}
@@ -209,7 +258,17 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		Command:      res.Command,
 		Source:       src.Path,
 	}
-	asm, err := emit.Asm(tiered, fns, disasm, tgt, prov)
+	// The emitter needs instruction boundaries to locate the opcode byte of a
+	// constant-pool load; it does not need the operands.
+	forEmit := map[string][]emit.Instr{}
+	for name, ins := range disasm {
+		out := make([]emit.Instr, len(ins))
+		for i, in := range ins {
+			out[i] = emit.Instr{Offset: in.Offset, Mnemonic: in.Mnemonic}
+		}
+		forEmit[name] = out
+	}
+	asm, err := emit.Asm(tiered, fns, forEmit, tgt, prov)
 	if err != nil {
 		return 0, err
 	}
@@ -232,7 +291,7 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		return 0, err
 	}
 	reg := emit.Backend(tiered, tgt, pkg, prov)
-	if err := os.WriteFile(filepath.Join(dir, "register"+tgt.Suffix()+".go"), []byte(reg), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, stem+"_register"+tgt.Suffix()+".go"), []byte(reg), 0o644); err != nil {
 		return 0, err
 	}
 	return len(tiered), nil

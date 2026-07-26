@@ -22,23 +22,34 @@ import (
 // It is written only from init functions and read only afterwards, so it needs
 // no lock: Go guarantees all package initialization completes before main
 // runs, and nothing here is reachable before then.
-var registry = map[string]kernel.Set{}
+var registry = map[string]*kernel.Set{}
 
-// Register installs a backend for a tier. Generated code calls this.
+// For returns the backend being assembled for a tier, creating it from the
+// portable reference on first use.
 //
-// Registering the same tier twice is a programming error in the generator
-// rather than something to resolve at runtime, so it panics.
-func Register(tier string, s kernel.Set) {
-	if _, dup := registry[tier]; dup {
-		panic("simd: two backends registered for tier " + tier)
+// Several generated files contribute to one tier — there is a C source per
+// operation family, and each produces its own registration — so they add to a
+// shared set rather than each installing a complete one. Starting from the
+// reference is what makes that safe at any point: a tier is always a complete
+// set of kernels, with the portable implementation standing in for whatever
+// has not been generated for it.
+func For(tier string) *kernel.Set {
+	if s, ok := registry[tier]; ok {
+		return s
 	}
-	registry[tier] = s
+	s := ref.Set()
+	s.Name = tier
+	registry[tier] = &s
+	return &s
 }
 
 // Lookup returns the backend for a tier, and whether one exists.
 func Lookup(tier string) (kernel.Set, bool) {
 	s, ok := registry[tier]
-	return s, ok
+	if !ok {
+		return kernel.Set{}, false
+	}
+	return *s, true
 }
 
 // Tiers returns every registered tier name. Order is unspecified.

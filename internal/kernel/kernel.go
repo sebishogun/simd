@@ -14,8 +14,16 @@
 // input.
 //
 // Rule 1 — elementwise operations are bit-identical on every tier, for every
-// input, including NaN, ±Inf, ±0 and denormals. No reassociation is possible
-// in an elementwise operation, so this is free. It is not negotiable.
+// input, including ±Inf, ±0 and denormals. No reassociation is possible in an
+// elementwise operation, so this is free. It is not negotiable.
+//
+// The single exception is the payload of a NaN result. IEEE 754 does not say
+// which NaN survives an operation whose operands are NaN, and hardware
+// genuinely differs — x86 returns the first source operand, other
+// architectures choose otherwise. Promising identical payloads would be
+// promising something no implementation can deliver. What is promised is that
+// a NaN in yields a NaN out, on every tier, which is what callers actually
+// depend on.
 //
 // Rule 2 — integer reductions are bit-identical on every tier. Integer
 // addition is associative, so accumulation order cannot be observed.

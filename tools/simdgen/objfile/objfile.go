@@ -52,9 +52,21 @@ type Reloc struct {
 	Sym string
 	// Addend is the relocation addend.
 	Addend int64
-	// Target is the data the relocation points at, when the referenced symbol
-	// is a local constant pool this package could resolve. Nil otherwise.
+	// Target is the whole section the relocation points into, when that
+	// section is a resolvable constant pool. Nil otherwise.
+	//
+	// The whole section rather than just the constant, because several
+	// constants share one pool and each relocation selects within it by
+	// offset. Slicing here and losing the offset is how a kernel ends up
+	// reading the wrong constant — silently, since any 16 bytes decode as a
+	// perfectly valid vector.
 	Target []byte
+	// TargetOff is the byte offset within Target that this relocation
+	// actually refers to: the referenced symbol's own position in the section,
+	// plus whatever the addend adds beyond the PC-relative adjustment.
+	TargetOff uint64
+	// TargetSection names the section, so all its users share one Go symbol.
+	TargetSection string
 	// TargetAlign is the alignment of the referenced section.
 	TargetAlign uint64
 }
@@ -97,6 +109,31 @@ func (f *File) UndefinedSymbols() []string {
 	for _, s := range f.syms {
 		if s.Section == elf.SHN_UNDEF && s.Name != "" {
 			out = append(out, s.Name)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+// UndefinedRefs returns the undefined symbols this function references.
+//
+// The object as a whole may reference symbols that no extracted function
+// reaches — a rounding kernel that lowered to a libm call on a target without
+// the instruction, say, while every kernel actually being extracted is clean.
+// Only references from inside a function matter, because only those bytes are
+// copied into the generated assembly.
+func (f *File) UndefinedRefs(fn *Func) []string {
+	var out []string
+	seen := map[string]bool{}
+	for _, r := range fn.Relocs {
+		if r.Sym == "" || seen[r.Sym] {
+			continue
+		}
+		for _, s := range f.syms {
+			if s.Name == r.Sym && s.Section == elf.SHN_UNDEF {
+				seen[r.Sym] = true
+				out = append(out, r.Sym)
+			}
 		}
 	}
 	sort.Strings(out)
@@ -190,11 +227,16 @@ func (f *File) relocsIn(sec *elf.Section, start, size uint64) ([]Reloc, error) {
 				Addend:   rAddend,
 			}
 			if symIdx > 0 && symIdx <= len(f.syms) {
-				s := f.syms[symIdx-1] // Symbols() omits the null entry
-				rel.Sym = s.Name
-				if tgt, align, ok := f.symbolData(s); ok {
-					rel.Target = tgt
+				sym := f.syms[symIdx-1] // Symbols() omits the null entry
+				rel.Sym = sym.Name
+				if data, sec, align, ok := f.symbolData(sym); ok {
+					rel.Target = data
+					rel.TargetSection = sec
 					rel.TargetAlign = align
+					// A PC-relative relocation carries an addend of -4 because
+					// the displacement is measured from the end of the field.
+					// Anything beyond that is a real offset into the pool.
+					rel.TargetOff = sym.Value + uint64(rAddend+4)
 				}
 			}
 			out = append(out, rel)
@@ -209,19 +251,19 @@ func (f *File) relocsIn(sec *elf.Section, start, size uint64) ([]Reloc, error) {
 // clang names a constant pool with a section symbol plus an addend rather than
 // a distinctly named one, so the whole referenced section is returned and the
 // addend selects within it.
-func (f *File) symbolData(s elf.Symbol) ([]byte, uint64, bool) {
+func (f *File) symbolData(s elf.Symbol) ([]byte, string, uint64, bool) {
 	if s.Section == elf.SHN_UNDEF || int(s.Section) >= len(f.elf.Sections) {
-		return nil, 0, false
+		return nil, "", 0, false
 	}
 	sec := f.elf.Sections[s.Section]
 	if sec.Type != elf.SHT_PROGBITS || sec.Flags&elf.SHF_EXECINSTR != 0 {
-		return nil, 0, false
+		return nil, "", 0, false
 	}
 	data, err := sec.Data()
 	if err != nil {
-		return nil, 0, false
+		return nil, "", 0, false
 	}
-	return data, sec.Addralign, true
+	return data, sec.Name, sec.Addralign, true
 }
 
 // Machine reports the object's architecture.

@@ -76,12 +76,27 @@ type Report struct {
 	BodyEnd uint64
 	// Returns is the offset of every return instruction found.
 	Returns []uint64
-	// Problems are the failures found. Empty means the function passed.
+	// Problems are correctness failures. A kernel with any of these must not
+	// ship: it would be miscompiled, mis-gated, or corrupt the runtime.
 	Problems []string
+	// Unsupported records that this target simply cannot express the kernel —
+	// most often because LLVM would not vectorize it, or because the operation
+	// needs an instruction the tier does not have. That is not a bug, it is a
+	// gap, and the right response is to keep the portable implementation
+	// rather than to fail the build.
+	//
+	// With 86 kernels across 9 targets there are hundreds of combinations, and
+	// most gaps are one-line facts about an instruction set. Enumerating them
+	// by hand in the manifest would be a maintenance burden that silently goes
+	// stale; detecting them is both accurate and self-updating.
+	Unsupported string
 }
 
-// OK reports whether the function passed every check.
+// OK reports whether the function passed every correctness check.
 func (r Report) OK() bool { return len(r.Problems) == 0 }
+
+// Usable reports whether the kernel should be generated at all.
+func (r Report) Usable() bool { return r.OK() && r.Unsupported == "" }
 
 // Options tunes the checks.
 type Options struct {
@@ -204,17 +219,18 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 	// returns would run off the end of its own code into whatever the linker
 	// placed next.
 	if len(r.Returns) == 0 {
-		r.Problems = append(r.Problems,
-			"has no return instruction; it would run off the end of its own body")
+		// Usually a tail call: the target lacks the instruction, so clang
+		// jumped to a libm symbol instead of returning. Either way the body
+		// cannot be copied safely, and the portable implementation stands in.
+		r.Unsupported = "no return instruction, probably a tail call to libm"
 	}
 
-	// 6. Vectorization actually happened.
+	// 6. Vectorization actually happened. If it did not, this target cannot
+	// usefully accelerate the kernel — dispatching to it would run scalar code
+	// under a name promising otherwise — so the kernel is dropped rather than
+	// failing the build.
 	if opt.RequireVector && r.VectorInstrs == 0 {
-		r.Problems = append(r.Problems, fmt.Sprintf(
-			"contains no vector instructions at all — LLVM did not vectorize this "+
-				"loop, so the kernel would be dispatched to as %s while running scalar "+
-				"code. Check the C for a loop-carried dependency or a missing __restrict.",
-			tgt.Tier))
+		r.Unsupported = "LLVM did not vectorize it for " + tgt.Tier
 	}
 	return r
 }

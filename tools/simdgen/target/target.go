@@ -180,6 +180,10 @@ var commonFlags = []string{
 	"-O3",
 	"-ffreestanding", "-fno-builtin", "-fno-builtin-memset", "-fno-builtin-memcpy",
 	"-fno-jump-tables",
+	// Without this, sqrt and friends must set errno, so clang emits a call to
+	// libm instead of the instruction — and a call is fatal here. errno is not
+	// observable from Go, so nothing is lost.
+	"-fno-math-errno",
 	"-fno-asynchronous-unwind-tables", "-fno-exceptions", "-fno-rtti",
 	"-fomit-frame-pointer", "-fno-stack-protector",
 	"-mllvm", "-inline-threshold=1000",
