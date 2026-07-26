@@ -1,0 +1,18 @@
+# Build and test artifacts
+*.test
+*.out
+*.prof
+/coverage.*
+
+# Intermediate files from the code-generation pipeline. The *generated* .s and
+# .go files ARE committed — consumers must never need clang — but the object
+# files and raw compiler output they are derived from are not.
+/tools/build/tmp/
+*.o
+*.obj
+
+# Editor and OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/

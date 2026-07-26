@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # The cross-architecture and fuzzing lanes are slow, so they run nightly
+    # rather than on every pull request.
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu-24.04-arm is a native arm64 runner, so NEON and any SVE2 it
+        # exposes are exercised for real rather than under emulation.
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test ./...
+      - name: report selected tier
+        run: go run ./cmd/simdinfo
+
+  purego:
+    name: portable Go only
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26" }
+      # The reference must be self-consistent before anything is compared
+      # against it.
+      - run: go test -tags purego ./...
+
+  tiers:
+    name: every instruction-set tier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26" }
+      # Runs the suite once per tier this runner can execute. This is what
+      # catches a kernel that is right on AVX-512 and wrong on SSE2.
+      - run: make test-tiers
+
+  emission:
+    name: gate matches emitted instructions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26" }
+      # Asserts no generated .s contains an instruction requiring a CPU
+      # feature above the tier its file is gated on. This is the check that
+      # mechanically prevents the SIGILL class of bug that every comparable
+      # library has shipped; see docs/research/05-decisions.md, D7.
+      #
+      # Skipped until the code-generation pipeline lands and there is
+      # generated assembly to inspect.
+      - run: test -d internal/amd64 && make check-emission || echo "no generated assembly yet"
+
+  fmt:
+    name: gofmt and tidy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26" }
+      - run: make fmt-check
+      - run: go mod tidy && git diff --exit-code go.mod go.sum
+
+  cross:
+    name: cross-architecture
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux/arm64, linux/riscv64, linux/s390x, linux/ppc64le]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - name: test under emulation
+        run: |
+          docker run --rm --platform ${{ matrix.platform }} \
+            -v "$PWD":/src -w /src golang:1.26 \
+            sh -c 'go test ./... && go run ./cmd/simdinfo'
+
+  # Scalable vector ISAs have a runtime-variable vector length, so a kernel can
+  # be correct at one width and wrong at another. Testing a single width proves
+  # very little; these lanes sweep the range QEMU can emulate.
+  sve-widths:
+    name: SVE2 at VL=${{ matrix.vl }}
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    strategy:
+      fail-fast: false
+      matrix:
+        vl: [128, 256, 512, 1024]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26" }
+      - name: install qemu
+        run: sudo apt-get update && sudo apt-get install -y qemu-user
+      - name: build and run the suite at a fixed vector length
+        run: |
+          GOOS=linux GOARCH=arm64 go test -c -o /tmp/simd.test ./
+          qemu-aarch64 -cpu max,sve${{ matrix.vl }}=on -L /usr/aarch64-linux-gnu /tmp/simd.test -test.v
+
+  fuzz:
+    name: fuzz
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.26" }
+      - run: make fuzz FUZZTIME=10m
