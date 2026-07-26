@@ -213,3 +213,23 @@ func unhex(c byte) (byte, bool) {
 	}
 	return 0, false
 }
+
+// Exported entry points for generated code.
+
+func IndexByte(b []byte, c byte) int     { return indexByte(b, c) }
+func LastIndexByte(b []byte, c byte) int { return lastIndexByte(b, c) }
+func CountByte(b []byte, c byte) int     { return countByte(b, c) }
+func EqualBytes(a, b []byte) bool        { return equalBytes(a, b) }
+func PopCount(b []byte) int              { return popCount(b) }
+func IsASCII(b []byte) bool              { return isASCII(b) }
+
+func BitAnd(dst, a, b []byte)      { bitAnd(dst, a, b) }
+func BitOr(dst, a, b []byte)       { bitOr(dst, a, b) }
+func BitXor(dst, a, b []byte)      { bitXor(dst, a, b) }
+func BitAndNot(dst, a, b []byte)   { bitAndNot(dst, a, b) }
+func BitNot(dst, a []byte)         { bitNot(dst, a) }
+func FillBytes(dst []byte, v byte) { fillBytes(dst, v) }
+
+func ToUpperASCII(dst, b []byte)                { toUpperASCII(dst, b) }
+func ToLowerASCII(dst, b []byte)                { toLowerASCII(dst, b) }
+func ReplaceByte(dst, b []byte, old, with byte) { replaceByte(dst, b, old, with) }

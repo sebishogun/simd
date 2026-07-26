@@ -21,91 +21,102 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 func addFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat32SSE2(dst, a, b)
+	addFloat32SSE2(dst[:n:n], a, b)
 }
 
 func subFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat32SSE2(dst, a, b)
+	subFloat32SSE2(dst[:n:n], a, b)
 }
 
 func mulFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat32SSE2(dst, a, b)
+	mulFloat32SSE2(dst[:n:n], a, b)
 }
 
 func minimumFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat32SSE2(dst, a, b)
+	minimumFloat32SSE2(dst[:n:n], a, b)
 }
 
 func maximumFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat32SSE2(dst, a, b)
+	maximumFloat32SSE2(dst[:n:n], a, b)
 }
 
 func absFloat32SSE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat32SSE2(dst, a)
+	absFloat32SSE2(dst[:n:n], a)
 }
 
 func negFloat32SSE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat32SSE2(dst, a)
+	negFloat32SSE2(dst[:n:n], a)
 }
 
 func scaleFloat32SSE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat32SSE2(dst, a, s)
+	scaleFloat32SSE2(dst[:n:n], a, s)
 }
 
 func addScalarFloat32SSE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat32SSE2(dst, a, s)
+	addScalarFloat32SSE2(dst[:n:n], a, s)
 }
 
 func subScalarFloat32SSE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat32SSE2(dst, a, s)
+	subScalarFloat32SSE2(dst[:n:n], a, s)
 }
 
 func clampFloat32SSE2Guarded(dst []float32, a []float32, lo float32, hi float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat32SSE2(dst, a, lo, hi)
+	clampFloat32SSE2(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat32SSE2Guarded(dst []float32, v float32) {
@@ -117,107 +128,120 @@ func fillFloat32SSE2Guarded(dst []float32, v float32) {
 }
 
 func lerpFloat32SSE2Guarded(dst []float32, a []float32, b []float32, t float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat32SSE2(dst, a, b, t)
+	lerpFloat32SSE2(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat32SSE2Guarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat32SSE2(dst, a, b, s)
+	addScaledFloat32SSE2(dst[:n:n], a, b, s)
 }
 
 func addFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat64SSE2(dst, a, b)
+	addFloat64SSE2(dst[:n:n], a, b)
 }
 
 func subFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat64SSE2(dst, a, b)
+	subFloat64SSE2(dst[:n:n], a, b)
 }
 
 func mulFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat64SSE2(dst, a, b)
+	mulFloat64SSE2(dst[:n:n], a, b)
 }
 
 func minimumFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat64SSE2(dst, a, b)
+	minimumFloat64SSE2(dst[:n:n], a, b)
 }
 
 func maximumFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat64SSE2(dst, a, b)
+	maximumFloat64SSE2(dst[:n:n], a, b)
 }
 
 func absFloat64SSE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat64SSE2(dst, a)
+	absFloat64SSE2(dst[:n:n], a)
 }
 
 func negFloat64SSE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat64SSE2(dst, a)
+	negFloat64SSE2(dst[:n:n], a)
 }
 
 func scaleFloat64SSE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat64SSE2(dst, a, s)
+	scaleFloat64SSE2(dst[:n:n], a, s)
 }
 
 func addScalarFloat64SSE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat64SSE2(dst, a, s)
+	addScalarFloat64SSE2(dst[:n:n], a, s)
 }
 
 func subScalarFloat64SSE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat64SSE2(dst, a, s)
+	subScalarFloat64SSE2(dst[:n:n], a, s)
 }
 
 func clampFloat64SSE2Guarded(dst []float64, a []float64, lo float64, hi float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat64SSE2(dst, a, lo, hi)
+	clampFloat64SSE2(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat64SSE2Guarded(dst []float64, v float64) {
@@ -229,107 +253,120 @@ func fillFloat64SSE2Guarded(dst []float64, v float64) {
 }
 
 func lerpFloat64SSE2Guarded(dst []float64, a []float64, b []float64, t float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat64SSE2(dst, a, b, t)
+	lerpFloat64SSE2(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat64SSE2Guarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat64SSE2(dst, a, b, s)
+	addScaledFloat64SSE2(dst[:n:n], a, b, s)
 }
 
 func addInt32SSE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt32SSE2(dst, a, b)
+	addInt32SSE2(dst[:n:n], a, b)
 }
 
 func subInt32SSE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt32SSE2(dst, a, b)
+	subInt32SSE2(dst[:n:n], a, b)
 }
 
 func mulInt32SSE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt32SSE2(dst, a, b)
+	mulInt32SSE2(dst[:n:n], a, b)
 }
 
 func minimumInt32SSE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt32SSE2(dst, a, b)
+	minimumInt32SSE2(dst[:n:n], a, b)
 }
 
 func maximumInt32SSE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt32SSE2(dst, a, b)
+	maximumInt32SSE2(dst[:n:n], a, b)
 }
 
 func absInt32SSE2Guarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt32SSE2(dst, a)
+	absInt32SSE2(dst[:n:n], a)
 }
 
 func negInt32SSE2Guarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt32SSE2(dst, a)
+	negInt32SSE2(dst[:n:n], a)
 }
 
 func scaleInt32SSE2Guarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt32SSE2(dst, a, s)
+	scaleInt32SSE2(dst[:n:n], a, s)
 }
 
 func addScalarInt32SSE2Guarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt32SSE2(dst, a, s)
+	addScalarInt32SSE2(dst[:n:n], a, s)
 }
 
 func subScalarInt32SSE2Guarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt32SSE2(dst, a, s)
+	subScalarInt32SSE2(dst[:n:n], a, s)
 }
 
 func clampInt32SSE2Guarded(dst []int32, a []int32, lo int32, hi int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt32SSE2(dst, a, lo, hi)
+	clampInt32SSE2(dst[:n:n], a, lo, hi)
 }
 
 func fillInt32SSE2Guarded(dst []int32, v int32) {
@@ -341,99 +378,111 @@ func fillInt32SSE2Guarded(dst []int32, v int32) {
 }
 
 func lerpInt32SSE2Guarded(dst []int32, a []int32, b []int32, t int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt32SSE2(dst, a, b, t)
+	lerpInt32SSE2(dst[:n:n], a, b, t)
 }
 
 func addScaledInt32SSE2Guarded(dst []int32, a []int32, b []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt32SSE2(dst, a, b, s)
+	addScaledInt32SSE2(dst[:n:n], a, b, s)
 }
 
 func addInt64SSE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt64SSE2(dst, a, b)
+	addInt64SSE2(dst[:n:n], a, b)
 }
 
 func subInt64SSE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt64SSE2(dst, a, b)
+	subInt64SSE2(dst[:n:n], a, b)
 }
 
 func mulInt64SSE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt64SSE2(dst, a, b)
+	mulInt64SSE2(dst[:n:n], a, b)
 }
 
 func minimumInt64SSE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt64SSE2(dst, a, b)
+	minimumInt64SSE2(dst[:n:n], a, b)
 }
 
 func maximumInt64SSE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt64SSE2(dst, a, b)
+	maximumInt64SSE2(dst[:n:n], a, b)
 }
 
 func absInt64SSE2Guarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt64SSE2(dst, a)
+	absInt64SSE2(dst[:n:n], a)
 }
 
 func negInt64SSE2Guarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt64SSE2(dst, a)
+	negInt64SSE2(dst[:n:n], a)
 }
 
 func scaleInt64SSE2Guarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt64SSE2(dst, a, s)
+	scaleInt64SSE2(dst[:n:n], a, s)
 }
 
 func addScalarInt64SSE2Guarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt64SSE2(dst, a, s)
+	addScalarInt64SSE2(dst[:n:n], a, s)
 }
 
 func subScalarInt64SSE2Guarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt64SSE2(dst, a, s)
+	subScalarInt64SSE2(dst[:n:n], a, s)
 }
 
 func fillInt64SSE2Guarded(dst []int64, v int64) {
@@ -445,83 +494,93 @@ func fillInt64SSE2Guarded(dst []int64, v int64) {
 }
 
 func lerpInt64SSE2Guarded(dst []int64, a []int64, b []int64, t int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt64SSE2(dst, a, b, t)
+	lerpInt64SSE2(dst[:n:n], a, b, t)
 }
 
 func addScaledInt64SSE2Guarded(dst []int64, a []int64, b []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt64SSE2(dst, a, b, s)
+	addScaledInt64SSE2(dst[:n:n], a, b, s)
 }
 
 func divFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat32SSE2(dst, a, b)
+	divFloat32SSE2(dst[:n:n], a, b)
 }
 
 func divScalarFloat32SSE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat32SSE2(dst, a, s)
+	divScalarFloat32SSE2(dst[:n:n], a, s)
 }
 
 func sqrtFloat32SSE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat32SSE2(dst, a)
+	sqrtFloat32SSE2(dst[:n:n], a)
 }
 
 func reciprocalFloat32SSE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat32SSE2(dst, a)
+	reciprocalFloat32SSE2(dst[:n:n], a)
 }
 
 func divFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat64SSE2(dst, a, b)
+	divFloat64SSE2(dst[:n:n], a, b)
 }
 
 func divScalarFloat64SSE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat64SSE2(dst, a, s)
+	divScalarFloat64SSE2(dst[:n:n], a, s)
 }
 
 func sqrtFloat64SSE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat64SSE2(dst, a)
+	sqrtFloat64SSE2(dst[:n:n], a)
 }
 
 func reciprocalFloat64SSE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat64SSE2(dst, a)
+	reciprocalFloat64SSE2(dst[:n:n], a)
 }
 
 func init() {

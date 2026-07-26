@@ -1,0 +1,94 @@
+// Comparison, selection and boolean-vector kernels.
+//
+// A comparison on a vector unit produces a mask register, one lane per
+// element. Go's []bool is the portable spelling of that — one byte per
+// element, which is what storing such a mask gives you — so these write
+// _Bool, whose size C guarantees to be 1 and which matches Go's bool exactly.
+//
+// Float comparisons follow IEEE 754 without exception, which has one
+// consequence worth restating: every comparison involving NaN is false, so
+// NotEqual is not the negation of Equal. Writing one as `!other` would be
+// wrong, so each is generated from its own operator.
+
+#include "fold.h"
+
+#define CMP(NAME, T, SUF, OP)                                            \
+  void simd_##NAME##_##SUF(_Bool *__restrict d, const T *__restrict a,   \
+                           const T *__restrict b, isize n) {             \
+    for (isize i = 0; i < n; i++) d[i] = a[i] OP b[i];                   \
+  }                                                                      \
+  void simd_##NAME##s_##SUF(_Bool *__restrict d, const T *__restrict a,  \
+                            T v, isize n) {                              \
+    for (isize i = 0; i < n; i++) d[i] = a[i] OP v;                      \
+  }
+
+#define COMPARISONS(T, SUF)                                              \
+  CMP(eq, T, SUF, ==)                                                    \
+  CMP(ne, T, SUF, !=)                                                    \
+  CMP(lt, T, SUF, <)                                                     \
+  CMP(le, T, SUF, <=)                                                    \
+  CMP(gt, T, SUF, >)                                                     \
+  CMP(ge, T, SUF, >=)                                                    \
+  void simd_select_##SUF(T *__restrict d, const _Bool *__restrict m,     \
+                         const T *__restrict yes, const T *__restrict no, \
+                         isize n) {                                      \
+    /* Both operands are loaded into locals before the select. Written  */ \
+    /* as d[i] = m[i] ? yes[i] : no[i], LLVM selects between the two    */ \
+    /* base *pointers* and then loads once — csel x11, x2, x3 followed  */ \
+    /* by an indexed load — which is a good scalar strength reduction   */ \
+    /* and completely unvectorizable. Making both loads unconditionally */ \
+    /* live leaves a lane-wise blend, which is one instruction on every */ \
+    /* vector unit here.                                                */ \
+    for (isize i = 0; i < n; i++) {                                      \
+      T y = yes[i], z = no[i];                                           \
+      d[i] = m[i] ? y : z;                                               \
+    }                                                                    \
+  }
+
+COMPARISONS(float, f32)
+COMPARISONS(double, f64)
+COMPARISONS(int, i32)
+COMPARISONS(long long, i64)
+
+// ---------- boolean vectors ----------
+//
+// All and Any are searches, and the reductions in fold.h are what makes them
+// vector code without losing the early exit that makes a search worth doing.
+// See the comment there for why neither the pure accumulate nor the pure
+// early exit is the right shape.
+
+// simd_mask_all asks whether any element is false, which is the same question
+// OR_ESCAPE answers, applied to the negation. Phrasing it that way gets the
+// early exit: an all-true mask is the only case that has to read everything.
+void simd_mask_all(_Bool *__restrict out, const _Bool *__restrict m, isize n) {
+  OR_ESCAPE(VLOAD(m, q) ^ (unsigned char)1, 1u - (unsigned char)m[p])
+  *out = !hit;
+}
+
+void simd_mask_any(_Bool *__restrict out, const _Bool *__restrict m, isize n) {
+  OR_ESCAPE(VLOAD(m, q), (unsigned char)m[p])
+  *out = hit;
+}
+
+// A count has to see every element, so there is no escape here.
+void simd_mask_count(isize *__restrict out, const _Bool *__restrict m,
+                     isize n) {
+  COUNT_FOLD((unsigned char)m[p])
+}
+
+#define MASK_BIN(NAME, EXPR)                                             \
+  void simd_mask_##NAME(_Bool *__restrict d, const _Bool *__restrict a,  \
+                        const _Bool *__restrict b, isize n) {            \
+    for (isize i = 0; i < n; i++) {                                      \
+      unsigned char x = (unsigned char)a[i], y = (unsigned char)b[i];    \
+      d[i] = (_Bool)(EXPR);                                              \
+    }                                                                    \
+  }
+
+MASK_BIN(and, x &y)
+MASK_BIN(or, x | y)
+MASK_BIN(xor, x ^ y)
+
+void simd_mask_not(_Bool *__restrict d, const _Bool *__restrict a, isize n) {
+  for (isize i = 0; i < n; i++) d[i] = (_Bool)(1u - (unsigned char)a[i]);
+}

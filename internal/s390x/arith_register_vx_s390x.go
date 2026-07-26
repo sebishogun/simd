@@ -21,91 +21,102 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
 func addFloat32VXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat32VX(dst, a, b)
+	addFloat32VX(dst[:n:n], a, b)
 }
 
 func subFloat32VXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat32VX(dst, a, b)
+	subFloat32VX(dst[:n:n], a, b)
 }
 
 func mulFloat32VXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat32VX(dst, a, b)
+	mulFloat32VX(dst[:n:n], a, b)
 }
 
 func minimumFloat32VXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat32VX(dst, a, b)
+	minimumFloat32VX(dst[:n:n], a, b)
 }
 
 func maximumFloat32VXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat32VX(dst, a, b)
+	maximumFloat32VX(dst[:n:n], a, b)
 }
 
 func absFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat32VX(dst, a)
+	absFloat32VX(dst[:n:n], a)
 }
 
 func negFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat32VX(dst, a)
+	negFloat32VX(dst[:n:n], a)
 }
 
 func scaleFloat32VXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat32VX(dst, a, s)
+	scaleFloat32VX(dst[:n:n], a, s)
 }
 
 func addScalarFloat32VXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat32VX(dst, a, s)
+	addScalarFloat32VX(dst[:n:n], a, s)
 }
 
 func subScalarFloat32VXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat32VX(dst, a, s)
+	subScalarFloat32VX(dst[:n:n], a, s)
 }
 
 func clampFloat32VXGuarded(dst []float32, a []float32, lo float32, hi float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat32VX(dst, a, lo, hi)
+	clampFloat32VX(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat32VXGuarded(dst []float32, v float32) {
@@ -117,107 +128,120 @@ func fillFloat32VXGuarded(dst []float32, v float32) {
 }
 
 func lerpFloat32VXGuarded(dst []float32, a []float32, b []float32, t float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat32VX(dst, a, b, t)
+	lerpFloat32VX(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat32VXGuarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat32VX(dst, a, b, s)
+	addScaledFloat32VX(dst[:n:n], a, b, s)
 }
 
 func addFloat64VXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat64VX(dst, a, b)
+	addFloat64VX(dst[:n:n], a, b)
 }
 
 func subFloat64VXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat64VX(dst, a, b)
+	subFloat64VX(dst[:n:n], a, b)
 }
 
 func mulFloat64VXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat64VX(dst, a, b)
+	mulFloat64VX(dst[:n:n], a, b)
 }
 
 func minimumFloat64VXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat64VX(dst, a, b)
+	minimumFloat64VX(dst[:n:n], a, b)
 }
 
 func maximumFloat64VXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat64VX(dst, a, b)
+	maximumFloat64VX(dst[:n:n], a, b)
 }
 
 func absFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat64VX(dst, a)
+	absFloat64VX(dst[:n:n], a)
 }
 
 func negFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat64VX(dst, a)
+	negFloat64VX(dst[:n:n], a)
 }
 
 func scaleFloat64VXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat64VX(dst, a, s)
+	scaleFloat64VX(dst[:n:n], a, s)
 }
 
 func addScalarFloat64VXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat64VX(dst, a, s)
+	addScalarFloat64VX(dst[:n:n], a, s)
 }
 
 func subScalarFloat64VXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat64VX(dst, a, s)
+	subScalarFloat64VX(dst[:n:n], a, s)
 }
 
 func clampFloat64VXGuarded(dst []float64, a []float64, lo float64, hi float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat64VX(dst, a, lo, hi)
+	clampFloat64VX(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat64VXGuarded(dst []float64, v float64) {
@@ -229,107 +253,120 @@ func fillFloat64VXGuarded(dst []float64, v float64) {
 }
 
 func lerpFloat64VXGuarded(dst []float64, a []float64, b []float64, t float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat64VX(dst, a, b, t)
+	lerpFloat64VX(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat64VXGuarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat64VX(dst, a, b, s)
+	addScaledFloat64VX(dst[:n:n], a, b, s)
 }
 
 func addInt32VXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt32VX(dst, a, b)
+	addInt32VX(dst[:n:n], a, b)
 }
 
 func subInt32VXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt32VX(dst, a, b)
+	subInt32VX(dst[:n:n], a, b)
 }
 
 func mulInt32VXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt32VX(dst, a, b)
+	mulInt32VX(dst[:n:n], a, b)
 }
 
 func minimumInt32VXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt32VX(dst, a, b)
+	minimumInt32VX(dst[:n:n], a, b)
 }
 
 func maximumInt32VXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt32VX(dst, a, b)
+	maximumInt32VX(dst[:n:n], a, b)
 }
 
 func absInt32VXGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt32VX(dst, a)
+	absInt32VX(dst[:n:n], a)
 }
 
 func negInt32VXGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt32VX(dst, a)
+	negInt32VX(dst[:n:n], a)
 }
 
 func scaleInt32VXGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt32VX(dst, a, s)
+	scaleInt32VX(dst[:n:n], a, s)
 }
 
 func addScalarInt32VXGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt32VX(dst, a, s)
+	addScalarInt32VX(dst[:n:n], a, s)
 }
 
 func subScalarInt32VXGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt32VX(dst, a, s)
+	subScalarInt32VX(dst[:n:n], a, s)
 }
 
 func clampInt32VXGuarded(dst []int32, a []int32, lo int32, hi int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt32VX(dst, a, lo, hi)
+	clampInt32VX(dst[:n:n], a, lo, hi)
 }
 
 func fillInt32VXGuarded(dst []int32, v int32) {
@@ -341,91 +378,102 @@ func fillInt32VXGuarded(dst []int32, v int32) {
 }
 
 func lerpInt32VXGuarded(dst []int32, a []int32, b []int32, t int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt32VX(dst, a, b, t)
+	lerpInt32VX(dst[:n:n], a, b, t)
 }
 
 func addScaledInt32VXGuarded(dst []int32, a []int32, b []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt32VX(dst, a, b, s)
+	addScaledInt32VX(dst[:n:n], a, b, s)
 }
 
 func addInt64VXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt64VX(dst, a, b)
+	addInt64VX(dst[:n:n], a, b)
 }
 
 func subInt64VXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt64VX(dst, a, b)
+	subInt64VX(dst[:n:n], a, b)
 }
 
 func minimumInt64VXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt64VX(dst, a, b)
+	minimumInt64VX(dst[:n:n], a, b)
 }
 
 func maximumInt64VXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt64VX(dst, a, b)
+	maximumInt64VX(dst[:n:n], a, b)
 }
 
 func absInt64VXGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt64VX(dst, a)
+	absInt64VX(dst[:n:n], a)
 }
 
 func negInt64VXGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt64VX(dst, a)
+	negInt64VX(dst[:n:n], a)
 }
 
 func addScalarInt64VXGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt64VX(dst, a, s)
+	addScalarInt64VX(dst[:n:n], a, s)
 }
 
 func subScalarInt64VXGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt64VX(dst, a, s)
+	subScalarInt64VX(dst[:n:n], a, s)
 }
 
 func clampInt64VXGuarded(dst []int64, a []int64, lo int64, hi int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt64VX(dst, a, lo, hi)
+	clampInt64VX(dst[:n:n], a, lo, hi)
 }
 
 func fillInt64VXGuarded(dst []int64, v int64) {
@@ -437,155 +485,174 @@ func fillInt64VXGuarded(dst []int64, v int64) {
 }
 
 func lerpInt64VXGuarded(dst []int64, a []int64, b []int64, t int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt64VX(dst, a, b, t)
+	lerpInt64VX(dst[:n:n], a, b, t)
 }
 
 func divFloat32VXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat32VX(dst, a, b)
+	divFloat32VX(dst[:n:n], a, b)
 }
 
 func divScalarFloat32VXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat32VX(dst, a, s)
+	divScalarFloat32VX(dst[:n:n], a, s)
 }
 
 func sqrtFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat32VX(dst, a)
+	sqrtFloat32VX(dst[:n:n], a)
 }
 
 func reciprocalFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat32VX(dst, a)
+	reciprocalFloat32VX(dst[:n:n], a)
 }
 
 func floorFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat32VX(dst, a)
+	floorFloat32VX(dst[:n:n], a)
 }
 
 func ceilFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat32VX(dst, a)
+	ceilFloat32VX(dst[:n:n], a)
 }
 
 func truncFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat32VX(dst, a)
+	truncFloat32VX(dst[:n:n], a)
 }
 
 func roundFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Round(dst, a)
 		return
 	}
-	roundFloat32VX(dst, a)
+	roundFloat32VX(dst[:n:n], a)
 }
 
 func roundToEvenFloat32VXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.RoundToEven(dst, a)
 		return
 	}
-	roundToEvenFloat32VX(dst, a)
+	roundToEvenFloat32VX(dst[:n:n], a)
 }
 
 func divFloat64VXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat64VX(dst, a, b)
+	divFloat64VX(dst[:n:n], a, b)
 }
 
 func divScalarFloat64VXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat64VX(dst, a, s)
+	divScalarFloat64VX(dst[:n:n], a, s)
 }
 
 func sqrtFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat64VX(dst, a)
+	sqrtFloat64VX(dst[:n:n], a)
 }
 
 func reciprocalFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat64VX(dst, a)
+	reciprocalFloat64VX(dst[:n:n], a)
 }
 
 func floorFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat64VX(dst, a)
+	floorFloat64VX(dst[:n:n], a)
 }
 
 func ceilFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat64VX(dst, a)
+	ceilFloat64VX(dst[:n:n], a)
 }
 
 func truncFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat64VX(dst, a)
+	truncFloat64VX(dst[:n:n], a)
 }
 
 func roundFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Round(dst, a)
 		return
 	}
-	roundFloat64VX(dst, a)
+	roundFloat64VX(dst[:n:n], a)
 }
 
 func roundToEvenFloat64VXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.RoundToEven(dst, a)
 		return
 	}
-	roundToEvenFloat64VX(dst, a)
+	roundToEvenFloat64VX(dst[:n:n], a)
 }
 
 func init() {

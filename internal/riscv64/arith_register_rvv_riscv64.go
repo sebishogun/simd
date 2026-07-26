@@ -21,91 +21,102 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
 func addFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat32RVV(dst, a, b)
+	addFloat32RVV(dst[:n:n], a, b)
 }
 
 func subFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat32RVV(dst, a, b)
+	subFloat32RVV(dst[:n:n], a, b)
 }
 
 func mulFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat32RVV(dst, a, b)
+	mulFloat32RVV(dst[:n:n], a, b)
 }
 
 func minimumFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat32RVV(dst, a, b)
+	minimumFloat32RVV(dst[:n:n], a, b)
 }
 
 func maximumFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat32RVV(dst, a, b)
+	maximumFloat32RVV(dst[:n:n], a, b)
 }
 
 func absFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat32RVV(dst, a)
+	absFloat32RVV(dst[:n:n], a)
 }
 
 func negFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat32RVV(dst, a)
+	negFloat32RVV(dst[:n:n], a)
 }
 
 func scaleFloat32RVVGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat32RVV(dst, a, s)
+	scaleFloat32RVV(dst[:n:n], a, s)
 }
 
 func addScalarFloat32RVVGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat32RVV(dst, a, s)
+	addScalarFloat32RVV(dst[:n:n], a, s)
 }
 
 func subScalarFloat32RVVGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat32RVV(dst, a, s)
+	subScalarFloat32RVV(dst[:n:n], a, s)
 }
 
 func clampFloat32RVVGuarded(dst []float32, a []float32, lo float32, hi float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat32RVV(dst, a, lo, hi)
+	clampFloat32RVV(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat32RVVGuarded(dst []float32, v float32) {
@@ -117,91 +128,102 @@ func fillFloat32RVVGuarded(dst []float32, v float32) {
 }
 
 func lerpFloat32RVVGuarded(dst []float32, a []float32, b []float32, t float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat32RVV(dst, a, b, t)
+	lerpFloat32RVV(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat32RVVGuarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat32RVV(dst, a, b, s)
+	addScaledFloat32RVV(dst[:n:n], a, b, s)
 }
 
 func addFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat64RVV(dst, a, b)
+	addFloat64RVV(dst[:n:n], a, b)
 }
 
 func subFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat64RVV(dst, a, b)
+	subFloat64RVV(dst[:n:n], a, b)
 }
 
 func mulFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat64RVV(dst, a, b)
+	mulFloat64RVV(dst[:n:n], a, b)
 }
 
 func absFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat64RVV(dst, a)
+	absFloat64RVV(dst[:n:n], a)
 }
 
 func negFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat64RVV(dst, a)
+	negFloat64RVV(dst[:n:n], a)
 }
 
 func scaleFloat64RVVGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat64RVV(dst, a, s)
+	scaleFloat64RVV(dst[:n:n], a, s)
 }
 
 func addScalarFloat64RVVGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat64RVV(dst, a, s)
+	addScalarFloat64RVV(dst[:n:n], a, s)
 }
 
 func subScalarFloat64RVVGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat64RVV(dst, a, s)
+	subScalarFloat64RVV(dst[:n:n], a, s)
 }
 
 func clampFloat64RVVGuarded(dst []float64, a []float64, lo float64, hi float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat64RVV(dst, a, lo, hi)
+	clampFloat64RVV(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat64RVVGuarded(dst []float64, v float64) {
@@ -213,107 +235,120 @@ func fillFloat64RVVGuarded(dst []float64, v float64) {
 }
 
 func lerpFloat64RVVGuarded(dst []float64, a []float64, b []float64, t float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat64RVV(dst, a, b, t)
+	lerpFloat64RVV(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat64RVVGuarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat64RVV(dst, a, b, s)
+	addScaledFloat64RVV(dst[:n:n], a, b, s)
 }
 
 func addInt32RVVGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt32RVV(dst, a, b)
+	addInt32RVV(dst[:n:n], a, b)
 }
 
 func subInt32RVVGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt32RVV(dst, a, b)
+	subInt32RVV(dst[:n:n], a, b)
 }
 
 func mulInt32RVVGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt32RVV(dst, a, b)
+	mulInt32RVV(dst[:n:n], a, b)
 }
 
 func minimumInt32RVVGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt32RVV(dst, a, b)
+	minimumInt32RVV(dst[:n:n], a, b)
 }
 
 func maximumInt32RVVGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt32RVV(dst, a, b)
+	maximumInt32RVV(dst[:n:n], a, b)
 }
 
 func absInt32RVVGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt32RVV(dst, a)
+	absInt32RVV(dst[:n:n], a)
 }
 
 func negInt32RVVGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt32RVV(dst, a)
+	negInt32RVV(dst[:n:n], a)
 }
 
 func scaleInt32RVVGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt32RVV(dst, a, s)
+	scaleInt32RVV(dst[:n:n], a, s)
 }
 
 func addScalarInt32RVVGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt32RVV(dst, a, s)
+	addScalarInt32RVV(dst[:n:n], a, s)
 }
 
 func subScalarInt32RVVGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt32RVV(dst, a, s)
+	subScalarInt32RVV(dst[:n:n], a, s)
 }
 
 func clampInt32RVVGuarded(dst []int32, a []int32, lo int32, hi int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt32RVV(dst, a, lo, hi)
+	clampInt32RVV(dst[:n:n], a, lo, hi)
 }
 
 func fillInt32RVVGuarded(dst []int32, v int32) {
@@ -325,107 +360,120 @@ func fillInt32RVVGuarded(dst []int32, v int32) {
 }
 
 func lerpInt32RVVGuarded(dst []int32, a []int32, b []int32, t int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt32RVV(dst, a, b, t)
+	lerpInt32RVV(dst[:n:n], a, b, t)
 }
 
 func addScaledInt32RVVGuarded(dst []int32, a []int32, b []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt32RVV(dst, a, b, s)
+	addScaledInt32RVV(dst[:n:n], a, b, s)
 }
 
 func addInt64RVVGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt64RVV(dst, a, b)
+	addInt64RVV(dst[:n:n], a, b)
 }
 
 func subInt64RVVGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt64RVV(dst, a, b)
+	subInt64RVV(dst[:n:n], a, b)
 }
 
 func mulInt64RVVGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt64RVV(dst, a, b)
+	mulInt64RVV(dst[:n:n], a, b)
 }
 
 func minimumInt64RVVGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt64RVV(dst, a, b)
+	minimumInt64RVV(dst[:n:n], a, b)
 }
 
 func maximumInt64RVVGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt64RVV(dst, a, b)
+	maximumInt64RVV(dst[:n:n], a, b)
 }
 
 func absInt64RVVGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt64RVV(dst, a)
+	absInt64RVV(dst[:n:n], a)
 }
 
 func negInt64RVVGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt64RVV(dst, a)
+	negInt64RVV(dst[:n:n], a)
 }
 
 func scaleInt64RVVGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt64RVV(dst, a, s)
+	scaleInt64RVV(dst[:n:n], a, s)
 }
 
 func addScalarInt64RVVGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt64RVV(dst, a, s)
+	addScalarInt64RVV(dst[:n:n], a, s)
 }
 
 func subScalarInt64RVVGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt64RVV(dst, a, s)
+	subScalarInt64RVV(dst[:n:n], a, s)
 }
 
 func clampInt64RVVGuarded(dst []int64, a []int64, lo int64, hi int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt64RVV(dst, a, lo, hi)
+	clampInt64RVV(dst[:n:n], a, lo, hi)
 }
 
 func fillInt64RVVGuarded(dst []int64, v int64) {
@@ -437,163 +485,183 @@ func fillInt64RVVGuarded(dst []int64, v int64) {
 }
 
 func lerpInt64RVVGuarded(dst []int64, a []int64, b []int64, t int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt64RVV(dst, a, b, t)
+	lerpInt64RVV(dst[:n:n], a, b, t)
 }
 
 func addScaledInt64RVVGuarded(dst []int64, a []int64, b []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt64RVV(dst, a, b, s)
+	addScaledInt64RVV(dst[:n:n], a, b, s)
 }
 
 func divFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat32RVV(dst, a, b)
+	divFloat32RVV(dst[:n:n], a, b)
 }
 
 func divScalarFloat32RVVGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat32RVV(dst, a, s)
+	divScalarFloat32RVV(dst[:n:n], a, s)
 }
 
 func sqrtFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat32RVV(dst, a)
+	sqrtFloat32RVV(dst[:n:n], a)
 }
 
 func reciprocalFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat32RVV(dst, a)
+	reciprocalFloat32RVV(dst[:n:n], a)
 }
 
 func floorFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat32RVV(dst, a)
+	floorFloat32RVV(dst[:n:n], a)
 }
 
 func ceilFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat32RVV(dst, a)
+	ceilFloat32RVV(dst[:n:n], a)
 }
 
 func truncFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat32RVV(dst, a)
+	truncFloat32RVV(dst[:n:n], a)
 }
 
 func roundFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Round(dst, a)
 		return
 	}
-	roundFloat32RVV(dst, a)
+	roundFloat32RVV(dst[:n:n], a)
 }
 
 func roundToEvenFloat32RVVGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.RoundToEven(dst, a)
 		return
 	}
-	roundToEvenFloat32RVV(dst, a)
+	roundToEvenFloat32RVV(dst[:n:n], a)
 }
 
 func divFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat64RVV(dst, a, b)
+	divFloat64RVV(dst[:n:n], a, b)
 }
 
 func divScalarFloat64RVVGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat64RVV(dst, a, s)
+	divScalarFloat64RVV(dst[:n:n], a, s)
 }
 
 func sqrtFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat64RVV(dst, a)
+	sqrtFloat64RVV(dst[:n:n], a)
 }
 
 func reciprocalFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat64RVV(dst, a)
+	reciprocalFloat64RVV(dst[:n:n], a)
 }
 
 func floorFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat64RVV(dst, a)
+	floorFloat64RVV(dst[:n:n], a)
 }
 
 func ceilFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat64RVV(dst, a)
+	ceilFloat64RVV(dst[:n:n], a)
 }
 
 func truncFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat64RVV(dst, a)
+	truncFloat64RVV(dst[:n:n], a)
 }
 
 func roundFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Round(dst, a)
 		return
 	}
-	roundFloat64RVV(dst, a)
+	roundFloat64RVV(dst[:n:n], a)
 }
 
 func roundToEvenFloat64RVVGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.RoundToEven(dst, a)
 		return
 	}
-	roundToEvenFloat64RVV(dst, a)
+	roundToEvenFloat64RVV(dst[:n:n], a)
 }
 
 func init() {

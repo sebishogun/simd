@@ -21,91 +21,102 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 func addFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat32SVE2(dst, a, b)
+	addFloat32SVE2(dst[:n:n], a, b)
 }
 
 func subFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat32SVE2(dst, a, b)
+	subFloat32SVE2(dst[:n:n], a, b)
 }
 
 func mulFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat32SVE2(dst, a, b)
+	mulFloat32SVE2(dst[:n:n], a, b)
 }
 
 func minimumFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat32SVE2(dst, a, b)
+	minimumFloat32SVE2(dst[:n:n], a, b)
 }
 
 func maximumFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat32SVE2(dst, a, b)
+	maximumFloat32SVE2(dst[:n:n], a, b)
 }
 
 func absFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat32SVE2(dst, a)
+	absFloat32SVE2(dst[:n:n], a)
 }
 
 func negFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat32SVE2(dst, a)
+	negFloat32SVE2(dst[:n:n], a)
 }
 
 func scaleFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat32SVE2(dst, a, s)
+	scaleFloat32SVE2(dst[:n:n], a, s)
 }
 
 func addScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat32SVE2(dst, a, s)
+	addScalarFloat32SVE2(dst[:n:n], a, s)
 }
 
 func subScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat32SVE2(dst, a, s)
+	subScalarFloat32SVE2(dst[:n:n], a, s)
 }
 
 func clampFloat32SVE2Guarded(dst []float32, a []float32, lo float32, hi float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat32SVE2(dst, a, lo, hi)
+	clampFloat32SVE2(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat32SVE2Guarded(dst []float32, v float32) {
@@ -117,107 +128,120 @@ func fillFloat32SVE2Guarded(dst []float32, v float32) {
 }
 
 func lerpFloat32SVE2Guarded(dst []float32, a []float32, b []float32, t float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat32SVE2(dst, a, b, t)
+	lerpFloat32SVE2(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat32SVE2Guarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat32SVE2(dst, a, b, s)
+	addScaledFloat32SVE2(dst[:n:n], a, b, s)
 }
 
 func addFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat64SVE2(dst, a, b)
+	addFloat64SVE2(dst[:n:n], a, b)
 }
 
 func subFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat64SVE2(dst, a, b)
+	subFloat64SVE2(dst[:n:n], a, b)
 }
 
 func mulFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat64SVE2(dst, a, b)
+	mulFloat64SVE2(dst[:n:n], a, b)
 }
 
 func minimumFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat64SVE2(dst, a, b)
+	minimumFloat64SVE2(dst[:n:n], a, b)
 }
 
 func maximumFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat64SVE2(dst, a, b)
+	maximumFloat64SVE2(dst[:n:n], a, b)
 }
 
 func absFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat64SVE2(dst, a)
+	absFloat64SVE2(dst[:n:n], a)
 }
 
 func negFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat64SVE2(dst, a)
+	negFloat64SVE2(dst[:n:n], a)
 }
 
 func scaleFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat64SVE2(dst, a, s)
+	scaleFloat64SVE2(dst[:n:n], a, s)
 }
 
 func addScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat64SVE2(dst, a, s)
+	addScalarFloat64SVE2(dst[:n:n], a, s)
 }
 
 func subScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat64SVE2(dst, a, s)
+	subScalarFloat64SVE2(dst[:n:n], a, s)
 }
 
 func clampFloat64SVE2Guarded(dst []float64, a []float64, lo float64, hi float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat64SVE2(dst, a, lo, hi)
+	clampFloat64SVE2(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat64SVE2Guarded(dst []float64, v float64) {
@@ -229,107 +253,120 @@ func fillFloat64SVE2Guarded(dst []float64, v float64) {
 }
 
 func lerpFloat64SVE2Guarded(dst []float64, a []float64, b []float64, t float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat64SVE2(dst, a, b, t)
+	lerpFloat64SVE2(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat64SVE2Guarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat64SVE2(dst, a, b, s)
+	addScaledFloat64SVE2(dst[:n:n], a, b, s)
 }
 
 func addInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt32SVE2(dst, a, b)
+	addInt32SVE2(dst[:n:n], a, b)
 }
 
 func subInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt32SVE2(dst, a, b)
+	subInt32SVE2(dst[:n:n], a, b)
 }
 
 func mulInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt32SVE2(dst, a, b)
+	mulInt32SVE2(dst[:n:n], a, b)
 }
 
 func minimumInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt32SVE2(dst, a, b)
+	minimumInt32SVE2(dst[:n:n], a, b)
 }
 
 func maximumInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt32SVE2(dst, a, b)
+	maximumInt32SVE2(dst[:n:n], a, b)
 }
 
 func absInt32SVE2Guarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt32SVE2(dst, a)
+	absInt32SVE2(dst[:n:n], a)
 }
 
 func negInt32SVE2Guarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt32SVE2(dst, a)
+	negInt32SVE2(dst[:n:n], a)
 }
 
 func scaleInt32SVE2Guarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt32SVE2(dst, a, s)
+	scaleInt32SVE2(dst[:n:n], a, s)
 }
 
 func addScalarInt32SVE2Guarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt32SVE2(dst, a, s)
+	addScalarInt32SVE2(dst[:n:n], a, s)
 }
 
 func subScalarInt32SVE2Guarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt32SVE2(dst, a, s)
+	subScalarInt32SVE2(dst[:n:n], a, s)
 }
 
 func clampInt32SVE2Guarded(dst []int32, a []int32, lo int32, hi int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt32SVE2(dst, a, lo, hi)
+	clampInt32SVE2(dst[:n:n], a, lo, hi)
 }
 
 func fillInt32SVE2Guarded(dst []int32, v int32) {
@@ -341,107 +378,120 @@ func fillInt32SVE2Guarded(dst []int32, v int32) {
 }
 
 func lerpInt32SVE2Guarded(dst []int32, a []int32, b []int32, t int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt32SVE2(dst, a, b, t)
+	lerpInt32SVE2(dst[:n:n], a, b, t)
 }
 
 func addScaledInt32SVE2Guarded(dst []int32, a []int32, b []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt32SVE2(dst, a, b, s)
+	addScaledInt32SVE2(dst[:n:n], a, b, s)
 }
 
 func addInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt64SVE2(dst, a, b)
+	addInt64SVE2(dst[:n:n], a, b)
 }
 
 func subInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt64SVE2(dst, a, b)
+	subInt64SVE2(dst[:n:n], a, b)
 }
 
 func mulInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt64SVE2(dst, a, b)
+	mulInt64SVE2(dst[:n:n], a, b)
 }
 
 func minimumInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt64SVE2(dst, a, b)
+	minimumInt64SVE2(dst[:n:n], a, b)
 }
 
 func maximumInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt64SVE2(dst, a, b)
+	maximumInt64SVE2(dst[:n:n], a, b)
 }
 
 func absInt64SVE2Guarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt64SVE2(dst, a)
+	absInt64SVE2(dst[:n:n], a)
 }
 
 func negInt64SVE2Guarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt64SVE2(dst, a)
+	negInt64SVE2(dst[:n:n], a)
 }
 
 func scaleInt64SVE2Guarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt64SVE2(dst, a, s)
+	scaleInt64SVE2(dst[:n:n], a, s)
 }
 
 func addScalarInt64SVE2Guarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt64SVE2(dst, a, s)
+	addScalarInt64SVE2(dst[:n:n], a, s)
 }
 
 func subScalarInt64SVE2Guarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt64SVE2(dst, a, s)
+	subScalarInt64SVE2(dst[:n:n], a, s)
 }
 
 func clampInt64SVE2Guarded(dst []int64, a []int64, lo int64, hi int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt64SVE2(dst, a, lo, hi)
+	clampInt64SVE2(dst[:n:n], a, lo, hi)
 }
 
 func fillInt64SVE2Guarded(dst []int64, v int64) {
@@ -453,163 +503,183 @@ func fillInt64SVE2Guarded(dst []int64, v int64) {
 }
 
 func lerpInt64SVE2Guarded(dst []int64, a []int64, b []int64, t int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt64SVE2(dst, a, b, t)
+	lerpInt64SVE2(dst[:n:n], a, b, t)
 }
 
 func addScaledInt64SVE2Guarded(dst []int64, a []int64, b []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt64SVE2(dst, a, b, s)
+	addScaledInt64SVE2(dst[:n:n], a, b, s)
 }
 
 func divFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat32SVE2(dst, a, b)
+	divFloat32SVE2(dst[:n:n], a, b)
 }
 
 func divScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat32SVE2(dst, a, s)
+	divScalarFloat32SVE2(dst[:n:n], a, s)
 }
 
 func sqrtFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat32SVE2(dst, a)
+	sqrtFloat32SVE2(dst[:n:n], a)
 }
 
 func reciprocalFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat32SVE2(dst, a)
+	reciprocalFloat32SVE2(dst[:n:n], a)
 }
 
 func floorFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat32SVE2(dst, a)
+	floorFloat32SVE2(dst[:n:n], a)
 }
 
 func ceilFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat32SVE2(dst, a)
+	ceilFloat32SVE2(dst[:n:n], a)
 }
 
 func truncFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat32SVE2(dst, a)
+	truncFloat32SVE2(dst[:n:n], a)
 }
 
 func roundFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Round(dst, a)
 		return
 	}
-	roundFloat32SVE2(dst, a)
+	roundFloat32SVE2(dst[:n:n], a)
 }
 
 func roundToEvenFloat32SVE2Guarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.RoundToEven(dst, a)
 		return
 	}
-	roundToEvenFloat32SVE2(dst, a)
+	roundToEvenFloat32SVE2(dst[:n:n], a)
 }
 
 func divFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat64SVE2(dst, a, b)
+	divFloat64SVE2(dst[:n:n], a, b)
 }
 
 func divScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat64SVE2(dst, a, s)
+	divScalarFloat64SVE2(dst[:n:n], a, s)
 }
 
 func sqrtFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat64SVE2(dst, a)
+	sqrtFloat64SVE2(dst[:n:n], a)
 }
 
 func reciprocalFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat64SVE2(dst, a)
+	reciprocalFloat64SVE2(dst[:n:n], a)
 }
 
 func floorFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat64SVE2(dst, a)
+	floorFloat64SVE2(dst[:n:n], a)
 }
 
 func ceilFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat64SVE2(dst, a)
+	ceilFloat64SVE2(dst[:n:n], a)
 }
 
 func truncFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat64SVE2(dst, a)
+	truncFloat64SVE2(dst[:n:n], a)
 }
 
 func roundFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Round(dst, a)
 		return
 	}
-	roundFloat64SVE2(dst, a)
+	roundFloat64SVE2(dst[:n:n], a)
 }
 
 func roundToEvenFloat64SVE2Guarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.RoundToEven(dst, a)
 		return
 	}
-	roundToEvenFloat64SVE2(dst, a)
+	roundToEvenFloat64SVE2(dst[:n:n], a)
 }
 
 func init() {

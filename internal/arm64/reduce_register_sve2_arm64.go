@@ -35,10 +35,11 @@ func sumsqdevFloat32SVE2Guarded(a []float32, c float32) float32 {
 }
 
 func sumsqdiffFloat32SVE2Guarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat32SVE2(a, b)
+	return sumsqdiffFloat32SVE2(a[:n:n], b)
 }
 
 func diffFloat32SVE2Guarded(dst []float32, a []float32) {
@@ -64,10 +65,11 @@ func sumsqdevFloat64SVE2Guarded(a []float64, c float64) float64 {
 }
 
 func sumsqdiffFloat64SVE2Guarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat64SVE2(a, b)
+	return sumsqdiffFloat64SVE2(a[:n:n], b)
 }
 
 func diffFloat64SVE2Guarded(dst []float64, a []float64) {
@@ -107,10 +109,11 @@ func sumsqdevInt32SVE2Guarded(a []int32, c int32) int32 {
 }
 
 func sumsqdiffInt32SVE2Guarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt32SVE2(a, b)
+	return sumsqdiffInt32SVE2(a[:n:n], b)
 }
 
 func diffInt32SVE2Guarded(dst []int32, a []int32) {
@@ -150,10 +153,11 @@ func sumsqdevInt64SVE2Guarded(a []int64, c int64) int64 {
 }
 
 func sumsqdiffInt64SVE2Guarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt64SVE2(a, b)
+	return sumsqdiffInt64SVE2(a[:n:n], b)
 }
 
 func diffInt64SVE2Guarded(dst []int64, a []int64) {
@@ -172,10 +176,11 @@ func sumFloat32SVE2Guarded(a []float32) float32 {
 }
 
 func dotFloat32SVE2Guarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat32SVE2(a, b)
+	return dotFloat32SVE2(a[:n:n], b)
 }
 
 func l1normFloat32SVE2Guarded(a []float32) float32 {
@@ -186,10 +191,11 @@ func l1normFloat32SVE2Guarded(a []float32) float32 {
 }
 
 func l1diffFloat32SVE2Guarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat32SVE2(a, b)
+	return l1diffFloat32SVE2(a[:n:n], b)
 }
 
 func sumFloat64SVE2Guarded(a []float64) float64 {
@@ -200,10 +206,11 @@ func sumFloat64SVE2Guarded(a []float64) float64 {
 }
 
 func dotFloat64SVE2Guarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat64SVE2(a, b)
+	return dotFloat64SVE2(a[:n:n], b)
 }
 
 func l1normFloat64SVE2Guarded(a []float64) float64 {
@@ -214,10 +221,11 @@ func l1normFloat64SVE2Guarded(a []float64) float64 {
 }
 
 func l1diffFloat64SVE2Guarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat64SVE2(a, b)
+	return l1diffFloat64SVE2(a[:n:n], b)
 }
 
 func sumInt32SVE2Guarded(a []int32) int32 {
@@ -235,10 +243,11 @@ func prodInt32SVE2Guarded(a []int32) int32 {
 }
 
 func dotInt32SVE2Guarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt32SVE2(a, b)
+	return dotInt32SVE2(a[:n:n], b)
 }
 
 func sumInt64SVE2Guarded(a []int64) int64 {
@@ -256,10 +265,11 @@ func prodInt64SVE2Guarded(a []int64) int64 {
 }
 
 func dotInt64SVE2Guarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt64SVE2(a, b)
+	return dotInt64SVE2(a[:n:n], b)
 }
 
 func init() {

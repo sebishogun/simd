@@ -35,10 +35,11 @@ func sumsqdevFloat32VXGuarded(a []float32, c float32) float32 {
 }
 
 func sumsqdiffFloat32VXGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat32VX(a, b)
+	return sumsqdiffFloat32VX(a[:n:n], b)
 }
 
 func diffFloat32VXGuarded(dst []float32, a []float32) {
@@ -64,10 +65,11 @@ func sumsqdevFloat64VXGuarded(a []float64, c float64) float64 {
 }
 
 func sumsqdiffFloat64VXGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat64VX(a, b)
+	return sumsqdiffFloat64VX(a[:n:n], b)
 }
 
 func diffFloat64VXGuarded(dst []float64, a []float64) {
@@ -107,10 +109,11 @@ func sumsqdevInt32VXGuarded(a []int32, c int32) int32 {
 }
 
 func sumsqdiffInt32VXGuarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt32VX(a, b)
+	return sumsqdiffInt32VX(a[:n:n], b)
 }
 
 func diffInt32VXGuarded(dst []int32, a []int32) {
@@ -150,10 +153,11 @@ func sumsqdevInt64VXGuarded(a []int64, c int64) int64 {
 }
 
 func sumsqdiffInt64VXGuarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt64VX(a, b)
+	return sumsqdiffInt64VX(a[:n:n], b)
 }
 
 func diffInt64VXGuarded(dst []int64, a []int64) {
@@ -172,10 +176,11 @@ func sumFloat32VXGuarded(a []float32) float32 {
 }
 
 func dotFloat32VXGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat32VX(a, b)
+	return dotFloat32VX(a[:n:n], b)
 }
 
 func l1normFloat32VXGuarded(a []float32) float32 {
@@ -186,10 +191,11 @@ func l1normFloat32VXGuarded(a []float32) float32 {
 }
 
 func l1diffFloat32VXGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat32VX(a, b)
+	return l1diffFloat32VX(a[:n:n], b)
 }
 
 func sumFloat64VXGuarded(a []float64) float64 {
@@ -200,10 +206,11 @@ func sumFloat64VXGuarded(a []float64) float64 {
 }
 
 func dotFloat64VXGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat64VX(a, b)
+	return dotFloat64VX(a[:n:n], b)
 }
 
 func l1normFloat64VXGuarded(a []float64) float64 {
@@ -214,10 +221,11 @@ func l1normFloat64VXGuarded(a []float64) float64 {
 }
 
 func l1diffFloat64VXGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat64VX(a, b)
+	return l1diffFloat64VX(a[:n:n], b)
 }
 
 func sumInt32VXGuarded(a []int32) int32 {
@@ -235,10 +243,11 @@ func prodInt32VXGuarded(a []int32) int32 {
 }
 
 func dotInt32VXGuarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt32VX(a, b)
+	return dotInt32VX(a[:n:n], b)
 }
 
 func sumInt64VXGuarded(a []int64) int64 {

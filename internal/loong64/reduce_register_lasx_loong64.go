@@ -35,10 +35,11 @@ func sumsqdevFloat32LASXGuarded(a []float32, c float32) float32 {
 }
 
 func sumsqdiffFloat32LASXGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat32LASX(a, b)
+	return sumsqdiffFloat32LASX(a[:n:n], b)
 }
 
 func diffFloat32LASXGuarded(dst []float32, a []float32) {
@@ -64,10 +65,11 @@ func sumsqdevFloat64LASXGuarded(a []float64, c float64) float64 {
 }
 
 func sumsqdiffFloat64LASXGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat64LASX(a, b)
+	return sumsqdiffFloat64LASX(a[:n:n], b)
 }
 
 func diffFloat64LASXGuarded(dst []float64, a []float64) {
@@ -107,10 +109,11 @@ func sumsqdevInt32LASXGuarded(a []int32, c int32) int32 {
 }
 
 func sumsqdiffInt32LASXGuarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt32LASX(a, b)
+	return sumsqdiffInt32LASX(a[:n:n], b)
 }
 
 func diffInt32LASXGuarded(dst []int32, a []int32) {
@@ -150,10 +153,11 @@ func sumsqdevInt64LASXGuarded(a []int64, c int64) int64 {
 }
 
 func sumsqdiffInt64LASXGuarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt64LASX(a, b)
+	return sumsqdiffInt64LASX(a[:n:n], b)
 }
 
 func diffInt64LASXGuarded(dst []int64, a []int64) {
@@ -172,10 +176,11 @@ func sumFloat32LASXGuarded(a []float32) float32 {
 }
 
 func dotFloat32LASXGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat32LASX(a, b)
+	return dotFloat32LASX(a[:n:n], b)
 }
 
 func l1normFloat32LASXGuarded(a []float32) float32 {
@@ -186,10 +191,11 @@ func l1normFloat32LASXGuarded(a []float32) float32 {
 }
 
 func l1diffFloat32LASXGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat32LASX(a, b)
+	return l1diffFloat32LASX(a[:n:n], b)
 }
 
 func sumFloat64LASXGuarded(a []float64) float64 {
@@ -200,10 +206,11 @@ func sumFloat64LASXGuarded(a []float64) float64 {
 }
 
 func dotFloat64LASXGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat64LASX(a, b)
+	return dotFloat64LASX(a[:n:n], b)
 }
 
 func l1normFloat64LASXGuarded(a []float64) float64 {
@@ -214,10 +221,11 @@ func l1normFloat64LASXGuarded(a []float64) float64 {
 }
 
 func l1diffFloat64LASXGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat64LASX(a, b)
+	return l1diffFloat64LASX(a[:n:n], b)
 }
 
 func sumInt32LASXGuarded(a []int32) int32 {
@@ -235,10 +243,11 @@ func prodInt32LASXGuarded(a []int32) int32 {
 }
 
 func dotInt32LASXGuarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt32LASX(a, b)
+	return dotInt32LASX(a[:n:n], b)
 }
 
 func sumInt64LASXGuarded(a []int64) int64 {
@@ -256,10 +265,11 @@ func prodInt64LASXGuarded(a []int64) int64 {
 }
 
 func dotInt64LASXGuarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt64LASX(a, b)
+	return dotInt64LASX(a[:n:n], b)
 }
 
 func init() {

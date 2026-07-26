@@ -320,6 +320,196 @@ func Reduce() []spec.Kernel {
 	return ks
 }
 
+// ---------- comparisons, selection and masks ----------
+
+// Byte-domain thresholds are higher than the numeric ones because an element
+// is one byte: sixteen of them is a single register's worth, and the call is
+// not yet paid for. The scanning kernels get a higher one again — they
+// accumulate over the whole input where the portable versions can exit at the
+// first match, so they need enough length for the vector width to repay that.
+const (
+	thBytes = 32
+	thScan  = 64
+)
+
+// cmpK is a comparison writing one bool per element.
+func cmpK(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "_" + e.c, GoName: op + e.goName + "Mask",
+		Group: e.group, Field: field, RefFunc: field,
+		Params:    []spec.Param{sl("dst", spec.SliceB), sl("a", e.slice), sl("b", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
+
+func cmpScalarK(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "s_" + e.c, GoName: op + "Scalar" + e.goName + "Mask",
+		Group: e.group, Field: field, RefFunc: field,
+		Params:    []spec.Param{sl("dst", spec.SliceB), sl("a", e.slice), sl("v", e.scalar)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), val("v"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
+
+func selectK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_select_" + e.c, GoName: "select" + e.goName,
+		Group: e.group, Field: "Select", RefFunc: "Select",
+		Params: []spec.Param{sl("dst", e.slice), sl("mask", spec.SliceB),
+			sl("yes", e.slice), sl("no", e.slice)},
+		CArgs: []spec.CArg{base("dst"), base("mask"), base("yes"), base("no"),
+			lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
+
+// maskReduce is All, Any or Count over a []bool.
+func maskReduce(op, field string, res spec.Type) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_mask_" + op, GoName: "mask" + field,
+		Group: "Mask", Field: field, RefFunc: "Mask" + field,
+		Params:    []spec.Param{sl("m", spec.SliceB)},
+		Result:    &spec.Param{Name: "ret", Type: res},
+		CArgs:     []spec.CArg{out(), base("m"), lenOf("m")},
+		Threshold: thBytes,
+	}
+}
+
+func maskBinary(op, field string) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_mask_" + op, GoName: "mask" + field,
+		Group: "Mask", Field: field, RefFunc: "Mask" + field,
+		Params: []spec.Param{sl("dst", spec.SliceB), sl("a", spec.SliceB),
+			sl("b", spec.SliceB)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), lenOf("dst")},
+		Threshold: thBytes,
+	}
+}
+
+// Compare is everything in csrc/compare.c.
+func Compare() []spec.Kernel {
+	cmps := []struct{ op, field string }{
+		{"eq", "Equal"}, {"ne", "NotEqual"},
+		{"lt", "Less"}, {"le", "LessEqual"},
+		{"gt", "Greater"}, {"ge", "GreaterEqual"},
+	}
+	var ks []spec.Kernel
+	for _, e := range elems {
+		for _, c := range cmps {
+			ks = append(ks,
+				cmpK(c.op, c.field+"Mask", e),
+				cmpScalarK(c.op, c.field+"ScalarMask", e))
+		}
+		ks = append(ks, selectK(e))
+	}
+	ks = append(ks,
+		maskReduce("all", "All", spec.B),
+		maskReduce("any", "Any", spec.B),
+		maskReduce("count", "Count", spec.Int),
+		maskBinary("and", "And"),
+		maskBinary("or", "Or"),
+		maskBinary("xor", "Xor"),
+		spec.Kernel{
+			CName: "simd_mask_not", GoName: "maskNot",
+			Group: "Mask", Field: "Not", RefFunc: "MaskNot",
+			Params:    []spec.Param{sl("dst", spec.SliceB), sl("a", spec.SliceB)},
+			CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
+			Threshold: thBytes,
+		})
+	return ks
+}
+
+// ---------- bytes, bits and ASCII text ----------
+
+// byteScan is a whole-slice query returning a scalar.
+func byteScan(cname, goName, field, refFunc string, res spec.Type, withByte bool) spec.Kernel {
+	k := spec.Kernel{
+		CName: cname, GoName: goName,
+		Group: "Bytes", Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("b", spec.SliceU8)},
+		Result:    &spec.Param{Name: "ret", Type: res},
+		CArgs:     []spec.CArg{out(), base("b"), lenOf("b")},
+		Threshold: thScan,
+	}
+	if withByte {
+		k.Params = append(k.Params, sl("c", spec.U8))
+		k.CArgs = []spec.CArg{out(), base("b"), val("c"), lenOf("b")}
+	}
+	return k
+}
+
+func byteBinary(op, field string) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_bit_" + op, GoName: "bit" + field,
+		Group: "Bytes", Field: field, RefFunc: "Bit" + field,
+		Params: []spec.Param{sl("dst", spec.SliceU8), sl("a", spec.SliceU8),
+			sl("b", spec.SliceU8)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), lenOf("dst")},
+		Threshold: thBytes,
+	}
+}
+
+func byteMap(cname, goName, field, refFunc string) spec.Kernel {
+	return spec.Kernel{
+		CName: cname, GoName: goName,
+		Group: "Bytes", Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8)},
+		CArgs:     []spec.CArg{base("dst"), base("b"), lenOf("dst")},
+		Threshold: thBytes,
+	}
+}
+
+// Bytes is everything in csrc/bytes.c.
+func Bytes() []spec.Kernel {
+	return []spec.Kernel{
+		byteScan("simd_count_byte", "countByte", "Count", "CountByte", spec.Int, true),
+		byteScan("simd_index_byte", "indexByte", "IndexByte", "IndexByte", spec.Int, true),
+		byteScan("simd_last_index_byte", "lastIndexByte", "LastIndexByte",
+			"LastIndexByte", spec.Int, true),
+		byteScan("simd_popcount", "popCount", "PopCount", "PopCount", spec.Int, false),
+		byteScan("simd_is_ascii", "isASCII", "IsASCII", "IsASCII", spec.B, false),
+		{
+			// Equal is length-sensitive in a way the kernel is not: it reports
+			// whether the two slices hold the same bytes *and* are the same
+			// length, so a mismatch is false without reading anything.
+			CName: "simd_equal_bytes", GoName: "equalBytes",
+			Group: "Bytes", Field: "Equal", RefFunc: "EqualBytes",
+			Params:    []spec.Param{sl("a", spec.SliceU8), sl("b", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.B},
+			CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a")},
+			RefWhen:   "len(a) != len(b)",
+			Threshold: thScan,
+		},
+
+		byteBinary("and", "And"),
+		byteBinary("or", "Or"),
+		byteBinary("xor", "Xor"),
+		byteBinary("andnot", "AndNot"),
+		byteMap("simd_bit_not", "bitNot", "Not", "BitNot"),
+		{
+			CName: "simd_fill_bytes", GoName: "fillBytes",
+			Group: "Bytes", Field: "Fill", RefFunc: "FillBytes",
+			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("v", spec.U8)},
+			CArgs:     []spec.CArg{base("dst"), val("v"), lenOf("dst")},
+			Threshold: thBytes,
+		},
+
+		byteMap("simd_to_upper_ascii", "toUpperASCII", "ToUpperASCII", "ToUpperASCII"),
+		byteMap("simd_to_lower_ascii", "toLowerASCII", "ToLowerASCII", "ToLowerASCII"),
+		{
+			CName: "simd_replace_byte", GoName: "replaceByte",
+			Group: "Bytes", Field: "ReplaceByte", RefFunc: "ReplaceByte",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8),
+				sl("old", spec.U8), sl("with", spec.U8)},
+			CArgs: []spec.CArg{base("dst"), base("b"), val("old"), val("with"),
+				lenOf("dst")},
+			Threshold: thBytes,
+		},
+	}
+}
+
 // Source is a C file and the kernels compiled from it.
 type Source struct {
 	// Path is relative to the repository root.
@@ -332,4 +522,6 @@ type Source struct {
 var All = []Source{
 	{Path: "csrc/arith.c", Kernels: Arith()},
 	{Path: "csrc/reduce.c", Kernels: Reduce()},
+	{Path: "csrc/compare.c", Kernels: Compare()},
+	{Path: "csrc/bytes.c", Kernels: Bytes()},
 }

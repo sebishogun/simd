@@ -174,6 +174,16 @@ type Kernel struct {
 	// call; see the comment on those functions.
 	RefFunc string
 
+	// RefWhen is a Go boolean expression over the kernel's parameters that,
+	// when true, forces the portable path regardless of length.
+	//
+	// It exists for the handful of kernels whose Go contract is not simply
+	// "process min(len) elements". Equal is the example: it reports whether two
+	// slices hold the same bytes *and* are the same length, so on a length
+	// mismatch the answer is false without looking at any byte — while the C
+	// kernel, handed one length, would compare the common prefix and say true.
+	RefWhen string
+
 	// Group and Field name the kernel.Ops slot this kernel fills, so the
 	// generator can emit the registration that installs it: Group "F32" and
 	// Field "Add" means the generated function is assigned to

@@ -21,91 +21,102 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
 func addFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat32LASX(dst, a, b)
+	addFloat32LASX(dst[:n:n], a, b)
 }
 
 func subFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat32LASX(dst, a, b)
+	subFloat32LASX(dst[:n:n], a, b)
 }
 
 func mulFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat32LASX(dst, a, b)
+	mulFloat32LASX(dst[:n:n], a, b)
 }
 
 func minimumFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat32LASX(dst, a, b)
+	minimumFloat32LASX(dst[:n:n], a, b)
 }
 
 func maximumFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat32LASX(dst, a, b)
+	maximumFloat32LASX(dst[:n:n], a, b)
 }
 
 func absFloat32LASXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat32LASX(dst, a)
+	absFloat32LASX(dst[:n:n], a)
 }
 
 func negFloat32LASXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat32LASX(dst, a)
+	negFloat32LASX(dst[:n:n], a)
 }
 
 func scaleFloat32LASXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat32LASX(dst, a, s)
+	scaleFloat32LASX(dst[:n:n], a, s)
 }
 
 func addScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat32LASX(dst, a, s)
+	addScalarFloat32LASX(dst[:n:n], a, s)
 }
 
 func subScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat32LASX(dst, a, s)
+	subScalarFloat32LASX(dst[:n:n], a, s)
 }
 
 func clampFloat32LASXGuarded(dst []float32, a []float32, lo float32, hi float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat32LASX(dst, a, lo, hi)
+	clampFloat32LASX(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat32LASXGuarded(dst []float32, v float32) {
@@ -117,107 +128,120 @@ func fillFloat32LASXGuarded(dst []float32, v float32) {
 }
 
 func lerpFloat32LASXGuarded(dst []float32, a []float32, b []float32, t float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat32LASX(dst, a, b, t)
+	lerpFloat32LASX(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat32LASXGuarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat32LASX(dst, a, b, s)
+	addScaledFloat32LASX(dst[:n:n], a, b, s)
 }
 
 func addFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat64LASX(dst, a, b)
+	addFloat64LASX(dst[:n:n], a, b)
 }
 
 func subFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat64LASX(dst, a, b)
+	subFloat64LASX(dst[:n:n], a, b)
 }
 
 func mulFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat64LASX(dst, a, b)
+	mulFloat64LASX(dst[:n:n], a, b)
 }
 
 func minimumFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat64LASX(dst, a, b)
+	minimumFloat64LASX(dst[:n:n], a, b)
 }
 
 func maximumFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat64LASX(dst, a, b)
+	maximumFloat64LASX(dst[:n:n], a, b)
 }
 
 func absFloat64LASXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat64LASX(dst, a)
+	absFloat64LASX(dst[:n:n], a)
 }
 
 func negFloat64LASXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat64LASX(dst, a)
+	negFloat64LASX(dst[:n:n], a)
 }
 
 func scaleFloat64LASXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat64LASX(dst, a, s)
+	scaleFloat64LASX(dst[:n:n], a, s)
 }
 
 func addScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat64LASX(dst, a, s)
+	addScalarFloat64LASX(dst[:n:n], a, s)
 }
 
 func subScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat64LASX(dst, a, s)
+	subScalarFloat64LASX(dst[:n:n], a, s)
 }
 
 func clampFloat64LASXGuarded(dst []float64, a []float64, lo float64, hi float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat64LASX(dst, a, lo, hi)
+	clampFloat64LASX(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat64LASXGuarded(dst []float64, v float64) {
@@ -229,107 +253,120 @@ func fillFloat64LASXGuarded(dst []float64, v float64) {
 }
 
 func lerpFloat64LASXGuarded(dst []float64, a []float64, b []float64, t float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat64LASX(dst, a, b, t)
+	lerpFloat64LASX(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat64LASXGuarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat64LASX(dst, a, b, s)
+	addScaledFloat64LASX(dst[:n:n], a, b, s)
 }
 
 func addInt32LASXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt32LASX(dst, a, b)
+	addInt32LASX(dst[:n:n], a, b)
 }
 
 func subInt32LASXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt32LASX(dst, a, b)
+	subInt32LASX(dst[:n:n], a, b)
 }
 
 func mulInt32LASXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt32LASX(dst, a, b)
+	mulInt32LASX(dst[:n:n], a, b)
 }
 
 func minimumInt32LASXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt32LASX(dst, a, b)
+	minimumInt32LASX(dst[:n:n], a, b)
 }
 
 func maximumInt32LASXGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt32LASX(dst, a, b)
+	maximumInt32LASX(dst[:n:n], a, b)
 }
 
 func absInt32LASXGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt32LASX(dst, a)
+	absInt32LASX(dst[:n:n], a)
 }
 
 func negInt32LASXGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt32LASX(dst, a)
+	negInt32LASX(dst[:n:n], a)
 }
 
 func scaleInt32LASXGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt32LASX(dst, a, s)
+	scaleInt32LASX(dst[:n:n], a, s)
 }
 
 func addScalarInt32LASXGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt32LASX(dst, a, s)
+	addScalarInt32LASX(dst[:n:n], a, s)
 }
 
 func subScalarInt32LASXGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt32LASX(dst, a, s)
+	subScalarInt32LASX(dst[:n:n], a, s)
 }
 
 func clampInt32LASXGuarded(dst []int32, a []int32, lo int32, hi int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt32LASX(dst, a, lo, hi)
+	clampInt32LASX(dst[:n:n], a, lo, hi)
 }
 
 func fillInt32LASXGuarded(dst []int32, v int32) {
@@ -341,107 +378,120 @@ func fillInt32LASXGuarded(dst []int32, v int32) {
 }
 
 func lerpInt32LASXGuarded(dst []int32, a []int32, b []int32, t int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt32LASX(dst, a, b, t)
+	lerpInt32LASX(dst[:n:n], a, b, t)
 }
 
 func addScaledInt32LASXGuarded(dst []int32, a []int32, b []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt32LASX(dst, a, b, s)
+	addScaledInt32LASX(dst[:n:n], a, b, s)
 }
 
 func addInt64LASXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt64LASX(dst, a, b)
+	addInt64LASX(dst[:n:n], a, b)
 }
 
 func subInt64LASXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt64LASX(dst, a, b)
+	subInt64LASX(dst[:n:n], a, b)
 }
 
 func mulInt64LASXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt64LASX(dst, a, b)
+	mulInt64LASX(dst[:n:n], a, b)
 }
 
 func minimumInt64LASXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt64LASX(dst, a, b)
+	minimumInt64LASX(dst[:n:n], a, b)
 }
 
 func maximumInt64LASXGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt64LASX(dst, a, b)
+	maximumInt64LASX(dst[:n:n], a, b)
 }
 
 func absInt64LASXGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt64LASX(dst, a)
+	absInt64LASX(dst[:n:n], a)
 }
 
 func negInt64LASXGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt64LASX(dst, a)
+	negInt64LASX(dst[:n:n], a)
 }
 
 func scaleInt64LASXGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt64LASX(dst, a, s)
+	scaleInt64LASX(dst[:n:n], a, s)
 }
 
 func addScalarInt64LASXGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt64LASX(dst, a, s)
+	addScalarInt64LASX(dst[:n:n], a, s)
 }
 
 func subScalarInt64LASXGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt64LASX(dst, a, s)
+	subScalarInt64LASX(dst[:n:n], a, s)
 }
 
 func clampInt64LASXGuarded(dst []int64, a []int64, lo int64, hi int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt64LASX(dst, a, lo, hi)
+	clampInt64LASX(dst[:n:n], a, lo, hi)
 }
 
 func fillInt64LASXGuarded(dst []int64, v int64) {
@@ -453,131 +503,147 @@ func fillInt64LASXGuarded(dst []int64, v int64) {
 }
 
 func lerpInt64LASXGuarded(dst []int64, a []int64, b []int64, t int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt64LASX(dst, a, b, t)
+	lerpInt64LASX(dst[:n:n], a, b, t)
 }
 
 func addScaledInt64LASXGuarded(dst []int64, a []int64, b []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt64LASX(dst, a, b, s)
+	addScaledInt64LASX(dst[:n:n], a, b, s)
 }
 
 func divFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat32LASX(dst, a, b)
+	divFloat32LASX(dst[:n:n], a, b)
 }
 
 func divScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat32LASX(dst, a, s)
+	divScalarFloat32LASX(dst[:n:n], a, s)
 }
 
 func sqrtFloat32LASXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat32LASX(dst, a)
+	sqrtFloat32LASX(dst[:n:n], a)
 }
 
 func reciprocalFloat32LASXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat32LASX(dst, a)
+	reciprocalFloat32LASX(dst[:n:n], a)
 }
 
 func floorFloat32LASXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat32LASX(dst, a)
+	floorFloat32LASX(dst[:n:n], a)
 }
 
 func ceilFloat32LASXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat32LASX(dst, a)
+	ceilFloat32LASX(dst[:n:n], a)
 }
 
 func truncFloat32LASXGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat32LASX(dst, a)
+	truncFloat32LASX(dst[:n:n], a)
 }
 
 func divFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat64LASX(dst, a, b)
+	divFloat64LASX(dst[:n:n], a, b)
 }
 
 func divScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat64LASX(dst, a, s)
+	divScalarFloat64LASX(dst[:n:n], a, s)
 }
 
 func sqrtFloat64LASXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat64LASX(dst, a)
+	sqrtFloat64LASX(dst[:n:n], a)
 }
 
 func reciprocalFloat64LASXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat64LASX(dst, a)
+	reciprocalFloat64LASX(dst[:n:n], a)
 }
 
 func floorFloat64LASXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat64LASX(dst, a)
+	floorFloat64LASX(dst[:n:n], a)
 }
 
 func ceilFloat64LASXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat64LASX(dst, a)
+	ceilFloat64LASX(dst[:n:n], a)
 }
 
 func truncFloat64LASXGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat64LASX(dst, a)
+	truncFloat64LASX(dst[:n:n], a)
 }
 
 func init() {

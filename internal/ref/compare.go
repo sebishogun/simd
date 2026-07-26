@@ -412,3 +412,30 @@ func compareOps[T number](o *kernel.Ops[T], median func(a []T) T, less func(x, y
 	o.Median = median
 	o.MatMul = matMul[T]
 }
+
+// Exported entry points for generated code; see the note on the exports in
+// ref.go for why the threshold guards call these directly.
+
+func EqualMask[T number](dst []bool, a, b []T)        { cmp2(dst, a, b, eq[T]) }
+func NotEqualMask[T number](dst []bool, a, b []T)     { cmp2(dst, a, b, ne[T]) }
+func LessMask[T number](dst []bool, a, b []T)         { cmp2(dst, a, b, lt[T]) }
+func LessEqualMask[T number](dst []bool, a, b []T)    { cmp2(dst, a, b, le[T]) }
+func GreaterMask[T number](dst []bool, a, b []T)      { cmp2(dst, a, b, gt[T]) }
+func GreaterEqualMask[T number](dst []bool, a, b []T) { cmp2(dst, a, b, ge[T]) }
+
+func EqualScalarMask[T number](dst []bool, a []T, v T)        { cmp1(dst, a, v, eq[T]) }
+func NotEqualScalarMask[T number](dst []bool, a []T, v T)     { cmp1(dst, a, v, ne[T]) }
+func LessScalarMask[T number](dst []bool, a []T, v T)         { cmp1(dst, a, v, lt[T]) }
+func LessEqualScalarMask[T number](dst []bool, a []T, v T)    { cmp1(dst, a, v, le[T]) }
+func GreaterScalarMask[T number](dst []bool, a []T, v T)      { cmp1(dst, a, v, gt[T]) }
+func GreaterEqualScalarMask[T number](dst []bool, a []T, v T) { cmp1(dst, a, v, ge[T]) }
+
+func Select[T number](dst []T, mask []bool, yes, no []T) { selectBlend(dst, mask, yes, no) }
+
+func MaskAll(m []bool) bool    { return maskAll(m) }
+func MaskAny(m []bool) bool    { return maskAny(m) }
+func MaskCount(m []bool) int   { return maskCount(m) }
+func MaskAnd(dst, a, b []bool) { maskAnd(dst, a, b) }
+func MaskOr(dst, a, b []bool)  { maskOr(dst, a, b) }
+func MaskXor(dst, a, b []bool) { maskXor(dst, a, b) }
+func MaskNot(dst, a []bool)    { maskNot(dst, a) }

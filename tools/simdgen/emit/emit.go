@@ -300,6 +300,16 @@ func CanLift(fn *objfile.Func, instrs []Instr, tgt target.Target) (bool, string)
 
 // checkPatchable reports whether an instruction reading a constant pool can be
 // made to tolerate an unaligned address.
+//
+// There is a tempting fix for the ones that cannot: pad the appended pool to a
+// 16-byte offset within the function, and rely on the linker aligning every
+// text symbol — 32 bytes on amd64, per cmd/link/internal/amd64.funcAlign — to
+// make that a 16-byte-aligned address. Do not. That alignment is not a
+// guarantee: cmd/link takes a -funcalign flag, so a consumer building with
+// -ldflags=-funcalign=8 would get a SIGSEGV out of this library and no
+// plausible way to trace it back. Dropping the kernel and keeping the portable
+// path costs a few percent on the baseline tier, which is the tier a machine
+// only reaches if it predates AVX2.
 func checkPatchable(in Instr) error {
 	switch {
 	case alignedLoads[in.Mnemonic], alignedInteger[in.Mnemonic]:
@@ -650,18 +660,34 @@ func guardName(k spec.Kernel, _ string) string { return k.GoName + "Guarded" }
 func emitGuard(b *strings.Builder, k spec.Kernel, suffix string) {
 	params := goParams(k)
 	result := goResult(k)
-	call := k.GoName + "(" + argNames(k) + ")"
 
-	// The length that decides is the one the kernel is bounded by.
-	lenExpr := "0"
+	// The length that decides, and that the kernel is bounded by.
+	//
+	// The C kernel takes exactly one length and trusts it for every pointer it
+	// was handed, while the portable implementations all clamp to the shortest
+	// slice — so handing the kernel len(dst) when a caller passed a shorter
+	// source is a read past the end. Clamping here keeps the two paths agreeing
+	// and costs a few compares against a call that is already ~1.4ns.
+	//
+	// Only the length parameter is resliced. The others contribute their length
+	// to the minimum but are passed whole, because the kernel reads nothing
+	// from them but their base pointer, and reslicing does not move that.
+	lenExpr, clamped := "0", ""
 	if name, ok := k.LenParam(); ok {
 		lenExpr = "len(" + name + ")"
+		if others := boundingSlices(k, name); len(others) > 0 && countLens(k) == 1 {
+			lenExpr, clamped = "n", name
+		}
 	} else if len(k.Params) > 0 {
 		lenExpr = "len(" + k.Params[0].Name + ")"
 	}
 
 	fmt.Fprintf(b, "func %s(%s)%s {\n", guardName(k, suffix), params, result)
-	fmt.Fprintf(b, "\tif %s < %d {\n", lenExpr, k.Threshold)
+	if clamped != "" {
+		args := append([]string{"len(" + clamped + ")"}, boundingSlices(k, clamped)...)
+		fmt.Fprintf(b, "\tn := min(%s)\n", strings.Join(args, ", "))
+	}
+	fmt.Fprintf(b, "\tif %s < %d%s {\n", lenExpr, k.Threshold, extraRefCond(k))
 	// Call the portable implementation directly rather than through the
 	// kernel set. Going via the function pointer costs an indirect call that a
 	// purego build never pays, which made the accelerated build slower than
@@ -672,11 +698,62 @@ func emitGuard(b *strings.Builder, k spec.Kernel, suffix string) {
 		fmt.Fprintf(b, "\t\tref.%s(%s)\n\t\treturn\n", k.RefFunc, argNames(k))
 	}
 	fmt.Fprintf(b, "\t}\n")
+	call := k.GoName + "(" + callArgs(k, clamped) + ")"
 	if k.Result != nil {
 		fmt.Fprintf(b, "\treturn %s\n}\n\n", call)
 	} else {
 		fmt.Fprintf(b, "\t%s\n}\n\n", call)
 	}
+}
+
+// callArgs names the arguments to the assembly kernel, reslicing the one whose
+// length it is bounded by so the length it reads is the clamped one.
+func callArgs(k spec.Kernel, clamped string) string {
+	names := make([]string, len(k.Params))
+	for i, p := range k.Params {
+		names[i] = p.Name
+		if p.Name == clamped {
+			names[i] = p.Name + "[:n:n]"
+		}
+	}
+	return strings.Join(names, ", ")
+}
+
+// boundingSlices returns len() expressions for every slice the kernel reads or
+// writes other than the one supplying the length, in declaration order.
+func boundingSlices(k spec.Kernel, lenParam string) []string {
+	var out []string
+	seen := map[string]bool{lenParam: true}
+	for _, a := range k.CArgs {
+		if a.Part != spec.Base || seen[a.From] {
+			continue
+		}
+		seen[a.From] = true
+		out = append(out, "len("+a.From+")")
+	}
+	return out
+}
+
+// countLens reports how many lengths the kernel takes. A kernel taking two —
+// Diff, whose output is one element shorter than its input — reconciles them
+// itself, so the guard must not clamp them together.
+func countLens(k spec.Kernel) int {
+	n := 0
+	for _, a := range k.CArgs {
+		if a.Part == spec.Len {
+			n++
+		}
+	}
+	return n
+}
+
+// extraRefCond renders the kernel's RefWhen condition as an additional reason
+// to take the portable path.
+func extraRefCond(k spec.Kernel) string {
+	if k.RefWhen == "" {
+		return ""
+	}
+	return " || " + k.RefWhen
 }
 
 func argNames(k spec.Kernel) string {

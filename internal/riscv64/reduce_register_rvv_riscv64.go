@@ -35,10 +35,11 @@ func sumsqdevFloat32RVVGuarded(a []float32, c float32) float32 {
 }
 
 func sumsqdiffFloat32RVVGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat32RVV(a, b)
+	return sumsqdiffFloat32RVV(a[:n:n], b)
 }
 
 func diffFloat32RVVGuarded(dst []float32, a []float32) {
@@ -64,10 +65,11 @@ func sumsqdevFloat64RVVGuarded(a []float64, c float64) float64 {
 }
 
 func sumsqdiffFloat64RVVGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat64RVV(a, b)
+	return sumsqdiffFloat64RVV(a[:n:n], b)
 }
 
 func diffFloat64RVVGuarded(dst []float64, a []float64) {
@@ -107,10 +109,11 @@ func sumsqdevInt32RVVGuarded(a []int32, c int32) int32 {
 }
 
 func sumsqdiffInt32RVVGuarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt32RVV(a, b)
+	return sumsqdiffInt32RVV(a[:n:n], b)
 }
 
 func diffInt32RVVGuarded(dst []int32, a []int32) {
@@ -150,10 +153,11 @@ func sumsqdevInt64RVVGuarded(a []int64, c int64) int64 {
 }
 
 func sumsqdiffInt64RVVGuarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt64RVV(a, b)
+	return sumsqdiffInt64RVV(a[:n:n], b)
 }
 
 func diffInt64RVVGuarded(dst []int64, a []int64) {
@@ -172,10 +176,11 @@ func sumFloat32RVVGuarded(a []float32) float32 {
 }
 
 func dotFloat32RVVGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat32RVV(a, b)
+	return dotFloat32RVV(a[:n:n], b)
 }
 
 func l1normFloat32RVVGuarded(a []float32) float32 {
@@ -186,10 +191,11 @@ func l1normFloat32RVVGuarded(a []float32) float32 {
 }
 
 func l1diffFloat32RVVGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat32RVV(a, b)
+	return l1diffFloat32RVV(a[:n:n], b)
 }
 
 func sumFloat64RVVGuarded(a []float64) float64 {
@@ -200,10 +206,11 @@ func sumFloat64RVVGuarded(a []float64) float64 {
 }
 
 func dotFloat64RVVGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat64RVV(a, b)
+	return dotFloat64RVV(a[:n:n], b)
 }
 
 func l1normFloat64RVVGuarded(a []float64) float64 {
@@ -214,10 +221,11 @@ func l1normFloat64RVVGuarded(a []float64) float64 {
 }
 
 func l1diffFloat64RVVGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat64RVV(a, b)
+	return l1diffFloat64RVV(a[:n:n], b)
 }
 
 func sumInt32RVVGuarded(a []int32) int32 {
@@ -235,10 +243,11 @@ func prodInt32RVVGuarded(a []int32) int32 {
 }
 
 func dotInt32RVVGuarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt32RVV(a, b)
+	return dotInt32RVV(a[:n:n], b)
 }
 
 func sumInt64RVVGuarded(a []int64) int64 {
@@ -256,10 +265,11 @@ func prodInt64RVVGuarded(a []int64) int64 {
 }
 
 func dotInt64RVVGuarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt64RVV(a, b)
+	return dotInt64RVV(a[:n:n], b)
 }
 
 func init() {

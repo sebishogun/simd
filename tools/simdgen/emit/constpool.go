@@ -190,7 +190,7 @@ func makeUnaligned(code []byte, rel objfile.Reloc, instrs []Instr) error {
 // guessed wrong would produce a different, valid instruction, and the failure
 // would be a wrong number rather than a crash.
 func makeIntegerUnaligned(code []byte, rel objfile.Reloc, in Instr) error {
-	if rel.Off < 6 {
+	if rel.Off < 4 {
 		return fmt.Errorf("%s at +0x%x is too close to the start to patch",
 			in.Mnemonic, rel.Off)
 	}
@@ -201,20 +201,30 @@ func makeIntegerUnaligned(code []byte, rel objfile.Reloc, in Instr) error {
 		// 0F escape would otherwise be.
 		return makeVEXUnaligned(code, rel, in)
 	}
-	// Walk back over an optional REX to find the 66 prefix.
-	for i := rel.Off - 4; i+4 >= rel.Off && i > 0; i-- {
-		switch {
-		case code[i] == 0x66:
-			code[i] = 0xF3
-			return nil
-		case code[i]&0xF0 == 0x40: // REX, keep looking
-			continue
-		default:
-			return fmt.Errorf("%s at +0x%x: expected a 66 prefix before the opcode, "+
-				"found 0x%02x", in.Mnemonic, rel.Off, code[i])
+	// The 66 prefix sits four bytes before the displacement, or five when a
+	// REX byte separates them:
+	//
+	//	66       0F 6F ModRM disp32   -> 66 at Off-4
+	//	66 REX   0F 6F ModRM disp32   -> 66 at Off-5
+	//
+	// A REX byte is 0x4_, which cannot be confused with 0x66, so one look
+	// decides which layout this is. Only xmm8 and above need the REX, which
+	// is why this went unnoticed until a kernel used enough registers — the
+	// count-byte reduction is the first one that does.
+	i := rel.Off - 4
+	if code[i]&0xF0 == 0x40 {
+		if rel.Off < 5 {
+			return fmt.Errorf("%s at +0x%x: a REX byte but no room for the 66 prefix",
+				in.Mnemonic, rel.Off)
 		}
+		i = rel.Off - 5
 	}
-	return fmt.Errorf("%s at +0x%x: no 66 prefix found to patch", in.Mnemonic, rel.Off)
+	if code[i] != 0x66 {
+		return fmt.Errorf("%s at +0x%x: expected a 66 prefix at +0x%x, found 0x%02x",
+			in.Mnemonic, rel.Off, i, code[i])
+	}
+	code[i] = 0xF3
+	return nil
 }
 
 // makeVEXUnaligned flips the pp field of a VEX prefix from 66 to F3.

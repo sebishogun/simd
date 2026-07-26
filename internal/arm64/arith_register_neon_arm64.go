@@ -21,91 +21,102 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 func addFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat32NEON(dst, a, b)
+	addFloat32NEON(dst[:n:n], a, b)
 }
 
 func subFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat32NEON(dst, a, b)
+	subFloat32NEON(dst[:n:n], a, b)
 }
 
 func mulFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat32NEON(dst, a, b)
+	mulFloat32NEON(dst[:n:n], a, b)
 }
 
 func minimumFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
 		return
 	}
-	minimumFloat32NEON(dst, a, b)
+	minimumFloat32NEON(dst[:n:n], a, b)
 }
 
 func maximumFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
 		return
 	}
-	maximumFloat32NEON(dst, a, b)
+	maximumFloat32NEON(dst[:n:n], a, b)
 }
 
 func absFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat32NEON(dst, a)
+	absFloat32NEON(dst[:n:n], a)
 }
 
 func negFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat32NEON(dst, a)
+	negFloat32NEON(dst[:n:n], a)
 }
 
 func scaleFloat32NEONGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat32NEON(dst, a, s)
+	scaleFloat32NEON(dst[:n:n], a, s)
 }
 
 func addScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat32NEON(dst, a, s)
+	addScalarFloat32NEON(dst[:n:n], a, s)
 }
 
 func subScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat32NEON(dst, a, s)
+	subScalarFloat32NEON(dst[:n:n], a, s)
 }
 
 func clampFloat32NEONGuarded(dst []float32, a []float32, lo float32, hi float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat32NEON(dst, a, lo, hi)
+	clampFloat32NEON(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat32NEONGuarded(dst []float32, v float32) {
@@ -117,91 +128,102 @@ func fillFloat32NEONGuarded(dst []float32, v float32) {
 }
 
 func lerpFloat32NEONGuarded(dst []float32, a []float32, b []float32, t float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat32NEON(dst, a, b, t)
+	lerpFloat32NEON(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat32NEONGuarded(dst []float32, a []float32, b []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat32NEON(dst, a, b, s)
+	addScaledFloat32NEON(dst[:n:n], a, b, s)
 }
 
 func addFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addFloat64NEON(dst, a, b)
+	addFloat64NEON(dst[:n:n], a, b)
 }
 
 func subFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subFloat64NEON(dst, a, b)
+	subFloat64NEON(dst[:n:n], a, b)
 }
 
 func mulFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulFloat64NEON(dst, a, b)
+	mulFloat64NEON(dst[:n:n], a, b)
 }
 
 func absFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsFloat(dst, a)
 		return
 	}
-	absFloat64NEON(dst, a)
+	absFloat64NEON(dst[:n:n], a)
 }
 
 func negFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegFloat(dst, a)
 		return
 	}
-	negFloat64NEON(dst, a)
+	negFloat64NEON(dst[:n:n], a)
 }
 
 func scaleFloat64NEONGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleFloat64NEON(dst, a, s)
+	scaleFloat64NEON(dst[:n:n], a, s)
 }
 
 func addScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarFloat64NEON(dst, a, s)
+	addScalarFloat64NEON(dst[:n:n], a, s)
 }
 
 func subScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarFloat64NEON(dst, a, s)
+	subScalarFloat64NEON(dst[:n:n], a, s)
 }
 
 func clampFloat64NEONGuarded(dst []float64, a []float64, lo float64, hi float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
 		return
 	}
-	clampFloat64NEON(dst, a, lo, hi)
+	clampFloat64NEON(dst[:n:n], a, lo, hi)
 }
 
 func fillFloat64NEONGuarded(dst []float64, v float64) {
@@ -213,107 +235,120 @@ func fillFloat64NEONGuarded(dst []float64, v float64) {
 }
 
 func lerpFloat64NEONGuarded(dst []float64, a []float64, b []float64, t float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpFloat64NEON(dst, a, b, t)
+	lerpFloat64NEON(dst[:n:n], a, b, t)
 }
 
 func addScaledFloat64NEONGuarded(dst []float64, a []float64, b []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledFloat64NEON(dst, a, b, s)
+	addScaledFloat64NEON(dst[:n:n], a, b, s)
 }
 
 func addInt32NEONGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt32NEON(dst, a, b)
+	addInt32NEON(dst[:n:n], a, b)
 }
 
 func subInt32NEONGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt32NEON(dst, a, b)
+	subInt32NEON(dst[:n:n], a, b)
 }
 
 func mulInt32NEONGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Mul(dst, a, b)
 		return
 	}
-	mulInt32NEON(dst, a, b)
+	mulInt32NEON(dst[:n:n], a, b)
 }
 
 func minimumInt32NEONGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt32NEON(dst, a, b)
+	minimumInt32NEON(dst[:n:n], a, b)
 }
 
 func maximumInt32NEONGuarded(dst []int32, a []int32, b []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt32NEON(dst, a, b)
+	maximumInt32NEON(dst[:n:n], a, b)
 }
 
 func absInt32NEONGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt32NEON(dst, a)
+	absInt32NEON(dst[:n:n], a)
 }
 
 func negInt32NEONGuarded(dst []int32, a []int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt32NEON(dst, a)
+	negInt32NEON(dst[:n:n], a)
 }
 
 func scaleInt32NEONGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Scale(dst, a, s)
 		return
 	}
-	scaleInt32NEON(dst, a, s)
+	scaleInt32NEON(dst[:n:n], a, s)
 }
 
 func addScalarInt32NEONGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt32NEON(dst, a, s)
+	addScalarInt32NEON(dst[:n:n], a, s)
 }
 
 func subScalarInt32NEONGuarded(dst []int32, a []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt32NEON(dst, a, s)
+	subScalarInt32NEON(dst[:n:n], a, s)
 }
 
 func clampInt32NEONGuarded(dst []int32, a []int32, lo int32, hi int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt32NEON(dst, a, lo, hi)
+	clampInt32NEON(dst[:n:n], a, lo, hi)
 }
 
 func fillInt32NEONGuarded(dst []int32, v int32) {
@@ -325,91 +360,102 @@ func fillInt32NEONGuarded(dst []int32, v int32) {
 }
 
 func lerpInt32NEONGuarded(dst []int32, a []int32, b []int32, t int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt32NEON(dst, a, b, t)
+	lerpInt32NEON(dst[:n:n], a, b, t)
 }
 
 func addScaledInt32NEONGuarded(dst []int32, a []int32, b []int32, s int32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
 		return
 	}
-	addScaledInt32NEON(dst, a, b, s)
+	addScaledInt32NEON(dst[:n:n], a, b, s)
 }
 
 func addInt64NEONGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Add(dst, a, b)
 		return
 	}
-	addInt64NEON(dst, a, b)
+	addInt64NEON(dst[:n:n], a, b)
 }
 
 func subInt64NEONGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Sub(dst, a, b)
 		return
 	}
-	subInt64NEON(dst, a, b)
+	subInt64NEON(dst[:n:n], a, b)
 }
 
 func minimumInt64NEONGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MinimumInt(dst, a, b)
 		return
 	}
-	minimumInt64NEON(dst, a, b)
+	minimumInt64NEON(dst[:n:n], a, b)
 }
 
 func maximumInt64NEONGuarded(dst []int64, a []int64, b []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.MaximumInt(dst, a, b)
 		return
 	}
-	maximumInt64NEON(dst, a, b)
+	maximumInt64NEON(dst[:n:n], a, b)
 }
 
 func absInt64NEONGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AbsInt(dst, a)
 		return
 	}
-	absInt64NEON(dst, a)
+	absInt64NEON(dst[:n:n], a)
 }
 
 func negInt64NEONGuarded(dst []int64, a []int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.NegInt(dst, a)
 		return
 	}
-	negInt64NEON(dst, a)
+	negInt64NEON(dst[:n:n], a)
 }
 
 func addScalarInt64NEONGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.AddScalar(dst, a, s)
 		return
 	}
-	addScalarInt64NEON(dst, a, s)
+	addScalarInt64NEON(dst[:n:n], a, s)
 }
 
 func subScalarInt64NEONGuarded(dst []int64, a []int64, s int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.SubScalar(dst, a, s)
 		return
 	}
-	subScalarInt64NEON(dst, a, s)
+	subScalarInt64NEON(dst[:n:n], a, s)
 }
 
 func clampInt64NEONGuarded(dst []int64, a []int64, lo int64, hi int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
 		return
 	}
-	clampInt64NEON(dst, a, lo, hi)
+	clampInt64NEON(dst[:n:n], a, lo, hi)
 }
 
 func fillInt64NEONGuarded(dst []int64, v int64) {
@@ -421,155 +467,174 @@ func fillInt64NEONGuarded(dst []int64, v int64) {
 }
 
 func lerpInt64NEONGuarded(dst []int64, a []int64, b []int64, t int64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Lerp(dst, a, b, t)
 		return
 	}
-	lerpInt64NEON(dst, a, b, t)
+	lerpInt64NEON(dst[:n:n], a, b, t)
 }
 
 func divFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat32NEON(dst, a, b)
+	divFloat32NEON(dst[:n:n], a, b)
 }
 
 func divScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat32NEON(dst, a, s)
+	divScalarFloat32NEON(dst[:n:n], a, s)
 }
 
 func sqrtFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat32NEON(dst, a)
+	sqrtFloat32NEON(dst[:n:n], a)
 }
 
 func reciprocalFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat32NEON(dst, a)
+	reciprocalFloat32NEON(dst[:n:n], a)
 }
 
 func floorFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat32NEON(dst, a)
+	floorFloat32NEON(dst[:n:n], a)
 }
 
 func ceilFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat32NEON(dst, a)
+	ceilFloat32NEON(dst[:n:n], a)
 }
 
 func truncFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat32NEON(dst, a)
+	truncFloat32NEON(dst[:n:n], a)
 }
 
 func roundFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Round(dst, a)
 		return
 	}
-	roundFloat32NEON(dst, a)
+	roundFloat32NEON(dst[:n:n], a)
 }
 
 func roundToEvenFloat32NEONGuarded(dst []float32, a []float32) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.RoundToEven(dst, a)
 		return
 	}
-	roundToEvenFloat32NEON(dst, a)
+	roundToEvenFloat32NEON(dst[:n:n], a)
 }
 
 func divFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
 		ref.Div(dst, a, b)
 		return
 	}
-	divFloat64NEON(dst, a, b)
+	divFloat64NEON(dst[:n:n], a, b)
 }
 
 func divScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.DivScalar(dst, a, s)
 		return
 	}
-	divScalarFloat64NEON(dst, a, s)
+	divScalarFloat64NEON(dst[:n:n], a, s)
 }
 
 func sqrtFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Sqrt(dst, a)
 		return
 	}
-	sqrtFloat64NEON(dst, a)
+	sqrtFloat64NEON(dst[:n:n], a)
 }
 
 func reciprocalFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Reciprocal(dst, a)
 		return
 	}
-	reciprocalFloat64NEON(dst, a)
+	reciprocalFloat64NEON(dst[:n:n], a)
 }
 
 func floorFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Floor(dst, a)
 		return
 	}
-	floorFloat64NEON(dst, a)
+	floorFloat64NEON(dst[:n:n], a)
 }
 
 func ceilFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Ceil(dst, a)
 		return
 	}
-	ceilFloat64NEON(dst, a)
+	ceilFloat64NEON(dst[:n:n], a)
 }
 
 func truncFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Trunc(dst, a)
 		return
 	}
-	truncFloat64NEON(dst, a)
+	truncFloat64NEON(dst[:n:n], a)
 }
 
 func roundFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.Round(dst, a)
 		return
 	}
-	roundFloat64NEON(dst, a)
+	roundFloat64NEON(dst[:n:n], a)
 }
 
 func roundToEvenFloat64NEONGuarded(dst []float64, a []float64) {
-	if len(dst) < 16 {
+	n := min(len(dst), len(a))
+	if n < 16 {
 		ref.RoundToEven(dst, a)
 		return
 	}
-	roundToEvenFloat64NEON(dst, a)
+	roundToEvenFloat64NEON(dst[:n:n], a)
 }
 
 func init() {

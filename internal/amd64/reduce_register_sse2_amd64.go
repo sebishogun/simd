@@ -49,10 +49,11 @@ func sumsqdevFloat32SSE2Guarded(a []float32, c float32) float32 {
 }
 
 func sumsqdiffFloat32SSE2Guarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat32SSE2(a, b)
+	return sumsqdiffFloat32SSE2(a[:n:n], b)
 }
 
 func diffFloat32SSE2Guarded(dst []float32, a []float32) {
@@ -92,10 +93,11 @@ func sumsqdevFloat64SSE2Guarded(a []float64, c float64) float64 {
 }
 
 func sumsqdiffFloat64SSE2Guarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat64SSE2(a, b)
+	return sumsqdiffFloat64SSE2(a[:n:n], b)
 }
 
 func diffFloat64SSE2Guarded(dst []float64, a []float64) {
@@ -135,10 +137,11 @@ func sumsqdevInt32SSE2Guarded(a []int32, c int32) int32 {
 }
 
 func sumsqdiffInt32SSE2Guarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt32SSE2(a, b)
+	return sumsqdiffInt32SSE2(a[:n:n], b)
 }
 
 func diffInt32SSE2Guarded(dst []int32, a []int32) {
@@ -178,10 +181,11 @@ func sumsqdevInt64SSE2Guarded(a []int64, c int64) int64 {
 }
 
 func sumsqdiffInt64SSE2Guarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt64SSE2(a, b)
+	return sumsqdiffInt64SSE2(a[:n:n], b)
 }
 
 func diffInt64SSE2Guarded(dst []int64, a []int64) {
@@ -200,10 +204,11 @@ func sumFloat32SSE2Guarded(a []float32) float32 {
 }
 
 func dotFloat32SSE2Guarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat32SSE2(a, b)
+	return dotFloat32SSE2(a[:n:n], b)
 }
 
 func sumFloat64SSE2Guarded(a []float64) float64 {
@@ -214,10 +219,11 @@ func sumFloat64SSE2Guarded(a []float64) float64 {
 }
 
 func dotFloat64SSE2Guarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat64SSE2(a, b)
+	return dotFloat64SSE2(a[:n:n], b)
 }
 
 func sumInt32SSE2Guarded(a []int32) int32 {
@@ -235,10 +241,11 @@ func prodInt32SSE2Guarded(a []int32) int32 {
 }
 
 func dotInt32SSE2Guarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt32SSE2(a, b)
+	return dotInt32SSE2(a[:n:n], b)
 }
 
 func sumInt64SSE2Guarded(a []int64) int64 {
@@ -249,10 +256,11 @@ func sumInt64SSE2Guarded(a []int64) int64 {
 }
 
 func dotInt64SSE2Guarded(a []int64, b []int64) int64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt64SSE2(a, b)
+	return dotInt64SSE2(a[:n:n], b)
 }
 
 func init() {

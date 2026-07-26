@@ -35,10 +35,11 @@ func sumsqdevFloat32NEONGuarded(a []float32, c float32) float32 {
 }
 
 func sumsqdiffFloat32NEONGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat32NEON(a, b)
+	return sumsqdiffFloat32NEON(a[:n:n], b)
 }
 
 func diffFloat32NEONGuarded(dst []float32, a []float32) {
@@ -64,10 +65,11 @@ func sumsqdevFloat64NEONGuarded(a []float64, c float64) float64 {
 }
 
 func sumsqdiffFloat64NEONGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
 	}
-	return sumsqdiffFloat64NEON(a, b)
+	return sumsqdiffFloat64NEON(a[:n:n], b)
 }
 
 func diffFloat64NEONGuarded(dst []float64, a []float64) {
@@ -107,10 +109,11 @@ func sumsqdevInt32NEONGuarded(a []int32, c int32) int32 {
 }
 
 func sumsqdiffInt32NEONGuarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
 	}
-	return sumsqdiffInt32NEON(a, b)
+	return sumsqdiffInt32NEON(a[:n:n], b)
 }
 
 func diffInt32NEONGuarded(dst []int32, a []int32) {
@@ -151,10 +154,11 @@ func sumFloat32NEONGuarded(a []float32) float32 {
 }
 
 func dotFloat32NEONGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat32NEON(a, b)
+	return dotFloat32NEON(a[:n:n], b)
 }
 
 func l1normFloat32NEONGuarded(a []float32) float32 {
@@ -165,10 +169,11 @@ func l1normFloat32NEONGuarded(a []float32) float32 {
 }
 
 func l1diffFloat32NEONGuarded(a []float32, b []float32) float32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat32NEON(a, b)
+	return l1diffFloat32NEON(a[:n:n], b)
 }
 
 func sumFloat64NEONGuarded(a []float64) float64 {
@@ -179,10 +184,11 @@ func sumFloat64NEONGuarded(a []float64) float64 {
 }
 
 func dotFloat64NEONGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotFloat(a, b)
 	}
-	return dotFloat64NEON(a, b)
+	return dotFloat64NEON(a[:n:n], b)
 }
 
 func l1normFloat64NEONGuarded(a []float64) float64 {
@@ -193,10 +199,11 @@ func l1normFloat64NEONGuarded(a []float64) float64 {
 }
 
 func l1diffFloat64NEONGuarded(a []float64, b []float64) float64 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.L1DiffFloat(a, b)
 	}
-	return l1diffFloat64NEON(a, b)
+	return l1diffFloat64NEON(a[:n:n], b)
 }
 
 func sumInt32NEONGuarded(a []int32) int32 {
@@ -214,10 +221,11 @@ func prodInt32NEONGuarded(a []int32) int32 {
 }
 
 func dotInt32NEONGuarded(a []int32, b []int32) int32 {
-	if len(a) < 0 {
+	n := min(len(a), len(b))
+	if n < 0 {
 		return ref.DotInt(a, b)
 	}
-	return dotInt32NEON(a, b)
+	return dotInt32NEON(a[:n:n], b)
 }
 
 func sumInt64NEONGuarded(a []int64) int64 {
