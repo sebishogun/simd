@@ -54,4 +54,3 @@ func dotFloat32RVV(a []float32, b []float32) float32
 
 //go:noescape
 func dotFloat64RVV(a []float64, b []float64) float64
-
