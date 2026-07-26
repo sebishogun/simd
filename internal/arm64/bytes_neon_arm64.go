@@ -67,6 +67,9 @@ func countAnyNEON(b []byte, chars []byte) int
 func hexEncodeNEON(dst []byte, b []byte) int
 
 //go:noescape
+func indexNEON(haystack []byte, needle []byte) int
+
+//go:noescape
 func toUpperASCIINEON(dst []byte, b []byte)
 
 //go:noescape

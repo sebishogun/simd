@@ -23,6 +23,12 @@ parameter. Applied at every multiply feeding an add in `internal/ref`, and pinne
 
 The kernels never had this problem: clang is invoked with `-ffp-contract=off`.
 
+The same trap catches *tests*. `TestElementwiseMatchesScalarLoop` computed its
+expectation as `x + y*2.5` in Go, which fuses on four of the six architectures
+and not on the one it was written on, so it passed locally and failed by an ULP
+on s390x and riscv64. Any expectation written as a multiply feeding an add
+needs the same conversion the reference does.
+
 **This is only visible cross-architecture.** The amd64 test suite passed throughout. It surfaced
 the first time the conformance suite ran under `qemu-aarch64`.
 

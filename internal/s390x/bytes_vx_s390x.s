@@ -12,9 +12,11 @@
 //go:build s390x && !purego
 
 #include "textflag.h"
+#include "funcdata.h"
 
 // func lastIndexByteVX(b []byte, c byte) int
 TEXT ·lastIndexByteVX(SB), NOSPLIT, $160-40
+	NO_LOCAL_POINTERS
 	MOVD $ret+32(FP), R2
 	MOVD b_base+0(FP), R3
 	MOVBZ c+24(FP), R4
@@ -294,6 +296,7 @@ TEXT ·lastIndexByteVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func popCountVX(b []byte) int
 TEXT ·popCountVX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD b_base+0(FP), R3
 	MOVD b_len+8(FP), R4
@@ -680,6 +683,7 @@ TEXT ·popCountVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func isASCIIVX(b []byte) bool
 TEXT ·isASCIIVX(SB), NOSPLIT, $160-25
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD b_base+0(FP), R3
 	MOVD b_len+8(FP), R4
@@ -1221,6 +1225,7 @@ TEXT ·isASCIIVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func equalBytesVX(a []byte, b []byte) bool
 TEXT ·equalBytesVX(SB), NOSPLIT, $160-49
+	NO_LOCAL_POINTERS
 	MOVD $ret+48(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD b_base+24(FP), R4
@@ -1788,6 +1793,7 @@ TEXT ·equalBytesVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func bitAndVX(dst []byte, a []byte, b []byte)
 TEXT ·bitAndVX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1830,6 +1836,7 @@ TEXT ·bitAndVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func bitOrVX(dst []byte, a []byte, b []byte)
 TEXT ·bitOrVX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1872,6 +1879,7 @@ TEXT ·bitOrVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func bitXorVX(dst []byte, a []byte, b []byte)
 TEXT ·bitXorVX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1914,6 +1922,7 @@ TEXT ·bitXorVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func bitAndNotVX(dst []byte, a []byte, b []byte)
 TEXT ·bitAndNotVX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1956,6 +1965,7 @@ TEXT ·bitAndNotVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func bitNotVX(dst []byte, b []byte)
 TEXT ·bitNotVX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD b_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -1992,6 +2002,7 @@ TEXT ·bitNotVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func fillBytesVX(dst []byte, v byte)
 TEXT ·fillBytesVX(SB), NOSPLIT, $160-25
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVBZ v+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2027,6 +2038,7 @@ TEXT ·fillBytesVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func hexEncodeVX(dst []byte, b []byte) int
 TEXT ·hexEncodeVX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD $ret+48(FP), R2
 	MOVD dst_base+0(FP), R3
 	MOVD b_base+24(FP), R4
@@ -2122,6 +2134,7 @@ TEXT ·hexEncodeVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func toUpperASCIIVX(dst []byte, b []byte)
 TEXT ·toUpperASCIIVX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD b_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2173,6 +2186,7 @@ TEXT ·toUpperASCIIVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func toLowerASCIIVX(dst []byte, b []byte)
 TEXT ·toLowerASCIIVX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD b_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2224,6 +2238,7 @@ TEXT ·toLowerASCIIVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func replaceByteVX(dst []byte, b []byte, old byte, with byte)
 TEXT ·replaceByteVX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD b_base+24(FP), R3
 	MOVBZ old+48(FP), R4

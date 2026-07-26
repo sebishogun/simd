@@ -47,15 +47,34 @@ test-race:
 fuzz:
 	$(GO) test -run '^$$' -fuzz FuzzDifferential -fuzztime $(or $(FUZZTIME),60s) .
 
-# Every architecture with a backend, under emulation. Slow; CI runs it nightly
-# rather than per pull request.
+# Every architecture with a backend, under emulation.
+#
+# This is not optional extra assurance. Three separate memory-corruption bugs
+# shipped past a green amd64 suite and only appeared here: kernels clobbering
+# the register the Go runtime keeps the current goroutine in, kernels writing
+# into the caller's frame through a save area the s390x ABI expects the caller
+# to provide, and a reference that computed different bits on architectures
+# where Go fuses a multiply into an add. None of the three is visible on
+# amd64, and none would have been found by reading the code.
+#
+# -short skips the repetition benchmarks, which measure a minimum over many
+# runs and are meaningless under emulation anyway — and would take hours.
+# Slow even so; allow half an hour. Run before any release, and nightly in CI.
 .PHONY: test-cross
-test-cross:
+test-cross: cross-setup
 	@for p in linux/arm64 linux/riscv64 linux/s390x linux/ppc64le; do \
 		echo "--- $$p"; \
 		$(DOCKER) run --rm --platform $$p -v "$(PWD)":/src -w /src \
-			golang:1.26 go test $(PKG) || exit 1; \
+			-e GOFLAGS=-buildvcs=false golang:1.26 \
+			go test -short ./... || exit 1; \
 	done
+
+# Register the qemu interpreters, without which docker --platform fails with
+# "exec format error" rather than anything that names the real problem.
+.PHONY: cross-setup
+cross-setup:
+	@[ -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ] || \
+		$(DOCKER) run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
 # ------------------------------------------------------------------ generated
 # Assert every generated .s only contains instructions permitted by the CPU
@@ -65,11 +84,11 @@ test-cross:
 
 .PHONY: check-emission
 check-emission:
-	$(GO) run ./tools/cmd/checkemission ./internal/...
+	cd tools && $(GO) run ./simdgen -n
 
 .PHONY: codegen
 codegen:
-	cd tools && $(GO) run ./cmd/simdgen -out ../internal
+	cd tools && $(GO) run ./simdgen
 
 # ---------------------------------------------------------------- performance
 

@@ -67,6 +67,9 @@ func countAnyLASX(b []byte, chars []byte) int
 func hexEncodeLASX(dst []byte, b []byte) int
 
 //go:noescape
+func indexLASX(haystack []byte, needle []byte) int
+
+//go:noescape
 func toUpperASCIILASX(dst []byte, b []byte)
 
 //go:noescape

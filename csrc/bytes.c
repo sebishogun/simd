@@ -276,3 +276,54 @@ void simd_hex_encode(isize *__restrict out, u8 *__restrict d,
     d[i * 2 + 1] = (u8)(lo < 10 ? '0' + lo : 'a' + lo - 10);
   }
 }
+
+// simd_index is substring search, matching bytes.Index.
+//
+// The candidate filter is the standard one: compare a whole register against
+// broadcasts of the needle's first and last bytes, and only positions where
+// both match are worth a full comparison. On random text that rejects all but
+// about one position in 65536 without ever touching the middle of the needle.
+//
+// Written as two independent compares over a block rather than as a search,
+// so the filter itself vectorizes; the verification of a surviving candidate
+// is a short scalar loop, which is fine because it almost never runs.
+void simd_index(isize *__restrict out, const u8 *__restrict h,
+                const u8 *__restrict n_, isize nh, isize nn) {
+  if (nn == 0) {
+    *out = 0;
+    return;
+  }
+  if (nn > nh) {
+    *out = -1;
+    return;
+  }
+  u8 first = n_[0], last = n_[nn - 1];
+  isize last_start = nh - nn; // last position a match could begin at
+  const isize block = 64;
+  isize i = 0;
+  for (; i + block <= last_start + 1; i += block) {
+    unsigned char any = 0;
+    for (isize j = 0; j < block; j++)
+      any |= (unsigned char)(h[i + j] == first) & (unsigned char)(h[i + j + nn - 1] == last);
+    if (!any) continue;
+    for (isize j = 0; j < block; j++) {
+      if (h[i + j] != first || h[i + j + nn - 1] != last) continue;
+      isize k = 1;
+      while (k < nn - 1 && h[i + j + k] == n_[k]) k++;
+      if (k >= nn - 1) {
+        *out = i + j;
+        return;
+      }
+    }
+  }
+  for (; i <= last_start; i++) {
+    if (h[i] != first || h[i + nn - 1] != last) continue;
+    isize k = 1;
+    while (k < nn - 1 && h[i + k] == n_[k]) k++;
+    if (k >= nn - 1) {
+      *out = i;
+      return;
+    }
+  }
+  *out = -1;
+}

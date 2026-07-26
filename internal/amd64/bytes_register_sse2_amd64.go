@@ -152,6 +152,13 @@ func hexEncodeSSE2Guarded(dst []byte, b []byte) int {
 	return hexEncodeSSE2(dst, b)
 }
 
+func indexSSE2Guarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.Index(haystack, needle)
+	}
+	return indexSSE2(haystack, needle)
+}
+
 func toUpperASCIISSE2Guarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -200,6 +207,7 @@ func init() {
 	s.Bytes.IndexAny = indexAnySSE2Guarded
 	s.Bytes.CountAny = countAnySSE2Guarded
 	s.Bytes.HexEncode = hexEncodeSSE2Guarded
+	s.Bytes.Index = indexSSE2Guarded
 	s.Bytes.ToUpperASCII = toUpperASCIISSE2Guarded
 	s.Bytes.ToLowerASCII = toLowerASCIISSE2Guarded
 	s.Bytes.ReplaceByte = replaceByteSSE2Guarded

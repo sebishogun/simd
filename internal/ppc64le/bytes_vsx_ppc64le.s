@@ -14,17 +14,11 @@
 #include "textflag.h"
 
 // func countByteVSX(b []byte, c byte) int
-TEXT ·countByteVSX(SB), NOSPLIT, $64-40
+TEXT ·countByteVSX(SB), NOSPLIT|NOFRAME, $0-40
 	MOVD $ret+32(FP), R3
 	MOVD b_base+0(FP), R4
 	MOVBZ c+24(FP), R5
 	MOVD b_len+8(FP), R6
-	BL ·countByteVSXBody(SB)
-	RET
-
-// countByteVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·countByteVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xf0631cd7
 	WORD $0x38e00000
 	WORD $0x2c260010
@@ -139,17 +133,11 @@ TEXT ·countByteVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func indexByteVSX(b []byte, c byte) int
-TEXT ·indexByteVSX(SB), NOSPLIT, $64-40
+TEXT ·indexByteVSX(SB), NOSPLIT|NOFRAME, $0-40
 	MOVD $ret+32(FP), R3
 	MOVD b_base+0(FP), R4
 	MOVBZ c+24(FP), R5
 	MOVD b_len+8(FP), R6
-	BL ·indexByteVSXBody(SB)
-	RET
-
-// indexByteVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·indexByteVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x39600000
 	WORD $0x2c260040
 	WORD $0xf9e1ff78
@@ -345,16 +333,10 @@ TEXT ·indexByteVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func popCountVSX(b []byte) int
-TEXT ·popCountVSX(SB), NOSPLIT, $64-32
+TEXT ·popCountVSX(SB), NOSPLIT|NOFRAME, $0-32
 	MOVD $ret+24(FP), R3
 	MOVD b_base+0(FP), R4
 	MOVD b_len+8(FP), R5
-	BL ·popCountVSXBody(SB)
-	RET
-
-// popCountVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·popCountVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xf0631cd7
 	WORD $0x38c00000
 	WORD $0x2c250010
@@ -466,16 +448,10 @@ TEXT ·popCountVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func isASCIIVSX(b []byte) bool
-TEXT ·isASCIIVSX(SB), NOSPLIT, $64-25
+TEXT ·isASCIIVSX(SB), NOSPLIT|NOFRAME, $0-25
 	MOVD $ret+24(FP), R3
 	MOVD b_base+0(FP), R4
 	MOVD b_len+8(FP), R5
-	BL ·isASCIIVSXBody(SB)
-	RET
-
-// isASCIIVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·isASCIIVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xf00402d0
 	WORD $0x38c00000
 	WORD $0x38e00000
@@ -604,17 +580,11 @@ TEXT ·isASCIIVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func equalBytesVSX(a []byte, b []byte) bool
-TEXT ·equalBytesVSX(SB), NOSPLIT, $64-49
+TEXT ·equalBytesVSX(SB), NOSPLIT|NOFRAME, $0-49
 	MOVD $ret+48(FP), R3
 	MOVD a_base+0(FP), R4
 	MOVD b_base+24(FP), R5
 	MOVD a_len+8(FP), R6
-	BL ·equalBytesVSXBody(SB)
-	RET
-
-// equalBytesVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·equalBytesVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x38e00000
 	WORD $0x39200000
 	WORD $0x7c882378
@@ -828,17 +798,11 @@ TEXT ·equalBytesVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func bitAndVSX(dst []byte, a []byte, b []byte)
-TEXT ·bitAndVSX(SB), NOSPLIT, $64-72
+TEXT ·bitAndVSX(SB), NOSPLIT|NOFRAME, $0-72
 	MOVD dst_base+0(FP), R3
 	MOVD a_base+24(FP), R4
 	MOVD b_base+48(FP), R5
 	MOVD dst_len+8(FP), R6
-	BL ·bitAndVSXBody(SB)
-	RET
-
-// bitAndVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·bitAndVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c260000
 	WORD $0x4c810020
 	WORD $0x38e00000
@@ -935,17 +899,11 @@ TEXT ·bitAndVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func bitOrVSX(dst []byte, a []byte, b []byte)
-TEXT ·bitOrVSX(SB), NOSPLIT, $64-72
+TEXT ·bitOrVSX(SB), NOSPLIT|NOFRAME, $0-72
 	MOVD dst_base+0(FP), R3
 	MOVD a_base+24(FP), R4
 	MOVD b_base+48(FP), R5
 	MOVD dst_len+8(FP), R6
-	BL ·bitOrVSXBody(SB)
-	RET
-
-// bitOrVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·bitOrVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c260000
 	WORD $0x4c810020
 	WORD $0x38e00000
@@ -1042,17 +1000,11 @@ TEXT ·bitOrVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func bitXorVSX(dst []byte, a []byte, b []byte)
-TEXT ·bitXorVSX(SB), NOSPLIT, $64-72
+TEXT ·bitXorVSX(SB), NOSPLIT|NOFRAME, $0-72
 	MOVD dst_base+0(FP), R3
 	MOVD a_base+24(FP), R4
 	MOVD b_base+48(FP), R5
 	MOVD dst_len+8(FP), R6
-	BL ·bitXorVSXBody(SB)
-	RET
-
-// bitXorVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·bitXorVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c260000
 	WORD $0x4c810020
 	WORD $0x38e00000
@@ -1149,17 +1101,11 @@ TEXT ·bitXorVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func bitAndNotVSX(dst []byte, a []byte, b []byte)
-TEXT ·bitAndNotVSX(SB), NOSPLIT, $64-72
+TEXT ·bitAndNotVSX(SB), NOSPLIT|NOFRAME, $0-72
 	MOVD dst_base+0(FP), R3
 	MOVD a_base+24(FP), R4
 	MOVD b_base+48(FP), R5
 	MOVD dst_len+8(FP), R6
-	BL ·bitAndNotVSXBody(SB)
-	RET
-
-// bitAndNotVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·bitAndNotVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c260000
 	WORD $0x4c810020
 	WORD $0x38e00000
@@ -1256,16 +1202,10 @@ TEXT ·bitAndNotVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func bitNotVSX(dst []byte, b []byte)
-TEXT ·bitNotVSX(SB), NOSPLIT, $64-48
+TEXT ·bitNotVSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_base+0(FP), R3
 	MOVD b_base+24(FP), R4
 	MOVD dst_len+8(FP), R5
-	BL ·bitNotVSXBody(SB)
-	RET
-
-// bitNotVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·bitNotVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c250000
 	WORD $0x4c810020
 	WORD $0x38c00000
@@ -1353,16 +1293,10 @@ TEXT ·bitNotVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func fillBytesVSX(dst []byte, v byte)
-TEXT ·fillBytesVSX(SB), NOSPLIT, $64-25
+TEXT ·fillBytesVSX(SB), NOSPLIT|NOFRAME, $0-25
 	MOVD dst_base+0(FP), R3
 	MOVBZ v+24(FP), R4
 	MOVD dst_len+8(FP), R5
-	BL ·fillBytesVSXBody(SB)
-	RET
-
-// fillBytesVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·fillBytesVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c250000
 	WORD $0x4c810020
 	WORD $0x38c00000
@@ -1440,18 +1374,12 @@ TEXT ·fillBytesVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func compareBytesVSX(a []byte, b []byte) int
-TEXT ·compareBytesVSX(SB), NOSPLIT, $64-56
+TEXT ·compareBytesVSX(SB), NOSPLIT|NOFRAME, $0-56
 	MOVD $ret+48(FP), R3
 	MOVD a_base+0(FP), R4
 	MOVD b_base+24(FP), R5
 	MOVD a_len+8(FP), R6
 	MOVD b_len+32(FP), R7
-	BL ·compareBytesVSXBody(SB)
-	RET
-
-// compareBytesVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·compareBytesVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x7ca63800
 	WORD $0x39040030
 	WORD $0x39250030
@@ -1525,17 +1453,11 @@ TEXT ·compareBytesVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func equalFoldASCIIVSX(a []byte, b []byte) bool
-TEXT ·equalFoldASCIIVSX(SB), NOSPLIT, $64-49
+TEXT ·equalFoldASCIIVSX(SB), NOSPLIT|NOFRAME, $0-49
 	MOVD $ret+48(FP), R3
 	MOVD a_base+0(FP), R4
 	MOVD b_base+24(FP), R5
 	MOVD a_len+8(FP), R6
-	BL ·equalFoldASCIIVSXBody(SB)
-	RET
-
-// equalFoldASCIIVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·equalFoldASCIIVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xf045fad1
 	WORD $0xf060d2d1
 	WORD $0x38e00000
@@ -1770,18 +1692,12 @@ TEXT ·equalFoldASCIIVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func countAnyVSX(b []byte, chars []byte) int
-TEXT ·countAnyVSX(SB), NOSPLIT, $64-56
+TEXT ·countAnyVSX(SB), NOSPLIT|NOFRAME, $0-56
 	MOVD $ret+48(FP), R3
 	MOVD b_base+0(FP), R4
 	MOVD chars_base+24(FP), R5
 	MOVD b_len+8(FP), R6
 	MOVD chars_len+32(FP), R7
-	BL ·countAnyVSXBody(SB)
-	RET
-
-// countAnyVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·countAnyVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c270000
 	WORD $0x40810244
 	WORD $0x3924ffff
@@ -1937,18 +1853,12 @@ TEXT ·countAnyVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func hexEncodeVSX(dst []byte, b []byte) int
-TEXT ·hexEncodeVSX(SB), NOSPLIT, $64-56
+TEXT ·hexEncodeVSX(SB), NOSPLIT|NOFRAME, $0-56
 	MOVD $ret+48(FP), R3
 	MOVD dst_base+0(FP), R4
 	MOVD b_base+24(FP), R5
 	MOVD dst_len+8(FP), R6
 	MOVD b_len+32(FP), R7
-	BL ·hexEncodeVSXBody(SB)
-	RET
-
-// hexEncodeVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·hexEncodeVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x7cc60e74
 	WORD $0x7cc60194
 	WORD $0x7c263800
@@ -2066,16 +1976,10 @@ TEXT ·hexEncodeVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func toUpperASCIIVSX(dst []byte, b []byte)
-TEXT ·toUpperASCIIVSX(SB), NOSPLIT, $64-48
+TEXT ·toUpperASCIIVSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_base+0(FP), R3
 	MOVD b_base+24(FP), R4
 	MOVD dst_len+8(FP), R5
-	BL ·toUpperASCIIVSXBody(SB)
-	RET
-
-// toUpperASCIIVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·toUpperASCIIVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c250000
 	WORD $0x4c810020
 	WORD $0x38c00000
@@ -2199,16 +2103,10 @@ TEXT ·toUpperASCIIVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func toLowerASCIIVSX(dst []byte, b []byte)
-TEXT ·toLowerASCIIVSX(SB), NOSPLIT, $64-48
+TEXT ·toLowerASCIIVSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_base+0(FP), R3
 	MOVD b_base+24(FP), R4
 	MOVD dst_len+8(FP), R5
-	BL ·toLowerASCIIVSXBody(SB)
-	RET
-
-// toLowerASCIIVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·toLowerASCIIVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c250000
 	WORD $0x4c810020
 	WORD $0x38c00000
@@ -2332,18 +2230,12 @@ TEXT ·toLowerASCIIVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	RET
 
 // func replaceByteVSX(dst []byte, b []byte, old byte, with byte)
-TEXT ·replaceByteVSX(SB), NOSPLIT, $64-50
+TEXT ·replaceByteVSX(SB), NOSPLIT|NOFRAME, $0-50
 	MOVD dst_base+0(FP), R3
 	MOVD b_base+24(FP), R4
 	MOVBZ old+48(FP), R5
 	MOVBZ with+49(FP), R6
 	MOVD dst_len+8(FP), R7
-	BL ·replaceByteVSXBody(SB)
-	RET
-
-// replaceByteVSXBody is the compiled kernel, called by the trampoline above so that
-// the register save area it writes belongs to the trampoline's frame.
-TEXT ·replaceByteVSXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x2c270000
 	WORD $0x4c810020
 	WORD $0x39000000

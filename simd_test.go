@@ -86,10 +86,16 @@ func TestElementwiseMatchesScalarLoop(t *testing.T) {
 		check("Mul", dst, func(x, y float64) float64 { return x * y })
 		simd.DivInto(dst, a, b)
 		check("Div", dst, func(x, y float64) float64 { return x / y })
+		// The conversions around the products are load-bearing on any
+		// architecture where Go fuses a multiply into a following add — arm64,
+		// ppc64, s390x and riscv64 all do, amd64 does not. Without them this
+		// expectation is computed with one rounding where the kernel uses two,
+		// and the test fails by an ULP on four of the six architectures while
+		// passing on the machine it was written on.
 		simd.AddScaledInto(dst, a, b, 2.5)
-		check("AddScaled", dst, func(x, y float64) float64 { return x + y*2.5 })
+		check("AddScaled", dst, func(x, y float64) float64 { return x + float64(y*2.5) })
 		simd.LerpInto(dst, a, b, 0.25)
-		check("Lerp", dst, func(x, y float64) float64 { return x + (y-x)*0.25 })
+		check("Lerp", dst, func(x, y float64) float64 { return x + float64((y-x)*0.25) })
 	}
 }
 

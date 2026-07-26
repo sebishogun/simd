@@ -12,9 +12,11 @@
 //go:build s390x && !purego
 
 #include "textflag.h"
+#include "funcdata.h"
 
 // func hypotFloat32VX(dst []float32, a []float32, b []float32)
 TEXT ·hypotFloat32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -139,6 +141,7 @@ TEXT ·hypotFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func hypotFloat64VX(dst []float64, a []float64, b []float64)
 TEXT ·hypotFloat64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4

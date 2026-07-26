@@ -12,9 +12,11 @@
 //go:build s390x && !purego
 
 #include "textflag.h"
+#include "funcdata.h"
 
 // func sumsqFloat32VX(a []float32) float32
 TEXT ·sumsqFloat32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -391,6 +393,7 @@ TEXT ·sumsqFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumsqdevFloat32VX(a []float32, c float32) float32
 TEXT ·sumsqdevFloat32VX(SB), NOSPLIT, $160-36
+	NO_LOCAL_POINTERS
 	MOVD $ret+32(FP), R2
 	MOVD a_base+0(FP), R3
 	FMOVS c+24(FP), F0
@@ -824,6 +827,7 @@ TEXT ·sumsqdevFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumsqFloat64VX(a []float64) float64
 TEXT ·sumsqFloat64VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -1300,6 +1304,7 @@ TEXT ·sumsqFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumsqdevFloat64VX(a []float64, c float64) float64
 TEXT ·sumsqdevFloat64VX(SB), NOSPLIT, $160-40
+	NO_LOCAL_POINTERS
 	MOVD $ret+32(FP), R2
 	MOVD a_base+0(FP), R3
 	FMOVD c+24(FP), F0
@@ -1863,6 +1868,7 @@ TEXT ·sumsqdevFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumsqInt32VX(a []int32) int32
 TEXT ·sumsqInt32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -1911,6 +1917,7 @@ TEXT ·sumsqInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumsqdevInt32VX(a []int32, c int32) int32
 TEXT ·sumsqdevInt32VX(SB), NOSPLIT, $160-36
+	NO_LOCAL_POINTERS
 	MOVD $ret+32(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVW c+24(FP), R4
@@ -1971,6 +1978,7 @@ TEXT ·sumsqdevInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumsqdiffInt32VX(a []int32, b []int32) int32
 TEXT ·sumsqdiffInt32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD $ret+48(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD b_base+24(FP), R4
@@ -2029,6 +2037,7 @@ TEXT ·sumsqdiffInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumFloat32VX(a []float32) float32
 TEXT ·sumFloat32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -2302,6 +2311,7 @@ TEXT ·sumFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func l1normFloat32VX(a []float32) float32
 TEXT ·l1normFloat32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -2648,6 +2658,7 @@ TEXT ·l1normFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumFloat64VX(a []float64) float64
 TEXT ·sumFloat64VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -3014,6 +3025,7 @@ TEXT ·sumFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func l1normFloat64VX(a []float64) float64
 TEXT ·l1normFloat64VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -3413,6 +3425,7 @@ TEXT ·l1normFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumInt32VX(a []int32) int32
 TEXT ·sumInt32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -3461,6 +3474,7 @@ TEXT ·sumInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func prodInt32VX(a []int32) int32
 TEXT ·prodInt32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -3512,6 +3526,7 @@ TEXT ·prodInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func dotInt32VX(a []int32, b []int32) int32
 TEXT ·dotInt32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD $ret+48(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD b_base+24(FP), R4
@@ -3566,6 +3581,7 @@ TEXT ·dotInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func l1normInt32VX(a []int32) int32
 TEXT ·l1normInt32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -3615,6 +3631,7 @@ TEXT ·l1normInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func l1diffInt32VX(a []int32, b []int32) int32
 TEXT ·l1diffInt32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD $ret+48(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD b_base+24(FP), R4
@@ -3674,6 +3691,7 @@ TEXT ·l1diffInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sumInt64VX(a []int64) int64
 TEXT ·sumInt64VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -3721,6 +3739,7 @@ TEXT ·sumInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func l1normInt64VX(a []int64) int64
 TEXT ·l1normInt64VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD a_len+8(FP), R4
@@ -3770,6 +3789,7 @@ TEXT ·l1normInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func l1diffInt64VX(a []int64, b []int64) int64
 TEXT ·l1diffInt64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD $ret+48(FP), R2
 	MOVD a_base+0(FP), R3
 	MOVD b_base+24(FP), R4

@@ -12,9 +12,11 @@
 //go:build s390x && !purego
 
 #include "textflag.h"
+#include "funcdata.h"
 
 // func eqScalarFloat32MaskVX(dst []bool, a []float32, v float32)
 TEXT ·eqScalarFloat32MaskVX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS v+48(FP), F0
@@ -188,6 +190,7 @@ TEXT ·eqScalarFloat32MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func neScalarFloat32MaskVX(dst []bool, a []float32, v float32)
 TEXT ·neScalarFloat32MaskVX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS v+48(FP), F0
@@ -363,6 +366,7 @@ TEXT ·neScalarFloat32MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func ltScalarFloat32MaskVX(dst []bool, a []float32, v float32)
 TEXT ·ltScalarFloat32MaskVX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS v+48(FP), F0
@@ -536,6 +540,7 @@ TEXT ·ltScalarFloat32MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func leScalarFloat32MaskVX(dst []bool, a []float32, v float32)
 TEXT ·leScalarFloat32MaskVX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS v+48(FP), F0
@@ -709,6 +714,7 @@ TEXT ·leScalarFloat32MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func gtScalarFloat32MaskVX(dst []bool, a []float32, v float32)
 TEXT ·gtScalarFloat32MaskVX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS v+48(FP), F0
@@ -882,6 +888,7 @@ TEXT ·gtScalarFloat32MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func geScalarFloat32MaskVX(dst []bool, a []float32, v float32)
 TEXT ·geScalarFloat32MaskVX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS v+48(FP), F0
@@ -1055,6 +1062,7 @@ TEXT ·geScalarFloat32MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func eqScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 TEXT ·eqScalarFloat64MaskVX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD v+48(FP), F0
@@ -1111,6 +1119,7 @@ TEXT ·eqScalarFloat64MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func neScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 TEXT ·neScalarFloat64MaskVX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD v+48(FP), F0
@@ -1170,6 +1179,7 @@ TEXT ·neScalarFloat64MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func ltScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 TEXT ·ltScalarFloat64MaskVX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD v+48(FP), F0
@@ -1226,6 +1236,7 @@ TEXT ·ltScalarFloat64MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func leScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 TEXT ·leScalarFloat64MaskVX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD v+48(FP), F0
@@ -1282,6 +1293,7 @@ TEXT ·leScalarFloat64MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func gtScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 TEXT ·gtScalarFloat64MaskVX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD v+48(FP), F0
@@ -1338,6 +1350,7 @@ TEXT ·gtScalarFloat64MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func geScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 TEXT ·geScalarFloat64MaskVX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD v+48(FP), F0
@@ -1394,6 +1407,7 @@ TEXT ·geScalarFloat64MaskVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maskAllVX(m []bool) bool
 TEXT ·maskAllVX(SB), NOSPLIT, $160-25
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD m_base+0(FP), R3
 	MOVD m_len+8(FP), R4
@@ -1905,6 +1919,7 @@ TEXT ·maskAllVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maskAnyVX(m []bool) bool
 TEXT ·maskAnyVX(SB), NOSPLIT, $160-25
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD m_base+0(FP), R3
 	MOVD m_len+8(FP), R4
@@ -2348,6 +2363,7 @@ TEXT ·maskAnyVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maskCountVX(m []bool) int
 TEXT ·maskCountVX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD $ret+24(FP), R2
 	MOVD m_base+0(FP), R3
 	MOVD m_len+8(FP), R4
@@ -2778,6 +2794,7 @@ TEXT ·maskCountVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maskAndVX(dst []bool, a []bool, b []bool)
 TEXT ·maskAndVX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2820,6 +2837,7 @@ TEXT ·maskAndVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maskOrVX(dst []bool, a []bool, b []bool)
 TEXT ·maskOrVX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2862,6 +2880,7 @@ TEXT ·maskOrVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maskXorVX(dst []bool, a []bool, b []bool)
 TEXT ·maskXorVX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2908,6 +2927,7 @@ TEXT ·maskXorVXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maskNotVX(dst []bool, a []bool)
 TEXT ·maskNotVX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4

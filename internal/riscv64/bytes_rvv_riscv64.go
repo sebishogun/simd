@@ -67,6 +67,9 @@ func countAnyRVV(b []byte, chars []byte) int
 func hexEncodeRVV(dst []byte, b []byte) int
 
 //go:noescape
+func indexRVV(haystack []byte, needle []byte) int
+
+//go:noescape
 func toUpperASCIIRVV(dst []byte, b []byte)
 
 //go:noescape

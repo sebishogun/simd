@@ -439,6 +439,45 @@ func checkBytes(t *testing.T, tier string, got, want kernel.Bytes) {
 		}
 	}
 
+	if got.Index != nil && want.Index != nil {
+		for _, n := range byteLens {
+			h := genBytes(n, r)
+			needles := [][]byte{{}, {'a'}, {'z'}, {'a', 'a'}, {'a', 'b', 'a'}}
+			if n > 0 {
+				// Needles taken out of the haystack itself, at each end and
+				// across the middle, so the found path is exercised at every
+				// alignment. A search that filters on the first and last byte
+				// gets a repeated needle wrong if it skips verification.
+				for _, at := range []int{0, n / 2, n - 1} {
+					for _, l := range []int{1, 2, 3, 9, 33} {
+						if at+l <= n {
+							needles = append(needles, h[at:at+l])
+						}
+					}
+				}
+				needles = append(needles, h, append(append([]byte(nil), h...), 'Q'))
+			}
+			for _, ndl := range needles {
+				if g, w := got.Index(h, ndl), want.Index(h, ndl); g != w {
+					t.Fatalf("%s/Bytes.Index n=%d needle=%q: got %d want %d",
+						tier, n, ndl, g, w)
+				}
+			}
+			// A haystack of one repeated byte is where a first/last filter
+			// accepts every position and the verification does all the work.
+			flat := make([]byte, n)
+			for i := range flat {
+				flat[i] = 'a'
+			}
+			for _, ndl := range [][]byte{{'a'}, {'a', 'a'}, {'a', 'b'}, {'b', 'a'}} {
+				if g, w := got.Index(flat, ndl), want.Index(flat, ndl); g != w {
+					t.Fatalf("%s/Bytes.Index flat n=%d needle=%q: got %d want %d",
+						tier, n, ndl, g, w)
+				}
+			}
+		}
+	}
+
 	if got.HexEncode != nil && want.HexEncode != nil {
 		for _, n := range byteLens {
 			b := make([]byte, n)

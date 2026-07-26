@@ -40,17 +40,39 @@ const maxLen = 70
 
 // tiers returns every tier with a backend compiled into this binary, paired
 // with the reference to compare it against.
+// tiers returns every tier that is both compiled into this binary and
+// executable by this CPU.
+//
+// Both halves matter. Exercising every compiled-in tier is the point — it is
+// what lets one process compare avx2 against avx512 against the reference
+// without re-running the suite per GOSIMD setting. But a tier the host cannot
+// execute is not a test failure, it is a SIGILL: the process dies on the first
+// instruction with no message, which is exactly what happened on a riscv64
+// emulator without the vector extension. The same would happen to anyone
+// running this suite on an amd64 machine older than AVX-512.
+//
+// A skipped tier is logged rather than passed over quietly. A suite that
+// silently tested nothing would look identical to one that passed.
 func tiers(t *testing.T) map[string]kernel.Set {
+	runnable := map[string]bool{}
+	for _, tr := range cpu.Detail().Available {
+		runnable[tr.String()] = true
+	}
 	out := map[string]kernel.Set{}
 	for _, name := range backend.Tiers() {
 		s, ok := backend.Lookup(name)
 		if !ok {
 			continue
 		}
+		if !runnable[name] {
+			t.Logf("skipping tier %s: compiled in, but this CPU cannot execute it (%s)",
+				name, cpu.Describe())
+			continue
+		}
 		out[name] = s
 	}
 	if len(out) == 0 {
-		t.Skip("no generated backends in this build")
+		t.Skip("no generated backend in this build that this CPU can execute")
 	}
 	return out
 }

@@ -117,7 +117,16 @@ func Asm(kernels []spec.Kernel, fns map[string]*objfile.Func, disasm map[string]
 	fmt.Fprintf(&b, "// inside a function are PC-relative and remain correct because the whole\n")
 	fmt.Fprintf(&b, "// body moves as a unit.\n\n")
 	fmt.Fprintf(&b, "//go:build %s\n\n", tgt.BuildTag())
-	fmt.Fprintf(&b, "#include \"textflag.h\"\n\n")
+	fmt.Fprintf(&b, "#include \"textflag.h\"\n")
+	// funcdata.h is needed only where a kernel has a real frame, which is the
+	// trampoline case. A framed assembly function that the garbage collector
+	// might have to walk needs to say whether its locals hold pointers; without
+	// it the runtime aborts with "missing stackmap" the first time the
+	// goroutine stack grows underneath one.
+	if tgt.SaveArea > 0 {
+		fmt.Fprintf(&b, "#include \"funcdata.h\"\n")
+	}
+	b.WriteString("\n")
 
 	names := make([]string, 0, len(kernels))
 	for _, k := range kernels {
@@ -228,6 +237,11 @@ func emitTrampoline(b *strings.Builder, k spec.Kernel, fn *objfile.Func,
 	body := k.GoName + "Body"
 
 	fmt.Fprintf(b, "TEXT ·%s(SB), NOSPLIT, $%d-%d\n", k.GoName, tgt.SaveArea, frame.Size)
+	// The frame is a register save area for the compiled body and holds no Go
+	// pointers, which is what NO_LOCAL_POINTERS declares. Without it the
+	// runtime cannot walk this frame and aborts with "missing stackmap" when a
+	// stack copy happens to catch one.
+	fmt.Fprintf(b, "\tNO_LOCAL_POINTERS\n")
 	prologue, err := prologueFor(k, frame, tgt)
 	if err != nil {
 		return err

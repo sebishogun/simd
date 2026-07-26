@@ -152,6 +152,13 @@ func hexEncodeSVE2Guarded(dst []byte, b []byte) int {
 	return hexEncodeSVE2(dst, b)
 }
 
+func indexSVE2Guarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.Index(haystack, needle)
+	}
+	return indexSVE2(haystack, needle)
+}
+
 func toUpperASCIISVE2Guarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -200,6 +207,7 @@ func init() {
 	s.Bytes.IndexAny = indexAnySVE2Guarded
 	s.Bytes.CountAny = countAnySVE2Guarded
 	s.Bytes.HexEncode = hexEncodeSVE2Guarded
+	s.Bytes.Index = indexSVE2Guarded
 	s.Bytes.ToUpperASCII = toUpperASCIISVE2Guarded
 	s.Bytes.ToLowerASCII = toLowerASCIISVE2Guarded
 	s.Bytes.ReplaceByte = replaceByteSVE2Guarded

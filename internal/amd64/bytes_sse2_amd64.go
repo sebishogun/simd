@@ -67,6 +67,9 @@ func countAnySSE2(b []byte, chars []byte) int
 func hexEncodeSSE2(dst []byte, b []byte) int
 
 //go:noescape
+func indexSSE2(haystack []byte, needle []byte) int
+
+//go:noescape
 func toUpperASCIISSE2(dst []byte, b []byte)
 
 //go:noescape

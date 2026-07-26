@@ -12,9 +12,11 @@
 //go:build s390x && !purego
 
 #include "textflag.h"
+#include "funcdata.h"
 
 // func addFloat32VX(dst []float32, a []float32, b []float32)
 TEXT ·addFloat32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -59,6 +61,7 @@ TEXT ·addFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func subFloat32VX(dst []float32, a []float32, b []float32)
 TEXT ·subFloat32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -103,6 +106,7 @@ TEXT ·subFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func mulFloat32VX(dst []float32, a []float32, b []float32)
 TEXT ·mulFloat32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -147,6 +151,7 @@ TEXT ·mulFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func minimumFloat32VX(dst []float32, a []float32, b []float32)
 TEXT ·minimumFloat32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -244,6 +249,7 @@ TEXT ·minimumFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maximumFloat32VX(dst []float32, a []float32, b []float32)
 TEXT ·maximumFloat32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -340,6 +346,7 @@ TEXT ·maximumFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func absFloat32VX(dst []float32, a []float32)
 TEXT ·absFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -378,6 +385,7 @@ TEXT ·absFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func negFloat32VX(dst []float32, a []float32)
 TEXT ·negFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -416,6 +424,7 @@ TEXT ·negFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func scaleFloat32VX(dst []float32, a []float32, s float32)
 TEXT ·scaleFloat32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS s+48(FP), F0
@@ -456,6 +465,7 @@ TEXT ·scaleFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addScalarFloat32VX(dst []float32, a []float32, s float32)
 TEXT ·addScalarFloat32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS s+48(FP), F0
@@ -496,6 +506,7 @@ TEXT ·addScalarFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func subScalarFloat32VX(dst []float32, a []float32, s float32)
 TEXT ·subScalarFloat32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS s+48(FP), F0
@@ -538,6 +549,7 @@ TEXT ·subScalarFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func clampFloat32VX(dst []float32, a []float32, lo float32, hi float32)
 TEXT ·clampFloat32VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS lo+48(FP), F0
@@ -775,6 +787,7 @@ TEXT ·clampFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func fillFloat32VX(dst []float32, v float32)
 TEXT ·fillFloat32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	FMOVS v+24(FP), F0
 	MOVD dst_len+8(FP), R3
@@ -810,6 +823,7 @@ TEXT ·fillFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func lerpFloat32VX(dst []float32, a []float32, b []float32, t float32)
 TEXT ·lerpFloat32VX(SB), NOSPLIT, $160-76
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -863,6 +877,7 @@ TEXT ·lerpFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addScaledFloat32VX(dst []float32, a []float32, b []float32, s float32)
 TEXT ·addScaledFloat32VX(SB), NOSPLIT, $160-76
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -913,6 +928,7 @@ TEXT ·addScaledFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addFloat64VX(dst []float64, a []float64, b []float64)
 TEXT ·addFloat64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -958,6 +974,7 @@ TEXT ·addFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func subFloat64VX(dst []float64, a []float64, b []float64)
 TEXT ·subFloat64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1003,6 +1020,7 @@ TEXT ·subFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func mulFloat64VX(dst []float64, a []float64, b []float64)
 TEXT ·mulFloat64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1048,6 +1066,7 @@ TEXT ·mulFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func minimumFloat64VX(dst []float64, a []float64, b []float64)
 TEXT ·minimumFloat64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1144,6 +1163,7 @@ TEXT ·minimumFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maximumFloat64VX(dst []float64, a []float64, b []float64)
 TEXT ·maximumFloat64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1239,6 +1259,7 @@ TEXT ·maximumFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func absFloat64VX(dst []float64, a []float64)
 TEXT ·absFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -1278,6 +1299,7 @@ TEXT ·absFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func negFloat64VX(dst []float64, a []float64)
 TEXT ·negFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -1317,6 +1339,7 @@ TEXT ·negFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func scaleFloat64VX(dst []float64, a []float64, s float64)
 TEXT ·scaleFloat64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD s+48(FP), F0
@@ -1357,6 +1380,7 @@ TEXT ·scaleFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addScalarFloat64VX(dst []float64, a []float64, s float64)
 TEXT ·addScalarFloat64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD s+48(FP), F0
@@ -1397,6 +1421,7 @@ TEXT ·addScalarFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func subScalarFloat64VX(dst []float64, a []float64, s float64)
 TEXT ·subScalarFloat64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD s+48(FP), F0
@@ -1437,6 +1462,7 @@ TEXT ·subScalarFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func clampFloat64VX(dst []float64, a []float64, lo float64, hi float64)
 TEXT ·clampFloat64VX(SB), NOSPLIT, $160-64
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD lo+48(FP), F0
@@ -1672,6 +1698,7 @@ TEXT ·clampFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func fillFloat64VX(dst []float64, v float64)
 TEXT ·fillFloat64VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	FMOVD v+24(FP), F0
 	MOVD dst_len+8(FP), R3
@@ -1707,6 +1734,7 @@ TEXT ·fillFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func lerpFloat64VX(dst []float64, a []float64, b []float64, t float64)
 TEXT ·lerpFloat64VX(SB), NOSPLIT, $160-80
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1759,6 +1787,7 @@ TEXT ·lerpFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addScaledFloat64VX(dst []float64, a []float64, b []float64, s float64)
 TEXT ·addScaledFloat64VX(SB), NOSPLIT, $160-80
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1809,6 +1838,7 @@ TEXT ·addScaledFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addInt32VX(dst []int32, a []int32, b []int32)
 TEXT ·addInt32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1852,6 +1882,7 @@ TEXT ·addInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func subInt32VX(dst []int32, a []int32, b []int32)
 TEXT ·subInt32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1895,6 +1926,7 @@ TEXT ·subInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func mulInt32VX(dst []int32, a []int32, b []int32)
 TEXT ·mulInt32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1938,6 +1970,7 @@ TEXT ·mulInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func minimumInt32VX(dst []int32, a []int32, b []int32)
 TEXT ·minimumInt32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -1984,6 +2017,7 @@ TEXT ·minimumInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maximumInt32VX(dst []int32, a []int32, b []int32)
 TEXT ·maximumInt32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2030,6 +2064,7 @@ TEXT ·maximumInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func absInt32VX(dst []int32, a []int32)
 TEXT ·absInt32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2067,6 +2102,7 @@ TEXT ·absInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func negInt32VX(dst []int32, a []int32)
 TEXT ·negInt32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2106,6 +2142,7 @@ TEXT ·negInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func scaleInt32VX(dst []int32, a []int32, s int32)
 TEXT ·scaleInt32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVW s+48(FP), R4
@@ -2150,6 +2187,7 @@ TEXT ·scaleInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addScalarInt32VX(dst []int32, a []int32, s int32)
 TEXT ·addScalarInt32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVW s+48(FP), R4
@@ -2194,6 +2232,7 @@ TEXT ·addScalarInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func subScalarInt32VX(dst []int32, a []int32, s int32)
 TEXT ·subScalarInt32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVW s+48(FP), R4
@@ -2238,6 +2277,7 @@ TEXT ·subScalarInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func clampInt32VX(dst []int32, a []int32, lo int32, hi int32)
 TEXT ·clampInt32VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVW lo+48(FP), R4
@@ -2290,6 +2330,7 @@ TEXT ·clampInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func fillInt32VX(dst []int32, v int32)
 TEXT ·fillInt32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVW v+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2328,6 +2369,7 @@ TEXT ·fillInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func lerpInt32VX(dst []int32, a []int32, b []int32, t int32)
 TEXT ·lerpInt32VX(SB), NOSPLIT, $160-76
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2380,6 +2422,7 @@ TEXT ·lerpInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addScaledInt32VX(dst []int32, a []int32, b []int32, s int32)
 TEXT ·addScaledInt32VX(SB), NOSPLIT, $160-76
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2429,6 +2472,7 @@ TEXT ·addScaledInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addInt64VX(dst []int64, a []int64, b []int64)
 TEXT ·addInt64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2475,6 +2519,7 @@ TEXT ·addInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func subInt64VX(dst []int64, a []int64, b []int64)
 TEXT ·subInt64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2521,6 +2566,7 @@ TEXT ·subInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func minimumInt64VX(dst []int64, a []int64, b []int64)
 TEXT ·minimumInt64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2569,6 +2615,7 @@ TEXT ·minimumInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func maximumInt64VX(dst []int64, a []int64, b []int64)
 TEXT ·maximumInt64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2617,6 +2664,7 @@ TEXT ·maximumInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func absInt64VX(dst []int64, a []int64)
 TEXT ·absInt64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2657,6 +2705,7 @@ TEXT ·absInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func negInt64VX(dst []int64, a []int64)
 TEXT ·negInt64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2697,6 +2746,7 @@ TEXT ·negInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func addScalarInt64VX(dst []int64, a []int64, s int64)
 TEXT ·addScalarInt64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD s+48(FP), R4
@@ -2741,6 +2791,7 @@ TEXT ·addScalarInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func subScalarInt64VX(dst []int64, a []int64, s int64)
 TEXT ·subScalarInt64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD s+48(FP), R4
@@ -2785,6 +2836,7 @@ TEXT ·subScalarInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func clampInt64VX(dst []int64, a []int64, lo int64, hi int64)
 TEXT ·clampInt64VX(SB), NOSPLIT, $160-64
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD lo+48(FP), R4
@@ -2836,6 +2888,7 @@ TEXT ·clampInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func fillInt64VX(dst []int64, v int64)
 TEXT ·fillInt64VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD v+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2873,6 +2926,7 @@ TEXT ·fillInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func divFloat32VX(dst []float32, a []float32, b []float32)
 TEXT ·divFloat32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -2917,6 +2971,7 @@ TEXT ·divFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func divScalarFloat32VX(dst []float32, a []float32, s float32)
 TEXT ·divScalarFloat32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVS s+48(FP), F0
@@ -2959,6 +3014,7 @@ TEXT ·divScalarFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sqrtFloat32VX(dst []float32, a []float32)
 TEXT ·sqrtFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -2996,6 +3052,7 @@ TEXT ·sqrtFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func reciprocalFloat32VX(dst []float32, a []float32)
 TEXT ·reciprocalFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3036,6 +3093,7 @@ TEXT ·reciprocalFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func floorFloat32VX(dst []float32, a []float32)
 TEXT ·floorFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3074,6 +3132,7 @@ TEXT ·floorFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func ceilFloat32VX(dst []float32, a []float32)
 TEXT ·ceilFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3112,6 +3171,7 @@ TEXT ·ceilFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func truncFloat32VX(dst []float32, a []float32)
 TEXT ·truncFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3150,6 +3210,7 @@ TEXT ·truncFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func roundFloat32VX(dst []float32, a []float32)
 TEXT ·roundFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3188,6 +3249,7 @@ TEXT ·roundFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func roundToEvenFloat32VX(dst []float32, a []float32)
 TEXT ·roundToEvenFloat32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3226,6 +3288,7 @@ TEXT ·roundToEvenFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func divFloat64VX(dst []float64, a []float64, b []float64)
 TEXT ·divFloat64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD b_base+48(FP), R4
@@ -3271,6 +3334,7 @@ TEXT ·divFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func divScalarFloat64VX(dst []float64, a []float64, s float64)
 TEXT ·divScalarFloat64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	FMOVD s+48(FP), F0
@@ -3311,6 +3375,7 @@ TEXT ·divScalarFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func sqrtFloat64VX(dst []float64, a []float64)
 TEXT ·sqrtFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3348,6 +3413,7 @@ TEXT ·sqrtFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func reciprocalFloat64VX(dst []float64, a []float64)
 TEXT ·reciprocalFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3388,6 +3454,7 @@ TEXT ·reciprocalFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func floorFloat64VX(dst []float64, a []float64)
 TEXT ·floorFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3427,6 +3494,7 @@ TEXT ·floorFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func ceilFloat64VX(dst []float64, a []float64)
 TEXT ·ceilFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3466,6 +3534,7 @@ TEXT ·ceilFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func truncFloat64VX(dst []float64, a []float64)
 TEXT ·truncFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3505,6 +3574,7 @@ TEXT ·truncFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func roundFloat64VX(dst []float64, a []float64)
 TEXT ·roundFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4
@@ -3544,6 +3614,7 @@ TEXT ·roundFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 
 // func roundToEvenFloat64VX(dst []float64, a []float64)
 TEXT ·roundToEvenFloat64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
 	MOVD dst_base+0(FP), R2
 	MOVD a_base+24(FP), R3
 	MOVD dst_len+8(FP), R4

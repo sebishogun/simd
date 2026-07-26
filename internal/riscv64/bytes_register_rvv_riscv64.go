@@ -152,6 +152,13 @@ func hexEncodeRVVGuarded(dst []byte, b []byte) int {
 	return hexEncodeRVV(dst, b)
 }
 
+func indexRVVGuarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.Index(haystack, needle)
+	}
+	return indexRVV(haystack, needle)
+}
+
 func toUpperASCIIRVVGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -200,6 +207,7 @@ func init() {
 	s.Bytes.IndexAny = indexAnyRVVGuarded
 	s.Bytes.CountAny = countAnyRVVGuarded
 	s.Bytes.HexEncode = hexEncodeRVVGuarded
+	s.Bytes.Index = indexRVVGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIIRVVGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIIRVVGuarded
 	s.Bytes.ReplaceByte = replaceByteRVVGuarded

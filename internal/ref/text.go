@@ -233,3 +233,5 @@ func FillBytes(dst []byte, v byte) { fillBytes(dst, v) }
 func ToUpperASCII(dst, b []byte)                { toUpperASCII(dst, b) }
 func ToLowerASCII(dst, b []byte)                { toLowerASCII(dst, b) }
 func ReplaceByte(dst, b []byte, old, with byte) { replaceByte(dst, b, old, with) }
+
+func Index(haystack, needle []byte) int { return index(haystack, needle) }

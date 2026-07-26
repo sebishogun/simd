@@ -152,6 +152,13 @@ func hexEncodeNEONGuarded(dst []byte, b []byte) int {
 	return hexEncodeNEON(dst, b)
 }
 
+func indexNEONGuarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.Index(haystack, needle)
+	}
+	return indexNEON(haystack, needle)
+}
+
 func toUpperASCIINEONGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -200,6 +207,7 @@ func init() {
 	s.Bytes.IndexAny = indexAnyNEONGuarded
 	s.Bytes.CountAny = countAnyNEONGuarded
 	s.Bytes.HexEncode = hexEncodeNEONGuarded
+	s.Bytes.Index = indexNEONGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIINEONGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIINEONGuarded
 	s.Bytes.ReplaceByte = replaceByteNEONGuarded

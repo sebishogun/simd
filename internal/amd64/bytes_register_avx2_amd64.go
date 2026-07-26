@@ -152,6 +152,13 @@ func hexEncodeAVX2Guarded(dst []byte, b []byte) int {
 	return hexEncodeAVX2(dst, b)
 }
 
+func indexAVX2Guarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.Index(haystack, needle)
+	}
+	return indexAVX2(haystack, needle)
+}
+
 func toUpperASCIIAVX2Guarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -200,6 +207,7 @@ func init() {
 	s.Bytes.IndexAny = indexAnyAVX2Guarded
 	s.Bytes.CountAny = countAnyAVX2Guarded
 	s.Bytes.HexEncode = hexEncodeAVX2Guarded
+	s.Bytes.Index = indexAVX2Guarded
 	s.Bytes.ToUpperASCII = toUpperASCIIAVX2Guarded
 	s.Bytes.ToLowerASCII = toLowerASCIIAVX2Guarded
 	s.Bytes.ReplaceByte = replaceByteAVX2Guarded

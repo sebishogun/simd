@@ -152,6 +152,13 @@ func hexEncodeLASXGuarded(dst []byte, b []byte) int {
 	return hexEncodeLASX(dst, b)
 }
 
+func indexLASXGuarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.Index(haystack, needle)
+	}
+	return indexLASX(haystack, needle)
+}
+
 func toUpperASCIILASXGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -200,6 +207,7 @@ func init() {
 	s.Bytes.IndexAny = indexAnyLASXGuarded
 	s.Bytes.CountAny = countAnyLASXGuarded
 	s.Bytes.HexEncode = hexEncodeLASXGuarded
+	s.Bytes.Index = indexLASXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIILASXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIILASXGuarded
 	s.Bytes.ReplaceByte = replaceByteLASXGuarded

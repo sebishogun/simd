@@ -67,6 +67,9 @@ func countAnyAVX512(b []byte, chars []byte) int
 func hexEncodeAVX512(dst []byte, b []byte) int
 
 //go:noescape
+func indexAVX512(haystack []byte, needle []byte) int
+
+//go:noescape
 func toUpperASCIIAVX512(dst []byte, b []byte)
 
 //go:noescape

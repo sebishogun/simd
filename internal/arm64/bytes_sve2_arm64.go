@@ -67,6 +67,9 @@ func countAnySVE2(b []byte, chars []byte) int
 func hexEncodeSVE2(dst []byte, b []byte) int
 
 //go:noescape
+func indexSVE2(haystack []byte, needle []byte) int
+
+//go:noescape
 func toUpperASCIISVE2(dst []byte, b []byte)
 
 //go:noescape

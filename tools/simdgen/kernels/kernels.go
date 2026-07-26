@@ -548,6 +548,19 @@ func Bytes() []spec.Kernel {
 			Threshold: thBytes,
 		},
 
+		{
+			// Substring search. Two lengths, and the needle's is genuinely
+			// independent of the haystack's, so no clamping.
+			CName: "simd_index", GoName: "index",
+			Group: "Bytes", Field: "Index", RefFunc: "Index",
+			Params: []spec.Param{sl("haystack", spec.SliceU8),
+				sl("needle", spec.SliceU8)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("haystack"), base("needle"),
+				lenOf("haystack"), lenOf("needle")},
+			Threshold: thScan,
+		},
+
 		byteMap("simd_to_upper_ascii", "toUpperASCII", "ToUpperASCII", "ToUpperASCII"),
 		byteMap("simd_to_lower_ascii", "toLowerASCII", "ToLowerASCII", "ToLowerASCII"),
 		{

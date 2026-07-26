@@ -373,9 +373,8 @@ var All = []Target{
 	{
 		Arch: PPC64LE, Tier: "vsx", Triple: "powerpc64le-linux-gnu",
 		GoOwned: []string{"r30", "r2"},
-		// ELFv2 reserves 32 bytes at the caller's stack pointer — backchain,
-		// condition register, link register and TOC. 64 leaves room to spare.
-		SaveArea: 64,
+		// No SaveArea: measured, these kernels write nothing above the stack
+		// pointer, so there is nothing for a trampoline to contain.
 		// The one target with a non-trivial relocation model: constants are
 		// reached through the TOC, which needs its own handling. Scheduled
 		// last for that reason.
