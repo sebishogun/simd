@@ -1,0 +1,232 @@
+// Command simdgen compiles the C kernels and emits Plan 9 assembly plus the
+// matching Go declarations.
+//
+//	go run ./tools/simdgen -out internal
+//	go run ./tools/simdgen -arch arm64 -tier sve2 -v
+//
+// # What it does
+//
+// For each (architecture, instruction-set tier) it compiles the C source with
+// clang, checks the object file against every rule in package verify, lifts
+// the function bodies out as raw instruction encodings, and writes a Plan 9
+// assembly file with an ABI prologue plus a Go file declaring the functions.
+//
+// The output is committed. Consumers of this library run `go get` and need no
+// C toolchain; clang is a contributor's dependency, which is why this whole
+// tree lives in its own Go module.
+//
+// # Why raw encodings
+//
+// Go's assembler only parses Plan 9 syntax, and its arm64 dialect knows 66
+// vector mnemonics — no floating-point vector arithmetic at all, and not one
+// SVE instruction. Emitting WORD directives sidesteps the mnemonic table
+// entirely, which is the only way SVE2 can reach a Go binary without cgo.
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/sebishogun/simd/tools/simdgen/compile"
+	"github.com/sebishogun/simd/tools/simdgen/emit"
+	"github.com/sebishogun/simd/tools/simdgen/kernels"
+	"github.com/sebishogun/simd/tools/simdgen/objfile"
+	"github.com/sebishogun/simd/tools/simdgen/spec"
+	"github.com/sebishogun/simd/tools/simdgen/target"
+	"github.com/sebishogun/simd/tools/simdgen/verify"
+)
+
+func main() {
+	var (
+		// The generator lives in its own Go module under tools/, so it is run
+		// as `cd tools && go run ./simdgen`. Paths are resolved against the
+		// repository root, which is that module's parent.
+		root     = flag.String("root", "..", "repository root")
+		outDir   = flag.String("out", "internal", "generated packages, relative to -root")
+		tmpDir   = flag.String("tmp", "tools/build/tmp", "intermediate object files, relative to -root")
+		archFlag = flag.String("arch", "", "only this GOARCH (default: all)")
+		tierFlag = flag.String("tier", "", "only this tier (default: all)")
+		clangBin = flag.String("clang", "clang", "clang binary")
+		objdump  = flag.String("objdump", "llvm-objdump", "llvm-objdump binary")
+		verbose  = flag.Bool("v", false, "report every kernel verified")
+		dryRun   = flag.Bool("n", false, "verify and report, but write nothing")
+	)
+	flag.Parse()
+
+	abs := func(p string) string {
+		if filepath.IsAbs(p) {
+			return p
+		}
+		return filepath.Join(*root, p)
+	}
+	if err := run(abs(*outDir), abs(*tmpDir), *root, *archFlag, *tierFlag,
+		*clangBin, *objdump, *verbose, *dryRun); err != nil {
+		fmt.Fprintf(os.Stderr, "simdgen: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, verbose, dryRun bool) error {
+	// Validate the manifest before touching a compiler, so a typo in a
+	// declaration is an immediate, precise error.
+	for _, src := range kernels.All {
+		for _, k := range src.Kernels {
+			if err := k.Validate(); err != nil {
+				return err
+			}
+		}
+	}
+
+	targets := selectTargets(archFlag, tierFlag)
+	if len(targets) == 0 {
+		return fmt.Errorf("no targets match arch=%q tier=%q", archFlag, tierFlag)
+	}
+
+	cc, err := compile.New(clangBin, tmpDir)
+	if err != nil {
+		return err
+	}
+	clangVer, err := cc.Version()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("simdgen: %s\n", clangVer)
+
+	opt := verify.DefaultOptions()
+	opt.ObjdumpPath = objdumpBin
+
+	var failures []string
+	for _, src := range kernels.All {
+		for _, tgt := range targets {
+			n, err := build(cc, src, tgt, root, outDir, opt, verbose, dryRun)
+			if err != nil {
+				failures = append(failures, fmt.Sprintf("%s %s: %v", src.Path, tgt, err))
+				fmt.Printf("  %-14s %-8s FAILED\n", tgt.Arch, tgt.Tier)
+				continue
+			}
+			fmt.Printf("  %-14s %-8s %d kernels\n", tgt.Arch, tgt.Tier, n)
+		}
+	}
+	if len(failures) > 0 {
+		var b strings.Builder
+		fmt.Fprintf(&b, "%d target(s) failed:\n", len(failures))
+		for _, f := range failures {
+			fmt.Fprintf(&b, "\n%s\n", f)
+		}
+		return fmt.Errorf("%s", b.String())
+	}
+	return nil
+}
+
+// build compiles, verifies and emits one source file for one target.
+func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDir string,
+	opt verify.Options, verbose, dryRun bool) (int, error) {
+
+	res, err := cc.Object(filepath.Join(root, src.Path), tgt)
+	if err != nil {
+		return 0, err
+	}
+
+	obj, err := objfile.Open(res.ObjPath)
+	if err != nil {
+		return 0, err
+	}
+	defer obj.Close()
+
+	// Any undefined symbol is fatal: Plan 9 assembly has no procedure linkage
+	// table, so a call out of the object can never be resolved. This is what
+	// -ffreestanding and -fno-builtin are guarding against, and checking it
+	// here means a regression in those flags surfaces immediately.
+	if undef := obj.UndefinedSymbols(); len(undef) > 0 {
+		return 0, fmt.Errorf("object references %d undefined symbol(s): %v\n"+
+			"Plan 9 assembly cannot call out of the object. A libm call usually means a\n"+
+			"__builtin_ slipped in; a memset or memcpy means a loop was pattern-matched\n"+
+			"despite -fno-builtin", len(undef), undef)
+	}
+
+	// Retarget the kernel names for this tier. Two tiers of one architecture
+	// are compiled into the same package, so they cannot share a symbol.
+	tiered := make([]spec.Kernel, len(src.Kernels))
+	cNames := make([]string, len(src.Kernels))
+	for i, k := range src.Kernels {
+		k.GoName = k.GoName + tierSuffix(tgt.Tier)
+		tiered[i] = k
+		cNames[i] = k.CName
+	}
+
+	reports, err := verify.Object(res.ObjPath, tgt, cNames, opt)
+	if err != nil {
+		return 0, err
+	}
+	var problems []string
+	for _, r := range reports {
+		if verbose {
+			fmt.Printf("      %s\n", r.Summary())
+		}
+		for _, p := range r.Problems {
+			problems = append(problems, fmt.Sprintf("%s: %s", r.Func, p))
+		}
+	}
+	if len(problems) > 0 {
+		return 0, fmt.Errorf("verification failed:\n  - %s", strings.Join(problems, "\n  - "))
+	}
+
+	fns := map[string]*objfile.Func{}
+	for _, k := range tiered {
+		fn, err := obj.Func(k.CName)
+		if err != nil {
+			return 0, err
+		}
+		fns[k.CName] = fn
+	}
+
+	prov := emit.Provenance{
+		ClangVersion: res.ClangVersion,
+		Command:      res.Command,
+		Source:       src.Path,
+	}
+	asm, err := emit.Asm(tiered, fns, tgt, prov)
+	if err != nil {
+		return 0, err
+	}
+	pkg := string(tgt.Arch)
+	stub := emit.Stub(tiered, tgt, pkg, prov)
+
+	if dryRun {
+		return len(tiered), nil
+	}
+
+	dir := filepath.Join(outDir, pkg)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return 0, err
+	}
+	stem := strings.TrimSuffix(filepath.Base(src.Path), filepath.Ext(src.Path))
+	if err := os.WriteFile(filepath.Join(dir, stem+tgt.Suffix()+".s"), []byte(asm), 0o644); err != nil {
+		return 0, err
+	}
+	if err := os.WriteFile(filepath.Join(dir, stem+tgt.Suffix()+".go"), []byte(stub), 0o644); err != nil {
+		return 0, err
+	}
+	return len(tiered), nil
+}
+
+func selectTargets(archFlag, tierFlag string) []target.Target {
+	var out []target.Target
+	for _, t := range target.All {
+		if archFlag != "" && string(t.Arch) != archFlag {
+			continue
+		}
+		if tierFlag != "" && t.Tier != tierFlag {
+			continue
+		}
+		out = append(out, t)
+	}
+	return out
+}
+
+// tierSuffix turns a tier name into a Go identifier suffix: sse2 becomes SSE2,
+// sve2 becomes SVE2, avx512 becomes AVX512.
+func tierSuffix(tier string) string { return strings.ToUpper(tier) }
