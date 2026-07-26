@@ -67,21 +67,55 @@ The linking alternative is also closed: `//go:binary-only-package` removed in Go
 **Revisit when.** Never on portability grounds. The extractor consumes **object files**, not C,
 so a Rust front-end remains addable as a build rule if some other reason appears.
 
-### D4 — Fork `gorse-io/goat` as the codegen tool
+### D4 — Write our own clang-to-Plan 9 translator; goat is a reference, not a dependency
 
-**Decision.** Fork it; harden it; upstream fixes.
+**First, the thing that is easy to get wrong.** There are exactly two hard walls between clang
+output and a Go binary, and neither is about missing instructions:
 
-**Why.** Active (v0.2.1, 2026-06), Apache-2.0, already targets **all six** of our architectures,
-auto-generates Go stubs from the clang AST (eliminating a whole class of `go vet` asmdecl
-mismatches), and — critically — **emits raw instruction encodings**, so it is not limited by Go's
-assembler ISA coverage. That is the only way to reach SVE. Alternatives: c2goasm/asm2plan9s are
-archived; gocc caps at 4 arguments; avo is x86-only and in caretaker mode (last human commit
-Dec 2024).
+1. **Go's assembler only parses Plan 9 syntax.** Handing it clang's `.s` fails on line 1
+   (`expected identifier, found "."`). Plan 9 is a different language: reversed operand order,
+   `(FP)`-relative argument access, different directives and register names.
+2. **Go's linker cannot take a foreign `.o` without cgo.** `//go:cgo_import_static` is rejected
+   outside cgo-generated code, and the proposal to relax that
+   ([#75473](https://github.com/golang/go/issues/75473)) was closed the day after filing.
 
-**Cost.** Its README says *"potentially BUGGY code generation"*, and it has real parser
-fragilities ([02](02-codegen-pipelines.md) §goat limitations). Mitigated by D7 and by the
-differential harness. go-highway already runs it in production, which both validates it and gives
-us a second patch set to learn from.
+So the only way in is a Plan 9 `.s` file. **The missing-mnemonic problem is solved by the `WORD`
+directive, not by any tool** — `WORD $0x2518e3e0` emits an SVE `ptrue` that Go's assembler cannot
+spell, and it assembles cleanly. Verified end to end: a hand-written Plan 9 file containing
+WORD-encoded `ptrue`/`ld1w`/`fadd`/`st1w` plus an `(FP)`-to-AAPCS prologue is accepted by
+`go tool asm` for arm64.
+
+A translator is therefore doing mechanical work, not granting capability:
+
+- parse clang's `.s` and `objdump` of the `.o`, pairing mnemonics with their encodings
+- emit `TEXT ·name(SB), NOSPLIT|NOFRAME, $0-N`
+- emit a prologue moving Go's stack arguments into the C ABI registers the body expects
+  (amd64 `DI,SI,DX,CX,R8,R9`+`X0..X7`; arm64 `R0..R7`)
+- emit the body as `WORD`/`LONG`/`QUAD`, keeping branches as real Plan 9 labels so the assembler
+  fixes up offsets and the code stays relocatable
+- lift constant pools into `DATA`/`GLOBL … RODATA|NOPTR` symbols and rewrite the references
+- generate the matching bodyless Go declaration with `//go:noescape`
+
+**Decision: build that ourselves.** Reasons:
+
+- goat's own README says *"potentially BUGGY code generation"*, and it breaks on `static inline`
+  helpers, single-line `if (x) { y; }`, `union` type-punning and array initializers with variable
+  elements ([02](02-codegen-pipelines.md) §goat limitations). Its argument types are restricted.
+  This library's entire premise is not shipping the defects every comparable project shipped;
+  inheriting a generator whose author flags it as buggy contradicts that.
+- **The job is small for our targets**, because we measured the relocation surface: **arm64 has
+  zero relocations and zero undefined symbols**, s390x has two, riscv64's are internal
+  self-relative branches, and amd64 has exactly one class (PC-relative into a local constant
+  pool) confined to kernels with float constants. Only ppc64le's TOC is genuinely awkward.
+- We must own the emitter regardless, because D7's gate-vs-emission check and the
+  BP-preservation check have to run over what it produces.
+
+**goat's role:** a reference implementation to read, and a cross-check — running both over the
+same kernel and diffing the encodings is a cheap way to catch our own bugs. Its six-architecture
+coverage proves the approach works; we are not taking its code.
+
+**Revisit when.** If the translator turns out materially harder than the measurements suggest —
+most plausibly on ppc64le TOC handling — fork goat for that target rather than blocking.
 
 ### D5 — Whole-slice kernel API; no public vector type
 

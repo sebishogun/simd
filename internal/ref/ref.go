@@ -745,7 +745,7 @@ func fillBytes(dst []byte, v byte) {
 
 // floatOps builds the kernel group for a float element type.
 func floatOps[T float]() kernel.Ops[T] {
-	return kernel.Ops[T]{
+	o := kernel.Ops[T]{
 		Add: add[T], Sub: sub[T], Mul: mul[T], Div: div[T],
 		Minimum: minimumFloat[T], Maximum: maximumFloat[T],
 		Abs: absFloat[T], Neg: negFloat[T], Sqrt: sqrt[T], Reciprocal: reciprocal[T],
@@ -760,12 +760,16 @@ func floatOps[T float]() kernel.Ops[T] {
 		SumSqDev: sumSqDevFloat[T], SumSqDiff: sumSqDiffFloat[T], L1Diff: l1DiffFloat[T],
 		ArgMin: argMinFloat[T], ArgMax: argMaxFloat[T], MinMax: minMaxFloat[T],
 	}
+	floatMathOps(&o)
+	signalOps(&o)
+	compareOps(&o, medianFloat[T], lessNaNLast[T])
+	return o
 }
 
 // intOps builds the kernel group for an integer element type. Div, Sqrt,
 // Reciprocal and Norm stay nil; the exported API constrains those to floats.
 func intOps[T integer]() kernel.Ops[T] {
-	return kernel.Ops[T]{
+	o := kernel.Ops[T]{
 		Add: add[T], Sub: sub[T], Mul: mul[T],
 		Minimum: minimumInt[T], Maximum: maximumInt[T],
 		Abs: absInt[T], Neg: negInt[T],
@@ -780,6 +784,10 @@ func intOps[T integer]() kernel.Ops[T] {
 		SumSqDev: sumSqDevInt[T], SumSqDiff: sumSqDiffInt[T], L1Diff: l1DiffInt[T],
 		ArgMin: argMinInt[T], ArgMax: argMaxInt[T], MinMax: minMaxInt[T],
 	}
+	intMathOps(&o)
+	signalOps(&o)
+	compareOps(&o, medianInt[T], ltOrder[T])
+	return o
 }
 
 // Set returns the reference backend: every kernel, portable Go.
@@ -795,6 +803,13 @@ func Set() kernel.Set {
 			Equal: equalBytes, Compare: compareBytes, PopCount: popCount,
 			And: bitAnd, Or: bitOr, Xor: bitXor, AndNot: bitAndNot, Not: bitNot,
 			Fill: fillBytes,
+
+			IndexAll: indexAll, IndexAny: indexAny, CountAny: countAny, Index: index,
+			IsASCII: isASCII, ValidUTF8: validUTF8,
+			ToUpperASCII: toUpperASCII, ToLowerASCII: toLowerASCII,
+			EqualFoldASCII: equalFoldASCII, ReplaceByte: replaceByte,
+			HexEncode: hexEncode, HexDecode: hexDecode,
 		},
+		Mask: maskOps(),
 	}
 }

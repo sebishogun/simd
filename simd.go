@@ -257,3 +257,29 @@ func SubScalarInto[T Number](dst, a []T, s T) { ops[T]().SubScalar(dst, a, s) }
 
 // DivScalarInto sets dst[i] = a[i] / s. dst may alias a. See [DivScalar].
 func DivScalarInto[T Number](dst, a []T, s T) { ops[T]().DivScalar(dst, a, s) }
+
+// CumProd replaces every element with the running product up to and including
+// it.
+func CumProd[T Number](a []T) { ops[T]().CumProd(a, a) }
+
+// CumProdInto writes the running products of a into dst. dst may alias a.
+func CumProdInto[T Number](dst, a []T) { ops[T]().CumProd(dst, a) }
+
+// CumMin replaces every element with the smallest value seen so far.
+func CumMin[T Number](a []T) { ops[T]().CumMin(a, a) }
+
+// CumMinInto writes the running minimum of a into dst. dst may alias a.
+func CumMinInto[T Number](dst, a []T) { ops[T]().CumMin(dst, a) }
+
+// CumMax replaces every element with the largest value seen so far.
+func CumMax[T Number](a []T) { ops[T]().CumMax(a, a) }
+
+// CumMaxInto writes the running maximum of a into dst. dst may alias a.
+func CumMaxInto[T Number](dst, a []T) { ops[T]().CumMax(dst, a) }
+
+// DiffInto writes the successive differences of a into dst:
+// dst[i] = a[i+1] - a[i].
+//
+// It produces one fewer element than a has, so size dst accordingly.
+// dst may alias a.
+func DiffInto[T Number](dst, a []T) { ops[T]().Diff(dst, a) }

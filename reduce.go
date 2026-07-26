@@ -60,3 +60,14 @@ func ArgMin[T Number](a []T) int { return ops[T]().ArgMin(a) }
 // ArgMax returns the index of the first largest element.
 // It panics on an empty slice.
 func ArgMax[T Number](a []T) int { return ops[T]().ArgMax(a) }
+
+// Prod returns the product of all elements, or one for an empty slice.
+//
+// Unlike [Sum] this is evaluated left to right rather than across a fixed
+// accumulator tree. Products overflow and underflow far more readily than
+// sums, so splitting them across lanes changes which intermediate blows up
+// rather than merely changing the rounding — a reassociated product is not
+// the same computation.
+//
+// Integer multiplication wraps on overflow.
+func Prod[T Number](a []T) T { return ops[T]().Prod(a) }

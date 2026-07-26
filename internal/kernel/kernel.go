@@ -43,6 +43,18 @@
 // document their accumulation order and error bound. They are never the
 // default and never silently substituted.
 //
+// Rule 6 — transcendental functions (Exp, Log, Sin, Pow and the rest of
+// [Ops.Exp] through [Ops.Atan2]) guarantee a stated ULP bound rather than bit
+// identity. They are polynomial approximations, and the polynomial that is
+// correct to 1 ULP in float32 is not the one that is correct to 1 ULP in
+// float64, so no single evaluation order reproduces both. The default
+// variants target 1.0 ULP; the Fast* variants target 3.5 ULP, matching
+// SLEEF's u10 and u35 families.
+//
+// This rule is deliberately narrow. It covers only the transcendentals.
+// Rounding (Floor, Ceil, Trunc, Round, RoundToEven) is exact and stays
+// bit-identical under rule 1, and so does everything algebraic.
+//
 // A consequence worth stating: this library never compiles kernels with
 // -ffast-math or -Ofast. vek does, which is why its NaN and Inf behavior is
 // undefined and why the caveat had to be added to its README retroactively.
@@ -98,6 +110,21 @@ type Ops[T any] struct {
 	Abs, Neg, Sqrt, Reciprocal func(dst, a []T)
 	Reverse                    func(dst, a []T)
 
+	// Rounding. Exact, and so bit-identical under rule 1. Round is half away
+	// from zero, matching math.Round; RoundToEven is half to even, matching
+	// math.RoundToEven and the default IEEE 754 rounding mode.
+	Floor, Ceil, Trunc, Round, RoundToEven func(dst, a []T)
+
+	// Transcendentals. Float only, and governed by rule 6: a stated ULP
+	// bound, not bit identity.
+	Exp, Exp2, Expm1     func(dst, a []T)
+	Log, Log2, Log10     func(dst, a []T)
+	Log1p, Cbrt, Sigmoid func(dst, a []T)
+	Sin, Cos, Tan        func(dst, a []T)
+	Asin, Acos, Atan     func(dst, a []T)
+	Sinh, Cosh, Tanh     func(dst, a []T)
+	Pow, Atan2, Hypot    func(dst, a, b []T)
+
 	// Elementwise with a scalar operand.
 	//
 	// DivScalar really divides rather than multiplying by a precomputed
@@ -112,14 +139,39 @@ type Ops[T any] struct {
 	// memory, which is the whole reason a fused catalogue exists.
 	AddScaled func(dst, a, b []T, s T)
 
-	// Scan.
-	CumSum func(dst, a []T)
+	// Fused. Lerp is dst[i] = a[i] + (b[i]-a[i])*t, which is monotonic and
+	// lands exactly on b at t=1, unlike the algebraically equal
+	// a*(1-t) + b*t.
+	Lerp func(dst, a, b []T, t T)
 
-	// Reductions to a scalar.
-	Sum, Min, Max      func(a []T) T
-	SumSquares, L1Norm func(a []T) T
-	Norm               func(a []T) T
-	Dot                func(a, b []T) T
+	// Scan. Diff writes successive differences, so len(dst) is one less than
+	// len(a) worth of useful output.
+	CumSum, CumProd, CumMin, CumMax, Diff func(dst, a []T)
+
+	// Signal and polynomial kernels. These are their own kernels rather than
+	// compositions because composing them would cost one pass over memory per
+	// coefficient or per tap, which is exactly the memory-bound trap a
+	// slice-at-a-time library falls into.
+	//
+	// PolyEval evaluates a polynomial at every point of x by Horner's method,
+	// coefficients lowest order first, in a single pass.
+	PolyEval func(dst, x, coeffs []T)
+	// Convolve is the direct form: dst[i] = sum_j sig[i+j]*ker[j], so it
+	// writes len(sig)-len(ker)+1 elements. Correlate is the same without
+	// reversing the kernel.
+	Convolve, Correlate func(dst, sig, ker []T)
+	// MovingAverage writes the mean of each window of the given width,
+	// producing len(a)-width+1 elements.
+	MovingAverage func(dst, a []T, width int)
+	// EMA is the exponentially weighted moving average, which is inherently
+	// sequential: dst[i] = alpha*a[i] + (1-alpha)*dst[i-1].
+	EMA func(dst, a []T, alpha T)
+
+	// Reductions to a scalar. Prod wraps on integer overflow, like Sum.
+	Sum, Prod, Min, Max func(a []T) T
+	SumSquares, L1Norm  func(a []T) T
+	Norm                func(a []T) T
+	Dot                 func(a, b []T) T
 
 	// Two-input and centred reductions. These exist as kernels rather than
 	// being composed in the caller so that variance, distance and similarity
@@ -131,9 +183,49 @@ type Ops[T any] struct {
 	// Reductions to an index or a pair.
 	ArgMin, ArgMax func(a []T) int
 	MinMax         func(a []T) (T, T)
+
+	// Comparisons, writing a boolean per element. A vector unit produces a
+	// mask register here; []bool is the portable spelling of that, one byte
+	// per lane, which is also what a store of the mask produces.
+	//
+	// Float comparisons follow IEEE 754: any comparison involving NaN is
+	// false, including NaN == NaN, so NotEqual is not the negation of Equal.
+	EqualMask, NotEqualMask                   func(dst []bool, a, b []T)
+	LessMask, LessEqualMask                   func(dst []bool, a, b []T)
+	GreaterMask, GreaterEqualMask             func(dst []bool, a, b []T)
+	EqualScalarMask, NotEqualScalarMask       func(dst []bool, a []T, v T)
+	LessScalarMask, LessEqualScalarMask       func(dst []bool, a []T, v T)
+	GreaterScalarMask, GreaterEqualScalarMask func(dst []bool, a []T, v T)
+
+	// Select is the blend: dst[i] = mask[i] ? yes[i] : no[i].
+	Select func(dst []T, mask []bool, yes, no []T)
+
+	// Gather reads src at the given indices; Scatter writes them. Both are
+	// single instructions on AVX-512 and SVE2, and loops everywhere else.
+	Gather  func(dst, src []T, idx []int32)
+	Scatter func(dst []T, idx []int32, src []T)
+
+	// Construction.
+	Ramp   func(dst []T, start, step T) // dst[i] = start + i*step
+	Tile   func(dst, pattern []T)       // repeat pattern across dst
+	Median func(a []T) T                // reorders a; see the exported doc
+	// Quantile takes q in [0,1] and interpolates between order statistics.
+	Quantile func(a []T, q float64) T
+	// MatMul multiplies an m*k matrix by a k*n matrix into an m*n one, all
+	// in row-major order.
+	MatMul func(dst, a, b []T, m, k, n int)
 }
 
-// Bytes is the byte and bit kernel group.
+// Mask is the kernel group for boolean vectors, the output of the comparison
+// kernels above.
+type Mask struct {
+	All, Any     func(m []bool) bool
+	Count        func(m []bool) int
+	And, Or, Xor func(dst, a, b []bool)
+	Not          func(dst, a []bool)
+}
+
+// Bytes is the byte, bit and text kernel group.
 type Bytes struct {
 	IndexByte, LastIndexByte func(b []byte, c byte) int
 	Count                    func(b []byte, c byte) int
@@ -144,6 +236,34 @@ type Bytes struct {
 	And, Or, Xor, AndNot func(dst, a, b []byte)
 	Not                  func(dst, a []byte)
 	Fill                 func(dst []byte, v byte)
+
+	// Text scanning. These are the primitives a tokenizer is built from, and
+	// they are the part of a parser that actually benefits from vectors: a
+	// whole register of bytes classified per instruction.
+	//
+	// IndexAll writes the offset of every occurrence of c and returns how many
+	// it found. It is the structural-index step that a JSON or CSV parser
+	// spends most of its time in, and the reason it is a kernel rather than a
+	// loop over IndexByte is that the vector form classifies 16 to 64 bytes
+	// per instruction and only touches memory once.
+	IndexAll func(dst []int32, b []byte, c byte) int
+	// IndexAny and CountAny match against a set of bytes rather than one.
+	IndexAny, CountAny func(b, chars []byte) int
+	// Index is substring search.
+	Index func(haystack, needle []byte) int
+	// IsASCII reports whether every byte is below 0x80; ValidUTF8 reports
+	// whether the whole slice is well-formed UTF-8.
+	IsASCII, ValidUTF8 func(b []byte) bool
+	// ASCII case folding, which unlike the Unicode kind is a branch-free
+	// range compare and maps one byte to one byte.
+	ToUpperASCII, ToLowerASCII func(dst, b []byte)
+	EqualFoldASCII             func(a, b []byte) bool
+	// ReplaceByte substitutes every occurrence of old with new.
+	ReplaceByte func(dst, b []byte, old, new byte)
+	// Hex encoding, lowercase. Decode returns the number of bytes written and
+	// whether the input was valid.
+	HexEncode func(dst, src []byte) int
+	HexDecode func(dst, src []byte) (int, bool)
 }
 
 // Set is one complete backend: every kernel, for one tier.
@@ -155,4 +275,5 @@ type Set struct {
 	I32   Ops[int32]
 	I64   Ops[int64]
 	Bytes Bytes
+	Mask  Mask
 }

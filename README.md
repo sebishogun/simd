@@ -74,26 +74,77 @@ without it. Nothing to configure, nothing to build twice.
 
 ## Operations
 
+209 exported functions. The plain name works in place; the `Into` suffix takes
+a destination.
+
 **Elementwise** — `Add` `Sub` `Mul` `Div` `Minimum` `Maximum` `Abs` `Neg`
-`Sqrt` `Reciprocal` `Reverse`, each with an `Into` form.
+`Sqrt` `Reciprocal` `Reverse`
 
 **With a scalar** — `Scale` `AddScalar` `SubScalar` `DivScalar` `Clamp` `Fill`
-`Zero`.
+`Zero` `Ramp` `Tile`
 
-**Fused** — `AddScaled` (AXPY: `a += b*s` in one pass, not two).
+**Rounding** — `Floor` `Ceil` `Trunc` `Round` `RoundToEven`
 
-**Scan** — `CumSum`.
+**Transcendental** — `Exp` `Exp2` `Expm1` `Log` `Log2` `Log10` `Log1p` `Cbrt`
+`Pow` `Hypot` `Sin` `Cos` `Tan` `Asin` `Acos` `Atan` `Atan2` `Sinh` `Cosh`
+`Tanh` `Sigmoid`
 
-**Reductions** — `Sum` `Dot` `SumSquares` `L1Norm` `Norm` `Min` `Max` `MinMax`
-`ArgMin` `ArgMax`.
+**Fused** — `AddScaled` (AXPY: `a += b*s` in one pass, not two) · `Lerp`
 
-**Whole tasks** — `Mean` `Variance` `SampleVariance` `StdDev` `SampleStdDev`
-`Distance` `SquaredDistance` `ManhattanDistance` `CosineSimilarity`
-`Normalize` `Standardize` `Rescale`.
+**Scans** — `CumSum` `CumProd` `CumMin` `CumMax` `DiffInto`
+
+**Reductions** — `Sum` `Prod` `Dot` `SumSquares` `L1Norm` `Norm` `Min` `Max`
+`MinMax` `ArgMin` `ArgMax` `Median` `Quantile`
+
+**Comparisons → `[]bool`** — `EqualInto` `NotEqualInto` `LessInto`
+`LessEqualInto` `GreaterInto` `GreaterEqualInto`, each with a `Scalar` variant
+
+**Boolean vectors** — `All` `Any` `CountTrue` `AndMask` `OrMask` `XorMask`
+`NotMask` `SelectInto`
+
+**Data movement** — `GatherInto` `ScatterInto` `ConvertInto`
+
+**Statistics** — `Mean` `Variance` `SampleVariance` `StdDev` `SampleStdDev`
+`Covariance` `Correlation` `LinearRegression`
+
+**Distance** — `Distance` `SquaredDistance` `ManhattanDistance`
+`CosineSimilarity` · **Rescaling** — `Normalize` `Standardize` `Rescale`
+
+**Signal** — `PolyEvalInto` (Horner) `ConvolveInto` `CorrelateInto`
+`MovingAverageInto` `EMAInto` · **Linear algebra** — `MatMulInto`
+
+**Quadrature and ODEs** — `Trapezoid` `Simpson` · `EulerStep` `RK4Step`
+`VerletStep` with a reusable workspace so stepping never allocates
+
+**Machine learning** — `Softmax` `LogSumExp` `ReLU` `LeakyReLU` `Softplus`
+`SiLU` `GELU` `LayerNorm` `RMSNorm`
 
 **Bytes and bits** — `IndexByte` `LastIndexByte` `Count` `Equal` `Compare`
-`PopCount` `And` `Or` `Xor` `AndNot` `Not`, drop-in compatible with the
-matching `bytes` functions.
+`PopCount` `And` `Or` `Xor` `AndNot`, drop-in compatible with `bytes`
+
+**Text scanning** — `IndexAll` (the structural-index primitive a parser is
+built from) `IndexAny` `CountAny` `Index` `IsASCII` `ValidUTF8` `ToUpperASCII`
+`ToLowerASCII` `EqualFoldASCII` `ReplaceByte` `HexEncode` `HexDecode`
+
+### Compared with vek
+
+Every operation `viterin/vek` offers is here, plus a good deal more.
+
+| vek has | here |
+|---|---|
+| arithmetic, scalar arithmetic, `Abs` `Neg` `Inv` `Sqrt` | ✅ |
+| `Round` `Floor` `Ceil` `Pow` `Exp` `Log` `Log2` `Log10` `Sin` `Cos` | ✅ |
+| `Sum` `CumSum` `Prod` `CumProd` `Mean` `Median` `Quantile` `Min` `Max` `ArgMin` `ArgMax` | ✅ |
+| `Dot` `Norm` `CosineSimilarity` `ManhattanDistance` `MatMul` | ✅ |
+| `Eq` `Neq` `Gt` `Gte` `Lt` `Lte` and the `[]bool` operations | ✅ |
+| `Zeros` `Ones` `Range` `Repeat` `Gather` `Scatter`, casts | ✅ |
+
+Not in vek: the fused `AddScaled` and `Lerp`, `MinMax`, `Clamp`, `SumSquares`,
+`L1Norm`, `Reverse`, the hyperbolic and inverse trigonometric functions,
+variance and standard deviation, `Covariance` `Correlation` `LinearRegression`,
+`Standardize` `Rescale`, the whole signal group, quadrature and ODE
+integrators, every machine-learning function, and the entire bytes and text
+domain.
 
 ## Diagnostics
 
