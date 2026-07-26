@@ -34,9 +34,22 @@ type Target struct {
 	MArch []string
 
 	// InstrWidth is the fixed instruction width in bytes, or 0 for a
-	// variable-width encoding. It decides whether the body is emitted as
-	// WORD directives or as a byte blob.
+	// variable-width encoding.
 	InstrWidth int
+
+	// Directives are the data directives this architecture's assembler
+	// accepts, widest first. They are not the same everywhere and assuming
+	// they are does not fail gracefully: Go's s390x assembler has no QUAD and
+	// its ppc64le assembler has no BYTE, so emitting either is a hard error
+	// from the assembler rather than a wrong result.
+	Directives []Directive
+
+	// BigEndian reports the byte order. It decides how instruction bytes are
+	// packed into a directive: WORD $0x11223344 places 11 22 33 44 in memory
+	// on a big-endian target and 44 33 22 11 on a little-endian one, so
+	// packing the wrong way round silently produces a body of garbage
+	// instructions. s390x is the one big-endian target here.
+	BigEndian bool
 
 	// IntArgs are the C ABI integer and pointer argument registers, in order,
 	// spelled the way Go's assembler spells them.
@@ -68,12 +81,40 @@ type Target struct {
 	// clang has no flag for it.
 	Reserved []string
 
+	// DisasmFlags are passed to llvm-objdump so it can decode this target's
+	// instructions.
+	//
+	// Without them the disassembler falls back to a baseline CPU and prints
+	// <unknown> for anything newer — which on s390x meant every vector
+	// instruction, so the verifier concluded a perfectly good kernel was not
+	// vectorized at all. Worse, an instruction that cannot be decoded cannot
+	// be checked against the tier it is gated on, which is precisely the hole
+	// the gate check exists to close.
+	DisasmFlags []string
+
 	// MinFeature is the CPU feature every instruction in this tier is allowed
 	// to require. The verifier rejects anything above it — the check that
 	// mechanically prevents the SIGILL class of bug that go-highway and
 	// tphakala both shipped.
 	MinFeature Feature
 }
+
+// Directive is a Plan 9 data directive and the number of bytes it emits.
+type Directive struct {
+	Name  string
+	Width int
+}
+
+var (
+	// dirWord is every fixed-width RISC target here: four bytes per
+	// instruction and nothing else needed.
+	dirWord = []Directive{{"WORD", 4}}
+	// dirAMD64 covers a variable-width encoding down to single bytes.
+	dirAMD64 = []Directive{{"QUAD", 8}, {"LONG", 4}, {"BYTE", 1}}
+	// dirS390X has no QUAD or LONG, and instructions are 2, 4 or 6 bytes, so
+	// the byte directive is genuinely needed.
+	dirS390X = []Directive{{"WORD", 4}, {"BYTE", 1}}
+)
 
 // Feature is a CPU capability level, ordered so that a higher value implies
 // everything below it within the same architecture.
@@ -160,6 +201,7 @@ var All = []Target{
 		// dispatch layer whatsoever.
 		MArch:      []string{"-march=x86-64"},
 		InstrWidth: 0,
+		Directives: dirAMD64,
 		IntArgs:    sysvIntArgs,
 		FloatArgs:  []string{"X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7"},
 		IntResult:  "AX", FloatResult: "X0",
@@ -172,6 +214,7 @@ var All = []Target{
 		// x86-64-v3 is AVX2 + FMA + BMI, which is what the avx2 tier gates on.
 		MArch:      []string{"-march=x86-64-v3"},
 		InstrWidth: 0,
+		Directives: dirAMD64,
 		IntArgs:    sysvIntArgs,
 		FloatArgs:  []string{"X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7"},
 		IntResult:  "AX", FloatResult: "X0",
@@ -186,6 +229,7 @@ var All = []Target{
 		// registers appear without the flag and 74 appear with it.
 		MArch:      []string{"-march=x86-64-v4", "-mprefer-vector-width=512"},
 		InstrWidth: 0,
+		Directives: dirAMD64,
 		IntArgs:    sysvIntArgs,
 		FloatArgs:  []string{"X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7"},
 		IntResult:  "AX", FloatResult: "X0",
@@ -197,6 +241,7 @@ var All = []Target{
 		Arch: ARM64, Tier: "neon", Triple: "aarch64-linux-gnu",
 		MArch:      []string{"-march=armv8-a"},
 		InstrWidth: 4,
+		Directives: dirWord,
 		IntArgs:    aapcsIntArgs,
 		FloatArgs:  []string{"F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7"},
 		IntResult:  "R0", FloatResult: "F0",
@@ -216,13 +261,15 @@ var All = []Target{
 		// symbols.
 		MArch:      []string{"-march=armv9-a+sve2"},
 		InstrWidth: 4,
+		Directives: dirWord,
 		IntArgs:    aapcsIntArgs,
 		FloatArgs:  []string{"F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7"},
 		IntResult:  "R0", FloatResult: "F0",
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBU",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
-		Reserved:   []string{"x28", "x27", "x18"},
-		MinFeature: FeatSVE2,
+		Reserved:    []string{"x28", "x27", "x18"},
+		DisasmFlags: []string{"--mattr=+sve2"},
+		MinFeature:  FeatSVE2,
 	},
 	{
 		Arch: RISCV64, Tier: "rvv", Triple: "riscv64-linux-gnu",
@@ -237,34 +284,41 @@ var All = []Target{
 		// fixups at all, just markers saying a sequence *could* be shortened.
 		MArch:      []string{"-march=rv64gv", "-mno-relax"},
 		InstrWidth: 4,
+		Directives: dirWord,
 		IntArgs:    []string{"X10", "X11", "X12", "X13", "X14", "X15", "X16", "X17"},
 		FloatArgs:  []string{"F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17"},
 		IntResult:  "X10", FloatResult: "F10",
 		AddrOf: "MOV", MovPtr: "MOV", MovInt32: "MOVW", MovByte: "MOVBU",
 		MovFloat32: "MOVF", MovFloat64: "MOVD",
-		MinFeature: FeatRVV,
+		DisasmFlags: []string{"--mattr=+v"},
+		MinFeature:  FeatRVV,
 	},
 	{
 		Arch: S390X, Tier: "vx", Triple: "s390x-linux-gnu",
 		MArch:      []string{"-march=z14"},
 		InstrWidth: 0,
+		Directives: dirS390X,
+		BigEndian:  true,
 		IntArgs:    []string{"R2", "R3", "R4", "R5", "R6"},
 		FloatArgs:  []string{"F0", "F2", "F4", "F6"},
 		IntResult:  "R2", FloatResult: "F0",
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBZ",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
-		MinFeature: FeatVX,
+		DisasmFlags: []string{"--mcpu=z14"},
+		MinFeature:  FeatVX,
 	},
 	{
 		Arch: LOONG64, Tier: "lasx", Triple: "loongarch64-linux-gnu",
 		MArch:      []string{"-march=la464"},
 		InstrWidth: 4,
+		Directives: dirWord,
 		IntArgs:    []string{"R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11"},
 		FloatArgs:  []string{"F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7"},
 		IntResult:  "R4", FloatResult: "F0",
 		AddrOf: "MOVV", MovPtr: "MOVV", MovInt32: "MOVW", MovByte: "MOVBU",
 		MovFloat32: "MOVF", MovFloat64: "MOVD",
-		MinFeature: FeatLASX,
+		DisasmFlags: []string{"--mattr=+lasx"},
+		MinFeature:  FeatLASX,
 	},
 	{
 		Arch: PPC64LE, Tier: "vsx", Triple: "powerpc64le-linux-gnu",
@@ -273,6 +327,7 @@ var All = []Target{
 		// last for that reason.
 		MArch:      []string{"-mcpu=power9"},
 		InstrWidth: 4,
+		Directives: dirWord,
 		IntArgs:    []string{"R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"},
 		FloatArgs:  []string{"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"},
 		IntResult:  "R3", FloatResult: "F1",
@@ -281,7 +336,8 @@ var All = []Target{
 		// No -ffixed here: clang's ppc64 target does not accept -ffixed-rN,
 		// and the ABI already reserves what the Go runtime needs. r2 is the
 		// TOC pointer and clang treats it as fixed of its own accord.
-		MinFeature: FeatVSX,
+		DisasmFlags: []string{"--mcpu=pwr9"},
+		MinFeature:  FeatVSX,
 	},
 }
 

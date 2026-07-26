@@ -166,38 +166,56 @@ func emitFunc(b *strings.Builder, k spec.Kernel, fn *objfile.Func, instrs []veri
 	return nil
 }
 
-// emitBody writes the instruction bytes.
+// emitBody writes the instruction bytes using the widest data directive the
+// target's assembler accepts.
 //
-// Fixed-width architectures get one WORD per instruction, which keeps the
-// listing aligned with a disassembly. Variable-width ones get eight bytes at a
-// time, since instruction boundaries carry no meaning once the bytes are
-// copied wholesale.
-func emitBody(b *strings.Builder, code []byte, tgt target.Target) {
-	if tgt.InstrWidth == 4 {
-		for i := 0; i+4 <= len(code); i += 4 {
-			w := uint32(code[i]) | uint32(code[i+1])<<8 | uint32(code[i+2])<<16 | uint32(code[i+3])<<24
-			fmt.Fprintf(b, "\tWORD $0x%08x\n", w)
+// Two details are easy to get wrong and neither fails loudly. The directives
+// available differ per architecture — Go's s390x assembler has no QUAD, its
+// ppc64le assembler has no BYTE — and the byte order differs too: WORD
+// $0x11223344 places 11 22 33 44 in memory on big-endian s390x and 44 33 22 11
+// everywhere else here. Packing the wrong way round produces a body of
+// perfectly valid, entirely wrong instructions.
+func emitBody(b *strings.Builder, code []byte, tgt target.Target) error {
+	dirs := tgt.Directives
+	if len(dirs) == 0 {
+		dirs = []target.Directive{{Name: "WORD", Width: 4}}
+	}
+	for i := 0; i < len(code); {
+		d, ok := widestFitting(dirs, len(code)-i)
+		if !ok {
+			return fmt.Errorf("emit: %d trailing byte(s) but %s has no directive "+
+				"narrower than %d bytes", len(code)-i, tgt.Arch, dirs[len(dirs)-1].Width)
 		}
-		for i := len(code) &^ 3; i < len(code); i++ {
-			fmt.Fprintf(b, "\tBYTE $0x%02x\n", code[i])
+		fmt.Fprintf(b, "\t%s $0x%0*x\n", d.Name, d.Width*2, pack(code[i:i+d.Width], tgt.BigEndian))
+		i += d.Width
+	}
+	return nil
+}
+
+// widestFitting returns the widest directive that fits in the bytes remaining.
+func widestFitting(dirs []target.Directive, remaining int) (target.Directive, bool) {
+	for _, d := range dirs {
+		if d.Width <= remaining {
+			return d, true
 		}
-		return
 	}
-	i := 0
-	for ; i+8 <= len(code); i += 8 {
-		var q uint64
-		for j := 7; j >= 0; j-- {
-			q = q<<8 | uint64(code[i+j])
+	return target.Directive{}, false
+}
+
+// pack assembles bytes into the integer a data directive will re-emit as those
+// same bytes, in the target's byte order.
+func pack(bs []byte, bigEndian bool) uint64 {
+	var v uint64
+	if bigEndian {
+		for _, c := range bs {
+			v = v<<8 | uint64(c)
 		}
-		fmt.Fprintf(b, "\tQUAD $0x%016x\n", q)
+		return v
 	}
-	for ; i+4 <= len(code); i += 4 {
-		l := uint32(code[i]) | uint32(code[i+1])<<8 | uint32(code[i+2])<<16 | uint32(code[i+3])<<24
-		fmt.Fprintf(b, "\tLONG $0x%08x\n", l)
+	for i := len(bs) - 1; i >= 0; i-- {
+		v = v<<8 | uint64(bs[i])
 	}
-	for ; i < len(code); i++ {
-		fmt.Fprintf(b, "\tBYTE $0x%02x\n", code[i])
-	}
+	return v
 }
 
 // emitRelocated writes a function body, re-spelling any instruction that
@@ -228,8 +246,7 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []verify.Instr,
 		pending[r.Off] = r
 	}
 	if len(pending) == 0 {
-		emitBody(b, fn.Code, tgt)
-		return nil
+		return emitBody(b, fn.Code, tgt)
 	}
 	if len(instrs) == 0 {
 		return fmt.Errorf("emit: %s (%s) needs its relocations lifted but no "+
@@ -261,12 +278,16 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []verify.Instr,
 			}
 		}
 		if rel == nil {
-			emitBody(b, fn.Code[in.Offset:end], tgt)
+			if err := emitBody(b, fn.Code[in.Offset:end], tgt); err != nil {
+				return err
+			}
 			continue
 		}
 		if len(rel.Target) == 0 {
 			unhandled = append(unhandled, *rel)
-			emitBody(b, fn.Code[in.Offset:end], tgt)
+			if err := emitBody(b, fn.Code[in.Offset:end], tgt); err != nil {
+				return err
+			}
 			continue
 		}
 		sym := pools.add(rel.Sym, rel.Target)

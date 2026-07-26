@@ -184,7 +184,22 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 			r.StackBytes, opt.MaxStackBytes))
 	}
 
-	// 4. The function returns at all. Multiple returns are fine — the body is
+	// 4. Everything decoded.
+	//
+	// An instruction llvm-objdump prints as <unknown> is one this package
+	// cannot classify, so it cannot be checked against the tier the file is
+	// gated on. Skipping it quietly would leave exactly the hole the gate
+	// check exists to close — and it did: s390x prints every vector
+	// instruction as <unknown> unless told --mcpu=z14, which made a correctly
+	// vectorized kernel look entirely scalar.
+	if n := countUndecoded(instrs); n > 0 {
+		r.Problems = append(r.Problems, fmt.Sprintf(
+			"%d instruction(s) could not be disassembled, so they cannot be checked "+
+				"against the %s gate. Add the right --mcpu or --mattr to the target's "+
+				"DisasmFlags.", n, tgt.Tier))
+	}
+
+	// 5. The function returns at all. Multiple returns are fine — the body is
 	// copied whole and nothing is appended after it — but a kernel that never
 	// returns would run off the end of its own code into whatever the linker
 	// placed next.
@@ -193,7 +208,7 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 			"has no return instruction; it would run off the end of its own body")
 	}
 
-	// 5. Vectorization actually happened.
+	// 6. Vectorization actually happened.
 	if opt.RequireVector && r.VectorInstrs == 0 {
 		r.Problems = append(r.Problems, fmt.Sprintf(
 			"contains no vector instructions at all — LLVM did not vectorize this "+
@@ -202,6 +217,17 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 			tgt.Tier))
 	}
 	return r
+}
+
+// countUndecoded counts instructions llvm-objdump could not decode.
+func countUndecoded(instrs []Instr) int {
+	n := 0
+	for _, in := range instrs {
+		if strings.HasPrefix(in.Mnemonic, "<unknown") || in.Mnemonic == "" {
+			n++
+		}
+	}
+	return n
 }
 
 // isReturn reports whether the instruction returns from the function.
@@ -448,7 +474,9 @@ func parseInstr(line string) (Instr, bool) {
 	in := Instr{Offset: off, Raw: parseRaw(strings.TrimSpace(fields[0]))}
 	in.Mnemonic = strings.TrimSpace(fields[1])
 	if in.Mnemonic == "" {
-		return Instr{}, false
+		// Keep it rather than dropping it: an unparsed line is an unverified
+		// instruction, and countUndecoded needs to see it.
+		in.Mnemonic = "<unknown>"
 	}
 	if len(fields) > 2 {
 		ops := strings.Join(fields[2:], " ")
@@ -496,11 +524,7 @@ func parseRaw(field string) []byte {
 
 // disassemble runs llvm-objdump and groups instructions by function.
 func disassemble(objPath string, tgt target.Target, objdump string) (map[string][]Instr, error) {
-	args := []string{"-d", objPath}
-	// SVE needs enabling explicitly or llvm-objdump will not decode it.
-	if tgt.Arch == target.ARM64 && strings.Contains(tgt.Tier, "sve") {
-		args = append(args, "--mattr=+sve2")
-	}
+	args := append([]string{"-d", objPath}, tgt.DisasmFlags...)
 	out, err := exec.Command(objdump, args...).Output()
 	if err != nil {
 		return nil, fmt.Errorf("verify: %s -d %s: %w", objdump, objPath, err)

@@ -15,10 +15,20 @@ sim   := simd.CosineSimilarity(x, y)
 Ordinary functions on ordinary slices. No vector type, no lane count, no
 target selection, nothing to initialize.
 
-> **Status: early.** The API and the portable reference implementation are in
-> place and tested. The generated assembly backends are not written yet, so
-> today every tier resolves to portable Go — correct, but not yet fast. See
-> [Roadmap](#roadmap).
+> **Status: early but real.** The API, the portable reference and the
+> code-generation pipeline are in place and tested. Sixteen kernels are
+> generated for **nine targets** — amd64 sse2/avx2/avx512, arm64 neon/sve2,
+> riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx — and every architecture
+> builds clean and passes `go vet` asmdecl. Everything outside those sixteen
+> still runs the portable path.
+>
+> On this machine (Zen 5), public API, generated versus portable Go:
+>
+> | n | 8 | 32 | 128 | 1024 | 16384 |
+> |---|---|---|---|---|---|
+> | Sum | 2.39x | 4.48x | 8.68x | **13.78x** | 7.96x |
+> | Dot | 2.42x | 4.55x | 8.23x | **12.13x** | 5.18x |
+> | Add | 0.95x | 1.91x | 3.54x | **6.33x** | 2.61x |
 
 ## Why another one
 
