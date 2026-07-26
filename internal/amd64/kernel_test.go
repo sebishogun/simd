@@ -44,6 +44,11 @@ func randF64(n int, r *rand.Rand) []float64 {
 
 func hasAVX2() bool { return cpu.X86.HasAVX2 && cpu.X86.HasFMA }
 
+func hasAVX512() bool {
+	return cpu.X86.HasAVX512F && cpu.X86.HasAVX512CD &&
+		cpu.X86.HasAVX512BW && cpu.X86.HasAVX512DQ && cpu.X86.HasAVX512VL
+}
+
 // tiers returns the tiered implementations of one kernel shape that this CPU
 // can actually execute. SSE2 is unconditional on amd64; AVX2 is not.
 type binF32 struct {
@@ -222,30 +227,79 @@ func refDot(a, b []float64) float64 {
 	return acc[0]
 }
 
-// The two tiers must agree with each other exactly, not merely each with the
-// scalar loop. This is the check that a 128-bit and a 256-bit implementation
-// of the same reduction produce the same bits, which is the guarantee the
-// library makes and the one viterin/vek breaks.
+// Every tier must agree with every other tier exactly, not merely each with a
+// scalar loop. This is the guarantee the library makes and the one
+// viterin/vek breaks: a 128-bit, a 256-bit and a 512-bit implementation of the
+// same reduction all produce the same bits, so a result cannot change because
+// the program moved to a different machine.
+//
+// It also checks the constant-pool lifting. The AVX-512 dot product loads a
+// permutation index vector from .rodata, which the generator has to move into
+// a Go DATA symbol and re-spell the instruction to reach. If that went wrong
+// the kernel would read the wrong bytes, and the only symptom would be a
+// number that disagrees with the other tiers.
 func TestTiersAgreeExactly(t *testing.T) {
-	if !hasAVX2() {
-		t.Skip("no AVX2 on this CPU")
+	type tier struct {
+		name string
+		sum  func([]float64) float64
+		dot  func([]float64, []float64) float64
+		add  func(dst, a, b []float64)
 	}
+	tiers := []tier{{"sse2", sumFloat64SSE2, dotFloat64SSE2, addFloat64SSE2}}
+	if hasAVX2() {
+		tiers = append(tiers, tier{"avx2", sumFloat64AVX2, dotFloat64AVX2, addFloat64AVX2})
+	}
+	if hasAVX512() {
+		tiers = append(tiers, tier{"avx512", sumFloat64AVX512, dotFloat64AVX512, addFloat64AVX512})
+	}
+	if len(tiers) < 2 {
+		t.Skip("only one tier available on this CPU")
+	}
+	t.Logf("comparing %d tiers", len(tiers))
+
 	r := rand.New(rand.NewPCG(15, 16))
+	base := tiers[0]
 	for n := range maxLen + 1 {
 		a, b := randF64(n, r), randF64(n, r)
-		if s2, a2 := sumFloat64SSE2(a), sumFloat64AVX2(a); s2 != a2 {
-			t.Fatalf("Sum n=%d: sse2 %v != avx2 %v", n, s2, a2)
-		}
-		if s2, a2 := dotFloat64SSE2(a, b), dotFloat64AVX2(a, b); s2 != a2 {
-			t.Fatalf("Dot n=%d: sse2 %v != avx2 %v", n, s2, a2)
-		}
-		d1, d2 := make([]float64, n), make([]float64, n)
-		addFloat64SSE2(d1, a, b)
-		addFloat64AVX2(d2, a, b)
-		for i := range d1 {
-			if d1[i] != d2[i] {
-				t.Fatalf("Add n=%d i=%d: sse2 %v != avx2 %v", n, i, d1[i], d2[i])
+		wantSum, wantDot := base.sum(a), base.dot(a, b)
+		wantAdd := make([]float64, n)
+		base.add(wantAdd, a, b)
+
+		for _, tr := range tiers[1:] {
+			if got := tr.sum(a); got != wantSum {
+				t.Fatalf("Sum n=%d: %s %v != %s %v", n, tr.name, got, base.name, wantSum)
 			}
+			if got := tr.dot(a, b); got != wantDot {
+				t.Fatalf("Dot n=%d: %s %v != %s %v", n, tr.name, got, base.name, wantDot)
+			}
+			got := make([]float64, n)
+			tr.add(got, a, b)
+			for i := range got {
+				if got[i] != wantAdd[i] {
+					t.Fatalf("Add n=%d i=%d: %s %v != %s %v",
+						n, i, tr.name, got[i], base.name, wantAdd[i])
+				}
+			}
+		}
+	}
+}
+
+// The AVX-512 dot product is the kernel whose constant pool had to be lifted,
+// so it gets checked against the contract directly as well.
+func TestAVX512DotMatchesTheContract(t *testing.T) {
+	if !hasAVX512() {
+		t.Skip("no AVX-512 on this CPU")
+	}
+	r := rand.New(rand.NewPCG(17, 18))
+	for n := range maxLen + 1 {
+		a, b := randF64(n, r), randF64(n, r)
+		if got, want := dotFloat64AVX512(a, b), refDot(a, b); got != want {
+			t.Fatalf("n=%d: got %v want %v", n, got, want)
+		}
+		af, bf := randF32(n, r), randF32(n, r)
+		gotF := dotFloat32AVX512(af, bf)
+		if gotF != dotFloat32SSE2(af, bf) {
+			t.Fatalf("float32 n=%d: avx512 %v != sse2 %v", n, gotF, dotFloat32SSE2(af, bf))
 		}
 	}
 }

@@ -278,7 +278,9 @@ var All = []Target{
 		IntResult:  "R3", FloatResult: "F1",
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBZ",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
-		Reserved:   []string{"r0", "r30"},
+		// No -ffixed here: clang's ppc64 target does not accept -ffixed-rN,
+		// and the ABI already reserves what the Go runtime needs. r2 is the
+		// TOC pointer and clang treats it as fixed of its own accord.
 		MinFeature: FeatVSX,
 	},
 }

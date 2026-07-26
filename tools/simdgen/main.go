@@ -178,7 +178,7 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		cNames[i] = k.CName
 	}
 
-	reports, err := verify.Object(res.ObjPath, tgt, cNames, opt)
+	reports, disasm, err := verify.ObjectWithDisasm(res.ObjPath, tgt, cNames, opt)
 	if err != nil {
 		return 0, err
 	}
@@ -209,7 +209,7 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		Command:      res.Command,
 		Source:       src.Path,
 	}
-	asm, err := emit.Asm(tiered, fns, tgt, prov)
+	asm, err := emit.Asm(tiered, fns, disasm, tgt, prov)
 	if err != nil {
 		return 0, err
 	}

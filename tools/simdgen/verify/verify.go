@@ -104,22 +104,32 @@ func DefaultOptions() Options {
 
 // Object disassembles an object file and verifies every named function in it.
 func Object(objPath string, tgt target.Target, funcs []string, opt Options) ([]Report, error) {
+	r, _, err := ObjectWithDisasm(objPath, tgt, funcs, opt)
+	return r, err
+}
+
+// ObjectWithDisasm is Object, and also returns the disassembly.
+//
+// The emitter needs it to re-spell instructions that reference a constant
+// pool. Producing it once here rather than shelling out to llvm-objdump a
+// second time keeps the two views of the object guaranteed identical.
+func ObjectWithDisasm(objPath string, tgt target.Target, funcs []string, opt Options) ([]Report, map[string][]Instr, error) {
 	if opt.ObjdumpPath == "" {
 		opt.ObjdumpPath = "llvm-objdump"
 	}
 	byFunc, err := disassemble(objPath, tgt, opt.ObjdumpPath)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	reports := make([]Report, 0, len(funcs))
 	for _, name := range funcs {
 		instrs, ok := byFunc[name]
 		if !ok {
-			return nil, fmt.Errorf("verify: %s not found in the disassembly of %s", name, objPath)
+			return nil, nil, fmt.Errorf("verify: %s not found in the disassembly of %s", name, objPath)
 		}
 		reports = append(reports, checkFunc(name, instrs, tgt, opt))
 	}
-	return reports, nil
+	return reports, byFunc, nil
 }
 
 func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Report {
@@ -405,7 +415,7 @@ func stackAdjust(in Instr, arch target.Arch) int {
 
 // ---------- disassembly ----------
 
-var reFuncHeader = regexp.MustCompile(`^[0-9a-f]+\s+<([^>]+)>:$`)
+var reFuncHeader = regexp.MustCompile(`^([0-9a-f]+)\s+<([^>]+)>:$`)
 
 // parseInstr reads one llvm-objdump instruction line.
 //
@@ -498,12 +508,19 @@ func disassemble(objPath string, tgt target.Target, objdump string) (map[string]
 
 	byFunc := map[string][]Instr{}
 	cur := ""
+	var base uint64
 	sc := bufio.NewScanner(strings.NewReader(string(out)))
 	sc.Buffer(make([]byte, 0, 1<<20), 1<<20)
 	for sc.Scan() {
 		line := sc.Text()
 		if m := reFuncHeader.FindStringSubmatch(strings.TrimSpace(line)); m != nil {
-			cur = m[1]
+			// llvm-objdump prints addresses relative to the section, while the
+			// object file's relocations are relative to the symbol. Everything
+			// downstream matches the two up by offset, so normalise here to the
+			// symbol-relative form rather than leaving two coordinate systems
+			// in play.
+			base, _ = strconv.ParseUint(m[1], 16, 64)
+			cur = m[2]
 			byFunc[cur] = nil
 			continue
 		}
@@ -511,6 +528,7 @@ func disassemble(objPath string, tgt target.Target, objdump string) (map[string]
 			continue
 		}
 		if in, ok := parseInstr(line); ok {
+			in.Offset -= base
 			byFunc[cur] = append(byFunc[cur], in)
 		}
 	}
