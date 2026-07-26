@@ -81,22 +81,44 @@ jobs:
       - run: make fmt-check
       - run: go mod tidy && git diff --exit-code go.mod go.sum
 
+  # This lane is not extra assurance. Every memory-corruption bug this library
+  # has had passed a green amd64 suite and was caught only here:
+  #
+  #   - kernels using the register the Go runtime keeps the current goroutine
+  #     in, which clang has no flag to reserve on three of the six targets;
+  #   - kernels writing into the caller's frame through a register save area
+  #     that the s390x ABI expects the caller to provide;
+  #   - a reference that computed different bits wherever Go fuses a multiply
+  #     into an add, which is everywhere except amd64;
+  #   - a float argument consuming an integer register slot under ELFv2.
+  #
+  # arm64 runs on every pull request because it is the second-most-used
+  # architecture and cheap enough; the rest run nightly.
+  #
+  # -short skips the repetition benchmarks, which measure a minimum over many
+  # runs and mean nothing under emulation.
   cross:
     name: cross-architecture
     runs-on: ubuntu-latest
-    if: github.event_name == 'schedule' || github.event_name == 'push'
     strategy:
       fail-fast: false
       matrix:
+        # ppc64le has no generated backend; it is here to prove the portable
+        # path still carries all 209 functions there.
         platform: [linux/arm64, linux/riscv64, linux/s390x, linux/ppc64le]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
+      # The gate is on the step rather than the job: a job-level `if` cannot
+      # see `matrix`, so putting it there would silently disable the whole lane.
       - name: test under emulation
+        if: >-
+          github.event_name == 'schedule' || github.event_name == 'push' ||
+          matrix.platform == 'linux/arm64'
         run: |
           docker run --rm --platform ${{ matrix.platform }} \
-            -v "$PWD":/src -w /src golang:1.26 \
-            sh -c 'go test ./... && go run ./cmd/simdinfo'
+            -v "$PWD":/src -w /src -e GOFLAGS=-buildvcs=false golang:1.26 \
+            sh -c 'go test -short ./... && go run ./cmd/simdinfo'
 
   # Scalable vector ISAs have a runtime-variable vector length, so a kernel can
   # be correct at one width and wrong at another. Testing a single width proves
