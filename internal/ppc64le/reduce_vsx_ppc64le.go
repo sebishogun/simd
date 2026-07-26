@@ -16,13 +16,88 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func sumsqFloat32VSX(a []float32) float32
+
+//go:noescape
+func sumsqdevFloat32VSX(a []float32, c float32) float32
+
+//go:noescape
+func sumsqdiffFloat32VSX(a []float32, b []float32) float32
+
+//go:noescape
+func diffFloat32VSX(dst []float32, a []float32)
+
+//go:noescape
+func sumsqFloat64VSX(a []float64) float64
+
+//go:noescape
+func sumsqdevFloat64VSX(a []float64, c float64) float64
+
+//go:noescape
+func sumsqdiffFloat64VSX(a []float64, b []float64) float64
+
+//go:noescape
+func diffFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func minrInt32VSX(a []int32) int32
+
+//go:noescape
+func maxrInt32VSX(a []int32) int32
+
+//go:noescape
+func sumsqInt32VSX(a []int32) int32
+
+//go:noescape
+func sumsqdevInt32VSX(a []int32, c int32) int32
+
+//go:noescape
+func sumsqdiffInt32VSX(a []int32, b []int32) int32
+
+//go:noescape
+func diffInt32VSX(dst []int32, a []int32)
+
+//go:noescape
+func minrInt64VSX(a []int64) int64
+
+//go:noescape
+func maxrInt64VSX(a []int64) int64
+
+//go:noescape
+func diffInt64VSX(dst []int64, a []int64)
+
+//go:noescape
 func sumFloat32VSX(a []float32) float32
 
 //go:noescape
 func dotFloat32VSX(a []float32, b []float32) float32
 
 //go:noescape
+func l1normFloat32VSX(a []float32) float32
+
+//go:noescape
+func l1diffFloat32VSX(a []float32, b []float32) float32
+
+//go:noescape
 func sumFloat64VSX(a []float64) float64
 
 //go:noescape
 func dotFloat64VSX(a []float64, b []float64) float64
+
+//go:noescape
+func l1normFloat64VSX(a []float64) float64
+
+//go:noescape
+func l1diffFloat64VSX(a []float64, b []float64) float64
+
+//go:noescape
+func sumInt32VSX(a []int32) int32
+
+//go:noescape
+func prodInt32VSX(a []int32) int32
+
+//go:noescape
+func dotInt32VSX(a []int32, b []int32) int32
+
+//go:noescape
+func sumInt64VSX(a []int64) int64

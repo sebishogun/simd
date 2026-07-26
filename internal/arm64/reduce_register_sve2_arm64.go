@@ -20,6 +20,150 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
+func sumsqFloat32SVE2Guarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat32SVE2(a)
+}
+
+func sumsqdevFloat32SVE2Guarded(a []float32, c float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat32SVE2(a, c)
+}
+
+func sumsqdiffFloat32SVE2Guarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat32SVE2(a, b)
+}
+
+func diffFloat32SVE2Guarded(dst []float32, a []float32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat32SVE2(dst, a)
+}
+
+func sumsqFloat64SVE2Guarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat64SVE2(a)
+}
+
+func sumsqdevFloat64SVE2Guarded(a []float64, c float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat64SVE2(a, c)
+}
+
+func sumsqdiffFloat64SVE2Guarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat64SVE2(a, b)
+}
+
+func diffFloat64SVE2Guarded(dst []float64, a []float64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat64SVE2(dst, a)
+}
+
+func minrInt32SVE2Guarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt32SVE2(a)
+}
+
+func maxrInt32SVE2Guarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt32SVE2(a)
+}
+
+func sumsqInt32SVE2Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt32SVE2(a)
+}
+
+func sumsqdevInt32SVE2Guarded(a []int32, c int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt32SVE2(a, c)
+}
+
+func sumsqdiffInt32SVE2Guarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt32SVE2(a, b)
+}
+
+func diffInt32SVE2Guarded(dst []int32, a []int32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt32SVE2(dst, a)
+}
+
+func minrInt64SVE2Guarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt64SVE2(a)
+}
+
+func maxrInt64SVE2Guarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt64SVE2(a)
+}
+
+func sumsqInt64SVE2Guarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt64SVE2(a)
+}
+
+func sumsqdevInt64SVE2Guarded(a []int64, c int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt64SVE2(a, c)
+}
+
+func sumsqdiffInt64SVE2Guarded(a []int64, b []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt64SVE2(a, b)
+}
+
+func diffInt64SVE2Guarded(dst []int64, a []int64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt64SVE2(dst, a)
+}
+
 func sumFloat32SVE2Guarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -32,6 +176,20 @@ func dotFloat32SVE2Guarded(a []float32, b []float32) float32 {
 		return ref.DotFloat(a, b)
 	}
 	return dotFloat32SVE2(a, b)
+}
+
+func l1normFloat32SVE2Guarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat32SVE2(a)
+}
+
+func l1diffFloat32SVE2Guarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat32SVE2(a, b)
 }
 
 func sumFloat64SVE2Guarded(a []float64) float64 {
@@ -48,12 +206,98 @@ func dotFloat64SVE2Guarded(a []float64, b []float64) float64 {
 	return dotFloat64SVE2(a, b)
 }
 
+func l1normFloat64SVE2Guarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat64SVE2(a)
+}
+
+func l1diffFloat64SVE2Guarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat64SVE2(a, b)
+}
+
+func sumInt32SVE2Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt32SVE2(a)
+}
+
+func prodInt32SVE2Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt32SVE2(a)
+}
+
+func dotInt32SVE2Guarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt32SVE2(a, b)
+}
+
+func sumInt64SVE2Guarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt64SVE2(a)
+}
+
+func prodInt64SVE2Guarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt64SVE2(a)
+}
+
+func dotInt64SVE2Guarded(a []int64, b []int64) int64 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt64SVE2(a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sve2")
+	s.F32.SumSquares = sumsqFloat32SVE2Guarded
+	s.F32.SumSqDev = sumsqdevFloat32SVE2Guarded
+	s.F32.SumSqDiff = sumsqdiffFloat32SVE2Guarded
+	s.F32.Diff = diffFloat32SVE2Guarded
+	s.F64.SumSquares = sumsqFloat64SVE2Guarded
+	s.F64.SumSqDev = sumsqdevFloat64SVE2Guarded
+	s.F64.SumSqDiff = sumsqdiffFloat64SVE2Guarded
+	s.F64.Diff = diffFloat64SVE2Guarded
+	s.I32.Min = minrInt32SVE2Guarded
+	s.I32.Max = maxrInt32SVE2Guarded
+	s.I32.SumSquares = sumsqInt32SVE2Guarded
+	s.I32.SumSqDev = sumsqdevInt32SVE2Guarded
+	s.I32.SumSqDiff = sumsqdiffInt32SVE2Guarded
+	s.I32.Diff = diffInt32SVE2Guarded
+	s.I64.Min = minrInt64SVE2Guarded
+	s.I64.Max = maxrInt64SVE2Guarded
+	s.I64.SumSquares = sumsqInt64SVE2Guarded
+	s.I64.SumSqDev = sumsqdevInt64SVE2Guarded
+	s.I64.SumSqDiff = sumsqdiffInt64SVE2Guarded
+	s.I64.Diff = diffInt64SVE2Guarded
 	s.F32.Sum = sumFloat32SVE2Guarded
 	s.F32.Dot = dotFloat32SVE2Guarded
+	s.F32.L1Norm = l1normFloat32SVE2Guarded
+	s.F32.L1Diff = l1diffFloat32SVE2Guarded
 	s.F64.Sum = sumFloat64SVE2Guarded
 	s.F64.Dot = dotFloat64SVE2Guarded
+	s.F64.L1Norm = l1normFloat64SVE2Guarded
+	s.F64.L1Diff = l1diffFloat64SVE2Guarded
+	s.I32.Sum = sumInt32SVE2Guarded
+	s.I32.Prod = prodInt32SVE2Guarded
+	s.I32.Dot = dotInt32SVE2Guarded
+	s.I64.Sum = sumInt64SVE2Guarded
+	s.I64.Prod = prodInt64SVE2Guarded
+	s.I64.Dot = dotInt64SVE2Guarded
 }

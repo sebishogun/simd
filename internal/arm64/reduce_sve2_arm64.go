@@ -16,13 +16,103 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 //go:noescape
+func sumsqFloat32SVE2(a []float32) float32
+
+//go:noescape
+func sumsqdevFloat32SVE2(a []float32, c float32) float32
+
+//go:noescape
+func sumsqdiffFloat32SVE2(a []float32, b []float32) float32
+
+//go:noescape
+func diffFloat32SVE2(dst []float32, a []float32)
+
+//go:noescape
+func sumsqFloat64SVE2(a []float64) float64
+
+//go:noescape
+func sumsqdevFloat64SVE2(a []float64, c float64) float64
+
+//go:noescape
+func sumsqdiffFloat64SVE2(a []float64, b []float64) float64
+
+//go:noescape
+func diffFloat64SVE2(dst []float64, a []float64)
+
+//go:noescape
+func minrInt32SVE2(a []int32) int32
+
+//go:noescape
+func maxrInt32SVE2(a []int32) int32
+
+//go:noescape
+func sumsqInt32SVE2(a []int32) int32
+
+//go:noescape
+func sumsqdevInt32SVE2(a []int32, c int32) int32
+
+//go:noescape
+func sumsqdiffInt32SVE2(a []int32, b []int32) int32
+
+//go:noescape
+func diffInt32SVE2(dst []int32, a []int32)
+
+//go:noescape
+func minrInt64SVE2(a []int64) int64
+
+//go:noescape
+func maxrInt64SVE2(a []int64) int64
+
+//go:noescape
+func sumsqInt64SVE2(a []int64) int64
+
+//go:noescape
+func sumsqdevInt64SVE2(a []int64, c int64) int64
+
+//go:noescape
+func sumsqdiffInt64SVE2(a []int64, b []int64) int64
+
+//go:noescape
+func diffInt64SVE2(dst []int64, a []int64)
+
+//go:noescape
 func sumFloat32SVE2(a []float32) float32
 
 //go:noescape
 func dotFloat32SVE2(a []float32, b []float32) float32
 
 //go:noescape
+func l1normFloat32SVE2(a []float32) float32
+
+//go:noescape
+func l1diffFloat32SVE2(a []float32, b []float32) float32
+
+//go:noescape
 func sumFloat64SVE2(a []float64) float64
 
 //go:noescape
 func dotFloat64SVE2(a []float64, b []float64) float64
+
+//go:noescape
+func l1normFloat64SVE2(a []float64) float64
+
+//go:noescape
+func l1diffFloat64SVE2(a []float64, b []float64) float64
+
+//go:noescape
+func sumInt32SVE2(a []int32) int32
+
+//go:noescape
+func prodInt32SVE2(a []int32) int32
+
+//go:noescape
+func dotInt32SVE2(a []int32, b []int32) int32
+
+//go:noescape
+func sumInt64SVE2(a []int64) int64
+
+//go:noescape
+func prodInt64SVE2(a []int64) int64
+
+//go:noescape
+func dotInt64SVE2(a []int64, b []int64) int64

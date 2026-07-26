@@ -16,13 +16,103 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
 //go:noescape
+func sumsqFloat32RVV(a []float32) float32
+
+//go:noescape
+func sumsqdevFloat32RVV(a []float32, c float32) float32
+
+//go:noescape
+func sumsqdiffFloat32RVV(a []float32, b []float32) float32
+
+//go:noescape
+func diffFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func sumsqFloat64RVV(a []float64) float64
+
+//go:noescape
+func sumsqdevFloat64RVV(a []float64, c float64) float64
+
+//go:noescape
+func sumsqdiffFloat64RVV(a []float64, b []float64) float64
+
+//go:noescape
+func diffFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func minrInt32RVV(a []int32) int32
+
+//go:noescape
+func maxrInt32RVV(a []int32) int32
+
+//go:noescape
+func sumsqInt32RVV(a []int32) int32
+
+//go:noescape
+func sumsqdevInt32RVV(a []int32, c int32) int32
+
+//go:noescape
+func sumsqdiffInt32RVV(a []int32, b []int32) int32
+
+//go:noescape
+func diffInt32RVV(dst []int32, a []int32)
+
+//go:noescape
+func minrInt64RVV(a []int64) int64
+
+//go:noescape
+func maxrInt64RVV(a []int64) int64
+
+//go:noescape
+func sumsqInt64RVV(a []int64) int64
+
+//go:noescape
+func sumsqdevInt64RVV(a []int64, c int64) int64
+
+//go:noescape
+func sumsqdiffInt64RVV(a []int64, b []int64) int64
+
+//go:noescape
+func diffInt64RVV(dst []int64, a []int64)
+
+//go:noescape
 func sumFloat32RVV(a []float32) float32
 
 //go:noescape
 func dotFloat32RVV(a []float32, b []float32) float32
 
 //go:noescape
+func l1normFloat32RVV(a []float32) float32
+
+//go:noescape
+func l1diffFloat32RVV(a []float32, b []float32) float32
+
+//go:noescape
 func sumFloat64RVV(a []float64) float64
 
 //go:noescape
 func dotFloat64RVV(a []float64, b []float64) float64
+
+//go:noescape
+func l1normFloat64RVV(a []float64) float64
+
+//go:noescape
+func l1diffFloat64RVV(a []float64, b []float64) float64
+
+//go:noescape
+func sumInt32RVV(a []int32) int32
+
+//go:noescape
+func prodInt32RVV(a []int32) int32
+
+//go:noescape
+func dotInt32RVV(a []int32, b []int32) int32
+
+//go:noescape
+func sumInt64RVV(a []int64) int64
+
+//go:noescape
+func prodInt64RVV(a []int64) int64
+
+//go:noescape
+func dotInt64RVV(a []int64, b []int64) int64

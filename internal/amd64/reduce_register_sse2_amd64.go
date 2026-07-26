@@ -20,6 +20,178 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func minrFloat32SSE2Guarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat32SSE2(a)
+}
+
+func maxrFloat32SSE2Guarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat32SSE2(a)
+}
+
+func sumsqFloat32SSE2Guarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat32SSE2(a)
+}
+
+func sumsqdevFloat32SSE2Guarded(a []float32, c float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat32SSE2(a, c)
+}
+
+func sumsqdiffFloat32SSE2Guarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat32SSE2(a, b)
+}
+
+func diffFloat32SSE2Guarded(dst []float32, a []float32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat32SSE2(dst, a)
+}
+
+func minrFloat64SSE2Guarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat64SSE2(a)
+}
+
+func maxrFloat64SSE2Guarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat64SSE2(a)
+}
+
+func sumsqFloat64SSE2Guarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat64SSE2(a)
+}
+
+func sumsqdevFloat64SSE2Guarded(a []float64, c float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat64SSE2(a, c)
+}
+
+func sumsqdiffFloat64SSE2Guarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat64SSE2(a, b)
+}
+
+func diffFloat64SSE2Guarded(dst []float64, a []float64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat64SSE2(dst, a)
+}
+
+func minrInt32SSE2Guarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt32SSE2(a)
+}
+
+func maxrInt32SSE2Guarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt32SSE2(a)
+}
+
+func sumsqInt32SSE2Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt32SSE2(a)
+}
+
+func sumsqdevInt32SSE2Guarded(a []int32, c int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt32SSE2(a, c)
+}
+
+func sumsqdiffInt32SSE2Guarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt32SSE2(a, b)
+}
+
+func diffInt32SSE2Guarded(dst []int32, a []int32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt32SSE2(dst, a)
+}
+
+func minrInt64SSE2Guarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt64SSE2(a)
+}
+
+func maxrInt64SSE2Guarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt64SSE2(a)
+}
+
+func sumsqInt64SSE2Guarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt64SSE2(a)
+}
+
+func sumsqdevInt64SSE2Guarded(a []int64, c int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt64SSE2(a, c)
+}
+
+func sumsqdiffInt64SSE2Guarded(a []int64, b []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt64SSE2(a, b)
+}
+
+func diffInt64SSE2Guarded(dst []int64, a []int64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt64SSE2(dst, a)
+}
+
 func sumFloat32SSE2Guarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -48,12 +220,76 @@ func dotFloat64SSE2Guarded(a []float64, b []float64) float64 {
 	return dotFloat64SSE2(a, b)
 }
 
+func sumInt32SSE2Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt32SSE2(a)
+}
+
+func prodInt32SSE2Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt32SSE2(a)
+}
+
+func dotInt32SSE2Guarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt32SSE2(a, b)
+}
+
+func sumInt64SSE2Guarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt64SSE2(a)
+}
+
+func dotInt64SSE2Guarded(a []int64, b []int64) int64 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt64SSE2(a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sse2")
+	s.F32.Min = minrFloat32SSE2Guarded
+	s.F32.Max = maxrFloat32SSE2Guarded
+	s.F32.SumSquares = sumsqFloat32SSE2Guarded
+	s.F32.SumSqDev = sumsqdevFloat32SSE2Guarded
+	s.F32.SumSqDiff = sumsqdiffFloat32SSE2Guarded
+	s.F32.Diff = diffFloat32SSE2Guarded
+	s.F64.Min = minrFloat64SSE2Guarded
+	s.F64.Max = maxrFloat64SSE2Guarded
+	s.F64.SumSquares = sumsqFloat64SSE2Guarded
+	s.F64.SumSqDev = sumsqdevFloat64SSE2Guarded
+	s.F64.SumSqDiff = sumsqdiffFloat64SSE2Guarded
+	s.F64.Diff = diffFloat64SSE2Guarded
+	s.I32.Min = minrInt32SSE2Guarded
+	s.I32.Max = maxrInt32SSE2Guarded
+	s.I32.SumSquares = sumsqInt32SSE2Guarded
+	s.I32.SumSqDev = sumsqdevInt32SSE2Guarded
+	s.I32.SumSqDiff = sumsqdiffInt32SSE2Guarded
+	s.I32.Diff = diffInt32SSE2Guarded
+	s.I64.Min = minrInt64SSE2Guarded
+	s.I64.Max = maxrInt64SSE2Guarded
+	s.I64.SumSquares = sumsqInt64SSE2Guarded
+	s.I64.SumSqDev = sumsqdevInt64SSE2Guarded
+	s.I64.SumSqDiff = sumsqdiffInt64SSE2Guarded
+	s.I64.Diff = diffInt64SSE2Guarded
 	s.F32.Sum = sumFloat32SSE2Guarded
 	s.F32.Dot = dotFloat32SSE2Guarded
 	s.F64.Sum = sumFloat64SSE2Guarded
 	s.F64.Dot = dotFloat64SSE2Guarded
+	s.I32.Sum = sumInt32SSE2Guarded
+	s.I32.Prod = prodInt32SSE2Guarded
+	s.I32.Dot = dotInt32SSE2Guarded
+	s.I64.Sum = sumInt64SSE2Guarded
+	s.I64.Dot = dotInt64SSE2Guarded
 }

@@ -16,13 +16,115 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 //go:noescape
+func minrFloat32AVX512(a []float32) float32
+
+//go:noescape
+func maxrFloat32AVX512(a []float32) float32
+
+//go:noescape
+func sumsqFloat32AVX512(a []float32) float32
+
+//go:noescape
+func sumsqdevFloat32AVX512(a []float32, c float32) float32
+
+//go:noescape
+func sumsqdiffFloat32AVX512(a []float32, b []float32) float32
+
+//go:noescape
+func diffFloat32AVX512(dst []float32, a []float32)
+
+//go:noescape
+func minrFloat64AVX512(a []float64) float64
+
+//go:noescape
+func maxrFloat64AVX512(a []float64) float64
+
+//go:noescape
+func sumsqFloat64AVX512(a []float64) float64
+
+//go:noescape
+func sumsqdevFloat64AVX512(a []float64, c float64) float64
+
+//go:noescape
+func sumsqdiffFloat64AVX512(a []float64, b []float64) float64
+
+//go:noescape
+func diffFloat64AVX512(dst []float64, a []float64)
+
+//go:noescape
+func minrInt32AVX512(a []int32) int32
+
+//go:noescape
+func maxrInt32AVX512(a []int32) int32
+
+//go:noescape
+func sumsqInt32AVX512(a []int32) int32
+
+//go:noescape
+func sumsqdevInt32AVX512(a []int32, c int32) int32
+
+//go:noescape
+func sumsqdiffInt32AVX512(a []int32, b []int32) int32
+
+//go:noescape
+func diffInt32AVX512(dst []int32, a []int32)
+
+//go:noescape
+func minrInt64AVX512(a []int64) int64
+
+//go:noescape
+func maxrInt64AVX512(a []int64) int64
+
+//go:noescape
+func sumsqInt64AVX512(a []int64) int64
+
+//go:noescape
+func sumsqdevInt64AVX512(a []int64, c int64) int64
+
+//go:noescape
+func sumsqdiffInt64AVX512(a []int64, b []int64) int64
+
+//go:noescape
+func diffInt64AVX512(dst []int64, a []int64)
+
+//go:noescape
 func sumFloat32AVX512(a []float32) float32
 
 //go:noescape
 func dotFloat32AVX512(a []float32, b []float32) float32
 
 //go:noescape
+func l1normFloat32AVX512(a []float32) float32
+
+//go:noescape
+func l1diffFloat32AVX512(a []float32, b []float32) float32
+
+//go:noescape
 func sumFloat64AVX512(a []float64) float64
 
 //go:noescape
 func dotFloat64AVX512(a []float64, b []float64) float64
+
+//go:noescape
+func l1normFloat64AVX512(a []float64) float64
+
+//go:noescape
+func l1diffFloat64AVX512(a []float64, b []float64) float64
+
+//go:noescape
+func sumInt32AVX512(a []int32) int32
+
+//go:noescape
+func prodInt32AVX512(a []int32) int32
+
+//go:noescape
+func dotInt32AVX512(a []int32, b []int32) int32
+
+//go:noescape
+func sumInt64AVX512(a []int64) int64
+
+//go:noescape
+func prodInt64AVX512(a []int64) int64
+
+//go:noescape
+func dotInt64AVX512(a []int64, b []int64) int64

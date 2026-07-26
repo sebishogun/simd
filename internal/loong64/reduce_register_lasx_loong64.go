@@ -20,6 +20,150 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
+func sumsqFloat32LASXGuarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat32LASX(a)
+}
+
+func sumsqdevFloat32LASXGuarded(a []float32, c float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat32LASX(a, c)
+}
+
+func sumsqdiffFloat32LASXGuarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat32LASX(a, b)
+}
+
+func diffFloat32LASXGuarded(dst []float32, a []float32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat32LASX(dst, a)
+}
+
+func sumsqFloat64LASXGuarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat64LASX(a)
+}
+
+func sumsqdevFloat64LASXGuarded(a []float64, c float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat64LASX(a, c)
+}
+
+func sumsqdiffFloat64LASXGuarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat64LASX(a, b)
+}
+
+func diffFloat64LASXGuarded(dst []float64, a []float64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat64LASX(dst, a)
+}
+
+func minrInt32LASXGuarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt32LASX(a)
+}
+
+func maxrInt32LASXGuarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt32LASX(a)
+}
+
+func sumsqInt32LASXGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt32LASX(a)
+}
+
+func sumsqdevInt32LASXGuarded(a []int32, c int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt32LASX(a, c)
+}
+
+func sumsqdiffInt32LASXGuarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt32LASX(a, b)
+}
+
+func diffInt32LASXGuarded(dst []int32, a []int32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt32LASX(dst, a)
+}
+
+func minrInt64LASXGuarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt64LASX(a)
+}
+
+func maxrInt64LASXGuarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt64LASX(a)
+}
+
+func sumsqInt64LASXGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt64LASX(a)
+}
+
+func sumsqdevInt64LASXGuarded(a []int64, c int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt64LASX(a, c)
+}
+
+func sumsqdiffInt64LASXGuarded(a []int64, b []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt64LASX(a, b)
+}
+
+func diffInt64LASXGuarded(dst []int64, a []int64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt64LASX(dst, a)
+}
+
 func sumFloat32LASXGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -32,6 +176,20 @@ func dotFloat32LASXGuarded(a []float32, b []float32) float32 {
 		return ref.DotFloat(a, b)
 	}
 	return dotFloat32LASX(a, b)
+}
+
+func l1normFloat32LASXGuarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat32LASX(a)
+}
+
+func l1diffFloat32LASXGuarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat32LASX(a, b)
 }
 
 func sumFloat64LASXGuarded(a []float64) float64 {
@@ -48,12 +206,98 @@ func dotFloat64LASXGuarded(a []float64, b []float64) float64 {
 	return dotFloat64LASX(a, b)
 }
 
+func l1normFloat64LASXGuarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat64LASX(a)
+}
+
+func l1diffFloat64LASXGuarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat64LASX(a, b)
+}
+
+func sumInt32LASXGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt32LASX(a)
+}
+
+func prodInt32LASXGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt32LASX(a)
+}
+
+func dotInt32LASXGuarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt32LASX(a, b)
+}
+
+func sumInt64LASXGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt64LASX(a)
+}
+
+func prodInt64LASXGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt64LASX(a)
+}
+
+func dotInt64LASXGuarded(a []int64, b []int64) int64 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt64LASX(a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("lasx")
+	s.F32.SumSquares = sumsqFloat32LASXGuarded
+	s.F32.SumSqDev = sumsqdevFloat32LASXGuarded
+	s.F32.SumSqDiff = sumsqdiffFloat32LASXGuarded
+	s.F32.Diff = diffFloat32LASXGuarded
+	s.F64.SumSquares = sumsqFloat64LASXGuarded
+	s.F64.SumSqDev = sumsqdevFloat64LASXGuarded
+	s.F64.SumSqDiff = sumsqdiffFloat64LASXGuarded
+	s.F64.Diff = diffFloat64LASXGuarded
+	s.I32.Min = minrInt32LASXGuarded
+	s.I32.Max = maxrInt32LASXGuarded
+	s.I32.SumSquares = sumsqInt32LASXGuarded
+	s.I32.SumSqDev = sumsqdevInt32LASXGuarded
+	s.I32.SumSqDiff = sumsqdiffInt32LASXGuarded
+	s.I32.Diff = diffInt32LASXGuarded
+	s.I64.Min = minrInt64LASXGuarded
+	s.I64.Max = maxrInt64LASXGuarded
+	s.I64.SumSquares = sumsqInt64LASXGuarded
+	s.I64.SumSqDev = sumsqdevInt64LASXGuarded
+	s.I64.SumSqDiff = sumsqdiffInt64LASXGuarded
+	s.I64.Diff = diffInt64LASXGuarded
 	s.F32.Sum = sumFloat32LASXGuarded
 	s.F32.Dot = dotFloat32LASXGuarded
+	s.F32.L1Norm = l1normFloat32LASXGuarded
+	s.F32.L1Diff = l1diffFloat32LASXGuarded
 	s.F64.Sum = sumFloat64LASXGuarded
 	s.F64.Dot = dotFloat64LASXGuarded
+	s.F64.L1Norm = l1normFloat64LASXGuarded
+	s.F64.L1Diff = l1diffFloat64LASXGuarded
+	s.I32.Sum = sumInt32LASXGuarded
+	s.I32.Prod = prodInt32LASXGuarded
+	s.I32.Dot = dotInt32LASXGuarded
+	s.I64.Sum = sumInt64LASXGuarded
+	s.I64.Prod = prodInt64LASXGuarded
+	s.I64.Dot = dotInt64LASXGuarded
 }

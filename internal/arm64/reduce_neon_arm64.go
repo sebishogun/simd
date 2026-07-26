@@ -16,13 +16,88 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 //go:noescape
+func sumsqFloat32NEON(a []float32) float32
+
+//go:noescape
+func sumsqdevFloat32NEON(a []float32, c float32) float32
+
+//go:noescape
+func sumsqdiffFloat32NEON(a []float32, b []float32) float32
+
+//go:noescape
+func diffFloat32NEON(dst []float32, a []float32)
+
+//go:noescape
+func sumsqFloat64NEON(a []float64) float64
+
+//go:noescape
+func sumsqdevFloat64NEON(a []float64, c float64) float64
+
+//go:noescape
+func sumsqdiffFloat64NEON(a []float64, b []float64) float64
+
+//go:noescape
+func diffFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func minrInt32NEON(a []int32) int32
+
+//go:noescape
+func maxrInt32NEON(a []int32) int32
+
+//go:noescape
+func sumsqInt32NEON(a []int32) int32
+
+//go:noescape
+func sumsqdevInt32NEON(a []int32, c int32) int32
+
+//go:noescape
+func sumsqdiffInt32NEON(a []int32, b []int32) int32
+
+//go:noescape
+func diffInt32NEON(dst []int32, a []int32)
+
+//go:noescape
+func minrInt64NEON(a []int64) int64
+
+//go:noescape
+func maxrInt64NEON(a []int64) int64
+
+//go:noescape
+func diffInt64NEON(dst []int64, a []int64)
+
+//go:noescape
 func sumFloat32NEON(a []float32) float32
 
 //go:noescape
 func dotFloat32NEON(a []float32, b []float32) float32
 
 //go:noescape
+func l1normFloat32NEON(a []float32) float32
+
+//go:noescape
+func l1diffFloat32NEON(a []float32, b []float32) float32
+
+//go:noescape
 func sumFloat64NEON(a []float64) float64
 
 //go:noescape
 func dotFloat64NEON(a []float64, b []float64) float64
+
+//go:noescape
+func l1normFloat64NEON(a []float64) float64
+
+//go:noescape
+func l1diffFloat64NEON(a []float64, b []float64) float64
+
+//go:noescape
+func sumInt32NEON(a []int32) int32
+
+//go:noescape
+func prodInt32NEON(a []int32) int32
+
+//go:noescape
+func dotInt32NEON(a []int32, b []int32) int32
+
+//go:noescape
+func sumInt64NEON(a []int64) int64

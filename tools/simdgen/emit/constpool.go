@@ -3,6 +3,7 @@ package emit
 import (
 	"encoding/binary"
 	"fmt"
+	"strings"
 
 	"github.com/sebishogun/simd/tools/simdgen/objfile"
 	"github.com/sebishogun/simd/tools/simdgen/target"
@@ -137,6 +138,19 @@ func makeUnaligned(code []byte, rel objfile.Reloc, instrs []Instr) error {
 	in, ok := instrAt(instrs, rel.Off)
 	if !ok {
 		return fmt.Errorf("no disassembly for the instruction at +0x%x", rel.Off)
+	}
+	switch {
+	case alignedLoads[in.Mnemonic], alignedInteger[in.Mnemonic]:
+		// Handled below: these keep an alignment requirement even under VEX.
+	case strings.HasPrefix(in.Mnemonic, "v"):
+		// VEX and EVEX encodings drop the alignment requirement on memory
+		// operands. Only the explicitly-aligned moves — vmovaps, vmovapd,
+		// vmovdqa — still demand it, and those are handled above. So a
+		// v-prefixed arithmetic instruction reading the pool, such as
+		// vandps for a sign mask, needs no patch at all.
+		return nil
+	case unalignedLoads[in.Mnemonic]:
+		return nil
 	}
 	switch {
 	case unalignedLoads[in.Mnemonic]:

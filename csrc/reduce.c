@@ -100,3 +100,176 @@ void simd_dot_f64(double *__restrict out, const double *__restrict a,
                   const double *__restrict b, isize n) {
   REDUCE_DOT(double, f64xL)
 }
+
+// ---------- horizontal minimum and maximum ----------
+//
+// Unlike summation these need no fixed lane count. Minimum and maximum are
+// associative and commutative even with NaN propagation — a NaN anywhere wins
+// regardless of the order it is met — and -0 beating +0 is associative too.
+// So any reduction order gives the same answer and the compiler is free.
+//
+// The IEEE 754-2019 semantics still have to be written out rather than left to
+// a min instruction, for the reason given in arith.c: the hardware
+// instructions neither propagate NaN nor order the zeros.
+#define MINMAX_REDUCE(T, SUF, SIGNBIT)                                  \
+  void simd_minr_##SUF(T *__restrict out, const T *__restrict a,        \
+                       isize n) {                                       \
+    T m = a[0];                                                         \
+    for (isize i = 1; i < n; i++) {                                     \
+      T x = a[i];                                                       \
+      m = (m != m)   ? m                                                \
+          : (x != x) ? x                                                \
+          : (x < m)  ? x                                                \
+          : (m < x)  ? m                                                \
+                     : (SIGNBIT(x) ? x : m);                            \
+    }                                                                   \
+    *out = m;                                                           \
+  }                                                                     \
+  void simd_maxr_##SUF(T *__restrict out, const T *__restrict a,        \
+                       isize n) {                                       \
+    T m = a[0];                                                         \
+    for (isize i = 1; i < n; i++) {                                     \
+      T x = a[i];                                                       \
+      m = (m != m)   ? m                                                \
+          : (x != x) ? x                                                \
+          : (x > m)  ? x                                                \
+          : (m > x)  ? m                                                \
+                     : (SIGNBIT(x) ? m : x);                            \
+    }                                                                   \
+    *out = m;                                                           \
+  }
+
+MINMAX_REDUCE(float, f32, __builtin_signbitf)
+MINMAX_REDUCE(double, f64, __builtin_signbit)
+
+#define MINMAX_REDUCE_INT(T, SUF)                                       \
+  void simd_minr_##SUF(T *__restrict out, const T *__restrict a,        \
+                       isize n) {                                       \
+    T m = a[0];                                                         \
+    for (isize i = 1; i < n; i++)                                       \
+      if (a[i] < m) m = a[i];                                           \
+    *out = m;                                                           \
+  }                                                                     \
+  void simd_maxr_##SUF(T *__restrict out, const T *__restrict a,        \
+                       isize n) {                                       \
+    T m = a[0];                                                         \
+    for (isize i = 1; i < n; i++)                                       \
+      if (a[i] > m) m = a[i];                                           \
+    *out = m;                                                           \
+  }
+
+MINMAX_REDUCE_INT(int, i32)
+MINMAX_REDUCE_INT(long long, i64)
+
+// ---------- the remaining summation-shaped reductions ----------
+//
+// These all follow the SUM_LANES contract, because they are sums: the lane an
+// element lands in and the fold that combines the lanes have to match the
+// portable implementation exactly, or a result would change with vector width.
+//
+// EXPR is evaluated per element and its value accumulated.
+#define REDUCE_LANES(T, V, EXPR)                          \
+  V acc = 0;                                              \
+  isize i = 0;                                            \
+  for (; i + SUM_LANES <= n; i += SUM_LANES) {            \
+    V t;                                                  \
+    for (int j = 0; j < SUM_LANES; j++) {                 \
+      isize k = i + j;                                    \
+      t[j] = (EXPR);                                      \
+    }                                                     \
+    acc += t;                                             \
+  }                                                       \
+  {                                                       \
+    V t = 0;                                              \
+    for (int j = 0; j < SUM_LANES; j++) {                 \
+      isize k = i + j;                                    \
+      if (k < n) t[j] = (EXPR);                           \
+    }                                                     \
+    acc += t;                                             \
+  }                                                       \
+  T r[SUM_LANES];                                         \
+  *(V *)r = acc;                                          \
+  for (int w = SUM_LANES / 2; w >= 1; w /= 2)             \
+    for (int j = 0; j < w; j++) r[j] += r[j + w];         \
+  *out = r[0];
+
+#define FLOAT_REDUCTIONS(T, V, SUF, ABS)                                    \
+  void simd_sumsq_##SUF(T *__restrict out, const T *__restrict a, isize n) { \
+    REDUCE_LANES(T, V, a[k] * a[k])                                         \
+  }                                                                          \
+  void simd_l1norm_##SUF(T *__restrict out, const T *__restrict a,          \
+                         isize n) {                                          \
+    REDUCE_LANES(T, V, ABS(a[k]))                                            \
+  }                                                                          \
+  void simd_sumsqdev_##SUF(T *__restrict out, const T *__restrict a, T c,   \
+                           isize n) {                                        \
+    REDUCE_LANES(T, V, (a[k] - c) * (a[k] - c))                              \
+  }                                                                          \
+  void simd_sumsqdiff_##SUF(T *__restrict out, const T *__restrict a,       \
+                            const T *__restrict b, isize n) {                \
+    REDUCE_LANES(T, V, (a[k] - b[k]) * (a[k] - b[k]))                        \
+  }                                                                          \
+  void simd_l1diff_##SUF(T *__restrict out, const T *__restrict a,          \
+                         const T *__restrict b, isize n) {                   \
+    REDUCE_LANES(T, V, ABS(a[k] - b[k]))                                     \
+  }
+
+FLOAT_REDUCTIONS(float, f32xL, f32, __builtin_elementwise_abs)
+FLOAT_REDUCTIONS(double, f64xL, f64, __builtin_elementwise_abs)
+
+// Integer reductions need no lane discipline: integer addition is associative,
+// so no accumulation order is observable and the compiler may choose freely.
+#define INT_REDUCTIONS(T, SUF)                                              \
+  void simd_sum_##SUF(T *__restrict out, const T *__restrict a, isize n) {  \
+    T s = 0;                                                                \
+    for (isize i = 0; i < n; i++) s += a[i];                                \
+    *out = s;                                                               \
+  }                                                                          \
+  void simd_prod_##SUF(T *__restrict out, const T *__restrict a, isize n) { \
+    T p = 1;                                                                \
+    for (isize i = 0; i < n; i++) p *= a[i];                                \
+    *out = p;                                                               \
+  }                                                                          \
+  void simd_dot_##SUF(T *__restrict out, const T *__restrict a,             \
+                      const T *__restrict b, isize n) {                     \
+    T s = 0;                                                                \
+    for (isize i = 0; i < n; i++) s += a[i] * b[i];                         \
+    *out = s;                                                               \
+  }                                                                          \
+  void simd_sumsq_##SUF(T *__restrict out, const T *__restrict a, isize n) { \
+    T s = 0;                                                                \
+    for (isize i = 0; i < n; i++) s += a[i] * a[i];                         \
+    *out = s;                                                               \
+  }                                                                          \
+  void simd_sumsqdev_##SUF(T *__restrict out, const T *__restrict a, T c,   \
+                           isize n) {                                        \
+    T s = 0;                                                                \
+    for (isize i = 0; i < n; i++) s += (a[i] - c) * (a[i] - c);             \
+    *out = s;                                                               \
+  }                                                                          \
+  void simd_sumsqdiff_##SUF(T *__restrict out, const T *__restrict a,       \
+                            const T *__restrict b, isize n) {                \
+    T s = 0;                                                                \
+    for (isize i = 0; i < n; i++) s += (a[i] - b[i]) * (a[i] - b[i]);       \
+    *out = s;                                                               \
+  }
+
+INT_REDUCTIONS(int, i32)
+INT_REDUCTIONS(long long, i64)
+
+// Successive differences. Unlike the running totals it is not a scan — each
+// output depends only on two neighbouring inputs — so it vectorizes.
+//
+// It takes both lengths because the output is one shorter than the input, so
+// neither length alone bounds the loop: nd elements are written but a[i+1]
+// must stay inside na.
+#define DIFF(T, SUF)                                                      \
+  void simd_diff_##SUF(T *__restrict d, const T *__restrict a, isize nd,  \
+                       isize na) {                                        \
+    for (isize i = 0; i < nd && i + 1 < na; i++) d[i] = a[i + 1] - a[i];  \
+  }
+
+DIFF(float, f32)
+DIFF(double, f64)
+DIFF(int, i32)
+DIFF(long long, i64)

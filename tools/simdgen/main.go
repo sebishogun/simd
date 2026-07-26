@@ -70,6 +70,17 @@ func main() {
 	}
 }
 
+// forEmitInstrs narrows the disassembly to what the emitter needs: instruction
+// boundaries, to locate the opcode byte of a constant-pool reference, and the
+// mnemonic, to know whether that reference needs an alignment patch.
+func forEmitInstrs(ins []verify.Instr) []emit.Instr {
+	out := make([]emit.Instr, len(ins))
+	for i, in := range ins {
+		out[i] = emit.Instr{Offset: in.Offset, Mnemonic: in.Mnemonic}
+	}
+	return out
+}
+
 // lastSkipped carries the kernels dropped by the most recent build, so the
 // caller can report them. The generator is single-threaded.
 var lastSkipped []string
@@ -232,7 +243,8 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 			skipped = append(skipped, fmt.Sprintf("%s (calls %v)", k.CName, undef))
 			continue
 		}
-		if ok, why := emit.CanLift(fn, tgt); !ok {
+		insns := forEmitInstrs(disasm[k.CName])
+		if ok, why := emit.CanLift(fn, insns, tgt); !ok {
 			skipped = append(skipped, fmt.Sprintf("%s (%s)", k.CName, why))
 			continue
 		}
@@ -258,15 +270,9 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		Command:      res.Command,
 		Source:       src.Path,
 	}
-	// The emitter needs instruction boundaries to locate the opcode byte of a
-	// constant-pool load; it does not need the operands.
 	forEmit := map[string][]emit.Instr{}
 	for name, ins := range disasm {
-		out := make([]emit.Instr, len(ins))
-		for i, in := range ins {
-			out[i] = emit.Instr{Offset: in.Offset, Mnemonic: in.Mnemonic}
-		}
-		forEmit[name] = out
+		forEmit[name] = forEmitInstrs(ins)
 	}
 	asm, err := emit.Asm(tiered, fns, forEmit, tgt, prov)
 	if err != nil {

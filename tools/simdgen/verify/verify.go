@@ -390,31 +390,40 @@ var (
 	reBPDst  = regexp.MustCompile(`%rbp\s*$`)
 )
 
-// clobbersBP reports whether the function writes the frame pointer without a
-// balanced save and restore.
+// clobbersBP reports whether the function uses the frame pointer as a scratch
+// register without saving it.
 //
-// A `pushq %rbp` matched by a `popq %rbp` is the normal frame setup and is
-// fine. Anything else that leaves a value in %rbp is the kelindar/simd#5 bug.
+// The bug this exists for is kelindar/simd#5, where generated code put a value
+// in BP and never restored it, silently breaking stack unwinding, tracebacks,
+// profiling and garbage-collector stack scanning.
+//
+// The test is deliberately not "pushes equal pops". A function with two exit
+// paths pushes BP once at entry and pops it once on each path, so a static
+// count reads 1 push and 2 pops while every actual execution is balanced. The
+// first version of this check rejected perfectly correct kernels on exactly
+// that basis.
+//
+// What matters is whether the register is saved at all. If the function
+// establishes a frame — clang does whenever -mstackrealign is in effect — then
+// BP is pushed on entry and popped before every return, and any use in between
+// is the frame pointer doing its job. If BP is written with no push anywhere,
+// it is being used as scratch and the old value is gone.
 func clobbersBP(instrs []Instr) (string, bool) {
-	pushes, pops, writes := 0, 0, 0
+	pushes, writes := 0, 0
 	for _, in := range instrs {
 		switch {
 		case rePushBP.MatchString(in.Mnemonic) && strings.Contains(in.Operands, "%rbp"):
 			pushes++
-		case strings.HasPrefix(in.Mnemonic, "pop") && strings.Contains(in.Operands, "%rbp"):
-			pops++
-		case reBPDst.MatchString(in.Operands) && !strings.HasPrefix(in.Mnemonic, "cmp") &&
-			!strings.HasPrefix(in.Mnemonic, "test"):
-			// AT&T syntax puts the destination last, so %rbp at the end of the
-			// operand list means it is being written.
+		case strings.HasPrefix(in.Mnemonic, "pop"):
+			// Restoring it is never the problem.
+		case reBPDst.MatchString(in.Operands) &&
+			!strings.HasPrefix(in.Mnemonic, "cmp") && !strings.HasPrefix(in.Mnemonic, "test"):
+			// AT&T puts the destination last, so %rbp at the end is a write.
 			writes++
 		}
 	}
-	if writes > 0 && pushes != pops {
-		return fmt.Sprintf("%d write(s), %d push(es), %d pop(s)", writes, pushes, pops), true
-	}
-	if pushes != pops {
-		return fmt.Sprintf("%d push(es) but %d pop(s)", pushes, pops), true
+	if writes > 0 && pushes == 0 {
+		return fmt.Sprintf("%d write(s) and no push to save it", writes), true
 	}
 	return "", false
 }

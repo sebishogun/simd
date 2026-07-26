@@ -16,13 +16,103 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
 //go:noescape
+func sumsqFloat32LASX(a []float32) float32
+
+//go:noescape
+func sumsqdevFloat32LASX(a []float32, c float32) float32
+
+//go:noescape
+func sumsqdiffFloat32LASX(a []float32, b []float32) float32
+
+//go:noescape
+func diffFloat32LASX(dst []float32, a []float32)
+
+//go:noescape
+func sumsqFloat64LASX(a []float64) float64
+
+//go:noescape
+func sumsqdevFloat64LASX(a []float64, c float64) float64
+
+//go:noescape
+func sumsqdiffFloat64LASX(a []float64, b []float64) float64
+
+//go:noescape
+func diffFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func minrInt32LASX(a []int32) int32
+
+//go:noescape
+func maxrInt32LASX(a []int32) int32
+
+//go:noescape
+func sumsqInt32LASX(a []int32) int32
+
+//go:noescape
+func sumsqdevInt32LASX(a []int32, c int32) int32
+
+//go:noescape
+func sumsqdiffInt32LASX(a []int32, b []int32) int32
+
+//go:noescape
+func diffInt32LASX(dst []int32, a []int32)
+
+//go:noescape
+func minrInt64LASX(a []int64) int64
+
+//go:noescape
+func maxrInt64LASX(a []int64) int64
+
+//go:noescape
+func sumsqInt64LASX(a []int64) int64
+
+//go:noescape
+func sumsqdevInt64LASX(a []int64, c int64) int64
+
+//go:noescape
+func sumsqdiffInt64LASX(a []int64, b []int64) int64
+
+//go:noescape
+func diffInt64LASX(dst []int64, a []int64)
+
+//go:noescape
 func sumFloat32LASX(a []float32) float32
 
 //go:noescape
 func dotFloat32LASX(a []float32, b []float32) float32
 
 //go:noescape
+func l1normFloat32LASX(a []float32) float32
+
+//go:noescape
+func l1diffFloat32LASX(a []float32, b []float32) float32
+
+//go:noescape
 func sumFloat64LASX(a []float64) float64
 
 //go:noescape
 func dotFloat64LASX(a []float64, b []float64) float64
+
+//go:noescape
+func l1normFloat64LASX(a []float64) float64
+
+//go:noescape
+func l1diffFloat64LASX(a []float64, b []float64) float64
+
+//go:noescape
+func sumInt32LASX(a []int32) int32
+
+//go:noescape
+func prodInt32LASX(a []int32) int32
+
+//go:noescape
+func dotInt32LASX(a []int32, b []int32) int32
+
+//go:noescape
+func sumInt64LASX(a []int64) int64
+
+//go:noescape
+func prodInt64LASX(a []int64) int64
+
+//go:noescape
+func dotInt64LASX(a []int64, b []int64) int64

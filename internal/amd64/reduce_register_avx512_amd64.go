@@ -20,6 +20,178 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func minrFloat32AVX512Guarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat32AVX512(a)
+}
+
+func maxrFloat32AVX512Guarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat32AVX512(a)
+}
+
+func sumsqFloat32AVX512Guarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat32AVX512(a)
+}
+
+func sumsqdevFloat32AVX512Guarded(a []float32, c float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat32AVX512(a, c)
+}
+
+func sumsqdiffFloat32AVX512Guarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat32AVX512(a, b)
+}
+
+func diffFloat32AVX512Guarded(dst []float32, a []float32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat32AVX512(dst, a)
+}
+
+func minrFloat64AVX512Guarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat64AVX512(a)
+}
+
+func maxrFloat64AVX512Guarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat64AVX512(a)
+}
+
+func sumsqFloat64AVX512Guarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat64AVX512(a)
+}
+
+func sumsqdevFloat64AVX512Guarded(a []float64, c float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat64AVX512(a, c)
+}
+
+func sumsqdiffFloat64AVX512Guarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat64AVX512(a, b)
+}
+
+func diffFloat64AVX512Guarded(dst []float64, a []float64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat64AVX512(dst, a)
+}
+
+func minrInt32AVX512Guarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt32AVX512(a)
+}
+
+func maxrInt32AVX512Guarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt32AVX512(a)
+}
+
+func sumsqInt32AVX512Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt32AVX512(a)
+}
+
+func sumsqdevInt32AVX512Guarded(a []int32, c int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt32AVX512(a, c)
+}
+
+func sumsqdiffInt32AVX512Guarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt32AVX512(a, b)
+}
+
+func diffInt32AVX512Guarded(dst []int32, a []int32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt32AVX512(dst, a)
+}
+
+func minrInt64AVX512Guarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt64AVX512(a)
+}
+
+func maxrInt64AVX512Guarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt64AVX512(a)
+}
+
+func sumsqInt64AVX512Guarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt64AVX512(a)
+}
+
+func sumsqdevInt64AVX512Guarded(a []int64, c int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt64AVX512(a, c)
+}
+
+func sumsqdiffInt64AVX512Guarded(a []int64, b []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt64AVX512(a, b)
+}
+
+func diffInt64AVX512Guarded(dst []int64, a []int64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt64AVX512(dst, a)
+}
+
 func sumFloat32AVX512Guarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -32,6 +204,20 @@ func dotFloat32AVX512Guarded(a []float32, b []float32) float32 {
 		return ref.DotFloat(a, b)
 	}
 	return dotFloat32AVX512(a, b)
+}
+
+func l1normFloat32AVX512Guarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat32AVX512(a)
+}
+
+func l1diffFloat32AVX512Guarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat32AVX512(a, b)
 }
 
 func sumFloat64AVX512Guarded(a []float64) float64 {
@@ -48,12 +234,102 @@ func dotFloat64AVX512Guarded(a []float64, b []float64) float64 {
 	return dotFloat64AVX512(a, b)
 }
 
+func l1normFloat64AVX512Guarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat64AVX512(a)
+}
+
+func l1diffFloat64AVX512Guarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat64AVX512(a, b)
+}
+
+func sumInt32AVX512Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt32AVX512(a)
+}
+
+func prodInt32AVX512Guarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt32AVX512(a)
+}
+
+func dotInt32AVX512Guarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt32AVX512(a, b)
+}
+
+func sumInt64AVX512Guarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt64AVX512(a)
+}
+
+func prodInt64AVX512Guarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt64AVX512(a)
+}
+
+func dotInt64AVX512Guarded(a []int64, b []int64) int64 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt64AVX512(a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("avx512")
+	s.F32.Min = minrFloat32AVX512Guarded
+	s.F32.Max = maxrFloat32AVX512Guarded
+	s.F32.SumSquares = sumsqFloat32AVX512Guarded
+	s.F32.SumSqDev = sumsqdevFloat32AVX512Guarded
+	s.F32.SumSqDiff = sumsqdiffFloat32AVX512Guarded
+	s.F32.Diff = diffFloat32AVX512Guarded
+	s.F64.Min = minrFloat64AVX512Guarded
+	s.F64.Max = maxrFloat64AVX512Guarded
+	s.F64.SumSquares = sumsqFloat64AVX512Guarded
+	s.F64.SumSqDev = sumsqdevFloat64AVX512Guarded
+	s.F64.SumSqDiff = sumsqdiffFloat64AVX512Guarded
+	s.F64.Diff = diffFloat64AVX512Guarded
+	s.I32.Min = minrInt32AVX512Guarded
+	s.I32.Max = maxrInt32AVX512Guarded
+	s.I32.SumSquares = sumsqInt32AVX512Guarded
+	s.I32.SumSqDev = sumsqdevInt32AVX512Guarded
+	s.I32.SumSqDiff = sumsqdiffInt32AVX512Guarded
+	s.I32.Diff = diffInt32AVX512Guarded
+	s.I64.Min = minrInt64AVX512Guarded
+	s.I64.Max = maxrInt64AVX512Guarded
+	s.I64.SumSquares = sumsqInt64AVX512Guarded
+	s.I64.SumSqDev = sumsqdevInt64AVX512Guarded
+	s.I64.SumSqDiff = sumsqdiffInt64AVX512Guarded
+	s.I64.Diff = diffInt64AVX512Guarded
 	s.F32.Sum = sumFloat32AVX512Guarded
 	s.F32.Dot = dotFloat32AVX512Guarded
+	s.F32.L1Norm = l1normFloat32AVX512Guarded
+	s.F32.L1Diff = l1diffFloat32AVX512Guarded
 	s.F64.Sum = sumFloat64AVX512Guarded
 	s.F64.Dot = dotFloat64AVX512Guarded
+	s.F64.L1Norm = l1normFloat64AVX512Guarded
+	s.F64.L1Diff = l1diffFloat64AVX512Guarded
+	s.I32.Sum = sumInt32AVX512Guarded
+	s.I32.Prod = prodInt32AVX512Guarded
+	s.I32.Dot = dotInt32AVX512Guarded
+	s.I64.Sum = sumInt64AVX512Guarded
+	s.I64.Prod = prodInt64AVX512Guarded
+	s.I64.Dot = dotInt64AVX512Guarded
 }

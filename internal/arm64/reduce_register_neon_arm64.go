@@ -20,6 +20,129 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
+func sumsqFloat32NEONGuarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat32NEON(a)
+}
+
+func sumsqdevFloat32NEONGuarded(a []float32, c float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat32NEON(a, c)
+}
+
+func sumsqdiffFloat32NEONGuarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat32NEON(a, b)
+}
+
+func diffFloat32NEONGuarded(dst []float32, a []float32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat32NEON(dst, a)
+}
+
+func sumsqFloat64NEONGuarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSquaresFloat(a)
+	}
+	return sumsqFloat64NEON(a)
+}
+
+func sumsqdevFloat64NEONGuarded(a []float64, c float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDevFloat(a, c)
+	}
+	return sumsqdevFloat64NEON(a, c)
+}
+
+func sumsqdiffFloat64NEONGuarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.SumSqDiffFloat(a, b)
+	}
+	return sumsqdiffFloat64NEON(a, b)
+}
+
+func diffFloat64NEONGuarded(dst []float64, a []float64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffFloat64NEON(dst, a)
+}
+
+func minrInt32NEONGuarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt32NEON(a)
+}
+
+func maxrInt32NEONGuarded(a []int32) int32 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt32NEON(a)
+}
+
+func sumsqInt32NEONGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt32NEON(a)
+}
+
+func sumsqdevInt32NEONGuarded(a []int32, c int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt32NEON(a, c)
+}
+
+func sumsqdiffInt32NEONGuarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt32NEON(a, b)
+}
+
+func diffInt32NEONGuarded(dst []int32, a []int32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt32NEON(dst, a)
+}
+
+func minrInt64NEONGuarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt64NEON(a)
+}
+
+func maxrInt64NEONGuarded(a []int64) int64 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt64NEON(a)
+}
+
+func diffInt64NEONGuarded(dst []int64, a []int64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt64NEON(dst, a)
+}
+
 func sumFloat32NEONGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -32,6 +155,20 @@ func dotFloat32NEONGuarded(a []float32, b []float32) float32 {
 		return ref.DotFloat(a, b)
 	}
 	return dotFloat32NEON(a, b)
+}
+
+func l1normFloat32NEONGuarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat32NEON(a)
+}
+
+func l1diffFloat32NEONGuarded(a []float32, b []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat32NEON(a, b)
 }
 
 func sumFloat64NEONGuarded(a []float64) float64 {
@@ -48,12 +185,79 @@ func dotFloat64NEONGuarded(a []float64, b []float64) float64 {
 	return dotFloat64NEON(a, b)
 }
 
+func l1normFloat64NEONGuarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat64NEON(a)
+}
+
+func l1diffFloat64NEONGuarded(a []float64, b []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat64NEON(a, b)
+}
+
+func sumInt32NEONGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt32NEON(a)
+}
+
+func prodInt32NEONGuarded(a []int32) int32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt32NEON(a)
+}
+
+func dotInt32NEONGuarded(a []int32, b []int32) int32 {
+	if len(a) < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt32NEON(a, b)
+}
+
+func sumInt64NEONGuarded(a []int64) int64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt64NEON(a)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("neon")
+	s.F32.SumSquares = sumsqFloat32NEONGuarded
+	s.F32.SumSqDev = sumsqdevFloat32NEONGuarded
+	s.F32.SumSqDiff = sumsqdiffFloat32NEONGuarded
+	s.F32.Diff = diffFloat32NEONGuarded
+	s.F64.SumSquares = sumsqFloat64NEONGuarded
+	s.F64.SumSqDev = sumsqdevFloat64NEONGuarded
+	s.F64.SumSqDiff = sumsqdiffFloat64NEONGuarded
+	s.F64.Diff = diffFloat64NEONGuarded
+	s.I32.Min = minrInt32NEONGuarded
+	s.I32.Max = maxrInt32NEONGuarded
+	s.I32.SumSquares = sumsqInt32NEONGuarded
+	s.I32.SumSqDev = sumsqdevInt32NEONGuarded
+	s.I32.SumSqDiff = sumsqdiffInt32NEONGuarded
+	s.I32.Diff = diffInt32NEONGuarded
+	s.I64.Min = minrInt64NEONGuarded
+	s.I64.Max = maxrInt64NEONGuarded
+	s.I64.Diff = diffInt64NEONGuarded
 	s.F32.Sum = sumFloat32NEONGuarded
 	s.F32.Dot = dotFloat32NEONGuarded
+	s.F32.L1Norm = l1normFloat32NEONGuarded
+	s.F32.L1Diff = l1diffFloat32NEONGuarded
 	s.F64.Sum = sumFloat64NEONGuarded
 	s.F64.Dot = dotFloat64NEONGuarded
+	s.F64.L1Norm = l1normFloat64NEONGuarded
+	s.F64.L1Diff = l1diffFloat64NEONGuarded
+	s.I32.Sum = sumInt32NEONGuarded
+	s.I32.Prod = prodInt32NEONGuarded
+	s.I32.Dot = dotInt32NEONGuarded
+	s.I64.Sum = sumInt64NEONGuarded
 }

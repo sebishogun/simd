@@ -85,14 +85,21 @@ func LayoutFrame(k spec.Kernel) Frame {
 		off += p.Type.Size()
 	}
 	if k.Result != nil {
-		// A result is aligned to its own alignment, not to a word. Rounding it
-		// up to 8 makes the frame too large and `go vet` asmdecl rejects it:
-		// a func([]float32) float32 frame is 24+4 = 28 bytes, not 32.
-		align(k.Result.Type.Align())
+		// The results section starts on a word boundary, whatever the result's
+		// own alignment is, and then the result sits at its natural alignment
+		// within it. The total is not rounded up afterwards.
+		//
+		// Both halves of that matter and neither is guessable. For
+		// func([]float32) float32 the arguments end at 24, which is already
+		// aligned, so the result goes at 24 and the frame is 28 — not 32. For
+		// func([]float32, float32) float32 the arguments end at 28, so the
+		// result is pushed to 32 and the frame is 36 — not 32. Getting either
+		// wrong makes the kernel read or write the wrong stack slot, which is
+		// why `go vet` checks it and why it is worth running.
+		align(8)
 		f.ResultOff = off
 		off += k.Result.Type.Size()
 	}
-	// The total is not rounded up either. asmdecl compares it exactly.
 	f.Size = off
 	return f
 }
@@ -265,7 +272,7 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 // the portable implementation kept, rather than failing the whole target.
 // Only amd64 is handled: the RISC targets build a constant address from a
 // high/low instruction pair, which has to be rewritten as a unit.
-func CanLift(fn *objfile.Func, tgt target.Target) (bool, string) {
+func CanLift(fn *objfile.Func, instrs []Instr, tgt target.Target) (bool, string) {
 	for _, r := range fn.Relocs {
 		if isSelfRelative(r.TypeName) {
 			continue
@@ -277,8 +284,33 @@ func CanLift(fn *objfile.Func, tgt target.Target) (bool, string) {
 		if len(r.Target) == 0 {
 			return false, "references " + r.Sym + ", which is not a constant pool"
 		}
+		// A legacy SSE arithmetic instruction with a memory operand requires
+		// 16-byte alignment and has no unaligned form to switch to, so the
+		// pool cannot simply be appended to the body. VEX and EVEX encodings
+		// have no such requirement, which is why this only bites the baseline
+		// tier.
+		if in, ok := instrAt(instrs, r.Off); ok {
+			if err := checkPatchable(in); err != nil {
+				return false, err.Error()
+			}
+		}
 	}
 	return true, ""
+}
+
+// checkPatchable reports whether an instruction reading a constant pool can be
+// made to tolerate an unaligned address.
+func checkPatchable(in Instr) error {
+	switch {
+	case alignedLoads[in.Mnemonic], alignedInteger[in.Mnemonic]:
+		return nil // one byte to patch
+	case strings.HasPrefix(in.Mnemonic, "v"):
+		return nil // VEX and EVEX impose no alignment
+	case unalignedLoads[in.Mnemonic]:
+		return nil
+	}
+	return fmt.Errorf("reads a constant pool with %q, a legacy SSE instruction that "+
+		"requires 16-byte alignment and has no same-length unaligned form", in.Mnemonic)
 }
 
 // isSelfRelative reports whether a relocation targets a location inside the

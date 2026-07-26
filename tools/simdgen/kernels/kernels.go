@@ -245,13 +245,76 @@ func Arith() []spec.Kernel {
 	return ks
 }
 
+// reduceScalar is a reduction with one extra scalar operand, such as the sum
+// of squared deviations from a mean.
+func reduceScalar(op, field, refFunc string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "_" + e.c, GoName: op2go(op) + e.goName,
+		Group: e.group, Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("a", e.slice), sl("c", e.scalar)},
+		Result:    &spec.Param{Name: "ret", Type: e.scalar},
+		CArgs:     []spec.CArg{out(), base("a"), val("c"), lenOf("a")},
+		Threshold: thReduction,
+	}
+}
+
+// diffK writes successive differences, and so needs both lengths: the output
+// is one element shorter than the input.
+func diffK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_diff_" + e.c, GoName: "diff" + e.goName,
+		Group: e.group, Field: "Diff", RefFunc: "Diff",
+		Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst"), lenOf("a")},
+		Threshold: thElementwise,
+	}
+}
+
+// minMaxK is a horizontal minimum or maximum.
+//
+// Its threshold is 1, not 0: the kernel reads a[0] before looping, so an empty
+// slice must reach the portable implementation, which panics as documented
+// rather than reading out of bounds.
+func minMaxK(op, field, refFunc string, e elem) spec.Kernel {
+	k := reduce1(op, field, refFunc, e)
+	k.Threshold = 1
+	return k
+}
+
 // Reduce is everything in csrc/reduce.c.
 func Reduce() []spec.Kernel {
 	var ks []spec.Kernel
+	for _, e := range elems {
+		ks = append(ks,
+			minMaxK("minr", "Min", e.ref("MinReduce"), e),
+			minMaxK("maxr", "Max", e.ref("MaxReduce"), e),
+			reduce1("sumsq", "SumSquares", e.ref("SumSquares"), e),
+			reduceScalar("sumsqdev", "SumSqDev", e.ref("SumSqDev"), e),
+			reduce2("sumsqdiff", "SumSqDiff", e.ref("SumSqDiff"), e),
+			diffK(e),
+		)
+	}
 	for _, e := range floats() {
 		ks = append(ks,
 			reduce1("sum", "Sum", "SumFloat", e),
 			reduce2("dot", "Dot", "DotFloat", e),
+			reduce1("l1norm", "L1Norm", "L1NormFloat", e),
+			reduce2("l1diff", "L1Diff", "L1DiffFloat", e),
+		)
+	}
+	// Integer sums and products need no lane discipline, because integer
+	// arithmetic is associative and no accumulation order is observable.
+	// Floating-point Prod is deliberately absent: products overflow and
+	// underflow far more readily than sums, so reassociating one changes which
+	// intermediate blows up rather than merely the rounding.
+	for _, e := range elems {
+		if e.float {
+			continue
+		}
+		ks = append(ks,
+			reduce1("sum", "Sum", "SumInt", e),
+			reduce1("prod", "Prod", "ProdInt", e),
+			reduce2("dot", "Dot", "DotInt", e),
 		)
 	}
 	return ks

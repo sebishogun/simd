@@ -877,3 +877,23 @@ func Ceil[T Float](dst, a []T)        { unary[T](gomath.Ceil)(dst, a) }
 func Trunc[T Float](dst, a []T)       { unary[T](gomath.Trunc)(dst, a) }
 func Round[T Float](dst, a []T)       { unary[T](gomath.Round)(dst, a) }
 func RoundToEven[T Float](dst, a []T) { unary[T](gomath.RoundToEven)(dst, a) }
+
+func MinReduceFloat[T Float](a []T) T         { return minFloat(a) }
+func MaxReduceFloat[T Float](a []T) T         { return maxFloat(a) }
+func MinReduceInt[T ~int32 | ~int64](a []T) T { return minInt(a) }
+func MaxReduceInt[T ~int32 | ~int64](a []T) T { return maxInt(a) }
+
+func SumSquaresFloat[T Float](a []T) T         { return sumSquaresFloat(a) }
+func SumSquaresInt[T ~int32 | ~int64](a []T) T { return sumSquaresInt(a) }
+func L1NormFloat[T Float](a []T) T             { return l1NormFloat(a) }
+func L1DiffFloat[T Float](a, b []T) T          { return l1DiffFloat(a, b) }
+
+func SumSqDevFloat[T Float](a []T, c T) T         { return sumSqDevFloat(a, c) }
+func SumSqDevInt[T ~int32 | ~int64](a []T, c T) T { return sumSqDevInt(a, c) }
+func SumSqDiffFloat[T Float](a, b []T) T          { return sumSqDiffFloat(a, b) }
+func SumSqDiffInt[T ~int32 | ~int64](a, b []T) T  { return sumSqDiffInt(a, b) }
+
+func SumInt[T ~int32 | ~int64](a []T) T    { return sumInt(a) }
+func DotInt[T ~int32 | ~int64](a, b []T) T { return dotInt(a, b) }
+func ProdInt[T ~int32 | ~int64](a []T) T   { return prod(a) }
+func Diff[T Number](dst, a []T)            { diff(dst, a) }

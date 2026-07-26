@@ -16,6 +16,78 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 //go:noescape
+func minrFloat32SSE2(a []float32) float32
+
+//go:noescape
+func maxrFloat32SSE2(a []float32) float32
+
+//go:noescape
+func sumsqFloat32SSE2(a []float32) float32
+
+//go:noescape
+func sumsqdevFloat32SSE2(a []float32, c float32) float32
+
+//go:noescape
+func sumsqdiffFloat32SSE2(a []float32, b []float32) float32
+
+//go:noescape
+func diffFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func minrFloat64SSE2(a []float64) float64
+
+//go:noescape
+func maxrFloat64SSE2(a []float64) float64
+
+//go:noescape
+func sumsqFloat64SSE2(a []float64) float64
+
+//go:noescape
+func sumsqdevFloat64SSE2(a []float64, c float64) float64
+
+//go:noescape
+func sumsqdiffFloat64SSE2(a []float64, b []float64) float64
+
+//go:noescape
+func diffFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func minrInt32SSE2(a []int32) int32
+
+//go:noescape
+func maxrInt32SSE2(a []int32) int32
+
+//go:noescape
+func sumsqInt32SSE2(a []int32) int32
+
+//go:noescape
+func sumsqdevInt32SSE2(a []int32, c int32) int32
+
+//go:noescape
+func sumsqdiffInt32SSE2(a []int32, b []int32) int32
+
+//go:noescape
+func diffInt32SSE2(dst []int32, a []int32)
+
+//go:noescape
+func minrInt64SSE2(a []int64) int64
+
+//go:noescape
+func maxrInt64SSE2(a []int64) int64
+
+//go:noescape
+func sumsqInt64SSE2(a []int64) int64
+
+//go:noescape
+func sumsqdevInt64SSE2(a []int64, c int64) int64
+
+//go:noescape
+func sumsqdiffInt64SSE2(a []int64, b []int64) int64
+
+//go:noescape
+func diffInt64SSE2(dst []int64, a []int64)
+
+//go:noescape
 func sumFloat32SSE2(a []float32) float32
 
 //go:noescape
@@ -26,3 +98,18 @@ func sumFloat64SSE2(a []float64) float64
 
 //go:noescape
 func dotFloat64SSE2(a []float64, b []float64) float64
+
+//go:noescape
+func sumInt32SSE2(a []int32) int32
+
+//go:noescape
+func prodInt32SSE2(a []int32) int32
+
+//go:noescape
+func dotInt32SSE2(a []int32, b []int32) int32
+
+//go:noescape
+func sumInt64SSE2(a []int64) int64
+
+//go:noescape
+func dotInt64SSE2(a []int64, b []int64) int64
