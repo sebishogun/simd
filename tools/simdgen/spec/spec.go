@@ -153,6 +153,12 @@ type Kernel struct {
 	// CArgs maps Go parameters onto the C function's arguments, in C order.
 	CArgs []CArg
 
+	// Group and Field name the kernel.Ops slot this kernel fills, so the
+	// generator can emit the registration that installs it: Group "F32" and
+	// Field "Add" means the generated function is assigned to
+	// kernel.Set.F32.Add.
+	Group, Field string
+
 	// Threshold is the element count below which the dispatcher should run
 	// the portable Go implementation instead of calling into assembly.
 	//
@@ -224,6 +230,9 @@ func (k Kernel) Validate() error {
 			return fmt.Errorf("kernel %s: C argument %d passes slice %q by value",
 				k.GoName, i, a.From)
 		}
+	}
+	if k.Group == "" || k.Field == "" {
+		return fmt.Errorf("kernel %s: Group and Field are required to register it", k.GoName)
 	}
 	if k.Result != nil && k.Result.Type.IsSlice() {
 		return fmt.Errorf("kernel %s: a slice result is not supported", k.GoName)

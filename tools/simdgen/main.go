@@ -30,6 +30,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/sebishogun/simd/tools/simdgen/astcheck"
 	"github.com/sebishogun/simd/tools/simdgen/compile"
 	"github.com/sebishogun/simd/tools/simdgen/emit"
 	"github.com/sebishogun/simd/tools/simdgen/kernels"
@@ -94,6 +95,26 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 		return err
 	}
 	fmt.Printf("simdgen: %s\n", clangVer)
+
+	// Confirm the C source still says what the manifest claims it says,
+	// before anything is compiled for a specific target. A signature that has
+	// drifted produces a prologue loading arguments from the wrong registers,
+	// which no compiler or assembler would object to.
+	for _, src := range kernels.All {
+		sigs, err := astcheck.Parse(clangBin, filepath.Join(root, src.Path), nil)
+		if err != nil {
+			return err
+		}
+		if errs := astcheck.Check(src.Kernels, sigs); len(errs) > 0 {
+			var b strings.Builder
+			fmt.Fprintf(&b, "%s disagrees with the manifest:\n", src.Path)
+			for _, e := range errs {
+				fmt.Fprintf(&b, "  - %v\n", e)
+			}
+			return fmt.Errorf("%s", b.String())
+		}
+	}
+	fmt.Printf("  manifest matches the C source\n")
 
 	opt := verify.DefaultOptions()
 	opt.ObjdumpPath = objdumpBin
@@ -208,6 +229,10 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		return 0, err
 	}
 	if err := os.WriteFile(filepath.Join(dir, stem+tgt.Suffix()+".go"), []byte(stub), 0o644); err != nil {
+		return 0, err
+	}
+	reg := emit.Backend(tiered, tgt, pkg, prov)
+	if err := os.WriteFile(filepath.Join(dir, "register"+tgt.Suffix()+".go"), []byte(reg), 0o644); err != nil {
 		return 0, err
 	}
 	return len(tiered), nil

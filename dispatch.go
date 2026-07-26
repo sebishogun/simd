@@ -1,6 +1,7 @@
 package simd
 
 import (
+	"github.com/sebishogun/simd/internal/backend"
 	"github.com/sebishogun/simd/internal/cpu"
 	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
@@ -26,7 +27,8 @@ var (
 )
 
 func init() {
-	active = backendFor(cpu.Selected())
+	active = backendFor(cpu.Detail())
+	cpu.SetBackendTier(active.Name)
 	opsF32, opsF64 = &active.F32, &active.F64
 	opsI32, opsI64 = &active.I32, &active.I64
 }
@@ -53,32 +55,51 @@ func ops[T Number]() *kernel.Ops[T] {
 	panic("simd: unsupported element type")
 }
 
-// backendFor returns the kernel set for a tier, falling back to the portable
-// Go reference for any tier without a backend compiled into this build.
+// backendFor picks the best backend this build actually contains for a CPU.
 //
-// The fallback is not a failure path: on an architecture with no generated
-// assembly, and in builds made with the purego tag, it is the only path.
-func backendFor(t cpu.Tier) kernel.Set {
+// It walks the tiers the CPU supports from strongest to weakest and takes the
+// first one with a registered backend, rather than looking up only the
+// strongest and giving up. Those are not the same thing: a machine with
+// AVX-512 selects the avx512 tier, but if no AVX-512 kernels have been
+// generated yet, the right answer is the AVX2 backend — not to fall all the
+// way back to portable Go and leave a 9x speedup on the table because the
+// best possible tier happened to be missing.
+//
+// Falling through to the reference is still correct and still happens: on an
+// architecture with no generated assembly at all, and in purego builds, it is
+// the only path.
+func backendFor(sel cpu.Selection) kernel.Set {
 	if puregoOnly {
 		return ref.Set()
 	}
-	if s, ok := tierBackends[t]; ok {
-		return s
+	// Available is ordered weakest first, so walk it backwards. When GOSIMD
+	// has pinned a tier, honour that exactly rather than stepping down past
+	// it: forcing a tier is how the tests and benchmarks isolate one, and
+	// silently substituting a different one would make both meaningless.
+	if sel.Forced {
+		if s, ok := backend.Lookup(sel.Tier.String()); ok {
+			return s
+		}
+		return ref.Set()
+	}
+	for i := len(sel.Available) - 1; i >= 0; i-- {
+		if sel.Available[i] > sel.Tier {
+			continue
+		}
+		if s, ok := backend.Lookup(sel.Available[i].String()); ok {
+			return s
+		}
 	}
 	return ref.Set()
 }
 
-// tierBackends maps tiers to their generated backends. Generated code
-// registers into it from an init function in the per-architecture package, so
-// this file needs no build-tagged imports.
+// Tier returns the name of the instruction-set tier whose kernels this
+// process is actually running, such as "avx2", "neon" or "scalar".
 //
-// It is empty until the code-generation pipeline lands, so every tier
-// currently resolves to the reference implementation: correct, but not fast.
-var tierBackends = map[cpu.Tier]kernel.Set{}
-
-// Tier returns the name of the instruction-set tier this process selected,
-// such as "avx2", "neon" or "scalar".
-func Tier() string { return cpu.Selected().String() }
+// This is the backend in use, which is not always the best tier the CPU
+// supports: if no kernels have been generated for that tier yet, the next one
+// down is used instead. [Describe] reports both.
+func Tier() string { return active.Name }
 
 // AvailableTiers returns the names of every instruction-set tier this CPU can
 // execute, weakest first, always beginning with "scalar".

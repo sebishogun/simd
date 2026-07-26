@@ -173,6 +173,13 @@ func remove(ts *[]Tier, t Tier) bool {
 	return false
 }
 
+// Backend records which tier's kernels are actually in use, which may be
+// lower than the detected tier when a backend has not been generated yet.
+var backendTier string
+
+// SetBackendTier is called once by the dispatcher after it has chosen.
+func SetBackendTier(name string) { backendTier = name }
+
 // Describe renders the selection for logs and test failure messages.
 func Describe() string {
 	s := selection
@@ -200,6 +207,11 @@ func Describe() string {
 			b.WriteString(t.String())
 		}
 		b.WriteByte(']')
+	}
+	if backendTier != "" && backendTier != s.Tier.String() {
+		// The CPU supports a better tier than this build has kernels for.
+		b.WriteString(" backend=")
+		b.WriteString(backendTier)
 	}
 	if s.Reason != "" {
 		b.WriteString(" reason=")
