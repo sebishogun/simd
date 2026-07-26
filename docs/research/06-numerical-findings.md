@@ -177,6 +177,40 @@ The cost is one branch-and-link per call, against a kernel that is about to
 walk a whole slice. Without it, s390x would have had to drop 196 of its 245
 kernels — the alternative that was measured before this was found.
 
+## 4c. The parameter save area is parallel on ppc64le
+
+A third ABI disagreement, and the one that produced the least informative
+crash. Under ELFv2 every argument owns a slot in the parameter save area in
+declaration order, and a floating-point argument's slot is *skipped* in the
+integer sequence rather than reused. So for
+
+    simd_scale_f64(double *d, const double *a, double s, isize n)
+
+ppc64le passes d in r3, a in r4, s in f1 — and n in **r6**, because s owns r5.
+The generator assigned integer arguments sequentially and put n in r5, so the
+kernel read a garbage length and wrote that many elements. It faulted inside
+the runtime's stack allocator, several calls away from anything to do with
+this library.
+
+Every other target assigns its integer and floating-point argument registers
+independently. s390x reads the same kernel's length from r4, and AAPCS64,
+RISC-V and System V all behave the same way. Only ELFv2 does this.
+
+## 4d. Why ppc64le is not in the default matrix
+
+Three ABI bugs were found there, two fixed — the save-area slot above and a
+framed assembly function needing NO_LOCAL_POINTERS, without which the runtime
+aborts with "missing stackmap" the first time a goroutine stack grows under
+one — and a third remains: the link register is clobbered somewhere in the
+selection kernels and control returns to address 1.
+
+Each round of diagnosis costs about ten minutes of emulation, and POWER is the
+least-used target here. The backend was removed from the default matrix rather
+than shipped: every one of the 209 exported functions still works on ppc64le
+through the portable Go implementation, and the alternative was shipping
+memory corruption to the one architecture nobody would be watching. The target
+definition is kept, and `simdgen -arch ppc64le` still works.
+
 ## 5. Constant pools on AArch64
 
 clang reaches a pool with `adrp x11, sym` + `ldr d1, [x11, :lo12:sym]`. `adrp` computes

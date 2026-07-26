@@ -494,6 +494,12 @@ func prologueFor(k spec.Kernel, frame Frame, tgt target.Target) ([]string, error
 			}
 			reg = tgt.FloatArgs[nextFlt]
 			nextFlt++
+			// On a target with a parallel parameter save area the float also
+			// owns an integer slot, so every later integer argument shifts up
+			// one register. See target.FloatArgsUseIntSlot.
+			if tgt.FloatArgsUseIntSlot {
+				nextInt++
+			}
 		} else {
 			if nextInt >= len(tgt.IntArgs) {
 				// Arguments beyond the register set would have to be pushed
