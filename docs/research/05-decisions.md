@@ -225,3 +225,11 @@ and stubs are committed.
   intrinsics are the only route, which contradicts D1.
 - cgo, `//go:linkname` into C symbols, or shipping `.so` files. All three are either unsupported,
   fragile, or defeat the purpose.
+
+## Findings recorded elsewhere
+
+`06-numerical-findings.md` holds what was measured while building the kernels: the reference's own
+architecture dependence through fused multiply-add, four places where Go's `math` is the less
+accurate side, denormal handling, what "the tiers agree" can mean for a transcendental, and the
+AArch64 constant-pool rewrite. Several of those were invisible on amd64 and surfaced only under
+emulation.
