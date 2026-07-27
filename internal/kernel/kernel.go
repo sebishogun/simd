@@ -321,6 +321,29 @@ type Bytes struct {
 	B64Decode func(dst, src []byte) int
 }
 
+// Convert is the narrow floating-point storage formats.
+//
+// They are a group of their own rather than fields on Ops because neither is
+// an element type this package computes in — there is no Add for a bfloat16
+// here, and there should not be. What a caller wants is to widen a buffer,
+// work in float32, and narrow it again, which is two functions per format.
+//
+// A float16 or bfloat16 is carried as a uint16, because Go has neither type
+// and reinterpreting a []uint16 costs nothing at the call site.
+type Convert struct {
+	// BF16ToF32 is exact — a bfloat16 is the high half of a float32.
+	// F32ToBF16 rounds to nearest even and quiets a NaN rather than letting
+	// the rounding carry it into an infinity.
+	BF16ToF32 func(dst []float32, a []uint16)
+	F32ToBF16 func(dst []uint16, a []float32)
+
+	// F16ToF32 is exact, since every float16 is representable. F32ToF16
+	// rounds to nearest even, saturates to infinity above 65520, and produces
+	// denormals rather than flushing them to zero.
+	F16ToF32 func(dst []float32, a []uint16)
+	F32ToF16 func(dst []uint16, a []float32)
+}
+
 // Complex is the kernel group for complex numbers, parameterised by the
 // complex type C and its real component type R.
 //
@@ -390,6 +413,7 @@ type Set struct {
 	U32       Ops[uint32]
 	U64       Ops[uint64]
 	Bytes     Bytes
+	Convert   Convert
 	Mask      Mask
 	C64       Complex[complex64]
 	C128      Complex[complex128]

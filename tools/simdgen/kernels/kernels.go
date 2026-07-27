@@ -831,6 +831,33 @@ func FastMath() []spec.Kernel {
 	return ks
 }
 
+// Convert is csrc/convert.c: the narrow floating-point storage formats.
+//
+// A float16 or bfloat16 crosses as a uint16, because Go has neither type. The
+// C side takes an unsigned short, which is the same sixteen bits, so nothing
+// is reinterpreted anywhere — the pointer is the pointer.
+func Convert() []spec.Kernel {
+	conv := func(cname, goName, field, refFunc string, dst, src spec.Type) spec.Kernel {
+		return spec.Kernel{
+			CName: cname, GoName: goName,
+			Group: "Convert", Field: field, RefFunc: refFunc,
+			Params:    []spec.Param{sl("dst", dst), sl("a", src)},
+			CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
+			Threshold: thElementwise,
+		}
+	}
+	return []spec.Kernel{
+		conv("simd_bf16_to_f32", "bf16ToF32", "BF16ToF32", "BF16ToF32",
+			spec.SliceF32, spec.SliceU16),
+		conv("simd_f32_to_bf16", "f32ToBF16", "F32ToBF16", "F32ToBF16",
+			spec.SliceU16, spec.SliceF32),
+		conv("simd_f16_to_f32", "f16ToF32", "F16ToF32", "F16ToF32",
+			spec.SliceF32, spec.SliceU16),
+		conv("simd_f32_to_f16", "f32ToF16", "F32ToF16", "F32ToF16",
+			spec.SliceU16, spec.SliceF32),
+	}
+}
+
 // ---------- numeric kernels with an unusual shape ----------
 
 // normK is the Euclidean length, a reduction like the others.
@@ -1083,6 +1110,7 @@ var All = []Source{
 	{Path: "csrc/math.c", Kernels: Math()},
 	{Path: "csrc/numeric.c", Kernels: Numeric()},
 	{Path: "csrc/complex.c", Kernels: Complex()},
+	{Path: "csrc/convert.c", Kernels: Convert()},
 	{
 		Path:    "csrc/fastmath.c",
 		Kernels: FastMath(),
