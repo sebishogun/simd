@@ -53,6 +53,39 @@ operation; below it the library runs a plain Go loop, because crossing into
 assembly costs more than it saves. It is worth reaching for when your slices
 are thousands of elements, not tens.
 
+More: **[runnable examples](example_test.go)** for every operation below
+(checked by `go test`, rendered on pkg.go.dev), and
+**[complete programs](docs/examples/)** in `docs/examples/`.
+
+## Which function do I want
+
+Named for what you are trying to do, rather than for what the operation is
+called. Every one of these has a runnable example in
+[`example_test.go`](example_test.go), checked on every build.
+
+| I want to… | Call |
+|---|---|
+| add/scale/clamp a slice in place | `Add` `Scale` `AddScalar` `Clamp` |
+| …without destroying the input | the same name with `Into` |
+| do `y += a*x` in one pass (axpy) | `AddScaled` |
+| total / average / spread of a slice | `Sum` `Mean` `StdDev` `Variance` |
+| length of a vector, distance between two | `Norm` `Distance` `CosineSimilarity` |
+| make a vector unit length | `Normalize` |
+| smallest and largest in one pass | `MinMax`, or `ArgMin`/`ArgMax` for positions |
+| **keep only the elements that pass a test** | a comparison → `[]bool`, then `CompressInto` |
+| apply an arbitrary Go predicate | `FilterInto` (convenient, not fast — see its doc) |
+| running totals / differences | `CumSum` `Diff` |
+| exp/log/trig over a slice | `Exp` `Log` `Sin` … and the `Fast*` twins |
+| pick between two slices per element | `SelectInto` |
+| **apply a matrix to a vector** | `GemvInto` |
+| multiply two matrices | `MatMulInto` |
+| find a byte or substring | `IndexByte` `Index` `LastIndex` |
+| **find every occurrence at once** | `IndexAll` — the structural-index step of a parser |
+| find any of a set of bytes | `IndexAny` `IndexNotAny` `CountAny` |
+| trim, fold case, validate UTF-8 | `TrimAny` `TrimSpaceASCII` `EqualFoldASCII` `ValidUTF8` |
+| hex or base64 | `HexEncode` `Base64Encode` `Base64Decode` |
+| convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |
+
 ## Status
 
 **v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and

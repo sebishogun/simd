@@ -133,9 +133,9 @@ func TestMatMulZeroTimesInfinity(t *testing.T) {
 // condition the generated guard routes to the portable path.
 func TestMatMulRejectsBadSizes(t *testing.T) {
 	for _, c := range []struct {
-		name          string
-		dl, al, bl    int
-		m, k, n       int
+		name       string
+		dl, al, bl int
+		m, k, n    int
 	}{
 		{"short dst", 3, 4, 4, 2, 2, 2},
 		{"short a", 4, 3, 4, 2, 2, 2},
