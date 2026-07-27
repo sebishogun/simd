@@ -16,6 +16,12 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func minrFloat32VSX(a []float32) float32
+
+//go:noescape
+func maxrFloat32VSX(a []float32) float32
+
+//go:noescape
 func diffFloat32VSX(dst []float32, a []float32)
 
 //go:noescape

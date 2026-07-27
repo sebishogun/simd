@@ -20,6 +20,20 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
+func minrFloat32VSXGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat32VSX(a)
+}
+
+func maxrFloat32VSXGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat32VSX(a)
+}
+
 func diffFloat32VSXGuarded(dst []float32, a []float32) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
@@ -92,6 +106,8 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
+	s.F32.Min = minrFloat32VSXGuarded
+	s.F32.Max = maxrFloat32VSXGuarded
 	s.F32.Diff = diffFloat32VSXGuarded
 	s.F64.SumSquares = sumsqFloat64VSXGuarded
 	s.F64.SumSqDev = sumsqdevFloat64VSXGuarded

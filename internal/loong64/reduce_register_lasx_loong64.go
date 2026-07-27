@@ -20,6 +20,20 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
+func minrFloat32LASXGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat32LASX(a)
+}
+
+func maxrFloat32LASXGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat32LASX(a)
+}
+
 func sumsqFloat32LASXGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumSquaresFloat(a)
@@ -48,6 +62,20 @@ func diffFloat32LASXGuarded(dst []float32, a []float32) {
 		return
 	}
 	diffFloat32LASX(dst, a)
+}
+
+func minrFloat64LASXGuarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat64LASX(a)
+}
+
+func maxrFloat64LASXGuarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat64LASX(a)
 }
 
 func sumsqFloat64LASXGuarded(a []float64) float64 {
@@ -306,10 +334,14 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("lasx")
+	s.F32.Min = minrFloat32LASXGuarded
+	s.F32.Max = maxrFloat32LASXGuarded
 	s.F32.SumSquares = sumsqFloat32LASXGuarded
 	s.F32.SumSqDev = sumsqdevFloat32LASXGuarded
 	s.F32.SumSqDiff = sumsqdiffFloat32LASXGuarded
 	s.F32.Diff = diffFloat32LASXGuarded
+	s.F64.Min = minrFloat64LASXGuarded
+	s.F64.Max = maxrFloat64LASXGuarded
 	s.F64.SumSquares = sumsqFloat64LASXGuarded
 	s.F64.SumSqDev = sumsqdevFloat64LASXGuarded
 	s.F64.SumSqDiff = sumsqdiffFloat64LASXGuarded

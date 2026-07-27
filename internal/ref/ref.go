@@ -917,3 +917,5 @@ func EqualFoldASCII(a, b []byte) bool         { return equalFoldASCII(a, b) }
 func IndexAny(b, chars []byte) int            { return indexAny(b, chars) }
 func CountAny(b, chars []byte) int            { return countAny(b, chars) }
 func HexEncode(dst, src []byte) int           { return hexEncode(dst, src) }
+
+func NormFloat[T Float](a []T) T { return normFloat(a) }

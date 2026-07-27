@@ -16,6 +16,12 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
 //go:noescape
+func minrFloat32RVV(a []float32) float32
+
+//go:noescape
+func maxrFloat32RVV(a []float32) float32
+
+//go:noescape
 func sumsqFloat32RVV(a []float32) float32
 
 //go:noescape
@@ -26,6 +32,12 @@ func sumsqdiffFloat32RVV(a []float32, b []float32) float32
 
 //go:noescape
 func diffFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func minrFloat64RVV(a []float64) float64
+
+//go:noescape
+func maxrFloat64RVV(a []float64) float64
 
 //go:noescape
 func sumsqFloat64RVV(a []float64) float64

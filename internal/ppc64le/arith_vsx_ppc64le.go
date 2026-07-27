@@ -67,6 +67,12 @@ func subFloat64VSX(dst []float64, a []float64, b []float64)
 func mulFloat64VSX(dst []float64, a []float64, b []float64)
 
 //go:noescape
+func minimumFloat64VSX(dst []float64, a []float64, b []float64)
+
+//go:noescape
+func maximumFloat64VSX(dst []float64, a []float64, b []float64)
+
+//go:noescape
 func absFloat64VSX(dst []float64, a []float64)
 
 //go:noescape

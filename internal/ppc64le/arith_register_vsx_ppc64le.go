@@ -172,6 +172,24 @@ func mulFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
 	mulFloat64VSX(dst[:n:n], a, b)
 }
 
+func minimumFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumFloat(dst, a, b)
+		return
+	}
+	minimumFloat64VSX(dst[:n:n], a, b)
+}
+
+func maximumFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumFloat(dst, a, b)
+		return
+	}
+	maximumFloat64VSX(dst[:n:n], a, b)
+}
+
 func absFloat64VSXGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -613,6 +631,8 @@ func init() {
 	s.F64.Add = addFloat64VSXGuarded
 	s.F64.Sub = subFloat64VSXGuarded
 	s.F64.Mul = mulFloat64VSXGuarded
+	s.F64.Minimum = minimumFloat64VSXGuarded
+	s.F64.Maximum = maximumFloat64VSXGuarded
 	s.F64.Abs = absFloat64VSXGuarded
 	s.F64.Neg = negFloat64VSXGuarded
 	s.F64.Scale = scaleFloat64VSXGuarded

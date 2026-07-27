@@ -201,12 +201,17 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 	}
 
 	// 3. Stack growth.
+	//
+	// A kernel that spills more than the budget is unusable on this target,
+	// not evidence that something is wrong: register pressure is a property
+	// of the tier, and the baseline x86-64 has eight vector registers where
+	// avx512 has thirty-two. So this drops the kernel and keeps the portable
+	// path, like every other capability limit. Reporting it as a hard failure
+	// took a whole target down over one kernel.
 	if r.StackBytes > opt.MaxStackBytes {
-		r.Problems = append(r.Problems, fmt.Sprintf(
-			"adjusts the stack pointer by %d bytes, over the %d-byte limit for a "+
-				"NOSPLIT function — it would skip the stack-growth check. Reduce the "+
-				"kernel's live values or split it up.",
-			r.StackBytes, opt.MaxStackBytes))
+		r.Unsupported = fmt.Sprintf(
+			"spills %d bytes, over the %d-byte budget for a NOSPLIT function on this tier",
+			r.StackBytes, opt.MaxStackBytes)
 	}
 
 	// 4. Everything decoded.

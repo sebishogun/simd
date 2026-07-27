@@ -172,6 +172,24 @@ func mulFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
 	mulFloat64RVV(dst[:n:n], a, b)
 }
 
+func minimumFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumFloat(dst, a, b)
+		return
+	}
+	minimumFloat64RVV(dst[:n:n], a, b)
+}
+
+func maximumFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumFloat(dst, a, b)
+		return
+	}
+	maximumFloat64RVV(dst[:n:n], a, b)
+}
+
 func absFloat64RVVGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -685,6 +703,8 @@ func init() {
 	s.F64.Add = addFloat64RVVGuarded
 	s.F64.Sub = subFloat64RVVGuarded
 	s.F64.Mul = mulFloat64RVVGuarded
+	s.F64.Minimum = minimumFloat64RVVGuarded
+	s.F64.Maximum = maximumFloat64RVVGuarded
 	s.F64.Abs = absFloat64RVVGuarded
 	s.F64.Neg = negFloat64RVVGuarded
 	s.F64.Scale = scaleFloat64RVVGuarded

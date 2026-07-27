@@ -20,6 +20,20 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
+func minrFloat32RVVGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat32RVV(a)
+}
+
+func maxrFloat32RVVGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat32RVV(a)
+}
+
 func sumsqFloat32RVVGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumSquaresFloat(a)
@@ -48,6 +62,20 @@ func diffFloat32RVVGuarded(dst []float32, a []float32) {
 		return
 	}
 	diffFloat32RVV(dst, a)
+}
+
+func minrFloat64RVVGuarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat64RVV(a)
+}
+
+func maxrFloat64RVVGuarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat64RVV(a)
 }
 
 func sumsqFloat64RVVGuarded(a []float64) float64 {
@@ -306,10 +334,14 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("rvv")
+	s.F32.Min = minrFloat32RVVGuarded
+	s.F32.Max = maxrFloat32RVVGuarded
 	s.F32.SumSquares = sumsqFloat32RVVGuarded
 	s.F32.SumSqDev = sumsqdevFloat32RVVGuarded
 	s.F32.SumSqDiff = sumsqdiffFloat32RVVGuarded
 	s.F32.Diff = diffFloat32RVVGuarded
+	s.F64.Min = minrFloat64RVVGuarded
+	s.F64.Max = maxrFloat64RVVGuarded
 	s.F64.SumSquares = sumsqFloat64RVVGuarded
 	s.F64.SumSqDev = sumsqdevFloat64RVVGuarded
 	s.F64.SumSqDiff = sumsqdiffFloat64RVVGuarded

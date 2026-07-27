@@ -631,6 +631,86 @@ func Math() []spec.Kernel {
 	return ks
 }
 
+// ---------- numeric kernels with an unusual shape ----------
+
+// normK is the Euclidean length, a reduction like the others.
+func normK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_norm_" + e.c, GoName: "norm" + e.goName,
+		Group: e.group, Field: "Norm", RefFunc: "NormFloat",
+		Params:    []spec.Param{sl("a", e.slice)},
+		Result:    &spec.Param{Name: "ret", Type: e.scalar},
+		CArgs:     []spec.CArg{out(), base("a"), lenOf("a")},
+		Threshold: thReduction,
+	}
+}
+
+// polyEvalK applies one polynomial to every element. The C takes all three
+// lengths so that it clamps them itself; the guard cannot, because a kernel
+// with more than one length is one that reconciles them.
+func polyEvalK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_polyeval_" + e.c, GoName: "polyEval" + e.goName,
+		Group: e.group, Field: "PolyEval", RefFunc: "PolyEval",
+		Params: []spec.Param{sl("dst", e.slice), sl("x", e.slice),
+			sl("coeffs", e.slice)},
+		CArgs: []spec.CArg{base("dst"), base("x"), base("coeffs"),
+			lenOf("dst"), lenOf("x"), lenOf("coeffs")},
+		Threshold: thElementwise,
+	}
+}
+
+func windowK(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "_" + e.c, GoName: op + e.goName,
+		Group: e.group, Field: field, RefFunc: field,
+		Params: []spec.Param{sl("dst", e.slice), sl("sig", e.slice),
+			sl("ker", e.slice)},
+		CArgs: []spec.CArg{base("dst"), base("sig"), base("ker"),
+			lenOf("dst"), lenOf("sig"), lenOf("ker")},
+		Threshold: thElementwise,
+	}
+}
+
+func tileK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_tile_" + e.c, GoName: "tile" + e.goName,
+		Group: e.group, Field: "Tile", RefFunc: "Tile",
+		Params:    []spec.Param{sl("dst", e.slice), sl("pattern", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("pattern"), lenOf("dst"), lenOf("pattern")},
+		Threshold: thElementwise,
+	}
+}
+
+func gatherK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_gather_" + e.c, GoName: "gather" + e.goName,
+		Group: e.group, Field: "Gather", RefFunc: "Gather",
+		Params: []spec.Param{sl("dst", e.slice), sl("src", e.slice),
+			sl("idx", spec.SliceI32)},
+		CArgs: []spec.CArg{base("dst"), base("src"), base("idx"),
+			lenOf("dst"), lenOf("idx"), lenOf("src")},
+		Threshold: thElementwise,
+	}
+}
+
+// Numeric is everything in csrc/numeric.c.
+func Numeric() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range floats() {
+		ks = append(ks,
+			normK(e),
+			polyEvalK(e),
+			windowK("convolve", "Convolve", e),
+			windowK("correlate", "Correlate", e),
+		)
+	}
+	for _, e := range elems {
+		ks = append(ks, tileK(e), gatherK(e))
+	}
+	return ks
+}
+
 // Source is a C file and the kernels compiled from it.
 type Source struct {
 	// Path is relative to the repository root.
@@ -646,4 +726,5 @@ var All = []Source{
 	{Path: "csrc/compare.c", Kernels: Compare()},
 	{Path: "csrc/bytes.c", Kernels: Bytes()},
 	{Path: "csrc/math.c", Kernels: Math()},
+	{Path: "csrc/numeric.c", Kernels: Numeric()},
 }

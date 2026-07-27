@@ -67,6 +67,12 @@ func subFloat64RVV(dst []float64, a []float64, b []float64)
 func mulFloat64RVV(dst []float64, a []float64, b []float64)
 
 //go:noescape
+func minimumFloat64RVV(dst []float64, a []float64, b []float64)
+
+//go:noescape
+func maximumFloat64RVV(dst []float64, a []float64, b []float64)
+
+//go:noescape
 func absFloat64RVV(dst []float64, a []float64)
 
 //go:noescape

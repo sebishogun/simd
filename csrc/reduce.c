@@ -113,36 +113,94 @@ void simd_dot_f64(double *__restrict out, const double *__restrict a,
 // The IEEE 754-2019 semantics still have to be written out rather than left to
 // a min instruction, for the reason given in arith.c: the hardware
 // instructions neither propagate NaN nor order the zeros.
-#define MINMAX_REDUCE(T, SUF, SIGNBIT)                                  \
-  void simd_minr_##SUF(T *__restrict out, const T *__restrict a,        \
-                       isize n) {                                       \
-    T m = a[0];                                                         \
-    for (isize i = 1; i < n; i++) {                                     \
-      T x = a[i];                                                       \
-      m = (m != m)   ? m                                                \
-          : (x != x) ? x                                                \
-          : (x < m)  ? x                                                \
-          : (m < x)  ? m                                                \
-                     : (SIGNBIT(x) ? x : m);                            \
-    }                                                                   \
-    *out = m;                                                           \
-  }                                                                     \
-  void simd_maxr_##SUF(T *__restrict out, const T *__restrict a,        \
-                       isize n) {                                       \
-    T m = a[0];                                                         \
-    for (isize i = 1; i < n; i++) {                                     \
-      T x = a[i];                                                       \
-      m = (m != m)   ? m                                                \
-          : (x != x) ? x                                                \
-          : (x > m)  ? x                                                \
-          : (m > x)  ? m                                                \
-                     : (SIGNBIT(x) ? m : x);                            \
-    }                                                                   \
-    *out = m;                                                           \
+// Horizontal minimum and maximum.
+//
+// The obvious spelling — a scalar accumulator carried through a five-deep
+// chain of ternaries — is a loop-carried dependency that no vectorizer will
+// take, and it did not vectorize on a single target here. Written against a
+// fixed-lane accumulator it does, on the targets whose backends can express
+// the select; the rest keep the portable path, which is what the generator's
+// vectorization check is for.
+//
+// Unlike a sum, the lane layout needs no defending. IEEE minimum with NaN
+// propagation is associative and commutative — a NaN anywhere gives a NaN,
+// and -0 sorts below +0 whichever side it arrives on — so folding sixteen
+// lanes in any order gives the answer the scalar loop gives. That is why this
+// can be a plain reduction where Sum has to promise a shape.
+//
+// The sign test is the whole reason this is not just __builtin_elementwise_min:
+// hardware minimum neither propagates NaN nor orders the zeros, so both have
+// to be written out.
+
+// A narrower accumulator than SUM_LANES, and it is allowed to be narrower for
+// the reason given above: the fold is order-independent, so the lane count is
+// a code-generation choice rather than part of the contract. Sixteen lanes of
+// float64 is eight XMM registers, and the select chain needs several more
+// live at once — on the baseline x86-64 tier, which has eight in total, that
+// spilled 528 bytes. Eight lanes fits one AVX-512 register and stays in
+// registers everywhere else.
+#define MM_LANES 8
+
+typedef float f32xM __attribute__((ext_vector_type(MM_LANES), aligned(1)));
+typedef double f64xM __attribute__((ext_vector_type(MM_LANES), aligned(1)));
+typedef int i32xM __attribute__((ext_vector_type(MM_LANES), aligned(1)));
+typedef long long i64xM __attribute__((ext_vector_type(MM_LANES), aligned(1)));
+
+// VMINMAX applies IEEE minimum or maximum lane-wise. CMP selects which, and
+// ZERO says which operand wins when the two compare equal, which is the case
+// that distinguishes -0 from +0.
+#define VMINMAX(V, IV, M, X, CMP, ZA, ZB)                                 \
+  ({                                                                      \
+    V m_ = (M), x_ = (X);                                                 \
+    (V)((m_ != m_)   ? m_                                                 \
+        : (x_ != x_) ? x_                                                 \
+        : (x_ CMP m_) ? x_                                                \
+        : (m_ CMP x_) ? m_                                                \
+                      : ((((IV)x_) < 0) ? ZA : ZB));                      \
+  })
+
+#define VMIN(V, IV, M, X) VMINMAX(V, IV, M, X, <, x_, m_)
+#define VMAX(V, IV, M, X) VMINMAX(V, IV, M, X, >, m_, x_)
+
+#define REDUCE_MINMAX_LANES(T, V, IV, VOP, SB, CMP, ZA, ZB)               \
+  V acc = a[0];                                                           \
+  isize i = 0;                                                            \
+  for (; i + MM_LANES <= n; i += MM_LANES)                                \
+    acc = VOP(V, IV, acc, *(const V *)(a + i));                           \
+  /* Lanes with no element keep a[0], which is already in the             \
+     accumulator, so they cannot change the answer. */                    \
+  V t = a[0];                                                             \
+  for (int j = 0; j < MM_LANES; j++)                                      \
+    if (i + j < n) t[j] = a[i + j];                                       \
+  acc = VOP(V, IV, acc, t);                                               \
+  T r[MM_LANES];                                                          \
+  *(V *)r = acc;                                                          \
+  T m = r[0];                                                             \
+  for (int j = 1; j < MM_LANES; j++) {                                    \
+    T x = r[j];                                                           \
+    m = (m != m)    ? m                                                   \
+        : (x != x)  ? x                                                   \
+        : (x CMP m) ? x                                                   \
+        : (m CMP x) ? m                                                   \
+                    : (SB(x) ? ZA : ZB);                                  \
+  }                                                                       \
+  *out = m;
+
+#define SIGNBIT_F32(x) (__builtin_signbitf(x))
+#define SIGNBIT_F64(x) (__builtin_signbit(x))
+
+#define MINMAX_REDUCE(T, V, IV, SUF, SB)                                  \
+  void simd_minr_##SUF(T *__restrict out, const T *__restrict a,          \
+                       isize n) {                                         \
+    REDUCE_MINMAX_LANES(T, V, IV, VMIN, SB, <, x, m)                      \
+  }                                                                       \
+  void simd_maxr_##SUF(T *__restrict out, const T *__restrict a,          \
+                       isize n) {                                         \
+    REDUCE_MINMAX_LANES(T, V, IV, VMAX, SB, >, m, x)                      \
   }
 
-MINMAX_REDUCE(float, f32, __builtin_signbitf)
-MINMAX_REDUCE(double, f64, __builtin_signbit)
+MINMAX_REDUCE(float, f32xM, i32xM, f32, SIGNBIT_F32)
+MINMAX_REDUCE(double, f64xM, i64xM, f64, SIGNBIT_F64)
 
 #define MINMAX_REDUCE_INT(T, SUF)                                       \
   void simd_minr_##SUF(T *__restrict out, const T *__restrict a,        \

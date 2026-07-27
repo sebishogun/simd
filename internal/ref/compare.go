@@ -439,3 +439,6 @@ func MaskAnd(dst, a, b []bool) { maskAnd(dst, a, b) }
 func MaskOr(dst, a, b []bool)  { maskOr(dst, a, b) }
 func MaskXor(dst, a, b []bool) { maskXor(dst, a, b) }
 func MaskNot(dst, a []bool)    { maskNot(dst, a) }
+
+func Tile[T number](dst, pattern []T)            { tile(dst, pattern) }
+func Gather[T number](dst, src []T, idx []int32) { gather(dst, src, idx) }

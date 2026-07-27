@@ -20,6 +20,20 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
+func minrFloat32NEONGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat32NEON(a)
+}
+
+func maxrFloat32NEONGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat32NEON(a)
+}
+
 func sumsqFloat32NEONGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumSquaresFloat(a)
@@ -48,6 +62,20 @@ func diffFloat32NEONGuarded(dst []float32, a []float32) {
 		return
 	}
 	diffFloat32NEON(dst, a)
+}
+
+func minrFloat64NEONGuarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat64NEON(a)
+}
+
+func maxrFloat64NEONGuarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat64NEON(a)
 }
 
 func sumsqFloat64NEONGuarded(a []float64) float64 {
@@ -269,10 +297,14 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("neon")
+	s.F32.Min = minrFloat32NEONGuarded
+	s.F32.Max = maxrFloat32NEONGuarded
 	s.F32.SumSquares = sumsqFloat32NEONGuarded
 	s.F32.SumSqDev = sumsqdevFloat32NEONGuarded
 	s.F32.SumSqDiff = sumsqdiffFloat32NEONGuarded
 	s.F32.Diff = diffFloat32NEONGuarded
+	s.F64.Min = minrFloat64NEONGuarded
+	s.F64.Max = maxrFloat64NEONGuarded
 	s.F64.SumSquares = sumsqFloat64NEONGuarded
 	s.F64.SumSqDev = sumsqdevFloat64NEONGuarded
 	s.F64.SumSqDiff = sumsqdiffFloat64NEONGuarded

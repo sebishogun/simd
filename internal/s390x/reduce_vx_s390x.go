@@ -16,10 +16,22 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
 //go:noescape
+func minrFloat32VX(a []float32) float32
+
+//go:noescape
+func maxrFloat32VX(a []float32) float32
+
+//go:noescape
 func sumsqFloat32VX(a []float32) float32
 
 //go:noescape
 func sumsqdevFloat32VX(a []float32, c float32) float32
+
+//go:noescape
+func minrFloat64VX(a []float64) float64
+
+//go:noescape
+func maxrFloat64VX(a []float64) float64
 
 //go:noescape
 func sumsqFloat64VX(a []float64) float64

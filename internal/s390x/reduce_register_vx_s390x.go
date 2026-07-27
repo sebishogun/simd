@@ -20,6 +20,20 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
+func minrFloat32VXGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat32VX(a)
+}
+
+func maxrFloat32VXGuarded(a []float32) float32 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat32VX(a)
+}
+
 func sumsqFloat32VXGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumSquaresFloat(a)
@@ -32,6 +46,20 @@ func sumsqdevFloat32VXGuarded(a []float32, c float32) float32 {
 		return ref.SumSqDevFloat(a, c)
 	}
 	return sumsqdevFloat32VX(a, c)
+}
+
+func minrFloat64VXGuarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MinReduceFloat(a)
+	}
+	return minrFloat64VX(a)
+}
+
+func maxrFloat64VXGuarded(a []float64) float64 {
+	if len(a) < 1 {
+		return ref.MaxReduceFloat(a)
+	}
+	return maxrFloat64VX(a)
 }
 
 func sumsqFloat64VXGuarded(a []float64) float64 {
@@ -161,8 +189,12 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vx")
+	s.F32.Min = minrFloat32VXGuarded
+	s.F32.Max = maxrFloat32VXGuarded
 	s.F32.SumSquares = sumsqFloat32VXGuarded
 	s.F32.SumSqDev = sumsqdevFloat32VXGuarded
+	s.F64.Min = minrFloat64VXGuarded
+	s.F64.Max = maxrFloat64VXGuarded
 	s.F64.SumSquares = sumsqFloat64VXGuarded
 	s.F64.SumSqDev = sumsqdevFloat64VXGuarded
 	s.I32.SumSquares = sumsqInt32VXGuarded

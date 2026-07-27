@@ -172,6 +172,24 @@ func mulFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	mulFloat64NEON(dst[:n:n], a, b)
 }
 
+func minimumFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumFloat(dst, a, b)
+		return
+	}
+	minimumFloat64NEON(dst[:n:n], a, b)
+}
+
+func maximumFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumFloat(dst, a, b)
+		return
+	}
+	maximumFloat64NEON(dst[:n:n], a, b)
+}
+
 func absFloat64NEONGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -658,6 +676,8 @@ func init() {
 	s.F64.Add = addFloat64NEONGuarded
 	s.F64.Sub = subFloat64NEONGuarded
 	s.F64.Mul = mulFloat64NEONGuarded
+	s.F64.Minimum = minimumFloat64NEONGuarded
+	s.F64.Maximum = maximumFloat64NEONGuarded
 	s.F64.Abs = absFloat64NEONGuarded
 	s.F64.Neg = negFloat64NEONGuarded
 	s.F64.Scale = scaleFloat64NEONGuarded

@@ -30,20 +30,25 @@ typedef long isize;
 // Written as compares and selects, LLVM vectorizes this into exactly the
 // compare-and-blend sequence a hand-written kernel would use, and it matches
 // the portable reference bit for bit, which the differential tests check.
-#define MINMAX_FLOAT(T, SUF, SIGNBIT)                    \
-  static inline T min_##SUF(T x, T y) {                  \
-    if (x != x) return x;                                \
-    if (y != y) return y;                                \
-    if (x < y) return x;                                 \
-    if (y < x) return y;                                 \
-    return SIGNBIT(x) ? x : y; /* -0 wins */             \
-  }                                                      \
-  static inline T max_##SUF(T x, T y) {                  \
-    if (x != x) return x;                                \
-    if (y != y) return y;                                \
-    if (x > y) return x;                                 \
-    if (y > x) return y;                                 \
-    return SIGNBIT(x) ? y : x; /* +0 wins */             \
+// Written as one branchless expression rather than a sequence of early
+// returns. The two are the same computation, but the early-return form leaves
+// LLVM to if-convert five branches before it can vectorize, and on three
+// targets it declined to for float64 while managing it for float32. A single
+// select chain is what the vectorizer wants, and it costs nothing to write.
+#define MINMAX_FLOAT(T, SUF, SIGNBIT)                              \
+  static inline T min_##SUF(T x, T y) {                            \
+    return (x != x)   ? x                                          \
+           : (y != y) ? y                                          \
+           : (x < y)  ? x                                          \
+           : (y < x)  ? y                                          \
+                      : (SIGNBIT(x) ? x : y); /* -0 wins */        \
+  }                                                                \
+  static inline T max_##SUF(T x, T y) {                            \
+    return (x != x)   ? x                                          \
+           : (y != y) ? y                                          \
+           : (x > y)  ? x                                          \
+           : (y > x)  ? y                                          \
+                      : (SIGNBIT(x) ? y : x); /* +0 wins */        \
   }
 
 MINMAX_FLOAT(float, f32, __builtin_signbitf)
@@ -84,6 +89,28 @@ static inline long long neg_i64(long long x) {
     }                                                                   \
   }
 
+// BINARY_FORCED is the same, with the vectorizer's cost model overridden.
+//
+// Used only for IEEE minimum and maximum, where the ten-operation select
+// chain against two doubles per register makes LLVM decline on arm64, riscv64
+// and ppc64le while taking the identical float32 loop. The comparison that
+// matters is not vector against scalar C, though: a kernel that does not
+// vectorize is not generated at all, so the real alternative is the portable
+// Go loop, with a bounds check per element and one element per iteration.
+// Two lanes of select chain beats that comfortably.
+//
+// It is deliberately not applied anywhere else. Where LLVM declines for a
+// reason that is actually about the target, it should be believed.
+#define BINARY_FORCED(NAME, T, SUF, EXPR)                               \
+  void simd_##NAME##_##SUF(T *__restrict d, const T *__restrict a,      \
+                           const T *__restrict b, isize n) {            \
+    _Pragma("clang loop vectorize(enable)")                             \
+    for (isize i = 0; i < n; i++) {                                     \
+      T x = a[i], y = b[i];                                             \
+      d[i] = (EXPR);                                                    \
+    }                                                                   \
+  }
+
 #define UNARY(NAME, T, SUF, EXPR)                                       \
   void simd_##NAME##_##SUF(T *__restrict d, const T *__restrict a,      \
                            isize n) {                                   \
@@ -107,8 +134,8 @@ static inline long long neg_i64(long long x) {
   BINARY(add, T, SUF, x + y)                                            \
   BINARY(sub, T, SUF, x - y)                                            \
   BINARY(mul, T, SUF, x *y)                                             \
-  BINARY(minimum, T, SUF, min_##SUF(x, y))                              \
-  BINARY(maximum, T, SUF, max_##SUF(x, y))                              \
+  BINARY_FORCED(minimum, T, SUF, min_##SUF(x, y))                       \
+  BINARY_FORCED(maximum, T, SUF, max_##SUF(x, y))                       \
   UNARY(abs, T, SUF, abs_##SUF(x))                                      \
   SCALAR(scale, T, SUF, x *s)                                           \
   SCALAR(addscalar, T, SUF, x + s)                                      \
