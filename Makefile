@@ -65,6 +65,13 @@ fuzz:
 # where Go fuses a multiply into an add. None of the three is visible on
 # amd64, and none would have been found by reading the code.
 #
+# -vet=off is load-bearing, not a shortcut. `go test` runs vet automatically,
+# and under qemu-user the vet subprocess exits without being reaped: it becomes
+# a zombie and the parent blocks in do_wait forever. The lane does not fail, it
+# hangs — 32 minutes at 0.1% CPU with a `[vet] <defunct>` child was how this was
+# found. Nothing is lost by disabling it here, because vet has already run
+# natively as part of `make verify` and its findings do not depend on GOARCH.
+#
 # -short skips the repetition benchmarks, which measure a minimum over many
 # runs and are meaningless under emulation anyway — and would take hours.
 # Slow even so; allow half an hour. Run before any release, and nightly in CI.
@@ -85,7 +92,8 @@ test-cross: cross-setup
 		echo "--- $$p"; \
 		$(DOCKER) run --rm --platform $$p -v "$(PWD)":/src -w /src \
 			-e GOFLAGS=-buildvcs=false golang:1.26 \
-			sh -c 'go run ./cmd/simdinfo -require-accelerated && go test -short ./...' \
+			sh -c 'go run ./cmd/simdinfo -require-accelerated && \
+			       go test -short -vet=off ./...' \
 			|| exit 1; \
 	done
 

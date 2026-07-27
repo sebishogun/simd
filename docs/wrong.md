@@ -276,7 +276,27 @@ flagged, check whether the generated code changed before believing it.
 
 ---
 
-## 16. "No space left on device" means the disk is full
+## 16. A test lane that produces no output is running slowly
+
+**Assumed.** The emulated arm64 lane sitting silent for half an hour is qemu
+being qemu. The Makefile even says to allow that long.
+
+**Actually.** It was hung, and had been from the start. `go test` runs `go vet`
+automatically; under qemu-user the vet subprocess exits without being reaped,
+so it becomes a zombie and the parent blocks in `do_wait` forever.
+
+**How it surfaced.** By checking CPU rather than elapsed time. Thirty-two
+minutes of wall clock at **0.1% CPU across every qemu process**, with no
+compiler children — and `ps` inside the container showing `[vet] <defunct>`.
+Slow and stopped look identical from the outside; they do not look at all alike
+in a process table.
+
+**Fix.** `-vet=off` in the emulated lanes. Nothing is lost: vet runs natively
+in `make verify` and its findings do not depend on GOARCH.
+
+---
+
+## 17. "No space left on device" means the disk is full
 
 **Assumed.** `ENOSPC` means bytes.
 
