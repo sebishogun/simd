@@ -55,6 +55,13 @@ func isASCIISVE2Guarded(b []byte) bool {
 	return isASCIISVE2(b)
 }
 
+func validUTF8SVE2Guarded(b []byte) bool {
+	if len(b) < 64 {
+		return ref.ValidUTF8(b)
+	}
+	return validUTF8SVE2(b)
+}
+
 func equalBytesSVE2Guarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -195,6 +202,7 @@ func init() {
 	s.Bytes.LastIndexByte = lastIndexByteSVE2Guarded
 	s.Bytes.PopCount = popCountSVE2Guarded
 	s.Bytes.IsASCII = isASCIISVE2Guarded
+	s.Bytes.ValidUTF8 = validUTF8SVE2Guarded
 	s.Bytes.Equal = equalBytesSVE2Guarded
 	s.Bytes.And = bitAndSVE2Guarded
 	s.Bytes.Or = bitOrSVE2Guarded

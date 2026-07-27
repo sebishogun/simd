@@ -31,6 +31,9 @@ func popCountNEON(b []byte) int
 func isASCIINEON(b []byte) bool
 
 //go:noescape
+func validUTF8NEON(b []byte) bool
+
+//go:noescape
 func equalBytesNEON(a []byte, b []byte) bool
 
 //go:noescape

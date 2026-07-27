@@ -472,6 +472,7 @@ func Bytes() []spec.Kernel {
 			"LastIndexByte", spec.Int, true),
 		byteScan("simd_popcount", "popCount", "PopCount", "PopCount", spec.Int, false),
 		byteScan("simd_is_ascii", "isASCII", "IsASCII", "IsASCII", spec.B, false),
+		byteScan("simd_valid_utf8", "validUTF8", "ValidUTF8", "ValidUTF8", spec.B, false),
 		{
 			// Equal is length-sensitive in a way the kernel is not: it reports
 			// whether the two slices hold the same bytes *and* are the same

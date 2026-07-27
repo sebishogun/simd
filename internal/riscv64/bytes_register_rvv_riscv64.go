@@ -55,6 +55,13 @@ func isASCIIRVVGuarded(b []byte) bool {
 	return isASCIIRVV(b)
 }
 
+func validUTF8RVVGuarded(b []byte) bool {
+	if len(b) < 64 {
+		return ref.ValidUTF8(b)
+	}
+	return validUTF8RVV(b)
+}
+
 func equalBytesRVVGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -195,6 +202,7 @@ func init() {
 	s.Bytes.LastIndexByte = lastIndexByteRVVGuarded
 	s.Bytes.PopCount = popCountRVVGuarded
 	s.Bytes.IsASCII = isASCIIRVVGuarded
+	s.Bytes.ValidUTF8 = validUTF8RVVGuarded
 	s.Bytes.Equal = equalBytesRVVGuarded
 	s.Bytes.And = bitAndRVVGuarded
 	s.Bytes.Or = bitOrRVVGuarded

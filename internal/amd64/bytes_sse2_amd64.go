@@ -31,6 +31,9 @@ func popCountSSE2(b []byte) int
 func isASCIISSE2(b []byte) bool
 
 //go:noescape
+func validUTF8SSE2(b []byte) bool
+
+//go:noescape
 func equalBytesSSE2(a []byte, b []byte) bool
 
 //go:noescape

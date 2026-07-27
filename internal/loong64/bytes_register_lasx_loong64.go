@@ -55,6 +55,13 @@ func isASCIILASXGuarded(b []byte) bool {
 	return isASCIILASX(b)
 }
 
+func validUTF8LASXGuarded(b []byte) bool {
+	if len(b) < 64 {
+		return ref.ValidUTF8(b)
+	}
+	return validUTF8LASX(b)
+}
+
 func equalBytesLASXGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -195,6 +202,7 @@ func init() {
 	s.Bytes.LastIndexByte = lastIndexByteLASXGuarded
 	s.Bytes.PopCount = popCountLASXGuarded
 	s.Bytes.IsASCII = isASCIILASXGuarded
+	s.Bytes.ValidUTF8 = validUTF8LASXGuarded
 	s.Bytes.Equal = equalBytesLASXGuarded
 	s.Bytes.And = bitAndLASXGuarded
 	s.Bytes.Or = bitOrLASXGuarded

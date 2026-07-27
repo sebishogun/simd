@@ -16,6 +16,9 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func validUTF8VSX(b []byte) bool
+
+//go:noescape
 func bitAndVSX(dst []byte, a []byte, b []byte)
 
 //go:noescape

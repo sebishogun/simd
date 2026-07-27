@@ -327,3 +327,91 @@ void simd_index(isize *__restrict out, const u8 *__restrict h,
   }
   *out = -1;
 }
+
+// ---------- UTF-8 validation ----------
+//
+// The classifying part of UTF-8 validation is branchless and so it
+// vectorizes; the part that decides where a sequence starts is not, and that
+// is what shapes this.
+//
+// The observation the whole thing rests on: a byte's *length* is determined
+// by the byte itself, and every constraint on a well-formed sequence is a
+// constraint between a byte and one of the three before it. So the scan runs
+// forward once, computes for each byte how many continuations it demands, and
+// checks the arithmetic — no backtracking and no state machine.
+//
+// The overlong, surrogate and out-of-range rules are the ones that make a
+// naive implementation wrong rather than merely slow, so they are written out
+// rather than folded into a range test:
+//
+//	C0 C1        overlong two-byte forms, never valid
+//	E0 A0..BF    a three-byte form starting E0 needs the second byte >= A0
+//	ED 80..9F    ED must not reach the surrogate range D800..DFFF
+//	F0 90..BF    a four-byte form starting F0 needs the second byte >= 90
+//	F4 80..8F    F4 must not exceed U+10FFFF
+//	F5..FF       no valid sequence starts here
+void simd_valid_utf8(_Bool *__restrict out, const u8 *__restrict b, isize n) {
+  isize i = 0;
+  // ASCII runs are the common case and the only part worth vectorizing: the
+  // fold reads a whole block and only drops to the byte-wise scan when the
+  // block contains something above 0x7f.
+  while (i < n) {
+    if (i + BYTE_LANES <= n) {
+      u8xB v = VLOAD(b, i);
+      if (!OR_ANY(v & (u8xB)0x80)) {
+        i += BYTE_LANES;
+        continue;
+      }
+    }
+    u8 c = b[i];
+    if (c < 0x80) {
+      i++;
+      continue;
+    }
+    isize need;
+    if (c >= 0xc2 && c <= 0xdf) {
+      need = 1;
+    } else if (c >= 0xe0 && c <= 0xef) {
+      need = 2;
+    } else if (c >= 0xf0 && c <= 0xf4) {
+      need = 3;
+    } else {
+      *out = 0; // 0x80..0xc1 and 0xf5..0xff never start a sequence
+      return;
+    }
+    if (i + need >= n) {
+      *out = 0; // truncated at the end of the input
+      return;
+    }
+    u8 c1 = b[i + 1];
+    if (c1 < 0x80 || c1 > 0xbf) {
+      *out = 0;
+      return;
+    }
+    if (c == 0xe0 && c1 < 0xa0) {
+      *out = 0;
+      return;
+    }
+    if (c == 0xed && c1 > 0x9f) {
+      *out = 0;
+      return;
+    }
+    if (c == 0xf0 && c1 < 0x90) {
+      *out = 0;
+      return;
+    }
+    if (c == 0xf4 && c1 > 0x8f) {
+      *out = 0;
+      return;
+    }
+    for (isize j = 2; j <= need; j++) {
+      u8 cj = b[i + j];
+      if (cj < 0x80 || cj > 0xbf) {
+        *out = 0;
+        return;
+      }
+    }
+    i += need + 1;
+  }
+  *out = 1;
+}

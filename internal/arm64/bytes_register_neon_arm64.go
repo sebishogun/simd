@@ -55,6 +55,13 @@ func isASCIINEONGuarded(b []byte) bool {
 	return isASCIINEON(b)
 }
 
+func validUTF8NEONGuarded(b []byte) bool {
+	if len(b) < 64 {
+		return ref.ValidUTF8(b)
+	}
+	return validUTF8NEON(b)
+}
+
 func equalBytesNEONGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -195,6 +202,7 @@ func init() {
 	s.Bytes.LastIndexByte = lastIndexByteNEONGuarded
 	s.Bytes.PopCount = popCountNEONGuarded
 	s.Bytes.IsASCII = isASCIINEONGuarded
+	s.Bytes.ValidUTF8 = validUTF8NEONGuarded
 	s.Bytes.Equal = equalBytesNEONGuarded
 	s.Bytes.And = bitAndNEONGuarded
 	s.Bytes.Or = bitOrNEONGuarded

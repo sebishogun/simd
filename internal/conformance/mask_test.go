@@ -268,6 +268,17 @@ func checkBytes(t *testing.T, tier string, got, want kernel.Bytes) {
 		}
 	}
 
+	if got.ValidUTF8 != nil && want.ValidUTF8 != nil {
+		for _, n := range byteLens {
+			for _, b := range utf8Cases(n, r) {
+				if g, w := got.ValidUTF8(b), want.ValidUTF8(b); g != w {
+					t.Fatalf("%s/Bytes.ValidUTF8 n=%d %x: got %v want %v",
+						tier, n, b, g, w)
+				}
+			}
+		}
+	}
+
 	if got.Equal != nil && want.Equal != nil {
 		for _, n := range byteLens {
 			a := genBytes(n, r)
@@ -516,6 +527,49 @@ func checkBytes(t *testing.T, tier string, got, want kernel.Bytes) {
 			}
 		}
 	}
+}
+
+// utf8Cases returns inputs that exercise both sides of the hand-off between
+// the ASCII fast path and the byte-wise scan, and every rule that makes a
+// naive validator wrong: overlong forms, surrogates, out-of-range starts, and
+// sequences truncated by the end of the input.
+func utf8Cases(n int, r *rand.Rand) [][]byte {
+	out := [][]byte{genBytes(n, r)}
+	ascii := make([]byte, n)
+	for i := range ascii {
+		ascii[i] = byte(' ' + i%64)
+	}
+	out = append(out, ascii)
+	// Multi-byte sequences repeated to length, valid and invalid.
+	seqs := [][]byte{
+		{0xc3, 0xa9},             // é
+		{0xe6, 0x97, 0xa5},       // 日
+		{0xf0, 0x9f, 0x8e, 0x89}, // 🎉
+		{0xc0, 0x80},             // overlong
+		{0xed, 0xa0, 0x80},       // surrogate
+		{0xf4, 0x90, 0x80, 0x80}, // past U+10FFFF
+		{0xf0, 0x8f, 0xbf, 0xbf}, // overlong four-byte
+		{0xe0, 0x9f, 0xbf},       // overlong three-byte
+	}
+	for _, s := range seqs {
+		b := make([]byte, n)
+		for i := range b {
+			b[i] = s[i%len(s)]
+		}
+		out = append(out, b)
+		// The same sequence at the very end, where it may be truncated —
+		// the case a validator that reads ahead gets wrong.
+		if n >= len(s) {
+			c := append([]byte(nil), ascii...)
+			copy(c[n-len(s):], s)
+			out = append(out, c)
+			for k := 1; k < len(s); k++ {
+				d := append([]byte(nil), ascii[:n-len(s)+k]...)
+				out = append(out, append(d, s[:k]...))
+			}
+		}
+	}
+	return out
 }
 
 // asciiCases returns inputs that are all-ASCII, all-ASCII but for the last

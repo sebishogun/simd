@@ -31,6 +31,9 @@ func popCountSVE2(b []byte) int
 func isASCIISVE2(b []byte) bool
 
 //go:noescape
+func validUTF8SVE2(b []byte) bool
+
+//go:noescape
 func equalBytesSVE2(a []byte, b []byte) bool
 
 //go:noescape

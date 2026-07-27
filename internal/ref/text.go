@@ -235,3 +235,5 @@ func ToLowerASCII(dst, b []byte)                { toLowerASCII(dst, b) }
 func ReplaceByte(dst, b []byte, old, with byte) { replaceByte(dst, b, old, with) }
 
 func Index(haystack, needle []byte) int { return index(haystack, needle) }
+
+func ValidUTF8(b []byte) bool { return validUTF8(b) }

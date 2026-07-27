@@ -31,6 +31,9 @@ func popCountRVV(b []byte) int
 func isASCIIRVV(b []byte) bool
 
 //go:noescape
+func validUTF8RVV(b []byte) bool
+
+//go:noescape
 func equalBytesRVV(a []byte, b []byte) bool
 
 //go:noescape

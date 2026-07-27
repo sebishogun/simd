@@ -31,6 +31,9 @@ func popCountLASX(b []byte) int
 func isASCIILASX(b []byte) bool
 
 //go:noescape
+func validUTF8LASX(b []byte) bool
+
+//go:noescape
 func equalBytesLASX(a []byte, b []byte) bool
 
 //go:noescape

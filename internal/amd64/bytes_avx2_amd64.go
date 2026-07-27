@@ -31,6 +31,9 @@ func popCountAVX2(b []byte) int
 func isASCIIAVX2(b []byte) bool
 
 //go:noescape
+func validUTF8AVX2(b []byte) bool
+
+//go:noescape
 func equalBytesAVX2(a []byte, b []byte) bool
 
 //go:noescape
