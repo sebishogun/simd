@@ -191,7 +191,7 @@ TEXT ·minrFloat32VSX(SB), NOSPLIT|NOFRAME, $0-28
 	WORD $0xfc000890
 	WORD $0xfc200090
 	WORD $0xd0230000
-	WORD $0x4e800020
+	WORD $0x48000184
 	WORD $0x38c5fff8
 	WORD $0xf08424d7
 	WORD $0xf0231c96
@@ -288,6 +288,8 @@ TEXT ·minrFloat32VSX(SB), NOSPLIT|NOFRAME, $0-28
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func maxrFloat32VSX(a []float32) float32
@@ -461,7 +463,7 @@ TEXT ·maxrFloat32VSX(SB), NOSPLIT|NOFRAME, $0-28
 	WORD $0x41800008
 	WORD $0xfc200090
 	WORD $0xd0230000
-	WORD $0x4e800020
+	WORD $0x48000294
 	WORD $0x38c5fff8
 	WORD $0x78c6e8c3
 	WORD $0x41820120
@@ -626,6 +628,8 @@ TEXT ·maxrFloat32VSX(SB), NOSPLIT|NOFRAME, $0-28
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func diffFloat32VSX(dst []float32, a []float32)
@@ -635,9 +639,9 @@ TEXT ·diffFloat32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_len+8(FP), R5
 	MOVD a_len+32(FP), R6
 	WORD $0x2c250001
-	WORD $0x4d800020
+	WORD $0x4180014c
 	WORD $0x2c260002
-	WORD $0x4d800020
+	WORD $0x41800144
 	WORD $0x38a5ffff
 	WORD $0x38c6fffe
 	WORD $0xc0040000
@@ -698,7 +702,7 @@ TEXT ·diffFloat32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x39290080
 	WORD $0x4200ff78
 	WORD $0x7c283040
-	WORD $0x4d820020
+	WORD $0x41820050
 	WORD $0xf000152e
 	WORD $0x7ce53850
 	WORD $0x78a81764
@@ -714,10 +718,12 @@ TEXT ·diffFloat32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x38a50001
 	WORD $0x7c233d2e
 	WORD $0x4200ffe4
-	WORD $0x4e800020
+	WORD $0x48000010
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func sumsqFloat64VSX(a []float64) float64
@@ -936,7 +942,7 @@ TEXT ·sumsqFloat64VSX(SB), NOSPLIT|NOFRAME, $0-32
 	WORD $0xf0200250
 	WORD $0xf0000900
 	WORD $0xd8030000
-	WORD $0x4e800020
+	WORD $0x4800019c
 	WORD $0x7d043a14
 	WORD $0xe488000a
 	WORD $0xf0842187
@@ -1039,6 +1045,8 @@ TEXT ·sumsqFloat64VSX(SB), NOSPLIT|NOFRAME, $0-32
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func sumsqdevFloat64VSX(a []float64, c float64) float64
@@ -1202,7 +1210,7 @@ TEXT ·sumsqdevFloat64VSX(SB), NOSPLIT|NOFRAME, $0-40
 	WORD $0xf0200250
 	WORD $0xf0000900
 	WORD $0xd8030000
-	WORD $0x4e800020
+	WORD $0x480001d4
 	WORD $0x7d043a14
 	WORD $0xe4a8000a
 	WORD $0xf0a50945
@@ -1319,6 +1327,8 @@ TEXT ·sumsqdevFloat64VSX(SB), NOSPLIT|NOFRAME, $0-40
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func diffInt32VSX(dst []int32, a []int32)
@@ -1328,9 +1338,9 @@ TEXT ·diffInt32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_len+8(FP), R5
 	MOVD a_len+32(FP), R6
 	WORD $0x2c250001
-	WORD $0x4d800020
+	WORD $0x4180016c
 	WORD $0x2c260002
-	WORD $0x4d800020
+	WORD $0x41800164
 	WORD $0x38a5ffff
 	WORD $0x38c6fffe
 	WORD $0x81240000
@@ -1391,7 +1401,7 @@ TEXT ·diffInt32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x39290080
 	WORD $0x4200ff78
 	WORD $0x7c283040
-	WORD $0x4d820020
+	WORD $0x41820070
 	WORD $0x3900000c
 	WORD $0x1128178d
 	WORD $0x7ce53850
@@ -1415,10 +1425,12 @@ TEXT ·diffInt32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x7ca3392e
 	WORD $0x38a60001
 	WORD $0x4200ffe4
-	WORD $0x4e800020
+	WORD $0x48000010
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func sumFloat64VSX(a []float64) float64
@@ -1632,7 +1644,7 @@ TEXT ·sumFloat64VSX(SB), NOSPLIT|NOFRAME, $0-32
 	WORD $0xf0200250
 	WORD $0xf0000900
 	WORD $0xd8030000
-	WORD $0x4e800020
+	WORD $0x48000110
 	WORD $0x60c80002
 	WORD $0x7c282800
 	WORD $0x4080febc
@@ -1700,6 +1712,8 @@ TEXT ·sumFloat64VSX(SB), NOSPLIT|NOFRAME, $0-32
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func dotFloat64VSX(a []float64, b []float64) float64
@@ -1904,7 +1918,7 @@ TEXT ·dotFloat64VSX(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0xf0200250
 	WORD $0xf0000900
 	WORD $0xd8030000
-	WORD $0x4e800020
+	WORD $0x48000164
 	WORD $0x60e90002
 	WORD $0x7c293000
 	WORD $0x4080fe68
@@ -1993,6 +2007,8 @@ TEXT ·dotFloat64VSX(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func l1normFloat64VSX(a []float64) float64
@@ -2141,7 +2157,7 @@ TEXT ·l1normFloat64VSX(SB), NOSPLIT|NOFRAME, $0-32
 	WORD $0xf0200250
 	WORD $0xf0000900
 	WORD $0xd8030000
-	WORD $0x4e800020
+	WORD $0x4800019c
 	WORD $0x7d043a14
 	WORD $0xe488000a
 	WORD $0xf0802567
@@ -2244,6 +2260,8 @@ TEXT ·l1normFloat64VSX(SB), NOSPLIT|NOFRAME, $0-32
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func l1diffInt32VSX(a []int32, b []int32) int32
@@ -2261,7 +2279,7 @@ TEXT ·l1diffInt32VSX(SB), NOSPLIT|NOFRAME, $0-52
 	WORD $0x480001f8
 	WORD $0x39200000
 	WORD $0x91230000
-	WORD $0x4e800020
+	WORD $0x48000240
 	WORD $0x39000000
 	WORD $0x38e00000
 	WORD $0x28260020
@@ -2401,10 +2419,12 @@ TEXT ·l1diffInt32VSX(SB), NOSPLIT|NOFRAME, $0-52
 	WORD $0x7d264a14
 	WORD $0x4200ffe4
 	WORD $0x91230000
-	WORD $0x4e800020
+	WORD $0x48000010
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
 // func l1diffInt64VSX(a []int64, b []int64) int64
@@ -2546,9 +2566,11 @@ TEXT ·l1diffInt64VSX(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0x7d064214
 	WORD $0x4200ffe4
 	WORD $0xf9030000
-	WORD $0x4e800020
+	WORD $0x48000010
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 

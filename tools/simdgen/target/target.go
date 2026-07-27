@@ -137,6 +137,23 @@ type Target struct {
 	// unrelated Go code with a nonsense slice header.
 	GoOwned []string
 
+	// Epilogue is Plan 9 assembly to run on the way out of every kernel, for
+	// the one target that needs it.
+	//
+	// Nothing can normally be appended to a compiled body: LLVM lays basic
+	// blocks out after the return instruction, so there is no position at the
+	// end that is guaranteed to execute. ppc64le needs one anyway, because
+	// Go's ABI there reserves r0 by value — it holds zero at every point in
+	// every function, and the compiler stores it as the zero when it clears
+	// memory — while clang treats r0 as ordinary scratch and there is no
+	// -ffixed-rN on its PowerPC target to say otherwise.
+	//
+	// Setting this makes emit rewrite the body's returns into branches to the
+	// end of it, which turns "after the body" into a position that always
+	// runs. See returns_ppc64.go, which is where the reasoning lives and where
+	// the encodings are.
+	Epilogue []string
+
 	// DisasmFlags are passed to llvm-objdump so it can decode this target's
 	// instructions.
 	//
@@ -256,8 +273,23 @@ var aapcsIntArgs = []string{"R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7"}
 var All = []Target{
 	{
 		Arch: PPC64LE, Tier: "vsx", Triple: "powerpc64le-linux-gnu",
-		GoOwned:             []string{"r30", "r2"},
-		StackReg:            "1",
+		// r2 is the TOC pointer, r13 the TLS pointer and r30 the current
+		// goroutine, all of which Go requires unchanged across a call.
+		//
+		// r0 is not in this list even though Go reserves it too, because
+		// rejecting every kernel that touches it would reject most of them:
+		// it is volatile scratch under ELFv2 and LLVM uses it 212 times
+		// across these sources. It is restored by Epilogue instead.
+		//
+		// The names are r-prefixed and the stack register is "r1" because of
+		// -ppc-asm-full-reg-names below. Without that flag llvm-objdump
+		// prints PowerPC registers as bare numbers, which are indistinguishable
+		// from immediates — "addi 10, 9, 2" names two registers and a
+		// constant — so this check matched nothing at all and the one thing
+		// it exists to catch went through it unseen.
+		GoOwned:             []string{"r2", "r13", "r30"},
+		StackReg:            "r1",
+		Epilogue:            []string{"MOVD $0, R0"},
 		FloatArgsUseIntSlot: true,
 		// No SaveArea, deliberately, even though seven of 246 kernels do save
 		// the link register at 16(r1) — the caller's frame under ELFv2.
@@ -283,10 +315,18 @@ var All = []Target{
 		IntResult:  "R3", FloatResult: "F1",
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBZ",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
-		// No -ffixed here: clang's ppc64 target does not accept -ffixed-rN,
-		// and the ABI already reserves what the Go runtime needs. r2 is the
-		// TOC pointer and clang treats it as fixed of its own accord.
-		DisasmFlags: []string{"--mcpu=pwr9"},
+		// No -ffixed here: clang's ppc64 target does not accept -ffixed-rN at
+		// all, and a global register variable for one is accepted and then
+		// ignored. r2 and r13 are reserved by the ABI and clang treats them
+		// as fixed of its own accord; r30 is callee-saved, so a kernel that
+		// wants it saves it first and is rejected by the writes-outside-the-
+		// frame check; r0 is handled by Epilogue.
+		//
+		// -ppc-asm-full-reg-names makes llvm-objdump print r3 rather than 3.
+		// PowerPC is the only target here where a register operand and an
+		// immediate are the same text without it, which defeats every check
+		// in package verify that reads operands by name.
+		DisasmFlags: []string{"--mcpu=pwr9", "-mllvm=-ppc-asm-full-reg-names"},
 		MinFeature:  FeatVSX,
 	},
 	{

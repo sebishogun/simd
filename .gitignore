@@ -4,6 +4,13 @@
 *.prof
 /coverage.*
 
+# Core dumps. qemu writes these into the working directory when a kernel
+# corrupts the process under emulation, which is exactly when someone is least
+# likely to be looking at git status. Two of them, 170 MB together, made it
+# into a commit that way.
+*.core
+core.*
+
 # Intermediate files from the code-generation pipeline. The *generated* .s and
 # .go files ARE committed — consumers must never need clang — but the object
 # files and raw compiler output they are derived from are not.

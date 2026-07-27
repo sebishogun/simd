@@ -184,17 +184,33 @@ func emitFunc(b *strings.Builder, k spec.Kernel, fn *objfile.Func, instrs []Inst
 		return err
 	}
 
-	// Nothing is appended after the body. The compiled function ends with its
-	// own return, and LLVM lays basic blocks out after that return — the AVX2
-	// dot product has a jmp past it — so there is no position after the body
-	// that is guaranteed to execute. A kernel with a result therefore writes
-	// through a pointer to the frame slot instead of returning in a register;
-	// see spec.ResultAddr.
+	// Nothing is appended after the body, unless the target says otherwise.
+	// The compiled function ends with its own return, and LLVM lays basic
+	// blocks out after that return — the AVX2 dot product has a jmp past it —
+	// so there is no position after the body that is guaranteed to execute. A
+	// kernel with a result therefore writes through a pointer to the frame
+	// slot instead of returning in a register; see spec.ResultAddr.
 	//
-	// The trailing RET is unreachable and exists only so the assembler sees a
-	// terminated function.
+	// The one exception is ppc64le, where the body's returns have been
+	// rewritten into branches to exactly here so that this epilogue can put
+	// r0 back; see returns_ppc64.go. On every other target the list is empty
+	// and the trailing RET is unreachable, existing only so the assembler
+	// sees a terminated function.
+	emitEpilogue(b, tgt)
 	b.WriteString("\tRET\n\n")
 	return nil
+}
+
+// emitEpilogue writes the instructions that must run on the way out, which
+// only reach control because retargetReturns pointed the body's returns here.
+func emitEpilogue(b *strings.Builder, tgt target.Target) {
+	if len(tgt.Epilogue) == 0 {
+		return
+	}
+	fmt.Fprintf(b, "\t// Every return in the body above was rewritten to branch here.\n")
+	for _, line := range tgt.Epilogue {
+		fmt.Fprintf(b, "\t%s\n", line)
+	}
 }
 
 // emitTrampoline emits a kernel as a framed caller plus a frameless body.
@@ -259,6 +275,7 @@ func emitTrampoline(b *strings.Builder, k spec.Kernel, fn *objfile.Func,
 	if err := emitRelocated(b, fn, instrs, tgt, pools, k.GoName); err != nil {
 		return err
 	}
+	emitEpilogue(b, tgt)
 	b.WriteString("\tRET\n\n")
 	return nil
 }
@@ -337,11 +354,23 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 		}
 	}
 	if !needsWork {
-		return emitBody(b, fn.Code, tgt)
+		code, err := retargetReturns(fn.Code, tgt)
+		if err != nil {
+			return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
+		}
+		return emitBody(b, code, tgt)
 	}
 
 	code, err := resolvePool(fn, instrs, tgt)
 	if err != nil {
+		return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
+	}
+	// After the pool, not before: resolvePool appends data past the last
+	// instruction, and a return retargeted to the end of the body would then
+	// branch into it. Nothing needs both today — ppc64le is the only target
+	// with an epilogue and it has no pool rewriter — but the order is the one
+	// that stays correct if that changes.
+	if code, err = retargetReturns(code, tgt); err != nil {
 		return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
 	}
 	fmt.Fprintf(b, "\t// Constant pool appended below the body; the displacements\n")
@@ -369,6 +398,10 @@ func CanLift(fn *objfile.Func, instrs []Instr, tgt target.Target) (bool, string)
 		return canLiftLoong64(fn)
 	case target.RISCV64:
 		return canLiftRISCV64(fn)
+	case target.PPC64LE:
+		if ok, why := canRetargetPPC64(fn.Code); !ok {
+			return false, why
+		}
 	}
 	for _, r := range fn.Relocs {
 		if isSelfRelative(r.TypeName) {

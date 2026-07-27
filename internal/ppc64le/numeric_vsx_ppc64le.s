@@ -230,7 +230,7 @@ TEXT ·normFloat64VSX(SB), NOSPLIT|NOFRAME, $0-32
 	WORD $0xf0000900
 	WORD $0xf000012c
 	WORD $0xd8030000
-	WORD $0x4e800020
+	WORD $0x4800019c
 	WORD $0x7d043a14
 	WORD $0xe488000a
 	WORD $0xf0842187
@@ -333,5 +333,7 @@ TEXT ·normFloat64VSX(SB), NOSPLIT|NOFRAME, $0-32
 	WORD $0x00000000
 	WORD $0x00000000
 	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
 	RET
 
