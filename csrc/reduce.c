@@ -9,6 +9,7 @@
 // every pointer, signed loop counters.
 
 #include "goabi.h"
+#include "wrap.h"
 
 typedef long isize;
 
@@ -289,36 +290,42 @@ FLOAT_REDUCTIONS(double, f64xL, f64, __builtin_elementwise_abs)
 #define INT_REDUCTIONS(T, ST, SUF)                                          \
   void simd_sum_##SUF(T *__restrict out, const T *__restrict a, isize n) {  \
     T s = 0;                                                                \
-    for (isize i = 0; i < n; i++) s += a[i];                                \
+    for (isize i = 0; i < n; i++) s = add_##SUF(s, a[i]);                   \
     *out = s;                                                               \
   }                                                                          \
   void simd_prod_##SUF(T *__restrict out, const T *__restrict a, isize n) { \
     T p = 1;                                                                \
-    for (isize i = 0; i < n; i++) p *= a[i];                                \
+    for (isize i = 0; i < n; i++) p = mul_##SUF(p, a[i]);                   \
     *out = p;                                                               \
   }                                                                          \
   void simd_dot_##SUF(T *__restrict out, const T *__restrict a,             \
                       const T *__restrict b, isize n) {                     \
     T s = 0;                                                                \
-    for (isize i = 0; i < n; i++) s += a[i] * b[i];                         \
+    for (isize i = 0; i < n; i++) s = add_##SUF(s, mul_##SUF(a[i], b[i]));  \
     *out = s;                                                               \
   }                                                                          \
   void simd_sumsq_##SUF(T *__restrict out, const T *__restrict a, isize n) { \
     T s = 0;                                                                \
-    for (isize i = 0; i < n; i++) s += a[i] * a[i];                         \
+    for (isize i = 0; i < n; i++) s = add_##SUF(s, mul_##SUF(a[i], a[i]));  \
     *out = s;                                                               \
   }                                                                          \
   void simd_sumsqdev_##SUF(T *__restrict out, const T *__restrict a,       \
                            ST c_, isize n) {                                 \
     T c = (T)c_;                                                            \
     T s = 0;                                                                \
-    for (isize i = 0; i < n; i++) s += (T)((a[i] - c) * (a[i] - c));        \
+    for (isize i = 0; i < n; i++) {                                         \
+      T d = sub_##SUF(a[i], c);                                             \
+      s = add_##SUF(s, mul_##SUF(d, d));                                    \
+    }                                                                        \
     *out = s;                                                               \
   }                                                                          \
   void simd_sumsqdiff_##SUF(T *__restrict out, const T *__restrict a,       \
                             const T *__restrict b, isize n) {                \
     T s = 0;                                                                \
-    for (isize i = 0; i < n; i++) s += (a[i] - b[i]) * (a[i] - b[i]);       \
+    for (isize i = 0; i < n; i++) {                                         \
+      T d = sub_##SUF(a[i], b[i]);                                          \
+      s = add_##SUF(s, mul_##SUF(d, d));                                    \
+    }                                                                        \
     *out = s;                                                               \
   }                                                                          \
   /* Integer absolute value is written through unsigned arithmetic because  */ \
@@ -329,7 +336,7 @@ FLOAT_REDUCTIONS(double, f64xL, f64, __builtin_elementwise_abs)
     T s = 0;                                                                \
     for (isize i = 0; i < n; i++) {                                         \
       T v = a[i];                                                           \
-      s += v < 0 ? (T)(0u - (unsigned long long)v) : v;                     \
+      s = add_##SUF(s, v < 0 ? (T)(0u - (unsigned long long)v) : v);        \
     }                                                                        \
     *out = s;                                                               \
   }                                                                          \
@@ -337,8 +344,8 @@ FLOAT_REDUCTIONS(double, f64xL, f64, __builtin_elementwise_abs)
                          const T *__restrict b, isize n) {                   \
     T s = 0;                                                                \
     for (isize i = 0; i < n; i++) {                                         \
-      T v = (T)((unsigned long long)a[i] - (unsigned long long)b[i]);       \
-      s += v < 0 ? (T)(0u - (unsigned long long)v) : v;                     \
+      T v = sub_##SUF(a[i], b[i]);                                          \
+      s = add_##SUF(s, v < 0 ? (T)(0u - (unsigned long long)v) : v);        \
     }                                                                        \
     *out = s;                                                               \
   }
@@ -366,7 +373,7 @@ INT_REDUCTIONS(unsigned long long, unsigned long long, u64)
     /* would wrap at 32 bits rather than at the element width, and disagree */ \
     /* with the Go reference for exactly the operands that wrap.            */ \
     for (isize i = 0; i < nd && i + 1 < na; i++)                          \
-      d[i] = (T)(a[i + 1] - a[i]);                                        \
+      d[i] = sub_##SUF(a[i + 1], a[i]);                                    \
   }
 
 DIFF(float, f32)

@@ -15,6 +15,7 @@
 //     converting back is well defined and produces exactly that.
 
 #include "goabi.h"
+#include "wrap.h"
 
 typedef long isize;
 
@@ -179,15 +180,15 @@ ABSNEG_UNSIGNED(unsigned long long, u64)
 // The whole elementwise family, per type. ST is the scalar transport type;
 // see SCALAR.
 #define ARITH_COMMON(T, ST, SUF)                                        \
-  BINARY(add, T, SUF, x + y)                                            \
-  BINARY(sub, T, SUF, x - y)                                            \
-  BINARY(mul, T, SUF, x *y)                                             \
+  BINARY(add, T, SUF, add_##SUF(x, y))                                  \
+  BINARY(sub, T, SUF, sub_##SUF(x, y))                                  \
+  BINARY(mul, T, SUF, mul_##SUF(x, y))                                  \
   BINARY_FORCED(minimum, T, SUF, min_##SUF(x, y))                       \
   BINARY_FORCED(maximum, T, SUF, max_##SUF(x, y))                       \
   UNARY(abs, T, SUF, abs_##SUF(x))                                      \
-  SCALAR(scale, T, ST, SUF, x *s)                                       \
-  SCALAR(addscalar, T, ST, SUF, x + s)                                  \
-  SCALAR(subscalar, T, ST, SUF, x - s)                                  \
+  SCALAR(scale, T, ST, SUF, mul_##SUF(x, s))                            \
+  SCALAR(addscalar, T, ST, SUF, add_##SUF(x, s))                        \
+  SCALAR(subscalar, T, ST, SUF, sub_##SUF(x, s))                        \
   void simd_clamp_##SUF(T *__restrict d, const T *__restrict a, ST lo_, \
                         ST hi_, isize n) {                              \
     T lo = (T)lo_, hi = (T)hi_;                                         \
@@ -200,17 +201,20 @@ ABSNEG_UNSIGNED(unsigned long long, u64)
   }                                                                     \
   void simd_ramp_##SUF(T *__restrict d, ST start_, ST step_, isize n) { \
     T start = (T)start_, step = (T)step_;                               \
-    for (isize i = 0; i < n; i++) d[i] = start + (T)i * step;           \
+    for (isize i = 0; i < n; i++)                                       \
+      d[i] = add_##SUF(start, mul_##SUF((T)i, step));                   \
   }                                                                     \
   void simd_lerp_##SUF(T *__restrict d, const T *__restrict a,          \
                        const T *__restrict b, ST t_, isize n) {         \
     T t = (T)t_;                                                        \
-    for (isize i = 0; i < n; i++) d[i] = a[i] + (b[i] - a[i]) * t;      \
+    for (isize i = 0; i < n; i++)                                       \
+      d[i] = add_##SUF(a[i], mul_##SUF(sub_##SUF(b[i], a[i]), t));      \
   }                                                                     \
   void simd_addscaled_##SUF(T *__restrict d, const T *__restrict a,     \
                             const T *__restrict b, ST s_, isize n) {    \
     T s = (T)s_;                                                        \
-    for (isize i = 0; i < n; i++) d[i] = a[i] + b[i] * s;               \
+    for (isize i = 0; i < n; i++)                                       \
+      d[i] = add_##SUF(a[i], mul_##SUF(b[i], s));                       \
   }
 
 // Float-only: division, and everything that needs a rounding instruction.
