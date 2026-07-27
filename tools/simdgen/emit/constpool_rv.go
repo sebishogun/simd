@@ -63,9 +63,18 @@ func resolvePoolRISCV64(fn *objfile.Func) ([]byte, error) {
 		tail = append(tail, rel.Target...)
 	}
 
+	// The high half carries its resolved target forward, because the low half
+	// cannot look it up. A PCREL_LO12's symbol is a label on the auipc, so its
+	// TargetSection is .text — asking bases for it returns the zero value, and
+	// the address computed from that lands a few bytes *before* the function
+	// rather than in the pool. Every constant read that way is instruction
+	// bytes, which decode as a perfectly plausible double, so the symptom is a
+	// transcendental returning +Inf rather than anything that looks like a
+	// pointer bug.
 	type hiHalf struct {
-		at   uint64
-		hi20 int64
+		at     uint64
+		hi20   int64
+		target int64 // absolute offset of the constant in the emitted body
 	}
 	live := map[uint32]hiHalf{} // destination register -> its high half
 
@@ -94,7 +103,7 @@ func resolvePoolRISCV64(fn *objfile.Func) ([]byte, error) {
 					delta)
 			}
 			rd := (word >> 7) & 0x1F
-			live[rd] = hiHalf{at: rel.Off, hi20: hi20}
+			live[rd] = hiHalf{at: rel.Off, hi20: hi20, target: target}
 			word = (word & 0xFFF) | uint32(hi20)<<12
 
 		case relRiscvPcrelLo12I, relRiscvPcrelLo12S:
@@ -104,10 +113,10 @@ func resolvePoolRISCV64(fn *objfile.Func) ([]byte, error) {
 				return nil, fmt.Errorf("the PCREL_LO12 at +0x%x uses x%d, which no "+
 					"preceding PCREL_HI20 wrote", rel.Off, rs1)
 			}
-			// The high half's own target, recomputed from what was written
-			// there, so the two cannot disagree.
-			target := int64(bases[rel.TargetSection]) + int64(hiTargetOff(fn, hi.at))
-			lo := target - (int64(hi.at) + (hi.hi20 << 12))
+			// auipc left rs1 holding hi.at + (hi20 << 12); the load adds lo to
+			// it, so lo is whatever closes the gap to the constant the high
+			// half was pointed at.
+			lo := hi.target - (int64(hi.at) + (hi.hi20 << 12))
 			if lo < -2048 || lo > 2047 {
 				return nil, fmt.Errorf("constant is %d bytes from what the high half at "+
 					"+0x%x computed, outside a signed 12-bit offset", lo, hi.at)
@@ -127,17 +136,6 @@ func resolvePoolRISCV64(fn *objfile.Func) ([]byte, error) {
 		binary.LittleEndian.PutUint32(code[rel.Off:], word)
 	}
 	return append(code, tail...), nil
-}
-
-// hiTargetOff returns the position in the pool that the high half at the given
-// offset was pointed at.
-func hiTargetOff(fn *objfile.Func, at uint64) uint64 {
-	for _, r := range fn.Relocs {
-		if r.Off == at && r.Type == relRiscvPcrelHi20 {
-			return r.TargetOff
-		}
-	}
-	return 0
 }
 
 func canLiftRISCV64(fn *objfile.Func) (bool, string) {

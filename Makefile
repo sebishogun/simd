@@ -77,38 +77,61 @@ test-cross: cross-setup
 			go test -short ./... || exit 1; \
 	done
 
-# loong64 has no lane above because there is no golang image for it: the
-# official Go images cover amd64, arm64, 386, arm/v7, ppc64le, riscv64 and
-# s390x, and that is the whole list. So this target cross-compiles the test
-# binaries here — Go binaries are static, so there is nothing else to supply —
-# and runs them under qemu-user directly.
+# Two architectures cannot be tested by the docker lane above, for two
+# different reasons, and both are tested here instead: cross-compile on the
+# host, then run the static binary under qemu-user directly.
 #
-# The emulator has to be a recent one and has to be told which CPU to be.
-# LSX and LASX landed in QEMU 8.1, so the qemu in multiarch/qemu-user-static
-# (7.2) reports no vector support at all and the whole backend is skipped as
-# unexecutable — a green run that tested nothing. QEMU_CPU=la464 is what turns
-# the vector units on.
+#   loong64  has no golang image at all. The official Go images cover amd64,
+#            arm64, 386, arm/v7, ppc64le, riscv64 and s390x, and that is the
+#            list, so `docker run --platform linux/loong64` cannot work.
+#   riscv64  has an image, and the qemu inside it emulates a CPU with no vector
+#            extension. `simdinfo` there reports available=[scalar]: the whole
+#            RVV backend is skipped as unexecutable and the lane passes having
+#            run none of it.
 #
-# This lane found the backend clobbering r22, the register the Go runtime keeps
-# the current goroutine in, in 616 places. Nothing else could have: the
-# corruption is only fatal when a signal arrives, so it does not reproduce
-# under a debugger and never appears on any other architecture.
-QEMU_LOONG ?= qemu-loongarch64
+# The second is the more dangerous shape and it is why -require-accelerated
+# exists. A suite that skips every accelerated tier is green, and reads
+# identically to one that tested them. Both backends were in that state; the
+# first run that actually executed them found a segfault in one and wrong
+# answers from every constant-reading kernel in the other.
+#
+# The emulator has to be recent and has to be told which CPU to be. LSX and
+# LASX arrived in QEMU 8.1, and RISC-V's V extension is off unless the -cpu
+# string asks for it.
+QEMU_LOONG   ?= qemu-loongarch64
+QEMU_RISCV   ?= qemu-riscv64
+QEMU_PKGS    ?= . ./internal/conformance ./internal/ref ./internal/cpu
 
 .PHONY: test-loong64
 test-loong64:
-	@command -v $(QEMU_LOONG) >/dev/null || { \
-		echo "$(QEMU_LOONG) not found. Extract a recent one with:"; \
+	@$(MAKE) --no-print-directory qemu-run \
+		ARCH=loong64 QEMU=$(QEMU_LOONG) CPU=la464
+
+.PHONY: test-riscv64
+test-riscv64:
+	@$(MAKE) --no-print-directory qemu-run \
+		ARCH=riscv64 QEMU=$(QEMU_RISCV) CPU=rv64,v=true,vlen=256,zba=true,zbb=true
+
+# qemu-run is the shared body. It asserts an accelerated tier was selected
+# before it trusts a single PASS.
+.PHONY: qemu-run
+qemu-run:
+	@command -v $(QEMU) >/dev/null || { \
+		echo "$(QEMU) not found. Extract a recent one with:"; \
 		echo "  cid=\$$(docker create tonistiigi/binfmt:latest)"; \
-		echo "  docker cp \$$cid:/usr/bin/qemu-loongarch64 /usr/local/bin/"; \
+		echo "  docker cp \$$cid:/usr/bin/$(QEMU) ~/.local/bin/"; \
 		echo "  docker rm \$$cid"; \
 		exit 1; }
-	@for p in . ./internal/conformance ./internal/ref ./internal/cpu; do \
-		out=$$(mktemp); \
-		GOARCH=loong64 GOOS=linux $(GO) test -c -o $$out $$p || exit 1; \
-		printf "%-28s " $$p; \
-		QEMU_CPU=la464 $(QEMU_LOONG) $$out -test.short | tail -1 || exit 1; \
-		rm -f $$out; \
+	@bin=$$(mktemp); \
+	GOARCH=$(ARCH) GOOS=linux $(GO) build -o $$bin ./cmd/simdinfo || exit 1; \
+	QEMU_CPU=$(CPU) $(QEMU) $$bin -require-accelerated || exit 1; \
+	rm -f $$bin
+	@for p in $(QEMU_PKGS); do \
+		bin=$$(mktemp); \
+		GOARCH=$(ARCH) GOOS=linux $(GO) test -c -o $$bin $$p || exit 1; \
+		printf "%-9s %-28s " $(ARCH) $$p; \
+		QEMU_CPU=$(CPU) $(QEMU) $$bin -test.short | tail -1 || exit 1; \
+		rm -f $$bin; \
 	done
 
 # Register the qemu interpreters, without which docker --platform fails with

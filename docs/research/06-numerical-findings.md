@@ -314,3 +314,28 @@ errno, while `__builtin_elementwise_sqrt` does not; and a search written to accu
 whole input vectorizes but was measured **1700x slower** than portable Go on a 256 KiB slice whose
 first byte settled the answer. Neither extreme is right — fold whole blocks with vector code and
 test the accumulator once per block, which bounds the wasted work at one block.
+
+## The RISC-V constant pool read from four bytes before the function
+
+`auipc`/`ld` addresses a constant in two halves, and the low half cannot be
+resolved on its own: `R_RISCV_PCREL_LO12`'s symbol is a label placed on the
+`auipc`, because the value it needs depends on where the *high* half was.
+`constpool_rv.go` knew that and paired the two by destination register, which
+is correct. What it then did was look the pool's base address up with the low
+half's own `TargetSection` — and that section is `.text`, where the label is.
+The map has no entry for it, so the lookup returned zero and the address came
+out as `hi.at` bytes before the function rather than the pool.
+
+For `simd_is_ascii` the load was `ld a4, -4(a4)` after `auipc a4, 0` at offset
+4: it read the eight bytes ending at the function's own first instruction. Any
+eight bytes decode as a double, which is why nothing crashed. `Exp` on float64
+returned `+Inf` at −700, `Sigmoid` was out by 9.0e15 ULP, `Acos` by 7.07e15 at
+−1, and their float32 twins were exact — the float32 polynomials fit in
+immediates and need no pool at all.
+
+Every riscv64 kernel with a constant pool was affected, and none of it was
+visible: the `riscv64` lane runs under an emulator whose CPU has no vector
+extension, so the whole backend was skipped as unexecutable and the lane was
+green. See D11 in `05-decisions.md` for the general form of that, and
+`simdinfo -require-accelerated`, which is now the first thing every emulated
+lane runs.
