@@ -73,6 +73,9 @@ func lastIndexNotAnyAVX512(b []byte, chars []byte) int
 func countAnyAVX512(b []byte, chars []byte) int
 
 //go:noescape
+func b64EncodeAVX512(dst []byte, b []byte) int
+
+//go:noescape
 func hexEncodeAVX512(dst []byte, b []byte) int
 
 //go:noescape

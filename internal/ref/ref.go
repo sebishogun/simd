@@ -746,6 +746,7 @@ func floatOps[T float]() kernel.Ops[T] {
 		Clamp: clampFloat[T], Fill: fill[T],
 		AddScaled: addScaled[T],
 		CumSum:    cumSum[T],
+		Compress:  compress[T],
 		Sum:       sumFloat[T], Min: minFloat[T], Max: maxFloat[T],
 		SumSquares: sumSquaresFloat[T], L1Norm: l1NormFloat[T], Norm: normFloat[T],
 		Dot:      dotFloat[T],
@@ -770,6 +771,7 @@ func intOps[T integer]() kernel.Ops[T] {
 		Clamp: clampInt[T], Fill: fill[T],
 		AddScaled: addScaled[T],
 		CumSum:    cumSum[T],
+		Compress:  compress[T],
 		Sum:       sumInt[T], Min: minInt[T], Max: maxInt[T],
 		SumSquares: sumSquaresInt[T], L1Norm: l1NormInt[T],
 		Dot:      dotInt[T],
@@ -986,12 +988,13 @@ func DotInt[T Integer](a, b []T) T { return dotInt(a, b) }
 func ProdInt[T Integer](a []T) T   { return prod(a) }
 func Diff[T Number](dst, a []T)    { diff(dst, a) }
 
-func L1NormInt[T Integer](a []T) T    { return l1NormInt(a) }
-func L1DiffInt[T Integer](a, b []T) T { return l1DiffInt(a, b) }
-func CompareBytes(a, b []byte) int    { return compareBytes(a, b) }
-func EqualFoldASCII(a, b []byte) bool { return equalFoldASCII(a, b) }
-func IndexAny(b, chars []byte) int    { return indexAny(b, chars) }
-func CountAny(b, chars []byte) int    { return countAny(b, chars) }
-func HexEncode(dst, src []byte) int   { return hexEncode(dst, src) }
+func L1NormInt[T Integer](a []T) T               { return l1NormInt(a) }
+func L1DiffInt[T Integer](a, b []T) T            { return l1DiffInt(a, b) }
+func CompareBytes(a, b []byte) int               { return compareBytes(a, b) }
+func EqualFoldASCII(a, b []byte) bool            { return equalFoldASCII(a, b) }
+func IndexAny(b, chars []byte) int               { return indexAny(b, chars) }
+func CountAny(b, chars []byte) int               { return countAny(b, chars) }
+func HexEncode(dst, src []byte) int              { return hexEncode(dst, src) }
+func IndexAll(dst []int32, b []byte, c byte) int { return indexAll(dst, b, c) }
 
 func NormFloat[T Float](a []T) T { return normFloat(a) }

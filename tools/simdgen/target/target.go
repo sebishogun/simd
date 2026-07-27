@@ -468,9 +468,20 @@ var All = []Target{
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBU",
 		MovInt8: "MOVB", MovInt16: "MOVH", MovUint16: "MOVHU", MovUint32: "MOVWU",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
-		Reserved:    []string{"x28", "x27", "x18"},
-		GoOwned:     []string{"x28", "x27", "x18"},
-		DisasmFlags: []string{"--mattr=+sve2"},
+		Reserved: []string{"x28", "x27", "x18"},
+		GoOwned:  []string{"x28", "x27", "x18"},
+		// --mattr replaces the feature set rather than adding to it, so naming
+		// only sve2 leaves the disassembler unable to read base NEON. That was
+		// invisible until a kernel emitted one: the compress family is the
+		// first here to use sdot, and it disassembled as <unknown>, which the
+		// gate check correctly refused to pass rather than assume harmless.
+		//
+		// +dotprod is safe to allow at this tier and is not a widening of it.
+		// The tier is gated at run time on HasSVE2, and SVE2 is an ARMv9-A
+		// feature; ARMv9-A implies ARMv8.5-A, and DotProd has been mandatory
+		// since ARMv8.4-A. A CPU that reports SVE2 therefore has sdot. The
+		// same does not hold for i8mm or bf16, which stay out.
+		DisasmFlags: []string{"--mattr=+sve2,+neon,+dotprod"},
 		MinFeature:  FeatSVE2,
 	},
 	{

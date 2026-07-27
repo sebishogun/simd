@@ -77,7 +77,9 @@ riscv64 RVV numeric kernels.
 `Pow` `Hypot` `Sin` `Cos` `Tan` `Asin` `Acos` `Atan` `Atan2` `Sinh` `Cosh`
 `Tanh` `Sigmoid` — each with a `Fast` twin
 
-**Comparisons** to `[]bool` masks, `Select`, `All` `Any` `CountTrue`
+**Comparisons** to `[]bool` masks, `Select`, `All` `Any` `CountTrue` ·
+**Compression** `CompressInto` `ExpandInto` `FilterInto` — a comparison writes
+the mask, `CompressInto` packs it, so one function serves every predicate
 
 **Complex** `AddComplex` … `DotComplexConj` `AbsComplexInto` `FromPartsInto`
 

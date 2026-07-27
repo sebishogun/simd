@@ -1101,8 +1101,96 @@ type Source struct {
 	ExtraFlags []string
 }
 
+// noCompress is every target with no hardware compress instruction, which is
+// all of them but two.
+//
+// This list is not a to-do. Compression is the one operation in the library
+// that autovectorization cannot reach on principle rather than by omission:
+// the store address depends on how many earlier lanes matched, which is a
+// genuine loop-carried dependency, and the only thing that breaks it is an
+// instruction that packs a masked vector in one step. AVX-512 has vpcompressd
+// and SVE2 has compact. On everything else clang scalarizes the intrinsic back
+// into a per-lane branch, which is slower than the plain C loop it came from,
+// so a kernel built there would be a pessimization wearing a kernel's name.
+//
+// A skipped kernel is not registered and the portable path stands, which is
+// the same arrangement every other partial backend uses.
+var noCompress = []string{
+	"amd64/sse2", "amd64/avx2", "arm64/neon",
+	"riscv64", "s390x", "loong64", "ppc64le",
+}
+
+// compressK is the packing kernel for one element type.
+//
+// The contract is that dst has room for the whole of src. The kernel cannot
+// bound-check per lane — the store is unconditional and it is the *pointer*
+// that advances, which is the entire reason the instruction is fast — so a
+// caller with a short destination takes the portable path instead, which is
+// what RefWhen says. The guard's clamp then reduces to min(len(src),
+// len(keep)), because len(dst) is already known not to be the smallest.
+func compressK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_compress_" + e.c, GoName: "compress" + e.goName,
+		Group: e.group, Field: "Compress", RefFunc: "Compress" + e.goName,
+		Params: []spec.Param{
+			sl("dst", e.slice), sl("src", e.slice), sl("keep", spec.SliceB),
+		},
+		Result:  &spec.Param{Name: "ret", Type: spec.Int},
+		CArgs:   []spec.CArg{out(), base("dst"), base("src"), base("keep"), lenOf("src")},
+		RefWhen: "len(dst) < len(src)",
+		// Measured on avx512, and higher than most thresholds here because
+		// what it is being compared against is unusually good. The scalar
+		// filter costs a branch per element, and at low match density that
+		// branch is perfectly predicted, so the loop this replaces runs at
+		// close to load-store speed and the kernel has to make back the call
+		// boundary against it. The crossover moves with density: at 90%
+		// matches the kernel is already 25% ahead at n=64, at 1% it is still
+		// 9% behind at n=128. 192 is where the worst density turns, measured
+		// at 1%, 25%, 50% and 90% — and by n=1M the same kernel is 3× to 15×
+		// ahead, because the scalar branch stops being predictable long before
+		// the vector version notices anything has changed.
+		Threshold: 192,
+		SkipOn:    noCompress,
+	}
+}
+
+// Compress is the compress family and the index scan built on it.
+func Compress() []spec.Kernel {
+	ks := []spec.Kernel{
+		{
+			// Two lengths, so the guard leaves them alone: dst holds one entry
+			// per *match*, which is not a number that can be clamped against
+			// the length of the haystack. The kernel reconciles them by
+			// stopping when dst fills.
+			CName: "simd_index_all", GoName: "indexAll",
+			Group: "Bytes", Field: "IndexAll", RefFunc: "IndexAll",
+			Params: []spec.Param{
+				sl("dst", spec.SliceI32), sl("b", spec.SliceU8), sl("c", spec.U8),
+			},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{
+				out(), base("dst"), base("b"), val("c"), lenOf("dst"), lenOf("b"),
+			},
+			Threshold: thScan,
+			SkipOn:    noCompress,
+		},
+	}
+	for _, e := range elems {
+		// The four full-width types only. The narrow integers would need a
+		// compress at their own lane width — vpcompressb is AVX512_VBMI2,
+		// which is above the tier this library gates avx512 on — and packing
+		// them through int32 lanes would cost more than it saves.
+		switch e.group {
+		case "F32", "F64", "I32", "I64":
+			ks = append(ks, compressK(e))
+		}
+	}
+	return ks
+}
+
 // All is every source file the generator processes.
 var All = []Source{
+	{Path: "csrc/compress.c", Kernels: Compress()},
 	{Path: "csrc/arith.c", Kernels: Arith()},
 	{Path: "csrc/reduce.c", Kernels: Reduce()},
 	{Path: "csrc/compare.c", Kernels: Compare()},

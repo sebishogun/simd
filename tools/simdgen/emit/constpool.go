@@ -256,9 +256,27 @@ func makeIntegerUnaligned(code []byte, rel objfile.Reloc, in Instr) error {
 	return nil
 }
 
-// makeVEXUnaligned flips the pp field of a VEX prefix from 66 to F3.
+// makeVEXUnaligned flips the pp field of a VEX or EVEX prefix from 66 to F3.
+//
+// All three prefix forms end the same way — the opcode two bytes before the
+// displacement and the ModRM one — so the position of pp is found by walking
+// backwards from there:
+//
+//	C5 P0          6F ModRM disp32   2-byte VEX,  pp in P0 at Off-3
+//	C4 P0 P1       6F ModRM disp32   3-byte VEX,  pp in P1 at Off-3
+//	62 P0 P1 P2    6F ModRM disp32   EVEX,        pp in P1 at Off-4
+//
+// EVEX is the one that does not follow the pattern, because its third payload
+// byte holds the mask register and the vector length rather than the prefix
+// selector. Reading Off-3 on an EVEX instruction lands on that byte instead,
+// whose low bits are the aaa mask field — which is zero for an unmasked move,
+// so the symptom is "pp=0" rather than a wrong patch. That is what
+// vmovdqa64 does, and it is why this is checked by form rather than assumed.
 func makeVEXUnaligned(code []byte, rel objfile.Reloc, in Instr) error {
-	pp := rel.Off - 3 // the byte holding pp, for both the 2- and 3-byte forms
+	pp, err := ppOffset(code, rel.Off)
+	if err != nil {
+		return fmt.Errorf("%s at +0x%x: %w", in.Mnemonic, rel.Off, err)
+	}
 	const ppMask = 0x03
 	switch code[pp] & ppMask {
 	case 0x01: // 66
@@ -267,8 +285,32 @@ func makeVEXUnaligned(code []byte, rel objfile.Reloc, in Instr) error {
 	case 0x02: // already F3
 		return nil
 	}
-	return fmt.Errorf("%s at +0x%x: VEX prefix byte 0x%02x has pp=%d, which is neither "+
-		"66 nor F3", in.Mnemonic, rel.Off, code[pp], code[pp]&ppMask)
+	return fmt.Errorf("%s at +0x%x: prefix byte 0x%02x at +0x%x has pp=%d, which is "+
+		"neither 66 nor F3", in.Mnemonic, rel.Off, code[pp], pp, code[pp]&ppMask)
+}
+
+// ppOffset locates the prefix byte holding pp for the instruction whose
+// displacement begins at off.
+//
+// Each form is identified by its leading byte at the offset that form would
+// put it at, and EVEX is confirmed by two bits the encoding fixes: P0[3:2] are
+// reserved zero and P1[2] is reserved one. Checking those matters because 0x62
+// is also a perfectly ordinary byte to find inside a preceding instruction,
+// and a false positive here would silently patch the wrong byte — turning a
+// load into a different valid load, which fails as a wrong answer rather than
+// as a crash.
+func ppOffset(code []byte, off uint64) (uint64, error) {
+	if off >= 6 && code[off-6] == 0x62 && code[off-5]&0x0C == 0 && code[off-4]&0x04 != 0 {
+		return off - 4, nil // EVEX: 62 P0 P1 P2
+	}
+	if off >= 5 && code[off-5] == 0xC4 {
+		return off - 3, nil // 3-byte VEX: C4 P0 P1
+	}
+	if off >= 4 && code[off-4] == 0xC5 {
+		return off - 3, nil // 2-byte VEX: C5 P0
+	}
+	return 0, fmt.Errorf("no VEX (C5/C4) or EVEX (62) prefix found before the opcode; " +
+		"this is not a form makeVEXUnaligned knows how to patch")
 }
 
 // instrAt finds the instruction containing a byte offset.

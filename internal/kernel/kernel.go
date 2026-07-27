@@ -178,6 +178,18 @@ type Ops[T any] struct {
 	// len(a) worth of useful output.
 	CumSum, CumProd, CumMin, CumMax, Diff func(dst, a []T)
 
+	// Compress packs the elements of src whose keep byte is set down into dst,
+	// in order, and reports how many were written.
+	//
+	// This slot is nil on most targets and that is expected. Compression is
+	// the one operation here that autovectorization genuinely cannot reach —
+	// the store address depends on how many earlier elements matched, which is
+	// a real loop-carried dependency — so it needs a hardware compress
+	// instruction, and only AVX-512 and SVE2 have one. Everywhere else the
+	// dispatcher keeps the portable loop, which is what the compiler would
+	// have produced anyway.
+	Compress func(dst, src []T, keep []bool) int
+
 	// Signal and polynomial kernels. These are their own kernels rather than
 	// compositions because composing them would cost one pass over memory per
 	// coefficient or per tap, which is exactly the memory-bound trap a

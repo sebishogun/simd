@@ -43,11 +43,37 @@ transcendentals guarantee a stated ULP bound rather than bit identity, and
   uses a register the Go runtime owns and no compiler flag stops it. ppc64le
   additionally reaches its constants through the TOC pointer, which Go does not
   maintain for these objects.
-- **`IndexAll` and `HexDecode` are portable on every architecture.** The first
-  needs a compress primitive that is not yet written; the second returns two
-  values where the generator's result slot holds one.
-- **Not yet built:** compress/expand/filter, sort/argsort, a blocked GEMM
-  microkernel, `Gemv`.
+- **`Compress` and `IndexAll` are accelerated on AVX-512 and SVE2 only**, and
+  permanently so. Those are the two instruction sets with a compress
+  instruction, and the operation cannot be vectorized without one: where each
+  element lands depends on how many earlier ones matched, which is a real
+  loop-carried dependency rather than a compiler shortcoming. The other seven
+  targets run the portable loop, which is what their compilers would emit
+  anyway.
+- **`HexDecode` is portable everywhere**, because it returns two values where
+  the generator's result slot holds one.
+- **Not yet built:** sort/argsort, a blocked GEMM microkernel, `Gemv`. See
+  [ROADMAP.md](ROADMAP.md).
+
+### On Go's own SIMD intrinsics
+
+Go 1.26 shipped them behind `GOEXPERIMENT=simd`, targeted at the language in
+1.27. They do not replace this library and are not a competitor to it: they
+cover amd64 and arm64 only, they do not reach SVE2 or RVV, and a library cannot
+require its consumers to set a `GOEXPERIMENT`.
+
+They do win in one band, and will keep winning there. An assembly kernel cannot
+be inlined, so it pays a fixed call boundary — ~1.4 ns at the floor, 50–65
+cycles once `VZEROUPPER` and register save/restore are counted. Above n ≈ 128
+that is a rounding error. Below n ≈ 64 it is most of the runtime, which is why
+the dispatcher gives up and runs a scalar loop there. An inlined intrinsic pays
+none of it.
+
+The plan is therefore additive: build the tier behind the experiment flag,
+benchmark it against both the assembly tier and the scalar fallback, and wire
+up only the sizes where it wins. When it needs no flag, re-measure and adopt it
+wherever the number says so. The bit-identity contract binds it like every
+other tier.
 
 ### Measured on a Ryzen AI MAX+ 395 (Zen 5, AVX-512)
 
