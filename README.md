@@ -327,12 +327,21 @@ make codegen       # regenerate every backend (needs clang)
 
 ---
 
-## Design notes
+## Where the obvious answer was wrong
 
-`docs/research/` carries the reasoning, including the parts that were wrong
-first. `05-decisions.md` is the decision record; `06-numerical-findings.md` is
-what measurement contradicted — the reference's own architecture dependence
-through fused multiply-add, four places where Go's `math` is the less accurate
-side, five loop shapes LLVM will not vectorize and what to write instead, and
-the two ABI registers that are reserved by *value* rather than by name and are
-therefore invisible to every compiler flag.
+**[`docs/wrong.md`](docs/wrong.md)** is the part of this project most worth
+borrowing: sixteen things a competent person would have assumed, that were
+false, and what each one cost. Among them —
+
+- A register can be reserved by *value* rather than by name, which makes it
+  invisible to every compiler flag. The symptom is Go's allocator dying several
+  calls later.
+- A compiler builtin that silently compiles to nothing at `-O1` and above, and
+  is correct at `-O0`.
+- Green test lanes that had been executing no accelerated code for months.
+- Four loops that were slower *after* being vectorized, one of them by 1700×.
+- `--mattr=+sve2` removing NEON rather than adding SVE2.
+- `ENOSPC` with 40 GB free.
+
+`docs/research/` carries the longer reasoning behind the design decisions;
+`05-decisions.md` is the decision record.
