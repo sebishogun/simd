@@ -1,0 +1,109 @@
+name: ci
+
+# The live gate. Everything runs on the self-hosted runner, because hosted
+# minutes are not available on this account — see the note at the top of
+# ci.yml — and because two of these checks want a machine that is not shared
+# anyway: the emulated lanes compile several megabytes of assembly under qemu,
+# and the benchmark gate compares against a stored baseline, which measures the
+# neighbours on a shared box.
+#
+# There is one runner, so jobs queue rather than fan out. They are therefore
+# few and coarse, ordered cheapest first, so a formatting mistake fails in
+# seconds instead of behind twenty minutes of emulation.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: build, vet and test
+    runs-on: [self-hosted, linux]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: formatting
+        run: |
+          out=$(gofmt -l . | grep -v '^tools/goat/' || true)
+          if [ -n "$out" ]; then echo "not gofmt'd:"; echo "$out"; exit 1; fi
+
+      - name: vet
+        run: |
+          go vet ./...
+          cd tools && go vet ./...
+
+      # The static assertions on the committed assembly. No toolchain, no
+      # emulation — it parses text — so it is nearly free and catches the class
+      # of bug that only shows up at run time on one architecture.
+      - name: assembly invariants
+        run: go test ./internal/asmcheck/
+
+      - name: tests
+        run: go test ./...
+
+      # The reference has to be self-consistent before anything is compared
+      # against it.
+      - name: portable build
+        run: go test -tags purego ./...
+
+      # Once per instruction-set tier this CPU can execute, which is what
+      # catches a kernel that is right on AVX-512 and wrong on SSE2.
+      - name: every tier this CPU supports
+        run: make test-tiers
+
+  cross:
+    name: every architecture under emulation
+    needs: gate
+    runs-on: [self-hosted, linux]
+    steps:
+      - uses: actions/checkout@v4
+
+      # A green run means nothing unless an accelerated tier was actually
+      # selected. The riscv64 and loong64 lanes were green for months while
+      # executing none of their kernels, because the emulator in the image
+      # predates the vector extension. -require-accelerated is the assertion
+      # that stops that recurring.
+      - name: docker lanes (arm64, s390x, ppc64le)
+        run: |
+          [ -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ] || \
+            docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          for p in linux/arm64 linux/s390x linux/ppc64le; do
+            echo "--- $p"
+            docker run --rm --platform $p -v "$PWD":/src -w /src \
+              -e GOFLAGS=-buildvcs=false golang:1.26 \
+              sh -c 'go run ./cmd/simdinfo -require-accelerated && go test -short ./...' || exit 1
+          done
+
+      # loong64 has no golang image at all and riscv64's emulates a CPU with no
+      # vector extension, so both cross-compile here and run under the
+      # hand-fetched qemu in ~/.local/bin. See docs/runner.md.
+      - name: qemu lanes (riscv64, loong64)
+        run: |
+          make test-riscv64
+          make test-loong64
+
+  bench:
+    name: benchmarks against the baseline
+    needs: gate
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    runs-on: [self-hosted, linux]
+    steps:
+      - uses: actions/checkout@v4
+      - name: compare
+        run: make bench-check
+
+  fuzz:
+    name: differential fuzzing
+    needs: gate
+    if: github.event_name == 'schedule'
+    runs-on: [self-hosted, linux]
+    steps:
+      - uses: actions/checkout@v4
+      - run: make fuzz FUZZTIME=300s

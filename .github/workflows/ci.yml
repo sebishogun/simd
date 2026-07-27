@@ -1,13 +1,15 @@
 name: CI
 
+# Parked. Hosted runners are not available on this account, so every job here
+# fails in zero seconds with "workflow file issue" — which is what it looks
+# like from the outside when Actions has no minutes. The live gate is
+# ci-local.yml, which runs the same checks on the self-hosted runner.
+#
+# This file is kept rather than deleted because it is the configuration that
+# should run if hosted minutes are ever available: the matrix over Go versions
+# and operating systems is something one local machine cannot provide.
 on:
-  push:
-    branches: [main]
-  pull_request:
-  schedule:
-    # The cross-architecture and fuzzing lanes are slow, so they run nightly
-    # rather than on every pull request.
-    - cron: "0 3 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
