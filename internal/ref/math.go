@@ -269,12 +269,57 @@ func floatMathOps[T float](o *kernel.Ops[T]) {
 	o.Atan2 = binary[T](math.Atan2)
 	o.Hypot = binary[T](math.Hypot)
 
+	// The Fast slots are deliberately left nil here. They are filled by
+	// FillFastFallbacks once a backend has finished installing its kernels,
+	// because until then "no Fast kernel" and "the accurate kernel" cannot be
+	// told apart — and the difference matters: the fallback has to be the
+	// accurate *kernel*, not the portable loop this file provides.
+
 	o.Lerp = lerp[T]
 	o.CumProd = cumProd[T]
 	o.CumMin = cumMinFloat[T]
 	o.CumMax = cumMaxFloat[T]
 	o.Diff = diff[T]
 	o.Prod = prod[T]
+}
+
+// fastFrom points every Fast slot that is still nil at its accurate twin.
+func fastFrom[T any](o *kernel.Ops[T]) {
+	pairs := []struct{ fast, accurate *func(dst, a []T) }{
+		{&o.FastExp, &o.Exp}, {&o.FastExp2, &o.Exp2}, {&o.FastExpm1, &o.Expm1},
+		{&o.FastLog, &o.Log}, {&o.FastLog2, &o.Log2}, {&o.FastLog10, &o.Log10},
+		{&o.FastLog1p, &o.Log1p}, {&o.FastCbrt, &o.Cbrt},
+		{&o.FastSigmoid, &o.Sigmoid},
+		{&o.FastSin, &o.Sin}, {&o.FastCos, &o.Cos}, {&o.FastTan, &o.Tan},
+		{&o.FastAsin, &o.Asin}, {&o.FastAcos, &o.Acos}, {&o.FastAtan, &o.Atan},
+		{&o.FastSinh, &o.Sinh}, {&o.FastCosh, &o.Cosh}, {&o.FastTanh, &o.Tanh},
+	}
+	for _, p := range pairs {
+		if *p.fast == nil {
+			*p.fast = *p.accurate
+		}
+	}
+	bin := []struct{ fast, accurate *func(dst, a, b []T) }{
+		{&o.FastPow, &o.Pow}, {&o.FastAtan2, &o.Atan2}, {&o.FastHypot, &o.Hypot},
+	}
+	for _, p := range bin {
+		if *p.fast == nil {
+			*p.fast = *p.accurate
+		}
+	}
+}
+
+// FillFastFallbacks points any Fast slot with no generated kernel at the
+// accurate one, for both float groups of a backend.
+//
+// It runs after a backend is fully assembled, which is the only moment the two
+// cases can be distinguished, and it is what lets a caller use FastExp on every
+// architecture without asking whether that architecture has it. A target where
+// the Fast tier did not measure faster simply computes a more accurate answer,
+// which an upper bound on error permits.
+func FillFastFallbacks(s *kernel.Set) {
+	fastFrom(&s.F32)
+	fastFrom(&s.F64)
 }
 
 // intMathOps fills in the portion an integer kernel group can support.

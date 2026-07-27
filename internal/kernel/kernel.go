@@ -133,6 +133,28 @@ type Ops[T any] struct {
 	Sinh, Cosh, Tanh     func(dst, a []T)
 	Pow, Atan2, Hypot    func(dst, a, b []T)
 
+	// The Fast tier: the same functions at 3.5 ULP instead of 1.0, from the
+	// same source compiled with shorter polynomials and fused multiply-add.
+	//
+	// These may be nil, and unlike the float-only slots above that is not
+	// because the type has no such operation — it is because the target did
+	// not come out ahead. The generator emits them only where the tier
+	// measures faster; where it does not, the dispatcher fills the slot with
+	// the accurate kernel. That is sound rather than a compromise: the Fast
+	// contract is an *upper bound* on error, so an answer better than the
+	// bound satisfies it, and a caller can use these unconditionally without
+	// asking what architecture it is on.
+	//
+	// They are also the one place in this package where two architectures may
+	// disagree bit for bit, which is exactly what the name is warning about.
+	FastExp, FastExp2, FastExpm1     func(dst, a []T)
+	FastLog, FastLog2, FastLog10     func(dst, a []T)
+	FastLog1p, FastCbrt, FastSigmoid func(dst, a []T)
+	FastSin, FastCos, FastTan        func(dst, a []T)
+	FastAsin, FastAcos, FastAtan     func(dst, a []T)
+	FastSinh, FastCosh, FastTanh     func(dst, a []T)
+	FastPow, FastAtan2, FastHypot    func(dst, a, b []T)
+
 	// Elementwise with a scalar operand.
 	//
 	// DivScalar really divides rather than multiplying by a precomputed

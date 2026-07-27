@@ -25,6 +25,7 @@
 #define EXP2P_11 0x1.e8ca834d241a8p-32
 #define EXP2P_12 0x1.c4a460a4b5d73p-36
 #define EXP2P_13 0x1.822714a1d8130p-40
+#define EXP2P_EVAL(x) POLY14((x), EXP2P)
 
 // 2^r on [-1/2, 1/2], degree 7
 //   worst error over the interval: 7.989e-10
@@ -36,6 +37,34 @@
 #define EXP2PF_5 0x1.5d83880000000p-10f
 #define EXP2PF_6 0x1.4413760000000p-13f
 #define EXP2PF_7 0x1.04207c0000000p-16f
+#define EXP2PF_EVAL(x) POLY8((x), EXP2PF)
+
+// 2^r on [-1/2, 1/2], degree 11 (Fast tier, was 13)
+//   worst error over the interval: 6.122e-17
+#define EXP2PQ_0 0x1.0000000000000p+0
+#define EXP2PQ_1 0x1.62e42fefa39efp-1
+#define EXP2PQ_2 0x1.ebfbdff82c597p-3
+#define EXP2PQ_3 0x1.c6b08d704a2ddp-5
+#define EXP2PQ_4 0x1.3b2ab6fba2941p-7
+#define EXP2PQ_5 0x1.5d87fe7832cafp-10
+#define EXP2PQ_6 0x1.43091305e9060p-13
+#define EXP2PQ_7 0x1.ffcbfecf97599p-17
+#define EXP2PQ_8 0x1.62bfdff9a4c4ap-20
+#define EXP2PQ_9 0x1.b51f6b965070ep-24
+#define EXP2PQ_10 0x1.e5ee740f07193p-28
+#define EXP2PQ_11 0x1.f3016a1d38449p-32
+#define EXP2PQ_EVAL(x) POLY12((x), EXP2PQ)
+
+// 2^r on [-1/2, 1/2], degree 6 (Fast tier, was 7)
+//   worst error over the interval: 1.476e-8
+#define EXP2PQF_0 0x1.0000000000000p+0f
+#define EXP2PQF_1 0x1.62e4300000000p-1f
+#define EXP2PQF_2 0x1.ebfbea0000000p-3f
+#define EXP2PQF_3 0x1.c6af600000000p-5f
+#define EXP2PQF_4 0x1.3b21a40000000p-7f
+#define EXP2PQF_5 0x1.5f006e0000000p-10f
+#define EXP2PQF_6 0x1.4b65220000000p-13f
+#define EXP2PQF_EVAL(x) POLY7((x), EXP2PQF)
 
 // e^r on |r|<=ln2/2, degree 12
 //   worst error over the interval: 1.084e-18
@@ -52,6 +81,7 @@
 #define EXPP_10 0x1.27e5b71d5fc69p-22
 #define EXPP_11 0x1.af5ddffc0d6eap-26
 #define EXPP_12 0x1.1e0dbbb79cd9cp-29
+#define EXPP_EVAL(x) POLY13((x), EXPP)
 
 // e^r on |r|<=ln2/2, degree 6
 //   worst error over the interval: 1.476e-8
@@ -62,6 +92,34 @@
 #define EXPPF_4 0x1.554b800000000p-5f
 #define EXPPF_5 0x1.1237260000000p-7f
 #define EXPPF_6 0x1.7582c80000000p-10f
+#define EXPPF_EVAL(x) POLY7((x), EXPPF)
+
+// e^r on |r|<=ln2/2, degree 11 (Fast tier, was 12)
+//   worst error over the interval: 6.122e-17
+#define EXPPQ_0 0x1.0000000000000p+0
+#define EXPPQ_1 0x1.0000000000000p+0
+#define EXPPQ_2 0x1.0000000000004p-1
+#define EXPPQ_3 0x1.55555555556ecp-3
+#define EXPPQ_4 0x1.5555555552d08p-5
+#define EXPPQ_5 0x1.11111110b6b62p-7
+#define EXPPQ_6 0x1.6c16c17b4a14dp-10
+#define EXPPQ_7 0x1.a01a03a1282d1p-13
+#define EXPPQ_8 0x1.a019b3ea2c46ep-16
+#define EXPPQ_9 0x1.71d94df44ab30p-19
+#define EXPPQ_10 0x1.28943ae4020d7p-22
+#define EXPPQ_11 0x1.b76294d366e7cp-26
+#define EXPPQ_EVAL(x) POLY12((x), EXPPQ)
+
+// e^r on |r|<=ln2/2, degree 6 (Fast tier, was 6)
+//   worst error over the interval: 1.476e-8
+#define EXPPQF_0 0x1.0000000000000p+0f
+#define EXPPQF_1 0x1.0000000000000p+0f
+#define EXPPQF_2 0x1.0000060000000p-1f
+#define EXPPQF_3 0x1.5554720000000p-3f
+#define EXPPQF_4 0x1.554b800000000p-5f
+#define EXPPQF_5 0x1.1237260000000p-7f
+#define EXPPQF_6 0x1.7582c80000000p-10f
+#define EXPPQF_EVAL(x) POLY7((x), EXPPQF)
 
 // log2((1+s)/(1-s))/s in u=s^2, degree 7
 //   worst error over the interval: 3.293e-18
@@ -73,6 +131,7 @@
 #define LOG2P_5 0x1.0ca165a644dbcp-2
 #define LOG2P_6 0x1.c46d100822d8dp-3
 #define LOG2P_7 0x1.b59cb210902a4p-3
+#define LOG2P_EVAL(x) POLY8((x), LOG2P)
 
 // log2((1+s)/(1-s))/s in u=s^2, degree 4
 //   worst error over the interval: 1.221e-11
@@ -81,6 +140,27 @@
 #define LOG2PF_2 0x1.2777800000000p-1f
 #define LOG2PF_3 0x1.a58d660000000p-2f
 #define LOG2PF_4 0x1.5cea840000000p-2f
+#define LOG2PF_EVAL(x) POLY5((x), LOG2PF)
+
+// log2((1+s)/(1-s))/s in u=s^2, degree 7 (Fast tier, was 7)
+//   worst error over the interval: 3.293e-18
+#define LOG2PQ_0 0x1.71547652b82fep+1
+#define LOG2PQ_1 0x1.ec709dc3a047ep-1
+#define LOG2PQ_2 0x1.2776c50ee3710p-1
+#define LOG2PQ_3 0x1.a61762d6dadddp-2
+#define LOG2PQ_4 0x1.484afb5f5cd97p-2
+#define LOG2PQ_5 0x1.0ca165a644dbcp-2
+#define LOG2PQ_6 0x1.c46d100822d8dp-3
+#define LOG2PQ_7 0x1.b59cb210902a4p-3
+#define LOG2PQ_EVAL(x) POLY8((x), LOG2PQ)
+
+// log2((1+s)/(1-s))/s in u=s^2, degree 3 (Fast tier, was 4)
+//   worst error over the interval: 1.999e-9
+#define LOG2PQF_0 0x1.7154760000000p+1f
+#define LOG2PQF_1 0x1.ec70e60000000p-1f
+#define LOG2PQF_2 0x1.27470a0000000p-1f
+#define LOG2PQF_3 0x1.ba1c3c0000000p-2f
+#define LOG2PQF_EVAL(x) POLY4((x), LOG2PQF)
 
 // sin(r)/r in u=r^2, |r|<=pi/4, degree 7
 //   worst error over the interval: 1.784e-21
@@ -92,6 +172,7 @@
 #define SINP_5 -0x1.ae645270135a3p-26
 #define SINP_6 0x1.61207cecf1731p-33
 #define SINP_7 -0x1.aa9bd8471460bp-41
+#define SINP_EVAL(x) POLY8((x), SINP)
 
 // sin(r)/r in u=r^2, |r|<=pi/4, degree 3
 //   worst error over the interval: 3.074e-9
@@ -99,6 +180,26 @@
 #define SINPF_1 -0x1.5555400000000p-3f
 #define SINPF_2 0x1.1106300000000p-7f
 #define SINPF_3 -0x1.99076c0000000p-13f
+#define SINPF_EVAL(x) POLY4((x), SINPF)
+
+// sin(r)/r in u=r^2, |r|<=pi/4, degree 6 (Fast tier, was 7)
+//   worst error over the interval: 3.144e-18
+#define SINPQ_0 0x1.0000000000000p+0
+#define SINPQ_1 -0x1.5555555555543p-3
+#define SINPQ_2 0x1.111111110f3e0p-7
+#define SINPQ_3 -0x1.a01a019ba9d4dp-13
+#define SINPQ_4 0x1.71de35310c88ap-19
+#define SINPQ_5 -0x1.ae5e382f3eb8cp-26
+#define SINPQ_6 0x1.5d877cc84b5aap-33
+#define SINPQ_EVAL(x) POLY7((x), SINPQ)
+
+// sin(r)/r in u=r^2, |r|<=pi/4, degree 3 (Fast tier, was 3)
+//   worst error over the interval: 3.074e-9
+#define SINPQF_0 0x1.0000000000000p+0f
+#define SINPQF_1 -0x1.5555400000000p-3f
+#define SINPQF_2 0x1.1106300000000p-7f
+#define SINPQF_3 -0x1.99076c0000000p-13f
+#define SINPQF_EVAL(x) POLY4((x), SINPQF)
 
 // cos(r) in u=r^2, |r|<=pi/4, degree 8
 //   worst error over the interval: 1.528e-23
@@ -111,6 +212,7 @@
 #define COSP_6 0x1.1eed8c330d658p-29
 #define COSP_7 -0x1.9392cce8bc234p-37
 #define COSP_8 0x1.aa9bcfb2aabb1p-45
+#define COSP_EVAL(x) POLY9((x), COSP)
 
 // cos(r) in u=r^2, |r|<=pi/4, degree 4
 //   worst error over the interval: 4.74e-11
@@ -119,6 +221,27 @@
 #define COSPF_2 0x1.55553a0000000p-5f
 #define COSPF_3 -0x1.6c07860000000p-10f
 #define COSPF_4 0x1.9907000000000p-16f
+#define COSPF_EVAL(x) POLY5((x), COSPF)
+
+// cos(r) in u=r^2, |r|<=pi/4, degree 6 (Fast tier, was 8)
+//   worst error over the interval: 4.71e-17
+#define COSPQ_0 0x1.0000000000000p+0
+#define COSPQ_1 -0x1.fffffffffff79p-2
+#define COSPQ_2 0x1.555555554e7fep-5
+#define COSPQ_3 -0x1.6c16c163c6b27p-10
+#define COSPQ_4 0x1.a019f7fe587aap-16
+#define COSPQ_5 -0x1.27df40557eaf6p-22
+#define COSPQ_6 0x1.1b8b09a9e2b5bp-29
+#define COSPQ_EVAL(x) POLY7((x), COSPQ)
+
+// cos(r) in u=r^2, |r|<=pi/4, degree 4 (Fast tier, was 4)
+//   worst error over the interval: 4.74e-11
+#define COSPQF_0 0x1.0000000000000p+0f
+#define COSPQF_1 -0x1.0000000000000p-1f
+#define COSPQF_2 0x1.55553a0000000p-5f
+#define COSPQF_3 -0x1.6c07860000000p-10f
+#define COSPQF_4 0x1.9907000000000p-16f
+#define COSPQF_EVAL(x) POLY5((x), COSPQF)
 
 // atan(r)/r in u=r^2, |r|<=tan(pi/12), degree 9
 //   worst error over the interval: 2.507e-18
@@ -132,6 +255,7 @@
 #define ATANP_7 -0x1.1059b524ab5bcp-4
 #define ATANP_8 0x1.d0e0a5862967fp-5
 #define ATANP_9 -0x1.39fa127240b3ep-5
+#define ATANP_EVAL(x) POLY10((x), ATANP)
 
 // atan(r)/r in u=r^2, |r|<=tan(pi/12), degree 4
 //   worst error over the interval: 2.837e-10
@@ -140,6 +264,28 @@
 #define ATANPF_2 0x1.998dc40000000p-3f
 #define ATANPF_3 -0x1.22bbca0000000p-3f
 #define ATANPF_4 0x1.8a862c0000000p-4f
+#define ATANPF_EVAL(x) POLY5((x), ATANPF)
+
+// atan(r)/r in u=r^2, |r|<=tan(pi/12), degree 8 (Fast tier, was 9)
+//   worst error over the interval: 1.484e-17
+#define ATANPQ_0 0x1.0000000000000p+0
+#define ATANPQ_1 -0x1.55555555552f6p-2
+#define ATANPQ_2 0x1.999999992aa17p-3
+#define ATANPQ_3 -0x1.249248e6133c3p-3
+#define ATANPQ_4 0x1.c71c4e74cdc8ap-4
+#define ATANPQ_5 -0x1.74577798cc541p-4
+#define ATANPQ_6 0x1.3a8c4c505a213p-4
+#define ATANPQ_7 -0x1.098f9ee7dff8ep-4
+#define ATANPQ_8 0x1.6bb4585a81575p-5
+#define ATANPQ_EVAL(x) POLY9((x), ATANPQ)
+
+// atan(r)/r in u=r^2, |r|<=tan(pi/12), degree 3 (Fast tier, was 4)
+//   worst error over the interval: 2.0e-8
+#define ATANPQF_0 0x1.0000000000000p+0f
+#define ATANPQF_1 -0x1.5552f60000000p-2f
+#define ATANPQF_2 0x1.9849c20000000p-3f
+#define ATANPQF_3 -0x1.0675500000000p-3f
+#define ATANPQF_EVAL(x) POLY4((x), ATANPQF)
 
 // (asin(s)-s)/s^3 in u=s^2, s in [0,1/2], degree 14
 //   worst error over the interval: 1.382e-18
@@ -158,6 +304,7 @@
 #define ASINP_12 0x1.b690a21bc336ap-6
 #define ASINP_13 -0x1.dd308bb7a0068p-6
 #define ASINP_14 0x1.1263bff7b2244p-5
+#define ASINP_EVAL(x) POLY15((x), ASINP)
 
 // (asin(s)-s)/s^3 in u=s^2, s in [0,1/2], degree 4
 //   worst error over the interval: 3.513e-7
@@ -166,6 +313,35 @@
 #define ASINPF_2 0x1.710ef20000000p-5f
 #define ASINPF_3 0x1.b0015c0000000p-6f
 #define ASINPF_4 0x1.389ada0000000p-5f
+#define ASINPF_EVAL(x) POLY5((x), ASINPF)
+
+// (asin(s)-s)/s^3 in u=s^2, s in [0,1/2], degree 14 (Fast tier, was 14)
+//   worst error over the interval: 1.382e-18
+#define ASINPQ_0 0x1.5555555555555p-3
+#define ASINPQ_1 0x1.33333333332f8p-4
+#define ASINPQ_2 0x1.6db6db6dbcb23p-5
+#define ASINPQ_3 0x1.f1c71c6df9abap-6
+#define ASINPQ_4 0x1.6e8ba39a2e0d5p-6
+#define ASINPQ_5 0x1.1c4eb06b4242ep-6
+#define ASINPQ_6 0x1.c99ccf48ff043p-7
+#define ASINPQ_7 0x1.7a5a40757e1d5p-7
+#define ASINPQ_8 0x1.41a9c2dc6c700p-7
+#define ASINPQ_9 0x1.05b83cf265c01p-7
+#define ASINPQ_10 0x1.35fe18579add9p-7
+#define ASINPQ_11 -0x1.b8c7db46bae96p-10
+#define ASINPQ_12 0x1.b690a21bc336ap-6
+#define ASINPQ_13 -0x1.dd308bb7a0068p-6
+#define ASINPQ_14 0x1.1263bff7b2244p-5
+#define ASINPQ_EVAL(x) POLY15((x), ASINPQ)
+
+// (asin(s)-s)/s^3 in u=s^2, s in [0,1/2], degree 4 (Fast tier, was 4)
+//   worst error over the interval: 3.513e-7
+#define ASINPQF_0 0x1.5555560000000p-3f
+#define ASINPQF_1 0x1.3324420000000p-4f
+#define ASINPQF_2 0x1.710ef20000000p-5f
+#define ASINPQF_3 0x1.b0015c0000000p-6f
+#define ASINPQF_4 0x1.389ada0000000p-5f
+#define ASINPQF_EVAL(x) POLY5((x), ASINPQF)
 
 // cbrt seed on [1,8), degree 5
 //   worst error over the interval: 0.001346
@@ -175,6 +351,7 @@
 #define CBRTP_3 0x1.601bc058e3611p-6
 #define CBRTP_4 -0x1.0378e4b43415ap-9
 #define CBRTP_5 0x1.33cf4d74c1b5fp-14
+#define CBRTP_EVAL(x) POLY6((x), CBRTP)
 
 // cbrt seed on [1,8), degree 4
 //   worst error over the interval: 0.02021
@@ -183,5 +360,60 @@
 #define CBRTPF_2 -0x1.be48f00000000p-5f
 #define CBRTPF_3 0x1.5bf6ae0000000p-8f
 #define CBRTPF_4 -0x1.c404580000000p-13f
+#define CBRTPF_EVAL(x) POLY5((x), CBRTPF)
+
+// cbrt seed on [1,8), degree 5 (Fast tier, was 5)
+//   worst error over the interval: 0.001346
+#define CBRTPQ_0 0x1.30a11f923dbeap-1
+#define CBRTPQ_1 0x1.057fc81da1bf2p-1
+#define CBRTPQ_2 -0x1.feb7294fdc99fp-4
+#define CBRTPQ_3 0x1.601bc058e3611p-6
+#define CBRTPQ_4 -0x1.0378e4b43415ap-9
+#define CBRTPQ_5 0x1.33cf4d74c1b5fp-14
+#define CBRTPQ_EVAL(x) POLY6((x), CBRTPQ)
+
+// cbrt seed on [1,8), degree 4 (Fast tier, was 4)
+//   worst error over the interval: 0.02021
+#define CBRTPQF_0 0x1.670f9a0000000p-1f
+#define CBRTPQF_1 0x1.79248a0000000p-2f
+#define CBRTPQF_2 -0x1.be48f00000000p-5f
+#define CBRTPQF_3 0x1.5bf6ae0000000p-8f
+#define CBRTPQF_4 -0x1.c404580000000p-13f
+#define CBRTPQF_EVAL(x) POLY5((x), CBRTPQF)
+
+#ifdef SIMD_FAST_POLY
+#undef EXP2P_EVAL
+#define EXP2P_EVAL(x) EXP2PQ_EVAL(x)
+#undef EXP2PF_EVAL
+#define EXP2PF_EVAL(x) EXP2PQF_EVAL(x)
+#undef EXPP_EVAL
+#define EXPP_EVAL(x) EXPPQ_EVAL(x)
+#undef EXPPF_EVAL
+#define EXPPF_EVAL(x) EXPPQF_EVAL(x)
+#undef LOG2P_EVAL
+#define LOG2P_EVAL(x) LOG2PQ_EVAL(x)
+#undef LOG2PF_EVAL
+#define LOG2PF_EVAL(x) LOG2PQF_EVAL(x)
+#undef SINP_EVAL
+#define SINP_EVAL(x) SINPQ_EVAL(x)
+#undef SINPF_EVAL
+#define SINPF_EVAL(x) SINPQF_EVAL(x)
+#undef COSP_EVAL
+#define COSP_EVAL(x) COSPQ_EVAL(x)
+#undef COSPF_EVAL
+#define COSPF_EVAL(x) COSPQF_EVAL(x)
+#undef ATANP_EVAL
+#define ATANP_EVAL(x) ATANPQ_EVAL(x)
+#undef ATANPF_EVAL
+#define ATANPF_EVAL(x) ATANPQF_EVAL(x)
+#undef ASINP_EVAL
+#define ASINP_EVAL(x) ASINPQ_EVAL(x)
+#undef ASINPF_EVAL
+#define ASINPF_EVAL(x) ASINPQF_EVAL(x)
+#undef CBRTP_EVAL
+#define CBRTP_EVAL(x) CBRTPQ_EVAL(x)
+#undef CBRTPF_EVAL
+#define CBRTPF_EVAL(x) CBRTPQF_EVAL(x)
+#endif  // SIMD_FAST_POLY
 
 #endif  // SIMD_POLY_H

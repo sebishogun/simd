@@ -105,21 +105,90 @@ def as_c(x, single):
     return float.hex(v)
 
 
+EMITTED = []
+
+
 def emit(name, coeffs, worst, single, comment):
     suffix = "F" if single else ""
+    EMITTED.append(name + suffix)
     print(f"// {comment}")
     print(f"//   worst error over the interval: {mp.nstr(worst, 4)}")
     for i, c in enumerate(coeffs):
         print(f"#define {name}{suffix}_{i} {as_c(c, single)}")
+    # The evaluator, so that a call site names the family and never the degree.
+    # csrc/fastmath.c switches tiers by redefining these, and the two tiers have
+    # different degrees — writing POLY14(x, EXP2P) at the call site would make
+    # that impossible, because the arity is part of the macro name.
+    print(f"#define {name}{suffix}_EVAL(x) POLY{len(coeffs)}((x), {name}{suffix})")
     print()
 
 
+# The Fast tier's error budget, as a relative error of the fit itself.
+#
+# The accurate tier targets 1 ULP end to end, so its fit error has to sit far
+# below 1 ULP — the argument reduction and the reconstruction each spend some of
+# the budget, and the fit must leave them room. The Fast tier targets 3.5 ULP
+# and can therefore spend most of it on the fit, which is what lets terms go.
+# Each term dropped is one fused multiply-add out of a Horner chain that is most
+# of the kernel.
+#
+# These are set a little under one ULP of the destination format, which leaves
+# the rest of the 3.5 for everything else. They are *checked*, not assumed: the
+# degree is searched for rather than guessed, the resulting worst-case error is
+# in the emitted comment, and the ULP tests enforce the end-to-end bound.
+#
+# One drop was tried as a flat "three degrees" first, and it was wrong by two
+# orders of magnitude — degree 10 of the 2^r fit is 2.6e-15, twenty-three ULP.
+# The error falls by roughly a factor of seventy per degree here, so the choice
+# has to come from measurement.
+FAST_BUDGET64 = mpf("1e-16")
+FAST_BUDGET32 = mpf("2e-8")
+
+
+def scale_of(f, lo, hi):
+    """The largest |f| on the interval, so a budget can be relative."""
+    best = mpf(0)
+    n = 64
+    for i in range(n + 1):
+        x = lo + (hi - lo) * mpf(i) / n
+        v = abs(f(x))
+        if v > best:
+            best = v
+    return best if best > 0 else mpf(1)
+
+
+def fast_degree(f, lo, hi, deg, budget):
+    """The smallest degree at or below deg whose relative error fits budget.
+
+    Searches downward from one below the accurate degree and stops at the first
+    failure, so a fit that cannot be cheapened simply keeps its own degree.
+    """
+    scale = scale_of(f, lo, hi)
+    best = deg
+    for d in range(deg - 1, 1, -1):
+        _, worst = remez(f, lo, hi, d)
+        if worst / scale > budget:
+            break
+        best = d
+    return best
+
+
 def fit(name, f, lo, hi, deg64, deg32, comment):
-    """Emit both precisions of one fit."""
+    """Emit both precisions of one fit, in both accuracy tiers."""
     for single, deg in ((False, deg64), (True, deg32)):
         coeffs, worst = remez(f, lo, hi, deg)
         emit(name, coeffs, worst, single, f"{comment}, degree {deg}")
         print(f"// (progress: {name} {'f32' if single else 'f64'} done)", file=sys.stderr)
+    # The Fast tier. Same function, same interval, as few terms as the budget
+    # allows. The names take a Q suffix on the family so csrc/fastmath.c picks
+    # them up with no per-function conditional.
+    for single, deg, budget in ((False, deg64, FAST_BUDGET64),
+                                (True, deg32, FAST_BUDGET32)):
+        fd = fast_degree(f, lo, hi, deg, budget)
+        coeffs, worst = remez(f, lo, hi, fd)
+        emit(name + "Q", coeffs, worst, single,
+             f"{comment}, degree {fd} (Fast tier, was {deg})")
+        print(f"// (progress: {name}Q {'f32' if single else 'f64'} deg {fd})", file=sys.stderr)
 
 
 def main():
@@ -215,6 +284,18 @@ def main():
     # correct digits, so a short fit is enough and a long one would be waste.
     fit("CBRTP", mp.cbrt, mpf(1), mpf(8), 5, 4, "cbrt seed on [1,8)")
 
+    # The Fast tier's switch. csrc/fastmath.c defines SIMD_FAST_POLY and
+    # includes this file, which points every accurate evaluator at its shorter
+    # fit; csrc/math.c is then included unchanged and picks up the Fast
+    # polynomials without knowing anything about them. Generated rather than
+    # written by hand, so a family cannot be added and forgotten.
+    print("#ifdef SIMD_FAST_POLY")
+    for fam in [f for f in EMITTED if "Q" not in f]:
+        q = fam[:-1] + "QF" if fam.endswith("F") else fam + "Q"
+        print(f"#undef {fam}_EVAL")
+        print(f"#define {fam}_EVAL(x) {q}_EVAL(x)")
+    print("#endif  // SIMD_FAST_POLY")
+    print()
     print("#endif  // SIMD_POLY_H")
 
 

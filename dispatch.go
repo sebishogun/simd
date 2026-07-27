@@ -34,6 +34,11 @@ var (
 
 func init() {
 	active = backendFor(cpu.Detail())
+	// A backend that came from the registry has already had this done; one
+	// that is the bare reference — a purego build, or an architecture with no
+	// generated assembly — has not. Doing it twice is harmless, since it only
+	// fills what is nil.
+	ref.FillFastFallbacks(&active)
 	cpu.SetBackendTier(active.Name)
 	opsF32, opsF64 = &active.F32, &active.F64
 	opsI8, opsI16 = &active.I8, &active.I16

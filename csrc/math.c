@@ -197,7 +197,7 @@ AI double exp_f64(double x) {
   // an exact power of two.
   double k = round_f64(x * LOG2E);
   double r = (x - k * LN2_HI) - k * LN2_LO;
-  double p = POLY13(r, EXPP);
+  double p = EXPP_EVAL(r);
   int ki = (int)k;
   // The scale is split in two so the exponent field never has to hold a value
   // it cannot: k reaches 1024 at the overflow boundary and -1075 where the
@@ -213,7 +213,7 @@ AI double exp_f64(double x) {
 AI float exp_f32(float x) {
   float k = round_f32(x * LOG2E_F);
   float r = (x - k * LN2_HI_F) - k * LN2_LO_F;
-  float p = POLY7(r, EXPPF);
+  float p = EXPPF_EVAL(r);
   int ki = (int)k;
   float s = p * pow2_f32(ki / 2) * pow2_f32(ki - ki / 2);
   s = x > 88.72283f ? INF_F : s;
@@ -224,7 +224,7 @@ AI float exp_f32(float x) {
 AI double exp2_f64(double x) {
   double k = round_f64(x);
   double r = x - k;
-  double p = POLY14(r, EXP2P);
+  double p = EXP2P_EVAL(r);
   int ki = (int)k;
   double s = p * pow2_f64(ki / 2) * pow2_f64(ki - ki / 2);
   s = x >= 1024.0 ? INF : s;
@@ -235,7 +235,7 @@ AI double exp2_f64(double x) {
 AI float exp2_f32(float x) {
   float k = round_f32(x);
   float r = x - k;
-  float p = POLY8(r, EXP2PF);
+  float p = EXP2PF_EVAL(r);
   int ki = (int)k;
   float s = p * pow2_f32(ki / 2) * pow2_f32(ki - ki / 2);
   s = x >= 128.0f ? INF_F : s;
@@ -277,7 +277,7 @@ AI double log2_frac_f64(double x, double *kout) {
   double m = bits_to_f64((u & 0x000fffffffffffffull) | em);
   double s = (m - 1.0) / (m + 1.0);
   *kout = (double)(k - (sub ? 54 : 0));
-  return s * POLY8(s * s, LOG2P);
+  return s * LOG2P_EVAL(s * s);
 }
 
 AI float log2_frac_f32(float x, float *kout) {
@@ -289,7 +289,7 @@ AI float log2_frac_f32(float x, float *kout) {
   float m = bits_to_f32((u & 0x007fffffu) | em);
   float s = (m - 1.0f) / (m + 1.0f);
   *kout = (float)(k - (sub ? 30 : 0));
-  return s * POLY5(s * s, LOG2PF);
+  return s * LOG2PF_EVAL(s * s);
 }
 
 // log_special folds in the values IEEE 754 fixes: log of a negative is NaN,
@@ -410,8 +410,8 @@ AI double sin_f64(double x) {
   double q = round_f64(x * TWO_OVER_PI);
   double r = ((x - q * PIO2_HI) - q * PIO2_MID) - q * PIO2_LO;
   double u = r * r;
-  double s = r * POLY8(u, SINP);
-  double c = POLY9(u, COSP);
+  double s = r * SINP_EVAL(u);
+  double c = COSP_EVAL(u);
   long long qi = (long long)q;
   // Bit 0 of q swaps sine for cosine; bit 1 flips the sign.
   double v = (qi & 1) ? c : s;
@@ -424,8 +424,8 @@ AI float sin_f32(float x) {
   float q = round_f32(x * TWO_OVER_PI_F);
   float r = ((x - q * PIO2_HI_F) - q * PIO2_MID_F) - q * PIO2_LO_F;
   float u = r * r;
-  float s = r * POLY4(u, SINPF);
-  float c = POLY5(u, COSPF);
+  float s = r * SINPF_EVAL(u);
+  float c = COSPF_EVAL(u);
   int qi = (int)q;
   float v = (qi & 1) ? c : s;
   v = (qi & 2) ? -v : v;
@@ -439,8 +439,8 @@ AI double cos_f64(double x) {
   double q = round_f64(x * TWO_OVER_PI);
   double r = ((x - q * PIO2_HI) - q * PIO2_MID) - q * PIO2_LO;
   double u = r * r;
-  double s = r * POLY8(u, SINP);
-  double c = POLY9(u, COSP);
+  double s = r * SINP_EVAL(u);
+  double c = COSP_EVAL(u);
   // cos(q*pi/2 + r) is cos(r), -sin(r), -cos(r), sin(r) as q runs mod 4, which
   // is the sine table shifted by one quadrant. Selecting on q and negating on
   // q+1 spells exactly that, and it stays right for negative q because two's
@@ -456,8 +456,8 @@ AI float cos_f32(float x) {
   float q = round_f32(x * TWO_OVER_PI_F);
   float r = ((x - q * PIO2_HI_F) - q * PIO2_MID_F) - q * PIO2_LO_F;
   float u = r * r;
-  float s = r * POLY4(u, SINPF);
-  float c = POLY5(u, COSPF);
+  float s = r * SINPF_EVAL(u);
+  float c = COSPF_EVAL(u);
   int qi = (int)q;
   float v = (qi & 1) ? s : c;
   v = ((qi + 1) & 2) ? -v : v;
@@ -469,8 +469,8 @@ AI double tan_f64(double x) {
   double q = round_f64(x * TWO_OVER_PI);
   double r = ((x - q * PIO2_HI) - q * PIO2_MID) - q * PIO2_LO;
   double u = r * r;
-  double s = r * POLY8(u, SINP);
-  double c = POLY9(u, COSP);
+  double s = r * SINP_EVAL(u);
+  double c = COSP_EVAL(u);
   long long qi = (long long)q;
   // An odd quadrant swaps sine and cosine, which turns tan into -cot.
   double v = (qi & 1) ? -c / s : s / c;
@@ -482,8 +482,8 @@ AI float tan_f32(float x) {
   float q = round_f32(x * TWO_OVER_PI_F);
   float r = ((x - q * PIO2_HI_F) - q * PIO2_MID_F) - q * PIO2_LO_F;
   float u = r * r;
-  float s = r * POLY4(u, SINPF);
-  float c = POLY5(u, COSPF);
+  float s = r * SINPF_EVAL(u);
+  float c = COSPF_EVAL(u);
   int qi = (int)q;
   float v = (qi & 1) ? -c / s : s / c;
   float ax = x < 0.0f ? -x : x;
@@ -511,7 +511,7 @@ AI double atan_f64(double x) {
   int fold = t > TAN_PIO12;
   // (t - tan(pi/6)) / (1 + t*tan(pi/6)) is tan of the difference of angles.
   double r = fold ? (t - TAN_PIO6) / (1.0 + TAN_PIO6 * t) : t;
-  double v = r * POLY10(r * r, ATANP);
+  double v = r * ATANP_EVAL(r * r);
   v = fold ? v + PIO6 : v;
   v = inv ? PIO2 - v : v;
   v = ax == INF ? PIO2 : v;
@@ -525,7 +525,7 @@ AI float atan_f32(float x) {
   float t = inv ? 1.0f / ax : ax;
   int fold = t > TAN_PIO12_F;
   float r = fold ? (t - TAN_PIO6_F) / (1.0f + TAN_PIO6_F * t) : t;
-  float v = r * POLY5(r * r, ATANPF);
+  float v = r * ATANPF_EVAL(r * r);
   v = fold ? v + PIO6_F : v;
   v = inv ? PIO2_F - v : v;
   v = ax == INF_F ? PIO2_F : v;
@@ -540,7 +540,7 @@ AI double asin_f64(double x) {
   double ax = x < 0.0 ? -x : x;
   double big = __builtin_elementwise_sqrt((1.0 - ax) * 0.5);
   double s = ax > 0.5 ? big : ax;
-  double v = s + s * s * s * POLY15(s * s, ASINP);
+  double v = s + s * s * s * ASINP_EVAL(s * s);
   v = ax > 0.5 ? PIO2 - 2.0 * v : v;
   v = x < 0.0 ? -v : v;
   return ax > 1.0 ? QNAN : (x != x ? x : v);
@@ -550,7 +550,7 @@ AI float asin_f32(float x) {
   float ax = x < 0.0f ? -x : x;
   float big = __builtin_elementwise_sqrt((1.0f - ax) * 0.5f);
   float s = ax > 0.5f ? big : ax;
-  float v = s + s * s * s * POLY5(s * s, ASINPF);
+  float v = s + s * s * s * ASINPF_EVAL(s * s);
   v = ax > 0.5f ? PIO2_F - 2.0f * v : v;
   v = x < 0.0f ? -v : v;
   return ax > 1.0f ? QNAN_F : (x != x ? x : v);
@@ -563,7 +563,7 @@ AI double acos_f64(double x) {
   double ax = x < 0.0 ? -x : x;
   double big = __builtin_elementwise_sqrt((1.0 - ax) * 0.5);
   double s = ax > 0.5 ? big : ax;
-  double a = s + s * s * s * POLY15(s * s, ASINP);
+  double a = s + s * s * s * ASINP_EVAL(s * s);
   double near1 = 2.0 * a;               // for x in (1/2, 1]
   double nearm1 = PI - 2.0 * a;         // for x in [-1, -1/2)
   double small = PIO2 - (x < 0.0 ? -a : a);
@@ -575,7 +575,7 @@ AI float acos_f32(float x) {
   float ax = x < 0.0f ? -x : x;
   float big = __builtin_elementwise_sqrt((1.0f - ax) * 0.5f);
   float s = ax > 0.5f ? big : ax;
-  float a = s + s * s * s * POLY5(s * s, ASINPF);
+  float a = s + s * s * s * ASINPF_EVAL(s * s);
   float near1 = 2.0f * a;
   float nearm1 = PI_F - 2.0f * a;
   float small = PIO2_F - (x < 0.0f ? -a : a);
@@ -705,7 +705,7 @@ AI double cbrt_f64(double x) {
   // addresses, the one kind this generator cannot relocate, so the whole
   // kernel was dropped on avx512 and left running the portable path.
   m = m * pow2_f64(rem);
-  double y = POLY6(m, CBRTP);
+  double y = CBRTP_EVAL(m);
   // Three Newton steps. Each triples the correct digits, and the seed is good
   // to about three, so three steps reach well past what a double holds.
   y = y - (y - m / (y * y)) * (1.0 / 3.0);
@@ -714,7 +714,17 @@ AI double cbrt_f64(double x) {
   double v = y * pow2_f64(e3) * (sub ? 0x1p-18 : 1.0);
   v = ax == 0.0 ? 0.0 : v;
   v = ax == INF ? INF : v;
-  v = x < 0.0 ? -v : v;
+  // The sign comes from the sign *bit*, not from a comparison. -0.0 < 0.0 is
+  // false, so `x < 0.0 ? -v : v` leaves a negative zero positive — and the
+  // zero shortcut above has already replaced v with +0.0, so nothing later
+  // recovers it. cbrt(-0) returned +0 on every tier until a special-value
+  // test on the Fast tier caught it.
+  //
+  // atan, asin and tanh use the comparison form and are correct, because each
+  // computes x*P(x*x) and the sign of a negative zero rides through the
+  // multiply untouched; none of them has a zero shortcut to lose it in. This
+  // one takes |x| up front and therefore has to put the sign back explicitly.
+  v = bits_to_f64(f64_to_bits(v) | (f64_to_bits(x) & 0x8000000000000000ull));
   return x != x ? x : v;
 }
 
@@ -728,13 +738,14 @@ AI float cbrt_f32(float x) {
   int rem = e - 3 * e3;
   float m = bits_to_f32((u & 0x007fffffu) | 0x3f800000u);
   m = m * pow2_f32(rem);
-  float y = POLY5(m, CBRTPF);
+  float y = CBRTPF_EVAL(m);
   y = y - (y - m / (y * y)) * (1.0f / 3.0f);
   y = y - (y - m / (y * y)) * (1.0f / 3.0f);
   float v = y * pow2_f32(e3) * (sub ? 0x1p-10f : 1.0f);
   v = ax == 0.0f ? 0.0f : v;
   v = ax == INF_F ? INF_F : v;
-  v = x < 0.0f ? -v : v;
+  // See cbrt_f64: the sign has to come from the sign bit so that -0 survives.
+  v = bits_to_f32(f32_to_bits(v) | (f32_to_bits(x) & 0x80000000u));
   return x != x ? x : v;
 }
 
@@ -751,7 +762,7 @@ AI double pow_f64(double x, double y) {
   double t = hi + lo;
   double q = round_f64(t);
   double r = (hi - q) + lo;
-  double p = POLY14(r, EXP2P);
+  double p = EXP2P_EVAL(r);
   int qi = (int)q;
   double v = p * pow2_f64(qi / 2) * pow2_f64(qi - qi / 2);
   v = t >= 1024.0 ? INF : v;
@@ -783,7 +794,7 @@ AI float pow_f32(float x, float y) {
   float t = hi + lo;
   float q = round_f32(t);
   float r = (hi - q) + lo;
-  float p = POLY8(r, EXP2PF);
+  float p = EXP2PF_EVAL(r);
   int qi = (int)q;
   float v = p * pow2_f32(qi / 2) * pow2_f32(qi - qi / 2);
   v = t >= 128.0f ? INF_F : v;
@@ -832,15 +843,28 @@ AI float hypot_f32(float x, float y) {
 
 // ---------- the exported kernels ----------
 
+// KNAME builds the exported symbol. The accurate tier is simd_exp_f64; the
+// Fast tier is simd_fast_exp_f64, and it is produced by csrc/fastmath.c
+// including this file with SIMD_TIER set and every _EVAL macro pointed at a
+// shorter fit. Nothing else about the two differs, which is the point: the
+// argument reduction, the special-case handling and the reconstruction are
+// shared, so the tiers cannot drift apart in anything but the polynomial.
+#ifndef SIMD_TIER
+#define SIMD_TIER
+#endif
+#define KJOIN2(a, b, c) simd_##a##b##_##c
+#define KJOIN(a, b, c) KJOIN2(a, b, c)
+#define KNAME(NAME, SUF) KJOIN(SIMD_TIER, NAME, SUF)
+
 #define UNARY_MATH(NAME, T, SUF)                                          \
-  void simd_##NAME##_##SUF(T *__restrict d, const T *__restrict a,        \
-                           isize n) {                                     \
+  void KNAME(NAME, SUF)(T *__restrict d, const T *__restrict a,           \
+                        isize n) {                                        \
     for (isize i = 0; i < n; i++) d[i] = NAME##_##SUF(a[i]);              \
   }
 
 #define BINARY_MATH(NAME, T, SUF)                                         \
-  void simd_##NAME##_##SUF(T *__restrict d, const T *__restrict a,        \
-                           const T *__restrict b, isize n) {              \
+  void KNAME(NAME, SUF)(T *__restrict d, const T *__restrict a,           \
+                        const T *__restrict b, isize n) {                 \
     for (isize i = 0; i < n; i++) d[i] = NAME##_##SUF(a[i], b[i]);        \
   }
 

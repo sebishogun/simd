@@ -11,8 +11,11 @@ package simd
 // approximations, and the polynomial that is correct to 1 ULP in float32 is
 // not the one correct to 1 ULP in float64, so no implementation could make the
 // two agree bit for bit. They instead guarantee a bound: the functions here
-// target **1.0 ULP**. Where a cheaper approximation is worth having, it is
-// exposed separately under a Fast name and documents its own bound.
+// target **1.0 ULP**.
+//
+// Each also has a cheaper twin under a Fast name — see fastmath.go — which
+// promises 3.5 ULP instead, gives up agreement between architectures, and is
+// 20% to 45% faster for it.
 //
 // Every function comes in two forms, as elsewhere: the plain name rewrites its
 // argument in place and allocates nothing, and the Into form takes a

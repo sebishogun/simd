@@ -14,7 +14,11 @@
 // would catch.
 package kernels
 
-import "github.com/sebishogun/simd/tools/simdgen/spec"
+import (
+	"strings"
+
+	"github.com/sebishogun/simd/tools/simdgen/spec"
+)
 
 // elem describes one element type in every spelling the generator needs.
 type elem struct {
@@ -788,6 +792,26 @@ func Math() []spec.Kernel {
 	return ks
 }
 
+// FastMath is csrc/fastmath.c: the same transcendentals at 3.5 ULP instead of
+// 1.0, from the same source compiled with shorter polynomials and fused
+// multiply-add.
+//
+// The RefFunc is the *accurate* reference. That is not a shortcut: the Fast
+// contract is an upper bound on error, so an answer better than the bound
+// satisfies it, and it means the sub-threshold path and any target that does
+// not generate these kernels are both correct without a second reference to
+// keep in step.
+func FastMath() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, k := range Math() {
+		k.CName = "simd_fast_" + strings.TrimPrefix(k.CName, "simd_")
+		k.GoName = "fast" + strings.ToUpper(k.GoName[:1]) + k.GoName[1:]
+		k.Field = "Fast" + k.Field
+		ks = append(ks, k)
+	}
+	return ks
+}
+
 // ---------- numeric kernels with an unusual shape ----------
 
 // normK is the Euclidean length, a reduction like the others.
@@ -1016,6 +1040,19 @@ type Source struct {
 	Path string
 	// Kernels are the functions to extract from it.
 	Kernels []spec.Kernel
+
+	// ExtraFlags are appended to the target's clang invocation for this file
+	// alone, after the common ones, so they can override.
+	//
+	// One file uses it. csrc/fastmath.c is compiled with -ffp-contract=fast
+	// where everything else is compiled with it off, and that difference is
+	// the whole point of the Fast tier: fusing a multiply into an add halves
+	// the instruction count of a Horner evaluation and is *more* accurate, but
+	// it gives a different answer on a machine with an FMA than on one
+	// without. Every other kernel here promises the same bits everywhere and
+	// therefore cannot have it. A function named Fast has already given that
+	// promise up, and this is what it buys.
+	ExtraFlags []string
 }
 
 // All is every source file the generator processes.
@@ -1027,4 +1064,11 @@ var All = []Source{
 	{Path: "csrc/math.c", Kernels: Math()},
 	{Path: "csrc/numeric.c", Kernels: Numeric()},
 	{Path: "csrc/complex.c", Kernels: Complex()},
+	{
+		Path:    "csrc/fastmath.c",
+		Kernels: FastMath(),
+		// The one file compiled with contraction on; see the comment on
+		// ExtraFlags and the one at the top of csrc/fastmath.c.
+		ExtraFlags: []string{"-ffp-contract=fast"},
+	},
 }

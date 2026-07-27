@@ -77,8 +77,24 @@ different server.
 This costs some throughput and is deliberate. The alternative is what
 [vek does](https://github.com/viterin/vek/issues/11): its vectorized body and
 its scalar remainder loop disagree on NaN, so the answer depends on the length
-of the input. Operations that trade reproducibility for speed here are named
-`Fast*` and document their error bound.
+of the input.
+
+Where the trade is worth offering, it is offered *by name* rather than imposed.
+Every transcendental has a `Fast` twin — `FastExp`, `FastSin`, `FastTanh` — that
+promises a looser bound (3.5 ULP against 1.0) and gives up cross-architecture
+reproducibility, because it is compiled with fused multiply-add. On this
+machine that is worth 20% to 45%:
+
+    FastSin  f64   -45%        FastSigmoid f64  -36%
+    FastExp  f64   -43%        FastLog     f64  -25%
+    FastAtan f64   -38%        FastPow     f64  -20%
+
+What they do *not* give up is meaning: NaN in gives NaN out, the infinities go
+where IEEE 754 says, and the signed zeros survive. `-ffast-math` would buy more
+and is refused — it makes a function wrong on those inputs rather than merely
+less precise. On an architecture where the Fast tier did not measure faster,
+these call the accurate kernel instead; a bound is an upper bound, so a caller
+never has to ask what machine it is on.
 
 **The right instructions are chosen at startup** from the CPU actually running
 the program. A binary built on a machine with AVX-512 runs correctly on one
@@ -86,7 +102,7 @@ without it. Nothing to configure, nothing to build twice.
 
 ## Operations
 
-248 exported functions. The plain name works in place; the `Into` suffix takes
+290 exported functions. The plain name works in place; the `Into` suffix takes
 a destination.
 
 **Text and bytes** — every scanning function takes `string` or `[]byte`

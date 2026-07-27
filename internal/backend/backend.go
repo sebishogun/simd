@@ -49,7 +49,15 @@ func Lookup(tier string) (kernel.Set, bool) {
 	if !ok {
 		return kernel.Set{}, false
 	}
-	return *s, true
+	out := *s
+	// Every generated file has had its turn by now, so a Fast slot that is
+	// still nil is one this target has no kernel for, and the accurate kernel
+	// stands in. Doing it here rather than in ref.Set is what makes the
+	// distinction possible at all: before registration the two cases look the
+	// same, and the fallback has to be the accurate *kernel* rather than the
+	// portable loop the reference starts from.
+	ref.FillFastFallbacks(&out)
+	return out, true
 }
 
 // Tiers returns every registered tier name. Order is unspecified.

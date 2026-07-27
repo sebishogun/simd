@@ -189,7 +189,7 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDir string,
 	opt verify.Options, verbose, dryRun bool) (int, error) {
 
-	res, err := cc.Object(filepath.Join(root, src.Path), tgt)
+	res, err := cc.Object(filepath.Join(root, src.Path), tgt, src.ExtraFlags...)
 	if err != nil {
 		return 0, err
 	}

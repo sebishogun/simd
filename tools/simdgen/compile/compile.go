@@ -58,7 +58,7 @@ func (c *Clang) Version() (string, error) {
 }
 
 // Object compiles src for tgt and returns the object file.
-func (c *Clang) Object(src string, tgt target.Target) (*Result, error) {
+func (c *Clang) Object(src string, tgt target.Target, extra ...string) (*Result, error) {
 	ver, err := c.Version()
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (c *Clang) Object(src string, tgt target.Target) (*Result, error) {
 	base := strings.TrimSuffix(filepath.Base(src), filepath.Ext(src))
 	obj := filepath.Join(c.TempDir, fmt.Sprintf("%s_%s_%s.o", base, tgt.Arch, tgt.Tier))
 
-	args := append(tgt.Flags(), "-c", src, "-o", obj)
+	args := append(append(tgt.Flags(), extra...), "-c", src, "-o", obj)
 	cmd := exec.Command(c.Path, args...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
@@ -91,8 +91,8 @@ func (c *Clang) Object(src string, tgt target.Target) (*Result, error) {
 // the bytes — but the text is kept alongside the encodings as a comment, so a
 // reviewer can read what the machine code actually is without reaching for a
 // disassembler.
-func (c *Clang) Assembly(src string, tgt target.Target) (string, error) {
-	args := append(tgt.Flags(), "-S", src, "-o", "-")
+func (c *Clang) Assembly(src string, tgt target.Target, extra ...string) (string, error) {
+	args := append(append(tgt.Flags(), extra...), "-S", src, "-o", "-")
 	cmd := exec.Command(c.Path, args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
