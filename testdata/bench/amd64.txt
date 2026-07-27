@@ -1,0 +1,655 @@
+goos: linux
+goarch: amd64
+pkg: github.com/sebishogun/simd
+cpu: AMD RYZEN AI MAX+ 395 w/ Radeon 8060S          
+BenchmarkFastMathF64/Exp/n=256/tier=accurate-32         	 6331414	       189.3 ns/op
+BenchmarkFastMathF64/Exp/n=256/tier=accurate-32         	 6360960	       188.8 ns/op
+BenchmarkFastMathF64/Exp/n=256/tier=accurate-32         	 6345912	       188.6 ns/op
+BenchmarkFastMathF64/Exp/n=256/tier=fast-32             	11181870	       109.7 ns/op
+BenchmarkFastMathF64/Exp/n=256/tier=fast-32             	10748936	       109.2 ns/op
+BenchmarkFastMathF64/Exp/n=256/tier=fast-32             	11104744	       108.7 ns/op
+BenchmarkFastMathF64/Log/n=256/tier=accurate-32         	 5787793	       207.3 ns/op
+BenchmarkFastMathF64/Log/n=256/tier=accurate-32         	 5727492	       209.4 ns/op
+BenchmarkFastMathF64/Log/n=256/tier=accurate-32         	 5792008	       207.3 ns/op
+BenchmarkFastMathF64/Log/n=256/tier=fast-32             	 7677138	       156.1 ns/op
+BenchmarkFastMathF64/Log/n=256/tier=fast-32             	 7669663	       157.3 ns/op
+BenchmarkFastMathF64/Log/n=256/tier=fast-32             	 7687434	       155.9 ns/op
+BenchmarkFastMathF64/Sin/n=256/tier=accurate-32         	 6394902	       188.7 ns/op
+BenchmarkFastMathF64/Sin/n=256/tier=accurate-32         	 6092882	       191.2 ns/op
+BenchmarkFastMathF64/Sin/n=256/tier=accurate-32         	 6339040	       190.3 ns/op
+BenchmarkFastMathF64/Sin/n=256/tier=fast-32             	11831710	       102.9 ns/op
+BenchmarkFastMathF64/Sin/n=256/tier=fast-32             	11563626	       104.9 ns/op
+BenchmarkFastMathF64/Sin/n=256/tier=fast-32             	11022205	       106.2 ns/op
+BenchmarkFastMathF64/Tanh/n=256/tier=accurate-32        	 1502908	       798.0 ns/op
+BenchmarkFastMathF64/Tanh/n=256/tier=accurate-32        	 1462741	       815.7 ns/op
+BenchmarkFastMathF64/Tanh/n=256/tier=accurate-32        	 1507672	       796.7 ns/op
+BenchmarkFastMathF64/Tanh/n=256/tier=fast-32            	 2000234	       598.4 ns/op
+BenchmarkFastMathF64/Tanh/n=256/tier=fast-32            	 1980380	       605.3 ns/op
+BenchmarkFastMathF64/Tanh/n=256/tier=fast-32            	 1963742	       606.7 ns/op
+BenchmarkFastMathF64/Sigmoid/n=256/tier=accurate-32     	 2974792	       404.4 ns/op
+BenchmarkFastMathF64/Sigmoid/n=256/tier=accurate-32     	 2974508	       403.3 ns/op
+BenchmarkFastMathF64/Sigmoid/n=256/tier=accurate-32     	 2981071	       402.8 ns/op
+BenchmarkFastMathF64/Sigmoid/n=256/tier=fast-32         	 4638284	       268.4 ns/op
+BenchmarkFastMathF64/Sigmoid/n=256/tier=fast-32         	 4676076	       256.2 ns/op
+BenchmarkFastMathF64/Sigmoid/n=256/tier=fast-32         	 4734196	       267.2 ns/op
+BenchmarkFastMathF64/Atan/n=256/tier=accurate-32        	 5948300	       199.1 ns/op
+BenchmarkFastMathF64/Atan/n=256/tier=accurate-32        	 6073303	       196.7 ns/op
+BenchmarkFastMathF64/Atan/n=256/tier=accurate-32        	 6063364	       198.5 ns/op
+BenchmarkFastMathF64/Atan/n=256/tier=fast-32            	 9712071	       123.2 ns/op
+BenchmarkFastMathF64/Atan/n=256/tier=fast-32            	 9822609	       122.9 ns/op
+BenchmarkFastMathF64/Atan/n=256/tier=fast-32            	 9788246	       122.7 ns/op
+BenchmarkFastMathF64/Exp/n=4096/tier=accurate-32        	  400120	      3004 ns/op
+BenchmarkFastMathF64/Exp/n=4096/tier=accurate-32        	  393416	      3027 ns/op
+BenchmarkFastMathF64/Exp/n=4096/tier=accurate-32        	  397530	      3010 ns/op
+BenchmarkFastMathF64/Exp/n=4096/tier=fast-32            	  704886	      1722 ns/op
+BenchmarkFastMathF64/Exp/n=4096/tier=fast-32            	  692620	      1725 ns/op
+BenchmarkFastMathF64/Exp/n=4096/tier=fast-32            	  687988	      1731 ns/op
+BenchmarkFastMathF64/Log/n=4096/tier=accurate-32        	  345028	      3325 ns/op
+BenchmarkFastMathF64/Log/n=4096/tier=accurate-32        	  358515	      3324 ns/op
+BenchmarkFastMathF64/Log/n=4096/tier=accurate-32        	  360832	      3310 ns/op
+BenchmarkFastMathF64/Log/n=4096/tier=fast-32            	  485460	      2496 ns/op
+BenchmarkFastMathF64/Log/n=4096/tier=fast-32            	  477441	      2482 ns/op
+BenchmarkFastMathF64/Log/n=4096/tier=fast-32            	  487146	      2482 ns/op
+BenchmarkFastMathF64/Sin/n=4096/tier=accurate-32        	  389847	      2995 ns/op
+BenchmarkFastMathF64/Sin/n=4096/tier=accurate-32        	  390387	      3014 ns/op
+BenchmarkFastMathF64/Sin/n=4096/tier=accurate-32        	  395264	      3013 ns/op
+BenchmarkFastMathF64/Sin/n=4096/tier=fast-32            	  658490	      1638 ns/op
+BenchmarkFastMathF64/Sin/n=4096/tier=fast-32            	  682974	      1660 ns/op
+BenchmarkFastMathF64/Sin/n=4096/tier=fast-32            	  725721	      1661 ns/op
+BenchmarkFastMathF64/Tanh/n=4096/tier=accurate-32       	   94172	     12742 ns/op
+BenchmarkFastMathF64/Tanh/n=4096/tier=accurate-32       	   94387	     12640 ns/op
+BenchmarkFastMathF64/Tanh/n=4096/tier=accurate-32       	   93802	     12809 ns/op
+BenchmarkFastMathF64/Tanh/n=4096/tier=fast-32           	  123783	      9582 ns/op
+BenchmarkFastMathF64/Tanh/n=4096/tier=fast-32           	  125281	      9556 ns/op
+BenchmarkFastMathF64/Tanh/n=4096/tier=fast-32           	  125856	      9513 ns/op
+BenchmarkFastMathF64/Sigmoid/n=4096/tier=accurate-32    	  188691	      6434 ns/op
+BenchmarkFastMathF64/Sigmoid/n=4096/tier=accurate-32    	  188568	      6379 ns/op
+BenchmarkFastMathF64/Sigmoid/n=4096/tier=accurate-32    	  187384	      6397 ns/op
+BenchmarkFastMathF64/Sigmoid/n=4096/tier=fast-32        	  299574	      4022 ns/op
+BenchmarkFastMathF64/Sigmoid/n=4096/tier=fast-32        	  299586	      4039 ns/op
+BenchmarkFastMathF64/Sigmoid/n=4096/tier=fast-32        	  298158	      4044 ns/op
+BenchmarkFastMathF64/Atan/n=4096/tier=accurate-32       	  377749	      3142 ns/op
+BenchmarkFastMathF64/Atan/n=4096/tier=accurate-32       	  384831	      3136 ns/op
+BenchmarkFastMathF64/Atan/n=4096/tier=accurate-32       	  383493	      3126 ns/op
+BenchmarkFastMathF64/Atan/n=4096/tier=fast-32           	  616700	      1948 ns/op
+BenchmarkFastMathF64/Atan/n=4096/tier=fast-32           	  622591	      1952 ns/op
+BenchmarkFastMathF64/Atan/n=4096/tier=fast-32           	  615249	      2094 ns/op
+BenchmarkFastMathF64/Exp/n=65536/tier=accurate-32       	   22627	     51841 ns/op
+BenchmarkFastMathF64/Exp/n=65536/tier=accurate-32       	   23690	     51444 ns/op
+BenchmarkFastMathF64/Exp/n=65536/tier=accurate-32       	   22658	     53866 ns/op
+BenchmarkFastMathF64/Exp/n=65536/tier=fast-32           	   30697	     36818 ns/op
+BenchmarkFastMathF64/Exp/n=65536/tier=fast-32           	   39853	     29428 ns/op
+BenchmarkFastMathF64/Exp/n=65536/tier=fast-32           	   42098	     28523 ns/op
+BenchmarkFastMathF64/Log/n=65536/tier=accurate-32       	   22584	     52949 ns/op
+BenchmarkFastMathF64/Log/n=65536/tier=accurate-32       	   22753	     52950 ns/op
+BenchmarkFastMathF64/Log/n=65536/tier=accurate-32       	   22762	     52767 ns/op
+BenchmarkFastMathF64/Log/n=65536/tier=fast-32           	   30368	     42115 ns/op
+BenchmarkFastMathF64/Log/n=65536/tier=fast-32           	   25258	     43690 ns/op
+BenchmarkFastMathF64/Log/n=65536/tier=fast-32           	   30231	     39896 ns/op
+BenchmarkFastMathF64/Sin/n=65536/tier=accurate-32       	   24886	     48145 ns/op
+BenchmarkFastMathF64/Sin/n=65536/tier=accurate-32       	   25011	     48082 ns/op
+BenchmarkFastMathF64/Sin/n=65536/tier=accurate-32       	   24662	     48624 ns/op
+BenchmarkFastMathF64/Sin/n=65536/tier=fast-32           	   46197	     26201 ns/op
+BenchmarkFastMathF64/Sin/n=65536/tier=fast-32           	   44932	     26443 ns/op
+BenchmarkFastMathF64/Sin/n=65536/tier=fast-32           	   45930	     26110 ns/op
+BenchmarkFastMathF64/Tanh/n=65536/tier=accurate-32      	    5823	    201977 ns/op
+BenchmarkFastMathF64/Tanh/n=65536/tier=accurate-32      	    5995	    202003 ns/op
+BenchmarkFastMathF64/Tanh/n=65536/tier=accurate-32      	    5683	    202587 ns/op
+BenchmarkFastMathF64/Tanh/n=65536/tier=fast-32          	    7903	    151137 ns/op
+BenchmarkFastMathF64/Tanh/n=65536/tier=fast-32          	    7856	    152602 ns/op
+BenchmarkFastMathF64/Tanh/n=65536/tier=fast-32          	    7903	    151371 ns/op
+BenchmarkFastMathF64/Sigmoid/n=65536/tier=accurate-32   	   10000	    101559 ns/op
+BenchmarkFastMathF64/Sigmoid/n=65536/tier=accurate-32   	   10000	    101410 ns/op
+BenchmarkFastMathF64/Sigmoid/n=65536/tier=accurate-32   	   10000	    101540 ns/op
+BenchmarkFastMathF64/Sigmoid/n=65536/tier=fast-32       	   18690	     64241 ns/op
+BenchmarkFastMathF64/Sigmoid/n=65536/tier=fast-32       	   18670	     64292 ns/op
+BenchmarkFastMathF64/Sigmoid/n=65536/tier=fast-32       	   18688	     64755 ns/op
+BenchmarkFastMathF64/Atan/n=65536/tier=accurate-32      	   24091	     49928 ns/op
+BenchmarkFastMathF64/Atan/n=65536/tier=accurate-32      	   23992	     49842 ns/op
+BenchmarkFastMathF64/Atan/n=65536/tier=accurate-32      	   24024	     50009 ns/op
+BenchmarkFastMathF64/Atan/n=65536/tier=fast-32          	   38486	     31076 ns/op
+BenchmarkFastMathF64/Atan/n=65536/tier=fast-32          	   38652	     31134 ns/op
+BenchmarkFastMathF64/Atan/n=65536/tier=fast-32          	   38145	     31237 ns/op
+BenchmarkFastMathF32/Exp/n=256/tier=accurate-32         	21734349	        53.69 ns/op
+BenchmarkFastMathF32/Exp/n=256/tier=accurate-32         	22422036	        53.78 ns/op
+BenchmarkFastMathF32/Exp/n=256/tier=accurate-32         	21407457	        54.65 ns/op
+BenchmarkFastMathF32/Exp/n=256/tier=fast-32             	32016367	        37.46 ns/op
+BenchmarkFastMathF32/Exp/n=256/tier=fast-32             	32640432	        37.28 ns/op
+BenchmarkFastMathF32/Exp/n=256/tier=fast-32             	32695185	        37.29 ns/op
+BenchmarkFastMathF32/Log/n=256/tier=accurate-32         	17744962	        67.78 ns/op
+BenchmarkFastMathF32/Log/n=256/tier=accurate-32         	17907277	        67.96 ns/op
+BenchmarkFastMathF32/Log/n=256/tier=accurate-32         	17673420	        68.04 ns/op
+BenchmarkFastMathF32/Log/n=256/tier=fast-32             	23401755	        50.70 ns/op
+BenchmarkFastMathF32/Log/n=256/tier=fast-32             	23854212	        50.47 ns/op
+BenchmarkFastMathF32/Log/n=256/tier=fast-32             	23994598	        50.45 ns/op
+BenchmarkFastMathF32/Sin/n=256/tier=accurate-32         	20374015	        57.06 ns/op
+BenchmarkFastMathF32/Sin/n=256/tier=accurate-32         	20403912	        57.20 ns/op
+BenchmarkFastMathF32/Sin/n=256/tier=accurate-32         	21301300	        57.07 ns/op
+BenchmarkFastMathF32/Sin/n=256/tier=fast-32             	28984470	        42.19 ns/op
+BenchmarkFastMathF32/Sin/n=256/tier=fast-32             	27711092	        42.52 ns/op
+BenchmarkFastMathF32/Sin/n=256/tier=fast-32             	28193374	        42.96 ns/op
+BenchmarkFastMathF32/Tanh/n=256/tier=accurate-32        	 4508998	       266.2 ns/op
+BenchmarkFastMathF32/Tanh/n=256/tier=accurate-32        	 4518351	       265.6 ns/op
+BenchmarkFastMathF32/Tanh/n=256/tier=accurate-32        	 4514370	       265.7 ns/op
+BenchmarkFastMathF32/Tanh/n=256/tier=fast-32            	 5638831	       211.3 ns/op
+BenchmarkFastMathF32/Tanh/n=256/tier=fast-32            	 5741692	       210.6 ns/op
+BenchmarkFastMathF32/Tanh/n=256/tier=fast-32            	 5607918	       210.9 ns/op
+BenchmarkFastMathF32/Exp/n=4096/tier=accurate-32        	 1391673	       862.3 ns/op
+BenchmarkFastMathF32/Exp/n=4096/tier=accurate-32        	 1397695	       857.2 ns/op
+BenchmarkFastMathF32/Exp/n=4096/tier=accurate-32        	 1395304	       860.6 ns/op
+BenchmarkFastMathF32/Exp/n=4096/tier=fast-32            	 2064896	       578.6 ns/op
+BenchmarkFastMathF32/Exp/n=4096/tier=fast-32            	 2078558	       576.9 ns/op
+BenchmarkFastMathF32/Exp/n=4096/tier=fast-32            	 2088206	       577.4 ns/op
+BenchmarkFastMathF32/Log/n=4096/tier=accurate-32        	 1000000	      1077 ns/op
+BenchmarkFastMathF32/Log/n=4096/tier=accurate-32        	 1000000	      1069 ns/op
+BenchmarkFastMathF32/Log/n=4096/tier=accurate-32        	 1000000	      1079 ns/op
+BenchmarkFastMathF32/Log/n=4096/tier=fast-32            	 1501536	       803.1 ns/op
+BenchmarkFastMathF32/Log/n=4096/tier=fast-32            	 1488997	       804.5 ns/op
+BenchmarkFastMathF32/Log/n=4096/tier=fast-32            	 1444658	       826.1 ns/op
+BenchmarkFastMathF32/Sin/n=4096/tier=accurate-32        	 1330039	       903.1 ns/op
+BenchmarkFastMathF32/Sin/n=4096/tier=accurate-32        	 1295217	       920.4 ns/op
+BenchmarkFastMathF32/Sin/n=4096/tier=accurate-32        	 1315828	       910.8 ns/op
+BenchmarkFastMathF32/Sin/n=4096/tier=fast-32            	 1817535	       665.8 ns/op
+BenchmarkFastMathF32/Sin/n=4096/tier=fast-32            	 1758972	       681.7 ns/op
+BenchmarkFastMathF32/Sin/n=4096/tier=fast-32            	 1768168	       680.1 ns/op
+BenchmarkFastMathF32/Tanh/n=4096/tier=accurate-32       	  273292	      4316 ns/op
+BenchmarkFastMathF32/Tanh/n=4096/tier=accurate-32       	  282776	      4311 ns/op
+BenchmarkFastMathF32/Tanh/n=4096/tier=accurate-32       	  269132	      4311 ns/op
+BenchmarkFastMathF32/Tanh/n=4096/tier=fast-32           	  356749	      3383 ns/op
+BenchmarkFastMathF32/Tanh/n=4096/tier=fast-32           	  355598	      3374 ns/op
+BenchmarkFastMathF32/Tanh/n=4096/tier=fast-32           	  348198	      3349 ns/op
+BenchmarkFastMathF32/Exp/n=65536/tier=accurate-32       	   75351	     15228 ns/op
+BenchmarkFastMathF32/Exp/n=65536/tier=accurate-32       	   85326	     13752 ns/op
+BenchmarkFastMathF32/Exp/n=65536/tier=accurate-32       	   86632	     13753 ns/op
+BenchmarkFastMathF32/Exp/n=65536/tier=fast-32           	  131568	      9096 ns/op
+BenchmarkFastMathF32/Exp/n=65536/tier=fast-32           	  132451	      9109 ns/op
+BenchmarkFastMathF32/Exp/n=65536/tier=fast-32           	  127323	      9258 ns/op
+BenchmarkFastMathF32/Log/n=65536/tier=accurate-32       	   69336	     17250 ns/op
+BenchmarkFastMathF32/Log/n=65536/tier=accurate-32       	   69966	     17236 ns/op
+BenchmarkFastMathF32/Log/n=65536/tier=accurate-32       	   69284	     17230 ns/op
+BenchmarkFastMathF32/Log/n=65536/tier=fast-32           	   95121	     12727 ns/op
+BenchmarkFastMathF32/Log/n=65536/tier=fast-32           	   93334	     12779 ns/op
+BenchmarkFastMathF32/Log/n=65536/tier=fast-32           	   94266	     12867 ns/op
+BenchmarkFastMathF32/Sin/n=65536/tier=accurate-32       	   80835	     14438 ns/op
+BenchmarkFastMathF32/Sin/n=65536/tier=accurate-32       	   84049	     14461 ns/op
+BenchmarkFastMathF32/Sin/n=65536/tier=accurate-32       	   80607	     14651 ns/op
+BenchmarkFastMathF32/Sin/n=65536/tier=fast-32           	  111642	     10704 ns/op
+BenchmarkFastMathF32/Sin/n=65536/tier=fast-32           	  113828	     10355 ns/op
+BenchmarkFastMathF32/Sin/n=65536/tier=fast-32           	  117518	     10385 ns/op
+BenchmarkFastMathF32/Tanh/n=65536/tier=accurate-32      	   17181	     69223 ns/op
+BenchmarkFastMathF32/Tanh/n=65536/tier=accurate-32      	   17420	     68444 ns/op
+BenchmarkFastMathF32/Tanh/n=65536/tier=accurate-32      	   17614	     68143 ns/op
+BenchmarkFastMathF32/Tanh/n=65536/tier=fast-32          	   22484	     53630 ns/op
+BenchmarkFastMathF32/Tanh/n=65536/tier=fast-32          	   22413	     53709 ns/op
+BenchmarkFastMathF32/Tanh/n=65536/tier=fast-32          	   22423	     53660 ns/op
+BenchmarkFastMathPow/Pow/n=256/tier=accurate-32         	 1480887	       808.7 ns/op
+BenchmarkFastMathPow/Pow/n=256/tier=accurate-32         	 1502086	       798.2 ns/op
+BenchmarkFastMathPow/Pow/n=256/tier=accurate-32         	 1497440	       799.3 ns/op
+BenchmarkFastMathPow/Pow/n=256/tier=fast-32             	 1909284	       626.9 ns/op
+BenchmarkFastMathPow/Pow/n=256/tier=fast-32             	 1916786	       631.8 ns/op
+BenchmarkFastMathPow/Pow/n=256/tier=fast-32             	 1888368	       637.6 ns/op
+BenchmarkFastMathPow/Pow/n=4096/tier=accurate-32        	   92568	     12911 ns/op
+BenchmarkFastMathPow/Pow/n=4096/tier=accurate-32        	   93961	     12840 ns/op
+BenchmarkFastMathPow/Pow/n=4096/tier=accurate-32        	   91524	     13053 ns/op
+BenchmarkFastMathPow/Pow/n=4096/tier=fast-32            	  117228	     10118 ns/op
+BenchmarkFastMathPow/Pow/n=4096/tier=fast-32            	  120213	     10078 ns/op
+BenchmarkFastMathPow/Pow/n=4096/tier=fast-32            	  112746	     10070 ns/op
+BenchmarkFastMathPow/Pow/n=65536/tier=accurate-32       	    5894	    208124 ns/op
+BenchmarkFastMathPow/Pow/n=65536/tier=accurate-32       	    5730	    204092 ns/op
+BenchmarkFastMathPow/Pow/n=65536/tier=accurate-32       	    5932	    203920 ns/op
+BenchmarkFastMathPow/Pow/n=65536/tier=fast-32           	    7422	    161073 ns/op
+BenchmarkFastMathPow/Pow/n=65536/tier=fast-32           	    7290	    164557 ns/op
+BenchmarkFastMathPow/Pow/n=65536/tier=fast-32           	    7308	    161484 ns/op
+BenchmarkAddInt/i8/n=16-32                              	191785615	         6.251 ns/op	2559.41 MB/s
+BenchmarkAddInt/i8/n=16-32                              	189293724	         6.277 ns/op	2548.79 MB/s
+BenchmarkAddInt/i8/n=16-32                              	191934456	         6.259 ns/op	2556.35 MB/s
+BenchmarkAddInt/i8/n=64-32                              	176757230	         6.780 ns/op	9439.98 MB/s
+BenchmarkAddInt/i8/n=64-32                              	179471013	         6.649 ns/op	9626.03 MB/s
+BenchmarkAddInt/i8/n=64-32                              	180259278	         6.669 ns/op	9596.64 MB/s
+BenchmarkAddInt/i8/n=256-32                             	178991785	         6.719 ns/op	38099.31 MB/s
+BenchmarkAddInt/i8/n=256-32                             	177838010	         6.695 ns/op	38235.94 MB/s
+BenchmarkAddInt/i8/n=256-32                             	178527075	         6.725 ns/op	38068.16 MB/s
+BenchmarkAddInt/i8/n=4096-32                            	51757621	        24.41 ns/op	167778.84 MB/s
+BenchmarkAddInt/i8/n=4096-32                            	50937798	        23.48 ns/op	174470.41 MB/s
+BenchmarkAddInt/i8/n=4096-32                            	48410384	        24.14 ns/op	169657.29 MB/s
+BenchmarkAddInt/i8/n=65536-32                           	 1411783	       849.3 ns/op	77165.99 MB/s
+BenchmarkAddInt/i8/n=65536-32                           	 1419498	       845.7 ns/op	77496.16 MB/s
+BenchmarkAddInt/i8/n=65536-32                           	 1419304	       845.9 ns/op	77476.27 MB/s
+BenchmarkAddInt/i16/n=16-32                             	187287748	         6.420 ns/op	4984.31 MB/s
+BenchmarkAddInt/i16/n=16-32                             	187131378	         6.372 ns/op	5021.87 MB/s
+BenchmarkAddInt/i16/n=16-32                             	189216340	         6.338 ns/op	5048.75 MB/s
+BenchmarkAddInt/i16/n=64-32                             	158250004	         7.580 ns/op	16886.19 MB/s
+BenchmarkAddInt/i16/n=64-32                             	158466950	         7.550 ns/op	16953.01 MB/s
+BenchmarkAddInt/i16/n=64-32                             	157464704	         7.587 ns/op	16871.66 MB/s
+BenchmarkAddInt/i16/n=256-32                            	157752073	         7.595 ns/op	67411.40 MB/s
+BenchmarkAddInt/i16/n=256-32                            	157185501	         7.630 ns/op	67100.66 MB/s
+BenchmarkAddInt/i16/n=256-32                            	156474804	         7.688 ns/op	66600.17 MB/s
+BenchmarkAddInt/i16/n=4096-32                           	32130010	        37.34 ns/op	219392.27 MB/s
+BenchmarkAddInt/i16/n=4096-32                           	30404962	        37.46 ns/op	218685.31 MB/s
+BenchmarkAddInt/i16/n=4096-32                           	31664890	        37.36 ns/op	219248.60 MB/s
+BenchmarkAddInt/i16/n=65536-32                          	  832231	      1391 ns/op	94203.37 MB/s
+BenchmarkAddInt/i16/n=65536-32                          	  863541	      1397 ns/op	93812.22 MB/s
+BenchmarkAddInt/i16/n=65536-32                          	  857788	      1402 ns/op	93493.23 MB/s
+BenchmarkAddInt/i32/n=16-32                             	188587186	         6.402 ns/op	9996.42 MB/s
+BenchmarkAddInt/i32/n=16-32                             	186095078	         6.412 ns/op	9981.04 MB/s
+BenchmarkAddInt/i32/n=16-32                             	186162748	         6.446 ns/op	9928.28 MB/s
+BenchmarkAddInt/i32/n=64-32                             	179369720	         6.694 ns/op	38245.72 MB/s
+BenchmarkAddInt/i32/n=64-32                             	181445767	         6.627 ns/op	38631.51 MB/s
+BenchmarkAddInt/i32/n=64-32                             	181142726	         6.627 ns/op	38627.01 MB/s
+BenchmarkAddInt/i32/n=256-32                            	100000000	        10.58 ns/op	96748.81 MB/s
+BenchmarkAddInt/i32/n=256-32                            	100000000	        10.57 ns/op	96834.15 MB/s
+BenchmarkAddInt/i32/n=256-32                            	100000000	        10.66 ns/op	96034.21 MB/s
+BenchmarkAddInt/i32/n=4096-32                           	15683012	        77.77 ns/op	210667.06 MB/s
+BenchmarkAddInt/i32/n=4096-32                           	15548811	        77.20 ns/op	212232.22 MB/s
+BenchmarkAddInt/i32/n=4096-32                           	12124750	        86.83 ns/op	188681.48 MB/s
+BenchmarkAddInt/i32/n=65536-32                          	  357994	      3301 ns/op	79406.91 MB/s
+BenchmarkAddInt/i32/n=65536-32                          	  332300	      3315 ns/op	79081.69 MB/s
+BenchmarkAddInt/i32/n=65536-32                          	  343598	      3285 ns/op	79796.77 MB/s
+BenchmarkAddInt/i64/n=16-32                             	175910691	         6.883 ns/op	18597.37 MB/s
+BenchmarkAddInt/i64/n=16-32                             	168363325	         7.046 ns/op	18165.99 MB/s
+BenchmarkAddInt/i64/n=16-32                             	170532469	         6.989 ns/op	18313.76 MB/s
+BenchmarkAddInt/i64/n=64-32                             	155567756	         7.667 ns/op	66781.90 MB/s
+BenchmarkAddInt/i64/n=64-32                             	156285766	         7.712 ns/op	66386.10 MB/s
+BenchmarkAddInt/i64/n=64-32                             	138789164	         8.393 ns/op	61005.25 MB/s
+BenchmarkAddInt/i64/n=256-32                            	86321463	        14.10 ns/op	145270.73 MB/s
+BenchmarkAddInt/i64/n=256-32                            	85096532	        15.13 ns/op	135316.02 MB/s
+BenchmarkAddInt/i64/n=256-32                            	79598572	        14.04 ns/op	145822.39 MB/s
+BenchmarkAddInt/i64/n=4096-32                           	 2761414	       433.3 ns/op	75620.20 MB/s
+BenchmarkAddInt/i64/n=4096-32                           	 2729451	       434.4 ns/op	75424.20 MB/s
+BenchmarkAddInt/i64/n=4096-32                           	 2784492	       433.2 ns/op	75645.23 MB/s
+BenchmarkAddInt/i64/n=65536-32                          	  113260	     10490 ns/op	49980.94 MB/s
+BenchmarkAddInt/i64/n=65536-32                          	  113132	     10505 ns/op	49909.53 MB/s
+BenchmarkAddInt/i64/n=65536-32                          	  112959	     10555 ns/op	49673.69 MB/s
+BenchmarkAddInt/u8/n=16-32                              	192316579	         6.262 ns/op	2554.90 MB/s
+BenchmarkAddInt/u8/n=16-32                              	190126550	         6.280 ns/op	2547.67 MB/s
+BenchmarkAddInt/u8/n=16-32                              	188441972	         6.332 ns/op	2526.71 MB/s
+BenchmarkAddInt/u8/n=64-32                              	178053670	         6.698 ns/op	9554.43 MB/s
+BenchmarkAddInt/u8/n=64-32                              	177925942	         6.752 ns/op	9478.36 MB/s
+BenchmarkAddInt/u8/n=64-32                              	177917577	         6.725 ns/op	9517.03 MB/s
+BenchmarkAddInt/u8/n=256-32                             	177819123	         6.702 ns/op	38199.99 MB/s
+BenchmarkAddInt/u8/n=256-32                             	179994589	         6.684 ns/op	38302.33 MB/s
+BenchmarkAddInt/u8/n=256-32                             	179158766	         6.740 ns/op	37981.59 MB/s
+BenchmarkAddInt/u8/n=4096-32                            	51317332	        23.09 ns/op	177376.82 MB/s
+BenchmarkAddInt/u8/n=4096-32                            	51830239	        23.98 ns/op	170826.11 MB/s
+BenchmarkAddInt/u8/n=4096-32                            	52200220	        23.05 ns/op	177684.80 MB/s
+BenchmarkAddInt/u8/n=65536-32                           	 1424773	       841.6 ns/op	77874.08 MB/s
+BenchmarkAddInt/u8/n=65536-32                           	 1414749	       847.9 ns/op	77295.34 MB/s
+BenchmarkAddInt/u8/n=65536-32                           	 1421974	       845.4 ns/op	77520.02 MB/s
+BenchmarkAddInt/u16/n=16-32                             	183990950	         6.452 ns/op	4959.71 MB/s
+BenchmarkAddInt/u16/n=16-32                             	184982046	         6.436 ns/op	4972.01 MB/s
+BenchmarkAddInt/u16/n=16-32                             	185949970	         6.403 ns/op	4998.01 MB/s
+BenchmarkAddInt/u16/n=64-32                             	163403040	         7.382 ns/op	17339.44 MB/s
+BenchmarkAddInt/u16/n=64-32                             	161887467	         7.418 ns/op	17255.25 MB/s
+BenchmarkAddInt/u16/n=64-32                             	163235702	         7.353 ns/op	17407.64 MB/s
+BenchmarkAddInt/u16/n=256-32                            	157211637	         7.646 ns/op	66967.37 MB/s
+BenchmarkAddInt/u16/n=256-32                            	157325668	         7.617 ns/op	67220.59 MB/s
+BenchmarkAddInt/u16/n=256-32                            	154094539	         7.739 ns/op	66154.87 MB/s
+BenchmarkAddInt/u16/n=4096-32                           	30159624	        38.67 ns/op	211835.61 MB/s
+BenchmarkAddInt/u16/n=4096-32                           	31312662	        38.54 ns/op	212554.88 MB/s
+BenchmarkAddInt/u16/n=4096-32                           	29801168	        38.50 ns/op	212780.09 MB/s
+BenchmarkAddInt/u16/n=65536-32                          	  819186	      1404 ns/op	93346.69 MB/s
+BenchmarkAddInt/u16/n=65536-32                          	  852645	      1426 ns/op	91944.62 MB/s
+BenchmarkAddInt/u16/n=65536-32                          	  839870	      1422 ns/op	92180.47 MB/s
+BenchmarkAddInt/u32/n=16-32                             	187461284	         6.408 ns/op	9987.77 MB/s
+BenchmarkAddInt/u32/n=16-32                             	185473935	         6.451 ns/op	9921.09 MB/s
+BenchmarkAddInt/u32/n=16-32                             	182864422	         6.564 ns/op	9750.75 MB/s
+BenchmarkAddInt/u32/n=64-32                             	175611111	         6.821 ns/op	37529.97 MB/s
+BenchmarkAddInt/u32/n=64-32                             	177961903	         6.759 ns/op	37876.51 MB/s
+BenchmarkAddInt/u32/n=64-32                             	138801255	         9.172 ns/op	27911.03 MB/s
+BenchmarkAddInt/u32/n=256-32                            	89380266	        13.74 ns/op	74514.36 MB/s
+BenchmarkAddInt/u32/n=256-32                            	77787409	        13.62 ns/op	75170.38 MB/s
+BenchmarkAddInt/u32/n=256-32                            	82972890	        14.65 ns/op	69911.48 MB/s
+BenchmarkAddInt/u32/n=4096-32                           	 6491941	       157.6 ns/op	103978.44 MB/s
+BenchmarkAddInt/u32/n=4096-32                           	13752585	        90.29 ns/op	181468.90 MB/s
+BenchmarkAddInt/u32/n=4096-32                           	12487264	        83.46 ns/op	196298.00 MB/s
+BenchmarkAddInt/u32/n=65536-32                          	  373096	      2875 ns/op	91172.89 MB/s
+BenchmarkAddInt/u32/n=65536-32                          	  386481	      3086 ns/op	84937.00 MB/s
+BenchmarkAddInt/u32/n=65536-32                          	  406611	      2932 ns/op	89395.12 MB/s
+BenchmarkAddInt/u64/n=16-32                             	176154662	         7.572 ns/op	16904.79 MB/s
+BenchmarkAddInt/u64/n=16-32                             	114842710	         9.881 ns/op	12953.51 MB/s
+BenchmarkAddInt/u64/n=16-32                             	164878899	         7.120 ns/op	17976.99 MB/s
+BenchmarkAddInt/u64/n=64-32                             	153420951	         7.789 ns/op	65735.03 MB/s
+BenchmarkAddInt/u64/n=64-32                             	155349229	         7.656 ns/op	66872.74 MB/s
+BenchmarkAddInt/u64/n=64-32                             	152466117	         7.869 ns/op	65062.59 MB/s
+BenchmarkAddInt/u64/n=256-32                            	82506270	        14.48 ns/op	141392.96 MB/s
+BenchmarkAddInt/u64/n=256-32                            	83267354	        14.66 ns/op	139675.24 MB/s
+BenchmarkAddInt/u64/n=256-32                            	78273336	        14.68 ns/op	139516.19 MB/s
+BenchmarkAddInt/u64/n=4096-32                           	 2792686	       429.0 ns/op	76377.64 MB/s
+BenchmarkAddInt/u64/n=4096-32                           	 2762906	       431.3 ns/op	75967.52 MB/s
+BenchmarkAddInt/u64/n=4096-32                           	 2787351	       431.2 ns/op	75990.70 MB/s
+BenchmarkAddInt/u64/n=65536-32                          	  115603	     10506 ns/op	49902.64 MB/s
+BenchmarkAddInt/u64/n=65536-32                          	  113182	     10578 ns/op	49564.30 MB/s
+BenchmarkAddInt/u64/n=65536-32                          	  111842	     10563 ns/op	49632.22 MB/s
+BenchmarkMulInt/i8/n=16-32                              	188437941	         6.375 ns/op	2510.00 MB/s
+BenchmarkMulInt/i8/n=16-32                              	190761955	         6.309 ns/op	2536.22 MB/s
+BenchmarkMulInt/i8/n=16-32                              	189905926	         6.318 ns/op	2532.29 MB/s
+BenchmarkMulInt/i8/n=64-32                              	173805027	         6.871 ns/op	9314.37 MB/s
+BenchmarkMulInt/i8/n=64-32                              	174956012	         6.845 ns/op	9349.39 MB/s
+BenchmarkMulInt/i8/n=64-32                              	174417772	         6.869 ns/op	9316.71 MB/s
+BenchmarkMulInt/i8/n=256-32                             	174614061	         6.900 ns/op	37098.99 MB/s
+BenchmarkMulInt/i8/n=256-32                             	177364884	         6.784 ns/op	37734.09 MB/s
+BenchmarkMulInt/i8/n=256-32                             	172716423	         6.918 ns/op	37006.19 MB/s
+BenchmarkMulInt/i8/n=4096-32                            	42168334	        25.13 ns/op	163022.48 MB/s
+BenchmarkMulInt/i8/n=4096-32                            	48203024	        24.98 ns/op	163973.15 MB/s
+BenchmarkMulInt/i8/n=4096-32                            	50382072	        24.43 ns/op	167637.28 MB/s
+BenchmarkMulInt/i8/n=65536-32                           	 1424574	       842.1 ns/op	77826.42 MB/s
+BenchmarkMulInt/i8/n=65536-32                           	 1416586	       845.3 ns/op	77533.08 MB/s
+BenchmarkMulInt/i8/n=65536-32                           	 1417210	       847.4 ns/op	77339.49 MB/s
+BenchmarkMulInt/i16/n=16-32                             	189056618	         6.321 ns/op	5062.38 MB/s
+BenchmarkMulInt/i16/n=16-32                             	188662010	         6.368 ns/op	5025.08 MB/s
+BenchmarkMulInt/i16/n=16-32                             	187328799	         6.360 ns/op	5031.66 MB/s
+BenchmarkMulInt/i16/n=64-32                             	157716400	         7.584 ns/op	16877.55 MB/s
+BenchmarkMulInt/i16/n=64-32                             	158922199	         7.529 ns/op	17000.92 MB/s
+BenchmarkMulInt/i16/n=64-32                             	159483183	         7.516 ns/op	17031.10 MB/s
+BenchmarkMulInt/i16/n=256-32                            	151169216	         7.912 ns/op	64714.23 MB/s
+BenchmarkMulInt/i16/n=256-32                            	153090385	         7.872 ns/op	65036.61 MB/s
+BenchmarkMulInt/i16/n=256-32                            	151692242	         7.876 ns/op	65011.21 MB/s
+BenchmarkMulInt/i16/n=4096-32                           	32854338	        37.19 ns/op	220270.07 MB/s
+BenchmarkMulInt/i16/n=4096-32                           	31816776	        36.94 ns/op	221766.80 MB/s
+BenchmarkMulInt/i16/n=4096-32                           	32717295	        37.12 ns/op	220690.93 MB/s
+BenchmarkMulInt/i16/n=65536-32                          	  850826	      1412 ns/op	92846.14 MB/s
+BenchmarkMulInt/i16/n=65536-32                          	  815649	      1414 ns/op	92672.44 MB/s
+BenchmarkMulInt/i16/n=65536-32                          	  786528	      1404 ns/op	93343.71 MB/s
+BenchmarkMulInt/u8/n=16-32                              	186106909	         6.385 ns/op	2506.00 MB/s
+BenchmarkMulInt/u8/n=16-32                              	187823254	         6.353 ns/op	2518.63 MB/s
+BenchmarkMulInt/u8/n=16-32                              	189990748	         6.310 ns/op	2535.62 MB/s
+BenchmarkMulInt/u8/n=64-32                              	170675900	         6.993 ns/op	9152.52 MB/s
+BenchmarkMulInt/u8/n=64-32                              	173287539	         6.919 ns/op	9250.11 MB/s
+BenchmarkMulInt/u8/n=64-32                              	174612854	         6.824 ns/op	9379.03 MB/s
+BenchmarkMulInt/u8/n=256-32                             	175566718	         6.860 ns/op	37318.54 MB/s
+BenchmarkMulInt/u8/n=256-32                             	174722928	         6.861 ns/op	37313.70 MB/s
+BenchmarkMulInt/u8/n=256-32                             	173549133	         6.900 ns/op	37102.89 MB/s
+BenchmarkMulInt/u8/n=4096-32                            	40730614	        24.93 ns/op	164267.73 MB/s
+BenchmarkMulInt/u8/n=4096-32                            	40946106	        25.06 ns/op	163456.00 MB/s
+BenchmarkMulInt/u8/n=4096-32                            	46493390	        24.94 ns/op	164218.13 MB/s
+BenchmarkMulInt/u8/n=65536-32                           	 1393554	       857.1 ns/op	76464.03 MB/s
+BenchmarkMulInt/u8/n=65536-32                           	 1406068	       855.3 ns/op	76627.63 MB/s
+BenchmarkMulInt/u8/n=65536-32                           	 1400732	       860.0 ns/op	76207.31 MB/s
+BenchmarkMulInt/u32/n=16-32                             	184930929	         6.452 ns/op	9918.70 MB/s
+BenchmarkMulInt/u32/n=16-32                             	187863206	         6.501 ns/op	9844.05 MB/s
+BenchmarkMulInt/u32/n=16-32                             	180861242	         6.644 ns/op	9632.49 MB/s
+BenchmarkMulInt/u32/n=64-32                             	174085651	         6.893 ns/op	37138.94 MB/s
+BenchmarkMulInt/u32/n=64-32                             	174935967	         6.837 ns/op	37441.02 MB/s
+BenchmarkMulInt/u32/n=64-32                             	179659951	         6.743 ns/op	37962.67 MB/s
+BenchmarkMulInt/u32/n=256-32                            	122232019	         9.824 ns/op	104239.57 MB/s
+BenchmarkMulInt/u32/n=256-32                            	121375912	         9.887 ns/op	103567.53 MB/s
+BenchmarkMulInt/u32/n=256-32                            	122637526	         9.849 ns/op	103968.23 MB/s
+BenchmarkMulInt/u32/n=4096-32                           	15446442	        78.64 ns/op	208335.37 MB/s
+BenchmarkMulInt/u32/n=4096-32                           	15164437	       100.0 ns/op	163768.75 MB/s
+BenchmarkMulInt/u32/n=4096-32                           	14548068	        79.64 ns/op	205722.70 MB/s
+BenchmarkMulInt/u32/n=65536-32                          	  287312	      4093 ns/op	64050.39 MB/s
+BenchmarkMulInt/u32/n=65536-32                          	  279165	      4127 ns/op	63517.60 MB/s
+BenchmarkMulInt/u32/n=65536-32                          	  297835	      4132 ns/op	63446.16 MB/s
+BenchmarkMinimumInt/i8/n=16-32                          	189113859	         6.305 ns/op	2537.52 MB/s
+BenchmarkMinimumInt/i8/n=16-32                          	192306885	         6.340 ns/op	2523.68 MB/s
+BenchmarkMinimumInt/i8/n=16-32                          	191258259	         6.264 ns/op	2554.27 MB/s
+BenchmarkMinimumInt/i8/n=64-32                          	178557619	         6.671 ns/op	9594.20 MB/s
+BenchmarkMinimumInt/i8/n=64-32                          	180327937	         6.644 ns/op	9632.79 MB/s
+BenchmarkMinimumInt/i8/n=64-32                          	181497847	         6.644 ns/op	9632.13 MB/s
+BenchmarkMinimumInt/i8/n=256-32                         	179625975	         6.671 ns/op	38374.66 MB/s
+BenchmarkMinimumInt/i8/n=256-32                         	179568253	         6.664 ns/op	38415.73 MB/s
+BenchmarkMinimumInt/i8/n=256-32                         	179367807	         6.670 ns/op	38378.88 MB/s
+BenchmarkMinimumInt/i8/n=4096-32                        	52425916	        23.69 ns/op	172932.87 MB/s
+BenchmarkMinimumInt/i8/n=4096-32                        	51629163	        23.08 ns/op	177474.91 MB/s
+BenchmarkMinimumInt/i8/n=4096-32                        	51023191	        23.20 ns/op	176566.96 MB/s
+BenchmarkMinimumInt/i8/n=65536-32                       	 1423477	       852.1 ns/op	76910.81 MB/s
+BenchmarkMinimumInt/i8/n=65536-32                       	 1395306	       855.0 ns/op	76652.63 MB/s
+BenchmarkMinimumInt/i8/n=65536-32                       	 1428462	       841.1 ns/op	77913.23 MB/s
+BenchmarkMinimumInt/u8/n=16-32                          	190514232	         6.296 ns/op	2541.50 MB/s
+BenchmarkMinimumInt/u8/n=16-32                          	191943736	         6.238 ns/op	2564.82 MB/s
+BenchmarkMinimumInt/u8/n=16-32                          	193430953	         6.195 ns/op	2582.56 MB/s
+BenchmarkMinimumInt/u8/n=64-32                          	180302194	         6.727 ns/op	9513.69 MB/s
+BenchmarkMinimumInt/u8/n=64-32                          	181443517	         6.664 ns/op	9603.47 MB/s
+BenchmarkMinimumInt/u8/n=64-32                          	179065332	         6.653 ns/op	9619.06 MB/s
+BenchmarkMinimumInt/u8/n=256-32                         	183586918	         6.532 ns/op	39192.29 MB/s
+BenchmarkMinimumInt/u8/n=256-32                         	181213993	         6.634 ns/op	38588.02 MB/s
+BenchmarkMinimumInt/u8/n=256-32                         	180818460	         6.656 ns/op	38462.52 MB/s
+BenchmarkMinimumInt/u8/n=4096-32                        	52637191	        22.97 ns/op	178302.68 MB/s
+BenchmarkMinimumInt/u8/n=4096-32                        	50870367	        22.94 ns/op	178516.61 MB/s
+BenchmarkMinimumInt/u8/n=4096-32                        	53126293	        22.87 ns/op	179083.03 MB/s
+BenchmarkMinimumInt/u8/n=65536-32                       	 1436918	       834.5 ns/op	78529.46 MB/s
+BenchmarkMinimumInt/u8/n=65536-32                       	 1423374	       839.8 ns/op	78037.90 MB/s
+BenchmarkMinimumInt/u8/n=65536-32                       	 1428776	       839.4 ns/op	78070.70 MB/s
+BenchmarkMinimumInt/u16/n=16-32                         	187431650	         6.366 ns/op	5026.64 MB/s
+BenchmarkMinimumInt/u16/n=16-32                         	189607878	         6.334 ns/op	5052.46 MB/s
+BenchmarkMinimumInt/u16/n=16-32                         	189424381	         6.366 ns/op	5026.91 MB/s
+BenchmarkMinimumInt/u16/n=64-32                         	160519984	         7.464 ns/op	17149.98 MB/s
+BenchmarkMinimumInt/u16/n=64-32                         	160901098	         7.420 ns/op	17250.34 MB/s
+BenchmarkMinimumInt/u16/n=64-32                         	160501609	         7.423 ns/op	17243.83 MB/s
+BenchmarkMinimumInt/u16/n=256-32                        	158935586	         7.549 ns/op	67827.71 MB/s
+BenchmarkMinimumInt/u16/n=256-32                        	159559653	         7.547 ns/op	67844.92 MB/s
+BenchmarkMinimumInt/u16/n=256-32                        	158377594	         7.600 ns/op	67366.01 MB/s
+BenchmarkMinimumInt/u16/n=4096-32                       	31730632	        38.25 ns/op	214174.65 MB/s
+BenchmarkMinimumInt/u16/n=4096-32                       	31994721	        38.21 ns/op	214396.37 MB/s
+BenchmarkMinimumInt/u16/n=4096-32                       	31163115	        38.36 ns/op	213528.72 MB/s
+BenchmarkMinimumInt/u16/n=65536-32                      	  830098	      1403 ns/op	93433.31 MB/s
+BenchmarkMinimumInt/u16/n=65536-32                      	  847929	      1396 ns/op	93872.45 MB/s
+BenchmarkMinimumInt/u16/n=65536-32                      	  852418	      1393 ns/op	94116.20 MB/s
+BenchmarkMinimumInt/u32/n=16-32                         	189425425	         6.339 ns/op	10096.32 MB/s
+BenchmarkMinimumInt/u32/n=16-32                         	189638556	         6.336 ns/op	10101.40 MB/s
+BenchmarkMinimumInt/u32/n=16-32                         	189071142	         6.345 ns/op	10086.65 MB/s
+BenchmarkMinimumInt/u32/n=64-32                         	181900538	         6.575 ns/op	38935.57 MB/s
+BenchmarkMinimumInt/u32/n=64-32                         	180068509	         6.642 ns/op	38543.50 MB/s
+BenchmarkMinimumInt/u32/n=64-32                         	181343278	         6.620 ns/op	38672.68 MB/s
+BenchmarkMinimumInt/u32/n=256-32                        	100000000	        10.10 ns/op	101417.43 MB/s
+BenchmarkMinimumInt/u32/n=256-32                        	100000000	        10.04 ns/op	101980.57 MB/s
+BenchmarkMinimumInt/u32/n=256-32                        	100000000	        10.06 ns/op	101761.76 MB/s
+BenchmarkMinimumInt/u32/n=4096-32                       	15537260	        76.28 ns/op	214784.67 MB/s
+BenchmarkMinimumInt/u32/n=4096-32                       	15766012	        76.72 ns/op	213553.90 MB/s
+BenchmarkMinimumInt/u32/n=4096-32                       	15657726	        77.11 ns/op	212469.91 MB/s
+BenchmarkMinimumInt/u32/n=65536-32                      	  399970	      2916 ns/op	89893.82 MB/s
+BenchmarkMinimumInt/u32/n=65536-32                      	  420684	      2866 ns/op	91463.54 MB/s
+BenchmarkMinimumInt/u32/n=65536-32                      	  428310	      2911 ns/op	90067.00 MB/s
+BenchmarkSatAdd/i8/n=16-32                              	191593446	         6.266 ns/op	2553.47 MB/s
+BenchmarkSatAdd/i8/n=16-32                              	191578806	         6.231 ns/op	2567.77 MB/s
+BenchmarkSatAdd/i8/n=16-32                              	193244553	         6.229 ns/op	2568.45 MB/s
+BenchmarkSatAdd/i8/n=64-32                              	178953530	         6.680 ns/op	9581.10 MB/s
+BenchmarkSatAdd/i8/n=64-32                              	177454575	         6.770 ns/op	9454.08 MB/s
+BenchmarkSatAdd/i8/n=64-32                              	178082143	         6.725 ns/op	9517.30 MB/s
+BenchmarkSatAdd/i8/n=256-32                             	178804245	         6.641 ns/op	38548.31 MB/s
+BenchmarkSatAdd/i8/n=256-32                             	179921132	         6.676 ns/op	38345.42 MB/s
+BenchmarkSatAdd/i8/n=256-32                             	181806300	         6.676 ns/op	38347.75 MB/s
+BenchmarkSatAdd/i8/n=4096-32                            	52100529	        22.62 ns/op	181113.69 MB/s
+BenchmarkSatAdd/i8/n=4096-32                            	54346540	        22.47 ns/op	182247.21 MB/s
+BenchmarkSatAdd/i8/n=4096-32                            	52529626	        22.60 ns/op	181243.84 MB/s
+BenchmarkSatAdd/i8/n=65536-32                           	 1436193	       836.0 ns/op	78389.28 MB/s
+BenchmarkSatAdd/i8/n=65536-32                           	 1435869	       836.4 ns/op	78351.31 MB/s
+BenchmarkSatAdd/i8/n=65536-32                           	 1429114	       839.3 ns/op	78080.96 MB/s
+BenchmarkSatAdd/i16/n=16-32                             	189424291	         6.324 ns/op	5059.98 MB/s
+BenchmarkSatAdd/i16/n=16-32                             	190504315	         6.306 ns/op	5074.24 MB/s
+BenchmarkSatAdd/i16/n=16-32                             	188587975	         6.357 ns/op	5033.93 MB/s
+BenchmarkSatAdd/i16/n=64-32                             	161289534	         7.437 ns/op	17210.43 MB/s
+BenchmarkSatAdd/i16/n=64-32                             	160593079	         7.455 ns/op	17169.65 MB/s
+BenchmarkSatAdd/i16/n=64-32                             	159621814	         7.472 ns/op	17130.12 MB/s
+BenchmarkSatAdd/i16/n=256-32                            	156382404	         7.632 ns/op	67087.47 MB/s
+BenchmarkSatAdd/i16/n=256-32                            	155331980	         7.696 ns/op	66524.51 MB/s
+BenchmarkSatAdd/i16/n=256-32                            	158003091	         7.642 ns/op	66999.82 MB/s
+BenchmarkSatAdd/i16/n=4096-32                           	31765476	        37.06 ns/op	221066.72 MB/s
+BenchmarkSatAdd/i16/n=4096-32                           	32964894	        36.95 ns/op	221692.71 MB/s
+BenchmarkSatAdd/i16/n=4096-32                           	32459936	        37.05 ns/op	221079.78 MB/s
+BenchmarkSatAdd/i16/n=65536-32                          	  865863	      1396 ns/op	93886.47 MB/s
+BenchmarkSatAdd/i16/n=65536-32                          	  848284	      1387 ns/op	94469.70 MB/s
+BenchmarkSatAdd/i16/n=65536-32                          	  830136	      1394 ns/op	94044.84 MB/s
+BenchmarkSatAdd/i32/n=16-32                             	186210979	         6.440 ns/op	9937.20 MB/s
+BenchmarkSatAdd/i32/n=16-32                             	187515410	         6.418 ns/op	9971.75 MB/s
+BenchmarkSatAdd/i32/n=16-32                             	185907219	         6.456 ns/op	9913.13 MB/s
+BenchmarkSatAdd/i32/n=64-32                             	170795482	         7.035 ns/op	36391.99 MB/s
+BenchmarkSatAdd/i32/n=64-32                             	170806801	         7.007 ns/op	36534.85 MB/s
+BenchmarkSatAdd/i32/n=64-32                             	172046870	         6.964 ns/op	36762.49 MB/s
+BenchmarkSatAdd/i32/n=256-32                            	100000000	        11.15 ns/op	91853.91 MB/s
+BenchmarkSatAdd/i32/n=256-32                            	100000000	        11.19 ns/op	91522.81 MB/s
+BenchmarkSatAdd/i32/n=256-32                            	100000000	        11.13 ns/op	92030.35 MB/s
+BenchmarkSatAdd/i32/n=4096-32                           	 8813356	       136.5 ns/op	120061.36 MB/s
+BenchmarkSatAdd/i32/n=4096-32                           	 8822728	       136.9 ns/op	119720.95 MB/s
+BenchmarkSatAdd/i32/n=4096-32                           	 8828203	       136.5 ns/op	119992.81 MB/s
+BenchmarkSatAdd/i32/n=65536-32                          	  366060	      3239 ns/op	80921.53 MB/s
+BenchmarkSatAdd/i32/n=65536-32                          	  373076	      3235 ns/op	81043.86 MB/s
+BenchmarkSatAdd/i32/n=65536-32                          	  368892	      3253 ns/op	80596.23 MB/s
+BenchmarkSatAdd/u8/n=16-32                              	193388752	         6.242 ns/op	2563.16 MB/s
+BenchmarkSatAdd/u8/n=16-32                              	192923708	         6.255 ns/op	2558.08 MB/s
+BenchmarkSatAdd/u8/n=16-32                              	193646956	         6.193 ns/op	2583.50 MB/s
+BenchmarkSatAdd/u8/n=64-32                              	177559928	         6.785 ns/op	9432.37 MB/s
+BenchmarkSatAdd/u8/n=64-32                              	181289241	         6.619 ns/op	9668.52 MB/s
+BenchmarkSatAdd/u8/n=64-32                              	180181830	         6.666 ns/op	9601.32 MB/s
+BenchmarkSatAdd/u8/n=256-32                             	179931105	         6.643 ns/op	38537.70 MB/s
+BenchmarkSatAdd/u8/n=256-32                             	178856662	         6.684 ns/op	38300.20 MB/s
+BenchmarkSatAdd/u8/n=256-32                             	179914300	         6.641 ns/op	38546.95 MB/s
+BenchmarkSatAdd/u8/n=4096-32                            	54678292	        22.01 ns/op	186101.08 MB/s
+BenchmarkSatAdd/u8/n=4096-32                            	54044640	        22.40 ns/op	182826.28 MB/s
+BenchmarkSatAdd/u8/n=4096-32                            	52626050	        22.41 ns/op	182763.54 MB/s
+BenchmarkSatAdd/u8/n=65536-32                           	 1442595	       832.6 ns/op	78713.50 MB/s
+BenchmarkSatAdd/u8/n=65536-32                           	 1443709	       832.6 ns/op	78712.49 MB/s
+BenchmarkSatAdd/u8/n=65536-32                           	 1438882	       833.9 ns/op	78594.25 MB/s
+BenchmarkSatAdd/u16/n=16-32                             	189951830	         6.340 ns/op	5047.02 MB/s
+BenchmarkSatAdd/u16/n=16-32                             	189125785	         6.384 ns/op	5012.85 MB/s
+BenchmarkSatAdd/u16/n=16-32                             	188483823	         6.355 ns/op	5035.15 MB/s
+BenchmarkSatAdd/u16/n=64-32                             	161237601	         7.441 ns/op	17202.62 MB/s
+BenchmarkSatAdd/u16/n=64-32                             	162158371	         7.435 ns/op	17216.25 MB/s
+BenchmarkSatAdd/u16/n=64-32                             	159587164	         7.498 ns/op	17070.51 MB/s
+BenchmarkSatAdd/u16/n=256-32                            	158072317	         7.584 ns/op	67506.35 MB/s
+BenchmarkSatAdd/u16/n=256-32                            	160246410	         7.475 ns/op	68497.90 MB/s
+BenchmarkSatAdd/u16/n=256-32                            	159691554	         7.477 ns/op	68480.04 MB/s
+BenchmarkSatAdd/u16/n=4096-32                           	32716512	        36.83 ns/op	222436.17 MB/s
+BenchmarkSatAdd/u16/n=4096-32                           	32143455	        37.10 ns/op	220825.53 MB/s
+BenchmarkSatAdd/u16/n=4096-32                           	32424230	        37.45 ns/op	218763.17 MB/s
+BenchmarkSatAdd/u16/n=65536-32                          	  863072	      1378 ns/op	95135.34 MB/s
+BenchmarkSatAdd/u16/n=65536-32                          	  849997	      1390 ns/op	94277.28 MB/s
+BenchmarkSatAdd/u16/n=65536-32                          	  863366	      1394 ns/op	94004.80 MB/s
+BenchmarkSatAdd/u32/n=16-32                             	188342562	         6.381 ns/op	10029.37 MB/s
+BenchmarkSatAdd/u32/n=16-32                             	187247988	         6.415 ns/op	9976.13 MB/s
+BenchmarkSatAdd/u32/n=16-32                             	186390132	         6.426 ns/op	9958.86 MB/s
+BenchmarkSatAdd/u32/n=64-32                             	177958068	         6.720 ns/op	38097.67 MB/s
+BenchmarkSatAdd/u32/n=64-32                             	178797975	         6.739 ns/op	37985.43 MB/s
+BenchmarkSatAdd/u32/n=64-32                             	178868984	         6.740 ns/op	37980.87 MB/s
+BenchmarkSatAdd/u32/n=256-32                            	100000000	        10.15 ns/op	100918.38 MB/s
+BenchmarkSatAdd/u32/n=256-32                            	100000000	        10.24 ns/op	99974.29 MB/s
+BenchmarkSatAdd/u32/n=256-32                            	100000000	        10.20 ns/op	100402.72 MB/s
+BenchmarkSatAdd/u32/n=4096-32                           	15025041	        79.48 ns/op	206130.07 MB/s
+BenchmarkSatAdd/u32/n=4096-32                           	15000602	        78.67 ns/op	208249.64 MB/s
+BenchmarkSatAdd/u32/n=4096-32                           	15098972	        79.05 ns/op	207248.32 MB/s
+BenchmarkSatAdd/u32/n=65536-32                          	  361398	      3129 ns/op	83768.26 MB/s
+BenchmarkSatAdd/u32/n=65536-32                          	  412242	      3130 ns/op	83754.68 MB/s
+BenchmarkSatAdd/u32/n=65536-32                          	  376897	      3238 ns/op	80964.22 MB/s
+BenchmarkSatSub/i8/n=16-32                              	189816904	         6.309 ns/op	2536.07 MB/s
+BenchmarkSatSub/i8/n=16-32                              	191003014	         6.312 ns/op	2534.75 MB/s
+BenchmarkSatSub/i8/n=16-32                              	193352460	         6.222 ns/op	2571.56 MB/s
+BenchmarkSatSub/i8/n=64-32                              	178472581	         6.722 ns/op	9521.12 MB/s
+BenchmarkSatSub/i8/n=64-32                              	176782257	         6.800 ns/op	9412.24 MB/s
+BenchmarkSatSub/i8/n=64-32                              	180013976	         6.669 ns/op	9596.26 MB/s
+BenchmarkSatSub/i8/n=256-32                             	180039282	         6.674 ns/op	38355.43 MB/s
+BenchmarkSatSub/i8/n=256-32                             	177554200	         6.771 ns/op	37809.83 MB/s
+BenchmarkSatSub/i8/n=256-32                             	177749172	         6.745 ns/op	37954.54 MB/s
+BenchmarkSatSub/i8/n=4096-32                            	54289525	        22.43 ns/op	182636.94 MB/s
+BenchmarkSatSub/i8/n=4096-32                            	53812938	        22.24 ns/op	184137.56 MB/s
+BenchmarkSatSub/i8/n=4096-32                            	53756880	        22.41 ns/op	182739.70 MB/s
+BenchmarkSatSub/i8/n=65536-32                           	 1436070	       833.4 ns/op	78634.54 MB/s
+BenchmarkSatSub/i8/n=65536-32                           	 1426833	       836.9 ns/op	78305.98 MB/s
+BenchmarkSatSub/i8/n=65536-32                           	 1445648	       829.1 ns/op	79040.45 MB/s
+BenchmarkSatSub/u8/n=16-32                              	191513298	         6.205 ns/op	2578.64 MB/s
+BenchmarkSatSub/u8/n=16-32                              	194103572	         6.183 ns/op	2587.54 MB/s
+BenchmarkSatSub/u8/n=16-32                              	194927590	         6.171 ns/op	2592.86 MB/s
+BenchmarkSatSub/u8/n=64-32                              	181741084	         6.570 ns/op	9741.34 MB/s
+BenchmarkSatSub/u8/n=64-32                              	182167316	         6.597 ns/op	9701.18 MB/s
+BenchmarkSatSub/u8/n=64-32                              	182452227	         6.585 ns/op	9719.13 MB/s
+BenchmarkSatSub/u8/n=256-32                             	178370863	         6.755 ns/op	37897.68 MB/s
+BenchmarkSatSub/u8/n=256-32                             	177824992	         6.737 ns/op	38001.75 MB/s
+BenchmarkSatSub/u8/n=256-32                             	178906111	         6.723 ns/op	38079.53 MB/s
+BenchmarkSatSub/u8/n=4096-32                            	53351676	        22.13 ns/op	185089.80 MB/s
+BenchmarkSatSub/u8/n=4096-32                            	55266236	        22.04 ns/op	185861.49 MB/s
+BenchmarkSatSub/u8/n=4096-32                            	55462137	        22.24 ns/op	184145.86 MB/s
+BenchmarkSatSub/u8/n=65536-32                           	 1431606	       835.2 ns/op	78471.86 MB/s
+BenchmarkSatSub/u8/n=65536-32                           	 1438531	       832.7 ns/op	78702.29 MB/s
+BenchmarkSatSub/u8/n=65536-32                           	 1438358	       833.6 ns/op	78614.63 MB/s
+BenchmarkSatSub/u16/n=16-32                             	185454325	         6.452 ns/op	4959.58 MB/s
+BenchmarkSatSub/u16/n=16-32                             	183943896	         6.529 ns/op	4901.48 MB/s
+BenchmarkSatSub/u16/n=16-32                             	185550194	         6.489 ns/op	4931.42 MB/s
+BenchmarkSatSub/u16/n=64-32                             	161987674	         7.424 ns/op	17242.03 MB/s
+BenchmarkSatSub/u16/n=64-32                             	160836283	         7.462 ns/op	17153.74 MB/s
+BenchmarkSatSub/u16/n=64-32                             	162761589	         7.362 ns/op	17385.54 MB/s
+BenchmarkSatSub/u16/n=256-32                            	154785056	         7.729 ns/op	66245.73 MB/s
+BenchmarkSatSub/u16/n=256-32                            	158743789	         7.544 ns/op	67872.10 MB/s
+BenchmarkSatSub/u16/n=256-32                            	159015510	         7.525 ns/op	68038.93 MB/s
+BenchmarkSatSub/u16/n=4096-32                           	31510299	        37.11 ns/op	220761.60 MB/s
+BenchmarkSatSub/u16/n=4096-32                           	32591703	        37.35 ns/op	219302.03 MB/s
+BenchmarkSatSub/u16/n=4096-32                           	32253621	        37.45 ns/op	218771.60 MB/s
+BenchmarkSatSub/u16/n=65536-32                          	  844456	      1400 ns/op	93643.39 MB/s
+BenchmarkSatSub/u16/n=65536-32                          	  882291	      1391 ns/op	94247.70 MB/s
+BenchmarkSatSub/u16/n=65536-32                          	  869445	      1398 ns/op	93750.77 MB/s
+BenchmarkSumInt/i8/n=16-32                              	257912379	         4.560 ns/op
+BenchmarkSumInt/i8/n=16-32                              	254487792	         4.636 ns/op
+BenchmarkSumInt/i8/n=16-32                              	257394831	         4.595 ns/op
+BenchmarkSumInt/i8/n=64-32                              	227418031	         5.178 ns/op
+BenchmarkSumInt/i8/n=64-32                              	231902492	         5.105 ns/op
+BenchmarkSumInt/i8/n=64-32                              	232909408	         5.214 ns/op
+BenchmarkSumInt/i8/n=256-32                             	252471927	         4.764 ns/op
+BenchmarkSumInt/i8/n=256-32                             	247579515	         4.801 ns/op
+BenchmarkSumInt/i8/n=256-32                             	249704743	         4.788 ns/op
+BenchmarkSumInt/i8/n=4096-32                            	100000000	        10.74 ns/op
+BenchmarkSumInt/i8/n=4096-32                            	100000000	        10.73 ns/op
+BenchmarkSumInt/i8/n=4096-32                            	100000000	        10.75 ns/op
+BenchmarkSumInt/i8/n=65536-32                           	 4189298	       285.8 ns/op
+BenchmarkSumInt/i8/n=65536-32                           	 4188241	       286.9 ns/op
+BenchmarkSumInt/i8/n=65536-32                           	 4191921	       285.9 ns/op
+BenchmarkSumInt/i16/n=16-32                             	227579043	         5.254 ns/op
+BenchmarkSumInt/i16/n=16-32                             	228111813	         5.246 ns/op
+BenchmarkSumInt/i16/n=16-32                             	225852116	         5.327 ns/op
+BenchmarkSumInt/i16/n=64-32                             	181851105	         6.666 ns/op
+BenchmarkSumInt/i16/n=64-32                             	169779516	         6.938 ns/op
+BenchmarkSumInt/i16/n=64-32                             	171915543	         6.868 ns/op
+BenchmarkSumInt/i16/n=256-32                            	219290864	         5.498 ns/op
+BenchmarkSumInt/i16/n=256-32                            	213237075	         5.581 ns/op
+BenchmarkSumInt/i16/n=256-32                            	216484119	         5.619 ns/op
+BenchmarkSumInt/i16/n=4096-32                           	61830796	        19.66 ns/op
+BenchmarkSumInt/i16/n=4096-32                           	61400574	        19.66 ns/op
+BenchmarkSumInt/i16/n=4096-32                           	60492428	        19.64 ns/op
+BenchmarkSumInt/i16/n=65536-32                          	 2140900	       559.8 ns/op
+BenchmarkSumInt/i16/n=65536-32                          	 2142190	       561.0 ns/op
+BenchmarkSumInt/i16/n=65536-32                          	 2141925	       558.6 ns/op
+BenchmarkSumInt/i32/n=16-32                             	232467080	         5.174 ns/op
+BenchmarkSumInt/i32/n=16-32                             	233006812	         5.179 ns/op
+BenchmarkSumInt/i32/n=16-32                             	229158854	         5.221 ns/op
+BenchmarkSumInt/i32/n=64-32                             	237361898	         5.045 ns/op
+BenchmarkSumInt/i32/n=64-32                             	241268912	         4.958 ns/op
+BenchmarkSumInt/i32/n=64-32                             	239891844	         4.987 ns/op
+BenchmarkSumInt/i32/n=256-32                            	204664017	         5.878 ns/op
+BenchmarkSumInt/i32/n=256-32                            	203790932	         5.878 ns/op
+BenchmarkSumInt/i32/n=256-32                            	207517732	         5.848 ns/op
+BenchmarkSumInt/i32/n=4096-32                           	36355960	        33.11 ns/op
+BenchmarkSumInt/i32/n=4096-32                           	35384928	        33.15 ns/op
+BenchmarkSumInt/i32/n=4096-32                           	36469471	        33.23 ns/op
+BenchmarkSumInt/i32/n=65536-32                          	 1000000	      1109 ns/op
+BenchmarkSumInt/i32/n=65536-32                          	 1000000	      1105 ns/op
+BenchmarkSumInt/i32/n=65536-32                          	 1000000	      1107 ns/op
+BenchmarkSumInt/u8/n=16-32                              	256896663	         4.702 ns/op
+BenchmarkSumInt/u8/n=16-32                              	255651993	         4.749 ns/op
+BenchmarkSumInt/u8/n=16-32                              	256015821	         4.741 ns/op
+BenchmarkSumInt/u8/n=64-32                              	224601728	         5.327 ns/op
+BenchmarkSumInt/u8/n=64-32                              	226875892	         5.269 ns/op
+BenchmarkSumInt/u8/n=64-32                              	227868309	         5.303 ns/op
+BenchmarkSumInt/u8/n=256-32                             	243484974	         4.970 ns/op
+BenchmarkSumInt/u8/n=256-32                             	246659716	         4.908 ns/op
+BenchmarkSumInt/u8/n=256-32                             	231836216	         5.116 ns/op
+BenchmarkSumInt/u8/n=4096-32                            	100000000	        10.75 ns/op
+BenchmarkSumInt/u8/n=4096-32                            	99406921	        10.64 ns/op
+BenchmarkSumInt/u8/n=4096-32                            	100000000	        10.72 ns/op
+BenchmarkSumInt/u8/n=65536-32                           	 4210809	       286.4 ns/op
+BenchmarkSumInt/u8/n=65536-32                           	 4164400	       287.3 ns/op
+BenchmarkSumInt/u8/n=65536-32                           	 4181526	       286.7 ns/op
+BenchmarkSumInt/u32/n=16-32                             	247577658	         4.860 ns/op
+BenchmarkSumInt/u32/n=16-32                             	242532058	         4.882 ns/op
+BenchmarkSumInt/u32/n=16-32                             	248017938	         4.879 ns/op
+BenchmarkSumInt/u32/n=64-32                             	250867238	         4.838 ns/op
+BenchmarkSumInt/u32/n=64-32                             	246356479	         4.890 ns/op
+BenchmarkSumInt/u32/n=64-32                             	249875995	         4.769 ns/op
+BenchmarkSumInt/u32/n=256-32                            	209851459	         5.734 ns/op
+BenchmarkSumInt/u32/n=256-32                            	212087817	         5.670 ns/op
+BenchmarkSumInt/u32/n=256-32                            	210674881	         5.681 ns/op
+BenchmarkSumInt/u32/n=4096-32                           	39551440	        30.35 ns/op
+BenchmarkSumInt/u32/n=4096-32                           	39659419	        30.46 ns/op
+BenchmarkSumInt/u32/n=4096-32                           	39854318	        30.29 ns/op
+BenchmarkSumInt/u32/n=65536-32                          	 1000000	      1109 ns/op
+BenchmarkSumInt/u32/n=65536-32                          	 1000000	      1098 ns/op
+BenchmarkSumInt/u32/n=65536-32                          	 1000000	      1103 ns/op
+BenchmarkSumInt/u64/n=16-32                             	224135804	         5.397 ns/op
+BenchmarkSumInt/u64/n=16-32                             	219963747	         5.492 ns/op
+BenchmarkSumInt/u64/n=16-32                             	226805973	         5.325 ns/op

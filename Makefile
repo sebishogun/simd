@@ -156,6 +156,30 @@ codegen:
 	cd tools && $(GO) run ./simdgen
 
 # ---------------------------------------------------------------- performance
+# Every performance number in this repository was measured once by hand, which
+# is how they were arrived at honestly and also how they rot. `make bench-check`
+# makes the remembering the machine's job: it runs the suite, compares against
+# the stored baseline for this GOARCH, and fails on anything more than 25%
+# slower. Regenerate a baseline with `make bench-update` and say why in the
+# commit — a baseline moved without a reason is a regression with paperwork.
+BENCH_BASELINE = testdata/bench/$(shell $(GO) env GOARCH).txt
+BENCH_COUNT   ?= 6
+BENCH_OUT     ?= /tmp/simd-bench-$(shell $(GO) env GOARCH).txt
+
+.PHONY: bench-run
+bench-run:
+	$(GO) test -run '^$$' -bench . -count $(BENCH_COUNT) $(PKG) > $(BENCH_OUT)
+	@echo "wrote $(BENCH_OUT)"
+
+.PHONY: bench-check
+bench-check: bench-run
+	cd tools && $(GO) run ./benchcheck -baseline ../$(BENCH_BASELINE) $(BENCH_OUT)
+
+.PHONY: bench-update
+bench-update: bench-run
+	cd tools && $(GO) run ./benchcheck -baseline ../$(BENCH_BASELINE) -update $(BENCH_OUT)
+
+
 
 .PHONY: bench
 bench:
