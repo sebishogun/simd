@@ -98,6 +98,14 @@ func gatherFloat32AVX512Guarded(dst []float32, src []float32, idx []int32) {
 	gatherFloat32AVX512(dst, src, idx)
 }
 
+func scatterFloat32AVX512Guarded(dst []float32, idx []int32, src []float32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterFloat32AVX512(dst, idx, src)
+}
+
 func tileFloat64AVX512Guarded(dst []float64, pattern []float64) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
@@ -114,6 +122,14 @@ func gatherFloat64AVX512Guarded(dst []float64, src []float64, idx []int32) {
 	gatherFloat64AVX512(dst, src, idx)
 }
 
+func scatterFloat64AVX512Guarded(dst []float64, idx []int32, src []float64) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterFloat64AVX512(dst, idx, src)
+}
+
 func gatherInt32AVX512Guarded(dst []int32, src []int32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
@@ -122,12 +138,60 @@ func gatherInt32AVX512Guarded(dst []int32, src []int32, idx []int32) {
 	gatherInt32AVX512(dst, src, idx)
 }
 
+func scatterInt32AVX512Guarded(dst []int32, idx []int32, src []int32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt32AVX512(dst, idx, src)
+}
+
 func gatherInt64AVX512Guarded(dst []int64, src []int64, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
 	}
 	gatherInt64AVX512(dst, src, idx)
+}
+
+func scatterInt64AVX512Guarded(dst []int64, idx []int32, src []int64) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt64AVX512(dst, idx, src)
+}
+
+func movingAverageFloat32AVX512Guarded(dst []float32, a []float32, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat32AVX512(dst, a, width)
+}
+
+func matMulFloat32AVX512Guarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.MatMul(dst, a, b, m, k, n)
+		return
+	}
+	matMulFloat32AVX512(dst, a, b, m, k, n)
+}
+
+func movingAverageFloat64AVX512Guarded(dst []float64, a []float64, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat64AVX512(dst, a, width)
+}
+
+func matMulFloat64AVX512Guarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.MatMul(dst, a, b, m, k, n)
+		return
+	}
+	matMulFloat64AVX512(dst, a, b, m, k, n)
 }
 
 func init() {
@@ -144,8 +208,16 @@ func init() {
 	s.F64.Correlate = correlateFloat64AVX512Guarded
 	s.F32.Tile = tileFloat32AVX512Guarded
 	s.F32.Gather = gatherFloat32AVX512Guarded
+	s.F32.Scatter = scatterFloat32AVX512Guarded
 	s.F64.Tile = tileFloat64AVX512Guarded
 	s.F64.Gather = gatherFloat64AVX512Guarded
+	s.F64.Scatter = scatterFloat64AVX512Guarded
 	s.I32.Gather = gatherInt32AVX512Guarded
+	s.I32.Scatter = scatterInt32AVX512Guarded
 	s.I64.Gather = gatherInt64AVX512Guarded
+	s.I64.Scatter = scatterInt64AVX512Guarded
+	s.F32.MovingAverage = movingAverageFloat32AVX512Guarded
+	s.F32.MatMul = matMulFloat32AVX512Guarded
+	s.F64.MovingAverage = movingAverageFloat64AVX512Guarded
+	s.F64.MatMul = matMulFloat64AVX512Guarded
 }

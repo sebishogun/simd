@@ -43,4 +43,22 @@ func correlateFloat64RVV(dst []float64, sig []float64, ker []float64)
 func gatherFloat32RVV(dst []float32, src []float32, idx []int32)
 
 //go:noescape
+func scatterFloat32RVV(dst []float32, idx []int32, src []float32)
+
+//go:noescape
 func gatherInt32RVV(dst []int32, src []int32, idx []int32)
+
+//go:noescape
+func scatterInt32RVV(dst []int32, idx []int32, src []int32)
+
+//go:noescape
+func movingAverageFloat32RVV(dst []float32, a []float32, width int)
+
+//go:noescape
+func matMulFloat32RVV(dst []float32, a []float32, b []float32, m int, k int, n int)
+
+//go:noescape
+func movingAverageFloat64RVV(dst []float64, a []float64, width int)
+
+//go:noescape
+func matMulFloat64RVV(dst []float64, a []float64, b []float64, m int, k int, n int)

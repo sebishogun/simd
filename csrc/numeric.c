@@ -210,3 +210,105 @@ void simd_gather_i64(long long *__restrict d, const long long *__restrict s,
                      const int *__restrict idx, isize nd, isize ni, isize ns) {
   GATHER(long long)
 }
+
+// ---------- scatter ----------
+//
+// The mirror of gather: an indexed store. Out-of-range indices are skipped,
+// and where two indices collide the later one wins, which is what a
+// sequential loop gives and what the reference does. That ordering is why
+// this cannot become a true vector scatter without care — hardware scatter
+// with duplicate indices has an implementation-defined winner — so the plain
+// loop is deliberate and the compiler may vectorize it only when it can prove
+// the indices distinct.
+#define SCATTER(T)                                                       \
+  isize n = ni < ns ? ni : ns;                                           \
+  for (isize i = 0; i < n; i++) {                                        \
+    int ix = idx[i];                                                     \
+    if (ix >= 0 && (isize)ix < nd) d[ix] = s[i];                         \
+  }
+
+void simd_scatter_f32(float *__restrict d, const int *__restrict idx,
+                      const float *__restrict s, isize nd, isize ni,
+                      isize ns) {
+  SCATTER(float)
+}
+
+void simd_scatter_f64(double *__restrict d, const int *__restrict idx,
+                      const double *__restrict s, isize nd, isize ni,
+                      isize ns) {
+  SCATTER(double)
+}
+
+void simd_scatter_i32(int *__restrict d, const int *__restrict idx,
+                      const int *__restrict s, isize nd, isize ni, isize ns) {
+  SCATTER(int)
+}
+
+void simd_scatter_i64(long long *__restrict d, const int *__restrict idx,
+                      const long long *__restrict s, isize nd, isize ni,
+                      isize ns) {
+  SCATTER(long long)
+}
+
+// ---------- moving average ----------
+//
+// Each output is the mean of a window, and the windows overlap. A running sum
+// would be O(n) instead of O(n*width), but it is a recurrence and it changes
+// the arithmetic: subtracting the departing element accumulates a different
+// rounding error than summing the window afresh. The reference sums each
+// window, so this does too, and the outer loop over windows is what
+// vectorizes.
+#define MOVING_AVERAGE(T)                                                \
+  if (w <= 0 || na < w) return;                                          \
+  isize outn = na - w + 1;                                               \
+  if (nd < outn) outn = nd;                                              \
+  for (isize i = 0; i < outn; i++) {                                     \
+    T acc = 0;                                                           \
+    for (isize j = 0; j < w; j++) acc += a[i + j];                       \
+    d[i] = acc / (T)w;                                                   \
+  }
+
+void simd_movavg_f32(float *__restrict d, const float *__restrict a, isize nd,
+                     isize na, isize w) {
+  MOVING_AVERAGE(float)
+}
+
+void simd_movavg_f64(double *__restrict d, const double *__restrict a,
+                     isize nd, isize na, isize w) {
+  MOVING_AVERAGE(double)
+}
+
+// ---------- matrix multiply ----------
+//
+// Row-major, dst[m*n] = a[m*k] * b[k*n]. The loop order is i, p, j rather
+// than the textbook i, j, p: with j innermost, both b and dst are walked
+// contiguously and the element of a is a scalar broadcast, which is the shape
+// that vectorizes. The textbook order makes the inner loop a dot product with
+// a strided access to b, which does not.
+//
+// The zero-scalar skip matters more than it looks: it is the reference's
+// behaviour, and on a sparse a it is most of the work.
+// The size checks are the caller's: the generated guard sends a badly sized
+// call to the portable path, which is what keeps this to six arguments where
+// System V has six integer argument registers. See matMulK in the manifest.
+#define MATMUL(T)                                                        \
+  for (isize i = 0; i < m * n; i++) d[i] = 0;                            \
+  for (isize i = 0; i < m; i++) {                                        \
+    for (isize p = 0; p < k; p++) {                                      \
+      T s = a[i * k + p];                                                \
+      if (s == 0) continue;                                              \
+      const T *br = b + p * n;                                           \
+      T *row = d + i * n;                                                \
+      for (isize j = 0; j < n; j++) row[j] += s * br[j];                 \
+    }                                                                    \
+  }
+
+void simd_matmul_f32(float *__restrict d, const float *__restrict a,
+                     const float *__restrict b, isize m, isize k, isize n) {
+  MATMUL(float)
+}
+
+void simd_matmul_f64(double *__restrict d, const double *__restrict a,
+                     const double *__restrict b, isize m, isize k, isize n) {
+  MATMUL(double)
+}

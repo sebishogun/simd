@@ -133,3 +133,5 @@ func signalOps[T number](o *kernel.Ops[T]) {
 func PolyEval[T Number](dst, x, coeffs []T) { polyEval(dst, x, coeffs) }
 func Convolve[T Number](dst, sig, ker []T)  { convolve(dst, sig, ker) }
 func Correlate[T Number](dst, sig, ker []T) { correlate(dst, sig, ker) }
+
+func MovingAverage[T Number](dst, a []T, width int) { movingAverage(dst, a, width) }

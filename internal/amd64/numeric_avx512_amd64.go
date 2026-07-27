@@ -46,13 +46,37 @@ func tileFloat32AVX512(dst []float32, pattern []float32)
 func gatherFloat32AVX512(dst []float32, src []float32, idx []int32)
 
 //go:noescape
+func scatterFloat32AVX512(dst []float32, idx []int32, src []float32)
+
+//go:noescape
 func tileFloat64AVX512(dst []float64, pattern []float64)
 
 //go:noescape
 func gatherFloat64AVX512(dst []float64, src []float64, idx []int32)
 
 //go:noescape
+func scatterFloat64AVX512(dst []float64, idx []int32, src []float64)
+
+//go:noescape
 func gatherInt32AVX512(dst []int32, src []int32, idx []int32)
 
 //go:noescape
+func scatterInt32AVX512(dst []int32, idx []int32, src []int32)
+
+//go:noescape
 func gatherInt64AVX512(dst []int64, src []int64, idx []int32)
+
+//go:noescape
+func scatterInt64AVX512(dst []int64, idx []int32, src []int64)
+
+//go:noescape
+func movingAverageFloat32AVX512(dst []float32, a []float32, width int)
+
+//go:noescape
+func matMulFloat32AVX512(dst []float32, a []float32, b []float32, m int, k int, n int)
+
+//go:noescape
+func movingAverageFloat64AVX512(dst []float64, a []float64, width int)
+
+//go:noescape
+func matMulFloat64AVX512(dst []float64, a []float64, b []float64, m int, k int, n int)

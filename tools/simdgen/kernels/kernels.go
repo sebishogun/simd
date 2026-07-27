@@ -706,9 +706,63 @@ func Numeric() []spec.Kernel {
 		)
 	}
 	for _, e := range elems {
-		ks = append(ks, tileK(e), gatherK(e))
+		ks = append(ks, tileK(e), gatherK(e), scatterK(e))
+	}
+	for _, e := range floats() {
+		ks = append(ks, movAvgK(e), matMulK(e))
 	}
 	return ks
+}
+
+// scatterK is the indexed store. RefWhen sends the unequal-length case to the
+// portable path, which keeps the C signature to five arguments — one under
+// what the zSeries ABI passes in registers — while costing nothing in the
+// case callers actually use.
+func scatterK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_scatter_" + e.c, GoName: "scatter" + e.goName,
+		Group: e.group, Field: "Scatter", RefFunc: "Scatter",
+		Params: []spec.Param{sl("dst", e.slice), sl("idx", spec.SliceI32),
+			sl("src", e.slice)},
+		CArgs: []spec.CArg{base("dst"), base("idx"), base("src"),
+			lenOf("dst"), lenOf("idx"), lenOf("src")},
+		Threshold: thElementwise,
+	}
+}
+
+func movAvgK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_movavg_" + e.c, GoName: "movingAverage" + e.goName,
+		Group: e.group, Field: "MovingAverage", RefFunc: "MovingAverage",
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			{Name: "width", Type: spec.Int}},
+		CArgs: []spec.CArg{base("dst"), base("a"), lenOf("dst"), lenOf("a"),
+			val("width")},
+		Threshold: thElementwise,
+	}
+}
+
+// matMulK multiplies two row-major matrices.
+//
+// The size checks live in RefWhen rather than in the kernel, which is what
+// keeps the signature to six arguments: passing the three slice lengths as
+// well would need nine, and System V has six integer argument registers.
+// Sending a badly sized call to the portable path is right anyway — the
+// reference returns without writing, and that is a caller error worth
+// handling in Go rather than in a kernel.
+func matMulK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_matmul_" + e.c, GoName: "matMul" + e.goName,
+		Group: e.group, Field: "MatMul", RefFunc: "MatMul",
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			sl("b", e.slice), {Name: "m", Type: spec.Int},
+			{Name: "k", Type: spec.Int}, {Name: "n", Type: spec.Int}},
+		CArgs: []spec.CArg{base("dst"), base("a"), base("b"),
+			val("m"), val("k"), val("n")},
+		RefWhen: "m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || " +
+			"len(a) < m*k || len(b) < k*n",
+		Threshold: 0,
+	}
 }
 
 // Source is a C file and the kernels compiled from it.

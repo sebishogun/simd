@@ -22,6 +22,7 @@
 package emit
 
 import (
+	"errors"
 	"fmt"
 	"go/format"
 	"sort"
@@ -435,6 +436,11 @@ func isSelfRelative(typeName string) bool {
 	return false
 }
 
+// ErrTooManyArgs reports a kernel whose C signature needs more argument
+// registers than the target has. It is a capability limit like any other, so
+// the caller drops the kernel rather than failing the whole target.
+var ErrTooManyArgs = errors.New("kernel needs more argument registers than the target has")
+
 // prologueFor builds the instructions that move Go's stack-passed arguments
 // into the registers the compiled C body expects.
 //
@@ -504,9 +510,14 @@ func prologueFor(k spec.Kernel, frame Frame, tgt target.Target) ([]string, error
 			if nextInt >= len(tgt.IntArgs) {
 				// Arguments beyond the register set would have to be pushed
 				// onto a C stack frame, which this generator does not build.
-				// Kernels are written to stay well inside the limit.
-				return nil, fmt.Errorf("emit: %s: more than %d integer C arguments on %s; "+
-					"simplify the kernel signature", k.GoName, len(tgt.IntArgs), tgt)
+				//
+				// This is a capability of the target, not a mistake: System V
+				// passes six integer arguments in registers and the zSeries
+				// ABI five, so a kernel that needs six is simply unavailable
+				// on s390x. ErrTooManyArgs lets the caller drop the kernel and
+				// keep the portable path rather than failing the target.
+				return nil, fmt.Errorf("%w: emit: %s: more than %d integer C arguments on %s; "+
+					"simplify the kernel signature", ErrTooManyArgs, k.GoName, len(tgt.IntArgs), tgt)
 			}
 			reg = tgt.IntArgs[nextInt]
 			nextInt++
@@ -864,4 +875,11 @@ func argNames(k spec.Kernel) string {
 		names[i] = p.Name
 	}
 	return strings.Join(names, ", ")
+}
+
+// LayoutPrologue builds a kernel's argument prologue and reports whether it
+// can be built at all, so the generator can drop a kernel whose signature does
+// not fit the target's argument registers.
+func LayoutPrologue(k spec.Kernel, tgt target.Target) ([]string, error) {
+	return prologueFor(k, LayoutFrame(k), tgt)
 }

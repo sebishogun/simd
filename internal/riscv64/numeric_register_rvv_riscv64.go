@@ -90,12 +90,60 @@ func gatherFloat32RVVGuarded(dst []float32, src []float32, idx []int32) {
 	gatherFloat32RVV(dst, src, idx)
 }
 
+func scatterFloat32RVVGuarded(dst []float32, idx []int32, src []float32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterFloat32RVV(dst, idx, src)
+}
+
 func gatherInt32RVVGuarded(dst []int32, src []int32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
 	}
 	gatherInt32RVV(dst, src, idx)
+}
+
+func scatterInt32RVVGuarded(dst []int32, idx []int32, src []int32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt32RVV(dst, idx, src)
+}
+
+func movingAverageFloat32RVVGuarded(dst []float32, a []float32, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat32RVV(dst, a, width)
+}
+
+func matMulFloat32RVVGuarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.MatMul(dst, a, b, m, k, n)
+		return
+	}
+	matMulFloat32RVV(dst, a, b, m, k, n)
+}
+
+func movingAverageFloat64RVVGuarded(dst []float64, a []float64, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat64RVV(dst, a, width)
+}
+
+func matMulFloat64RVVGuarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.MatMul(dst, a, b, m, k, n)
+		return
+	}
+	matMulFloat64RVV(dst, a, b, m, k, n)
 }
 
 func init() {
@@ -111,5 +159,11 @@ func init() {
 	s.F64.Convolve = convolveFloat64RVVGuarded
 	s.F64.Correlate = correlateFloat64RVVGuarded
 	s.F32.Gather = gatherFloat32RVVGuarded
+	s.F32.Scatter = scatterFloat32RVVGuarded
 	s.I32.Gather = gatherInt32RVVGuarded
+	s.I32.Scatter = scatterInt32RVVGuarded
+	s.F32.MovingAverage = movingAverageFloat32RVVGuarded
+	s.F32.MatMul = matMulFloat32RVVGuarded
+	s.F64.MovingAverage = movingAverageFloat64RVVGuarded
+	s.F64.MatMul = matMulFloat64RVVGuarded
 }

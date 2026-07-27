@@ -98,6 +98,14 @@ func gatherFloat32AVX2Guarded(dst []float32, src []float32, idx []int32) {
 	gatherFloat32AVX2(dst, src, idx)
 }
 
+func scatterFloat32AVX2Guarded(dst []float32, idx []int32, src []float32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterFloat32AVX2(dst, idx, src)
+}
+
 func tileFloat64AVX2Guarded(dst []float64, pattern []float64) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
@@ -114,6 +122,62 @@ func gatherFloat64AVX2Guarded(dst []float64, src []float64, idx []int32) {
 	gatherFloat64AVX2(dst, src, idx)
 }
 
+func scatterFloat64AVX2Guarded(dst []float64, idx []int32, src []float64) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterFloat64AVX2(dst, idx, src)
+}
+
+func scatterInt32AVX2Guarded(dst []int32, idx []int32, src []int32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt32AVX2(dst, idx, src)
+}
+
+func scatterInt64AVX2Guarded(dst []int64, idx []int32, src []int64) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt64AVX2(dst, idx, src)
+}
+
+func movingAverageFloat32AVX2Guarded(dst []float32, a []float32, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat32AVX2(dst, a, width)
+}
+
+func matMulFloat32AVX2Guarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.MatMul(dst, a, b, m, k, n)
+		return
+	}
+	matMulFloat32AVX2(dst, a, b, m, k, n)
+}
+
+func movingAverageFloat64AVX2Guarded(dst []float64, a []float64, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat64AVX2(dst, a, width)
+}
+
+func matMulFloat64AVX2Guarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.MatMul(dst, a, b, m, k, n)
+		return
+	}
+	matMulFloat64AVX2(dst, a, b, m, k, n)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -128,6 +192,14 @@ func init() {
 	s.F64.Correlate = correlateFloat64AVX2Guarded
 	s.F32.Tile = tileFloat32AVX2Guarded
 	s.F32.Gather = gatherFloat32AVX2Guarded
+	s.F32.Scatter = scatterFloat32AVX2Guarded
 	s.F64.Tile = tileFloat64AVX2Guarded
 	s.F64.Gather = gatherFloat64AVX2Guarded
+	s.F64.Scatter = scatterFloat64AVX2Guarded
+	s.I32.Scatter = scatterInt32AVX2Guarded
+	s.I64.Scatter = scatterInt64AVX2Guarded
+	s.F32.MovingAverage = movingAverageFloat32AVX2Guarded
+	s.F32.MatMul = matMulFloat32AVX2Guarded
+	s.F64.MovingAverage = movingAverageFloat64AVX2Guarded
+	s.F64.MatMul = matMulFloat64AVX2Guarded
 }

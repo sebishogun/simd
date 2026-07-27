@@ -46,7 +46,25 @@ func tileFloat32SSE2(dst []float32, pattern []float32)
 func gatherFloat32SSE2(dst []float32, src []float32, idx []int32)
 
 //go:noescape
+func scatterFloat32SSE2(dst []float32, idx []int32, src []float32)
+
+//go:noescape
 func tileFloat64SSE2(dst []float64, pattern []float64)
 
 //go:noescape
 func gatherFloat64SSE2(dst []float64, src []float64, idx []int32)
+
+//go:noescape
+func scatterFloat64SSE2(dst []float64, idx []int32, src []float64)
+
+//go:noescape
+func movingAverageFloat32SSE2(dst []float32, a []float32, width int)
+
+//go:noescape
+func matMulFloat32SSE2(dst []float32, a []float32, b []float32, m int, k int, n int)
+
+//go:noescape
+func movingAverageFloat64SSE2(dst []float64, a []float64, width int)
+
+//go:noescape
+func matMulFloat64SSE2(dst []float64, a []float64, b []float64, m int, k int, n int)

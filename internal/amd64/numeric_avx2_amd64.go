@@ -46,7 +46,31 @@ func tileFloat32AVX2(dst []float32, pattern []float32)
 func gatherFloat32AVX2(dst []float32, src []float32, idx []int32)
 
 //go:noescape
+func scatterFloat32AVX2(dst []float32, idx []int32, src []float32)
+
+//go:noescape
 func tileFloat64AVX2(dst []float64, pattern []float64)
 
 //go:noescape
 func gatherFloat64AVX2(dst []float64, src []float64, idx []int32)
+
+//go:noescape
+func scatterFloat64AVX2(dst []float64, idx []int32, src []float64)
+
+//go:noescape
+func scatterInt32AVX2(dst []int32, idx []int32, src []int32)
+
+//go:noescape
+func scatterInt64AVX2(dst []int64, idx []int32, src []int64)
+
+//go:noescape
+func movingAverageFloat32AVX2(dst []float32, a []float32, width int)
+
+//go:noescape
+func matMulFloat32AVX2(dst []float32, a []float32, b []float32, m int, k int, n int)
+
+//go:noescape
+func movingAverageFloat64AVX2(dst []float64, a []float64, width int)
+
+//go:noescape
+func matMulFloat64AVX2(dst []float64, a []float64, b []float64, m int, k int, n int)

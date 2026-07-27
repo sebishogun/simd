@@ -82,6 +82,38 @@ func correlateFloat64NEONGuarded(dst []float64, sig []float64, ker []float64) {
 	correlateFloat64NEON(dst, sig, ker)
 }
 
+func movingAverageFloat32NEONGuarded(dst []float32, a []float32, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat32NEON(dst, a, width)
+}
+
+func matMulFloat32NEONGuarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.MatMul(dst, a, b, m, k, n)
+		return
+	}
+	matMulFloat32NEON(dst, a, b, m, k, n)
+}
+
+func movingAverageFloat64NEONGuarded(dst []float64, a []float64, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat64NEON(dst, a, width)
+}
+
+func matMulFloat64NEONGuarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.MatMul(dst, a, b, m, k, n)
+		return
+	}
+	matMulFloat64NEON(dst, a, b, m, k, n)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -94,4 +126,8 @@ func init() {
 	s.F64.PolyEval = polyEvalFloat64NEONGuarded
 	s.F64.Convolve = convolveFloat64NEONGuarded
 	s.F64.Correlate = correlateFloat64NEONGuarded
+	s.F32.MovingAverage = movingAverageFloat32NEONGuarded
+	s.F32.MatMul = matMulFloat32NEONGuarded
+	s.F64.MovingAverage = movingAverageFloat64NEONGuarded
+	s.F64.MatMul = matMulFloat64NEONGuarded
 }

@@ -24,6 +24,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -269,6 +270,15 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		insns := forEmitInstrs(disasm[k.CName])
 		if ok, why := emit.CanLift(fn, insns, tgt); !ok {
 			skipped = append(skipped, fmt.Sprintf("%s (%s)", k.CName, why))
+			continue
+		}
+		// A signature needing more argument registers than this target has is
+		// a capability limit, so the kernel is dropped and the portable path
+		// kept. Asking the emitter is the only way to find out, because the
+		// count depends on how the C arguments map onto the registers.
+		if _, err := emit.LayoutPrologue(k, tgt); errors.Is(err, emit.ErrTooManyArgs) {
+			skipped = append(skipped, fmt.Sprintf("%s (needs more argument registers than %s has)",
+				k.CName, tgt.Arch))
 			continue
 		}
 		kept = append(kept, k)

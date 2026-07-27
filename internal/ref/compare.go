@@ -442,3 +442,6 @@ func MaskNot(dst, a []bool)    { maskNot(dst, a) }
 
 func Tile[T number](dst, pattern []T)            { tile(dst, pattern) }
 func Gather[T number](dst, src []T, idx []int32) { gather(dst, src, idx) }
+
+func Scatter[T number](dst []T, idx []int32, src []T) { scatter(dst, idx, src) }
+func MatMul[T number](dst, a, b []T, m, k, n int)     { matMul(dst, a, b, m, k, n) }
