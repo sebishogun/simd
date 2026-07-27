@@ -114,6 +114,17 @@ type Ops[T any] struct {
 	Add, Sub, Mul, Div func(dst, a, b []T)
 	Minimum, Maximum   func(dst, a, b []T)
 
+	// Elementwise over three or four inputs, in a single pass.
+	//
+	// These exist for memory traffic rather than for arithmetic: as repeated
+	// binary calls, dst = a+b+c+d reads and writes memory three times over
+	// where this does it once. The accumulation is left to right — ((a+b)+c)+d
+	// — so the answer is bit-identical to writing the binary calls out by hand,
+	// which floating-point addition being non-associative makes a real promise
+	// rather than a formality.
+	Add3, Mul3 func(dst, a, b, c []T)
+	Add4, Mul4 func(dst, a, b, c, d []T)
+
 	// Elementwise, one input.
 	Abs, Neg, Sqrt, Reciprocal func(dst, a []T)
 	Reverse                    func(dst, a []T)

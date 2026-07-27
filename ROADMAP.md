@@ -23,6 +23,26 @@ serial half is the store, which a compress instruction fixes; expansion's is
 the load, which it does not — clang emits the same scalar loop for it on both
 of the targets that have the instruction.
 
+### ~~n-ary and variadic operations~~ — done after v0.1.0
+
+`AddAll` and `MulAll` take any number of slices and make a single pass. Arity-3
+and arity-4 kernels on every architecture; longer calls fold in groups of four,
+so a sixteen-way sum is four passes rather than fifteen. Arity stops at four
+because a five-source kernel needs seven pointer arguments and System V passes
+six integers in registers.
+
+The element type is enforced by the compiler — the parameter is `...[]T`, so
+mixing types will not build. Lengths remain a run-time property, because a Go
+slice carries its length in its header rather than in its type; the work is
+bounded by the shortest slice, as everywhere else here.
+
+Still open: the **other half of what was asked for**, a general n-ary
+combinator taking a Go closure. That is easy to write and hard to make fast —
+a closure call per element defeats vectorization entirely — so it needs a
+design where the common shapes dispatch to real kernels and the rest is honest
+about being a scalar loop. `FilterInto` is the same problem already solved once
+that way.
+
 ### sort / argsort
 
 The partition step is compress, which now exists.

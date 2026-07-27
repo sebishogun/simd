@@ -15,6 +15,7 @@
 package kernels
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/sebishogun/simd/tools/simdgen/spec"
@@ -91,6 +92,11 @@ func (e elem) ref(base string) string {
 const (
 	thElementwise = 16
 	thReduction   = 0
+	// thNary is higher than the binary threshold on purpose. What an n-ary
+	// kernel saves is memory traffic, and while the data fits in cache there
+	// is no traffic to save — the repeated binary calls hit cache on their
+	// later passes and cost little more. Measured crossover, not a guess.
+	thNary = 256
 )
 
 // withThresholds attaches per-architecture thresholds to a kernel built by one
@@ -1136,6 +1142,48 @@ type Source struct {
 	ExtraFlags []string
 }
 
+// naryK is one n-ary elementwise kernel: three or four sources combined into a
+// destination in a single pass.
+//
+// The threshold is higher than the binary one because the thing being saved is
+// memory traffic, and below the last level of cache there is no traffic to
+// save — the repeated binary calls hit cache on their second and third passes
+// and cost little more than this does. Measured, not assumed.
+func naryK(op, field string, arity int, e elem) spec.Kernel {
+	params := []spec.Param{sl("dst", e.slice), sl("a", e.slice), sl("b", e.slice),
+		sl("c", e.slice)}
+	cargs := []spec.CArg{base("dst"), base("a"), base("b"), base("c")}
+	if arity == 4 {
+		params = append(params, sl("d", e.slice))
+		cargs = append(cargs, base("d"))
+	}
+	cargs = append(cargs, lenOf("dst"))
+	name := fmt.Sprintf("simd_%s%d_%s", op, arity, e.c)
+	return spec.Kernel{
+		CName: name, GoName: fmt.Sprintf("%s%d%s", op, arity, e.goName),
+		Group: e.group, Field: fmt.Sprintf("%s%d", field, arity),
+		RefFunc:   fmt.Sprintf("%s%d", field, arity),
+		Params:    params,
+		CArgs:     cargs,
+		Threshold: thNary,
+	}
+}
+
+// Nary is the fixed-arity elementwise family.
+//
+// Arity stops at four because a five-source kernel needs seven pointer
+// arguments plus a length and System V passes six integers in registers. The
+// Go wrapper folds anything longer in groups of four.
+func Nary() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range elems {
+		for _, a := range []int{3, 4} {
+			ks = append(ks, naryK("add", "Add", a, e), naryK("mul", "Mul", a, e))
+		}
+	}
+	return ks
+}
+
 // noCompress is every target with no hardware compress instruction, which is
 // all of them but two.
 //
@@ -1227,6 +1275,7 @@ func Compress() []spec.Kernel {
 var All = []Source{
 	{Path: "csrc/compress.c", Kernels: Compress()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
+	{Path: "csrc/nary.c", Kernels: Nary()},
 	{Path: "csrc/arith.c", Kernels: Arith()},
 	{Path: "csrc/reduce.c", Kernels: Reduce()},
 	{Path: "csrc/compare.c", Kernels: Compare()},

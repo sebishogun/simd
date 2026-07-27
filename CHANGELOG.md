@@ -52,7 +52,7 @@ transcendentals guarantee a stated ULP bound rather than bit identity, and
   anyway.
 - **`HexDecode` is portable everywhere**, because it returns two values where
   the generator's result slot holds one.
-- **Not yet built:** sort/argsort, n-ary/variadic forms, and packed-panel
+- **Not yet built:** sort/argsort, and packed-panel
   cache blocking above the GEMM microkernel. See [ROADMAP.md](ROADMAP.md).
 
 ### Where to start

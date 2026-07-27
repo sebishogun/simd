@@ -68,6 +68,7 @@ called. Every one of these has a runnable example in
 | add/scale/clamp a slice in place | `Add` `Scale` `AddScalar` `Clamp` |
 | …without destroying the input | the same name with `Into` |
 | do `y += a*x` in one pass (axpy) | `AddScaled` |
+| **sum or multiply many slices at once** | `AddAll` `MulAll` — one pass, not one per slice |
 | total / average / spread of a slice | `Sum` `Mean` `StdDev` `Variance` |
 | length of a vector, distance between two | `Norm` `Distance` `CosineSimilarity` |
 | make a vector unit length | `Normalize` |
@@ -138,6 +139,8 @@ riscv64 RVV numeric kernels.
 `Pow` `Hypot` `Sin` `Cos` `Tan` `Asin` `Acos` `Atan` `Atan2` `Sinh` `Cosh`
 `Tanh` `Sigmoid` — each with a `Fast` twin
 
+**N-ary** `AddAll` `MulAll` — three or more slices in a single pass over
+memory, with the element type enforced by the compiler ·
 **Comparisons** to `[]bool` masks, `Select`, `All` `Any` `CountTrue` ·
 **Compression** `CompressInto` `ExpandInto` `FilterInto` — a comparison writes
 the mask, `CompressInto` packs it, so one function serves every predicate
