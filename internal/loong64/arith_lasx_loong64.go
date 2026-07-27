@@ -184,6 +184,258 @@ func lerpInt64LASX(dst []int64, a []int64, b []int64, t int64)
 func addScaledInt64LASX(dst []int64, a []int64, b []int64, s int64)
 
 //go:noescape
+func addInt8LASX(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func subInt8LASX(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func mulInt8LASX(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func minimumInt8LASX(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func maximumInt8LASX(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func absInt8LASX(dst []int8, a []int8)
+
+//go:noescape
+func negInt8LASX(dst []int8, a []int8)
+
+//go:noescape
+func scaleInt8LASX(dst []int8, a []int8, s int8)
+
+//go:noescape
+func addScalarInt8LASX(dst []int8, a []int8, s int8)
+
+//go:noescape
+func subScalarInt8LASX(dst []int8, a []int8, s int8)
+
+//go:noescape
+func clampInt8LASX(dst []int8, a []int8, lo int8, hi int8)
+
+//go:noescape
+func fillInt8LASX(dst []int8, v int8)
+
+//go:noescape
+func lerpInt8LASX(dst []int8, a []int8, b []int8, t int8)
+
+//go:noescape
+func addScaledInt8LASX(dst []int8, a []int8, b []int8, s int8)
+
+//go:noescape
+func addInt16LASX(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func subInt16LASX(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func mulInt16LASX(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func minimumInt16LASX(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func maximumInt16LASX(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func absInt16LASX(dst []int16, a []int16)
+
+//go:noescape
+func negInt16LASX(dst []int16, a []int16)
+
+//go:noescape
+func scaleInt16LASX(dst []int16, a []int16, s int16)
+
+//go:noescape
+func addScalarInt16LASX(dst []int16, a []int16, s int16)
+
+//go:noescape
+func subScalarInt16LASX(dst []int16, a []int16, s int16)
+
+//go:noescape
+func clampInt16LASX(dst []int16, a []int16, lo int16, hi int16)
+
+//go:noescape
+func fillInt16LASX(dst []int16, v int16)
+
+//go:noescape
+func lerpInt16LASX(dst []int16, a []int16, b []int16, t int16)
+
+//go:noescape
+func addScaledInt16LASX(dst []int16, a []int16, b []int16, s int16)
+
+//go:noescape
+func addUint8LASX(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func subUint8LASX(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func mulUint8LASX(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func minimumUint8LASX(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func maximumUint8LASX(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func absUint8LASX(dst []byte, a []byte)
+
+//go:noescape
+func negUint8LASX(dst []byte, a []byte)
+
+//go:noescape
+func scaleUint8LASX(dst []byte, a []byte, s byte)
+
+//go:noescape
+func addScalarUint8LASX(dst []byte, a []byte, s byte)
+
+//go:noescape
+func subScalarUint8LASX(dst []byte, a []byte, s byte)
+
+//go:noescape
+func clampUint8LASX(dst []byte, a []byte, lo byte, hi byte)
+
+//go:noescape
+func fillUint8LASX(dst []byte, v byte)
+
+//go:noescape
+func lerpUint8LASX(dst []byte, a []byte, b []byte, t byte)
+
+//go:noescape
+func addScaledUint8LASX(dst []byte, a []byte, b []byte, s byte)
+
+//go:noescape
+func addUint16LASX(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func subUint16LASX(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func mulUint16LASX(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func minimumUint16LASX(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func maximumUint16LASX(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func absUint16LASX(dst []uint16, a []uint16)
+
+//go:noescape
+func negUint16LASX(dst []uint16, a []uint16)
+
+//go:noescape
+func scaleUint16LASX(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func addScalarUint16LASX(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func subScalarUint16LASX(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func clampUint16LASX(dst []uint16, a []uint16, lo uint16, hi uint16)
+
+//go:noescape
+func fillUint16LASX(dst []uint16, v uint16)
+
+//go:noescape
+func lerpUint16LASX(dst []uint16, a []uint16, b []uint16, t uint16)
+
+//go:noescape
+func addScaledUint16LASX(dst []uint16, a []uint16, b []uint16, s uint16)
+
+//go:noescape
+func addUint32LASX(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func subUint32LASX(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func mulUint32LASX(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func minimumUint32LASX(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func maximumUint32LASX(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func absUint32LASX(dst []uint32, a []uint32)
+
+//go:noescape
+func negUint32LASX(dst []uint32, a []uint32)
+
+//go:noescape
+func scaleUint32LASX(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func addScalarUint32LASX(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func subScalarUint32LASX(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func clampUint32LASX(dst []uint32, a []uint32, lo uint32, hi uint32)
+
+//go:noescape
+func fillUint32LASX(dst []uint32, v uint32)
+
+//go:noescape
+func lerpUint32LASX(dst []uint32, a []uint32, b []uint32, t uint32)
+
+//go:noescape
+func addScaledUint32LASX(dst []uint32, a []uint32, b []uint32, s uint32)
+
+//go:noescape
+func addUint64LASX(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func subUint64LASX(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func mulUint64LASX(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func minimumUint64LASX(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func maximumUint64LASX(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func absUint64LASX(dst []uint64, a []uint64)
+
+//go:noescape
+func negUint64LASX(dst []uint64, a []uint64)
+
+//go:noescape
+func scaleUint64LASX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func addScalarUint64LASX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func subScalarUint64LASX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func clampUint64LASX(dst []uint64, a []uint64, lo uint64, hi uint64)
+
+//go:noescape
+func fillUint64LASX(dst []uint64, v uint64)
+
+//go:noescape
+func lerpUint64LASX(dst []uint64, a []uint64, b []uint64, t uint64)
+
+//go:noescape
+func addScaledUint64LASX(dst []uint64, a []uint64, b []uint64, s uint64)
+
+//go:noescape
 func divFloat32LASX(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -224,3 +476,39 @@ func ceilFloat64LASX(dst []float64, a []float64)
 
 //go:noescape
 func truncFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func satAddInt32LASX(dst []int32, a []int32, b []int32)
+
+//go:noescape
+func satSubInt32LASX(dst []int32, a []int32, b []int32)
+
+//go:noescape
+func satAddInt8LASX(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func satSubInt8LASX(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func satAddInt16LASX(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func satSubInt16LASX(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func satAddUint8LASX(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func satSubUint8LASX(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func satAddUint16LASX(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func satSubUint16LASX(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func satAddUint32LASX(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func satSubUint32LASX(dst []uint32, a []uint32, b []uint32)

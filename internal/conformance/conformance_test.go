@@ -29,6 +29,7 @@ import (
 	"math"
 	"math/rand/v2"
 	"testing"
+	"unsafe"
 
 	"github.com/sebishogun/simd/internal/backend"
 	"github.com/sebishogun/simd/internal/cpu"
@@ -116,31 +117,53 @@ func genF32(n int, r *rand.Rand) []float32 {
 	return s
 }
 
-func genI32(n int, r *rand.Rand) []int32 {
-	s := make([]int32, n)
-	extremes := []int32{0, 1, -1, math.MaxInt32, math.MinInt32}
+// intElem is every integer element type, for the one generator that serves
+// them all.
+type intElem interface {
+	~int8 | ~int16 | ~int32 | ~int64 |
+		~uint8 | ~uint16 | ~uint32 | ~uint64
+}
+
+// genInt produces integer inputs weighted towards the values that separate a
+// right kernel from a plausible one.
+//
+// A quarter of the elements are drawn from the ends of the range, because that
+// is where the interesting disagreements are: wrapping against saturation, Abs
+// of the most negative value, and — the reason this matters more for the
+// unsigned types than the signed ones — a comparison done as signed when it
+// should be unsigned, which is correct for the whole bottom half of the range
+// and wrong for the top. Uniform random bytes would reach 0x80..0xff often
+// enough to catch that one; uniform random int32s would essentially never
+// produce MaxInt32.
+func genInt[T intElem](n int, r *rand.Rand) []T {
+	lo, hi := intBounds[T]()
+	extremes := []T{0, 1, lo, hi, hi - 1, lo + 1, hi / 2}
+	s := make([]T, n)
 	for i := range s {
 		if r.IntN(4) == 0 {
 			s[i] = extremes[r.IntN(len(extremes))]
-		} else {
-			s[i] = int32(r.Uint32())
+			continue
 		}
+		s[i] = T(r.Uint64())
 	}
 	return s
 }
 
-func genI64(n int, r *rand.Rand) []int64 {
-	s := make([]int64, n)
-	extremes := []int64{0, 1, -1, math.MaxInt64, math.MinInt64}
-	for i := range s {
-		if r.IntN(4) == 0 {
-			s[i] = extremes[r.IntN(len(extremes))]
-		} else {
-			s[i] = int64(r.Uint64())
-		}
+// intBounds is the closed range of T, derived from the type rather than
+// tabulated: the size gives the width and the wraparound of 0-1 gives the
+// signedness, so a type cannot be given the wrong bounds by hand.
+func intBounds[T intElem]() (lo, hi T) {
+	var zero T
+	bits := 8 * uint(unsafe.Sizeof(zero))
+	if zero-1 > zero {
+		return 0, ^T(0)
 	}
-	return s
+	hi = T(uint64(1)<<(bits-1) - 1)
+	return -hi - 1, hi
 }
+
+func genI32(n int, r *rand.Rand) []int32 { return genInt[int32](n, r) }
+func genI64(n int, r *rand.Rand) []int64 { return genInt[int64](n, r) }
 
 // same compares bit patterns, so -0 does not equal +0 and a lost sign bit is
 // caught. The one exception is the NaN payload.
@@ -400,6 +423,22 @@ func checkOps[T comparable](t *testing.T, tier, typeName string,
 	checkReduce2(t, tier, p("Dot"), got.Dot, want.Dot, gen)
 	checkReduce2(t, tier, p("SumSqDiff"), got.SumSqDiff, want.SumSqDiff, gen)
 	checkReduce2(t, tier, p("L1Diff"), got.L1Diff, want.L1Diff, gen)
+
+	checkBinary(t, tier, p("SatAdd"), got.SatAdd, want.SatAdd, gen)
+	checkBinary(t, tier, p("SatSub"), got.SatSub, want.SatSub, gen)
+}
+
+// checkIntegerOps runs checkOps over the six element types that were added
+// after the original four, so that they are exercised by exactly the same
+// battery rather than by a reduced one of their own.
+func checkIntegerOps(t *testing.T, tier string, got, want kernel.Set) {
+	t.Helper()
+	checkOps(t, tier, "I8", got.I8, want.I8, genInt[int8])
+	checkOps(t, tier, "I16", got.I16, want.I16, genInt[int16])
+	checkOps(t, tier, "U8", got.U8, want.U8, genInt[uint8])
+	checkOps(t, tier, "U16", got.U16, want.U16, genInt[uint16])
+	checkOps(t, tier, "U32", got.U32, want.U32, genInt[uint32])
+	checkOps(t, tier, "U64", got.U64, want.U64, genInt[uint64])
 }
 
 // TestEveryTierMatchesTheReference is the headline check: every kernel of
@@ -413,6 +452,7 @@ func TestEveryTierMatchesTheReference(t *testing.T) {
 			checkOps(t, tier, "F64", got.F64, want.F64, genF64)
 			checkOps(t, tier, "I32", got.I32, want.I32, genI32)
 			checkOps(t, tier, "I64", got.I64, want.I64, genI64)
+			checkIntegerOps(t, tier, got, want)
 		})
 	}
 }
@@ -437,6 +477,7 @@ func TestTiersAgreeWithEachOther(t *testing.T) {
 			checkOps(t, n, "F64", all[n].F64, first.F64, genF64)
 			checkOps(t, n, "I32", all[n].I32, first.I32, genI32)
 			checkOps(t, n, "I64", all[n].I64, first.I64, genI64)
+			checkIntegerOps(t, n, all[n], first)
 		})
 	}
 }

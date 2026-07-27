@@ -22,16 +22,7 @@ func caddComplex64LASX(dst []complex64, a []complex64, b []complex64)
 func csubComplex64LASX(dst []complex64, a []complex64, b []complex64)
 
 //go:noescape
-func cmulComplex64LASX(dst []complex64, a []complex64, b []complex64)
-
-//go:noescape
-func cdivComplex64LASX(dst []complex64, a []complex64, b []complex64)
-
-//go:noescape
 func cnegComplex64LASX(dst []complex64, a []complex64)
-
-//go:noescape
-func cabsComplex64LASX(dst []float32, a []complex64)
 
 //go:noescape
 func crealComplex64LASX(dst []float32, a []complex64)
@@ -43,19 +34,10 @@ func cimagComplex64LASX(dst []float32, a []complex64)
 func cscaleComplex64LASX(dst []complex64, a []complex64, s float32)
 
 //go:noescape
-func cfromPartsComplex64LASX(dst []complex64, re []float32, im []float32)
-
-//go:noescape
 func caddComplex128LASX(dst []complex128, a []complex128, b []complex128)
 
 //go:noescape
 func csubComplex128LASX(dst []complex128, a []complex128, b []complex128)
-
-//go:noescape
-func cmulComplex128LASX(dst []complex128, a []complex128, b []complex128)
-
-//go:noescape
-func cdivComplex128LASX(dst []complex128, a []complex128, b []complex128)
 
 //go:noescape
 func cnegComplex128LASX(dst []complex128, a []complex128)

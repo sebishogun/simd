@@ -22,9 +22,6 @@ func expFloat64LASX(dst []float64, a []float64)
 func exp2Float64LASX(dst []float64, a []float64)
 
 //go:noescape
-func expm1Float64LASX(dst []float64, a []float64)
-
-//go:noescape
 func logFloat64LASX(dst []float64, a []float64)
 
 //go:noescape
@@ -61,13 +58,4 @@ func acosFloat64LASX(dst []float64, a []float64)
 func atanFloat64LASX(dst []float64, a []float64)
 
 //go:noescape
-func sinhFloat64LASX(dst []float64, a []float64)
-
-//go:noescape
 func coshFloat64LASX(dst []float64, a []float64)
-
-//go:noescape
-func tanhFloat64LASX(dst []float64, a []float64)
-
-//go:noescape
-func powFloat64LASX(dst []float64, a []float64, b []float64)

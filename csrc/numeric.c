@@ -173,6 +173,36 @@ void simd_tile_i64(long long *__restrict d, const long long *__restrict s,
   TILE(long long)
 }
 
+void simd_tile_i8(signed char *__restrict d, const signed char *__restrict s, isize nd,
+                   isize np) {
+  TILE(signed char)
+}
+
+void simd_tile_i16(short *__restrict d, const short *__restrict s, isize nd,
+                   isize np) {
+  TILE(short)
+}
+
+void simd_tile_u8(unsigned char *__restrict d, const unsigned char *__restrict s, isize nd,
+                   isize np) {
+  TILE(unsigned char)
+}
+
+void simd_tile_u16(unsigned short *__restrict d, const unsigned short *__restrict s, isize nd,
+                   isize np) {
+  TILE(unsigned short)
+}
+
+void simd_tile_u32(unsigned int *__restrict d, const unsigned int *__restrict s, isize nd,
+                   isize np) {
+  TILE(unsigned int)
+}
+
+void simd_tile_u64(unsigned long long *__restrict d, const unsigned long long *__restrict s, isize nd,
+                   isize np) {
+  TILE(unsigned long long)
+}
+
 // ---------- gather and scatter ----------
 //
 // An indexed load is a single instruction on AVX2, AVX-512 and SVE2 and a
@@ -209,6 +239,36 @@ void simd_gather_i32(int *__restrict d, const int *__restrict s,
 void simd_gather_i64(long long *__restrict d, const long long *__restrict s,
                      const int *__restrict idx, isize nd, isize ni, isize ns) {
   GATHER(long long)
+}
+
+void simd_gather_i8(signed char *__restrict d, const signed char *__restrict s,
+                     const int *__restrict idx, isize nd, isize ni, isize ns) {
+  GATHER(signed char)
+}
+
+void simd_gather_i16(short *__restrict d, const short *__restrict s,
+                     const int *__restrict idx, isize nd, isize ni, isize ns) {
+  GATHER(short)
+}
+
+void simd_gather_u8(unsigned char *__restrict d, const unsigned char *__restrict s,
+                     const int *__restrict idx, isize nd, isize ni, isize ns) {
+  GATHER(unsigned char)
+}
+
+void simd_gather_u16(unsigned short *__restrict d, const unsigned short *__restrict s,
+                     const int *__restrict idx, isize nd, isize ni, isize ns) {
+  GATHER(unsigned short)
+}
+
+void simd_gather_u32(unsigned int *__restrict d, const unsigned int *__restrict s,
+                     const int *__restrict idx, isize nd, isize ni, isize ns) {
+  GATHER(unsigned int)
+}
+
+void simd_gather_u64(unsigned long long *__restrict d, const unsigned long long *__restrict s,
+                     const int *__restrict idx, isize nd, isize ni, isize ns) {
+  GATHER(unsigned long long)
 }
 
 // ---------- scatter ----------
@@ -248,6 +308,36 @@ void simd_scatter_i64(long long *__restrict d, const int *__restrict idx,
                       const long long *__restrict s, isize nd, isize ni,
                       isize ns) {
   SCATTER(long long)
+}
+
+void simd_scatter_i8(signed char *__restrict d, const int *__restrict idx,
+                      const signed char *__restrict s, isize nd, isize ni, isize ns) {
+  SCATTER(signed char)
+}
+
+void simd_scatter_i16(short *__restrict d, const int *__restrict idx,
+                      const short *__restrict s, isize nd, isize ni, isize ns) {
+  SCATTER(short)
+}
+
+void simd_scatter_u8(unsigned char *__restrict d, const int *__restrict idx,
+                      const unsigned char *__restrict s, isize nd, isize ni, isize ns) {
+  SCATTER(unsigned char)
+}
+
+void simd_scatter_u16(unsigned short *__restrict d, const int *__restrict idx,
+                      const unsigned short *__restrict s, isize nd, isize ni, isize ns) {
+  SCATTER(unsigned short)
+}
+
+void simd_scatter_u32(unsigned int *__restrict d, const int *__restrict idx,
+                      const unsigned int *__restrict s, isize nd, isize ni, isize ns) {
+  SCATTER(unsigned int)
+}
+
+void simd_scatter_u64(unsigned long long *__restrict d, const int *__restrict idx,
+                      const unsigned long long *__restrict s, isize nd, isize ni, isize ns) {
+  SCATTER(unsigned long long)
 }
 
 // ---------- moving average ----------

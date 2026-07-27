@@ -484,6 +484,648 @@ func fillInt64VSXGuarded(dst []int64, v int64) {
 	fillInt64VSX(dst, v)
 }
 
+func addInt8VSXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt8VSX(dst[:n:n], a, b)
+}
+
+func subInt8VSXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt8VSX(dst[:n:n], a, b)
+}
+
+func minimumInt8VSXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt8VSX(dst[:n:n], a, b)
+}
+
+func maximumInt8VSXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt8VSX(dst[:n:n], a, b)
+}
+
+func absInt8VSXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt8VSX(dst[:n:n], a)
+}
+
+func negInt8VSXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt8VSX(dst[:n:n], a)
+}
+
+func addScalarInt8VSXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt8VSX(dst[:n:n], a, s)
+}
+
+func subScalarInt8VSXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt8VSX(dst[:n:n], a, s)
+}
+
+func clampInt8VSXGuarded(dst []int8, a []int8, lo int8, hi int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt8VSX(dst[:n:n], a, lo, hi)
+}
+
+func fillInt8VSXGuarded(dst []int8, v int8) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt8VSX(dst, v)
+}
+
+func addInt16VSXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt16VSX(dst[:n:n], a, b)
+}
+
+func subInt16VSXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt16VSX(dst[:n:n], a, b)
+}
+
+func mulInt16VSXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt16VSX(dst[:n:n], a, b)
+}
+
+func minimumInt16VSXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt16VSX(dst[:n:n], a, b)
+}
+
+func maximumInt16VSXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt16VSX(dst[:n:n], a, b)
+}
+
+func absInt16VSXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt16VSX(dst[:n:n], a)
+}
+
+func negInt16VSXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt16VSX(dst[:n:n], a)
+}
+
+func scaleInt16VSXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt16VSX(dst[:n:n], a, s)
+}
+
+func addScalarInt16VSXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt16VSX(dst[:n:n], a, s)
+}
+
+func subScalarInt16VSXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt16VSX(dst[:n:n], a, s)
+}
+
+func clampInt16VSXGuarded(dst []int16, a []int16, lo int16, hi int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt16VSX(dst[:n:n], a, lo, hi)
+}
+
+func fillInt16VSXGuarded(dst []int16, v int16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt16VSX(dst, v)
+}
+
+func lerpInt16VSXGuarded(dst []int16, a []int16, b []int16, t int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt16VSX(dst[:n:n], a, b, t)
+}
+
+func addScaledInt16VSXGuarded(dst []int16, a []int16, b []int16, s int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt16VSX(dst[:n:n], a, b, s)
+}
+
+func addUint8VSXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint8VSX(dst[:n:n], a, b)
+}
+
+func subUint8VSXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint8VSX(dst[:n:n], a, b)
+}
+
+func minimumUint8VSXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint8VSX(dst[:n:n], a, b)
+}
+
+func maximumUint8VSXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint8VSX(dst[:n:n], a, b)
+}
+
+func absUint8VSXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint8VSX(dst[:n:n], a)
+}
+
+func negUint8VSXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint8VSX(dst[:n:n], a)
+}
+
+func addScalarUint8VSXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint8VSX(dst[:n:n], a, s)
+}
+
+func subScalarUint8VSXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint8VSX(dst[:n:n], a, s)
+}
+
+func clampUint8VSXGuarded(dst []byte, a []byte, lo byte, hi byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint8VSX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint8VSXGuarded(dst []byte, v byte) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint8VSX(dst, v)
+}
+
+func addUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint16VSX(dst[:n:n], a, b)
+}
+
+func subUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint16VSX(dst[:n:n], a, b)
+}
+
+func mulUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint16VSX(dst[:n:n], a, b)
+}
+
+func minimumUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint16VSX(dst[:n:n], a, b)
+}
+
+func maximumUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint16VSX(dst[:n:n], a, b)
+}
+
+func absUint16VSXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint16VSX(dst[:n:n], a)
+}
+
+func negUint16VSXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint16VSX(dst[:n:n], a)
+}
+
+func scaleUint16VSXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint16VSX(dst[:n:n], a, s)
+}
+
+func addScalarUint16VSXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint16VSX(dst[:n:n], a, s)
+}
+
+func subScalarUint16VSXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint16VSX(dst[:n:n], a, s)
+}
+
+func clampUint16VSXGuarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint16VSX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint16VSXGuarded(dst []uint16, v uint16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint16VSX(dst, v)
+}
+
+func lerpUint16VSXGuarded(dst []uint16, a []uint16, b []uint16, t uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint16VSX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint16VSXGuarded(dst []uint16, a []uint16, b []uint16, s uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint16VSX(dst[:n:n], a, b, s)
+}
+
+func addUint32VSXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint32VSX(dst[:n:n], a, b)
+}
+
+func subUint32VSXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint32VSX(dst[:n:n], a, b)
+}
+
+func mulUint32VSXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint32VSX(dst[:n:n], a, b)
+}
+
+func minimumUint32VSXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint32VSX(dst[:n:n], a, b)
+}
+
+func maximumUint32VSXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint32VSX(dst[:n:n], a, b)
+}
+
+func absUint32VSXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint32VSX(dst[:n:n], a)
+}
+
+func negUint32VSXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint32VSX(dst[:n:n], a)
+}
+
+func scaleUint32VSXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint32VSX(dst[:n:n], a, s)
+}
+
+func addScalarUint32VSXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint32VSX(dst[:n:n], a, s)
+}
+
+func subScalarUint32VSXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint32VSX(dst[:n:n], a, s)
+}
+
+func clampUint32VSXGuarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint32VSX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint32VSXGuarded(dst []uint32, v uint32) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint32VSX(dst, v)
+}
+
+func lerpUint32VSXGuarded(dst []uint32, a []uint32, b []uint32, t uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint32VSX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint32VSXGuarded(dst []uint32, a []uint32, b []uint32, s uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint32VSX(dst[:n:n], a, b, s)
+}
+
+func addUint64VSXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint64VSX(dst[:n:n], a, b)
+}
+
+func subUint64VSXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint64VSX(dst[:n:n], a, b)
+}
+
+func minimumUint64VSXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint64VSX(dst[:n:n], a, b)
+}
+
+func maximumUint64VSXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint64VSX(dst[:n:n], a, b)
+}
+
+func absUint64VSXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint64VSX(dst[:n:n], a)
+}
+
+func negUint64VSXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint64VSX(dst[:n:n], a)
+}
+
+func addScalarUint64VSXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint64VSX(dst[:n:n], a, s)
+}
+
+func subScalarUint64VSXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint64VSX(dst[:n:n], a, s)
+}
+
+func clampUint64VSXGuarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint64VSX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint64VSXGuarded(dst []uint64, v uint64) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint64VSX(dst, v)
+}
+
 func divFloat32VSXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -610,6 +1252,114 @@ func roundFloat64VSXGuarded(dst []float64, a []float64) {
 	roundFloat64VSX(dst[:n:n], a)
 }
 
+func satAddInt32VSXGuarded(dst []int32, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt32VSX(dst[:n:n], a, b)
+}
+
+func satSubInt32VSXGuarded(dst []int32, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt32VSX(dst[:n:n], a, b)
+}
+
+func satAddInt8VSXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt8VSX(dst[:n:n], a, b)
+}
+
+func satSubInt8VSXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt8VSX(dst[:n:n], a, b)
+}
+
+func satAddInt16VSXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt16VSX(dst[:n:n], a, b)
+}
+
+func satSubInt16VSXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt16VSX(dst[:n:n], a, b)
+}
+
+func satAddUint8VSXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint8VSX(dst[:n:n], a, b)
+}
+
+func satSubUint8VSXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint8VSX(dst[:n:n], a, b)
+}
+
+func satAddUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint16VSX(dst[:n:n], a, b)
+}
+
+func satSubUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint16VSX(dst[:n:n], a, b)
+}
+
+func satAddUint32VSXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint32VSX(dst[:n:n], a, b)
+}
+
+func satSubUint32VSXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint32VSX(dst[:n:n], a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -666,6 +1416,78 @@ func init() {
 	s.I64.SubScalar = subScalarInt64VSXGuarded
 	s.I64.Clamp = clampInt64VSXGuarded
 	s.I64.Fill = fillInt64VSXGuarded
+	s.I8.Add = addInt8VSXGuarded
+	s.I8.Sub = subInt8VSXGuarded
+	s.I8.Minimum = minimumInt8VSXGuarded
+	s.I8.Maximum = maximumInt8VSXGuarded
+	s.I8.Abs = absInt8VSXGuarded
+	s.I8.Neg = negInt8VSXGuarded
+	s.I8.AddScalar = addScalarInt8VSXGuarded
+	s.I8.SubScalar = subScalarInt8VSXGuarded
+	s.I8.Clamp = clampInt8VSXGuarded
+	s.I8.Fill = fillInt8VSXGuarded
+	s.I16.Add = addInt16VSXGuarded
+	s.I16.Sub = subInt16VSXGuarded
+	s.I16.Mul = mulInt16VSXGuarded
+	s.I16.Minimum = minimumInt16VSXGuarded
+	s.I16.Maximum = maximumInt16VSXGuarded
+	s.I16.Abs = absInt16VSXGuarded
+	s.I16.Neg = negInt16VSXGuarded
+	s.I16.Scale = scaleInt16VSXGuarded
+	s.I16.AddScalar = addScalarInt16VSXGuarded
+	s.I16.SubScalar = subScalarInt16VSXGuarded
+	s.I16.Clamp = clampInt16VSXGuarded
+	s.I16.Fill = fillInt16VSXGuarded
+	s.I16.Lerp = lerpInt16VSXGuarded
+	s.I16.AddScaled = addScaledInt16VSXGuarded
+	s.U8.Add = addUint8VSXGuarded
+	s.U8.Sub = subUint8VSXGuarded
+	s.U8.Minimum = minimumUint8VSXGuarded
+	s.U8.Maximum = maximumUint8VSXGuarded
+	s.U8.Abs = absUint8VSXGuarded
+	s.U8.Neg = negUint8VSXGuarded
+	s.U8.AddScalar = addScalarUint8VSXGuarded
+	s.U8.SubScalar = subScalarUint8VSXGuarded
+	s.U8.Clamp = clampUint8VSXGuarded
+	s.U8.Fill = fillUint8VSXGuarded
+	s.U16.Add = addUint16VSXGuarded
+	s.U16.Sub = subUint16VSXGuarded
+	s.U16.Mul = mulUint16VSXGuarded
+	s.U16.Minimum = minimumUint16VSXGuarded
+	s.U16.Maximum = maximumUint16VSXGuarded
+	s.U16.Abs = absUint16VSXGuarded
+	s.U16.Neg = negUint16VSXGuarded
+	s.U16.Scale = scaleUint16VSXGuarded
+	s.U16.AddScalar = addScalarUint16VSXGuarded
+	s.U16.SubScalar = subScalarUint16VSXGuarded
+	s.U16.Clamp = clampUint16VSXGuarded
+	s.U16.Fill = fillUint16VSXGuarded
+	s.U16.Lerp = lerpUint16VSXGuarded
+	s.U16.AddScaled = addScaledUint16VSXGuarded
+	s.U32.Add = addUint32VSXGuarded
+	s.U32.Sub = subUint32VSXGuarded
+	s.U32.Mul = mulUint32VSXGuarded
+	s.U32.Minimum = minimumUint32VSXGuarded
+	s.U32.Maximum = maximumUint32VSXGuarded
+	s.U32.Abs = absUint32VSXGuarded
+	s.U32.Neg = negUint32VSXGuarded
+	s.U32.Scale = scaleUint32VSXGuarded
+	s.U32.AddScalar = addScalarUint32VSXGuarded
+	s.U32.SubScalar = subScalarUint32VSXGuarded
+	s.U32.Clamp = clampUint32VSXGuarded
+	s.U32.Fill = fillUint32VSXGuarded
+	s.U32.Lerp = lerpUint32VSXGuarded
+	s.U32.AddScaled = addScaledUint32VSXGuarded
+	s.U64.Add = addUint64VSXGuarded
+	s.U64.Sub = subUint64VSXGuarded
+	s.U64.Minimum = minimumUint64VSXGuarded
+	s.U64.Maximum = maximumUint64VSXGuarded
+	s.U64.Abs = absUint64VSXGuarded
+	s.U64.Neg = negUint64VSXGuarded
+	s.U64.AddScalar = addScalarUint64VSXGuarded
+	s.U64.SubScalar = subScalarUint64VSXGuarded
+	s.U64.Clamp = clampUint64VSXGuarded
+	s.U64.Fill = fillUint64VSXGuarded
 	s.F32.Div = divFloat32VSXGuarded
 	s.F32.DivScalar = divScalarFloat32VSXGuarded
 	s.F32.Sqrt = sqrtFloat32VSXGuarded
@@ -680,4 +1502,16 @@ func init() {
 	s.F64.Ceil = ceilFloat64VSXGuarded
 	s.F64.Trunc = truncFloat64VSXGuarded
 	s.F64.Round = roundFloat64VSXGuarded
+	s.I32.SatAdd = satAddInt32VSXGuarded
+	s.I32.SatSub = satSubInt32VSXGuarded
+	s.I8.SatAdd = satAddInt8VSXGuarded
+	s.I8.SatSub = satSubInt8VSXGuarded
+	s.I16.SatAdd = satAddInt16VSXGuarded
+	s.I16.SatSub = satSubInt16VSXGuarded
+	s.U8.SatAdd = satAddUint8VSXGuarded
+	s.U8.SatSub = satSubUint8VSXGuarded
+	s.U16.SatAdd = satAddUint16VSXGuarded
+	s.U16.SatSub = satSubUint16VSXGuarded
+	s.U32.SatAdd = satAddUint32VSXGuarded
+	s.U32.SatSub = satSubUint32VSXGuarded
 }

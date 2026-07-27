@@ -54,8 +54,40 @@ func slicesFrom(b []byte) (f32 []float32, f64 []float64, i32 []int32, i64 []int6
 	return
 }
 
+// narrowFrom reinterprets the fuzzer's bytes as the six element types added
+// after the original four.
+//
+// Reinterpreting rather than generating is the whole point: whatever the
+// fuzzer produced is a bit pattern, and for the integer types every bit
+// pattern is a legal value, so nothing is wasted and the extremes of each
+// range come up as often as the fuzzer decides to emit 0x7f or 0x80.
+func narrowFrom(b []byte) (i8 []int8, u8 []uint8, i16 []int16, u16 []uint16,
+	u32 []uint32, u64 []uint64) {
+
+	i8 = make([]int8, len(b))
+	u8 = make([]uint8, len(b))
+	for i, v := range b {
+		i8[i], u8[i] = int8(v), v
+	}
+	n2, n4, n8 := len(b)/2, len(b)/4, len(b)/8
+	i16, u16 = make([]int16, n2), make([]uint16, n2)
+	for i := range i16 {
+		v := binary.LittleEndian.Uint16(b[i*2:])
+		i16[i], u16[i] = int16(v), v
+	}
+	u32 = make([]uint32, n4)
+	for i := range u32 {
+		u32[i] = binary.LittleEndian.Uint32(b[i*4:])
+	}
+	u64 = make([]uint64, n8)
+	for i := range u64 {
+		u64[i] = binary.LittleEndian.Uint64(b[i*8:])
+	}
+	return
+}
+
 // fuzzOps runs every elementwise and reduction kernel of one group against the
-// reference. It is generic so the same body covers all four element types.
+// reference. It is generic so the same body covers every element type.
 func fuzzOps[T comparable](t *testing.T, tier, name string,
 	got, want kernel.Ops[T], a, b []T) {
 
@@ -71,6 +103,8 @@ func fuzzOps[T comparable](t *testing.T, tier, name string,
 		{"Mul", got.Mul, want.Mul},
 		{"Minimum", got.Minimum, want.Minimum},
 		{"Maximum", got.Maximum, want.Maximum},
+		{"SatAdd", got.SatAdd, want.SatAdd},
+		{"SatSub", got.SatSub, want.SatSub},
 	}
 	for _, c := range binaryOps {
 		if c.got == nil || c.want == nil {
@@ -207,6 +241,15 @@ func FuzzKernelsAgainstReference(f *testing.F) {
 			fuzzOps(t, tier, "F64", got.F64, want.F64, a64, b64)
 			fuzzOps(t, tier, "I32", got.I32, want.I32, ai32, bi32)
 			fuzzOps(t, tier, "I64", got.I64, want.I64, ai64, bi64)
+
+			aI8, aU8, aI16, aU16, aU32, aU64 := narrowFrom(ab[:n])
+			bI8, bU8, bI16, bU16, bU32, bU64 := narrowFrom(bb[:n])
+			fuzzOps(t, tier, "I8", got.I8, want.I8, aI8, bI8)
+			fuzzOps(t, tier, "U8", got.U8, want.U8, aU8, bU8)
+			fuzzOps(t, tier, "I16", got.I16, want.I16, aI16, bI16)
+			fuzzOps(t, tier, "U16", got.U16, want.U16, aU16, bU16)
+			fuzzOps(t, tier, "U32", got.U32, want.U32, aU32, bU32)
+			fuzzOps(t, tier, "U64", got.U64, want.U64, aU64, bU64)
 
 			fuzzBytes(t, tier, got.Bytes, want.Bytes, ab[:n], bb[:n])
 		}

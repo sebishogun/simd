@@ -38,9 +38,3 @@ func convolveFloat64LASX(dst []float64, sig []float64, ker []float64)
 
 //go:noescape
 func correlateFloat64LASX(dst []float64, sig []float64, ker []float64)
-
-//go:noescape
-func matMulFloat32LASX(dst []float32, a []float32, b []float32, m int, k int, n int)
-
-//go:noescape
-func matMulFloat64LASX(dst []float64, a []float64, b []float64, m int, k int, n int)

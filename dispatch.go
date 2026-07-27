@@ -22,15 +22,24 @@ var active kernel.Set
 var (
 	opsF32 *kernel.Ops[float32]
 	opsF64 *kernel.Ops[float64]
+	opsI8  *kernel.Ops[int8]
+	opsI16 *kernel.Ops[int16]
 	opsI32 *kernel.Ops[int32]
 	opsI64 *kernel.Ops[int64]
+	opsU8  *kernel.Ops[uint8]
+	opsU16 *kernel.Ops[uint16]
+	opsU32 *kernel.Ops[uint32]
+	opsU64 *kernel.Ops[uint64]
 )
 
 func init() {
 	active = backendFor(cpu.Detail())
 	cpu.SetBackendTier(active.Name)
 	opsF32, opsF64 = &active.F32, &active.F64
+	opsI8, opsI16 = &active.I8, &active.I16
 	opsI32, opsI64 = &active.I32, &active.I64
+	opsU8, opsU16 = &active.U8, &active.U16
+	opsU32, opsU64 = &active.U32, &active.U64
 }
 
 // ops returns the kernel group for element type T.
@@ -51,6 +60,18 @@ func ops[T Number]() *kernel.Ops[T] {
 		return any(opsI32).(*kernel.Ops[T])
 	case int64:
 		return any(opsI64).(*kernel.Ops[T])
+	case int8:
+		return any(opsI8).(*kernel.Ops[T])
+	case int16:
+		return any(opsI16).(*kernel.Ops[T])
+	case uint8:
+		return any(opsU8).(*kernel.Ops[T])
+	case uint16:
+		return any(opsU16).(*kernel.Ops[T])
+	case uint32:
+		return any(opsU32).(*kernel.Ops[T])
+	case uint64:
+		return any(opsU64).(*kernel.Ops[T])
 	}
 	panic("simd: unsupported element type")
 }

@@ -184,6 +184,258 @@ func lerpInt64AVX2(dst []int64, a []int64, b []int64, t int64)
 func addScaledInt64AVX2(dst []int64, a []int64, b []int64, s int64)
 
 //go:noescape
+func addInt8AVX2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func subInt8AVX2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func mulInt8AVX2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func minimumInt8AVX2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func maximumInt8AVX2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func absInt8AVX2(dst []int8, a []int8)
+
+//go:noescape
+func negInt8AVX2(dst []int8, a []int8)
+
+//go:noescape
+func scaleInt8AVX2(dst []int8, a []int8, s int8)
+
+//go:noescape
+func addScalarInt8AVX2(dst []int8, a []int8, s int8)
+
+//go:noescape
+func subScalarInt8AVX2(dst []int8, a []int8, s int8)
+
+//go:noescape
+func clampInt8AVX2(dst []int8, a []int8, lo int8, hi int8)
+
+//go:noescape
+func fillInt8AVX2(dst []int8, v int8)
+
+//go:noescape
+func lerpInt8AVX2(dst []int8, a []int8, b []int8, t int8)
+
+//go:noescape
+func addScaledInt8AVX2(dst []int8, a []int8, b []int8, s int8)
+
+//go:noescape
+func addInt16AVX2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func subInt16AVX2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func mulInt16AVX2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func minimumInt16AVX2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func maximumInt16AVX2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func absInt16AVX2(dst []int16, a []int16)
+
+//go:noescape
+func negInt16AVX2(dst []int16, a []int16)
+
+//go:noescape
+func scaleInt16AVX2(dst []int16, a []int16, s int16)
+
+//go:noescape
+func addScalarInt16AVX2(dst []int16, a []int16, s int16)
+
+//go:noescape
+func subScalarInt16AVX2(dst []int16, a []int16, s int16)
+
+//go:noescape
+func clampInt16AVX2(dst []int16, a []int16, lo int16, hi int16)
+
+//go:noescape
+func fillInt16AVX2(dst []int16, v int16)
+
+//go:noescape
+func lerpInt16AVX2(dst []int16, a []int16, b []int16, t int16)
+
+//go:noescape
+func addScaledInt16AVX2(dst []int16, a []int16, b []int16, s int16)
+
+//go:noescape
+func addUint8AVX2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func subUint8AVX2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func mulUint8AVX2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func minimumUint8AVX2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func maximumUint8AVX2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func absUint8AVX2(dst []byte, a []byte)
+
+//go:noescape
+func negUint8AVX2(dst []byte, a []byte)
+
+//go:noescape
+func scaleUint8AVX2(dst []byte, a []byte, s byte)
+
+//go:noescape
+func addScalarUint8AVX2(dst []byte, a []byte, s byte)
+
+//go:noescape
+func subScalarUint8AVX2(dst []byte, a []byte, s byte)
+
+//go:noescape
+func clampUint8AVX2(dst []byte, a []byte, lo byte, hi byte)
+
+//go:noescape
+func fillUint8AVX2(dst []byte, v byte)
+
+//go:noescape
+func lerpUint8AVX2(dst []byte, a []byte, b []byte, t byte)
+
+//go:noescape
+func addScaledUint8AVX2(dst []byte, a []byte, b []byte, s byte)
+
+//go:noescape
+func addUint16AVX2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func subUint16AVX2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func mulUint16AVX2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func minimumUint16AVX2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func maximumUint16AVX2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func absUint16AVX2(dst []uint16, a []uint16)
+
+//go:noescape
+func negUint16AVX2(dst []uint16, a []uint16)
+
+//go:noescape
+func scaleUint16AVX2(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func addScalarUint16AVX2(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func subScalarUint16AVX2(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func clampUint16AVX2(dst []uint16, a []uint16, lo uint16, hi uint16)
+
+//go:noescape
+func fillUint16AVX2(dst []uint16, v uint16)
+
+//go:noescape
+func lerpUint16AVX2(dst []uint16, a []uint16, b []uint16, t uint16)
+
+//go:noescape
+func addScaledUint16AVX2(dst []uint16, a []uint16, b []uint16, s uint16)
+
+//go:noescape
+func addUint32AVX2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func subUint32AVX2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func mulUint32AVX2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func minimumUint32AVX2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func maximumUint32AVX2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func absUint32AVX2(dst []uint32, a []uint32)
+
+//go:noescape
+func negUint32AVX2(dst []uint32, a []uint32)
+
+//go:noescape
+func scaleUint32AVX2(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func addScalarUint32AVX2(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func subScalarUint32AVX2(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func clampUint32AVX2(dst []uint32, a []uint32, lo uint32, hi uint32)
+
+//go:noescape
+func fillUint32AVX2(dst []uint32, v uint32)
+
+//go:noescape
+func lerpUint32AVX2(dst []uint32, a []uint32, b []uint32, t uint32)
+
+//go:noescape
+func addScaledUint32AVX2(dst []uint32, a []uint32, b []uint32, s uint32)
+
+//go:noescape
+func addUint64AVX2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func subUint64AVX2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func mulUint64AVX2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func minimumUint64AVX2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func maximumUint64AVX2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func absUint64AVX2(dst []uint64, a []uint64)
+
+//go:noescape
+func negUint64AVX2(dst []uint64, a []uint64)
+
+//go:noescape
+func scaleUint64AVX2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func addScalarUint64AVX2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func subScalarUint64AVX2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func clampUint64AVX2(dst []uint64, a []uint64, lo uint64, hi uint64)
+
+//go:noescape
+func fillUint64AVX2(dst []uint64, v uint64)
+
+//go:noescape
+func lerpUint64AVX2(dst []uint64, a []uint64, b []uint64, t uint64)
+
+//go:noescape
+func addScaledUint64AVX2(dst []uint64, a []uint64, b []uint64, s uint64)
+
+//go:noescape
 func divFloat32AVX2(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -236,3 +488,39 @@ func roundFloat64AVX2(dst []float64, a []float64)
 
 //go:noescape
 func roundToEvenFloat64AVX2(dst []float64, a []float64)
+
+//go:noescape
+func satAddInt32AVX2(dst []int32, a []int32, b []int32)
+
+//go:noescape
+func satSubInt32AVX2(dst []int32, a []int32, b []int32)
+
+//go:noescape
+func satAddInt8AVX2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func satSubInt8AVX2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func satAddInt16AVX2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func satSubInt16AVX2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func satAddUint8AVX2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func satSubUint8AVX2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func satAddUint16AVX2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func satSubUint16AVX2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func satAddUint32AVX2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func satSubUint32AVX2(dst []uint32, a []uint32, b []uint32)

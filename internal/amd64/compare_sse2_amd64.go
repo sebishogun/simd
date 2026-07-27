@@ -163,6 +163,207 @@ func geInt64MaskSSE2(dst []bool, a []int64, b []int64)
 func selectInt64SSE2(dst []int64, mask []bool, yes []int64, no []int64)
 
 //go:noescape
+func eqInt8MaskSSE2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func eqScalarInt8MaskSSE2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func neInt8MaskSSE2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func neScalarInt8MaskSSE2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func ltInt8MaskSSE2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func ltScalarInt8MaskSSE2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func leInt8MaskSSE2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func leScalarInt8MaskSSE2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func gtInt8MaskSSE2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func gtScalarInt8MaskSSE2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func geInt8MaskSSE2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func geScalarInt8MaskSSE2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func eqInt16MaskSSE2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func eqScalarInt16MaskSSE2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func neInt16MaskSSE2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func neScalarInt16MaskSSE2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func ltInt16MaskSSE2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func ltScalarInt16MaskSSE2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func leInt16MaskSSE2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func leScalarInt16MaskSSE2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func gtInt16MaskSSE2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func gtScalarInt16MaskSSE2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func geInt16MaskSSE2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func geScalarInt16MaskSSE2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func selectInt16SSE2(dst []int16, mask []bool, yes []int16, no []int16)
+
+//go:noescape
+func eqUint8MaskSSE2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func eqScalarUint8MaskSSE2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func neUint8MaskSSE2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func neScalarUint8MaskSSE2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func ltUint8MaskSSE2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func ltScalarUint8MaskSSE2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func leUint8MaskSSE2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func leScalarUint8MaskSSE2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func gtUint8MaskSSE2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func gtScalarUint8MaskSSE2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func geUint8MaskSSE2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func geScalarUint8MaskSSE2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func eqUint16MaskSSE2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func eqScalarUint16MaskSSE2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func neUint16MaskSSE2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func neScalarUint16MaskSSE2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func ltUint16MaskSSE2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func ltScalarUint16MaskSSE2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func leUint16MaskSSE2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func leScalarUint16MaskSSE2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func gtUint16MaskSSE2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func gtScalarUint16MaskSSE2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func geUint16MaskSSE2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func geScalarUint16MaskSSE2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func selectUint16SSE2(dst []uint16, mask []bool, yes []uint16, no []uint16)
+
+//go:noescape
+func eqUint32MaskSSE2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func eqScalarUint32MaskSSE2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func neUint32MaskSSE2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func neScalarUint32MaskSSE2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func ltUint32MaskSSE2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func ltScalarUint32MaskSSE2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func leUint32MaskSSE2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func leScalarUint32MaskSSE2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func gtUint32MaskSSE2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func gtScalarUint32MaskSSE2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func geUint32MaskSSE2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func geScalarUint32MaskSSE2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func selectUint32SSE2(dst []uint32, mask []bool, yes []uint32, no []uint32)
+
+//go:noescape
+func eqUint64MaskSSE2(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func eqScalarUint64MaskSSE2(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func neUint64MaskSSE2(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func selectUint64SSE2(dst []uint64, mask []bool, yes []uint64, no []uint64)
+
+//go:noescape
 func maskAllSSE2(m []bool) bool
 
 //go:noescape

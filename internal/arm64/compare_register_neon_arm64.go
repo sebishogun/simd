@@ -488,6 +488,708 @@ func selectInt64NEONGuarded(dst []int64, mask []bool, yes []int64, no []int64) {
 	selectInt64NEON(dst[:n:n], mask, yes, no)
 }
 
+func eqInt8MaskNEONGuarded(dst []bool, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.EqualMask(dst, a, b)
+		return
+	}
+	eqInt8MaskNEON(dst[:n:n], a, b)
+}
+
+func eqScalarInt8MaskNEONGuarded(dst []bool, a []int8, v int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.EqualScalarMask(dst, a, v)
+		return
+	}
+	eqScalarInt8MaskNEON(dst[:n:n], a, v)
+}
+
+func neInt8MaskNEONGuarded(dst []bool, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.NotEqualMask(dst, a, b)
+		return
+	}
+	neInt8MaskNEON(dst[:n:n], a, b)
+}
+
+func neScalarInt8MaskNEONGuarded(dst []bool, a []int8, v int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NotEqualScalarMask(dst, a, v)
+		return
+	}
+	neScalarInt8MaskNEON(dst[:n:n], a, v)
+}
+
+func ltInt8MaskNEONGuarded(dst []bool, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessMask(dst, a, b)
+		return
+	}
+	ltInt8MaskNEON(dst[:n:n], a, b)
+}
+
+func ltScalarInt8MaskNEONGuarded(dst []bool, a []int8, v int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarInt8MaskNEON(dst[:n:n], a, v)
+}
+
+func leInt8MaskNEONGuarded(dst []bool, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessEqualMask(dst, a, b)
+		return
+	}
+	leInt8MaskNEON(dst[:n:n], a, b)
+}
+
+func leScalarInt8MaskNEONGuarded(dst []bool, a []int8, v int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarInt8MaskNEON(dst[:n:n], a, v)
+}
+
+func gtInt8MaskNEONGuarded(dst []bool, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterMask(dst, a, b)
+		return
+	}
+	gtInt8MaskNEON(dst[:n:n], a, b)
+}
+
+func gtScalarInt8MaskNEONGuarded(dst []bool, a []int8, v int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarInt8MaskNEON(dst[:n:n], a, v)
+}
+
+func geInt8MaskNEONGuarded(dst []bool, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterEqualMask(dst, a, b)
+		return
+	}
+	geInt8MaskNEON(dst[:n:n], a, b)
+}
+
+func geScalarInt8MaskNEONGuarded(dst []bool, a []int8, v int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarInt8MaskNEON(dst[:n:n], a, v)
+}
+
+func selectInt8NEONGuarded(dst []int8, mask []bool, yes []int8, no []int8) {
+	n := min(len(dst), len(mask), len(yes), len(no))
+	if n < 16 {
+		ref.Select(dst, mask, yes, no)
+		return
+	}
+	selectInt8NEON(dst[:n:n], mask, yes, no)
+}
+
+func eqInt16MaskNEONGuarded(dst []bool, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.EqualMask(dst, a, b)
+		return
+	}
+	eqInt16MaskNEON(dst[:n:n], a, b)
+}
+
+func eqScalarInt16MaskNEONGuarded(dst []bool, a []int16, v int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.EqualScalarMask(dst, a, v)
+		return
+	}
+	eqScalarInt16MaskNEON(dst[:n:n], a, v)
+}
+
+func neInt16MaskNEONGuarded(dst []bool, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.NotEqualMask(dst, a, b)
+		return
+	}
+	neInt16MaskNEON(dst[:n:n], a, b)
+}
+
+func neScalarInt16MaskNEONGuarded(dst []bool, a []int16, v int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NotEqualScalarMask(dst, a, v)
+		return
+	}
+	neScalarInt16MaskNEON(dst[:n:n], a, v)
+}
+
+func ltInt16MaskNEONGuarded(dst []bool, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessMask(dst, a, b)
+		return
+	}
+	ltInt16MaskNEON(dst[:n:n], a, b)
+}
+
+func ltScalarInt16MaskNEONGuarded(dst []bool, a []int16, v int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarInt16MaskNEON(dst[:n:n], a, v)
+}
+
+func leInt16MaskNEONGuarded(dst []bool, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessEqualMask(dst, a, b)
+		return
+	}
+	leInt16MaskNEON(dst[:n:n], a, b)
+}
+
+func leScalarInt16MaskNEONGuarded(dst []bool, a []int16, v int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarInt16MaskNEON(dst[:n:n], a, v)
+}
+
+func gtInt16MaskNEONGuarded(dst []bool, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterMask(dst, a, b)
+		return
+	}
+	gtInt16MaskNEON(dst[:n:n], a, b)
+}
+
+func gtScalarInt16MaskNEONGuarded(dst []bool, a []int16, v int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarInt16MaskNEON(dst[:n:n], a, v)
+}
+
+func geInt16MaskNEONGuarded(dst []bool, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterEqualMask(dst, a, b)
+		return
+	}
+	geInt16MaskNEON(dst[:n:n], a, b)
+}
+
+func geScalarInt16MaskNEONGuarded(dst []bool, a []int16, v int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarInt16MaskNEON(dst[:n:n], a, v)
+}
+
+func selectInt16NEONGuarded(dst []int16, mask []bool, yes []int16, no []int16) {
+	n := min(len(dst), len(mask), len(yes), len(no))
+	if n < 16 {
+		ref.Select(dst, mask, yes, no)
+		return
+	}
+	selectInt16NEON(dst[:n:n], mask, yes, no)
+}
+
+func eqUint8MaskNEONGuarded(dst []bool, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.EqualMask(dst, a, b)
+		return
+	}
+	eqUint8MaskNEON(dst[:n:n], a, b)
+}
+
+func eqScalarUint8MaskNEONGuarded(dst []bool, a []byte, v byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.EqualScalarMask(dst, a, v)
+		return
+	}
+	eqScalarUint8MaskNEON(dst[:n:n], a, v)
+}
+
+func neUint8MaskNEONGuarded(dst []bool, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.NotEqualMask(dst, a, b)
+		return
+	}
+	neUint8MaskNEON(dst[:n:n], a, b)
+}
+
+func neScalarUint8MaskNEONGuarded(dst []bool, a []byte, v byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NotEqualScalarMask(dst, a, v)
+		return
+	}
+	neScalarUint8MaskNEON(dst[:n:n], a, v)
+}
+
+func ltUint8MaskNEONGuarded(dst []bool, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessMask(dst, a, b)
+		return
+	}
+	ltUint8MaskNEON(dst[:n:n], a, b)
+}
+
+func ltScalarUint8MaskNEONGuarded(dst []bool, a []byte, v byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarUint8MaskNEON(dst[:n:n], a, v)
+}
+
+func leUint8MaskNEONGuarded(dst []bool, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessEqualMask(dst, a, b)
+		return
+	}
+	leUint8MaskNEON(dst[:n:n], a, b)
+}
+
+func leScalarUint8MaskNEONGuarded(dst []bool, a []byte, v byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarUint8MaskNEON(dst[:n:n], a, v)
+}
+
+func gtUint8MaskNEONGuarded(dst []bool, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterMask(dst, a, b)
+		return
+	}
+	gtUint8MaskNEON(dst[:n:n], a, b)
+}
+
+func gtScalarUint8MaskNEONGuarded(dst []bool, a []byte, v byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarUint8MaskNEON(dst[:n:n], a, v)
+}
+
+func geUint8MaskNEONGuarded(dst []bool, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterEqualMask(dst, a, b)
+		return
+	}
+	geUint8MaskNEON(dst[:n:n], a, b)
+}
+
+func geScalarUint8MaskNEONGuarded(dst []bool, a []byte, v byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarUint8MaskNEON(dst[:n:n], a, v)
+}
+
+func selectUint8NEONGuarded(dst []byte, mask []bool, yes []byte, no []byte) {
+	n := min(len(dst), len(mask), len(yes), len(no))
+	if n < 16 {
+		ref.Select(dst, mask, yes, no)
+		return
+	}
+	selectUint8NEON(dst[:n:n], mask, yes, no)
+}
+
+func eqUint16MaskNEONGuarded(dst []bool, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.EqualMask(dst, a, b)
+		return
+	}
+	eqUint16MaskNEON(dst[:n:n], a, b)
+}
+
+func eqScalarUint16MaskNEONGuarded(dst []bool, a []uint16, v uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.EqualScalarMask(dst, a, v)
+		return
+	}
+	eqScalarUint16MaskNEON(dst[:n:n], a, v)
+}
+
+func neUint16MaskNEONGuarded(dst []bool, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.NotEqualMask(dst, a, b)
+		return
+	}
+	neUint16MaskNEON(dst[:n:n], a, b)
+}
+
+func neScalarUint16MaskNEONGuarded(dst []bool, a []uint16, v uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NotEqualScalarMask(dst, a, v)
+		return
+	}
+	neScalarUint16MaskNEON(dst[:n:n], a, v)
+}
+
+func ltUint16MaskNEONGuarded(dst []bool, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessMask(dst, a, b)
+		return
+	}
+	ltUint16MaskNEON(dst[:n:n], a, b)
+}
+
+func ltScalarUint16MaskNEONGuarded(dst []bool, a []uint16, v uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarUint16MaskNEON(dst[:n:n], a, v)
+}
+
+func leUint16MaskNEONGuarded(dst []bool, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessEqualMask(dst, a, b)
+		return
+	}
+	leUint16MaskNEON(dst[:n:n], a, b)
+}
+
+func leScalarUint16MaskNEONGuarded(dst []bool, a []uint16, v uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarUint16MaskNEON(dst[:n:n], a, v)
+}
+
+func gtUint16MaskNEONGuarded(dst []bool, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterMask(dst, a, b)
+		return
+	}
+	gtUint16MaskNEON(dst[:n:n], a, b)
+}
+
+func gtScalarUint16MaskNEONGuarded(dst []bool, a []uint16, v uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarUint16MaskNEON(dst[:n:n], a, v)
+}
+
+func geUint16MaskNEONGuarded(dst []bool, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterEqualMask(dst, a, b)
+		return
+	}
+	geUint16MaskNEON(dst[:n:n], a, b)
+}
+
+func geScalarUint16MaskNEONGuarded(dst []bool, a []uint16, v uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarUint16MaskNEON(dst[:n:n], a, v)
+}
+
+func selectUint16NEONGuarded(dst []uint16, mask []bool, yes []uint16, no []uint16) {
+	n := min(len(dst), len(mask), len(yes), len(no))
+	if n < 16 {
+		ref.Select(dst, mask, yes, no)
+		return
+	}
+	selectUint16NEON(dst[:n:n], mask, yes, no)
+}
+
+func eqUint32MaskNEONGuarded(dst []bool, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.EqualMask(dst, a, b)
+		return
+	}
+	eqUint32MaskNEON(dst[:n:n], a, b)
+}
+
+func eqScalarUint32MaskNEONGuarded(dst []bool, a []uint32, v uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.EqualScalarMask(dst, a, v)
+		return
+	}
+	eqScalarUint32MaskNEON(dst[:n:n], a, v)
+}
+
+func neUint32MaskNEONGuarded(dst []bool, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.NotEqualMask(dst, a, b)
+		return
+	}
+	neUint32MaskNEON(dst[:n:n], a, b)
+}
+
+func neScalarUint32MaskNEONGuarded(dst []bool, a []uint32, v uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NotEqualScalarMask(dst, a, v)
+		return
+	}
+	neScalarUint32MaskNEON(dst[:n:n], a, v)
+}
+
+func ltUint32MaskNEONGuarded(dst []bool, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessMask(dst, a, b)
+		return
+	}
+	ltUint32MaskNEON(dst[:n:n], a, b)
+}
+
+func ltScalarUint32MaskNEONGuarded(dst []bool, a []uint32, v uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarUint32MaskNEON(dst[:n:n], a, v)
+}
+
+func leUint32MaskNEONGuarded(dst []bool, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessEqualMask(dst, a, b)
+		return
+	}
+	leUint32MaskNEON(dst[:n:n], a, b)
+}
+
+func leScalarUint32MaskNEONGuarded(dst []bool, a []uint32, v uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarUint32MaskNEON(dst[:n:n], a, v)
+}
+
+func gtUint32MaskNEONGuarded(dst []bool, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterMask(dst, a, b)
+		return
+	}
+	gtUint32MaskNEON(dst[:n:n], a, b)
+}
+
+func gtScalarUint32MaskNEONGuarded(dst []bool, a []uint32, v uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarUint32MaskNEON(dst[:n:n], a, v)
+}
+
+func geUint32MaskNEONGuarded(dst []bool, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterEqualMask(dst, a, b)
+		return
+	}
+	geUint32MaskNEON(dst[:n:n], a, b)
+}
+
+func geScalarUint32MaskNEONGuarded(dst []bool, a []uint32, v uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarUint32MaskNEON(dst[:n:n], a, v)
+}
+
+func selectUint32NEONGuarded(dst []uint32, mask []bool, yes []uint32, no []uint32) {
+	n := min(len(dst), len(mask), len(yes), len(no))
+	if n < 16 {
+		ref.Select(dst, mask, yes, no)
+		return
+	}
+	selectUint32NEON(dst[:n:n], mask, yes, no)
+}
+
+func eqUint64MaskNEONGuarded(dst []bool, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.EqualMask(dst, a, b)
+		return
+	}
+	eqUint64MaskNEON(dst[:n:n], a, b)
+}
+
+func eqScalarUint64MaskNEONGuarded(dst []bool, a []uint64, v uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.EqualScalarMask(dst, a, v)
+		return
+	}
+	eqScalarUint64MaskNEON(dst[:n:n], a, v)
+}
+
+func neUint64MaskNEONGuarded(dst []bool, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.NotEqualMask(dst, a, b)
+		return
+	}
+	neUint64MaskNEON(dst[:n:n], a, b)
+}
+
+func neScalarUint64MaskNEONGuarded(dst []bool, a []uint64, v uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NotEqualScalarMask(dst, a, v)
+		return
+	}
+	neScalarUint64MaskNEON(dst[:n:n], a, v)
+}
+
+func ltUint64MaskNEONGuarded(dst []bool, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessMask(dst, a, b)
+		return
+	}
+	ltUint64MaskNEON(dst[:n:n], a, b)
+}
+
+func ltScalarUint64MaskNEONGuarded(dst []bool, a []uint64, v uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessScalarMask(dst, a, v)
+		return
+	}
+	ltScalarUint64MaskNEON(dst[:n:n], a, v)
+}
+
+func leUint64MaskNEONGuarded(dst []bool, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.LessEqualMask(dst, a, b)
+		return
+	}
+	leUint64MaskNEON(dst[:n:n], a, b)
+}
+
+func leScalarUint64MaskNEONGuarded(dst []bool, a []uint64, v uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LessEqualScalarMask(dst, a, v)
+		return
+	}
+	leScalarUint64MaskNEON(dst[:n:n], a, v)
+}
+
+func gtUint64MaskNEONGuarded(dst []bool, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterMask(dst, a, b)
+		return
+	}
+	gtUint64MaskNEON(dst[:n:n], a, b)
+}
+
+func gtScalarUint64MaskNEONGuarded(dst []bool, a []uint64, v uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterScalarMask(dst, a, v)
+		return
+	}
+	gtScalarUint64MaskNEON(dst[:n:n], a, v)
+}
+
+func geUint64MaskNEONGuarded(dst []bool, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.GreaterEqualMask(dst, a, b)
+		return
+	}
+	geUint64MaskNEON(dst[:n:n], a, b)
+}
+
+func geScalarUint64MaskNEONGuarded(dst []bool, a []uint64, v uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.GreaterEqualScalarMask(dst, a, v)
+		return
+	}
+	geScalarUint64MaskNEON(dst[:n:n], a, v)
+}
+
+func selectUint64NEONGuarded(dst []uint64, mask []bool, yes []uint64, no []uint64) {
+	n := min(len(dst), len(mask), len(yes), len(no))
+	if n < 16 {
+		ref.Select(dst, mask, yes, no)
+		return
+	}
+	selectUint64NEON(dst[:n:n], mask, yes, no)
+}
+
 func maskAllNEONGuarded(m []bool) bool {
 	if len(m) < 32 {
 		return ref.MaskAll(m)
@@ -601,6 +1303,84 @@ func init() {
 	s.I64.GreaterEqualMask = geInt64MaskNEONGuarded
 	s.I64.GreaterEqualScalarMask = geScalarInt64MaskNEONGuarded
 	s.I64.Select = selectInt64NEONGuarded
+	s.I8.EqualMask = eqInt8MaskNEONGuarded
+	s.I8.EqualScalarMask = eqScalarInt8MaskNEONGuarded
+	s.I8.NotEqualMask = neInt8MaskNEONGuarded
+	s.I8.NotEqualScalarMask = neScalarInt8MaskNEONGuarded
+	s.I8.LessMask = ltInt8MaskNEONGuarded
+	s.I8.LessScalarMask = ltScalarInt8MaskNEONGuarded
+	s.I8.LessEqualMask = leInt8MaskNEONGuarded
+	s.I8.LessEqualScalarMask = leScalarInt8MaskNEONGuarded
+	s.I8.GreaterMask = gtInt8MaskNEONGuarded
+	s.I8.GreaterScalarMask = gtScalarInt8MaskNEONGuarded
+	s.I8.GreaterEqualMask = geInt8MaskNEONGuarded
+	s.I8.GreaterEqualScalarMask = geScalarInt8MaskNEONGuarded
+	s.I8.Select = selectInt8NEONGuarded
+	s.I16.EqualMask = eqInt16MaskNEONGuarded
+	s.I16.EqualScalarMask = eqScalarInt16MaskNEONGuarded
+	s.I16.NotEqualMask = neInt16MaskNEONGuarded
+	s.I16.NotEqualScalarMask = neScalarInt16MaskNEONGuarded
+	s.I16.LessMask = ltInt16MaskNEONGuarded
+	s.I16.LessScalarMask = ltScalarInt16MaskNEONGuarded
+	s.I16.LessEqualMask = leInt16MaskNEONGuarded
+	s.I16.LessEqualScalarMask = leScalarInt16MaskNEONGuarded
+	s.I16.GreaterMask = gtInt16MaskNEONGuarded
+	s.I16.GreaterScalarMask = gtScalarInt16MaskNEONGuarded
+	s.I16.GreaterEqualMask = geInt16MaskNEONGuarded
+	s.I16.GreaterEqualScalarMask = geScalarInt16MaskNEONGuarded
+	s.I16.Select = selectInt16NEONGuarded
+	s.U8.EqualMask = eqUint8MaskNEONGuarded
+	s.U8.EqualScalarMask = eqScalarUint8MaskNEONGuarded
+	s.U8.NotEqualMask = neUint8MaskNEONGuarded
+	s.U8.NotEqualScalarMask = neScalarUint8MaskNEONGuarded
+	s.U8.LessMask = ltUint8MaskNEONGuarded
+	s.U8.LessScalarMask = ltScalarUint8MaskNEONGuarded
+	s.U8.LessEqualMask = leUint8MaskNEONGuarded
+	s.U8.LessEqualScalarMask = leScalarUint8MaskNEONGuarded
+	s.U8.GreaterMask = gtUint8MaskNEONGuarded
+	s.U8.GreaterScalarMask = gtScalarUint8MaskNEONGuarded
+	s.U8.GreaterEqualMask = geUint8MaskNEONGuarded
+	s.U8.GreaterEqualScalarMask = geScalarUint8MaskNEONGuarded
+	s.U8.Select = selectUint8NEONGuarded
+	s.U16.EqualMask = eqUint16MaskNEONGuarded
+	s.U16.EqualScalarMask = eqScalarUint16MaskNEONGuarded
+	s.U16.NotEqualMask = neUint16MaskNEONGuarded
+	s.U16.NotEqualScalarMask = neScalarUint16MaskNEONGuarded
+	s.U16.LessMask = ltUint16MaskNEONGuarded
+	s.U16.LessScalarMask = ltScalarUint16MaskNEONGuarded
+	s.U16.LessEqualMask = leUint16MaskNEONGuarded
+	s.U16.LessEqualScalarMask = leScalarUint16MaskNEONGuarded
+	s.U16.GreaterMask = gtUint16MaskNEONGuarded
+	s.U16.GreaterScalarMask = gtScalarUint16MaskNEONGuarded
+	s.U16.GreaterEqualMask = geUint16MaskNEONGuarded
+	s.U16.GreaterEqualScalarMask = geScalarUint16MaskNEONGuarded
+	s.U16.Select = selectUint16NEONGuarded
+	s.U32.EqualMask = eqUint32MaskNEONGuarded
+	s.U32.EqualScalarMask = eqScalarUint32MaskNEONGuarded
+	s.U32.NotEqualMask = neUint32MaskNEONGuarded
+	s.U32.NotEqualScalarMask = neScalarUint32MaskNEONGuarded
+	s.U32.LessMask = ltUint32MaskNEONGuarded
+	s.U32.LessScalarMask = ltScalarUint32MaskNEONGuarded
+	s.U32.LessEqualMask = leUint32MaskNEONGuarded
+	s.U32.LessEqualScalarMask = leScalarUint32MaskNEONGuarded
+	s.U32.GreaterMask = gtUint32MaskNEONGuarded
+	s.U32.GreaterScalarMask = gtScalarUint32MaskNEONGuarded
+	s.U32.GreaterEqualMask = geUint32MaskNEONGuarded
+	s.U32.GreaterEqualScalarMask = geScalarUint32MaskNEONGuarded
+	s.U32.Select = selectUint32NEONGuarded
+	s.U64.EqualMask = eqUint64MaskNEONGuarded
+	s.U64.EqualScalarMask = eqScalarUint64MaskNEONGuarded
+	s.U64.NotEqualMask = neUint64MaskNEONGuarded
+	s.U64.NotEqualScalarMask = neScalarUint64MaskNEONGuarded
+	s.U64.LessMask = ltUint64MaskNEONGuarded
+	s.U64.LessScalarMask = ltScalarUint64MaskNEONGuarded
+	s.U64.LessEqualMask = leUint64MaskNEONGuarded
+	s.U64.LessEqualScalarMask = leScalarUint64MaskNEONGuarded
+	s.U64.GreaterMask = gtUint64MaskNEONGuarded
+	s.U64.GreaterScalarMask = gtScalarUint64MaskNEONGuarded
+	s.U64.GreaterEqualMask = geUint64MaskNEONGuarded
+	s.U64.GreaterEqualScalarMask = geScalarUint64MaskNEONGuarded
+	s.U64.Select = selectUint64NEONGuarded
 	s.Mask.All = maskAllNEONGuarded
 	s.Mask.Any = maskAnyNEONGuarded
 	s.Mask.Count = maskCountNEONGuarded

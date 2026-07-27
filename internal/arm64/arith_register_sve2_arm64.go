@@ -520,6 +520,729 @@ func addScaledInt64SVE2Guarded(dst []int64, a []int64, b []int64, s int64) {
 	addScaledInt64SVE2(dst[:n:n], a, b, s)
 }
 
+func addInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt8SVE2(dst[:n:n], a, b)
+}
+
+func subInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt8SVE2(dst[:n:n], a, b)
+}
+
+func mulInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt8SVE2(dst[:n:n], a, b)
+}
+
+func minimumInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt8SVE2(dst[:n:n], a, b)
+}
+
+func maximumInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt8SVE2(dst[:n:n], a, b)
+}
+
+func absInt8SVE2Guarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt8SVE2(dst[:n:n], a)
+}
+
+func negInt8SVE2Guarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt8SVE2(dst[:n:n], a)
+}
+
+func scaleInt8SVE2Guarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt8SVE2(dst[:n:n], a, s)
+}
+
+func addScalarInt8SVE2Guarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt8SVE2(dst[:n:n], a, s)
+}
+
+func subScalarInt8SVE2Guarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt8SVE2(dst[:n:n], a, s)
+}
+
+func clampInt8SVE2Guarded(dst []int8, a []int8, lo int8, hi int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt8SVE2(dst[:n:n], a, lo, hi)
+}
+
+func fillInt8SVE2Guarded(dst []int8, v int8) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt8SVE2(dst, v)
+}
+
+func lerpInt8SVE2Guarded(dst []int8, a []int8, b []int8, t int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt8SVE2(dst[:n:n], a, b, t)
+}
+
+func addScaledInt8SVE2Guarded(dst []int8, a []int8, b []int8, s int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt8SVE2(dst[:n:n], a, b, s)
+}
+
+func addInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt16SVE2(dst[:n:n], a, b)
+}
+
+func subInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt16SVE2(dst[:n:n], a, b)
+}
+
+func mulInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt16SVE2(dst[:n:n], a, b)
+}
+
+func minimumInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt16SVE2(dst[:n:n], a, b)
+}
+
+func maximumInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt16SVE2(dst[:n:n], a, b)
+}
+
+func absInt16SVE2Guarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt16SVE2(dst[:n:n], a)
+}
+
+func negInt16SVE2Guarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt16SVE2(dst[:n:n], a)
+}
+
+func scaleInt16SVE2Guarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt16SVE2(dst[:n:n], a, s)
+}
+
+func addScalarInt16SVE2Guarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt16SVE2(dst[:n:n], a, s)
+}
+
+func subScalarInt16SVE2Guarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt16SVE2(dst[:n:n], a, s)
+}
+
+func clampInt16SVE2Guarded(dst []int16, a []int16, lo int16, hi int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt16SVE2(dst[:n:n], a, lo, hi)
+}
+
+func fillInt16SVE2Guarded(dst []int16, v int16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt16SVE2(dst, v)
+}
+
+func lerpInt16SVE2Guarded(dst []int16, a []int16, b []int16, t int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt16SVE2(dst[:n:n], a, b, t)
+}
+
+func addScaledInt16SVE2Guarded(dst []int16, a []int16, b []int16, s int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt16SVE2(dst[:n:n], a, b, s)
+}
+
+func addUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint8SVE2(dst[:n:n], a, b)
+}
+
+func subUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint8SVE2(dst[:n:n], a, b)
+}
+
+func mulUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint8SVE2(dst[:n:n], a, b)
+}
+
+func minimumUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint8SVE2(dst[:n:n], a, b)
+}
+
+func maximumUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint8SVE2(dst[:n:n], a, b)
+}
+
+func absUint8SVE2Guarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint8SVE2(dst[:n:n], a)
+}
+
+func negUint8SVE2Guarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint8SVE2(dst[:n:n], a)
+}
+
+func scaleUint8SVE2Guarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint8SVE2(dst[:n:n], a, s)
+}
+
+func addScalarUint8SVE2Guarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint8SVE2(dst[:n:n], a, s)
+}
+
+func subScalarUint8SVE2Guarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint8SVE2(dst[:n:n], a, s)
+}
+
+func clampUint8SVE2Guarded(dst []byte, a []byte, lo byte, hi byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint8SVE2(dst[:n:n], a, lo, hi)
+}
+
+func fillUint8SVE2Guarded(dst []byte, v byte) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint8SVE2(dst, v)
+}
+
+func lerpUint8SVE2Guarded(dst []byte, a []byte, b []byte, t byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint8SVE2(dst[:n:n], a, b, t)
+}
+
+func addScaledUint8SVE2Guarded(dst []byte, a []byte, b []byte, s byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint8SVE2(dst[:n:n], a, b, s)
+}
+
+func addUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint16SVE2(dst[:n:n], a, b)
+}
+
+func subUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint16SVE2(dst[:n:n], a, b)
+}
+
+func mulUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint16SVE2(dst[:n:n], a, b)
+}
+
+func minimumUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint16SVE2(dst[:n:n], a, b)
+}
+
+func maximumUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint16SVE2(dst[:n:n], a, b)
+}
+
+func negUint16SVE2Guarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint16SVE2(dst[:n:n], a)
+}
+
+func scaleUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint16SVE2(dst[:n:n], a, s)
+}
+
+func addScalarUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint16SVE2(dst[:n:n], a, s)
+}
+
+func subScalarUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint16SVE2(dst[:n:n], a, s)
+}
+
+func clampUint16SVE2Guarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint16SVE2(dst[:n:n], a, lo, hi)
+}
+
+func fillUint16SVE2Guarded(dst []uint16, v uint16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint16SVE2(dst, v)
+}
+
+func lerpUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16, t uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint16SVE2(dst[:n:n], a, b, t)
+}
+
+func addScaledUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16, s uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint16SVE2(dst[:n:n], a, b, s)
+}
+
+func addUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint32SVE2(dst[:n:n], a, b)
+}
+
+func subUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint32SVE2(dst[:n:n], a, b)
+}
+
+func mulUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint32SVE2(dst[:n:n], a, b)
+}
+
+func minimumUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint32SVE2(dst[:n:n], a, b)
+}
+
+func maximumUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint32SVE2(dst[:n:n], a, b)
+}
+
+func negUint32SVE2Guarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint32SVE2(dst[:n:n], a)
+}
+
+func scaleUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint32SVE2(dst[:n:n], a, s)
+}
+
+func addScalarUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint32SVE2(dst[:n:n], a, s)
+}
+
+func subScalarUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint32SVE2(dst[:n:n], a, s)
+}
+
+func clampUint32SVE2Guarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint32SVE2(dst[:n:n], a, lo, hi)
+}
+
+func fillUint32SVE2Guarded(dst []uint32, v uint32) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint32SVE2(dst, v)
+}
+
+func lerpUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32, t uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint32SVE2(dst[:n:n], a, b, t)
+}
+
+func addScaledUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32, s uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint32SVE2(dst[:n:n], a, b, s)
+}
+
+func addUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint64SVE2(dst[:n:n], a, b)
+}
+
+func subUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint64SVE2(dst[:n:n], a, b)
+}
+
+func mulUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint64SVE2(dst[:n:n], a, b)
+}
+
+func minimumUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint64SVE2(dst[:n:n], a, b)
+}
+
+func maximumUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint64SVE2(dst[:n:n], a, b)
+}
+
+func negUint64SVE2Guarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint64SVE2(dst[:n:n], a)
+}
+
+func scaleUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint64SVE2(dst[:n:n], a, s)
+}
+
+func addScalarUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint64SVE2(dst[:n:n], a, s)
+}
+
+func subScalarUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint64SVE2(dst[:n:n], a, s)
+}
+
+func clampUint64SVE2Guarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint64SVE2(dst[:n:n], a, lo, hi)
+}
+
+func fillUint64SVE2Guarded(dst []uint64, v uint64) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint64SVE2(dst, v)
+}
+
+func lerpUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64, t uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint64SVE2(dst[:n:n], a, b, t)
+}
+
+func addScaledUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64, s uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint64SVE2(dst[:n:n], a, b, s)
+}
+
 func divFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -682,6 +1405,114 @@ func roundToEvenFloat64SVE2Guarded(dst []float64, a []float64) {
 	roundToEvenFloat64SVE2(dst[:n:n], a)
 }
 
+func satAddInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt32SVE2(dst[:n:n], a, b)
+}
+
+func satSubInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt32SVE2(dst[:n:n], a, b)
+}
+
+func satAddInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt8SVE2(dst[:n:n], a, b)
+}
+
+func satSubInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt8SVE2(dst[:n:n], a, b)
+}
+
+func satAddInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt16SVE2(dst[:n:n], a, b)
+}
+
+func satSubInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt16SVE2(dst[:n:n], a, b)
+}
+
+func satAddUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint8SVE2(dst[:n:n], a, b)
+}
+
+func satSubUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint8SVE2(dst[:n:n], a, b)
+}
+
+func satAddUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint16SVE2(dst[:n:n], a, b)
+}
+
+func satSubUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint16SVE2(dst[:n:n], a, b)
+}
+
+func satAddUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint32SVE2(dst[:n:n], a, b)
+}
+
+func satSubUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint32SVE2(dst[:n:n], a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -742,6 +1573,87 @@ func init() {
 	s.I64.Fill = fillInt64SVE2Guarded
 	s.I64.Lerp = lerpInt64SVE2Guarded
 	s.I64.AddScaled = addScaledInt64SVE2Guarded
+	s.I8.Add = addInt8SVE2Guarded
+	s.I8.Sub = subInt8SVE2Guarded
+	s.I8.Mul = mulInt8SVE2Guarded
+	s.I8.Minimum = minimumInt8SVE2Guarded
+	s.I8.Maximum = maximumInt8SVE2Guarded
+	s.I8.Abs = absInt8SVE2Guarded
+	s.I8.Neg = negInt8SVE2Guarded
+	s.I8.Scale = scaleInt8SVE2Guarded
+	s.I8.AddScalar = addScalarInt8SVE2Guarded
+	s.I8.SubScalar = subScalarInt8SVE2Guarded
+	s.I8.Clamp = clampInt8SVE2Guarded
+	s.I8.Fill = fillInt8SVE2Guarded
+	s.I8.Lerp = lerpInt8SVE2Guarded
+	s.I8.AddScaled = addScaledInt8SVE2Guarded
+	s.I16.Add = addInt16SVE2Guarded
+	s.I16.Sub = subInt16SVE2Guarded
+	s.I16.Mul = mulInt16SVE2Guarded
+	s.I16.Minimum = minimumInt16SVE2Guarded
+	s.I16.Maximum = maximumInt16SVE2Guarded
+	s.I16.Abs = absInt16SVE2Guarded
+	s.I16.Neg = negInt16SVE2Guarded
+	s.I16.Scale = scaleInt16SVE2Guarded
+	s.I16.AddScalar = addScalarInt16SVE2Guarded
+	s.I16.SubScalar = subScalarInt16SVE2Guarded
+	s.I16.Clamp = clampInt16SVE2Guarded
+	s.I16.Fill = fillInt16SVE2Guarded
+	s.I16.Lerp = lerpInt16SVE2Guarded
+	s.I16.AddScaled = addScaledInt16SVE2Guarded
+	s.U8.Add = addUint8SVE2Guarded
+	s.U8.Sub = subUint8SVE2Guarded
+	s.U8.Mul = mulUint8SVE2Guarded
+	s.U8.Minimum = minimumUint8SVE2Guarded
+	s.U8.Maximum = maximumUint8SVE2Guarded
+	s.U8.Abs = absUint8SVE2Guarded
+	s.U8.Neg = negUint8SVE2Guarded
+	s.U8.Scale = scaleUint8SVE2Guarded
+	s.U8.AddScalar = addScalarUint8SVE2Guarded
+	s.U8.SubScalar = subScalarUint8SVE2Guarded
+	s.U8.Clamp = clampUint8SVE2Guarded
+	s.U8.Fill = fillUint8SVE2Guarded
+	s.U8.Lerp = lerpUint8SVE2Guarded
+	s.U8.AddScaled = addScaledUint8SVE2Guarded
+	s.U16.Add = addUint16SVE2Guarded
+	s.U16.Sub = subUint16SVE2Guarded
+	s.U16.Mul = mulUint16SVE2Guarded
+	s.U16.Minimum = minimumUint16SVE2Guarded
+	s.U16.Maximum = maximumUint16SVE2Guarded
+	s.U16.Neg = negUint16SVE2Guarded
+	s.U16.Scale = scaleUint16SVE2Guarded
+	s.U16.AddScalar = addScalarUint16SVE2Guarded
+	s.U16.SubScalar = subScalarUint16SVE2Guarded
+	s.U16.Clamp = clampUint16SVE2Guarded
+	s.U16.Fill = fillUint16SVE2Guarded
+	s.U16.Lerp = lerpUint16SVE2Guarded
+	s.U16.AddScaled = addScaledUint16SVE2Guarded
+	s.U32.Add = addUint32SVE2Guarded
+	s.U32.Sub = subUint32SVE2Guarded
+	s.U32.Mul = mulUint32SVE2Guarded
+	s.U32.Minimum = minimumUint32SVE2Guarded
+	s.U32.Maximum = maximumUint32SVE2Guarded
+	s.U32.Neg = negUint32SVE2Guarded
+	s.U32.Scale = scaleUint32SVE2Guarded
+	s.U32.AddScalar = addScalarUint32SVE2Guarded
+	s.U32.SubScalar = subScalarUint32SVE2Guarded
+	s.U32.Clamp = clampUint32SVE2Guarded
+	s.U32.Fill = fillUint32SVE2Guarded
+	s.U32.Lerp = lerpUint32SVE2Guarded
+	s.U32.AddScaled = addScaledUint32SVE2Guarded
+	s.U64.Add = addUint64SVE2Guarded
+	s.U64.Sub = subUint64SVE2Guarded
+	s.U64.Mul = mulUint64SVE2Guarded
+	s.U64.Minimum = minimumUint64SVE2Guarded
+	s.U64.Maximum = maximumUint64SVE2Guarded
+	s.U64.Neg = negUint64SVE2Guarded
+	s.U64.Scale = scaleUint64SVE2Guarded
+	s.U64.AddScalar = addScalarUint64SVE2Guarded
+	s.U64.SubScalar = subScalarUint64SVE2Guarded
+	s.U64.Clamp = clampUint64SVE2Guarded
+	s.U64.Fill = fillUint64SVE2Guarded
+	s.U64.Lerp = lerpUint64SVE2Guarded
+	s.U64.AddScaled = addScaledUint64SVE2Guarded
 	s.F32.Div = divFloat32SVE2Guarded
 	s.F32.DivScalar = divScalarFloat32SVE2Guarded
 	s.F32.Sqrt = sqrtFloat32SVE2Guarded
@@ -760,4 +1672,16 @@ func init() {
 	s.F64.Trunc = truncFloat64SVE2Guarded
 	s.F64.Round = roundFloat64SVE2Guarded
 	s.F64.RoundToEven = roundToEvenFloat64SVE2Guarded
+	s.I32.SatAdd = satAddInt32SVE2Guarded
+	s.I32.SatSub = satSubInt32SVE2Guarded
+	s.I8.SatAdd = satAddInt8SVE2Guarded
+	s.I8.SatSub = satSubInt8SVE2Guarded
+	s.I16.SatAdd = satAddInt16SVE2Guarded
+	s.I16.SatSub = satSubInt16SVE2Guarded
+	s.U8.SatAdd = satAddUint8SVE2Guarded
+	s.U8.SatSub = satSubUint8SVE2Guarded
+	s.U16.SatAdd = satAddUint16SVE2Guarded
+	s.U16.SatSub = satSubUint16SVE2Guarded
+	s.U32.SatAdd = satAddUint32SVE2Guarded
+	s.U32.SatSub = satSubUint32SVE2Guarded
 }

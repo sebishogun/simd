@@ -196,6 +196,270 @@ func diffInt64LASXGuarded(dst []int64, a []int64) {
 	diffInt64LASX(dst, a)
 }
 
+func minrInt8LASXGuarded(a []int8) int8 {
+	if len(a) < 24 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt8LASX(a)
+}
+
+func maxrInt8LASXGuarded(a []int8) int8 {
+	if len(a) < 24 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt8LASX(a)
+}
+
+func sumsqInt8LASXGuarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt8LASX(a)
+}
+
+func sumsqdevInt8LASXGuarded(a []int8, c int8) int8 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt8LASX(a, c)
+}
+
+func sumsqdiffInt8LASXGuarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt8LASX(a[:n:n], b)
+}
+
+func diffInt8LASXGuarded(dst []int8, a []int8) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt8LASX(dst, a)
+}
+
+func minrInt16LASXGuarded(a []int16) int16 {
+	if len(a) < 16 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt16LASX(a)
+}
+
+func maxrInt16LASXGuarded(a []int16) int16 {
+	if len(a) < 16 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt16LASX(a)
+}
+
+func sumsqInt16LASXGuarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt16LASX(a)
+}
+
+func sumsqdevInt16LASXGuarded(a []int16, c int16) int16 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt16LASX(a, c)
+}
+
+func sumsqdiffInt16LASXGuarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt16LASX(a[:n:n], b)
+}
+
+func diffInt16LASXGuarded(dst []int16, a []int16) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt16LASX(dst, a)
+}
+
+func minrUint8LASXGuarded(a []byte) byte {
+	if len(a) < 24 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint8LASX(a)
+}
+
+func maxrUint8LASXGuarded(a []byte) byte {
+	if len(a) < 24 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint8LASX(a)
+}
+
+func sumsqUint8LASXGuarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint8LASX(a)
+}
+
+func sumsqdevUint8LASXGuarded(a []byte, c byte) byte {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint8LASX(a, c)
+}
+
+func sumsqdiffUint8LASXGuarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint8LASX(a[:n:n], b)
+}
+
+func diffUint8LASXGuarded(dst []byte, a []byte) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint8LASX(dst, a)
+}
+
+func minrUint16LASXGuarded(a []uint16) uint16 {
+	if len(a) < 16 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint16LASX(a)
+}
+
+func maxrUint16LASXGuarded(a []uint16) uint16 {
+	if len(a) < 16 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint16LASX(a)
+}
+
+func sumsqUint16LASXGuarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint16LASX(a)
+}
+
+func sumsqdevUint16LASXGuarded(a []uint16, c uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint16LASX(a, c)
+}
+
+func sumsqdiffUint16LASXGuarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint16LASX(a[:n:n], b)
+}
+
+func diffUint16LASXGuarded(dst []uint16, a []uint16) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint16LASX(dst, a)
+}
+
+func minrUint32LASXGuarded(a []uint32) uint32 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint32LASX(a)
+}
+
+func maxrUint32LASXGuarded(a []uint32) uint32 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint32LASX(a)
+}
+
+func sumsqUint32LASXGuarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint32LASX(a)
+}
+
+func sumsqdevUint32LASXGuarded(a []uint32, c uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint32LASX(a, c)
+}
+
+func sumsqdiffUint32LASXGuarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint32LASX(a[:n:n], b)
+}
+
+func diffUint32LASXGuarded(dst []uint32, a []uint32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint32LASX(dst, a)
+}
+
+func minrUint64LASXGuarded(a []uint64) uint64 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint64LASX(a)
+}
+
+func maxrUint64LASXGuarded(a []uint64) uint64 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint64LASX(a)
+}
+
+func sumsqUint64LASXGuarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint64LASX(a)
+}
+
+func sumsqdevUint64LASXGuarded(a []uint64, c uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint64LASX(a, c)
+}
+
+func sumsqdiffUint64LASXGuarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint64LASX(a[:n:n], b)
+}
+
+func diffUint64LASXGuarded(dst []uint64, a []uint64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint64LASX(dst, a)
+}
+
 func sumFloat32LASXGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -330,6 +594,228 @@ func l1diffInt64LASXGuarded(a []int64, b []int64) int64 {
 	return l1diffInt64LASX(a[:n:n], b)
 }
 
+func sumInt8LASXGuarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt8LASX(a)
+}
+
+func prodInt8LASXGuarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt8LASX(a)
+}
+
+func dotInt8LASXGuarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt8LASX(a[:n:n], b)
+}
+
+func l1normInt8LASXGuarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt8LASX(a)
+}
+
+func l1diffInt8LASXGuarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt8LASX(a[:n:n], b)
+}
+
+func sumInt16LASXGuarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt16LASX(a)
+}
+
+func prodInt16LASXGuarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt16LASX(a)
+}
+
+func dotInt16LASXGuarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt16LASX(a[:n:n], b)
+}
+
+func l1normInt16LASXGuarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt16LASX(a)
+}
+
+func l1diffInt16LASXGuarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt16LASX(a[:n:n], b)
+}
+
+func sumUint8LASXGuarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint8LASX(a)
+}
+
+func prodUint8LASXGuarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint8LASX(a)
+}
+
+func dotUint8LASXGuarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint8LASX(a[:n:n], b)
+}
+
+func l1normUint8LASXGuarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint8LASX(a)
+}
+
+func l1diffUint8LASXGuarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint8LASX(a[:n:n], b)
+}
+
+func sumUint16LASXGuarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint16LASX(a)
+}
+
+func prodUint16LASXGuarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint16LASX(a)
+}
+
+func dotUint16LASXGuarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint16LASX(a[:n:n], b)
+}
+
+func l1normUint16LASXGuarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint16LASX(a)
+}
+
+func l1diffUint16LASXGuarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint16LASX(a[:n:n], b)
+}
+
+func sumUint32LASXGuarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint32LASX(a)
+}
+
+func prodUint32LASXGuarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint32LASX(a)
+}
+
+func dotUint32LASXGuarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint32LASX(a[:n:n], b)
+}
+
+func l1normUint32LASXGuarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint32LASX(a)
+}
+
+func l1diffUint32LASXGuarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint32LASX(a[:n:n], b)
+}
+
+func sumUint64LASXGuarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint64LASX(a)
+}
+
+func prodUint64LASXGuarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint64LASX(a)
+}
+
+func dotUint64LASXGuarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint64LASX(a[:n:n], b)
+}
+
+func l1normUint64LASXGuarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint64LASX(a)
+}
+
+func l1diffUint64LASXGuarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint64LASX(a[:n:n], b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -358,6 +844,42 @@ func init() {
 	s.I64.SumSqDev = sumsqdevInt64LASXGuarded
 	s.I64.SumSqDiff = sumsqdiffInt64LASXGuarded
 	s.I64.Diff = diffInt64LASXGuarded
+	s.I8.Min = minrInt8LASXGuarded
+	s.I8.Max = maxrInt8LASXGuarded
+	s.I8.SumSquares = sumsqInt8LASXGuarded
+	s.I8.SumSqDev = sumsqdevInt8LASXGuarded
+	s.I8.SumSqDiff = sumsqdiffInt8LASXGuarded
+	s.I8.Diff = diffInt8LASXGuarded
+	s.I16.Min = minrInt16LASXGuarded
+	s.I16.Max = maxrInt16LASXGuarded
+	s.I16.SumSquares = sumsqInt16LASXGuarded
+	s.I16.SumSqDev = sumsqdevInt16LASXGuarded
+	s.I16.SumSqDiff = sumsqdiffInt16LASXGuarded
+	s.I16.Diff = diffInt16LASXGuarded
+	s.U8.Min = minrUint8LASXGuarded
+	s.U8.Max = maxrUint8LASXGuarded
+	s.U8.SumSquares = sumsqUint8LASXGuarded
+	s.U8.SumSqDev = sumsqdevUint8LASXGuarded
+	s.U8.SumSqDiff = sumsqdiffUint8LASXGuarded
+	s.U8.Diff = diffUint8LASXGuarded
+	s.U16.Min = minrUint16LASXGuarded
+	s.U16.Max = maxrUint16LASXGuarded
+	s.U16.SumSquares = sumsqUint16LASXGuarded
+	s.U16.SumSqDev = sumsqdevUint16LASXGuarded
+	s.U16.SumSqDiff = sumsqdiffUint16LASXGuarded
+	s.U16.Diff = diffUint16LASXGuarded
+	s.U32.Min = minrUint32LASXGuarded
+	s.U32.Max = maxrUint32LASXGuarded
+	s.U32.SumSquares = sumsqUint32LASXGuarded
+	s.U32.SumSqDev = sumsqdevUint32LASXGuarded
+	s.U32.SumSqDiff = sumsqdiffUint32LASXGuarded
+	s.U32.Diff = diffUint32LASXGuarded
+	s.U64.Min = minrUint64LASXGuarded
+	s.U64.Max = maxrUint64LASXGuarded
+	s.U64.SumSquares = sumsqUint64LASXGuarded
+	s.U64.SumSqDev = sumsqdevUint64LASXGuarded
+	s.U64.SumSqDiff = sumsqdiffUint64LASXGuarded
+	s.U64.Diff = diffUint64LASXGuarded
 	s.F32.Sum = sumFloat32LASXGuarded
 	s.F32.Dot = dotFloat32LASXGuarded
 	s.F32.L1Norm = l1normFloat32LASXGuarded
@@ -376,4 +898,34 @@ func init() {
 	s.I64.Dot = dotInt64LASXGuarded
 	s.I64.L1Norm = l1normInt64LASXGuarded
 	s.I64.L1Diff = l1diffInt64LASXGuarded
+	s.I8.Sum = sumInt8LASXGuarded
+	s.I8.Prod = prodInt8LASXGuarded
+	s.I8.Dot = dotInt8LASXGuarded
+	s.I8.L1Norm = l1normInt8LASXGuarded
+	s.I8.L1Diff = l1diffInt8LASXGuarded
+	s.I16.Sum = sumInt16LASXGuarded
+	s.I16.Prod = prodInt16LASXGuarded
+	s.I16.Dot = dotInt16LASXGuarded
+	s.I16.L1Norm = l1normInt16LASXGuarded
+	s.I16.L1Diff = l1diffInt16LASXGuarded
+	s.U8.Sum = sumUint8LASXGuarded
+	s.U8.Prod = prodUint8LASXGuarded
+	s.U8.Dot = dotUint8LASXGuarded
+	s.U8.L1Norm = l1normUint8LASXGuarded
+	s.U8.L1Diff = l1diffUint8LASXGuarded
+	s.U16.Sum = sumUint16LASXGuarded
+	s.U16.Prod = prodUint16LASXGuarded
+	s.U16.Dot = dotUint16LASXGuarded
+	s.U16.L1Norm = l1normUint16LASXGuarded
+	s.U16.L1Diff = l1diffUint16LASXGuarded
+	s.U32.Sum = sumUint32LASXGuarded
+	s.U32.Prod = prodUint32LASXGuarded
+	s.U32.Dot = dotUint32LASXGuarded
+	s.U32.L1Norm = l1normUint32LASXGuarded
+	s.U32.L1Diff = l1diffUint32LASXGuarded
+	s.U64.Sum = sumUint64LASXGuarded
+	s.U64.Prod = prodUint64LASXGuarded
+	s.U64.Dot = dotUint64LASXGuarded
+	s.U64.L1Norm = l1normUint64LASXGuarded
+	s.U64.L1Diff = l1diffUint64LASXGuarded
 }

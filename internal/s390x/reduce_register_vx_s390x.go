@@ -98,6 +98,100 @@ func sumsqdiffInt32VXGuarded(a []int32, b []int32) int32 {
 	return sumsqdiffInt32VX(a[:n:n], b)
 }
 
+func sumsqInt8VXGuarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt8VX(a)
+}
+
+func sumsqdevInt8VXGuarded(a []int8, c int8) int8 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt8VX(a, c)
+}
+
+func sumsqInt16VXGuarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt16VX(a)
+}
+
+func sumsqdevInt16VXGuarded(a []int16, c int16) int16 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt16VX(a, c)
+}
+
+func sumsqdiffInt16VXGuarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt16VX(a[:n:n], b)
+}
+
+func sumsqUint8VXGuarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint8VX(a)
+}
+
+func sumsqdevUint8VXGuarded(a []byte, c byte) byte {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint8VX(a, c)
+}
+
+func sumsqUint16VXGuarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint16VX(a)
+}
+
+func sumsqdevUint16VXGuarded(a []uint16, c uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint16VX(a, c)
+}
+
+func sumsqdiffUint16VXGuarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint16VX(a[:n:n], b)
+}
+
+func sumsqUint32VXGuarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint32VX(a)
+}
+
+func sumsqdevUint32VXGuarded(a []uint32, c uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint32VX(a, c)
+}
+
+func sumsqdiffUint32VXGuarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint32VX(a[:n:n], b)
+}
+
 func sumFloat32VXGuarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -185,6 +279,181 @@ func l1diffInt64VXGuarded(a []int64, b []int64) int64 {
 	return l1diffInt64VX(a[:n:n], b)
 }
 
+func sumInt8VXGuarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt8VX(a)
+}
+
+func prodInt8VXGuarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt8VX(a)
+}
+
+func l1normInt8VXGuarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt8VX(a)
+}
+
+func sumInt16VXGuarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt16VX(a)
+}
+
+func prodInt16VXGuarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt16VX(a)
+}
+
+func dotInt16VXGuarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt16VX(a[:n:n], b)
+}
+
+func l1normInt16VXGuarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt16VX(a)
+}
+
+func l1diffInt16VXGuarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt16VX(a[:n:n], b)
+}
+
+func sumUint8VXGuarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint8VX(a)
+}
+
+func prodUint8VXGuarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint8VX(a)
+}
+
+func l1normUint8VXGuarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint8VX(a)
+}
+
+func sumUint16VXGuarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint16VX(a)
+}
+
+func prodUint16VXGuarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint16VX(a)
+}
+
+func dotUint16VXGuarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint16VX(a[:n:n], b)
+}
+
+func l1normUint16VXGuarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint16VX(a)
+}
+
+func l1diffUint16VXGuarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint16VX(a[:n:n], b)
+}
+
+func sumUint32VXGuarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint32VX(a)
+}
+
+func prodUint32VXGuarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint32VX(a)
+}
+
+func dotUint32VXGuarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint32VX(a[:n:n], b)
+}
+
+func l1normUint32VXGuarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint32VX(a)
+}
+
+func l1diffUint32VXGuarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint32VX(a[:n:n], b)
+}
+
+func sumUint64VXGuarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint64VX(a)
+}
+
+func l1normUint64VXGuarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint64VX(a)
+}
+
+func l1diffUint64VXGuarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint64VX(a[:n:n], b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -200,6 +469,19 @@ func init() {
 	s.I32.SumSquares = sumsqInt32VXGuarded
 	s.I32.SumSqDev = sumsqdevInt32VXGuarded
 	s.I32.SumSqDiff = sumsqdiffInt32VXGuarded
+	s.I8.SumSquares = sumsqInt8VXGuarded
+	s.I8.SumSqDev = sumsqdevInt8VXGuarded
+	s.I16.SumSquares = sumsqInt16VXGuarded
+	s.I16.SumSqDev = sumsqdevInt16VXGuarded
+	s.I16.SumSqDiff = sumsqdiffInt16VXGuarded
+	s.U8.SumSquares = sumsqUint8VXGuarded
+	s.U8.SumSqDev = sumsqdevUint8VXGuarded
+	s.U16.SumSquares = sumsqUint16VXGuarded
+	s.U16.SumSqDev = sumsqdevUint16VXGuarded
+	s.U16.SumSqDiff = sumsqdiffUint16VXGuarded
+	s.U32.SumSquares = sumsqUint32VXGuarded
+	s.U32.SumSqDev = sumsqdevUint32VXGuarded
+	s.U32.SumSqDiff = sumsqdiffUint32VXGuarded
 	s.F32.Sum = sumFloat32VXGuarded
 	s.F32.L1Norm = l1normFloat32VXGuarded
 	s.F64.Sum = sumFloat64VXGuarded
@@ -212,4 +494,28 @@ func init() {
 	s.I64.Sum = sumInt64VXGuarded
 	s.I64.L1Norm = l1normInt64VXGuarded
 	s.I64.L1Diff = l1diffInt64VXGuarded
+	s.I8.Sum = sumInt8VXGuarded
+	s.I8.Prod = prodInt8VXGuarded
+	s.I8.L1Norm = l1normInt8VXGuarded
+	s.I16.Sum = sumInt16VXGuarded
+	s.I16.Prod = prodInt16VXGuarded
+	s.I16.Dot = dotInt16VXGuarded
+	s.I16.L1Norm = l1normInt16VXGuarded
+	s.I16.L1Diff = l1diffInt16VXGuarded
+	s.U8.Sum = sumUint8VXGuarded
+	s.U8.Prod = prodUint8VXGuarded
+	s.U8.L1Norm = l1normUint8VXGuarded
+	s.U16.Sum = sumUint16VXGuarded
+	s.U16.Prod = prodUint16VXGuarded
+	s.U16.Dot = dotUint16VXGuarded
+	s.U16.L1Norm = l1normUint16VXGuarded
+	s.U16.L1Diff = l1diffUint16VXGuarded
+	s.U32.Sum = sumUint32VXGuarded
+	s.U32.Prod = prodUint32VXGuarded
+	s.U32.Dot = dotUint32VXGuarded
+	s.U32.L1Norm = l1normUint32VXGuarded
+	s.U32.L1Diff = l1diffUint32VXGuarded
+	s.U64.Sum = sumUint64VXGuarded
+	s.U64.L1Norm = l1normUint64VXGuarded
+	s.U64.L1Diff = l1diffUint64VXGuarded
 }

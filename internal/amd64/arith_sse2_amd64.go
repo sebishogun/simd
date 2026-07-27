@@ -181,6 +181,255 @@ func lerpInt64SSE2(dst []int64, a []int64, b []int64, t int64)
 func addScaledInt64SSE2(dst []int64, a []int64, b []int64, s int64)
 
 //go:noescape
+func addInt8SSE2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func subInt8SSE2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func mulInt8SSE2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func minimumInt8SSE2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func maximumInt8SSE2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func absInt8SSE2(dst []int8, a []int8)
+
+//go:noescape
+func negInt8SSE2(dst []int8, a []int8)
+
+//go:noescape
+func scaleInt8SSE2(dst []int8, a []int8, s int8)
+
+//go:noescape
+func addScalarInt8SSE2(dst []int8, a []int8, s int8)
+
+//go:noescape
+func subScalarInt8SSE2(dst []int8, a []int8, s int8)
+
+//go:noescape
+func clampInt8SSE2(dst []int8, a []int8, lo int8, hi int8)
+
+//go:noescape
+func fillInt8SSE2(dst []int8, v int8)
+
+//go:noescape
+func lerpInt8SSE2(dst []int8, a []int8, b []int8, t int8)
+
+//go:noescape
+func addScaledInt8SSE2(dst []int8, a []int8, b []int8, s int8)
+
+//go:noescape
+func addInt16SSE2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func subInt16SSE2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func mulInt16SSE2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func minimumInt16SSE2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func maximumInt16SSE2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func absInt16SSE2(dst []int16, a []int16)
+
+//go:noescape
+func negInt16SSE2(dst []int16, a []int16)
+
+//go:noescape
+func scaleInt16SSE2(dst []int16, a []int16, s int16)
+
+//go:noescape
+func addScalarInt16SSE2(dst []int16, a []int16, s int16)
+
+//go:noescape
+func subScalarInt16SSE2(dst []int16, a []int16, s int16)
+
+//go:noescape
+func clampInt16SSE2(dst []int16, a []int16, lo int16, hi int16)
+
+//go:noescape
+func fillInt16SSE2(dst []int16, v int16)
+
+//go:noescape
+func lerpInt16SSE2(dst []int16, a []int16, b []int16, t int16)
+
+//go:noescape
+func addScaledInt16SSE2(dst []int16, a []int16, b []int16, s int16)
+
+//go:noescape
+func addUint8SSE2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func subUint8SSE2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func mulUint8SSE2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func minimumUint8SSE2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func maximumUint8SSE2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func absUint8SSE2(dst []byte, a []byte)
+
+//go:noescape
+func negUint8SSE2(dst []byte, a []byte)
+
+//go:noescape
+func scaleUint8SSE2(dst []byte, a []byte, s byte)
+
+//go:noescape
+func addScalarUint8SSE2(dst []byte, a []byte, s byte)
+
+//go:noescape
+func subScalarUint8SSE2(dst []byte, a []byte, s byte)
+
+//go:noescape
+func clampUint8SSE2(dst []byte, a []byte, lo byte, hi byte)
+
+//go:noescape
+func fillUint8SSE2(dst []byte, v byte)
+
+//go:noescape
+func lerpUint8SSE2(dst []byte, a []byte, b []byte, t byte)
+
+//go:noescape
+func addScaledUint8SSE2(dst []byte, a []byte, b []byte, s byte)
+
+//go:noescape
+func addUint16SSE2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func subUint16SSE2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func mulUint16SSE2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func minimumUint16SSE2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func maximumUint16SSE2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func absUint16SSE2(dst []uint16, a []uint16)
+
+//go:noescape
+func negUint16SSE2(dst []uint16, a []uint16)
+
+//go:noescape
+func scaleUint16SSE2(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func addScalarUint16SSE2(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func subScalarUint16SSE2(dst []uint16, a []uint16, s uint16)
+
+//go:noescape
+func clampUint16SSE2(dst []uint16, a []uint16, lo uint16, hi uint16)
+
+//go:noescape
+func fillUint16SSE2(dst []uint16, v uint16)
+
+//go:noescape
+func lerpUint16SSE2(dst []uint16, a []uint16, b []uint16, t uint16)
+
+//go:noescape
+func addScaledUint16SSE2(dst []uint16, a []uint16, b []uint16, s uint16)
+
+//go:noescape
+func addUint32SSE2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func subUint32SSE2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func mulUint32SSE2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func minimumUint32SSE2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func maximumUint32SSE2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func absUint32SSE2(dst []uint32, a []uint32)
+
+//go:noescape
+func negUint32SSE2(dst []uint32, a []uint32)
+
+//go:noescape
+func scaleUint32SSE2(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func addScalarUint32SSE2(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func subScalarUint32SSE2(dst []uint32, a []uint32, s uint32)
+
+//go:noescape
+func clampUint32SSE2(dst []uint32, a []uint32, lo uint32, hi uint32)
+
+//go:noescape
+func fillUint32SSE2(dst []uint32, v uint32)
+
+//go:noescape
+func lerpUint32SSE2(dst []uint32, a []uint32, b []uint32, t uint32)
+
+//go:noescape
+func addScaledUint32SSE2(dst []uint32, a []uint32, b []uint32, s uint32)
+
+//go:noescape
+func addUint64SSE2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func subUint64SSE2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func mulUint64SSE2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func minimumUint64SSE2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func maximumUint64SSE2(dst []uint64, a []uint64, b []uint64)
+
+//go:noescape
+func absUint64SSE2(dst []uint64, a []uint64)
+
+//go:noescape
+func negUint64SSE2(dst []uint64, a []uint64)
+
+//go:noescape
+func scaleUint64SSE2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func addScalarUint64SSE2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func subScalarUint64SSE2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func fillUint64SSE2(dst []uint64, v uint64)
+
+//go:noescape
+func lerpUint64SSE2(dst []uint64, a []uint64, b []uint64, t uint64)
+
+//go:noescape
+func addScaledUint64SSE2(dst []uint64, a []uint64, b []uint64, s uint64)
+
+//go:noescape
 func divFloat32SSE2(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -203,3 +452,39 @@ func sqrtFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape
 func reciprocalFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func satAddInt32SSE2(dst []int32, a []int32, b []int32)
+
+//go:noescape
+func satSubInt32SSE2(dst []int32, a []int32, b []int32)
+
+//go:noescape
+func satAddInt8SSE2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func satSubInt8SSE2(dst []int8, a []int8, b []int8)
+
+//go:noescape
+func satAddInt16SSE2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func satSubInt16SSE2(dst []int16, a []int16, b []int16)
+
+//go:noescape
+func satAddUint8SSE2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func satSubUint8SSE2(dst []byte, a []byte, b []byte)
+
+//go:noescape
+func satAddUint16SSE2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func satSubUint16SSE2(dst []uint16, a []uint16, b []uint16)
+
+//go:noescape
+func satAddUint32SSE2(dst []uint32, a []uint32, b []uint32)
+
+//go:noescape
+func satSubUint32SSE2(dst []uint32, a []uint32, b []uint32)

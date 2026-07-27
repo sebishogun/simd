@@ -103,8 +103,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # ppc64le has no generated backend; it is here to prove the portable
-        # path still carries all 209 functions there.
         platform: [linux/arm64, linux/riscv64, linux/s390x, linux/ppc64le]
     steps:
       - uses: actions/checkout@v4
@@ -119,6 +117,38 @@ jobs:
           docker run --rm --platform ${{ matrix.platform }} \
             -v "$PWD":/src -w /src -e GOFLAGS=-buildvcs=false golang:1.26 \
             sh -c 'go test -short ./... && go run ./cmd/simdinfo'
+
+  # loong64 is not in the matrix above and cannot be: there is no golang image
+  # for it. The official Go images cover amd64, arm64, 386, arm/v7, ppc64le,
+  # riscv64 and s390x, and that is the list. So this lane cross-compiles the
+  # test binaries and runs them under qemu-user directly, which works because
+  # Go binaries are static.
+  #
+  # Two details are what make it a real test rather than a green no-op. The
+  # emulator must be recent — LSX and LASX landed in QEMU 8.1, and an older one
+  # reports no vector support, so every tier is skipped as unexecutable and the
+  # run passes having tested nothing. And QEMU_CPU=la464 is what turns the
+  # vector units on even then.
+  #
+  # This lane is why it exists: the first time the backend was actually
+  # executed it segfaulted, because clang had been using r22 — the register the
+  # Go runtime keeps the current goroutine in — in 616 places, and the check
+  # that should have caught it was looking for the wrong spelling.
+  loong64:
+    name: loong64 under qemu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - name: fetch a recent qemu-loongarch64
+        run: |
+          cid=$(docker create tonistiigi/binfmt:latest)
+          docker cp "$cid":/usr/bin/qemu-loongarch64 /usr/local/bin/
+          docker rm "$cid"
+          qemu-loongarch64 -version | head -1
+      - run: make test-loong64
 
   # Scalable vector ISAs have a runtime-variable vector length, so a kernel can
   # be correct at one width and wrong at another. Testing a single width proves

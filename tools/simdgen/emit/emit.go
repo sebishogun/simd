@@ -574,15 +574,27 @@ func prologueFor(k spec.Kernel, frame Frame, tgt target.Target) ([]string, error
 // between the argument frame and a register, taken from the target's table.
 func loadInstr(t spec.Type, tgt target.Target) (string, error) {
 	var m string
-	switch {
-	case t == spec.F32:
+	switch t {
+	case spec.F32:
 		m = tgt.MovFloat32
-	case t == spec.F64:
+	case spec.F64:
 		m = tgt.MovFloat64
-	case t == spec.I32:
+	case spec.I32:
 		m = tgt.MovInt32
-	case t == spec.U8 || t == spec.B:
+	case spec.U8, spec.B:
 		m = tgt.MovByte
+	// The narrow integers widen into a full register, because their C
+	// parameter is a 64-bit integer; see target.Target.MovInt8 for why it has
+	// to be. Signed sign-extends and unsigned zero-extends, so that the value
+	// the kernel casts back down is the one the caller passed.
+	case spec.I8:
+		m = tgt.MovInt8
+	case spec.I16:
+		m = tgt.MovInt16
+	case spec.U16:
+		m = tgt.MovUint16
+	case spec.U32:
+		m = tgt.MovUint32
 	default:
 		m = tgt.MovPtr
 	}

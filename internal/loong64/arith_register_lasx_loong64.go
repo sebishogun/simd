@@ -520,6 +520,756 @@ func addScaledInt64LASXGuarded(dst []int64, a []int64, b []int64, s int64) {
 	addScaledInt64LASX(dst[:n:n], a, b, s)
 }
 
+func addInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt8LASX(dst[:n:n], a, b)
+}
+
+func subInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt8LASX(dst[:n:n], a, b)
+}
+
+func mulInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt8LASX(dst[:n:n], a, b)
+}
+
+func minimumInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt8LASX(dst[:n:n], a, b)
+}
+
+func maximumInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt8LASX(dst[:n:n], a, b)
+}
+
+func absInt8LASXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt8LASX(dst[:n:n], a)
+}
+
+func negInt8LASXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt8LASX(dst[:n:n], a)
+}
+
+func scaleInt8LASXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt8LASX(dst[:n:n], a, s)
+}
+
+func addScalarInt8LASXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt8LASX(dst[:n:n], a, s)
+}
+
+func subScalarInt8LASXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt8LASX(dst[:n:n], a, s)
+}
+
+func clampInt8LASXGuarded(dst []int8, a []int8, lo int8, hi int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt8LASX(dst[:n:n], a, lo, hi)
+}
+
+func fillInt8LASXGuarded(dst []int8, v int8) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt8LASX(dst, v)
+}
+
+func lerpInt8LASXGuarded(dst []int8, a []int8, b []int8, t int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt8LASX(dst[:n:n], a, b, t)
+}
+
+func addScaledInt8LASXGuarded(dst []int8, a []int8, b []int8, s int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt8LASX(dst[:n:n], a, b, s)
+}
+
+func addInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt16LASX(dst[:n:n], a, b)
+}
+
+func subInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt16LASX(dst[:n:n], a, b)
+}
+
+func mulInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt16LASX(dst[:n:n], a, b)
+}
+
+func minimumInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt16LASX(dst[:n:n], a, b)
+}
+
+func maximumInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt16LASX(dst[:n:n], a, b)
+}
+
+func absInt16LASXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt16LASX(dst[:n:n], a)
+}
+
+func negInt16LASXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt16LASX(dst[:n:n], a)
+}
+
+func scaleInt16LASXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt16LASX(dst[:n:n], a, s)
+}
+
+func addScalarInt16LASXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt16LASX(dst[:n:n], a, s)
+}
+
+func subScalarInt16LASXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt16LASX(dst[:n:n], a, s)
+}
+
+func clampInt16LASXGuarded(dst []int16, a []int16, lo int16, hi int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt16LASX(dst[:n:n], a, lo, hi)
+}
+
+func fillInt16LASXGuarded(dst []int16, v int16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt16LASX(dst, v)
+}
+
+func lerpInt16LASXGuarded(dst []int16, a []int16, b []int16, t int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt16LASX(dst[:n:n], a, b, t)
+}
+
+func addScaledInt16LASXGuarded(dst []int16, a []int16, b []int16, s int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt16LASX(dst[:n:n], a, b, s)
+}
+
+func addUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint8LASX(dst[:n:n], a, b)
+}
+
+func subUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint8LASX(dst[:n:n], a, b)
+}
+
+func mulUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint8LASX(dst[:n:n], a, b)
+}
+
+func minimumUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint8LASX(dst[:n:n], a, b)
+}
+
+func maximumUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint8LASX(dst[:n:n], a, b)
+}
+
+func absUint8LASXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint8LASX(dst[:n:n], a)
+}
+
+func negUint8LASXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint8LASX(dst[:n:n], a)
+}
+
+func scaleUint8LASXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint8LASX(dst[:n:n], a, s)
+}
+
+func addScalarUint8LASXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint8LASX(dst[:n:n], a, s)
+}
+
+func subScalarUint8LASXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint8LASX(dst[:n:n], a, s)
+}
+
+func clampUint8LASXGuarded(dst []byte, a []byte, lo byte, hi byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint8LASX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint8LASXGuarded(dst []byte, v byte) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint8LASX(dst, v)
+}
+
+func lerpUint8LASXGuarded(dst []byte, a []byte, b []byte, t byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint8LASX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint8LASXGuarded(dst []byte, a []byte, b []byte, s byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint8LASX(dst[:n:n], a, b, s)
+}
+
+func addUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint16LASX(dst[:n:n], a, b)
+}
+
+func subUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint16LASX(dst[:n:n], a, b)
+}
+
+func mulUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint16LASX(dst[:n:n], a, b)
+}
+
+func minimumUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint16LASX(dst[:n:n], a, b)
+}
+
+func maximumUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint16LASX(dst[:n:n], a, b)
+}
+
+func absUint16LASXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint16LASX(dst[:n:n], a)
+}
+
+func negUint16LASXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint16LASX(dst[:n:n], a)
+}
+
+func scaleUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint16LASX(dst[:n:n], a, s)
+}
+
+func addScalarUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint16LASX(dst[:n:n], a, s)
+}
+
+func subScalarUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint16LASX(dst[:n:n], a, s)
+}
+
+func clampUint16LASXGuarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint16LASX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint16LASXGuarded(dst []uint16, v uint16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint16LASX(dst, v)
+}
+
+func lerpUint16LASXGuarded(dst []uint16, a []uint16, b []uint16, t uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint16LASX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint16LASXGuarded(dst []uint16, a []uint16, b []uint16, s uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint16LASX(dst[:n:n], a, b, s)
+}
+
+func addUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint32LASX(dst[:n:n], a, b)
+}
+
+func subUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint32LASX(dst[:n:n], a, b)
+}
+
+func mulUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint32LASX(dst[:n:n], a, b)
+}
+
+func minimumUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint32LASX(dst[:n:n], a, b)
+}
+
+func maximumUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint32LASX(dst[:n:n], a, b)
+}
+
+func absUint32LASXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint32LASX(dst[:n:n], a)
+}
+
+func negUint32LASXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint32LASX(dst[:n:n], a)
+}
+
+func scaleUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint32LASX(dst[:n:n], a, s)
+}
+
+func addScalarUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint32LASX(dst[:n:n], a, s)
+}
+
+func subScalarUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint32LASX(dst[:n:n], a, s)
+}
+
+func clampUint32LASXGuarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint32LASX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint32LASXGuarded(dst []uint32, v uint32) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint32LASX(dst, v)
+}
+
+func lerpUint32LASXGuarded(dst []uint32, a []uint32, b []uint32, t uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint32LASX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint32LASXGuarded(dst []uint32, a []uint32, b []uint32, s uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint32LASX(dst[:n:n], a, b, s)
+}
+
+func addUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint64LASX(dst[:n:n], a, b)
+}
+
+func subUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint64LASX(dst[:n:n], a, b)
+}
+
+func mulUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint64LASX(dst[:n:n], a, b)
+}
+
+func minimumUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint64LASX(dst[:n:n], a, b)
+}
+
+func maximumUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint64LASX(dst[:n:n], a, b)
+}
+
+func absUint64LASXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint64LASX(dst[:n:n], a)
+}
+
+func negUint64LASXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint64LASX(dst[:n:n], a)
+}
+
+func scaleUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint64LASX(dst[:n:n], a, s)
+}
+
+func addScalarUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint64LASX(dst[:n:n], a, s)
+}
+
+func subScalarUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint64LASX(dst[:n:n], a, s)
+}
+
+func clampUint64LASXGuarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint64LASX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint64LASXGuarded(dst []uint64, v uint64) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint64LASX(dst, v)
+}
+
+func lerpUint64LASXGuarded(dst []uint64, a []uint64, b []uint64, t uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint64LASX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint64LASXGuarded(dst []uint64, a []uint64, b []uint64, s uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint64LASX(dst[:n:n], a, b, s)
+}
+
 func divFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -646,6 +1396,114 @@ func truncFloat64LASXGuarded(dst []float64, a []float64) {
 	truncFloat64LASX(dst[:n:n], a)
 }
 
+func satAddInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt32LASX(dst[:n:n], a, b)
+}
+
+func satSubInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt32LASX(dst[:n:n], a, b)
+}
+
+func satAddInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt8LASX(dst[:n:n], a, b)
+}
+
+func satSubInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt8LASX(dst[:n:n], a, b)
+}
+
+func satAddInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt16LASX(dst[:n:n], a, b)
+}
+
+func satSubInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt16LASX(dst[:n:n], a, b)
+}
+
+func satAddUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint8LASX(dst[:n:n], a, b)
+}
+
+func satSubUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint8LASX(dst[:n:n], a, b)
+}
+
+func satAddUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint16LASX(dst[:n:n], a, b)
+}
+
+func satSubUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint16LASX(dst[:n:n], a, b)
+}
+
+func satAddUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint32LASX(dst[:n:n], a, b)
+}
+
+func satSubUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint32LASX(dst[:n:n], a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -706,6 +1564,90 @@ func init() {
 	s.I64.Fill = fillInt64LASXGuarded
 	s.I64.Lerp = lerpInt64LASXGuarded
 	s.I64.AddScaled = addScaledInt64LASXGuarded
+	s.I8.Add = addInt8LASXGuarded
+	s.I8.Sub = subInt8LASXGuarded
+	s.I8.Mul = mulInt8LASXGuarded
+	s.I8.Minimum = minimumInt8LASXGuarded
+	s.I8.Maximum = maximumInt8LASXGuarded
+	s.I8.Abs = absInt8LASXGuarded
+	s.I8.Neg = negInt8LASXGuarded
+	s.I8.Scale = scaleInt8LASXGuarded
+	s.I8.AddScalar = addScalarInt8LASXGuarded
+	s.I8.SubScalar = subScalarInt8LASXGuarded
+	s.I8.Clamp = clampInt8LASXGuarded
+	s.I8.Fill = fillInt8LASXGuarded
+	s.I8.Lerp = lerpInt8LASXGuarded
+	s.I8.AddScaled = addScaledInt8LASXGuarded
+	s.I16.Add = addInt16LASXGuarded
+	s.I16.Sub = subInt16LASXGuarded
+	s.I16.Mul = mulInt16LASXGuarded
+	s.I16.Minimum = minimumInt16LASXGuarded
+	s.I16.Maximum = maximumInt16LASXGuarded
+	s.I16.Abs = absInt16LASXGuarded
+	s.I16.Neg = negInt16LASXGuarded
+	s.I16.Scale = scaleInt16LASXGuarded
+	s.I16.AddScalar = addScalarInt16LASXGuarded
+	s.I16.SubScalar = subScalarInt16LASXGuarded
+	s.I16.Clamp = clampInt16LASXGuarded
+	s.I16.Fill = fillInt16LASXGuarded
+	s.I16.Lerp = lerpInt16LASXGuarded
+	s.I16.AddScaled = addScaledInt16LASXGuarded
+	s.U8.Add = addUint8LASXGuarded
+	s.U8.Sub = subUint8LASXGuarded
+	s.U8.Mul = mulUint8LASXGuarded
+	s.U8.Minimum = minimumUint8LASXGuarded
+	s.U8.Maximum = maximumUint8LASXGuarded
+	s.U8.Abs = absUint8LASXGuarded
+	s.U8.Neg = negUint8LASXGuarded
+	s.U8.Scale = scaleUint8LASXGuarded
+	s.U8.AddScalar = addScalarUint8LASXGuarded
+	s.U8.SubScalar = subScalarUint8LASXGuarded
+	s.U8.Clamp = clampUint8LASXGuarded
+	s.U8.Fill = fillUint8LASXGuarded
+	s.U8.Lerp = lerpUint8LASXGuarded
+	s.U8.AddScaled = addScaledUint8LASXGuarded
+	s.U16.Add = addUint16LASXGuarded
+	s.U16.Sub = subUint16LASXGuarded
+	s.U16.Mul = mulUint16LASXGuarded
+	s.U16.Minimum = minimumUint16LASXGuarded
+	s.U16.Maximum = maximumUint16LASXGuarded
+	s.U16.Abs = absUint16LASXGuarded
+	s.U16.Neg = negUint16LASXGuarded
+	s.U16.Scale = scaleUint16LASXGuarded
+	s.U16.AddScalar = addScalarUint16LASXGuarded
+	s.U16.SubScalar = subScalarUint16LASXGuarded
+	s.U16.Clamp = clampUint16LASXGuarded
+	s.U16.Fill = fillUint16LASXGuarded
+	s.U16.Lerp = lerpUint16LASXGuarded
+	s.U16.AddScaled = addScaledUint16LASXGuarded
+	s.U32.Add = addUint32LASXGuarded
+	s.U32.Sub = subUint32LASXGuarded
+	s.U32.Mul = mulUint32LASXGuarded
+	s.U32.Minimum = minimumUint32LASXGuarded
+	s.U32.Maximum = maximumUint32LASXGuarded
+	s.U32.Abs = absUint32LASXGuarded
+	s.U32.Neg = negUint32LASXGuarded
+	s.U32.Scale = scaleUint32LASXGuarded
+	s.U32.AddScalar = addScalarUint32LASXGuarded
+	s.U32.SubScalar = subScalarUint32LASXGuarded
+	s.U32.Clamp = clampUint32LASXGuarded
+	s.U32.Fill = fillUint32LASXGuarded
+	s.U32.Lerp = lerpUint32LASXGuarded
+	s.U32.AddScaled = addScaledUint32LASXGuarded
+	s.U64.Add = addUint64LASXGuarded
+	s.U64.Sub = subUint64LASXGuarded
+	s.U64.Mul = mulUint64LASXGuarded
+	s.U64.Minimum = minimumUint64LASXGuarded
+	s.U64.Maximum = maximumUint64LASXGuarded
+	s.U64.Abs = absUint64LASXGuarded
+	s.U64.Neg = negUint64LASXGuarded
+	s.U64.Scale = scaleUint64LASXGuarded
+	s.U64.AddScalar = addScalarUint64LASXGuarded
+	s.U64.SubScalar = subScalarUint64LASXGuarded
+	s.U64.Clamp = clampUint64LASXGuarded
+	s.U64.Fill = fillUint64LASXGuarded
+	s.U64.Lerp = lerpUint64LASXGuarded
+	s.U64.AddScaled = addScaledUint64LASXGuarded
 	s.F32.Div = divFloat32LASXGuarded
 	s.F32.DivScalar = divScalarFloat32LASXGuarded
 	s.F32.Sqrt = sqrtFloat32LASXGuarded
@@ -720,4 +1662,16 @@ func init() {
 	s.F64.Floor = floorFloat64LASXGuarded
 	s.F64.Ceil = ceilFloat64LASXGuarded
 	s.F64.Trunc = truncFloat64LASXGuarded
+	s.I32.SatAdd = satAddInt32LASXGuarded
+	s.I32.SatSub = satSubInt32LASXGuarded
+	s.I8.SatAdd = satAddInt8LASXGuarded
+	s.I8.SatSub = satSubInt8LASXGuarded
+	s.I16.SatAdd = satAddInt16LASXGuarded
+	s.I16.SatSub = satSubInt16LASXGuarded
+	s.U8.SatAdd = satAddUint8LASXGuarded
+	s.U8.SatSub = satSubUint8LASXGuarded
+	s.U16.SatAdd = satAddUint16LASXGuarded
+	s.U16.SatSub = satSubUint16LASXGuarded
+	s.U32.SatAdd = satAddUint32LASXGuarded
+	s.U32.SatSub = satSubUint32LASXGuarded
 }

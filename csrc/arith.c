@@ -60,6 +60,14 @@ MINMAX_FLOAT(double, f64, __builtin_signbit)
 
 MINMAX_INT(int, i32)
 MINMAX_INT(long long, i64)
+// Unsigned comparison falls out of the operand type, so the same macro is
+// correct for both signedness classes.
+MINMAX_INT(signed char, i8)
+MINMAX_INT(short, i16)
+MINMAX_INT(unsigned char, u8)
+MINMAX_INT(unsigned short, u16)
+MINMAX_INT(unsigned int, u32)
+MINMAX_INT(unsigned long long, u64)
 
 // ---------- absolute value and negation ----------
 
@@ -77,6 +85,34 @@ static inline int neg_i32(int x) { return (int)(0u - (unsigned)x); }
 static inline long long neg_i64(long long x) {
   return (long long)(0ull - (unsigned long long)x);
 }
+
+// The narrow and unsigned types.
+//
+// For an unsigned type the absolute value is the identity — there is nothing
+// to take the sign of — and negation is the wraparound complement, which is
+// what Go's `-x` on an unsigned gives. For the narrow signed types the same
+// wrapping rule as the wide ones applies, so abs(INT8_MIN) is INT8_MIN.
+//
+// The casts back to T are not decoration: C promotes anything narrower than
+// int to int before arithmetic, so without them a signed char subtraction
+// would be done in 32 bits and the wraparound would happen at the wrong
+// width.
+#define ABSNEG_SIGNED(T, UT, SUF)                                        \
+  static inline T abs_##SUF(T x) {                                       \
+    return x < 0 ? (T)(UT)(0 - (UT)x) : x;                               \
+  }                                                                      \
+  static inline T neg_##SUF(T x) { return (T)(UT)(0 - (UT)x); }
+
+#define ABSNEG_UNSIGNED(T, SUF)                                          \
+  static inline T abs_##SUF(T x) { return x; }                           \
+  static inline T neg_##SUF(T x) { return (T)(0 - x); }
+
+ABSNEG_SIGNED(signed char, unsigned char, i8)
+ABSNEG_SIGNED(short, unsigned short, i16)
+ABSNEG_UNSIGNED(unsigned char, u8)
+ABSNEG_UNSIGNED(unsigned short, u16)
+ABSNEG_UNSIGNED(unsigned int, u32)
+ABSNEG_UNSIGNED(unsigned long long, u64)
 
 // ---------- generators ----------
 
@@ -120,43 +156,60 @@ static inline long long neg_i64(long long x) {
     }                                                                   \
   }
 
-#define SCALAR(NAME, T, SUF, EXPR)                                      \
-  void simd_##NAME##_##SUF(T *__restrict d, const T *__restrict a, T s, \
-                           isize n) {                                   \
+// SCALAR takes its scalar operand as ST and immediately narrows it to T.
+//
+// ST is the element type itself for everything as wide as an int, and a
+// 64-bit integer for everything narrower. That is an ABI requirement rather
+// than a style: how an argument shorter than a register is extended into one
+// is decided by each ABI, and they disagree — RISC-V and LoongArch want an
+// *unsigned* 32-bit argument sign-extended to 64 bits where the others
+// zero-extend it. Declaring the parameter 64 bits wide removes the question,
+// and the Go side widens with the move that matches the Go type. See
+// target.Target.MovInt8.
+#define SCALAR(NAME, T, ST, SUF, EXPR)                                  \
+  void simd_##NAME##_##SUF(T *__restrict d, const T *__restrict a,      \
+                           ST s_, isize n) {                            \
+    T s = (T)s_;                                                        \
     for (isize i = 0; i < n; i++) {                                     \
       T x = a[i];                                                       \
       d[i] = (EXPR);                                                    \
     }                                                                   \
   }
 
-// The whole elementwise family, per type.
-#define ARITH_COMMON(T, SUF)                                            \
+// The whole elementwise family, per type. ST is the scalar transport type;
+// see SCALAR.
+#define ARITH_COMMON(T, ST, SUF)                                        \
   BINARY(add, T, SUF, x + y)                                            \
   BINARY(sub, T, SUF, x - y)                                            \
   BINARY(mul, T, SUF, x *y)                                             \
   BINARY_FORCED(minimum, T, SUF, min_##SUF(x, y))                       \
   BINARY_FORCED(maximum, T, SUF, max_##SUF(x, y))                       \
   UNARY(abs, T, SUF, abs_##SUF(x))                                      \
-  SCALAR(scale, T, SUF, x *s)                                           \
-  SCALAR(addscalar, T, SUF, x + s)                                      \
-  SCALAR(subscalar, T, SUF, x - s)                                      \
-  void simd_clamp_##SUF(T *__restrict d, const T *__restrict a, T lo,   \
-                        T hi, isize n) {                                \
+  SCALAR(scale, T, ST, SUF, x *s)                                       \
+  SCALAR(addscalar, T, ST, SUF, x + s)                                  \
+  SCALAR(subscalar, T, ST, SUF, x - s)                                  \
+  void simd_clamp_##SUF(T *__restrict d, const T *__restrict a, ST lo_, \
+                        ST hi_, isize n) {                              \
+    T lo = (T)lo_, hi = (T)hi_;                                         \
     for (isize i = 0; i < n; i++)                                       \
       d[i] = min_##SUF(max_##SUF(a[i], lo), hi);                        \
   }                                                                     \
-  void simd_fill_##SUF(T *__restrict d, T v, isize n) {                 \
+  void simd_fill_##SUF(T *__restrict d, ST v_, isize n) {               \
+    T v = (T)v_;                                                        \
     for (isize i = 0; i < n; i++) d[i] = v;                             \
   }                                                                     \
-  void simd_ramp_##SUF(T *__restrict d, T start, T step, isize n) {     \
+  void simd_ramp_##SUF(T *__restrict d, ST start_, ST step_, isize n) { \
+    T start = (T)start_, step = (T)step_;                               \
     for (isize i = 0; i < n; i++) d[i] = start + (T)i * step;           \
   }                                                                     \
   void simd_lerp_##SUF(T *__restrict d, const T *__restrict a,          \
-                       const T *__restrict b, T t, isize n) {           \
+                       const T *__restrict b, ST t_, isize n) {         \
+    T t = (T)t_;                                                        \
     for (isize i = 0; i < n; i++) d[i] = a[i] + (b[i] - a[i]) * t;      \
   }                                                                     \
   void simd_addscaled_##SUF(T *__restrict d, const T *__restrict a,     \
-                            const T *__restrict b, T s, isize n) {      \
+                            const T *__restrict b, ST s_, isize n) {    \
+    T s = (T)s_;                                                        \
     for (isize i = 0; i < n; i++) d[i] = a[i] + b[i] * s;               \
   }
 
@@ -167,7 +220,7 @@ static inline long long neg_i64(long long x) {
 // panic into whatever the hardware felt like. That one stays portable.
 #define ARITH_FLOAT(T, SUF)                                             \
   BINARY(div, T, SUF, x / y)                                            \
-  SCALAR(divscalar, T, SUF, x / s)                                      \
+  SCALAR(divscalar, T, T, SUF, x / s)                                   \
   UNARY(neg, T, SUF, -x)                                                \
   UNARY(sqrt, T, SUF, __builtin_elementwise_sqrt(x))                    \
   UNARY(recip, T, SUF, (T)1 / x)                                        \
@@ -177,16 +230,66 @@ static inline long long neg_i64(long long x) {
 
 #define ARITH_INT(T, SUF) UNARY(neg, T, SUF, neg_##SUF(x))
 
-ARITH_COMMON(float, f32)
-ARITH_COMMON(double, f64)
-ARITH_COMMON(int, i32)
-ARITH_COMMON(long long, i64)
+ARITH_COMMON(float, float, f32)
+ARITH_COMMON(double, double, f64)
+ARITH_COMMON(int, int, i32)
+ARITH_COMMON(long long, long long, i64)
 
 ARITH_FLOAT(float, f32)
 ARITH_FLOAT(double, f64)
 
 ARITH_INT(int, i32)
 ARITH_INT(long long, i64)
+
+// The narrow types transport their scalars in a 64-bit integer of matching
+// signedness, which is what makes the widening on the Go side unambiguous.
+ARITH_COMMON(signed char, long long, i8)
+ARITH_COMMON(short, long long, i16)
+ARITH_COMMON(unsigned char, unsigned long long, u8)
+ARITH_COMMON(unsigned short, unsigned long long, u16)
+ARITH_COMMON(unsigned int, unsigned long long, u32)
+ARITH_COMMON(unsigned long long, unsigned long long, u64)
+
+ARITH_INT(signed char, i8)
+ARITH_INT(short, i16)
+ARITH_INT(unsigned char, u8)
+ARITH_INT(unsigned short, u16)
+ARITH_INT(unsigned int, u32)
+ARITH_INT(unsigned long long, u64)
+
+// ---------- saturating arithmetic ----------
+//
+// The reason the narrow types are worth having at all. A saturating add is a
+// single instruction on every vector unit here — vpaddusb on x86, uqadd on
+// NEON — and it is the operation image, audio and fixed-point code actually
+// wants, where wrapping turns a bright pixel dark.
+//
+// Written with the elementwise builtins rather than as a widening add and a
+// clamp. The clamp form is what the arithmetic means and it is what the Go
+// reference does, but it is not what LLVM recognizes: from it clang produces
+// a widen, a pair of compares and a narrow — measured, five vpaddd for a
+// uint8 kernel where the builtin gives five vpaddusb. The builtins lower to
+// llvm.uadd.sat and llvm.ssub.sat, which every backend here pattern-matches
+// to its own instruction, and they saturate at the *operand* type's limits,
+// so the semantics are the ones the reference states.
+#define SATURATE(T, SUF)                                                 \
+  void simd_addsat_##SUF(T *__restrict d, const T *__restrict a,         \
+                         const T *__restrict b, isize n) {               \
+    for (isize i = 0; i < n; i++)                                        \
+      d[i] = __builtin_elementwise_add_sat(a[i], b[i]);                  \
+  }                                                                      \
+  void simd_subsat_##SUF(T *__restrict d, const T *__restrict a,         \
+                         const T *__restrict b, isize n) {               \
+    for (isize i = 0; i < n; i++)                                        \
+      d[i] = __builtin_elementwise_sub_sat(a[i], b[i]);                  \
+  }
+
+SATURATE(signed char, i8)
+SATURATE(short, i16)
+SATURATE(unsigned char, u8)
+SATURATE(unsigned short, u16)
+SATURATE(int, i32)
+SATURATE(unsigned int, u32)
 
 // Round half away from zero, matching math.Round, and round half to even,
 // matching math.RoundToEven and the default IEEE 754 mode.

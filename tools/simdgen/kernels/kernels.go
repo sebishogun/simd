@@ -31,12 +31,36 @@ var elems = []elem{
 	{"f64", "Float64", spec.SliceF64, spec.F64, "F64", true},
 	{"i32", "Int32", spec.SliceI32, spec.I32, "I32", false},
 	{"i64", "Int64", spec.SliceI64, spec.I64, "I64", false},
+	{"i8", "Int8", spec.SliceI8, spec.I8, "I8", false},
+	{"i16", "Int16", spec.SliceI16, spec.I16, "I16", false},
+	{"u8", "Uint8", spec.SliceU8, spec.U8, "U8", false},
+	{"u16", "Uint16", spec.SliceU16, spec.U16, "U16", false},
+	{"u32", "Uint32", spec.SliceU32, spec.U32, "U32", false},
+	{"u64", "Uint64", spec.SliceU64, spec.U64, "U64", false},
 }
 
 func floats() []elem {
 	var out []elem
 	for _, e := range elems {
 		if e.float {
+			out = append(out, e)
+		}
+	}
+	return out
+}
+
+// saturating returns the element types that have saturating add and subtract.
+//
+// The 64-bit ones do not, and could not be written the way the others are:
+// the kernel widens, clamps and narrows, and there is no integer wider than
+// 64 bits to widen into. Writing them as an overflow test instead is possible
+// but does not vectorize into the single instruction that is the whole reason
+// for having them, so those stay portable.
+func saturating() []elem {
+	var out []elem
+	for _, e := range elems {
+		switch e.c {
+		case "i8", "i16", "i32", "u8", "u16", "u32":
 			out = append(out, e)
 		}
 	}
@@ -195,6 +219,10 @@ func op2go(op string) string {
 		return "divScalar"
 	case "addscaled":
 		return "addScaled"
+	case "addsat":
+		return "satAdd"
+	case "subsat":
+		return "satSub"
 	}
 	return op
 }
@@ -242,6 +270,12 @@ func Arith() []spec.Kernel {
 			unary("roundeven", "RoundToEven", "RoundToEven", e, "amd64/sse2", "ppc64le"),
 		)
 	}
+	for _, e := range saturating() {
+		ks = append(ks,
+			binary("addsat", "SatAdd", "SatAdd", e),
+			binary("subsat", "SatSub", "SatSub", e),
+		)
+	}
 	return ks
 }
 
@@ -272,12 +306,32 @@ func diffK(e elem) spec.Kernel {
 
 // minMaxK is a horizontal minimum or maximum.
 //
-// Its threshold is 1, not 0: the kernel reads a[0] before looping, so an empty
+// Its threshold is never 0: the kernel reads a[0] before looping, so an empty
 // slice must reach the portable implementation, which panics as documented
 // rather than reading out of bounds.
+//
+// For everything four bytes wide and up, 1 is also the right answer — the
+// assembly wins at every length that is not empty. The narrow types are the
+// exception and it is the only place in the manifest where the element width
+// changes a threshold. A byte-wide reduction over sixteen elements is sixteen
+// bytes of work, half a register, and the call is not paid for: measured on
+// this AVX-512 host, int8 Min is 12% *slower* than the portable loop at n=16
+// and 36% faster at n=24; uint16 loses by 17% at n=8 and wins by 25% at n=16.
+// So the crossover is where those measurements put it.
+//
+// The reductions that are shaped like sums do not need this. They accumulate
+// into lanes rather than folding pairwise, so their portable form is the one
+// that costs more per element, and int8 Sum already wins by 18% at n=16.
 func minMaxK(op, field, refFunc string, e elem) spec.Kernel {
 	k := reduce1(op, field, refFunc, e)
-	k.Threshold = 1
+	switch e.c {
+	case "i8", "u8":
+		k.Threshold = 24
+	case "i16", "u16":
+		k.Threshold = 16
+	default:
+		k.Threshold = 1
+	}
 	return k
 }
 

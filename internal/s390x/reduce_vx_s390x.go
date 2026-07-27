@@ -49,6 +49,45 @@ func sumsqdevInt32VX(a []int32, c int32) int32
 func sumsqdiffInt32VX(a []int32, b []int32) int32
 
 //go:noescape
+func sumsqInt8VX(a []int8) int8
+
+//go:noescape
+func sumsqdevInt8VX(a []int8, c int8) int8
+
+//go:noescape
+func sumsqInt16VX(a []int16) int16
+
+//go:noescape
+func sumsqdevInt16VX(a []int16, c int16) int16
+
+//go:noescape
+func sumsqdiffInt16VX(a []int16, b []int16) int16
+
+//go:noescape
+func sumsqUint8VX(a []byte) byte
+
+//go:noescape
+func sumsqdevUint8VX(a []byte, c byte) byte
+
+//go:noescape
+func sumsqUint16VX(a []uint16) uint16
+
+//go:noescape
+func sumsqdevUint16VX(a []uint16, c uint16) uint16
+
+//go:noescape
+func sumsqdiffUint16VX(a []uint16, b []uint16) uint16
+
+//go:noescape
+func sumsqUint32VX(a []uint32) uint32
+
+//go:noescape
+func sumsqdevUint32VX(a []uint32, c uint32) uint32
+
+//go:noescape
+func sumsqdiffUint32VX(a []uint32, b []uint32) uint32
+
+//go:noescape
 func sumFloat32VX(a []float32) float32
 
 //go:noescape
@@ -83,3 +122,75 @@ func l1normInt64VX(a []int64) int64
 
 //go:noescape
 func l1diffInt64VX(a []int64, b []int64) int64
+
+//go:noescape
+func sumInt8VX(a []int8) int8
+
+//go:noescape
+func prodInt8VX(a []int8) int8
+
+//go:noescape
+func l1normInt8VX(a []int8) int8
+
+//go:noescape
+func sumInt16VX(a []int16) int16
+
+//go:noescape
+func prodInt16VX(a []int16) int16
+
+//go:noescape
+func dotInt16VX(a []int16, b []int16) int16
+
+//go:noescape
+func l1normInt16VX(a []int16) int16
+
+//go:noescape
+func l1diffInt16VX(a []int16, b []int16) int16
+
+//go:noescape
+func sumUint8VX(a []byte) byte
+
+//go:noescape
+func prodUint8VX(a []byte) byte
+
+//go:noescape
+func l1normUint8VX(a []byte) byte
+
+//go:noescape
+func sumUint16VX(a []uint16) uint16
+
+//go:noescape
+func prodUint16VX(a []uint16) uint16
+
+//go:noescape
+func dotUint16VX(a []uint16, b []uint16) uint16
+
+//go:noescape
+func l1normUint16VX(a []uint16) uint16
+
+//go:noescape
+func l1diffUint16VX(a []uint16, b []uint16) uint16
+
+//go:noescape
+func sumUint32VX(a []uint32) uint32
+
+//go:noescape
+func prodUint32VX(a []uint32) uint32
+
+//go:noescape
+func dotUint32VX(a []uint32, b []uint32) uint32
+
+//go:noescape
+func l1normUint32VX(a []uint32) uint32
+
+//go:noescape
+func l1diffUint32VX(a []uint32, b []uint32) uint32
+
+//go:noescape
+func sumUint64VX(a []uint64) uint64
+
+//go:noescape
+func l1normUint64VX(a []uint64) uint64
+
+//go:noescape
+func l1diffUint64VX(a []uint64, b []uint64) uint64

@@ -484,6 +484,720 @@ func fillInt64VXGuarded(dst []int64, v int64) {
 	fillInt64VX(dst, v)
 }
 
+func addInt8VXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt8VX(dst[:n:n], a, b)
+}
+
+func subInt8VXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt8VX(dst[:n:n], a, b)
+}
+
+func mulInt8VXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt8VX(dst[:n:n], a, b)
+}
+
+func minimumInt8VXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt8VX(dst[:n:n], a, b)
+}
+
+func maximumInt8VXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt8VX(dst[:n:n], a, b)
+}
+
+func absInt8VXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt8VX(dst[:n:n], a)
+}
+
+func negInt8VXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt8VX(dst[:n:n], a)
+}
+
+func scaleInt8VXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt8VX(dst[:n:n], a, s)
+}
+
+func addScalarInt8VXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt8VX(dst[:n:n], a, s)
+}
+
+func subScalarInt8VXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt8VX(dst[:n:n], a, s)
+}
+
+func clampInt8VXGuarded(dst []int8, a []int8, lo int8, hi int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt8VX(dst[:n:n], a, lo, hi)
+}
+
+func fillInt8VXGuarded(dst []int8, v int8) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt8VX(dst, v)
+}
+
+func lerpInt8VXGuarded(dst []int8, a []int8, b []int8, t int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt8VX(dst[:n:n], a, b, t)
+}
+
+func addScaledInt8VXGuarded(dst []int8, a []int8, b []int8, s int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt8VX(dst[:n:n], a, b, s)
+}
+
+func addInt16VXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt16VX(dst[:n:n], a, b)
+}
+
+func subInt16VXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt16VX(dst[:n:n], a, b)
+}
+
+func mulInt16VXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt16VX(dst[:n:n], a, b)
+}
+
+func minimumInt16VXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt16VX(dst[:n:n], a, b)
+}
+
+func maximumInt16VXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt16VX(dst[:n:n], a, b)
+}
+
+func absInt16VXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt16VX(dst[:n:n], a)
+}
+
+func negInt16VXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt16VX(dst[:n:n], a)
+}
+
+func scaleInt16VXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt16VX(dst[:n:n], a, s)
+}
+
+func addScalarInt16VXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt16VX(dst[:n:n], a, s)
+}
+
+func subScalarInt16VXGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt16VX(dst[:n:n], a, s)
+}
+
+func clampInt16VXGuarded(dst []int16, a []int16, lo int16, hi int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt16VX(dst[:n:n], a, lo, hi)
+}
+
+func fillInt16VXGuarded(dst []int16, v int16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt16VX(dst, v)
+}
+
+func lerpInt16VXGuarded(dst []int16, a []int16, b []int16, t int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt16VX(dst[:n:n], a, b, t)
+}
+
+func addScaledInt16VXGuarded(dst []int16, a []int16, b []int16, s int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt16VX(dst[:n:n], a, b, s)
+}
+
+func addUint8VXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint8VX(dst[:n:n], a, b)
+}
+
+func subUint8VXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint8VX(dst[:n:n], a, b)
+}
+
+func mulUint8VXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint8VX(dst[:n:n], a, b)
+}
+
+func minimumUint8VXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint8VX(dst[:n:n], a, b)
+}
+
+func maximumUint8VXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint8VX(dst[:n:n], a, b)
+}
+
+func absUint8VXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint8VX(dst[:n:n], a)
+}
+
+func negUint8VXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint8VX(dst[:n:n], a)
+}
+
+func scaleUint8VXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint8VX(dst[:n:n], a, s)
+}
+
+func addScalarUint8VXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint8VX(dst[:n:n], a, s)
+}
+
+func subScalarUint8VXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint8VX(dst[:n:n], a, s)
+}
+
+func clampUint8VXGuarded(dst []byte, a []byte, lo byte, hi byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint8VX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint8VXGuarded(dst []byte, v byte) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint8VX(dst, v)
+}
+
+func lerpUint8VXGuarded(dst []byte, a []byte, b []byte, t byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint8VX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint8VXGuarded(dst []byte, a []byte, b []byte, s byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint8VX(dst[:n:n], a, b, s)
+}
+
+func addUint16VXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint16VX(dst[:n:n], a, b)
+}
+
+func subUint16VXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint16VX(dst[:n:n], a, b)
+}
+
+func mulUint16VXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint16VX(dst[:n:n], a, b)
+}
+
+func minimumUint16VXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint16VX(dst[:n:n], a, b)
+}
+
+func maximumUint16VXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint16VX(dst[:n:n], a, b)
+}
+
+func absUint16VXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint16VX(dst[:n:n], a)
+}
+
+func negUint16VXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint16VX(dst[:n:n], a)
+}
+
+func scaleUint16VXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint16VX(dst[:n:n], a, s)
+}
+
+func addScalarUint16VXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint16VX(dst[:n:n], a, s)
+}
+
+func subScalarUint16VXGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint16VX(dst[:n:n], a, s)
+}
+
+func clampUint16VXGuarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint16VX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint16VXGuarded(dst []uint16, v uint16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint16VX(dst, v)
+}
+
+func lerpUint16VXGuarded(dst []uint16, a []uint16, b []uint16, t uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint16VX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint16VXGuarded(dst []uint16, a []uint16, b []uint16, s uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint16VX(dst[:n:n], a, b, s)
+}
+
+func addUint32VXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint32VX(dst[:n:n], a, b)
+}
+
+func subUint32VXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint32VX(dst[:n:n], a, b)
+}
+
+func mulUint32VXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint32VX(dst[:n:n], a, b)
+}
+
+func minimumUint32VXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint32VX(dst[:n:n], a, b)
+}
+
+func maximumUint32VXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint32VX(dst[:n:n], a, b)
+}
+
+func absUint32VXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint32VX(dst[:n:n], a)
+}
+
+func negUint32VXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint32VX(dst[:n:n], a)
+}
+
+func scaleUint32VXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint32VX(dst[:n:n], a, s)
+}
+
+func addScalarUint32VXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint32VX(dst[:n:n], a, s)
+}
+
+func subScalarUint32VXGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint32VX(dst[:n:n], a, s)
+}
+
+func clampUint32VXGuarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint32VX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint32VXGuarded(dst []uint32, v uint32) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint32VX(dst, v)
+}
+
+func lerpUint32VXGuarded(dst []uint32, a []uint32, b []uint32, t uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint32VX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint32VXGuarded(dst []uint32, a []uint32, b []uint32, s uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint32VX(dst[:n:n], a, b, s)
+}
+
+func addUint64VXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint64VX(dst[:n:n], a, b)
+}
+
+func subUint64VXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint64VX(dst[:n:n], a, b)
+}
+
+func minimumUint64VXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint64VX(dst[:n:n], a, b)
+}
+
+func maximumUint64VXGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint64VX(dst[:n:n], a, b)
+}
+
+func absUint64VXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint64VX(dst[:n:n], a)
+}
+
+func negUint64VXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint64VX(dst[:n:n], a)
+}
+
+func addScalarUint64VXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint64VX(dst[:n:n], a, s)
+}
+
+func subScalarUint64VXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint64VX(dst[:n:n], a, s)
+}
+
+func clampUint64VXGuarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint64VX(dst[:n:n], a, lo, hi)
+}
+
+func fillUint64VXGuarded(dst []uint64, v uint64) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint64VX(dst, v)
+}
+
 func divFloat32VXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -646,6 +1360,87 @@ func roundToEvenFloat64VXGuarded(dst []float64, a []float64) {
 	roundToEvenFloat64VX(dst[:n:n], a)
 }
 
+func satAddInt8VXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt8VX(dst[:n:n], a, b)
+}
+
+func satSubInt8VXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt8VX(dst[:n:n], a, b)
+}
+
+func satAddInt16VXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt16VX(dst[:n:n], a, b)
+}
+
+func satSubInt16VXGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt16VX(dst[:n:n], a, b)
+}
+
+func satAddUint8VXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint8VX(dst[:n:n], a, b)
+}
+
+func satSubUint8VXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint8VX(dst[:n:n], a, b)
+}
+
+func satSubUint16VXGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint16VX(dst[:n:n], a, b)
+}
+
+func satAddUint32VXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint32VX(dst[:n:n], a, b)
+}
+
+func satSubUint32VXGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint32VX(dst[:n:n], a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -702,6 +1497,86 @@ func init() {
 	s.I64.SubScalar = subScalarInt64VXGuarded
 	s.I64.Clamp = clampInt64VXGuarded
 	s.I64.Fill = fillInt64VXGuarded
+	s.I8.Add = addInt8VXGuarded
+	s.I8.Sub = subInt8VXGuarded
+	s.I8.Mul = mulInt8VXGuarded
+	s.I8.Minimum = minimumInt8VXGuarded
+	s.I8.Maximum = maximumInt8VXGuarded
+	s.I8.Abs = absInt8VXGuarded
+	s.I8.Neg = negInt8VXGuarded
+	s.I8.Scale = scaleInt8VXGuarded
+	s.I8.AddScalar = addScalarInt8VXGuarded
+	s.I8.SubScalar = subScalarInt8VXGuarded
+	s.I8.Clamp = clampInt8VXGuarded
+	s.I8.Fill = fillInt8VXGuarded
+	s.I8.Lerp = lerpInt8VXGuarded
+	s.I8.AddScaled = addScaledInt8VXGuarded
+	s.I16.Add = addInt16VXGuarded
+	s.I16.Sub = subInt16VXGuarded
+	s.I16.Mul = mulInt16VXGuarded
+	s.I16.Minimum = minimumInt16VXGuarded
+	s.I16.Maximum = maximumInt16VXGuarded
+	s.I16.Abs = absInt16VXGuarded
+	s.I16.Neg = negInt16VXGuarded
+	s.I16.Scale = scaleInt16VXGuarded
+	s.I16.AddScalar = addScalarInt16VXGuarded
+	s.I16.SubScalar = subScalarInt16VXGuarded
+	s.I16.Clamp = clampInt16VXGuarded
+	s.I16.Fill = fillInt16VXGuarded
+	s.I16.Lerp = lerpInt16VXGuarded
+	s.I16.AddScaled = addScaledInt16VXGuarded
+	s.U8.Add = addUint8VXGuarded
+	s.U8.Sub = subUint8VXGuarded
+	s.U8.Mul = mulUint8VXGuarded
+	s.U8.Minimum = minimumUint8VXGuarded
+	s.U8.Maximum = maximumUint8VXGuarded
+	s.U8.Abs = absUint8VXGuarded
+	s.U8.Neg = negUint8VXGuarded
+	s.U8.Scale = scaleUint8VXGuarded
+	s.U8.AddScalar = addScalarUint8VXGuarded
+	s.U8.SubScalar = subScalarUint8VXGuarded
+	s.U8.Clamp = clampUint8VXGuarded
+	s.U8.Fill = fillUint8VXGuarded
+	s.U8.Lerp = lerpUint8VXGuarded
+	s.U8.AddScaled = addScaledUint8VXGuarded
+	s.U16.Add = addUint16VXGuarded
+	s.U16.Sub = subUint16VXGuarded
+	s.U16.Mul = mulUint16VXGuarded
+	s.U16.Minimum = minimumUint16VXGuarded
+	s.U16.Maximum = maximumUint16VXGuarded
+	s.U16.Abs = absUint16VXGuarded
+	s.U16.Neg = negUint16VXGuarded
+	s.U16.Scale = scaleUint16VXGuarded
+	s.U16.AddScalar = addScalarUint16VXGuarded
+	s.U16.SubScalar = subScalarUint16VXGuarded
+	s.U16.Clamp = clampUint16VXGuarded
+	s.U16.Fill = fillUint16VXGuarded
+	s.U16.Lerp = lerpUint16VXGuarded
+	s.U16.AddScaled = addScaledUint16VXGuarded
+	s.U32.Add = addUint32VXGuarded
+	s.U32.Sub = subUint32VXGuarded
+	s.U32.Mul = mulUint32VXGuarded
+	s.U32.Minimum = minimumUint32VXGuarded
+	s.U32.Maximum = maximumUint32VXGuarded
+	s.U32.Abs = absUint32VXGuarded
+	s.U32.Neg = negUint32VXGuarded
+	s.U32.Scale = scaleUint32VXGuarded
+	s.U32.AddScalar = addScalarUint32VXGuarded
+	s.U32.SubScalar = subScalarUint32VXGuarded
+	s.U32.Clamp = clampUint32VXGuarded
+	s.U32.Fill = fillUint32VXGuarded
+	s.U32.Lerp = lerpUint32VXGuarded
+	s.U32.AddScaled = addScaledUint32VXGuarded
+	s.U64.Add = addUint64VXGuarded
+	s.U64.Sub = subUint64VXGuarded
+	s.U64.Minimum = minimumUint64VXGuarded
+	s.U64.Maximum = maximumUint64VXGuarded
+	s.U64.Abs = absUint64VXGuarded
+	s.U64.Neg = negUint64VXGuarded
+	s.U64.AddScalar = addScalarUint64VXGuarded
+	s.U64.SubScalar = subScalarUint64VXGuarded
+	s.U64.Clamp = clampUint64VXGuarded
+	s.U64.Fill = fillUint64VXGuarded
 	s.F32.Div = divFloat32VXGuarded
 	s.F32.DivScalar = divScalarFloat32VXGuarded
 	s.F32.Sqrt = sqrtFloat32VXGuarded
@@ -720,4 +1595,13 @@ func init() {
 	s.F64.Trunc = truncFloat64VXGuarded
 	s.F64.Round = roundFloat64VXGuarded
 	s.F64.RoundToEven = roundToEvenFloat64VXGuarded
+	s.I8.SatAdd = satAddInt8VXGuarded
+	s.I8.SatSub = satSubInt8VXGuarded
+	s.I16.SatAdd = satAddInt16VXGuarded
+	s.I16.SatSub = satSubInt16VXGuarded
+	s.U8.SatAdd = satAddUint8VXGuarded
+	s.U8.SatSub = satSubUint8VXGuarded
+	s.U16.SatSub = satSubUint16VXGuarded
+	s.U32.SatAdd = satAddUint32VXGuarded
+	s.U32.SatSub = satSubUint32VXGuarded
 }

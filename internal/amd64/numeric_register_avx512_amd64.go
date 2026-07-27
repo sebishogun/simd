@@ -162,6 +162,70 @@ func scatterInt64AVX512Guarded(dst []int64, idx []int32, src []int64) {
 	scatterInt64AVX512(dst, idx, src)
 }
 
+func scatterInt8AVX512Guarded(dst []int8, idx []int32, src []int8) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt8AVX512(dst, idx, src)
+}
+
+func scatterInt16AVX512Guarded(dst []int16, idx []int32, src []int16) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt16AVX512(dst, idx, src)
+}
+
+func scatterUint8AVX512Guarded(dst []byte, idx []int32, src []byte) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint8AVX512(dst, idx, src)
+}
+
+func scatterUint16AVX512Guarded(dst []uint16, idx []int32, src []uint16) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint16AVX512(dst, idx, src)
+}
+
+func gatherUint32AVX512Guarded(dst []uint32, src []uint32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint32AVX512(dst, src, idx)
+}
+
+func scatterUint32AVX512Guarded(dst []uint32, idx []int32, src []uint32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint32AVX512(dst, idx, src)
+}
+
+func gatherUint64AVX512Guarded(dst []uint64, src []uint64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint64AVX512(dst, src, idx)
+}
+
+func scatterUint64AVX512Guarded(dst []uint64, idx []int32, src []uint64) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint64AVX512(dst, idx, src)
+}
+
 func movingAverageFloat32AVX512Guarded(dst []float32, a []float32, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
@@ -216,6 +280,14 @@ func init() {
 	s.I32.Scatter = scatterInt32AVX512Guarded
 	s.I64.Gather = gatherInt64AVX512Guarded
 	s.I64.Scatter = scatterInt64AVX512Guarded
+	s.I8.Scatter = scatterInt8AVX512Guarded
+	s.I16.Scatter = scatterInt16AVX512Guarded
+	s.U8.Scatter = scatterUint8AVX512Guarded
+	s.U16.Scatter = scatterUint16AVX512Guarded
+	s.U32.Gather = gatherUint32AVX512Guarded
+	s.U32.Scatter = scatterUint32AVX512Guarded
+	s.U64.Gather = gatherUint64AVX512Guarded
+	s.U64.Scatter = scatterUint64AVX512Guarded
 	s.F32.MovingAverage = movingAverageFloat32AVX512Guarded
 	s.F32.MatMul = matMulFloat32AVX512Guarded
 	s.F64.MovingAverage = movingAverageFloat64AVX512Guarded

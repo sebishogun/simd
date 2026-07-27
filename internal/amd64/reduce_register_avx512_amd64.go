@@ -196,6 +196,270 @@ func diffInt64AVX512Guarded(dst []int64, a []int64) {
 	diffInt64AVX512(dst, a)
 }
 
+func minrInt8AVX512Guarded(a []int8) int8 {
+	if len(a) < 24 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt8AVX512(a)
+}
+
+func maxrInt8AVX512Guarded(a []int8) int8 {
+	if len(a) < 24 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt8AVX512(a)
+}
+
+func sumsqInt8AVX512Guarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt8AVX512(a)
+}
+
+func sumsqdevInt8AVX512Guarded(a []int8, c int8) int8 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt8AVX512(a, c)
+}
+
+func sumsqdiffInt8AVX512Guarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt8AVX512(a[:n:n], b)
+}
+
+func diffInt8AVX512Guarded(dst []int8, a []int8) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt8AVX512(dst, a)
+}
+
+func minrInt16AVX512Guarded(a []int16) int16 {
+	if len(a) < 16 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt16AVX512(a)
+}
+
+func maxrInt16AVX512Guarded(a []int16) int16 {
+	if len(a) < 16 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt16AVX512(a)
+}
+
+func sumsqInt16AVX512Guarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt16AVX512(a)
+}
+
+func sumsqdevInt16AVX512Guarded(a []int16, c int16) int16 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt16AVX512(a, c)
+}
+
+func sumsqdiffInt16AVX512Guarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt16AVX512(a[:n:n], b)
+}
+
+func diffInt16AVX512Guarded(dst []int16, a []int16) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt16AVX512(dst, a)
+}
+
+func minrUint8AVX512Guarded(a []byte) byte {
+	if len(a) < 24 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint8AVX512(a)
+}
+
+func maxrUint8AVX512Guarded(a []byte) byte {
+	if len(a) < 24 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint8AVX512(a)
+}
+
+func sumsqUint8AVX512Guarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint8AVX512(a)
+}
+
+func sumsqdevUint8AVX512Guarded(a []byte, c byte) byte {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint8AVX512(a, c)
+}
+
+func sumsqdiffUint8AVX512Guarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint8AVX512(a[:n:n], b)
+}
+
+func diffUint8AVX512Guarded(dst []byte, a []byte) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint8AVX512(dst, a)
+}
+
+func minrUint16AVX512Guarded(a []uint16) uint16 {
+	if len(a) < 16 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint16AVX512(a)
+}
+
+func maxrUint16AVX512Guarded(a []uint16) uint16 {
+	if len(a) < 16 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint16AVX512(a)
+}
+
+func sumsqUint16AVX512Guarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint16AVX512(a)
+}
+
+func sumsqdevUint16AVX512Guarded(a []uint16, c uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint16AVX512(a, c)
+}
+
+func sumsqdiffUint16AVX512Guarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint16AVX512(a[:n:n], b)
+}
+
+func diffUint16AVX512Guarded(dst []uint16, a []uint16) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint16AVX512(dst, a)
+}
+
+func minrUint32AVX512Guarded(a []uint32) uint32 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint32AVX512(a)
+}
+
+func maxrUint32AVX512Guarded(a []uint32) uint32 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint32AVX512(a)
+}
+
+func sumsqUint32AVX512Guarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint32AVX512(a)
+}
+
+func sumsqdevUint32AVX512Guarded(a []uint32, c uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint32AVX512(a, c)
+}
+
+func sumsqdiffUint32AVX512Guarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint32AVX512(a[:n:n], b)
+}
+
+func diffUint32AVX512Guarded(dst []uint32, a []uint32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint32AVX512(dst, a)
+}
+
+func minrUint64AVX512Guarded(a []uint64) uint64 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint64AVX512(a)
+}
+
+func maxrUint64AVX512Guarded(a []uint64) uint64 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint64AVX512(a)
+}
+
+func sumsqUint64AVX512Guarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint64AVX512(a)
+}
+
+func sumsqdevUint64AVX512Guarded(a []uint64, c uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint64AVX512(a, c)
+}
+
+func sumsqdiffUint64AVX512Guarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint64AVX512(a[:n:n], b)
+}
+
+func diffUint64AVX512Guarded(dst []uint64, a []uint64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint64AVX512(dst, a)
+}
+
 func sumFloat32AVX512Guarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -330,6 +594,228 @@ func l1diffInt64AVX512Guarded(a []int64, b []int64) int64 {
 	return l1diffInt64AVX512(a[:n:n], b)
 }
 
+func sumInt8AVX512Guarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt8AVX512(a)
+}
+
+func prodInt8AVX512Guarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt8AVX512(a)
+}
+
+func dotInt8AVX512Guarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt8AVX512(a[:n:n], b)
+}
+
+func l1normInt8AVX512Guarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt8AVX512(a)
+}
+
+func l1diffInt8AVX512Guarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt8AVX512(a[:n:n], b)
+}
+
+func sumInt16AVX512Guarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt16AVX512(a)
+}
+
+func prodInt16AVX512Guarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt16AVX512(a)
+}
+
+func dotInt16AVX512Guarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt16AVX512(a[:n:n], b)
+}
+
+func l1normInt16AVX512Guarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt16AVX512(a)
+}
+
+func l1diffInt16AVX512Guarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt16AVX512(a[:n:n], b)
+}
+
+func sumUint8AVX512Guarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint8AVX512(a)
+}
+
+func prodUint8AVX512Guarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint8AVX512(a)
+}
+
+func dotUint8AVX512Guarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint8AVX512(a[:n:n], b)
+}
+
+func l1normUint8AVX512Guarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint8AVX512(a)
+}
+
+func l1diffUint8AVX512Guarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint8AVX512(a[:n:n], b)
+}
+
+func sumUint16AVX512Guarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint16AVX512(a)
+}
+
+func prodUint16AVX512Guarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint16AVX512(a)
+}
+
+func dotUint16AVX512Guarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint16AVX512(a[:n:n], b)
+}
+
+func l1normUint16AVX512Guarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint16AVX512(a)
+}
+
+func l1diffUint16AVX512Guarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint16AVX512(a[:n:n], b)
+}
+
+func sumUint32AVX512Guarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint32AVX512(a)
+}
+
+func prodUint32AVX512Guarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint32AVX512(a)
+}
+
+func dotUint32AVX512Guarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint32AVX512(a[:n:n], b)
+}
+
+func l1normUint32AVX512Guarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint32AVX512(a)
+}
+
+func l1diffUint32AVX512Guarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint32AVX512(a[:n:n], b)
+}
+
+func sumUint64AVX512Guarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint64AVX512(a)
+}
+
+func prodUint64AVX512Guarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint64AVX512(a)
+}
+
+func dotUint64AVX512Guarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint64AVX512(a[:n:n], b)
+}
+
+func l1normUint64AVX512Guarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint64AVX512(a)
+}
+
+func l1diffUint64AVX512Guarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint64AVX512(a[:n:n], b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -358,6 +844,42 @@ func init() {
 	s.I64.SumSqDev = sumsqdevInt64AVX512Guarded
 	s.I64.SumSqDiff = sumsqdiffInt64AVX512Guarded
 	s.I64.Diff = diffInt64AVX512Guarded
+	s.I8.Min = minrInt8AVX512Guarded
+	s.I8.Max = maxrInt8AVX512Guarded
+	s.I8.SumSquares = sumsqInt8AVX512Guarded
+	s.I8.SumSqDev = sumsqdevInt8AVX512Guarded
+	s.I8.SumSqDiff = sumsqdiffInt8AVX512Guarded
+	s.I8.Diff = diffInt8AVX512Guarded
+	s.I16.Min = minrInt16AVX512Guarded
+	s.I16.Max = maxrInt16AVX512Guarded
+	s.I16.SumSquares = sumsqInt16AVX512Guarded
+	s.I16.SumSqDev = sumsqdevInt16AVX512Guarded
+	s.I16.SumSqDiff = sumsqdiffInt16AVX512Guarded
+	s.I16.Diff = diffInt16AVX512Guarded
+	s.U8.Min = minrUint8AVX512Guarded
+	s.U8.Max = maxrUint8AVX512Guarded
+	s.U8.SumSquares = sumsqUint8AVX512Guarded
+	s.U8.SumSqDev = sumsqdevUint8AVX512Guarded
+	s.U8.SumSqDiff = sumsqdiffUint8AVX512Guarded
+	s.U8.Diff = diffUint8AVX512Guarded
+	s.U16.Min = minrUint16AVX512Guarded
+	s.U16.Max = maxrUint16AVX512Guarded
+	s.U16.SumSquares = sumsqUint16AVX512Guarded
+	s.U16.SumSqDev = sumsqdevUint16AVX512Guarded
+	s.U16.SumSqDiff = sumsqdiffUint16AVX512Guarded
+	s.U16.Diff = diffUint16AVX512Guarded
+	s.U32.Min = minrUint32AVX512Guarded
+	s.U32.Max = maxrUint32AVX512Guarded
+	s.U32.SumSquares = sumsqUint32AVX512Guarded
+	s.U32.SumSqDev = sumsqdevUint32AVX512Guarded
+	s.U32.SumSqDiff = sumsqdiffUint32AVX512Guarded
+	s.U32.Diff = diffUint32AVX512Guarded
+	s.U64.Min = minrUint64AVX512Guarded
+	s.U64.Max = maxrUint64AVX512Guarded
+	s.U64.SumSquares = sumsqUint64AVX512Guarded
+	s.U64.SumSqDev = sumsqdevUint64AVX512Guarded
+	s.U64.SumSqDiff = sumsqdiffUint64AVX512Guarded
+	s.U64.Diff = diffUint64AVX512Guarded
 	s.F32.Sum = sumFloat32AVX512Guarded
 	s.F32.Dot = dotFloat32AVX512Guarded
 	s.F32.L1Norm = l1normFloat32AVX512Guarded
@@ -376,4 +898,34 @@ func init() {
 	s.I64.Dot = dotInt64AVX512Guarded
 	s.I64.L1Norm = l1normInt64AVX512Guarded
 	s.I64.L1Diff = l1diffInt64AVX512Guarded
+	s.I8.Sum = sumInt8AVX512Guarded
+	s.I8.Prod = prodInt8AVX512Guarded
+	s.I8.Dot = dotInt8AVX512Guarded
+	s.I8.L1Norm = l1normInt8AVX512Guarded
+	s.I8.L1Diff = l1diffInt8AVX512Guarded
+	s.I16.Sum = sumInt16AVX512Guarded
+	s.I16.Prod = prodInt16AVX512Guarded
+	s.I16.Dot = dotInt16AVX512Guarded
+	s.I16.L1Norm = l1normInt16AVX512Guarded
+	s.I16.L1Diff = l1diffInt16AVX512Guarded
+	s.U8.Sum = sumUint8AVX512Guarded
+	s.U8.Prod = prodUint8AVX512Guarded
+	s.U8.Dot = dotUint8AVX512Guarded
+	s.U8.L1Norm = l1normUint8AVX512Guarded
+	s.U8.L1Diff = l1diffUint8AVX512Guarded
+	s.U16.Sum = sumUint16AVX512Guarded
+	s.U16.Prod = prodUint16AVX512Guarded
+	s.U16.Dot = dotUint16AVX512Guarded
+	s.U16.L1Norm = l1normUint16AVX512Guarded
+	s.U16.L1Diff = l1diffUint16AVX512Guarded
+	s.U32.Sum = sumUint32AVX512Guarded
+	s.U32.Prod = prodUint32AVX512Guarded
+	s.U32.Dot = dotUint32AVX512Guarded
+	s.U32.L1Norm = l1normUint32AVX512Guarded
+	s.U32.L1Diff = l1diffUint32AVX512Guarded
+	s.U64.Sum = sumUint64AVX512Guarded
+	s.U64.Prod = prodUint64AVX512Guarded
+	s.U64.Dot = dotUint64AVX512Guarded
+	s.U64.L1Norm = l1normUint64AVX512Guarded
+	s.U64.L1Diff = l1diffUint64AVX512Guarded
 }

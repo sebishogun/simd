@@ -70,6 +70,30 @@ func gatherInt64AVX512(dst []int64, src []int64, idx []int32)
 func scatterInt64AVX512(dst []int64, idx []int32, src []int64)
 
 //go:noescape
+func scatterInt8AVX512(dst []int8, idx []int32, src []int8)
+
+//go:noescape
+func scatterInt16AVX512(dst []int16, idx []int32, src []int16)
+
+//go:noescape
+func scatterUint8AVX512(dst []byte, idx []int32, src []byte)
+
+//go:noescape
+func scatterUint16AVX512(dst []uint16, idx []int32, src []uint16)
+
+//go:noescape
+func gatherUint32AVX512(dst []uint32, src []uint32, idx []int32)
+
+//go:noescape
+func scatterUint32AVX512(dst []uint32, idx []int32, src []uint32)
+
+//go:noescape
+func gatherUint64AVX512(dst []uint64, src []uint64, idx []int32)
+
+//go:noescape
+func scatterUint64AVX512(dst []uint64, idx []int32, src []uint64)
+
+//go:noescape
 func movingAverageFloat32AVX512(dst []float32, a []float32, width int)
 
 //go:noescape

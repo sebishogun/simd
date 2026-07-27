@@ -205,6 +205,16 @@ type Ops[T any] struct {
 	LessScalarMask, LessEqualScalarMask       func(dst []bool, a []T, v T)
 	GreaterScalarMask, GreaterEqualScalarMask func(dst []bool, a []T, v T)
 
+	// SatAdd and SatSub clamp at the element type's limits instead of
+	// wrapping. They are the reason the narrow integer types are worth having:
+	// a single instruction on every vector unit here, and the operation image
+	// and audio code actually wants, where wrapping turns a bright pixel dark.
+	//
+	// Nil for the floating-point and 64-bit integer instantiations: floats
+	// saturate at infinity by themselves, and no wider integer exists to
+	// detect a 64-bit overflow in.
+	SatAdd, SatSub func(dst, a, b []T)
+
 	// Select is the blend: dst[i] = mask[i] ? yes[i] : no[i].
 	Select func(dst []T, mask []bool, yes, no []T)
 
@@ -327,11 +337,21 @@ type ComplexParts[C any, R any] struct {
 // Set is one complete backend: every kernel, for one tier.
 type Set struct {
 	// Name identifies the tier, matching cpu.Tier.String.
-	Name      string
-	F32       Ops[float32]
-	F64       Ops[float64]
-	I32       Ops[int32]
-	I64       Ops[int64]
+	Name string
+	F32  Ops[float32]
+	F64  Ops[float64]
+	I32  Ops[int32]
+	I64  Ops[int64]
+
+	// The narrow and unsigned integers. They carry the same Ops shape, with
+	// the operations that do not apply left nil, so that a caller reaching
+	// one through the generic API gets the same surface as any other type.
+	I8        Ops[int8]
+	I16       Ops[int16]
+	U8        Ops[uint8]
+	U16       Ops[uint16]
+	U32       Ops[uint32]
+	U64       Ops[uint64]
 	Bytes     Bytes
 	Mask      Mask
 	C64       Complex[complex64]

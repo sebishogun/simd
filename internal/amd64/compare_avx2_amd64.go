@@ -172,6 +172,240 @@ func geScalarInt64MaskAVX2(dst []bool, a []int64, v int64)
 func selectInt64AVX2(dst []int64, mask []bool, yes []int64, no []int64)
 
 //go:noescape
+func eqInt8MaskAVX2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func eqScalarInt8MaskAVX2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func neInt8MaskAVX2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func neScalarInt8MaskAVX2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func ltInt8MaskAVX2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func ltScalarInt8MaskAVX2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func leInt8MaskAVX2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func leScalarInt8MaskAVX2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func gtInt8MaskAVX2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func gtScalarInt8MaskAVX2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func geInt8MaskAVX2(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func geScalarInt8MaskAVX2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func selectInt8AVX2(dst []int8, mask []bool, yes []int8, no []int8)
+
+//go:noescape
+func eqInt16MaskAVX2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func eqScalarInt16MaskAVX2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func neInt16MaskAVX2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func neScalarInt16MaskAVX2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func ltInt16MaskAVX2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func ltScalarInt16MaskAVX2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func leInt16MaskAVX2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func leScalarInt16MaskAVX2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func gtInt16MaskAVX2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func gtScalarInt16MaskAVX2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func geInt16MaskAVX2(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func geScalarInt16MaskAVX2(dst []bool, a []int16, v int16)
+
+//go:noescape
+func selectInt16AVX2(dst []int16, mask []bool, yes []int16, no []int16)
+
+//go:noescape
+func eqUint8MaskAVX2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func eqScalarUint8MaskAVX2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func neUint8MaskAVX2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func neScalarUint8MaskAVX2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func ltUint8MaskAVX2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func ltScalarUint8MaskAVX2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func leUint8MaskAVX2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func leScalarUint8MaskAVX2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func gtUint8MaskAVX2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func gtScalarUint8MaskAVX2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func geUint8MaskAVX2(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func geScalarUint8MaskAVX2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func selectUint8AVX2(dst []byte, mask []bool, yes []byte, no []byte)
+
+//go:noescape
+func eqUint16MaskAVX2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func eqScalarUint16MaskAVX2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func neUint16MaskAVX2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func neScalarUint16MaskAVX2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func ltUint16MaskAVX2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func ltScalarUint16MaskAVX2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func leUint16MaskAVX2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func leScalarUint16MaskAVX2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func gtUint16MaskAVX2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func gtScalarUint16MaskAVX2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func geUint16MaskAVX2(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func geScalarUint16MaskAVX2(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func selectUint16AVX2(dst []uint16, mask []bool, yes []uint16, no []uint16)
+
+//go:noescape
+func eqUint32MaskAVX2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func eqScalarUint32MaskAVX2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func neUint32MaskAVX2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func neScalarUint32MaskAVX2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func ltUint32MaskAVX2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func ltScalarUint32MaskAVX2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func leUint32MaskAVX2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func leScalarUint32MaskAVX2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func gtUint32MaskAVX2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func gtScalarUint32MaskAVX2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func geUint32MaskAVX2(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func geScalarUint32MaskAVX2(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func selectUint32AVX2(dst []uint32, mask []bool, yes []uint32, no []uint32)
+
+//go:noescape
+func eqUint64MaskAVX2(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func eqScalarUint64MaskAVX2(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func neUint64MaskAVX2(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func neScalarUint64MaskAVX2(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func ltUint64MaskAVX2(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func ltScalarUint64MaskAVX2(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func leUint64MaskAVX2(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func leScalarUint64MaskAVX2(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func gtUint64MaskAVX2(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func gtScalarUint64MaskAVX2(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func geUint64MaskAVX2(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func geScalarUint64MaskAVX2(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func selectUint64AVX2(dst []uint64, mask []bool, yes []uint64, no []uint64)
+
+//go:noescape
 func maskAllAVX2(m []bool) bool
 
 //go:noescape

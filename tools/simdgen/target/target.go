@@ -71,6 +71,26 @@ type Target struct {
 	MovPtr, MovInt32, MovByte string
 	MovFloat32, MovFloat64    string
 
+	// The narrow integer moves, which widen to a full register on the way in.
+	//
+	// These exist because the narrow element types pass their scalar arguments
+	// to C as a 64-bit integer rather than as their own width. That looks
+	// wasteful and is the only portable choice: how a narrow argument is
+	// extended into its register is a property of each ABI, and they disagree.
+	// Both RISC-V and LoongArch require an *unsigned* 32-bit argument to be
+	// sign-extended to 64 bits, where every other target here zero-extends it;
+	// an implementation that guessed one way would be right on five targets
+	// and silently wrong on two, for values above 2^31 only.
+	//
+	// Declaring the C parameter as long long removes the disagreement — a
+	// 64-bit integer argument occupies its whole register everywhere — and
+	// moves the widening to this side, where the Go type says unambiguously
+	// which of the two it is. Signed types sign-extend, unsigned zero-extend,
+	// and the kernel casts back down to its element type.
+	//
+	// MovByte is the unsigned byte load and serves uint8 as well.
+	MovInt8, MovInt16, MovUint16, MovUint32 string
+
 	// AddrOf computes the address of an argument-frame slot into a register.
 	// amd64 spells this LEAQ; the RISC-style architectures use their ordinary
 	// move with a $ prefix on the operand.
@@ -314,6 +334,7 @@ var All = []Target{
 		FloatArgs:  []string{"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"},
 		IntResult:  "R3", FloatResult: "F1",
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBZ",
+		MovInt8: "MOVB", MovInt16: "MOVH", MovUint16: "MOVHZ", MovUint32: "MOVWZ",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
 		// No -ffixed here: clang's ppc64 target does not accept -ffixed-rN at
 		// all, and a global register variable for one is accepted and then
@@ -342,6 +363,7 @@ var All = []Target{
 		FloatArgs:  []string{"X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7"},
 		IntResult:  "AX", FloatResult: "X0",
 		AddrOf: "LEAQ", MovPtr: "MOVQ", MovInt32: "MOVL", MovByte: "MOVBLZX",
+		MovInt8: "MOVBQSX", MovInt16: "MOVWQSX", MovUint16: "MOVWQZX", MovUint32: "MOVLQZX",
 		MovFloat32: "MOVSS", MovFloat64: "MOVSD",
 		MinFeature: FeatSSE2,
 	},
@@ -356,6 +378,7 @@ var All = []Target{
 		FloatArgs:  []string{"X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7"},
 		IntResult:  "AX", FloatResult: "X0",
 		AddrOf: "LEAQ", MovPtr: "MOVQ", MovInt32: "MOVL", MovByte: "MOVBLZX",
+		MovInt8: "MOVBQSX", MovInt16: "MOVWQSX", MovUint16: "MOVWQZX", MovUint32: "MOVLQZX",
 		MovFloat32: "MOVSS", MovFloat64: "MOVSD",
 		MinFeature: FeatAVX2,
 	},
@@ -372,6 +395,7 @@ var All = []Target{
 		FloatArgs:  []string{"X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7"},
 		IntResult:  "AX", FloatResult: "X0",
 		AddrOf: "LEAQ", MovPtr: "MOVQ", MovInt32: "MOVL", MovByte: "MOVBLZX",
+		MovInt8: "MOVBQSX", MovInt16: "MOVWQSX", MovUint16: "MOVWQZX", MovUint32: "MOVLQZX",
 		MovFloat32: "MOVSS", MovFloat64: "MOVSD",
 		MinFeature: FeatAVX512,
 	},
@@ -384,6 +408,7 @@ var All = []Target{
 		FloatArgs:  []string{"F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7"},
 		IntResult:  "R0", FloatResult: "F0",
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBU",
+		MovInt8: "MOVB", MovInt16: "MOVH", MovUint16: "MOVHU", MovUint32: "MOVWU",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
 		// R27 and R28 are reserved by Go's compiler and linker; R18 is the OS
 		// platform register. Unlike x86, clang honours -ffixed for these.
@@ -405,6 +430,7 @@ var All = []Target{
 		FloatArgs:  []string{"F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7"},
 		IntResult:  "R0", FloatResult: "F0",
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBU",
+		MovInt8: "MOVB", MovInt16: "MOVH", MovUint16: "MOVHU", MovUint32: "MOVWU",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
 		Reserved:    []string{"x28", "x27", "x18"},
 		GoOwned:     []string{"x28", "x27", "x18"},
@@ -433,6 +459,7 @@ var All = []Target{
 		FloatArgs:  []string{"F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17"},
 		IntResult:  "X10", FloatResult: "F10",
 		AddrOf: "MOV", MovPtr: "MOV", MovInt32: "MOVW", MovByte: "MOVBU",
+		MovInt8: "MOVB", MovInt16: "MOVH", MovUint16: "MOVHU", MovUint32: "MOVWU",
 		MovFloat32: "MOVF", MovFloat64: "MOVD",
 		DisasmFlags: []string{"--mattr=+v"},
 		MinFeature:  FeatRVV,
@@ -452,6 +479,7 @@ var All = []Target{
 		FloatArgs:  []string{"F0", "F2", "F4", "F6"},
 		IntResult:  "R2", FloatResult: "F0",
 		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBZ",
+		MovInt8: "MOVB", MovInt16: "MOVH", MovUint16: "MOVHZ", MovUint32: "MOVWZ",
 		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
 		DisasmFlags: []string{"--mcpu=z14"},
 		MinFeature:  FeatVX,
@@ -459,15 +487,30 @@ var All = []Target{
 	{
 		Arch: LOONG64, Tier: "lasx", Triple: "loongarch64-linux-gnu",
 		MArch: []string{"-march=la464"},
-		// Reserved by the global register variable in csrc/goabi.h, which
-		// clang does honour here.
-		GoOwned:    []string{"r22"},
+		// r22 is the current goroutine. The global register variable in
+		// csrc/goabi.h does not reserve it: clang accepts the declaration for
+		// every spelling of the register and allocates it anyway, exactly as
+		// on SystemZ, and LoongArch has no -ffixed-rN at all. So the only
+		// defence is this check, and the kernels that lose it keep the
+		// portable path.
+		//
+		// The spelling is "$fp" because that is what llvm-objdump prints —
+		// LoongArch's ABI name for r22, since the frame pointer is what it is
+		// when a frame pointer is wanted and a callee-saved general register
+		// otherwise. Written "r22", as it was, this check matched nothing and
+		// the clobber shipped: 616 uses across these sources, every one of
+		// them fatal the moment a signal arrives, because loong64's sigtramp
+		// reads g from the register rather than from thread-local storage
+		// unless cgo is in play.
+		GoOwned:    []string{"$fp"},
+		StackReg:   "$sp",
 		InstrWidth: 4,
 		Directives: dirWord,
 		IntArgs:    []string{"R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11"},
 		FloatArgs:  []string{"F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7"},
 		IntResult:  "R4", FloatResult: "F0",
 		AddrOf: "MOVV", MovPtr: "MOVV", MovInt32: "MOVW", MovByte: "MOVBU",
+		MovInt8: "MOVB", MovInt16: "MOVH", MovUint16: "MOVHU", MovUint32: "MOVWU",
 		MovFloat32: "MOVF", MovFloat64: "MOVD",
 		DisasmFlags: []string{"--mattr=+lasx"},
 		MinFeature:  FeatLASX,

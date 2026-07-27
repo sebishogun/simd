@@ -64,6 +64,14 @@ func diffInt32VSXGuarded(dst []int32, a []int32) {
 	diffInt32VSX(dst, a)
 }
 
+func diffUint32VSXGuarded(dst []uint32, a []uint32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint32VSX(dst, a)
+}
+
 func sumFloat64VSXGuarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -102,6 +110,22 @@ func l1diffInt64VSXGuarded(a []int64, b []int64) int64 {
 	return l1diffInt64VSX(a[:n:n], b)
 }
 
+func l1diffUint32VSXGuarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint32VSX(a[:n:n], b)
+}
+
+func l1diffUint64VSXGuarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint64VSX(a[:n:n], b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -112,9 +136,12 @@ func init() {
 	s.F64.SumSquares = sumsqFloat64VSXGuarded
 	s.F64.SumSqDev = sumsqdevFloat64VSXGuarded
 	s.I32.Diff = diffInt32VSXGuarded
+	s.U32.Diff = diffUint32VSXGuarded
 	s.F64.Sum = sumFloat64VSXGuarded
 	s.F64.Dot = dotFloat64VSXGuarded
 	s.F64.L1Norm = l1normFloat64VSXGuarded
 	s.I32.L1Diff = l1diffInt32VSXGuarded
 	s.I64.L1Diff = l1diffInt64VSXGuarded
+	s.U32.L1Diff = l1diffUint32VSXGuarded
+	s.U64.L1Diff = l1diffUint64VSXGuarded
 }

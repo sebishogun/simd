@@ -13,23 +13,27 @@
 #include "goabi.h"
 #include "fold.h"
 
-#define CMP(NAME, T, SUF, OP)                                            \
+// ST is the scalar transport type, the same convention as csrc/arith.c: the
+// element type for anything as wide as an int, a 64-bit integer for anything
+// narrower, so that no ABI's rule for extending a short argument can apply.
+#define CMP(NAME, T, ST, SUF, OP)                                        \
   void simd_##NAME##_##SUF(_Bool *__restrict d, const T *__restrict a,   \
                            const T *__restrict b, isize n) {             \
     for (isize i = 0; i < n; i++) d[i] = a[i] OP b[i];                   \
   }                                                                      \
   void simd_##NAME##s_##SUF(_Bool *__restrict d, const T *__restrict a,  \
-                            T v, isize n) {                              \
+                            ST v_, isize n) {                            \
+    T v = (T)v_;                                                         \
     for (isize i = 0; i < n; i++) d[i] = a[i] OP v;                      \
   }
 
-#define COMPARISONS(T, SUF)                                              \
-  CMP(eq, T, SUF, ==)                                                    \
-  CMP(ne, T, SUF, !=)                                                    \
-  CMP(lt, T, SUF, <)                                                     \
-  CMP(le, T, SUF, <=)                                                    \
-  CMP(gt, T, SUF, >)                                                     \
-  CMP(ge, T, SUF, >=)                                                    \
+#define COMPARISONS(T, ST, SUF)                                          \
+  CMP(eq, T, ST, SUF, ==)                                                \
+  CMP(ne, T, ST, SUF, !=)                                                \
+  CMP(lt, T, ST, SUF, <)                                                 \
+  CMP(le, T, ST, SUF, <=)                                                \
+  CMP(gt, T, ST, SUF, >)                                                 \
+  CMP(ge, T, ST, SUF, >=)                                                \
   void simd_select_##SUF(T *__restrict d, const _Bool *__restrict m,     \
                          const T *__restrict yes, const T *__restrict no, \
                          isize n) {                                      \
@@ -46,10 +50,22 @@
     }                                                                    \
   }
 
-COMPARISONS(float, f32)
-COMPARISONS(double, f64)
-COMPARISONS(int, i32)
-COMPARISONS(long long, i64)
+COMPARISONS(float, float, f32)
+COMPARISONS(double, double, f64)
+COMPARISONS(int, int, i32)
+COMPARISONS(long long, long long, i64)
+
+// The narrow and unsigned types. Unsigned comparison falls out of the operand
+// type, so the same macro is right for both signedness classes — and getting
+// it from the type rather than from a choice of operator is the point: a
+// hand-written unsigned kernel that compares as signed is wrong only for the
+// top half of the range, which no ordinary test input reaches.
+COMPARISONS(signed char, long long, i8)
+COMPARISONS(short, long long, i16)
+COMPARISONS(unsigned char, unsigned long long, u8)
+COMPARISONS(unsigned short, unsigned long long, u16)
+COMPARISONS(unsigned int, unsigned long long, u32)
+COMPARISONS(unsigned long long, unsigned long long, u64)
 
 // ---------- boolean vectors ----------
 //

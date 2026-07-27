@@ -52,6 +52,78 @@ func gtScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 func geScalarFloat64MaskVX(dst []bool, a []float64, v float64)
 
 //go:noescape
+func eqInt8MaskVX(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func eqScalarInt8MaskVX(dst []bool, a []int8, v int8)
+
+//go:noescape
+func neInt8MaskVX(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func neScalarInt8MaskVX(dst []bool, a []int8, v int8)
+
+//go:noescape
+func ltInt8MaskVX(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func ltScalarInt8MaskVX(dst []bool, a []int8, v int8)
+
+//go:noescape
+func leInt8MaskVX(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func leScalarInt8MaskVX(dst []bool, a []int8, v int8)
+
+//go:noescape
+func gtInt8MaskVX(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func gtScalarInt8MaskVX(dst []bool, a []int8, v int8)
+
+//go:noescape
+func geInt8MaskVX(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func geScalarInt8MaskVX(dst []bool, a []int8, v int8)
+
+//go:noescape
+func eqUint8MaskVX(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func eqScalarUint8MaskVX(dst []bool, a []byte, v byte)
+
+//go:noescape
+func neUint8MaskVX(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func neScalarUint8MaskVX(dst []bool, a []byte, v byte)
+
+//go:noescape
+func ltUint8MaskVX(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func ltScalarUint8MaskVX(dst []bool, a []byte, v byte)
+
+//go:noescape
+func leUint8MaskVX(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func leScalarUint8MaskVX(dst []bool, a []byte, v byte)
+
+//go:noescape
+func gtUint8MaskVX(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func gtScalarUint8MaskVX(dst []bool, a []byte, v byte)
+
+//go:noescape
+func geUint8MaskVX(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func geScalarUint8MaskVX(dst []bool, a []byte, v byte)
+
+//go:noescape
 func maskAllVX(m []bool) bool
 
 //go:noescape

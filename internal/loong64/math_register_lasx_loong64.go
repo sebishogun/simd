@@ -38,15 +38,6 @@ func exp2Float64LASXGuarded(dst []float64, a []float64) {
 	exp2Float64LASX(dst[:n:n], a)
 }
 
-func expm1Float64LASXGuarded(dst []float64, a []float64) {
-	n := min(len(dst), len(a))
-	if n < 4 {
-		ref.Expm1(dst, a)
-		return
-	}
-	expm1Float64LASX(dst[:n:n], a)
-}
-
 func logFloat64LASXGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -155,15 +146,6 @@ func atanFloat64LASXGuarded(dst []float64, a []float64) {
 	atanFloat64LASX(dst[:n:n], a)
 }
 
-func sinhFloat64LASXGuarded(dst []float64, a []float64) {
-	n := min(len(dst), len(a))
-	if n < 4 {
-		ref.Sinh(dst, a)
-		return
-	}
-	sinhFloat64LASX(dst[:n:n], a)
-}
-
 func coshFloat64LASXGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -173,31 +155,12 @@ func coshFloat64LASXGuarded(dst []float64, a []float64) {
 	coshFloat64LASX(dst[:n:n], a)
 }
 
-func tanhFloat64LASXGuarded(dst []float64, a []float64) {
-	n := min(len(dst), len(a))
-	if n < 4 {
-		ref.Tanh(dst, a)
-		return
-	}
-	tanhFloat64LASX(dst[:n:n], a)
-}
-
-func powFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 4 {
-		ref.Pow(dst, a, b)
-		return
-	}
-	powFloat64LASX(dst[:n:n], a, b)
-}
-
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("lasx")
 	s.F64.Exp = expFloat64LASXGuarded
 	s.F64.Exp2 = exp2Float64LASXGuarded
-	s.F64.Expm1 = expm1Float64LASXGuarded
 	s.F64.Log = logFloat64LASXGuarded
 	s.F64.Log2 = log2Float64LASXGuarded
 	s.F64.Log10 = log10Float64LASXGuarded
@@ -210,8 +173,5 @@ func init() {
 	s.F64.Asin = asinFloat64LASXGuarded
 	s.F64.Acos = acosFloat64LASXGuarded
 	s.F64.Atan = atanFloat64LASXGuarded
-	s.F64.Sinh = sinhFloat64LASXGuarded
 	s.F64.Cosh = coshFloat64LASXGuarded
-	s.F64.Tanh = tanhFloat64LASXGuarded
-	s.F64.Pow = powFloat64LASXGuarded
 }

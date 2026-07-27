@@ -88,6 +88,114 @@ func sumsqdiffInt64SSE2(a []int64, b []int64) int64
 func diffInt64SSE2(dst []int64, a []int64)
 
 //go:noescape
+func minrInt8SSE2(a []int8) int8
+
+//go:noescape
+func maxrInt8SSE2(a []int8) int8
+
+//go:noescape
+func sumsqInt8SSE2(a []int8) int8
+
+//go:noescape
+func sumsqdevInt8SSE2(a []int8, c int8) int8
+
+//go:noescape
+func sumsqdiffInt8SSE2(a []int8, b []int8) int8
+
+//go:noescape
+func diffInt8SSE2(dst []int8, a []int8)
+
+//go:noescape
+func minrInt16SSE2(a []int16) int16
+
+//go:noescape
+func maxrInt16SSE2(a []int16) int16
+
+//go:noescape
+func sumsqInt16SSE2(a []int16) int16
+
+//go:noescape
+func sumsqdevInt16SSE2(a []int16, c int16) int16
+
+//go:noescape
+func sumsqdiffInt16SSE2(a []int16, b []int16) int16
+
+//go:noescape
+func diffInt16SSE2(dst []int16, a []int16)
+
+//go:noescape
+func minrUint8SSE2(a []byte) byte
+
+//go:noescape
+func maxrUint8SSE2(a []byte) byte
+
+//go:noescape
+func sumsqUint8SSE2(a []byte) byte
+
+//go:noescape
+func sumsqdevUint8SSE2(a []byte, c byte) byte
+
+//go:noescape
+func sumsqdiffUint8SSE2(a []byte, b []byte) byte
+
+//go:noescape
+func diffUint8SSE2(dst []byte, a []byte)
+
+//go:noescape
+func minrUint16SSE2(a []uint16) uint16
+
+//go:noescape
+func maxrUint16SSE2(a []uint16) uint16
+
+//go:noescape
+func sumsqUint16SSE2(a []uint16) uint16
+
+//go:noescape
+func sumsqdevUint16SSE2(a []uint16, c uint16) uint16
+
+//go:noescape
+func sumsqdiffUint16SSE2(a []uint16, b []uint16) uint16
+
+//go:noescape
+func diffUint16SSE2(dst []uint16, a []uint16)
+
+//go:noescape
+func minrUint32SSE2(a []uint32) uint32
+
+//go:noescape
+func maxrUint32SSE2(a []uint32) uint32
+
+//go:noescape
+func sumsqUint32SSE2(a []uint32) uint32
+
+//go:noescape
+func sumsqdevUint32SSE2(a []uint32, c uint32) uint32
+
+//go:noescape
+func sumsqdiffUint32SSE2(a []uint32, b []uint32) uint32
+
+//go:noescape
+func diffUint32SSE2(dst []uint32, a []uint32)
+
+//go:noescape
+func minrUint64SSE2(a []uint64) uint64
+
+//go:noescape
+func maxrUint64SSE2(a []uint64) uint64
+
+//go:noescape
+func sumsqUint64SSE2(a []uint64) uint64
+
+//go:noescape
+func sumsqdevUint64SSE2(a []uint64, c uint64) uint64
+
+//go:noescape
+func sumsqdiffUint64SSE2(a []uint64, b []uint64) uint64
+
+//go:noescape
+func diffUint64SSE2(dst []uint64, a []uint64)
+
+//go:noescape
 func sumFloat32SSE2(a []float32) float32
 
 //go:noescape
@@ -125,3 +233,84 @@ func l1normInt64SSE2(a []int64) int64
 
 //go:noescape
 func l1diffInt64SSE2(a []int64, b []int64) int64
+
+//go:noescape
+func sumInt8SSE2(a []int8) int8
+
+//go:noescape
+func dotInt8SSE2(a []int8, b []int8) int8
+
+//go:noescape
+func l1normInt8SSE2(a []int8) int8
+
+//go:noescape
+func l1diffInt8SSE2(a []int8, b []int8) int8
+
+//go:noescape
+func sumInt16SSE2(a []int16) int16
+
+//go:noescape
+func prodInt16SSE2(a []int16) int16
+
+//go:noescape
+func dotInt16SSE2(a []int16, b []int16) int16
+
+//go:noescape
+func l1normInt16SSE2(a []int16) int16
+
+//go:noescape
+func l1diffInt16SSE2(a []int16, b []int16) int16
+
+//go:noescape
+func sumUint8SSE2(a []byte) byte
+
+//go:noescape
+func dotUint8SSE2(a []byte, b []byte) byte
+
+//go:noescape
+func l1normUint8SSE2(a []byte) byte
+
+//go:noescape
+func l1diffUint8SSE2(a []byte, b []byte) byte
+
+//go:noescape
+func sumUint16SSE2(a []uint16) uint16
+
+//go:noescape
+func prodUint16SSE2(a []uint16) uint16
+
+//go:noescape
+func dotUint16SSE2(a []uint16, b []uint16) uint16
+
+//go:noescape
+func l1normUint16SSE2(a []uint16) uint16
+
+//go:noescape
+func l1diffUint16SSE2(a []uint16, b []uint16) uint16
+
+//go:noescape
+func sumUint32SSE2(a []uint32) uint32
+
+//go:noescape
+func prodUint32SSE2(a []uint32) uint32
+
+//go:noescape
+func dotUint32SSE2(a []uint32, b []uint32) uint32
+
+//go:noescape
+func l1normUint32SSE2(a []uint32) uint32
+
+//go:noescape
+func l1diffUint32SSE2(a []uint32, b []uint32) uint32
+
+//go:noescape
+func sumUint64SSE2(a []uint64) uint64
+
+//go:noescape
+func dotUint64SSE2(a []uint64, b []uint64) uint64
+
+//go:noescape
+func l1normUint64SSE2(a []uint64) uint64
+
+//go:noescape
+func l1diffUint64SSE2(a []uint64, b []uint64) uint64

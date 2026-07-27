@@ -172,6 +172,240 @@ func geScalarInt64MaskRVV(dst []bool, a []int64, v int64)
 func selectInt64RVV(dst []int64, mask []bool, yes []int64, no []int64)
 
 //go:noescape
+func eqInt8MaskRVV(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func eqScalarInt8MaskRVV(dst []bool, a []int8, v int8)
+
+//go:noescape
+func neInt8MaskRVV(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func neScalarInt8MaskRVV(dst []bool, a []int8, v int8)
+
+//go:noescape
+func ltInt8MaskRVV(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func ltScalarInt8MaskRVV(dst []bool, a []int8, v int8)
+
+//go:noescape
+func leInt8MaskRVV(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func leScalarInt8MaskRVV(dst []bool, a []int8, v int8)
+
+//go:noescape
+func gtInt8MaskRVV(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func gtScalarInt8MaskRVV(dst []bool, a []int8, v int8)
+
+//go:noescape
+func geInt8MaskRVV(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func geScalarInt8MaskRVV(dst []bool, a []int8, v int8)
+
+//go:noescape
+func selectInt8RVV(dst []int8, mask []bool, yes []int8, no []int8)
+
+//go:noescape
+func eqInt16MaskRVV(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func eqScalarInt16MaskRVV(dst []bool, a []int16, v int16)
+
+//go:noescape
+func neInt16MaskRVV(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func neScalarInt16MaskRVV(dst []bool, a []int16, v int16)
+
+//go:noescape
+func ltInt16MaskRVV(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func ltScalarInt16MaskRVV(dst []bool, a []int16, v int16)
+
+//go:noescape
+func leInt16MaskRVV(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func leScalarInt16MaskRVV(dst []bool, a []int16, v int16)
+
+//go:noescape
+func gtInt16MaskRVV(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func gtScalarInt16MaskRVV(dst []bool, a []int16, v int16)
+
+//go:noescape
+func geInt16MaskRVV(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func geScalarInt16MaskRVV(dst []bool, a []int16, v int16)
+
+//go:noescape
+func selectInt16RVV(dst []int16, mask []bool, yes []int16, no []int16)
+
+//go:noescape
+func eqUint8MaskRVV(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func eqScalarUint8MaskRVV(dst []bool, a []byte, v byte)
+
+//go:noescape
+func neUint8MaskRVV(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func neScalarUint8MaskRVV(dst []bool, a []byte, v byte)
+
+//go:noescape
+func ltUint8MaskRVV(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func ltScalarUint8MaskRVV(dst []bool, a []byte, v byte)
+
+//go:noescape
+func leUint8MaskRVV(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func leScalarUint8MaskRVV(dst []bool, a []byte, v byte)
+
+//go:noescape
+func gtUint8MaskRVV(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func gtScalarUint8MaskRVV(dst []bool, a []byte, v byte)
+
+//go:noescape
+func geUint8MaskRVV(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func geScalarUint8MaskRVV(dst []bool, a []byte, v byte)
+
+//go:noescape
+func selectUint8RVV(dst []byte, mask []bool, yes []byte, no []byte)
+
+//go:noescape
+func eqUint16MaskRVV(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func eqScalarUint16MaskRVV(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func neUint16MaskRVV(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func neScalarUint16MaskRVV(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func ltUint16MaskRVV(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func ltScalarUint16MaskRVV(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func leUint16MaskRVV(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func leScalarUint16MaskRVV(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func gtUint16MaskRVV(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func gtScalarUint16MaskRVV(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func geUint16MaskRVV(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func geScalarUint16MaskRVV(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func selectUint16RVV(dst []uint16, mask []bool, yes []uint16, no []uint16)
+
+//go:noescape
+func eqUint32MaskRVV(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func eqScalarUint32MaskRVV(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func neUint32MaskRVV(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func neScalarUint32MaskRVV(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func ltUint32MaskRVV(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func ltScalarUint32MaskRVV(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func leUint32MaskRVV(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func leScalarUint32MaskRVV(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func gtUint32MaskRVV(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func gtScalarUint32MaskRVV(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func geUint32MaskRVV(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func geScalarUint32MaskRVV(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func selectUint32RVV(dst []uint32, mask []bool, yes []uint32, no []uint32)
+
+//go:noescape
+func eqUint64MaskRVV(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func eqScalarUint64MaskRVV(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func neUint64MaskRVV(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func neScalarUint64MaskRVV(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func ltUint64MaskRVV(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func ltScalarUint64MaskRVV(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func leUint64MaskRVV(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func leScalarUint64MaskRVV(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func gtUint64MaskRVV(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func gtScalarUint64MaskRVV(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func geUint64MaskRVV(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func geScalarUint64MaskRVV(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func selectUint64RVV(dst []uint64, mask []bool, yes []uint64, no []uint64)
+
+//go:noescape
 func maskAllRVV(m []bool) bool
 
 //go:noescape

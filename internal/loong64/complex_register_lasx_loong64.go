@@ -38,24 +38,6 @@ func csubComplex64LASXGuarded(dst []complex64, a []complex64, b []complex64) {
 	csubComplex64LASX(dst[:n:n], a, b)
 }
 
-func cmulComplex64LASXGuarded(dst []complex64, a []complex64, b []complex64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.CMul64(dst, a, b)
-		return
-	}
-	cmulComplex64LASX(dst[:n:n], a, b)
-}
-
-func cdivComplex64LASXGuarded(dst []complex64, a []complex64, b []complex64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.CDiv64(dst, a, b)
-		return
-	}
-	cdivComplex64LASX(dst[:n:n], a, b)
-}
-
 func cnegComplex64LASXGuarded(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -63,15 +45,6 @@ func cnegComplex64LASXGuarded(dst []complex64, a []complex64) {
 		return
 	}
 	cnegComplex64LASX(dst[:n:n], a)
-}
-
-func cabsComplex64LASXGuarded(dst []float32, a []complex64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.CAbs64(dst, a)
-		return
-	}
-	cabsComplex64LASX(dst[:n:n], a)
 }
 
 func crealComplex64LASXGuarded(dst []float32, a []complex64) {
@@ -101,15 +74,6 @@ func cscaleComplex64LASXGuarded(dst []complex64, a []complex64, s float32) {
 	cscaleComplex64LASX(dst[:n:n], a, s)
 }
 
-func cfromPartsComplex64LASXGuarded(dst []complex64, re []float32, im []float32) {
-	n := min(len(dst), len(re), len(im))
-	if n < 16 {
-		ref.CFromParts64(dst, re, im)
-		return
-	}
-	cfromPartsComplex64LASX(dst[:n:n], re, im)
-}
-
 func caddComplex128LASXGuarded(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -126,24 +90,6 @@ func csubComplex128LASXGuarded(dst []complex128, a []complex128, b []complex128)
 		return
 	}
 	csubComplex128LASX(dst[:n:n], a, b)
-}
-
-func cmulComplex128LASXGuarded(dst []complex128, a []complex128, b []complex128) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.CMul128(dst, a, b)
-		return
-	}
-	cmulComplex128LASX(dst[:n:n], a, b)
-}
-
-func cdivComplex128LASXGuarded(dst []complex128, a []complex128, b []complex128) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.CDiv128(dst, a, b)
-		return
-	}
-	cdivComplex128LASX(dst[:n:n], a, b)
 }
 
 func cnegComplex128LASXGuarded(dst []complex128, a []complex128) {
@@ -206,18 +152,12 @@ func init() {
 	s := backend.For("lasx")
 	s.C64.Add = caddComplex64LASXGuarded
 	s.C64.Sub = csubComplex64LASXGuarded
-	s.C64.Mul = cmulComplex64LASXGuarded
-	s.C64.Div = cdivComplex64LASXGuarded
 	s.C64.Neg = cnegComplex64LASXGuarded
-	s.C64Parts.Abs = cabsComplex64LASXGuarded
 	s.C64Parts.Real = crealComplex64LASXGuarded
 	s.C64Parts.Imag = cimagComplex64LASXGuarded
 	s.C64Parts.Scale = cscaleComplex64LASXGuarded
-	s.C64Parts.FromParts = cfromPartsComplex64LASXGuarded
 	s.C128.Add = caddComplex128LASXGuarded
 	s.C128.Sub = csubComplex128LASXGuarded
-	s.C128.Mul = cmulComplex128LASXGuarded
-	s.C128.Div = cdivComplex128LASXGuarded
 	s.C128.Neg = cnegComplex128LASXGuarded
 	s.C128Parts.Abs = cabsComplex128LASXGuarded
 	s.C128Parts.Real = crealComplex128LASXGuarded

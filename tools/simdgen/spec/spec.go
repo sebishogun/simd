@@ -32,6 +32,15 @@ const (
 	SliceC64  // []complex64
 	SliceC128 // []complex128
 
+	// The narrow and unsigned integers. []byte doubles as []uint8 and byte as
+	// uint8, since they are the same types in Go and the byte spelling was
+	// here first.
+	SliceI8  // []int8
+	SliceI16 // []int16
+	SliceU16 // []uint16
+	SliceU32 // []uint32
+	SliceU64 // []uint64
+
 	F32  // float32
 	F64  // float64
 	I32  // int32
@@ -41,6 +50,12 @@ const (
 	B    // bool
 	C64  // complex64
 	C128 // complex128
+
+	I8  // int8
+	I16 // int16
+	U16 // uint16
+	U32 // uint32
+	U64 // uint64
 )
 
 var typeNames = map[Type]string{
@@ -48,9 +63,12 @@ var typeNames = map[Type]string{
 	SliceI32: "[]int32", SliceI64: "[]int64",
 	SliceU8: "[]byte", SliceB: "[]bool",
 	SliceC64: "[]complex64", SliceC128: "[]complex128",
+	SliceI8: "[]int8", SliceI16: "[]int16",
+	SliceU16: "[]uint16", SliceU32: "[]uint32", SliceU64: "[]uint64",
 	C64: "complex64", C128: "complex128",
 	F32: "float32", F64: "float64", I32: "int32", I64: "int64",
 	U8: "byte", Int: "int", B: "bool",
+	I8: "int8", I16: "int16", U16: "uint16", U32: "uint32", U64: "uint64",
 }
 
 // GoString returns the Go spelling of the type.
@@ -66,7 +84,8 @@ func (t Type) GoString() string {
 func (t Type) IsSlice() bool {
 	switch t {
 	case SliceF32, SliceF64, SliceI32, SliceI64, SliceU8, SliceB,
-		SliceC64, SliceC128:
+		SliceC64, SliceC128,
+		SliceI8, SliceI16, SliceU16, SliceU32, SliceU64:
 		return true
 	}
 	return false
@@ -88,11 +107,13 @@ func (t Type) Size() int {
 		return 16
 	case C64:
 		return 8
-	case B, U8:
+	case B, U8, I8:
 		// A bool or byte occupies one byte but is aligned to its own size;
 		// the frame layout rounds up between arguments.
 		return 1
-	case F32, I32:
+	case I16, U16:
+		return 2
+	case F32, I32, U32:
 		return 4
 	default:
 		return 8

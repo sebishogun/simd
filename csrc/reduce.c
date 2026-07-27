@@ -220,6 +220,12 @@ MINMAX_REDUCE(double, f64xM, i64xM, f64, SIGNBIT_F64)
 
 MINMAX_REDUCE_INT(int, i32)
 MINMAX_REDUCE_INT(long long, i64)
+MINMAX_REDUCE_INT(signed char, i8)
+MINMAX_REDUCE_INT(short, i16)
+MINMAX_REDUCE_INT(unsigned char, u8)
+MINMAX_REDUCE_INT(unsigned short, u16)
+MINMAX_REDUCE_INT(unsigned int, u32)
+MINMAX_REDUCE_INT(unsigned long long, u64)
 
 // ---------- the remaining summation-shaped reductions ----------
 //
@@ -279,7 +285,8 @@ FLOAT_REDUCTIONS(double, f64xL, f64, __builtin_elementwise_abs)
 
 // Integer reductions need no lane discipline: integer addition is associative,
 // so no accumulation order is observable and the compiler may choose freely.
-#define INT_REDUCTIONS(T, SUF)                                              \
+// ST is the scalar transport type; see the comment on SCALAR in csrc/arith.c.
+#define INT_REDUCTIONS(T, ST, SUF)                                          \
   void simd_sum_##SUF(T *__restrict out, const T *__restrict a, isize n) {  \
     T s = 0;                                                                \
     for (isize i = 0; i < n; i++) s += a[i];                                \
@@ -301,10 +308,11 @@ FLOAT_REDUCTIONS(double, f64xL, f64, __builtin_elementwise_abs)
     for (isize i = 0; i < n; i++) s += a[i] * a[i];                         \
     *out = s;                                                               \
   }                                                                          \
-  void simd_sumsqdev_##SUF(T *__restrict out, const T *__restrict a, T c,   \
-                           isize n) {                                        \
+  void simd_sumsqdev_##SUF(T *__restrict out, const T *__restrict a,       \
+                           ST c_, isize n) {                                 \
+    T c = (T)c_;                                                            \
     T s = 0;                                                                \
-    for (isize i = 0; i < n; i++) s += (a[i] - c) * (a[i] - c);             \
+    for (isize i = 0; i < n; i++) s += (T)((a[i] - c) * (a[i] - c));        \
     *out = s;                                                               \
   }                                                                          \
   void simd_sumsqdiff_##SUF(T *__restrict out, const T *__restrict a,       \
@@ -335,8 +343,14 @@ FLOAT_REDUCTIONS(double, f64xL, f64, __builtin_elementwise_abs)
     *out = s;                                                               \
   }
 
-INT_REDUCTIONS(int, i32)
-INT_REDUCTIONS(long long, i64)
+INT_REDUCTIONS(int, int, i32)
+INT_REDUCTIONS(long long, long long, i64)
+INT_REDUCTIONS(signed char, long long, i8)
+INT_REDUCTIONS(short, long long, i16)
+INT_REDUCTIONS(unsigned char, unsigned long long, u8)
+INT_REDUCTIONS(unsigned short, unsigned long long, u16)
+INT_REDUCTIONS(unsigned int, unsigned long long, u32)
+INT_REDUCTIONS(unsigned long long, unsigned long long, u64)
 
 // Successive differences. Unlike the running totals it is not a scan — each
 // output depends only on two neighbouring inputs — so it vectorizes.
@@ -347,10 +361,21 @@ INT_REDUCTIONS(long long, i64)
 #define DIFF(T, SUF)                                                      \
   void simd_diff_##SUF(T *__restrict d, const T *__restrict a, isize nd,  \
                        isize na) {                                        \
-    for (isize i = 0; i < nd && i + 1 < na; i++) d[i] = a[i + 1] - a[i];  \
+    /* The cast is load-bearing for the narrow types: C promotes anything   */ \
+    /* shorter than an int before subtracting, so without it the difference */ \
+    /* would wrap at 32 bits rather than at the element width, and disagree */ \
+    /* with the Go reference for exactly the operands that wrap.            */ \
+    for (isize i = 0; i < nd && i + 1 < na; i++)                          \
+      d[i] = (T)(a[i + 1] - a[i]);                                        \
   }
 
 DIFF(float, f32)
 DIFF(double, f64)
 DIFF(int, i32)
 DIFF(long long, i64)
+DIFF(signed char, i8)
+DIFF(short, i16)
+DIFF(unsigned char, u8)
+DIFF(unsigned short, u16)
+DIFF(unsigned int, u32)
+DIFF(unsigned long long, u64)

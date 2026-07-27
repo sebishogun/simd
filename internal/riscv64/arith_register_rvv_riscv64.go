@@ -520,6 +520,756 @@ func addScaledInt64RVVGuarded(dst []int64, a []int64, b []int64, s int64) {
 	addScaledInt64RVV(dst[:n:n], a, b, s)
 }
 
+func addInt8RVVGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt8RVV(dst[:n:n], a, b)
+}
+
+func subInt8RVVGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt8RVV(dst[:n:n], a, b)
+}
+
+func mulInt8RVVGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt8RVV(dst[:n:n], a, b)
+}
+
+func minimumInt8RVVGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt8RVV(dst[:n:n], a, b)
+}
+
+func maximumInt8RVVGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt8RVV(dst[:n:n], a, b)
+}
+
+func absInt8RVVGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt8RVV(dst[:n:n], a)
+}
+
+func negInt8RVVGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt8RVV(dst[:n:n], a)
+}
+
+func scaleInt8RVVGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt8RVV(dst[:n:n], a, s)
+}
+
+func addScalarInt8RVVGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt8RVV(dst[:n:n], a, s)
+}
+
+func subScalarInt8RVVGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt8RVV(dst[:n:n], a, s)
+}
+
+func clampInt8RVVGuarded(dst []int8, a []int8, lo int8, hi int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt8RVV(dst[:n:n], a, lo, hi)
+}
+
+func fillInt8RVVGuarded(dst []int8, v int8) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt8RVV(dst, v)
+}
+
+func lerpInt8RVVGuarded(dst []int8, a []int8, b []int8, t int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt8RVV(dst[:n:n], a, b, t)
+}
+
+func addScaledInt8RVVGuarded(dst []int8, a []int8, b []int8, s int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt8RVV(dst[:n:n], a, b, s)
+}
+
+func addInt16RVVGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addInt16RVV(dst[:n:n], a, b)
+}
+
+func subInt16RVVGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subInt16RVV(dst[:n:n], a, b)
+}
+
+func mulInt16RVVGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt16RVV(dst[:n:n], a, b)
+}
+
+func minimumInt16RVVGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumInt16RVV(dst[:n:n], a, b)
+}
+
+func maximumInt16RVVGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumInt16RVV(dst[:n:n], a, b)
+}
+
+func absInt16RVVGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absInt16RVV(dst[:n:n], a)
+}
+
+func negInt16RVVGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negInt16RVV(dst[:n:n], a)
+}
+
+func scaleInt16RVVGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt16RVV(dst[:n:n], a, s)
+}
+
+func addScalarInt16RVVGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarInt16RVV(dst[:n:n], a, s)
+}
+
+func subScalarInt16RVVGuarded(dst []int16, a []int16, s int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarInt16RVV(dst[:n:n], a, s)
+}
+
+func clampInt16RVVGuarded(dst []int16, a []int16, lo int16, hi int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampInt16RVV(dst[:n:n], a, lo, hi)
+}
+
+func fillInt16RVVGuarded(dst []int16, v int16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillInt16RVV(dst, v)
+}
+
+func lerpInt16RVVGuarded(dst []int16, a []int16, b []int16, t int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt16RVV(dst[:n:n], a, b, t)
+}
+
+func addScaledInt16RVVGuarded(dst []int16, a []int16, b []int16, s int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt16RVV(dst[:n:n], a, b, s)
+}
+
+func addUint8RVVGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint8RVV(dst[:n:n], a, b)
+}
+
+func subUint8RVVGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint8RVV(dst[:n:n], a, b)
+}
+
+func mulUint8RVVGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint8RVV(dst[:n:n], a, b)
+}
+
+func minimumUint8RVVGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint8RVV(dst[:n:n], a, b)
+}
+
+func maximumUint8RVVGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint8RVV(dst[:n:n], a, b)
+}
+
+func absUint8RVVGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint8RVV(dst[:n:n], a)
+}
+
+func negUint8RVVGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint8RVV(dst[:n:n], a)
+}
+
+func scaleUint8RVVGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint8RVV(dst[:n:n], a, s)
+}
+
+func addScalarUint8RVVGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint8RVV(dst[:n:n], a, s)
+}
+
+func subScalarUint8RVVGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint8RVV(dst[:n:n], a, s)
+}
+
+func clampUint8RVVGuarded(dst []byte, a []byte, lo byte, hi byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint8RVV(dst[:n:n], a, lo, hi)
+}
+
+func fillUint8RVVGuarded(dst []byte, v byte) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint8RVV(dst, v)
+}
+
+func lerpUint8RVVGuarded(dst []byte, a []byte, b []byte, t byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint8RVV(dst[:n:n], a, b, t)
+}
+
+func addScaledUint8RVVGuarded(dst []byte, a []byte, b []byte, s byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint8RVV(dst[:n:n], a, b, s)
+}
+
+func addUint16RVVGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint16RVV(dst[:n:n], a, b)
+}
+
+func subUint16RVVGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint16RVV(dst[:n:n], a, b)
+}
+
+func mulUint16RVVGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint16RVV(dst[:n:n], a, b)
+}
+
+func minimumUint16RVVGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint16RVV(dst[:n:n], a, b)
+}
+
+func maximumUint16RVVGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint16RVV(dst[:n:n], a, b)
+}
+
+func absUint16RVVGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint16RVV(dst[:n:n], a)
+}
+
+func negUint16RVVGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint16RVV(dst[:n:n], a)
+}
+
+func scaleUint16RVVGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint16RVV(dst[:n:n], a, s)
+}
+
+func addScalarUint16RVVGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint16RVV(dst[:n:n], a, s)
+}
+
+func subScalarUint16RVVGuarded(dst []uint16, a []uint16, s uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint16RVV(dst[:n:n], a, s)
+}
+
+func clampUint16RVVGuarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint16RVV(dst[:n:n], a, lo, hi)
+}
+
+func fillUint16RVVGuarded(dst []uint16, v uint16) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint16RVV(dst, v)
+}
+
+func lerpUint16RVVGuarded(dst []uint16, a []uint16, b []uint16, t uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint16RVV(dst[:n:n], a, b, t)
+}
+
+func addScaledUint16RVVGuarded(dst []uint16, a []uint16, b []uint16, s uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint16RVV(dst[:n:n], a, b, s)
+}
+
+func addUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint32RVV(dst[:n:n], a, b)
+}
+
+func subUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint32RVV(dst[:n:n], a, b)
+}
+
+func mulUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint32RVV(dst[:n:n], a, b)
+}
+
+func minimumUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint32RVV(dst[:n:n], a, b)
+}
+
+func maximumUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint32RVV(dst[:n:n], a, b)
+}
+
+func absUint32RVVGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint32RVV(dst[:n:n], a)
+}
+
+func negUint32RVVGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint32RVV(dst[:n:n], a)
+}
+
+func scaleUint32RVVGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint32RVV(dst[:n:n], a, s)
+}
+
+func addScalarUint32RVVGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint32RVV(dst[:n:n], a, s)
+}
+
+func subScalarUint32RVVGuarded(dst []uint32, a []uint32, s uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint32RVV(dst[:n:n], a, s)
+}
+
+func clampUint32RVVGuarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint32RVV(dst[:n:n], a, lo, hi)
+}
+
+func fillUint32RVVGuarded(dst []uint32, v uint32) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint32RVV(dst, v)
+}
+
+func lerpUint32RVVGuarded(dst []uint32, a []uint32, b []uint32, t uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint32RVV(dst[:n:n], a, b, t)
+}
+
+func addScaledUint32RVVGuarded(dst []uint32, a []uint32, b []uint32, s uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint32RVV(dst[:n:n], a, b, s)
+}
+
+func addUint64RVVGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Add(dst, a, b)
+		return
+	}
+	addUint64RVV(dst[:n:n], a, b)
+}
+
+func subUint64RVVGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Sub(dst, a, b)
+		return
+	}
+	subUint64RVV(dst[:n:n], a, b)
+}
+
+func mulUint64RVVGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint64RVV(dst[:n:n], a, b)
+}
+
+func minimumUint64RVVGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MinimumInt(dst, a, b)
+		return
+	}
+	minimumUint64RVV(dst[:n:n], a, b)
+}
+
+func maximumUint64RVVGuarded(dst []uint64, a []uint64, b []uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.MaximumInt(dst, a, b)
+		return
+	}
+	maximumUint64RVV(dst[:n:n], a, b)
+}
+
+func absUint64RVVGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AbsInt(dst, a)
+		return
+	}
+	absUint64RVV(dst[:n:n], a)
+}
+
+func negUint64RVVGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.NegInt(dst, a)
+		return
+	}
+	negUint64RVV(dst[:n:n], a)
+}
+
+func scaleUint64RVVGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint64RVV(dst[:n:n], a, s)
+}
+
+func addScalarUint64RVVGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.AddScalar(dst, a, s)
+		return
+	}
+	addScalarUint64RVV(dst[:n:n], a, s)
+}
+
+func subScalarUint64RVVGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.SubScalar(dst, a, s)
+		return
+	}
+	subScalarUint64RVV(dst[:n:n], a, s)
+}
+
+func clampUint64RVVGuarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ClampInt(dst, a, lo, hi)
+		return
+	}
+	clampUint64RVV(dst[:n:n], a, lo, hi)
+}
+
+func fillUint64RVVGuarded(dst []uint64, v uint64) {
+	if len(dst) < 16 {
+		ref.Fill(dst, v)
+		return
+	}
+	fillUint64RVV(dst, v)
+}
+
+func lerpUint64RVVGuarded(dst []uint64, a []uint64, b []uint64, t uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint64RVV(dst[:n:n], a, b, t)
+}
+
+func addScaledUint64RVVGuarded(dst []uint64, a []uint64, b []uint64, s uint64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint64RVV(dst[:n:n], a, b, s)
+}
+
 func divFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -682,6 +1432,114 @@ func roundToEvenFloat64RVVGuarded(dst []float64, a []float64) {
 	roundToEvenFloat64RVV(dst[:n:n], a)
 }
 
+func satAddInt32RVVGuarded(dst []int32, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt32RVV(dst[:n:n], a, b)
+}
+
+func satSubInt32RVVGuarded(dst []int32, a []int32, b []int32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt32RVV(dst[:n:n], a, b)
+}
+
+func satAddInt8RVVGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt8RVV(dst[:n:n], a, b)
+}
+
+func satSubInt8RVVGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt8RVV(dst[:n:n], a, b)
+}
+
+func satAddInt16RVVGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddInt16RVV(dst[:n:n], a, b)
+}
+
+func satSubInt16RVVGuarded(dst []int16, a []int16, b []int16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubInt16RVV(dst[:n:n], a, b)
+}
+
+func satAddUint8RVVGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint8RVV(dst[:n:n], a, b)
+}
+
+func satSubUint8RVVGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint8RVV(dst[:n:n], a, b)
+}
+
+func satAddUint16RVVGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint16RVV(dst[:n:n], a, b)
+}
+
+func satSubUint16RVVGuarded(dst []uint16, a []uint16, b []uint16) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint16RVV(dst[:n:n], a, b)
+}
+
+func satAddUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatAdd(dst, a, b)
+		return
+	}
+	satAddUint32RVV(dst[:n:n], a, b)
+}
+
+func satSubUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.SatSub(dst, a, b)
+		return
+	}
+	satSubUint32RVV(dst[:n:n], a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -742,6 +1600,90 @@ func init() {
 	s.I64.Fill = fillInt64RVVGuarded
 	s.I64.Lerp = lerpInt64RVVGuarded
 	s.I64.AddScaled = addScaledInt64RVVGuarded
+	s.I8.Add = addInt8RVVGuarded
+	s.I8.Sub = subInt8RVVGuarded
+	s.I8.Mul = mulInt8RVVGuarded
+	s.I8.Minimum = minimumInt8RVVGuarded
+	s.I8.Maximum = maximumInt8RVVGuarded
+	s.I8.Abs = absInt8RVVGuarded
+	s.I8.Neg = negInt8RVVGuarded
+	s.I8.Scale = scaleInt8RVVGuarded
+	s.I8.AddScalar = addScalarInt8RVVGuarded
+	s.I8.SubScalar = subScalarInt8RVVGuarded
+	s.I8.Clamp = clampInt8RVVGuarded
+	s.I8.Fill = fillInt8RVVGuarded
+	s.I8.Lerp = lerpInt8RVVGuarded
+	s.I8.AddScaled = addScaledInt8RVVGuarded
+	s.I16.Add = addInt16RVVGuarded
+	s.I16.Sub = subInt16RVVGuarded
+	s.I16.Mul = mulInt16RVVGuarded
+	s.I16.Minimum = minimumInt16RVVGuarded
+	s.I16.Maximum = maximumInt16RVVGuarded
+	s.I16.Abs = absInt16RVVGuarded
+	s.I16.Neg = negInt16RVVGuarded
+	s.I16.Scale = scaleInt16RVVGuarded
+	s.I16.AddScalar = addScalarInt16RVVGuarded
+	s.I16.SubScalar = subScalarInt16RVVGuarded
+	s.I16.Clamp = clampInt16RVVGuarded
+	s.I16.Fill = fillInt16RVVGuarded
+	s.I16.Lerp = lerpInt16RVVGuarded
+	s.I16.AddScaled = addScaledInt16RVVGuarded
+	s.U8.Add = addUint8RVVGuarded
+	s.U8.Sub = subUint8RVVGuarded
+	s.U8.Mul = mulUint8RVVGuarded
+	s.U8.Minimum = minimumUint8RVVGuarded
+	s.U8.Maximum = maximumUint8RVVGuarded
+	s.U8.Abs = absUint8RVVGuarded
+	s.U8.Neg = negUint8RVVGuarded
+	s.U8.Scale = scaleUint8RVVGuarded
+	s.U8.AddScalar = addScalarUint8RVVGuarded
+	s.U8.SubScalar = subScalarUint8RVVGuarded
+	s.U8.Clamp = clampUint8RVVGuarded
+	s.U8.Fill = fillUint8RVVGuarded
+	s.U8.Lerp = lerpUint8RVVGuarded
+	s.U8.AddScaled = addScaledUint8RVVGuarded
+	s.U16.Add = addUint16RVVGuarded
+	s.U16.Sub = subUint16RVVGuarded
+	s.U16.Mul = mulUint16RVVGuarded
+	s.U16.Minimum = minimumUint16RVVGuarded
+	s.U16.Maximum = maximumUint16RVVGuarded
+	s.U16.Abs = absUint16RVVGuarded
+	s.U16.Neg = negUint16RVVGuarded
+	s.U16.Scale = scaleUint16RVVGuarded
+	s.U16.AddScalar = addScalarUint16RVVGuarded
+	s.U16.SubScalar = subScalarUint16RVVGuarded
+	s.U16.Clamp = clampUint16RVVGuarded
+	s.U16.Fill = fillUint16RVVGuarded
+	s.U16.Lerp = lerpUint16RVVGuarded
+	s.U16.AddScaled = addScaledUint16RVVGuarded
+	s.U32.Add = addUint32RVVGuarded
+	s.U32.Sub = subUint32RVVGuarded
+	s.U32.Mul = mulUint32RVVGuarded
+	s.U32.Minimum = minimumUint32RVVGuarded
+	s.U32.Maximum = maximumUint32RVVGuarded
+	s.U32.Abs = absUint32RVVGuarded
+	s.U32.Neg = negUint32RVVGuarded
+	s.U32.Scale = scaleUint32RVVGuarded
+	s.U32.AddScalar = addScalarUint32RVVGuarded
+	s.U32.SubScalar = subScalarUint32RVVGuarded
+	s.U32.Clamp = clampUint32RVVGuarded
+	s.U32.Fill = fillUint32RVVGuarded
+	s.U32.Lerp = lerpUint32RVVGuarded
+	s.U32.AddScaled = addScaledUint32RVVGuarded
+	s.U64.Add = addUint64RVVGuarded
+	s.U64.Sub = subUint64RVVGuarded
+	s.U64.Mul = mulUint64RVVGuarded
+	s.U64.Minimum = minimumUint64RVVGuarded
+	s.U64.Maximum = maximumUint64RVVGuarded
+	s.U64.Abs = absUint64RVVGuarded
+	s.U64.Neg = negUint64RVVGuarded
+	s.U64.Scale = scaleUint64RVVGuarded
+	s.U64.AddScalar = addScalarUint64RVVGuarded
+	s.U64.SubScalar = subScalarUint64RVVGuarded
+	s.U64.Clamp = clampUint64RVVGuarded
+	s.U64.Fill = fillUint64RVVGuarded
+	s.U64.Lerp = lerpUint64RVVGuarded
+	s.U64.AddScaled = addScaledUint64RVVGuarded
 	s.F32.Div = divFloat32RVVGuarded
 	s.F32.DivScalar = divScalarFloat32RVVGuarded
 	s.F32.Sqrt = sqrtFloat32RVVGuarded
@@ -760,4 +1702,16 @@ func init() {
 	s.F64.Trunc = truncFloat64RVVGuarded
 	s.F64.Round = roundFloat64RVVGuarded
 	s.F64.RoundToEven = roundToEvenFloat64RVVGuarded
+	s.I32.SatAdd = satAddInt32RVVGuarded
+	s.I32.SatSub = satSubInt32RVVGuarded
+	s.I8.SatAdd = satAddInt8RVVGuarded
+	s.I8.SatSub = satSubInt8RVVGuarded
+	s.I16.SatAdd = satAddInt16RVVGuarded
+	s.I16.SatSub = satSubInt16RVVGuarded
+	s.U8.SatAdd = satAddUint8RVVGuarded
+	s.U8.SatSub = satSubUint8RVVGuarded
+	s.U16.SatAdd = satAddUint16RVVGuarded
+	s.U16.SatSub = satSubUint16RVVGuarded
+	s.U32.SatAdd = satAddUint32RVVGuarded
+	s.U32.SatSub = satSubUint32RVVGuarded
 }

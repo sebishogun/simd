@@ -55,13 +55,6 @@ func isASCIILASXGuarded(b []byte) bool {
 	return isASCIILASX(b)
 }
 
-func validUTF8LASXGuarded(b []byte) bool {
-	if len(b) < 64 {
-		return ref.ValidUTF8(b)
-	}
-	return validUTF8LASX(b)
-}
-
 func equalBytesLASXGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -145,27 +138,6 @@ func indexAnyLASXGuarded(b []byte, chars []byte) int {
 	return indexAnyLASX(b, chars)
 }
 
-func countAnyLASXGuarded(b []byte, chars []byte) int {
-	if len(b) < 64 {
-		return ref.CountAny(b, chars)
-	}
-	return countAnyLASX(b, chars)
-}
-
-func hexEncodeLASXGuarded(dst []byte, b []byte) int {
-	if len(dst) < 32 {
-		return ref.HexEncode(dst, b)
-	}
-	return hexEncodeLASX(dst, b)
-}
-
-func indexLASXGuarded(haystack []byte, needle []byte) int {
-	if len(haystack) < 64 {
-		return ref.Index(haystack, needle)
-	}
-	return indexLASX(haystack, needle)
-}
-
 func toUpperASCIILASXGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -202,7 +174,6 @@ func init() {
 	s.Bytes.LastIndexByte = lastIndexByteLASXGuarded
 	s.Bytes.PopCount = popCountLASXGuarded
 	s.Bytes.IsASCII = isASCIILASXGuarded
-	s.Bytes.ValidUTF8 = validUTF8LASXGuarded
 	s.Bytes.Equal = equalBytesLASXGuarded
 	s.Bytes.And = bitAndLASXGuarded
 	s.Bytes.Or = bitOrLASXGuarded
@@ -213,9 +184,6 @@ func init() {
 	s.Bytes.Compare = compareBytesLASXGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIILASXGuarded
 	s.Bytes.IndexAny = indexAnyLASXGuarded
-	s.Bytes.CountAny = countAnyLASXGuarded
-	s.Bytes.HexEncode = hexEncodeLASXGuarded
-	s.Bytes.Index = indexLASXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIILASXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIILASXGuarded
 	s.Bytes.ReplaceByte = replaceByteLASXGuarded

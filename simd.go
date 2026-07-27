@@ -84,12 +84,33 @@ package simd
 // type such as `type Celsius float32` is not accepted. Supporting those would
 // require reinterpreting the slice, which this package does not do.
 type Number interface {
-	float32 | float64 | int32 | int64
+	float32 | float64 |
+		int8 | int16 | int32 | int64 |
+		uint8 | uint16 | uint32 | uint64
 }
 
 // Float is the element type of operations that only make sense for floats.
 type Float interface {
 	float32 | float64
+}
+
+// Integer is the element type of operations that only make sense for
+// integers: the bitwise ones, and the two saturating ones.
+type Integer interface {
+	int8 | int16 | int32 | int64 |
+		uint8 | uint16 | uint32 | uint64
+}
+
+// Saturating is the element type of [SatAdd] and [SatSub].
+//
+// The 64-bit types are absent, and it is a limit of the implementation rather
+// than of the idea. A saturating add is written as a widening add followed by
+// a clamp, which is the form that compiles to the single instruction every
+// vector unit has for it — and there is no integer wider than 64 bits to
+// widen into. Clamping a 64-bit sum needs an overflow test, which does not
+// vectorize into anything worth crossing the call boundary for.
+type Saturating interface {
+	int8 | int16 | int32 | uint8 | uint16 | uint32
 }
 
 // ---------- elementwise, two inputs, in place ----------
@@ -146,6 +167,37 @@ func MinimumInto[T Number](dst, a, b []T) { ops[T]().Minimum(dst, a, b) }
 
 // MaximumInto sets dst[i] = max(a[i], b[i]). dst may alias a or b.
 func MaximumInto[T Number](dst, a, b []T) { ops[T]().Maximum(dst, a, b) }
+
+// ---------- saturating arithmetic ----------
+//
+// [Add] and [Sub] wrap on overflow, which is what Go's operators do and what
+// the hardware does. Saturating is the other useful answer, and the one that
+// image, audio and fixed-point code wants: brightening an already-bright pixel
+// should leave it white, not wrap it to black. It is a single instruction on
+// every vector unit here.
+
+// SatAdd adds b into a with saturation: a[i] = clamp(a[i] + b[i]).
+//
+// A sum past the element type's maximum gives the maximum, and one past its
+// minimum gives the minimum, instead of wrapping.
+//
+// It processes min(len(a), len(b)) elements and allocates nothing.
+// Use [SatAddInto] to write the result elsewhere.
+func SatAdd[T Saturating](a, b []T) { ops[T]().SatAdd(a, a, b) }
+
+// SatSub subtracts b from a with saturation: a[i] = clamp(a[i] - b[i]).
+//
+// For an unsigned type this is the useful one of the pair: the difference
+// clamps at zero rather than wrapping to a huge value.
+func SatSub[T Saturating](a, b []T) { ops[T]().SatSub(a, a, b) }
+
+// SatAddInto sets dst[i] to the saturating sum of a[i] and b[i].
+// dst may alias a or b.
+func SatAddInto[T Saturating](dst, a, b []T) { ops[T]().SatAdd(dst, a, b) }
+
+// SatSubInto sets dst[i] to the saturating difference of a[i] and b[i].
+// dst may alias a or b.
+func SatSubInto[T Saturating](dst, a, b []T) { ops[T]().SatSub(dst, a, b) }
 
 // ---------- elementwise, one input, in place ----------
 

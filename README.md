@@ -63,8 +63,10 @@ simd.MulInto(dst, a, b)     // dst[i] = a[i] * b[i]
 supplied. There is no variant that returns a new slice, and
 [a test enforces it](alloc_test.go) across the whole API.
 
-**Generic over the element type** — `float32`, `float64`, `int32`, `int64` —
-so there are no `AddFloat32` / `AddFloat64` name suffixes to remember.
+**Generic over the element type** — `float32`, `float64`, and every integer
+width in both signednesses: `int8` `int16` `int32` `int64` `uint8` `uint16`
+`uint32` `uint64`, plus `complex64` and `complex128`. There are no
+`AddFloat32` / `AddFloat64` name suffixes to remember.
 
 **Results do not depend on the hardware.** Every operation is bit-identical on
 every instruction set, including for NaN, ±Inf, ±0 and denormals. Reductions
@@ -84,11 +86,16 @@ without it. Nothing to configure, nothing to build twice.
 
 ## Operations
 
-209 exported functions. The plain name works in place; the `Into` suffix takes
+234 exported functions. The plain name works in place; the `Into` suffix takes
 a destination.
 
 **Elementwise** — `Add` `Sub` `Mul` `Div` `Minimum` `Maximum` `Abs` `Neg`
 `Sqrt` `Reciprocal` `Reverse`
+
+**Saturating** — `SatAdd` `SatSub`, for the integer types narrower than 64
+bits. These clamp at the type's limits instead of wrapping, which is one
+instruction per lane on every vector unit here and the behaviour image, audio
+and fixed-point code wants.
 
 **With a scalar** — `Scale` `AddScalar` `SubScalar` `DivScalar` `Clamp` `Fill`
 `Zero` `Ramp` `Tile`

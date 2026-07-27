@@ -79,6 +79,105 @@ func maxrInt64NEON(a []int64) int64
 func diffInt64NEON(dst []int64, a []int64)
 
 //go:noescape
+func minrInt8NEON(a []int8) int8
+
+//go:noescape
+func maxrInt8NEON(a []int8) int8
+
+//go:noescape
+func sumsqInt8NEON(a []int8) int8
+
+//go:noescape
+func sumsqdevInt8NEON(a []int8, c int8) int8
+
+//go:noescape
+func sumsqdiffInt8NEON(a []int8, b []int8) int8
+
+//go:noescape
+func diffInt8NEON(dst []int8, a []int8)
+
+//go:noescape
+func minrInt16NEON(a []int16) int16
+
+//go:noescape
+func maxrInt16NEON(a []int16) int16
+
+//go:noescape
+func sumsqInt16NEON(a []int16) int16
+
+//go:noescape
+func sumsqdevInt16NEON(a []int16, c int16) int16
+
+//go:noescape
+func sumsqdiffInt16NEON(a []int16, b []int16) int16
+
+//go:noescape
+func diffInt16NEON(dst []int16, a []int16)
+
+//go:noescape
+func minrUint8NEON(a []byte) byte
+
+//go:noescape
+func maxrUint8NEON(a []byte) byte
+
+//go:noescape
+func sumsqUint8NEON(a []byte) byte
+
+//go:noescape
+func sumsqdevUint8NEON(a []byte, c byte) byte
+
+//go:noescape
+func sumsqdiffUint8NEON(a []byte, b []byte) byte
+
+//go:noescape
+func diffUint8NEON(dst []byte, a []byte)
+
+//go:noescape
+func minrUint16NEON(a []uint16) uint16
+
+//go:noescape
+func maxrUint16NEON(a []uint16) uint16
+
+//go:noescape
+func sumsqUint16NEON(a []uint16) uint16
+
+//go:noescape
+func sumsqdevUint16NEON(a []uint16, c uint16) uint16
+
+//go:noescape
+func sumsqdiffUint16NEON(a []uint16, b []uint16) uint16
+
+//go:noescape
+func diffUint16NEON(dst []uint16, a []uint16)
+
+//go:noescape
+func minrUint32NEON(a []uint32) uint32
+
+//go:noescape
+func maxrUint32NEON(a []uint32) uint32
+
+//go:noescape
+func sumsqUint32NEON(a []uint32) uint32
+
+//go:noescape
+func sumsqdevUint32NEON(a []uint32, c uint32) uint32
+
+//go:noescape
+func sumsqdiffUint32NEON(a []uint32, b []uint32) uint32
+
+//go:noescape
+func diffUint32NEON(dst []uint32, a []uint32)
+
+//go:noescape
+func minrUint64NEON(a []uint64) uint64
+
+//go:noescape
+func maxrUint64NEON(a []uint64) uint64
+
+//go:noescape
+func diffUint64NEON(dst []uint64, a []uint64)
+
+//go:noescape
 func sumFloat32NEON(a []float32) float32
 
 //go:noescape
@@ -125,3 +224,87 @@ func l1normInt64NEON(a []int64) int64
 
 //go:noescape
 func l1diffInt64NEON(a []int64, b []int64) int64
+
+//go:noescape
+func sumInt8NEON(a []int8) int8
+
+//go:noescape
+func prodInt8NEON(a []int8) int8
+
+//go:noescape
+func dotInt8NEON(a []int8, b []int8) int8
+
+//go:noescape
+func l1normInt8NEON(a []int8) int8
+
+//go:noescape
+func l1diffInt8NEON(a []int8, b []int8) int8
+
+//go:noescape
+func sumInt16NEON(a []int16) int16
+
+//go:noescape
+func prodInt16NEON(a []int16) int16
+
+//go:noescape
+func dotInt16NEON(a []int16, b []int16) int16
+
+//go:noescape
+func l1normInt16NEON(a []int16) int16
+
+//go:noescape
+func l1diffInt16NEON(a []int16, b []int16) int16
+
+//go:noescape
+func sumUint8NEON(a []byte) byte
+
+//go:noescape
+func prodUint8NEON(a []byte) byte
+
+//go:noescape
+func dotUint8NEON(a []byte, b []byte) byte
+
+//go:noescape
+func l1normUint8NEON(a []byte) byte
+
+//go:noescape
+func l1diffUint8NEON(a []byte, b []byte) byte
+
+//go:noescape
+func sumUint16NEON(a []uint16) uint16
+
+//go:noescape
+func prodUint16NEON(a []uint16) uint16
+
+//go:noescape
+func dotUint16NEON(a []uint16, b []uint16) uint16
+
+//go:noescape
+func l1normUint16NEON(a []uint16) uint16
+
+//go:noescape
+func l1diffUint16NEON(a []uint16, b []uint16) uint16
+
+//go:noescape
+func sumUint32NEON(a []uint32) uint32
+
+//go:noescape
+func prodUint32NEON(a []uint32) uint32
+
+//go:noescape
+func dotUint32NEON(a []uint32, b []uint32) uint32
+
+//go:noescape
+func l1normUint32NEON(a []uint32) uint32
+
+//go:noescape
+func l1diffUint32NEON(a []uint32, b []uint32) uint32
+
+//go:noescape
+func sumUint64NEON(a []uint64) uint64
+
+//go:noescape
+func l1normUint64NEON(a []uint64) uint64
+
+//go:noescape
+func l1diffUint64NEON(a []uint64, b []uint64) uint64

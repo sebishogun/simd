@@ -77,6 +77,40 @@ test-cross: cross-setup
 			go test -short ./... || exit 1; \
 	done
 
+# loong64 has no lane above because there is no golang image for it: the
+# official Go images cover amd64, arm64, 386, arm/v7, ppc64le, riscv64 and
+# s390x, and that is the whole list. So this target cross-compiles the test
+# binaries here — Go binaries are static, so there is nothing else to supply —
+# and runs them under qemu-user directly.
+#
+# The emulator has to be a recent one and has to be told which CPU to be.
+# LSX and LASX landed in QEMU 8.1, so the qemu in multiarch/qemu-user-static
+# (7.2) reports no vector support at all and the whole backend is skipped as
+# unexecutable — a green run that tested nothing. QEMU_CPU=la464 is what turns
+# the vector units on.
+#
+# This lane found the backend clobbering r22, the register the Go runtime keeps
+# the current goroutine in, in 616 places. Nothing else could have: the
+# corruption is only fatal when a signal arrives, so it does not reproduce
+# under a debugger and never appears on any other architecture.
+QEMU_LOONG ?= qemu-loongarch64
+
+.PHONY: test-loong64
+test-loong64:
+	@command -v $(QEMU_LOONG) >/dev/null || { \
+		echo "$(QEMU_LOONG) not found. Extract a recent one with:"; \
+		echo "  cid=\$$(docker create tonistiigi/binfmt:latest)"; \
+		echo "  docker cp \$$cid:/usr/bin/qemu-loongarch64 /usr/local/bin/"; \
+		echo "  docker rm \$$cid"; \
+		exit 1; }
+	@for p in . ./internal/conformance ./internal/ref ./internal/cpu; do \
+		out=$$(mktemp); \
+		GOARCH=loong64 GOOS=linux $(GO) test -c -o $$out $$p || exit 1; \
+		printf "%-28s " $$p; \
+		QEMU_CPU=la464 $(QEMU_LOONG) $$out -test.short | tail -1 || exit 1; \
+		rm -f $$out; \
+	done
+
 # Register the qemu interpreters, without which docker --platform fails with
 # "exec format error" rather than anything that names the real problem.
 .PHONY: cross-setup

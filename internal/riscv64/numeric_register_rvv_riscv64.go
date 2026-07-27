@@ -114,6 +114,86 @@ func scatterInt32RVVGuarded(dst []int32, idx []int32, src []int32) {
 	scatterInt32RVV(dst, idx, src)
 }
 
+func gatherInt8RVVGuarded(dst []int8, src []int8, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt8RVV(dst, src, idx)
+}
+
+func scatterInt8RVVGuarded(dst []int8, idx []int32, src []int8) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt8RVV(dst, idx, src)
+}
+
+func gatherInt16RVVGuarded(dst []int16, src []int16, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt16RVV(dst, src, idx)
+}
+
+func scatterInt16RVVGuarded(dst []int16, idx []int32, src []int16) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterInt16RVV(dst, idx, src)
+}
+
+func gatherUint8RVVGuarded(dst []byte, src []byte, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint8RVV(dst, src, idx)
+}
+
+func scatterUint8RVVGuarded(dst []byte, idx []int32, src []byte) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint8RVV(dst, idx, src)
+}
+
+func gatherUint16RVVGuarded(dst []uint16, src []uint16, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint16RVV(dst, src, idx)
+}
+
+func scatterUint16RVVGuarded(dst []uint16, idx []int32, src []uint16) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint16RVV(dst, idx, src)
+}
+
+func gatherUint32RVVGuarded(dst []uint32, src []uint32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint32RVV(dst, src, idx)
+}
+
+func scatterUint32RVVGuarded(dst []uint32, idx []int32, src []uint32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint32RVV(dst, idx, src)
+}
+
 func movingAverageFloat32RVVGuarded(dst []float32, a []float32, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
@@ -162,6 +242,16 @@ func init() {
 	s.F32.Scatter = scatterFloat32RVVGuarded
 	s.I32.Gather = gatherInt32RVVGuarded
 	s.I32.Scatter = scatterInt32RVVGuarded
+	s.I8.Gather = gatherInt8RVVGuarded
+	s.I8.Scatter = scatterInt8RVVGuarded
+	s.I16.Gather = gatherInt16RVVGuarded
+	s.I16.Scatter = scatterInt16RVVGuarded
+	s.U8.Gather = gatherUint8RVVGuarded
+	s.U8.Scatter = scatterUint8RVVGuarded
+	s.U16.Gather = gatherUint16RVVGuarded
+	s.U16.Scatter = scatterUint16RVVGuarded
+	s.U32.Gather = gatherUint32RVVGuarded
+	s.U32.Scatter = scatterUint32RVVGuarded
 	s.F32.MovingAverage = movingAverageFloat32RVVGuarded
 	s.F32.MatMul = matMulFloat32RVVGuarded
 	s.F64.MovingAverage = movingAverageFloat64RVVGuarded

@@ -82,22 +82,6 @@ func correlateFloat64LASXGuarded(dst []float64, sig []float64, ker []float64) {
 	correlateFloat64LASX(dst, sig, ker)
 }
 
-func matMulFloat32LASXGuarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
-	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
-		ref.MatMul(dst, a, b, m, k, n)
-		return
-	}
-	matMulFloat32LASX(dst, a, b, m, k, n)
-}
-
-func matMulFloat64LASXGuarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
-	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
-		ref.MatMul(dst, a, b, m, k, n)
-		return
-	}
-	matMulFloat64LASX(dst, a, b, m, k, n)
-}
-
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -110,6 +94,4 @@ func init() {
 	s.F64.PolyEval = polyEvalFloat64LASXGuarded
 	s.F64.Convolve = convolveFloat64LASXGuarded
 	s.F64.Correlate = correlateFloat64LASXGuarded
-	s.F32.MatMul = matMulFloat32LASXGuarded
-	s.F64.MatMul = matMulFloat64LASXGuarded
 }

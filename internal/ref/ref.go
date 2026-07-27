@@ -22,6 +22,7 @@ package ref
 
 import (
 	gomath "math"
+	"unsafe"
 
 	"math/bits"
 
@@ -29,7 +30,17 @@ import (
 )
 
 type float interface{ ~float32 | ~float64 }
-type integer interface{ ~int32 | ~int64 }
+type integer interface {
+	~int8 | ~int16 | ~int32 | ~int64 |
+		~uint8 | ~uint16 | ~uint32 | ~uint64
+}
+
+// satInteger is the subset with a wider type to detect overflow in, which is
+// what the saturating operations need. The 64-bit types are excluded because
+// there is nothing wider to widen into.
+type satInteger interface {
+	~int8 | ~int16 | ~int32 | ~uint8 | ~uint16 | ~uint32
+}
 type number interface{ float | integer }
 
 // ---------- elementwise, two inputs ----------
@@ -803,14 +814,76 @@ func intOps[T integer]() kernel.Ops[T] {
 	return o
 }
 
+// satOps is intOps plus the two saturating operations, for the types narrow
+// enough to have them.
+func satOps[T satInteger]() kernel.Ops[T] {
+	o := intOps[T]()
+	o.SatAdd = satAdd[T]
+	o.SatSub = satSub[T]
+	return o
+}
+
+// satAdd and satSub clamp at the element type's limits instead of wrapping.
+//
+// Both work in int64, which every type here fits in with room for the sum, so
+// the clamp sees the true result rather than one that has already wrapped.
+// That is also how the kernels are written, and it is why the 64-bit element
+// types are absent: there is nothing wider to compute in.
+func satAdd[T satInteger](dst, a, b []T) {
+	n := min(len(dst), len(a), len(b))
+	dst, a, b = dst[:n], a[:n], b[:n]
+	lo, hi := satRange[T]()
+	for i := range dst {
+		dst[i] = T(clamp64(int64(a[i])+int64(b[i]), lo, hi))
+	}
+}
+
+func satSub[T satInteger](dst, a, b []T) {
+	n := min(len(dst), len(a), len(b))
+	dst, a, b = dst[:n], a[:n], b[:n]
+	lo, hi := satRange[T]()
+	for i := range dst {
+		dst[i] = T(clamp64(int64(a[i])-int64(b[i]), lo, hi))
+	}
+}
+
+func clamp64(v, lo, hi int64) int64 {
+	if v < lo {
+		return lo
+	}
+	if v > hi {
+		return hi
+	}
+	return v
+}
+
+// satRange is the closed interval T saturates to. It is derived from the type
+// rather than tabulated, so a type added to satInteger cannot be given the
+// wrong bounds by hand: the shift gives the width and the zero comparison the
+// signedness.
+func satRange[T satInteger]() (lo, hi int64) {
+	var zero T
+	bits := 8 * int64(unsafe.Sizeof(zero))
+	if zero-1 > zero { // unsigned: 0-1 wraps to the maximum
+		return 0, 1<<bits - 1
+	}
+	return -(1 << (bits - 1)), 1<<(bits-1) - 1
+}
+
 // Set returns the reference backend: every kernel, portable Go.
 func Set() kernel.Set {
 	return kernel.Set{
 		Name: "scalar",
 		F32:  floatOps[float32](),
 		F64:  floatOps[float64](),
-		I32:  intOps[int32](),
+		I32:  satOps[int32](),
 		I64:  intOps[int64](),
+		I8:   satOps[int8](),
+		I16:  satOps[int16](),
+		U8:   satOps[uint8](),
+		U16:  satOps[uint16](),
+		U32:  satOps[uint32](),
+		U64:  intOps[uint64](),
 		Bytes: kernel.Bytes{
 			IndexByte: indexByte, LastIndexByte: lastIndexByte, Count: countByte,
 			Equal: equalBytes, Compare: compareBytes, PopCount: popCount,
@@ -863,8 +936,18 @@ func complexPartsGroup[C complexT, R float]() kernel.ComplexParts[C, R] {
 type (
 	// Number is any element type the kernels handle.
 	Number interface {
-		~float32 | ~float64 | ~int32 | ~int64
+		~float32 | ~float64 |
+			~int8 | ~int16 | ~int32 | ~int64 |
+			~uint8 | ~uint16 | ~uint32 | ~uint64
 	}
+	// Integer is the integer half of it, for the operations that are not the
+	// same on floats: integer minimum is not IEEE minimum, and integer Abs
+	// wraps where float Abs clears a sign bit.
+	Integer = integer
+	// Saturating is the integer types that have saturating add and subtract.
+	// The 64-bit ones are absent for the reason kernels.saturating gives:
+	// there is nothing wider to detect the overflow in.
+	Saturating = satInteger
 	// Float is the element types with a fixed-tree reduction.
 	Float interface{ ~float32 | ~float64 }
 )
@@ -873,35 +956,38 @@ func Add[T Number](dst, a, b []T) { add(dst, a, b) }
 func Sub[T Number](dst, a, b []T) { sub(dst, a, b) }
 func Mul[T Number](dst, a, b []T) { mul(dst, a, b) }
 
+func SatAdd[T Saturating](dst, a, b []T) { satAdd(dst, a, b) }
+func SatSub[T Saturating](dst, a, b []T) { satSub(dst, a, b) }
+
 func Scale[T Number](dst, a []T, s T)        { scale(dst, a, s) }
 func AddScaled[T Number](dst, a, b []T, s T) { addScaled(dst, a, b, s) }
 
 func SumFloat[T Float](a []T) T    { return sumFloat(a) }
 func DotFloat[T Float](a, b []T) T { return dotFloat(a, b) }
 
-func Div[T Float](dst, a, b []T)                  { div(dst, a, b) }
-func MinimumFloat[T Float](dst, a, b []T)         { minimumFloat(dst, a, b) }
-func MaximumFloat[T Float](dst, a, b []T)         { maximumFloat(dst, a, b) }
-func MinimumInt[T ~int32 | ~int64](dst, a, b []T) { minimumInt(dst, a, b) }
-func MaximumInt[T ~int32 | ~int64](dst, a, b []T) { maximumInt(dst, a, b) }
+func Div[T Float](dst, a, b []T)          { div(dst, a, b) }
+func MinimumFloat[T Float](dst, a, b []T) { minimumFloat(dst, a, b) }
+func MaximumFloat[T Float](dst, a, b []T) { maximumFloat(dst, a, b) }
+func MinimumInt[T Integer](dst, a, b []T) { minimumInt(dst, a, b) }
+func MaximumInt[T Integer](dst, a, b []T) { maximumInt(dst, a, b) }
 
-func AbsFloat[T Float](dst, a []T)         { absFloat(dst, a) }
-func NegFloat[T Float](dst, a []T)         { negFloat(dst, a) }
-func AbsInt[T ~int32 | ~int64](dst, a []T) { absInt(dst, a) }
-func NegInt[T ~int32 | ~int64](dst, a []T) { negInt(dst, a) }
-func Sqrt[T Float](dst, a []T)             { sqrt(dst, a) }
-func Reciprocal[T Float](dst, a []T)       { reciprocal(dst, a) }
-func Reverse[T Number](dst, a []T)         { reverse(dst, a) }
+func AbsFloat[T Float](dst, a []T)   { absFloat(dst, a) }
+func NegFloat[T Float](dst, a []T)   { negFloat(dst, a) }
+func AbsInt[T Integer](dst, a []T)   { absInt(dst, a) }
+func NegInt[T Integer](dst, a []T)   { negInt(dst, a) }
+func Sqrt[T Float](dst, a []T)       { sqrt(dst, a) }
+func Reciprocal[T Float](dst, a []T) { reciprocal(dst, a) }
+func Reverse[T Number](dst, a []T)   { reverse(dst, a) }
 
 func AddScalar[T Number](dst, a []T, s T) { addScalar(dst, a, s) }
 func SubScalar[T Number](dst, a []T, s T) { subScalar(dst, a, s) }
 func DivScalar[T Number](dst, a []T, s T) { divScalar(dst, a, s) }
 
-func ClampFloat[T Float](dst, a []T, lo, hi T)         { clampFloat(dst, a, lo, hi) }
-func ClampInt[T ~int32 | ~int64](dst, a []T, lo, hi T) { clampInt(dst, a, lo, hi) }
-func Fill[T Number](dst []T, v T)                      { fill(dst, v) }
-func Ramp[T Number](dst []T, start, step T)            { ramp(dst, start, step) }
-func Lerp[T Number](dst, a, b []T, t T)                { lerp(dst, a, b, t) }
+func ClampFloat[T Float](dst, a []T, lo, hi T) { clampFloat(dst, a, lo, hi) }
+func ClampInt[T Integer](dst, a []T, lo, hi T) { clampInt(dst, a, lo, hi) }
+func Fill[T Number](dst []T, v T)              { fill(dst, v) }
+func Ramp[T Number](dst []T, start, step T)    { ramp(dst, start, step) }
+func Lerp[T Number](dst, a, b []T, t T)        { lerp(dst, a, b, t) }
 
 func Floor[T Float](dst, a []T)       { unary[T](gomath.Floor)(dst, a) }
 func Ceil[T Float](dst, a []T)        { unary[T](gomath.Ceil)(dst, a) }
@@ -909,32 +995,32 @@ func Trunc[T Float](dst, a []T)       { unary[T](gomath.Trunc)(dst, a) }
 func Round[T Float](dst, a []T)       { unary[T](gomath.Round)(dst, a) }
 func RoundToEven[T Float](dst, a []T) { unary[T](gomath.RoundToEven)(dst, a) }
 
-func MinReduceFloat[T Float](a []T) T         { return minFloat(a) }
-func MaxReduceFloat[T Float](a []T) T         { return maxFloat(a) }
-func MinReduceInt[T ~int32 | ~int64](a []T) T { return minInt(a) }
-func MaxReduceInt[T ~int32 | ~int64](a []T) T { return maxInt(a) }
+func MinReduceFloat[T Float](a []T) T { return minFloat(a) }
+func MaxReduceFloat[T Float](a []T) T { return maxFloat(a) }
+func MinReduceInt[T Integer](a []T) T { return minInt(a) }
+func MaxReduceInt[T Integer](a []T) T { return maxInt(a) }
 
-func SumSquaresFloat[T Float](a []T) T         { return sumSquaresFloat(a) }
-func SumSquaresInt[T ~int32 | ~int64](a []T) T { return sumSquaresInt(a) }
-func L1NormFloat[T Float](a []T) T             { return l1NormFloat(a) }
-func L1DiffFloat[T Float](a, b []T) T          { return l1DiffFloat(a, b) }
+func SumSquaresFloat[T Float](a []T) T { return sumSquaresFloat(a) }
+func SumSquaresInt[T Integer](a []T) T { return sumSquaresInt(a) }
+func L1NormFloat[T Float](a []T) T     { return l1NormFloat(a) }
+func L1DiffFloat[T Float](a, b []T) T  { return l1DiffFloat(a, b) }
 
-func SumSqDevFloat[T Float](a []T, c T) T         { return sumSqDevFloat(a, c) }
-func SumSqDevInt[T ~int32 | ~int64](a []T, c T) T { return sumSqDevInt(a, c) }
-func SumSqDiffFloat[T Float](a, b []T) T          { return sumSqDiffFloat(a, b) }
-func SumSqDiffInt[T ~int32 | ~int64](a, b []T) T  { return sumSqDiffInt(a, b) }
+func SumSqDevFloat[T Float](a []T, c T) T { return sumSqDevFloat(a, c) }
+func SumSqDevInt[T Integer](a []T, c T) T { return sumSqDevInt(a, c) }
+func SumSqDiffFloat[T Float](a, b []T) T  { return sumSqDiffFloat(a, b) }
+func SumSqDiffInt[T Integer](a, b []T) T  { return sumSqDiffInt(a, b) }
 
-func SumInt[T ~int32 | ~int64](a []T) T    { return sumInt(a) }
-func DotInt[T ~int32 | ~int64](a, b []T) T { return dotInt(a, b) }
-func ProdInt[T ~int32 | ~int64](a []T) T   { return prod(a) }
-func Diff[T Number](dst, a []T)            { diff(dst, a) }
+func SumInt[T Integer](a []T) T    { return sumInt(a) }
+func DotInt[T Integer](a, b []T) T { return dotInt(a, b) }
+func ProdInt[T Integer](a []T) T   { return prod(a) }
+func Diff[T Number](dst, a []T)    { diff(dst, a) }
 
-func L1NormInt[T ~int32 | ~int64](a []T) T    { return l1NormInt(a) }
-func L1DiffInt[T ~int32 | ~int64](a, b []T) T { return l1DiffInt(a, b) }
-func CompareBytes(a, b []byte) int            { return compareBytes(a, b) }
-func EqualFoldASCII(a, b []byte) bool         { return equalFoldASCII(a, b) }
-func IndexAny(b, chars []byte) int            { return indexAny(b, chars) }
-func CountAny(b, chars []byte) int            { return countAny(b, chars) }
-func HexEncode(dst, src []byte) int           { return hexEncode(dst, src) }
+func L1NormInt[T Integer](a []T) T    { return l1NormInt(a) }
+func L1DiffInt[T Integer](a, b []T) T { return l1DiffInt(a, b) }
+func CompareBytes(a, b []byte) int    { return compareBytes(a, b) }
+func EqualFoldASCII(a, b []byte) bool { return equalFoldASCII(a, b) }
+func IndexAny(b, chars []byte) int    { return indexAny(b, chars) }
+func CountAny(b, chars []byte) int    { return countAny(b, chars) }
+func HexEncode(dst, src []byte) int   { return hexEncode(dst, src) }
 
 func NormFloat[T Float](a []T) T { return normFloat(a) }

@@ -2924,6 +2924,3585 @@ TEXT ·fillInt64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	BYTE $0xfe
 	RET
 
+// func addInt8VX(dst []int8, a []int8, b []int8)
+TEXT ·addInt8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addInt8VXBody(SB)
+	RET
+
+// addInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002e007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x00f3e70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000de301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x00761a0e
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff5
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func subInt8VX(dst []int8, a []int8, b []int8)
+TEXT ·subInt8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subInt8VXBody(SB)
+	RET
+
+// subInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002e007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x00f7e70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000de301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x00761b0e
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff5
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func mulInt8VX(dst []int8, a []int8, b []int8)
+TEXT ·mulInt8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·mulInt8VXBody(SB)
+	RET
+
+// mulInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·mulInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002f007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x00a2e70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000ee301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x0076b9fd
+	WORD $0x000e4201
+	WORD $0x20004110
+	WORD $0x1001ec51
+	WORD $0xfff46064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func minimumInt8VX(dst []int8, a []int8, b []int8)
+TEXT ·minimumInt8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·minimumInt8VXBody(SB)
+	RET
+
+// minimumInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0030007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x00fee70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000fe301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x0076190e
+	WORD $0xb9f240e0
+	WORD $0x42e12000
+	WORD $0x41101001
+	WORD $0xec51fff3
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func maximumInt8VX(dst []int8, a []int8, b []int8)
+TEXT ·maximumInt8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·maximumInt8VXBody(SB)
+	RET
+
+// maximumInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0030007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x00ffe70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000fe301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x0076190e
+	WORD $0xb9f220e0
+	WORD $0x42e12000
+	WORD $0x41101001
+	WORD $0xec51fff3
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func absInt8VX(dst []int8, a []int8)
+TEXT ·absInt8VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·absInt8VXBody(SB)
+	RET
+
+// absInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4ce000
+	WORD $0x00fca719
+	WORD $0x0000ec44
+	WORD $0x0018107d
+	WORD $0xec1401bb
+	WORD $0x0059a759
+	WORD $0x0000e705
+	WORD $0x30000006
+	WORD $0xe7000000
+	WORD $0x00dfe705
+	WORD $0x2000000e
+	WORD $0x41505010
+	WORD $0xec15fff5
+	WORD $0x6064a7f4
+	WORD $0x000ae301
+	WORD $0x30000076
+	WORD $0x10004201
+	WORD $0x20004110
+	WORD $0x1001ec41
+	WORD $0xfff86064
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func negInt8VX(dst []int8, a []int8)
+TEXT ·negInt8VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·negInt8VXBody(SB)
+	RET
+
+// negInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4ce000
+	WORD $0x00fca719
+	WORD $0x0000ec44
+	WORD $0x0018107d
+	WORD $0xec1401bb
+	WORD $0x0059a759
+	WORD $0x0000e705
+	WORD $0x30000006
+	WORD $0xe7000000
+	WORD $0x00dee705
+	WORD $0x2000000e
+	WORD $0x41505010
+	WORD $0xec15fff5
+	WORD $0x6064a7f4
+	WORD $0x000ae301
+	WORD $0x30000076
+	WORD $0x13004201
+	WORD $0x20004110
+	WORD $0x1001ec41
+	WORD $0xfff86064
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func scaleInt8VX(dst []int8, a []int8, s int8)
+TEXT ·scaleInt8VX(SB), NOSPLIT, $160-49
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVB s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·scaleInt8VXBody(SB)
+	RET
+
+// scaleInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·scaleInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002f007c
+	WORD $0xa7190000
+	WORD $0xec54001e
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xe7000007
+	WORD $0x004dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e711
+	WORD $0x000000a2
+	WORD $0xe71e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xfff56064
+	WORD $0xa7f4000b
+	WORD $0xe3013000
+	WORD $0x0076b9fd
+	WORD $0x40004201
+	WORD $0x20004110
+	WORD $0x1001ec51
+	WORD $0xfff76064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func addScalarInt8VX(dst []int8, a []int8, s int8)
+TEXT ·addScalarInt8VX(SB), NOSPLIT, $160-49
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVB s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addScalarInt8VXBody(SB)
+	RET
+
+// addScalarInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002e007c
+	WORD $0xa7190000
+	WORD $0xec54001e
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xe7000007
+	WORD $0x004dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e711
+	WORD $0x000000f3
+	WORD $0xe71e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xfff56064
+	WORD $0xa7f4000a
+	WORD $0xe3013000
+	WORD $0x00761a04
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff8
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func subScalarInt8VX(dst []int8, a []int8, s int8)
+TEXT ·subScalarInt8VX(SB), NOSPLIT, $160-49
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVB s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subScalarInt8VXBody(SB)
+	RET
+
+// subScalarInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002e007c
+	WORD $0xa7190000
+	WORD $0xec54001e
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xe7000007
+	WORD $0x004dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e711
+	WORD $0x000000f7
+	WORD $0xe71e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xfff56064
+	WORD $0xa7f4000a
+	WORD $0xe3013000
+	WORD $0x00761b04
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff8
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func clampInt8VX(dst []int8, a []int8, lo int8, hi int8)
+TEXT ·clampInt8VX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVB lo+48(FP), R4
+	MOVB hi+49(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·clampInt8VXBody(SB)
+	RET
+
+// clampInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec6c
+	WORD $0x0041007c
+	WORD $0xa7190000
+	WORD $0xec640028
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xe7155000
+	WORD $0x0062e700
+	WORD $0x0007004d
+	WORD $0xe7110007
+	WORD $0x004dec16
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe72e3000
+	WORD $0x0006e722
+	WORD $0x000000ff
+	WORD $0xe7221000
+	WORD $0x00fee72e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064ec61
+	WORD $0x00178064
+	WORD $0xb9260004
+	WORD $0xb9260045
+	WORD $0xe3513000
+	WORD $0x00761950
+	WORD $0xb9f2c050
+	WORD $0x1954b9f2
+	WORD $0xa0544251
+	WORD $0x20004110
+	WORD $0x1001ec61
+	WORD $0xfff36064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func fillInt8VX(dst []int8, v int8)
+TEXT ·fillInt8VX(SB), NOSPLIT, $160-25
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVB v+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·fillInt8VXBody(SB)
+	RET
+
+// fillInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c002b
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c107d
+	WORD $0xe7033000
+	WORD $0x0062ec04
+	WORD $0x01bb0059
+	WORD $0xe7000007
+	WORD $0x004db904
+	WORD $0x0012b904
+	WORD $0x0050e700
+	WORD $0x1000000e
+	WORD $0xa75bfff0
+	WORD $0x41101010
+	WORD $0xa764fff9
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040b908
+	WORD $0x00204230
+	WORD $0x20004120
+	WORD $0x2001a747
+	WORD $0xfffc07fe
+	RET
+
+// func lerpInt8VX(dst []int8, a []int8, b []int8, t int8)
+TEXT ·lerpInt8VX(SB), NOSPLIT, $160-73
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVB t+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·lerpInt8VXBody(SB)
+	RET
+
+// lerpInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lerpInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec6c
+	WORD $0x003a007c
+	WORD $0xa7190000
+	WORD $0xec640024
+	WORD $0x107de705
+	WORD $0x50000062
+	WORD $0xe7000007
+	WORD $0x004dec16
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e72e
+	WORD $0x40000006
+	WORD $0xe7221000
+	WORD $0x00f7e712
+	WORD $0x000010aa
+	WORD $0xe71e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xffef6064
+	WORD $0xa7f40010
+	WORD $0xe3013000
+	WORD $0x0076e3e1
+	WORD $0x40000076
+	WORD $0x1be0b9fd
+	WORD $0x50ee1a0e
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec61fff2
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addScaledInt8VX(dst []int8, a []int8, b []int8, s int8)
+TEXT ·addScaledInt8VX(SB), NOSPLIT, $160-73
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVB s+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·addScaledInt8VXBody(SB)
+	RET
+
+// addScaledInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScaledInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec6c
+	WORD $0x0036007c
+	WORD $0xa7190000
+	WORD $0xec640021
+	WORD $0x107de705
+	WORD $0x50000062
+	WORD $0xe7000007
+	WORD $0x004dec16
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e72e
+	WORD $0x40000006
+	WORD $0xe7120000
+	WORD $0x10aae71e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000fe3e1
+	WORD $0x40000076
+	WORD $0xb9fd50ee
+	WORD $0xe3013000
+	WORD $0x00761a0e
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec61fff3
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addInt16VX(dst []int16, a []int16, b []int16)
+TEXT ·addInt16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addInt16VXBody(SB)
+	RET
+
+// addInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x10f3e701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48014000
+	WORD $0x4a013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func subInt16VX(dst []int16, a []int16, b []int16)
+TEXT ·subInt16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subInt16VXBody(SB)
+	RET
+
+// subInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x10f7e701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48013000
+	WORD $0x4b014000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func mulInt16VX(dst []int16, a []int16, b []int16)
+TEXT ·mulInt16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·mulInt16VXBody(SB)
+	RET
+
+// mulInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·mulInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x10a2e701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48014000
+	WORD $0x4c013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func minimumInt16VX(dst []int16, a []int16, b []int16)
+TEXT ·minimumInt16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·minimumInt16VXBody(SB)
+	RET
+
+// minimumInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0036007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x10fee701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500015
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48013000
+	WORD $0x48e14000
+	WORD $0x190eb9f2
+	WORD $0x40e040e1
+	WORD $0x20004110
+	WORD $0x1002a757
+	WORD $0xfff5ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func maximumInt16VX(dst []int16, a []int16, b []int16)
+TEXT ·maximumInt16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·maximumInt16VXBody(SB)
+	RET
+
+// maximumInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0036007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x10ffe701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500015
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48013000
+	WORD $0x48e14000
+	WORD $0x190eb9f2
+	WORD $0x20e040e1
+	WORD $0x20004110
+	WORD $0x1002a757
+	WORD $0xfff5ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func absInt16VX(dst []int16, a []int16)
+TEXT ·absInt16VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·absInt16VXBody(SB)
+	RET
+
+// absInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c002f
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c087d
+	WORD $0xec0401bc
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x0050e701
+	WORD $0x30000006
+	WORD $0xe7000000
+	WORD $0x10dfe701
+	WORD $0x2000000e
+	WORD $0xa75bfff8
+	WORD $0x41101010
+	WORD $0xa764fff3
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0001000d
+	WORD $0x48013000
+	WORD $0x10004001
+	WORD $0x20004110
+	WORD $0x1002a747
+	WORD $0xfff907fe
+	RET
+
+// func negInt16VX(dst []int16, a []int16)
+TEXT ·negInt16VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·negInt16VXBody(SB)
+	RET
+
+// negInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c0030
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c087d
+	WORD $0xec0401bc
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x0050e701
+	WORD $0x30000006
+	WORD $0xe7000000
+	WORD $0x10dee701
+	WORD $0x2000000e
+	WORD $0xa75bfff8
+	WORD $0x41101010
+	WORD $0xa764fff3
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0001000d
+	WORD $0xa7080000
+	WORD $0x4b013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa747fff8
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func scaleInt16VX(dst []int16, a []int16, s int16)
+TEXT ·scaleInt16VX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVH s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·scaleInt16VXBody(SB)
+	RET
+
+// scaleInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·scaleInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xec0501bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000010a2
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100001
+	WORD $0x000d1804
+	WORD $0x4c013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func addScalarInt16VX(dst []int16, a []int16, s int16)
+TEXT ·addScalarInt16VX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVH s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addScalarInt16VXBody(SB)
+	RET
+
+// addScalarInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xec0501bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000010f3
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100001
+	WORD $0x000d1804
+	WORD $0x4a013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func subScalarInt16VX(dst []int16, a []int16, s int16)
+TEXT ·subScalarInt16VX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVH s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subScalarInt16VXBody(SB)
+	RET
+
+// subScalarInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xec0501bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000010f7
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100001
+	WORD $0x000d4801
+	WORD $0x30001b04
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func clampInt16VX(dst []int16, a []int16, lo int16, hi int16)
+TEXT ·clampInt16VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVH lo+48(FP), R4
+	MOVH hi+50(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·clampInt16VXBody(SB)
+	RET
+
+// clampInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x0047007c
+	WORD $0xa7090000
+	WORD $0xec64002b
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xe7155000
+	WORD $0x0062ec06
+	WORD $0x01bc0059
+	WORD $0xe7000003
+	WORD $0x104de711
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7213000
+	WORD $0x0006e722
+	WORD $0x000010ff
+	WORD $0xe7221000
+	WORD $0x10fee721
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec60001a
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0001000d
+	WORD $0xb9270004
+	WORD $0xb9270045
+	WORD $0x48513000
+	WORD $0x1950b9f2
+	WORD $0xc0501954
+	WORD $0xb9f2a054
+	WORD $0x40512000
+	WORD $0x41101002
+	WORD $0xa767fff4
+	WORD $0xeb6ff030
+	WORD $0x000407fe
+	RET
+
+// func fillInt16VX(dst []int16, v int16)
+TEXT ·fillInt16VX(SB), NOSPLIT, $160-26
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVH v+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·fillInt16VXBody(SB)
+	RET
+
+// fillInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c002e
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c087d
+	WORD $0xe7033000
+	WORD $0x0062ec04
+	WORD $0x01bc0059
+	WORD $0xe7000003
+	WORD $0x104db904
+	WORD $0x0012b904
+	WORD $0x0050e700
+	WORD $0x1000000e
+	WORD $0xa75bfff8
+	WORD $0x41101010
+	WORD $0xa764fff9
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb00
+	WORD $0x0001000d
+	WORD $0xb9080020
+	WORD $0x40302000
+	WORD $0x41202002
+	WORD $0xa747fffc
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func lerpInt16VX(dst []int16, a []int16, b []int16, t int16)
+TEXT ·lerpInt16VX(SB), NOSPLIT, $160-74
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVH t+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·lerpInt16VXBody(SB)
+	RET
+
+// lerpInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lerpInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x0040007c
+	WORD $0xa7090000
+	WORD $0xec640028
+	WORD $0x087de705
+	WORD $0x50000062
+	WORD $0xec0601bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e721
+	WORD $0x40000006
+	WORD $0xe7221000
+	WORD $0x10f7e712
+	WORD $0x010010aa
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xffedec60
+	WORD $0x00168064
+	WORD $0xb9090060
+	WORD $0xeb100001
+	WORD $0x000d4801
+	WORD $0x300048e1
+	WORD $0x40001be0
+	WORD $0xb9fd50ee
+	WORD $0x1a0e4001
+	WORD $0x20004110
+	WORD $0x1002a767
+	WORD $0xfff4eb6f
+	WORD $0xf0300004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addScaledInt16VX(dst []int16, a []int16, b []int16, s int16)
+TEXT ·addScaledInt16VX(SB), NOSPLIT, $160-74
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVH s+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·addScaledInt16VXBody(SB)
+	RET
+
+// addScaledInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScaledInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x003a007c
+	WORD $0xa7090000
+	WORD $0xec640025
+	WORD $0x087de705
+	WORD $0x50000062
+	WORD $0xec0601bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e721
+	WORD $0x40000006
+	WORD $0xa7ebfff8
+	WORD $0xe7120100
+	WORD $0x10aae711
+	WORD $0x2000000e
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec600013
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0001000d
+	WORD $0x18054c01
+	WORD $0x40004a01
+	WORD $0x30004001
+	WORD $0x20004110
+	WORD $0x1002a767
+	WORD $0xfff7eb6f
+	WORD $0xf0300004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addUint8VX(dst []byte, a []byte, b []byte)
+TEXT ·addUint8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addUint8VXBody(SB)
+	RET
+
+// addUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002e007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x00f3e70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000de301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x00761a0e
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff5
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func subUint8VX(dst []byte, a []byte, b []byte)
+TEXT ·subUint8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subUint8VXBody(SB)
+	RET
+
+// subUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002e007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x00f7e70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000de301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x00761b0e
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff5
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func mulUint8VX(dst []byte, a []byte, b []byte)
+TEXT ·mulUint8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·mulUint8VXBody(SB)
+	RET
+
+// mulUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·mulUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002f007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x00a2e70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000ee301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x0076b9fd
+	WORD $0x000e4201
+	WORD $0x20004110
+	WORD $0x1001ec51
+	WORD $0xfff46064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func minimumUint8VX(dst []byte, a []byte, b []byte)
+TEXT ·minimumUint8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·minimumUint8VXBody(SB)
+	RET
+
+// minimumUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0030007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x00fce70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000fe301
+	WORD $0x30000094
+	WORD $0xe3e14000
+	WORD $0x0094190e
+	WORD $0xb9f240e0
+	WORD $0x42e12000
+	WORD $0x41101001
+	WORD $0xec51fff3
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func maximumUint8VX(dst []byte, a []byte, b []byte)
+TEXT ·maximumUint8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·maximumUint8VXBody(SB)
+	RET
+
+// maximumUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0030007c
+	WORD $0xa7190000
+	WORD $0xec54001b
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x00fde70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000fe301
+	WORD $0x30000094
+	WORD $0xe3e14000
+	WORD $0x0094190e
+	WORD $0xb9f220e0
+	WORD $0x42e12000
+	WORD $0x41101001
+	WORD $0xec51fff3
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func absUint8VX(dst []byte, a []byte)
+TEXT ·absUint8VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·absUint8VXBody(SB)
+	RET
+
+// absUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec4c
+	WORD $0x0026007c
+	WORD $0xa7190000
+	WORD $0xec440015
+	WORD $0x107dec14
+	WORD $0x01bb0059
+	WORD $0xa7590000
+	WORD $0xe7053000
+	WORD $0x0006e705
+	WORD $0x2000000e
+	WORD $0x41505010
+	WORD $0xec15fff8
+	WORD $0x6064a7f4
+	WORD $0x000bb9e8
+	WORD $0x1053b9e8
+	WORD $0x10e24110
+	WORD $0x1001d200
+	WORD $0xe0005000
+	WORD $0xec41fff7
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func negUint8VX(dst []byte, a []byte)
+TEXT ·negUint8VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·negUint8VXBody(SB)
+	RET
+
+// negUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4ce000
+	WORD $0x00fca719
+	WORD $0x0000ec44
+	WORD $0x0018107d
+	WORD $0xec1401bb
+	WORD $0x0059a759
+	WORD $0x0000e705
+	WORD $0x30000006
+	WORD $0xe7000000
+	WORD $0x00dee705
+	WORD $0x2000000e
+	WORD $0x41505010
+	WORD $0xec15fff5
+	WORD $0x6064a7f4
+	WORD $0x000ae301
+	WORD $0x30000076
+	WORD $0x13004201
+	WORD $0x20004110
+	WORD $0x1001ec41
+	WORD $0xfff86064
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func scaleUint8VX(dst []byte, a []byte, s byte)
+TEXT ·scaleUint8VX(SB), NOSPLIT, $160-49
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVBZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·scaleUint8VXBody(SB)
+	RET
+
+// scaleUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·scaleUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002f007c
+	WORD $0xa7190000
+	WORD $0xec54001e
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xe7000007
+	WORD $0x004dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e711
+	WORD $0x000000a2
+	WORD $0xe71e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xfff56064
+	WORD $0xa7f4000b
+	WORD $0xe3013000
+	WORD $0x0076b9fd
+	WORD $0x40004201
+	WORD $0x20004110
+	WORD $0x1001ec51
+	WORD $0xfff76064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func addScalarUint8VX(dst []byte, a []byte, s byte)
+TEXT ·addScalarUint8VX(SB), NOSPLIT, $160-49
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVBZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addScalarUint8VXBody(SB)
+	RET
+
+// addScalarUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002e007c
+	WORD $0xa7190000
+	WORD $0xec54001e
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xe7000007
+	WORD $0x004dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e711
+	WORD $0x000000f3
+	WORD $0xe71e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xfff56064
+	WORD $0xa7f4000a
+	WORD $0xe3013000
+	WORD $0x00761a04
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff8
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func subScalarUint8VX(dst []byte, a []byte, s byte)
+TEXT ·subScalarUint8VX(SB), NOSPLIT, $160-49
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVBZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subScalarUint8VXBody(SB)
+	RET
+
+// subScalarUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x002e007c
+	WORD $0xa7190000
+	WORD $0xec54001e
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xe7000007
+	WORD $0x004dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e711
+	WORD $0x000000f7
+	WORD $0xe71e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xfff56064
+	WORD $0xa7f4000a
+	WORD $0xe3013000
+	WORD $0x00761b04
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff8
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func clampUint8VX(dst []byte, a []byte, lo byte, hi byte)
+TEXT ·clampUint8VX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVBZ lo+48(FP), R4
+	MOVBZ hi+49(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·clampUint8VXBody(SB)
+	RET
+
+// clampUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec6c
+	WORD $0x0041007c
+	WORD $0xa7190000
+	WORD $0xec640028
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xe7155000
+	WORD $0x0062e700
+	WORD $0x0007004d
+	WORD $0xe7110007
+	WORD $0x004dec16
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe72e3000
+	WORD $0x0006e722
+	WORD $0x000000fd
+	WORD $0xe7221000
+	WORD $0x00fce72e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064ec61
+	WORD $0x00178064
+	WORD $0xb9940004
+	WORD $0xb9940045
+	WORD $0xe3513000
+	WORD $0x00941950
+	WORD $0xb9f2c050
+	WORD $0x1954b9f2
+	WORD $0xa0544251
+	WORD $0x20004110
+	WORD $0x1001ec61
+	WORD $0xfff36064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func fillUint8VX(dst []byte, v byte)
+TEXT ·fillUint8VX(SB), NOSPLIT, $160-25
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVBZ v+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·fillUint8VXBody(SB)
+	RET
+
+// fillUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c002b
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c107d
+	WORD $0xe7033000
+	WORD $0x0062ec04
+	WORD $0x01bb0059
+	WORD $0xe7000007
+	WORD $0x004db904
+	WORD $0x0012b904
+	WORD $0x0050e700
+	WORD $0x1000000e
+	WORD $0xa75bfff0
+	WORD $0x41101010
+	WORD $0xa764fff9
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040b908
+	WORD $0x00204230
+	WORD $0x20004120
+	WORD $0x2001a747
+	WORD $0xfffc07fe
+	RET
+
+// func lerpUint8VX(dst []byte, a []byte, b []byte, t byte)
+TEXT ·lerpUint8VX(SB), NOSPLIT, $160-73
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVBZ t+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·lerpUint8VXBody(SB)
+	RET
+
+// lerpUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lerpUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec6c
+	WORD $0x003a007c
+	WORD $0xa7190000
+	WORD $0xec640024
+	WORD $0x107de705
+	WORD $0x50000062
+	WORD $0xe7000007
+	WORD $0x004dec16
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e72e
+	WORD $0x40000006
+	WORD $0xe7221000
+	WORD $0x00f7e712
+	WORD $0x000010aa
+	WORD $0xe71e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xffef6064
+	WORD $0xa7f40010
+	WORD $0xe3013000
+	WORD $0x0076e3e1
+	WORD $0x40000076
+	WORD $0x1be0b9fd
+	WORD $0x50ee1a0e
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec61fff2
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addScaledUint8VX(dst []byte, a []byte, b []byte, s byte)
+TEXT ·addScaledUint8VX(SB), NOSPLIT, $160-73
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVBZ s+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·addScaledUint8VXBody(SB)
+	RET
+
+// addScaledUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScaledUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec6c
+	WORD $0x0036007c
+	WORD $0xa7190000
+	WORD $0xec640021
+	WORD $0x107de705
+	WORD $0x50000062
+	WORD $0xe7000007
+	WORD $0x004dec16
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e3000
+	WORD $0x0006e72e
+	WORD $0x40000006
+	WORD $0xe7120000
+	WORD $0x10aae71e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1efff2
+	WORD $0x6064a7f4
+	WORD $0x000fe3e1
+	WORD $0x40000076
+	WORD $0xb9fd50ee
+	WORD $0xe3013000
+	WORD $0x00761a0e
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec61fff3
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addUint16VX(dst []uint16, a []uint16, b []uint16)
+TEXT ·addUint16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addUint16VXBody(SB)
+	RET
+
+// addUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x10f3e701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48014000
+	WORD $0x4a013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func subUint16VX(dst []uint16, a []uint16, b []uint16)
+TEXT ·subUint16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subUint16VXBody(SB)
+	RET
+
+// subUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x10f7e701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48013000
+	WORD $0x4b014000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func mulUint16VX(dst []uint16, a []uint16, b []uint16)
+TEXT ·mulUint16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·mulUint16VXBody(SB)
+	RET
+
+// mulUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·mulUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x10a2e701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48014000
+	WORD $0x4c013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func minimumUint16VX(dst []uint16, a []uint16, b []uint16)
+TEXT ·minimumUint16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·minimumUint16VXBody(SB)
+	RET
+
+// minimumUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0038007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x10fce701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500017
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0xe3013000
+	WORD $0x0095e3e1
+	WORD $0x40000095
+	WORD $0x190eb9f2
+	WORD $0x40e040e1
+	WORD $0x20004110
+	WORD $0x1002a757
+	WORD $0xfff3ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func maximumUint16VX(dst []uint16, a []uint16, b []uint16)
+TEXT ·maximumUint16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·maximumUint16VXBody(SB)
+	RET
+
+// maximumUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0038007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x10fde701
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500017
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0xe3013000
+	WORD $0x0095e3e1
+	WORD $0x40000095
+	WORD $0x190eb9f2
+	WORD $0x20e040e1
+	WORD $0x20004110
+	WORD $0x1002a757
+	WORD $0xfff3ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func absUint16VX(dst []uint16, a []uint16)
+TEXT ·absUint16VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·absUint16VXBody(SB)
+	RET
+
+// absUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec4c
+	WORD $0x002e007c
+	WORD $0xa7090000
+	WORD $0xec440019
+	WORD $0x087dec04
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb9040050
+	WORD $0xe7013000
+	WORD $0x0006e701
+	WORD $0x2000000e
+	WORD $0xa75bfff8
+	WORD $0x41101010
+	WORD $0xa764fff6
+	WORD $0xec400013
+	WORD $0x8064b909
+	WORD $0x0040eb10
+	WORD $0x0001000d
+	WORD $0xb9e81053
+	WORD $0xb9e810e2
+	WORD $0x41101002
+	WORD $0xd201e000
+	WORD $0x5000a747
+	WORD $0xfff7ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func negUint16VX(dst []uint16, a []uint16)
+TEXT ·negUint16VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·negUint16VXBody(SB)
+	RET
+
+// negUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c0030
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c087d
+	WORD $0xec0401bc
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x0050e701
+	WORD $0x30000006
+	WORD $0xe7000000
+	WORD $0x10dee701
+	WORD $0x2000000e
+	WORD $0xa75bfff8
+	WORD $0x41101010
+	WORD $0xa764fff3
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0001000d
+	WORD $0xa7080000
+	WORD $0x4b013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa747fff8
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func scaleUint16VX(dst []uint16, a []uint16, s uint16)
+TEXT ·scaleUint16VX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVHZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·scaleUint16VXBody(SB)
+	RET
+
+// scaleUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·scaleUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xec0501bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000010a2
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100001
+	WORD $0x000d1804
+	WORD $0x4c013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func addScalarUint16VX(dst []uint16, a []uint16, s uint16)
+TEXT ·addScalarUint16VX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVHZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addScalarUint16VXBody(SB)
+	RET
+
+// addScalarUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xec0501bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000010f3
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100001
+	WORD $0x000d1804
+	WORD $0x4a013000
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func subScalarUint16VX(dst []uint16, a []uint16, s uint16)
+TEXT ·subScalarUint16VX(SB), NOSPLIT, $160-50
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVHZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subScalarUint16VXBody(SB)
+	RET
+
+// subScalarUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xec0501bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000010f7
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100001
+	WORD $0x000d4801
+	WORD $0x30001b04
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func clampUint16VX(dst []uint16, a []uint16, lo uint16, hi uint16)
+TEXT ·clampUint16VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVHZ lo+48(FP), R4
+	MOVHZ hi+50(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·clampUint16VXBody(SB)
+	RET
+
+// clampUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x0048007c
+	WORD $0xa7090000
+	WORD $0xec64002b
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xe7155000
+	WORD $0x0062ec06
+	WORD $0x01bc0059
+	WORD $0xe7000003
+	WORD $0x104de711
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7213000
+	WORD $0x0006e722
+	WORD $0x000010fd
+	WORD $0xe7221000
+	WORD $0x10fce721
+	WORD $0x2000000e
+	WORD $0xa7ebfff8
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec60001b
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0001000d
+	WORD $0xb9950004
+	WORD $0xb9950045
+	WORD $0xe3513000
+	WORD $0x00951950
+	WORD $0xb9f2c050
+	WORD $0x1954b9f2
+	WORD $0xa0544051
+	WORD $0x20004110
+	WORD $0x1002a767
+	WORD $0xfff3eb6f
+	WORD $0xf0300004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func fillUint16VX(dst []uint16, v uint16)
+TEXT ·fillUint16VX(SB), NOSPLIT, $160-26
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVHZ v+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·fillUint16VXBody(SB)
+	RET
+
+// fillUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c002e
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c087d
+	WORD $0xe7033000
+	WORD $0x0062ec04
+	WORD $0x01bc0059
+	WORD $0xe7000003
+	WORD $0x104db904
+	WORD $0x0012b904
+	WORD $0x0050e700
+	WORD $0x1000000e
+	WORD $0xa75bfff8
+	WORD $0x41101010
+	WORD $0xa764fff9
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb00
+	WORD $0x0001000d
+	WORD $0xb9080020
+	WORD $0x40302000
+	WORD $0x41202002
+	WORD $0xa747fffc
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func lerpUint16VX(dst []uint16, a []uint16, b []uint16, t uint16)
+TEXT ·lerpUint16VX(SB), NOSPLIT, $160-74
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVHZ t+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·lerpUint16VXBody(SB)
+	RET
+
+// lerpUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lerpUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x0040007c
+	WORD $0xa7090000
+	WORD $0xec640028
+	WORD $0x087de705
+	WORD $0x50000062
+	WORD $0xec0601bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e721
+	WORD $0x40000006
+	WORD $0xe7221000
+	WORD $0x10f7e712
+	WORD $0x010010aa
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xffedec60
+	WORD $0x00168064
+	WORD $0xb9090060
+	WORD $0xeb100001
+	WORD $0x000d4801
+	WORD $0x300048e1
+	WORD $0x40001be0
+	WORD $0xb9fd50ee
+	WORD $0x1a0e4001
+	WORD $0x20004110
+	WORD $0x1002a767
+	WORD $0xfff4eb6f
+	WORD $0xf0300004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addScaledUint16VX(dst []uint16, a []uint16, b []uint16, s uint16)
+TEXT ·addScaledUint16VX(SB), NOSPLIT, $160-74
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVHZ s+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·addScaledUint16VXBody(SB)
+	RET
+
+// addScaledUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScaledUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x003a007c
+	WORD $0xa7090000
+	WORD $0xec640025
+	WORD $0x087de705
+	WORD $0x50000062
+	WORD $0xec0601bc
+	WORD $0x0059e700
+	WORD $0x0003104d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e721
+	WORD $0x40000006
+	WORD $0xa7ebfff8
+	WORD $0xe7120100
+	WORD $0x10aae711
+	WORD $0x2000000e
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec600013
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0001000d
+	WORD $0x18054c01
+	WORD $0x40004a01
+	WORD $0x30004001
+	WORD $0x20004110
+	WORD $0x1002a767
+	WORD $0xfff7eb6f
+	WORD $0xf0300004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addUint32VX(dst []uint32, a []uint32, b []uint32)
+TEXT ·addUint32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addUint32VXBody(SB)
+	RET
+
+// addUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x047dec05
+	WORD $0x01bd0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x20f3e701
+	WORD $0x2000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0002000d
+	WORD $0x58014000
+	WORD $0x5a013000
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func subUint32VX(dst []uint32, a []uint32, b []uint32)
+TEXT ·subUint32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subUint32VXBody(SB)
+	RET
+
+// subUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x047dec05
+	WORD $0x01bd0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x20f7e701
+	WORD $0x2000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0002000d
+	WORD $0x58013000
+	WORD $0x5b014000
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func mulUint32VX(dst []uint32, a []uint32, b []uint32)
+TEXT ·mulUint32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·mulUint32VXBody(SB)
+	RET
+
+// mulUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·mulUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0033007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x047dec05
+	WORD $0x01bd0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7010000
+	WORD $0x20a2e701
+	WORD $0x2000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500012
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0002000d
+	WORD $0x58014000
+	WORD $0x71013000
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa757fff8
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func minimumUint32VX(dst []uint32, a []uint32, b []uint32)
+TEXT ·minimumUint32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·minimumUint32VXBody(SB)
+	RET
+
+// minimumUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0036007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x047dec05
+	WORD $0x01bd0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x20fce701
+	WORD $0x2000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500015
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0002000d
+	WORD $0x58013000
+	WORD $0x58e14000
+	WORD $0x150eb9f2
+	WORD $0x40e050e1
+	WORD $0x20004110
+	WORD $0x1004a757
+	WORD $0xfff5ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func maximumUint32VX(dst []uint32, a []uint32, b []uint32)
+TEXT ·maximumUint32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·maximumUint32VXBody(SB)
+	RET
+
+// maximumUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0036007c
+	WORD $0xa7090000
+	WORD $0xec54001f
+	WORD $0x047dec05
+	WORD $0x01bd0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x20fde701
+	WORD $0x2000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec500015
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0002000d
+	WORD $0x58013000
+	WORD $0x58e14000
+	WORD $0x150eb9f2
+	WORD $0x20e050e1
+	WORD $0x20004110
+	WORD $0x1004a757
+	WORD $0xfff5ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func absUint32VX(dst []uint32, a []uint32)
+TEXT ·absUint32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·absUint32VXBody(SB)
+	RET
+
+// absUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec4c
+	WORD $0x002e007c
+	WORD $0xa7090000
+	WORD $0xec440019
+	WORD $0x047dec04
+	WORD $0x01bd0059
+	WORD $0xa7190000
+	WORD $0xb9040050
+	WORD $0xe7013000
+	WORD $0x0006e701
+	WORD $0x2000000e
+	WORD $0xa75bfffc
+	WORD $0x41101010
+	WORD $0xa764fff6
+	WORD $0xec400013
+	WORD $0x8064b909
+	WORD $0x0040eb10
+	WORD $0x0002000d
+	WORD $0xb9e81053
+	WORD $0xb9e810e2
+	WORD $0x41101004
+	WORD $0xd203e000
+	WORD $0x5000a747
+	WORD $0xfff7ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func negUint32VX(dst []uint32, a []uint32)
+TEXT ·negUint32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·negUint32VXBody(SB)
+	RET
+
+// negUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c0030
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c047d
+	WORD $0xec0401bd
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x0050e701
+	WORD $0x30000006
+	WORD $0xe7000000
+	WORD $0x20dee701
+	WORD $0x2000000e
+	WORD $0xa75bfffc
+	WORD $0x41101010
+	WORD $0xa764fff3
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0002000d
+	WORD $0xa7080000
+	WORD $0x5b013000
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa747fff8
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func scaleUint32VX(dst []uint32, a []uint32, s uint32)
+TEXT ·scaleUint32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVWZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·scaleUint32VXBody(SB)
+	RET
+
+// scaleUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·scaleUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x047de704
+	WORD $0x40000062
+	WORD $0xec0501bd
+	WORD $0x0059e700
+	WORD $0x0001204d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000020a2
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfffc4110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100002
+	WORD $0x000d1804
+	WORD $0x71013000
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func addScalarUint32VX(dst []uint32, a []uint32, s uint32)
+TEXT ·addScalarUint32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVWZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addScalarUint32VXBody(SB)
+	RET
+
+// addScalarUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x047de704
+	WORD $0x40000062
+	WORD $0xec0501bd
+	WORD $0x0059e700
+	WORD $0x0001204d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000020f3
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfffc4110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100002
+	WORD $0x000d1804
+	WORD $0x5a013000
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func subScalarUint32VX(dst []uint32, a []uint32, s uint32)
+TEXT ·subScalarUint32VX(SB), NOSPLIT, $160-52
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVWZ s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subScalarUint32VXBody(SB)
+	RET
+
+// subScalarUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x047de704
+	WORD $0x40000062
+	WORD $0xec0501bd
+	WORD $0x0059e700
+	WORD $0x0001204d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e711
+	WORD $0x000020f7
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfffc4110
+	WORD $0x1010a764
+	WORD $0xfff3ec50
+	WORD $0x00118064
+	WORD $0xb9090050
+	WORD $0xeb100002
+	WORD $0x000d5801
+	WORD $0x30001b04
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa757fff9
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func clampUint32VX(dst []uint32, a []uint32, lo uint32, hi uint32)
+TEXT ·clampUint32VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVWZ lo+48(FP), R4
+	MOVWZ hi+52(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·clampUint32VXBody(SB)
+	RET
+
+// clampUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x0043007c
+	WORD $0xa7090000
+	WORD $0xec64002b
+	WORD $0x047de704
+	WORD $0x40000062
+	WORD $0xe7155000
+	WORD $0x0062ec06
+	WORD $0x01bd0059
+	WORD $0xe7000001
+	WORD $0x204de711
+	WORD $0x0001204d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7213000
+	WORD $0x0006e722
+	WORD $0x000020fd
+	WORD $0xe7221000
+	WORD $0x20fce721
+	WORD $0x2000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec600016
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0002000d
+	WORD $0x58013000
+	WORD $0x1504b9f2
+	WORD $0xc0041505
+	WORD $0xb9f2a005
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa767fff4
+	WORD $0xeb6ff030
+	WORD $0x000407fe
+	RET
+
+// func fillUint32VX(dst []uint32, v uint32)
+TEXT ·fillUint32VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVWZ v+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·fillUint32VXBody(SB)
+	RET
+
+// fillUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c002e
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x001c047d
+	WORD $0xe7033000
+	WORD $0x0062ec04
+	WORD $0x01bd0059
+	WORD $0xe7000001
+	WORD $0x204db904
+	WORD $0x0012b904
+	WORD $0x0050e700
+	WORD $0x1000000e
+	WORD $0xa75bfffc
+	WORD $0x41101010
+	WORD $0xa764fff9
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb00
+	WORD $0x0002000d
+	WORD $0xb9080020
+	WORD $0x50302000
+	WORD $0x41202004
+	WORD $0xa747fffc
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func lerpUint32VX(dst []uint32, a []uint32, b []uint32, t uint32)
+TEXT ·lerpUint32VX(SB), NOSPLIT, $160-76
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVWZ t+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·lerpUint32VXBody(SB)
+	RET
+
+// lerpUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·lerpUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x0040007c
+	WORD $0xa7090000
+	WORD $0xec640028
+	WORD $0x047de705
+	WORD $0x50000062
+	WORD $0xec0601bd
+	WORD $0x0059e700
+	WORD $0x0001204d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e721
+	WORD $0x40000006
+	WORD $0xe7221000
+	WORD $0x20f7e712
+	WORD $0x020010aa
+	WORD $0xe7112000
+	WORD $0x000ea7eb
+	WORD $0xfffc4110
+	WORD $0x1010a764
+	WORD $0xffedec60
+	WORD $0x00168064
+	WORD $0xb9090060
+	WORD $0xeb100002
+	WORD $0x000d5801
+	WORD $0x300058e1
+	WORD $0x40001be0
+	WORD $0xb9fd50ee
+	WORD $0x1a0e5001
+	WORD $0x20004110
+	WORD $0x1004a767
+	WORD $0xfff4eb6f
+	WORD $0xf0300004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addScaledUint32VX(dst []uint32, a []uint32, b []uint32, s uint32)
+TEXT ·addScaledUint32VX(SB), NOSPLIT, $160-76
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVWZ s+72(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·addScaledUint32VXBody(SB)
+	RET
+
+// addScaledUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScaledUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x003a007c
+	WORD $0xa7090000
+	WORD $0xec640025
+	WORD $0x047de705
+	WORD $0x50000062
+	WORD $0xec0601bd
+	WORD $0x0059e700
+	WORD $0x0001204d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7113000
+	WORD $0x0006e721
+	WORD $0x40000006
+	WORD $0xa7ebfffc
+	WORD $0xe7120200
+	WORD $0x10aae711
+	WORD $0x2000000e
+	WORD $0x41101010
+	WORD $0xa764fff0
+	WORD $0xec600013
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0002000d
+	WORD $0x18057101
+	WORD $0x40005a01
+	WORD $0x30005001
+	WORD $0x20004110
+	WORD $0x1004a767
+	WORD $0xfff7eb6f
+	WORD $0xf0300004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addUint64VX(dst []uint64, a []uint64, b []uint64)
+TEXT ·addUint64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addUint64VXBody(SB)
+	RET
+
+// addUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0036007c
+	WORD $0xa7090000
+	WORD $0xec58001f
+	WORD $0x017cec05
+	WORD $0x01be0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x3006e711
+	WORD $0x40003006
+	WORD $0xe7010000
+	WORD $0x30f3e701
+	WORD $0x2000300e
+	WORD $0xa7ebfffe
+	WORD $0x41101010
+	WORD $0xa774fff0
+	WORD $0xec500015
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0003000d
+	WORD $0xe3014000
+	WORD $0x0004e301
+	WORD $0x30000008
+	WORD $0xe3012000
+	WORD $0x00244110
+	WORD $0x1008a757
+	WORD $0xfff5ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func subUint64VX(dst []uint64, a []uint64, b []uint64)
+TEXT ·subUint64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subUint64VXBody(SB)
+	RET
+
+// subUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0036007c
+	WORD $0xa7090000
+	WORD $0xec58001f
+	WORD $0x017cec05
+	WORD $0x01be0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x3006e711
+	WORD $0x40003006
+	WORD $0xe7001000
+	WORD $0x30f7e701
+	WORD $0x2000300e
+	WORD $0xa7ebfffe
+	WORD $0x41101010
+	WORD $0xa774fff0
+	WORD $0xec500015
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0003000d
+	WORD $0xe3013000
+	WORD $0x0004e301
+	WORD $0x40000009
+	WORD $0xe3012000
+	WORD $0x00244110
+	WORD $0x1008a757
+	WORD $0xfff5ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func minimumUint64VX(dst []uint64, a []uint64, b []uint64)
+TEXT ·minimumUint64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·minimumUint64VXBody(SB)
+	RET
+
+// minimumUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·minimumUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x003a007c
+	WORD $0xa7090000
+	WORD $0xec58001f
+	WORD $0x017cec05
+	WORD $0x01be0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x3006e711
+	WORD $0x40003006
+	WORD $0xe7001000
+	WORD $0x30fce701
+	WORD $0x2000300e
+	WORD $0xa7ebfffe
+	WORD $0x41101010
+	WORD $0xa774fff0
+	WORD $0xec500019
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0003000d
+	WORD $0xe3013000
+	WORD $0x0004e3e1
+	WORD $0x40000004
+	WORD $0xb921000e
+	WORD $0xb9e240e0
+	WORD $0xe3e12000
+	WORD $0x00244110
+	WORD $0x1008a757
+	WORD $0xfff1ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func maximumUint64VX(dst []uint64, a []uint64, b []uint64)
+TEXT ·maximumUint64VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·maximumUint64VXBody(SB)
+	RET
+
+// maximumUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·maximumUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x003a007c
+	WORD $0xa7090000
+	WORD $0xec58001f
+	WORD $0x017cec05
+	WORD $0x01be0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x3006e711
+	WORD $0x40003006
+	WORD $0xe7001000
+	WORD $0x30fde701
+	WORD $0x2000300e
+	WORD $0xa7ebfffe
+	WORD $0x41101010
+	WORD $0xa774fff0
+	WORD $0xec500019
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0003000d
+	WORD $0xe3013000
+	WORD $0x0004e3e1
+	WORD $0x40000004
+	WORD $0xb921000e
+	WORD $0xb9e220e0
+	WORD $0xe3e12000
+	WORD $0x00244110
+	WORD $0x1008a757
+	WORD $0xfff1ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func absUint64VX(dst []uint64, a []uint64)
+TEXT ·absUint64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·absUint64VXBody(SB)
+	RET
+
+// absUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·absUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec4c
+	WORD $0x002e007c
+	WORD $0xa7090000
+	WORD $0xec480019
+	WORD $0x017cec04
+	WORD $0x01be0059
+	WORD $0xa7190000
+	WORD $0xb9040050
+	WORD $0xe7013000
+	WORD $0x3006e701
+	WORD $0x2000300e
+	WORD $0xa75bfffe
+	WORD $0x41101010
+	WORD $0xa774fff6
+	WORD $0xec400013
+	WORD $0x8064b909
+	WORD $0x0040eb10
+	WORD $0x0003000d
+	WORD $0xb9e81053
+	WORD $0xb9e810e2
+	WORD $0x41101008
+	WORD $0xd207e000
+	WORD $0x5000a747
+	WORD $0xfff7ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func negUint64VX(dst []uint64, a []uint64)
+TEXT ·negUint64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·negUint64VXBody(SB)
+	RET
+
+// negUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·negUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c0032
+	WORD $0x007ca709
+	WORD $0x0000ec48
+	WORD $0x001c017c
+	WORD $0xec0401be
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x0050e701
+	WORD $0x30003006
+	WORD $0xe7000000
+	WORD $0x30dee701
+	WORD $0x2000300e
+	WORD $0xa75bfffe
+	WORD $0x41101010
+	WORD $0xa774fff3
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0003000d
+	WORD $0xa7090000
+	WORD $0xe3013000
+	WORD $0x0009e301
+	WORD $0x20000024
+	WORD $0x41101008
+	WORD $0xa747fff6
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func addScalarUint64VX(dst []uint64, a []uint64, s uint64)
+TEXT ·addScalarUint64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·addScalarUint64VXBody(SB)
+	RET
+
+// addScalarUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·addScalarUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec58001f
+	WORD $0x017ce704
+	WORD $0x40000062
+	WORD $0xec0501be
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x00e0e711
+	WORD $0x30003006
+	WORD $0xe7110000
+	WORD $0x30f3e711
+	WORD $0x2000300e
+	WORD $0xa7ebfffe
+	WORD $0x41101010
+	WORD $0xa774fff3
+	WORD $0xec500014
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0003000d
+	WORD $0xb9040004
+	WORD $0xe3013000
+	WORD $0x0008e301
+	WORD $0x20000024
+	WORD $0x41101008
+	WORD $0xa757fff6
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func subScalarUint64VX(dst []uint64, a []uint64, s uint64)
+TEXT ·subScalarUint64VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD s+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·subScalarUint64VXBody(SB)
+	RET
+
+// subScalarUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·subScalarUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0035007c
+	WORD $0xa7090000
+	WORD $0xec58001f
+	WORD $0x017ce704
+	WORD $0x40000062
+	WORD $0xec0501be
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x00e0e711
+	WORD $0x30003006
+	WORD $0xe7110000
+	WORD $0x30f7e711
+	WORD $0x2000300e
+	WORD $0xa7ebfffe
+	WORD $0x41101010
+	WORD $0xa774fff3
+	WORD $0xec500014
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0003000d
+	WORD $0xe3013000
+	WORD $0x0004b909
+	WORD $0x0004e301
+	WORD $0x20000024
+	WORD $0x41101008
+	WORD $0xa757fff6
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func clampUint64VX(dst []uint64, a []uint64, lo uint64, hi uint64)
+TEXT ·clampUint64VX(SB), NOSPLIT, $160-64
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD lo+48(FP), R4
+	MOVD hi+56(FP), R5
+	MOVD dst_len+8(FP), R6
+	BL ·clampUint64VXBody(SB)
+	RET
+
+// clampUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·clampUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x0041007c
+	WORD $0xa7090000
+	WORD $0xec680025
+	WORD $0x017ce704
+	WORD $0x40000062
+	WORD $0xe7155000
+	WORD $0x0062ec06
+	WORD $0x01be0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7213000
+	WORD $0x3006e722
+	WORD $0x000030fd
+	WORD $0xe7221000
+	WORD $0x30fce721
+	WORD $0x2000300e
+	WORD $0xa7ebfffe
+	WORD $0x41101010
+	WORD $0xa774fff0
+	WORD $0xec60001a
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0003000d
+	WORD $0xe3013000
+	WORD $0x0004b921
+	WORD $0x0004b9e2
+	WORD $0xc004b921
+	WORD $0x0005b9e2
+	WORD $0xa005e301
+	WORD $0x20000024
+	WORD $0x41101008
+	WORD $0xa767fff0
+	WORD $0xeb6ff030
+	WORD $0x000407fe
+	RET
+
+// func fillUint64VX(dst []uint64, v uint64)
+TEXT ·fillUint64VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD v+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·fillUint64VXBody(SB)
+	RET
+
+// fillUint64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·fillUint64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c002c
+	WORD $0x007ca709
+	WORD $0x0000ec48
+	WORD $0x0019017c
+	WORD $0xe7033000
+	WORD $0x0062ec04
+	WORD $0x01be0059
+	WORD $0xb9040012
+	WORD $0xb9040050
+	WORD $0xe7001000
+	WORD $0x300ea75b
+	WORD $0xfffe4110
+	WORD $0x1010a774
+	WORD $0xfff9ec40
+	WORD $0xe00080e4
+	WORD $0xb9090040
+	WORD $0xeb000003
+	WORD $0x000db908
+	WORD $0x0020e330
+	WORD $0x20000024
+	WORD $0x41202008
+	WORD $0xa747fffb
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
 // func divFloat32VX(dst []float32, a []float32, b []float32)
 TEXT ·divFloat32VX(SB), NOSPLIT, $160-72
 	NO_LOCAL_POINTERS
@@ -3650,5 +7229,487 @@ TEXT ·roundToEvenFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xa747fff8
 	BYTE $0x07
 	BYTE $0xfe
+	RET
+
+// func satAddInt8VX(dst []int8, a []int8, b []int8)
+TEXT ·satAddInt8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satAddInt8VXBody(SB)
+	RET
+
+// satAddInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satAddInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0050007c
+	WORD $0xa7190000
+	WORD $0xec540033
+	WORD $0x107de700
+	WORD $0x00000044
+	WORD $0xe710ff80
+	WORD $0x0045ec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe72e3000
+	WORD $0x0006e73e
+	WORD $0x40000006
+	WORD $0xe7423000
+	WORD $0x00f3e722
+	WORD $0x400000fb
+	WORD $0xe7303000
+	WORD $0x00fbe723
+	WORD $0x2000006d
+	WORD $0xe7340007
+	WORD $0x003ae733
+	WORD $0x1000006d
+	WORD $0xe7234000
+	WORD $0x208de72e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1effe0
+	WORD $0x6064a7f4
+	WORD $0x0017e301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x00761a0e
+	WORD $0xa70e007f
+	WORD $0xec0a007f
+	WORD $0x0042a70e
+	WORD $0xff80ec0c
+	WORD $0xff800042
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51ffeb
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func satSubInt8VX(dst []int8, a []int8, b []int8)
+TEXT ·satSubInt8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satSubInt8VXBody(SB)
+	RET
+
+// satSubInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satSubInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0050007c
+	WORD $0xa7190000
+	WORD $0xec540033
+	WORD $0x107de700
+	WORD $0x00000044
+	WORD $0xe710ff80
+	WORD $0x0045ec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe72e3000
+	WORD $0x0006e73e
+	WORD $0x40000006
+	WORD $0xe7423000
+	WORD $0x00f7e722
+	WORD $0x400000fb
+	WORD $0xe7330000
+	WORD $0x00fbe723
+	WORD $0x2000006d
+	WORD $0xe7340007
+	WORD $0x003ae733
+	WORD $0x1000006d
+	WORD $0xe7234000
+	WORD $0x208de72e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1effe0
+	WORD $0x6064a7f4
+	WORD $0x0017e301
+	WORD $0x30000076
+	WORD $0xe3e14000
+	WORD $0x00761b0e
+	WORD $0xa70e007f
+	WORD $0xec0a007f
+	WORD $0x0042a70e
+	WORD $0xff80ec0c
+	WORD $0xff800042
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51ffeb
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func satAddInt16VX(dst []int16, a []int16, b []int16)
+TEXT ·satAddInt16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satAddInt16VXBody(SB)
+	RET
+
+// satAddInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satAddInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0055007c
+	WORD $0xa7090000
+	WORD $0xec540037
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xe7000000
+	WORD $0x0044e710
+	WORD $0x80001045
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7213000
+	WORD $0x0006e731
+	WORD $0x40000006
+	WORD $0xe7423000
+	WORD $0x10f3e722
+	WORD $0x400010fb
+	WORD $0xe7303000
+	WORD $0x10fbe723
+	WORD $0x2000006d
+	WORD $0xe734000f
+	WORD $0x103ae733
+	WORD $0x1000006d
+	WORD $0xa7ebfff8
+	WORD $0xe7234000
+	WORD $0x208de721
+	WORD $0x2000000e
+	WORD $0x41101010
+	WORD $0xa764ffde
+	WORD $0xec50001c
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48013000
+	WORD $0x4a014000
+	WORD $0xa70e7fff
+	WORD $0xec0a7fff
+	WORD $0x0042a70e
+	WORD $0x8000ec0c
+	WORD $0x80000042
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757ffee
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func satSubInt16VX(dst []int16, a []int16, b []int16)
+TEXT ·satSubInt16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satSubInt16VXBody(SB)
+	RET
+
+// satSubInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satSubInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0055007c
+	WORD $0xa7090000
+	WORD $0xec540037
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xe7000000
+	WORD $0x0044e710
+	WORD $0x80001045
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7213000
+	WORD $0x0006e731
+	WORD $0x40000006
+	WORD $0xe7423000
+	WORD $0x10f7e722
+	WORD $0x400010fb
+	WORD $0xe7330000
+	WORD $0x10fbe723
+	WORD $0x2000006d
+	WORD $0xe734000f
+	WORD $0x103ae733
+	WORD $0x1000006d
+	WORD $0xa7ebfff8
+	WORD $0xe7234000
+	WORD $0x208de721
+	WORD $0x2000000e
+	WORD $0x41101010
+	WORD $0xa764ffde
+	WORD $0xec50001c
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0001000d
+	WORD $0x48013000
+	WORD $0x4b014000
+	WORD $0xa70e7fff
+	WORD $0xec0a7fff
+	WORD $0x0042a70e
+	WORD $0x8000ec0c
+	WORD $0x80000042
+	WORD $0x40012000
+	WORD $0x41101002
+	WORD $0xa757ffee
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func satAddUint8VX(dst []byte, a []byte, b []byte)
+TEXT ·satAddUint8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satAddUint8VXBody(SB)
+	RET
+
+// satAddUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satAddUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0039007c
+	WORD $0xa7190000
+	WORD $0xec540021
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe71e4000
+	WORD $0x0006e70e
+	WORD $0x30000006
+	WORD $0xe7211000
+	WORD $0x006be700
+	WORD $0x200000fc
+	WORD $0xe7001000
+	WORD $0x00f3e70e
+	WORD $0x2000000e
+	WORD $0x41e0e010
+	WORD $0xec1effec
+	WORD $0x6064a7f4
+	WORD $0x0012e301
+	WORD $0x30000094
+	WORD $0xe3e14000
+	WORD $0x00941a0e
+	WORD $0xa70e00ff
+	WORD $0xec0a00ff
+	WORD $0x00424201
+	WORD $0x20004110
+	WORD $0x1001ec51
+	WORD $0xfff06064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	RET
+
+// func satSubUint8VX(dst []byte, a []byte, b []byte)
+TEXT ·satSubUint8VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satSubUint8VXBody(SB)
+	RET
+
+// satSubUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satSubUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0034007c
+	WORD $0xa7190000
+	WORD $0xec54001e
+	WORD $0x107dec15
+	WORD $0x01bb0059
+	WORD $0xa7e90000
+	WORD $0xe70e3000
+	WORD $0x0006e71e
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x00fde700
+	WORD $0x100000f7
+	WORD $0xe70e2000
+	WORD $0x000e41e0
+	WORD $0xe010ec1e
+	WORD $0xffef6064
+	WORD $0xa7f40010
+	WORD $0xe3013000
+	WORD $0x0094e3e1
+	WORD $0x40000094
+	WORD $0x1f0eec0c
+	WORD $0x00000042
+	WORD $0x42012000
+	WORD $0x41101001
+	WORD $0xec51fff2
+	WORD $0x6064ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func satSubUint16VX(dst []uint16, a []uint16, b []uint16)
+TEXT ·satSubUint16VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satSubUint16VXBody(SB)
+	RET
+
+// satSubUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satSubUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x003c007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x087dec05
+	WORD $0x01bc0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x10fde700
+	WORD $0x100010f7
+	WORD $0xe7012000
+	WORD $0x000ea7eb
+	WORD $0xfff84110
+	WORD $0x1010a764
+	WORD $0xffedec50
+	WORD $0x00188064
+	WORD $0xb9090050
+	WORD $0xeb100001
+	WORD $0x000de301
+	WORD $0x30000095
+	WORD $0xe3e14000
+	WORD $0x00951f0e
+	WORD $0xec0c0000
+	WORD $0x00424001
+	WORD $0x20004110
+	WORD $0x1002a757
+	WORD $0xfff2ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func satAddUint32VX(dst []uint32, a []uint32, b []uint32)
+TEXT ·satAddUint32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satAddUint32VXBody(SB)
+	RET
+
+// satAddUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satAddUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x003c007c
+	WORD $0xa7090000
+	WORD $0xec540025
+	WORD $0x047dec05
+	WORD $0x01bd0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7114000
+	WORD $0x0006e701
+	WORD $0x30000006
+	WORD $0xe7211000
+	WORD $0x006be700
+	WORD $0x200020fc
+	WORD $0xe7001000
+	WORD $0x20f3e701
+	WORD $0x2000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764ffea
+	WORD $0xec500015
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0002000d
+	WORD $0x58013000
+	WORD $0x5e014000
+	WORD $0xec03ffff
+	WORD $0x00425001
+	WORD $0x20004110
+	WORD $0x1004a757
+	WORD $0xfff5ebef
+	WORD $0xf0700004
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func satSubUint32VX(dst []uint32, a []uint32, b []uint32)
+TEXT ·satSubUint32VX(SB), NOSPLIT, $160-72
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD b_base+48(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·satSubUint32VXBody(SB)
+	RET
+
+// satSubUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·satSubUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0039007c
+	WORD $0xa7090000
+	WORD $0xec540022
+	WORD $0x047dec05
+	WORD $0x01bd0059
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7013000
+	WORD $0x0006e711
+	WORD $0x40000006
+	WORD $0xe7001000
+	WORD $0x20fde700
+	WORD $0x100020f7
+	WORD $0xe7012000
+	WORD $0x000ea7eb
+	WORD $0xfffc4110
+	WORD $0x1010a764
+	WORD $0xffedec50
+	WORD $0x00158064
+	WORD $0xb9090050
+	WORD $0xeb100002
+	WORD $0x000d5801
+	WORD $0x30005f01
+	WORD $0x4000ec0c
+	WORD $0x00000042
+	WORD $0x50012000
+	WORD $0x41101004
+	WORD $0xa757fff5
+	WORD $0xebeff070
+	WORD $0x000407fe
 	RET
 

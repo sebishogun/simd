@@ -88,6 +88,114 @@ func sumsqdiffInt64LASX(a []int64, b []int64) int64
 func diffInt64LASX(dst []int64, a []int64)
 
 //go:noescape
+func minrInt8LASX(a []int8) int8
+
+//go:noescape
+func maxrInt8LASX(a []int8) int8
+
+//go:noescape
+func sumsqInt8LASX(a []int8) int8
+
+//go:noescape
+func sumsqdevInt8LASX(a []int8, c int8) int8
+
+//go:noescape
+func sumsqdiffInt8LASX(a []int8, b []int8) int8
+
+//go:noescape
+func diffInt8LASX(dst []int8, a []int8)
+
+//go:noescape
+func minrInt16LASX(a []int16) int16
+
+//go:noescape
+func maxrInt16LASX(a []int16) int16
+
+//go:noescape
+func sumsqInt16LASX(a []int16) int16
+
+//go:noescape
+func sumsqdevInt16LASX(a []int16, c int16) int16
+
+//go:noescape
+func sumsqdiffInt16LASX(a []int16, b []int16) int16
+
+//go:noescape
+func diffInt16LASX(dst []int16, a []int16)
+
+//go:noescape
+func minrUint8LASX(a []byte) byte
+
+//go:noescape
+func maxrUint8LASX(a []byte) byte
+
+//go:noescape
+func sumsqUint8LASX(a []byte) byte
+
+//go:noescape
+func sumsqdevUint8LASX(a []byte, c byte) byte
+
+//go:noescape
+func sumsqdiffUint8LASX(a []byte, b []byte) byte
+
+//go:noescape
+func diffUint8LASX(dst []byte, a []byte)
+
+//go:noescape
+func minrUint16LASX(a []uint16) uint16
+
+//go:noescape
+func maxrUint16LASX(a []uint16) uint16
+
+//go:noescape
+func sumsqUint16LASX(a []uint16) uint16
+
+//go:noescape
+func sumsqdevUint16LASX(a []uint16, c uint16) uint16
+
+//go:noescape
+func sumsqdiffUint16LASX(a []uint16, b []uint16) uint16
+
+//go:noescape
+func diffUint16LASX(dst []uint16, a []uint16)
+
+//go:noescape
+func minrUint32LASX(a []uint32) uint32
+
+//go:noescape
+func maxrUint32LASX(a []uint32) uint32
+
+//go:noescape
+func sumsqUint32LASX(a []uint32) uint32
+
+//go:noescape
+func sumsqdevUint32LASX(a []uint32, c uint32) uint32
+
+//go:noescape
+func sumsqdiffUint32LASX(a []uint32, b []uint32) uint32
+
+//go:noescape
+func diffUint32LASX(dst []uint32, a []uint32)
+
+//go:noescape
+func minrUint64LASX(a []uint64) uint64
+
+//go:noescape
+func maxrUint64LASX(a []uint64) uint64
+
+//go:noescape
+func sumsqUint64LASX(a []uint64) uint64
+
+//go:noescape
+func sumsqdevUint64LASX(a []uint64, c uint64) uint64
+
+//go:noescape
+func sumsqdiffUint64LASX(a []uint64, b []uint64) uint64
+
+//go:noescape
+func diffUint64LASX(dst []uint64, a []uint64)
+
+//go:noescape
 func sumFloat32LASX(a []float32) float32
 
 //go:noescape
@@ -140,3 +248,93 @@ func l1normInt64LASX(a []int64) int64
 
 //go:noescape
 func l1diffInt64LASX(a []int64, b []int64) int64
+
+//go:noescape
+func sumInt8LASX(a []int8) int8
+
+//go:noescape
+func prodInt8LASX(a []int8) int8
+
+//go:noescape
+func dotInt8LASX(a []int8, b []int8) int8
+
+//go:noescape
+func l1normInt8LASX(a []int8) int8
+
+//go:noescape
+func l1diffInt8LASX(a []int8, b []int8) int8
+
+//go:noescape
+func sumInt16LASX(a []int16) int16
+
+//go:noescape
+func prodInt16LASX(a []int16) int16
+
+//go:noescape
+func dotInt16LASX(a []int16, b []int16) int16
+
+//go:noescape
+func l1normInt16LASX(a []int16) int16
+
+//go:noescape
+func l1diffInt16LASX(a []int16, b []int16) int16
+
+//go:noescape
+func sumUint8LASX(a []byte) byte
+
+//go:noescape
+func prodUint8LASX(a []byte) byte
+
+//go:noescape
+func dotUint8LASX(a []byte, b []byte) byte
+
+//go:noescape
+func l1normUint8LASX(a []byte) byte
+
+//go:noescape
+func l1diffUint8LASX(a []byte, b []byte) byte
+
+//go:noescape
+func sumUint16LASX(a []uint16) uint16
+
+//go:noescape
+func prodUint16LASX(a []uint16) uint16
+
+//go:noescape
+func dotUint16LASX(a []uint16, b []uint16) uint16
+
+//go:noescape
+func l1normUint16LASX(a []uint16) uint16
+
+//go:noescape
+func l1diffUint16LASX(a []uint16, b []uint16) uint16
+
+//go:noescape
+func sumUint32LASX(a []uint32) uint32
+
+//go:noescape
+func prodUint32LASX(a []uint32) uint32
+
+//go:noescape
+func dotUint32LASX(a []uint32, b []uint32) uint32
+
+//go:noescape
+func l1normUint32LASX(a []uint32) uint32
+
+//go:noescape
+func l1diffUint32LASX(a []uint32, b []uint32) uint32
+
+//go:noescape
+func sumUint64LASX(a []uint64) uint64
+
+//go:noescape
+func prodUint64LASX(a []uint64) uint64
+
+//go:noescape
+func dotUint64LASX(a []uint64, b []uint64) uint64
+
+//go:noescape
+func l1normUint64LASX(a []uint64) uint64
+
+//go:noescape
+func l1diffUint64LASX(a []uint64, b []uint64) uint64

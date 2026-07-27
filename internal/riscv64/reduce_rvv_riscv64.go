@@ -88,6 +88,114 @@ func sumsqdiffInt64RVV(a []int64, b []int64) int64
 func diffInt64RVV(dst []int64, a []int64)
 
 //go:noescape
+func minrInt8RVV(a []int8) int8
+
+//go:noescape
+func maxrInt8RVV(a []int8) int8
+
+//go:noescape
+func sumsqInt8RVV(a []int8) int8
+
+//go:noescape
+func sumsqdevInt8RVV(a []int8, c int8) int8
+
+//go:noescape
+func sumsqdiffInt8RVV(a []int8, b []int8) int8
+
+//go:noescape
+func diffInt8RVV(dst []int8, a []int8)
+
+//go:noescape
+func minrInt16RVV(a []int16) int16
+
+//go:noescape
+func maxrInt16RVV(a []int16) int16
+
+//go:noescape
+func sumsqInt16RVV(a []int16) int16
+
+//go:noescape
+func sumsqdevInt16RVV(a []int16, c int16) int16
+
+//go:noescape
+func sumsqdiffInt16RVV(a []int16, b []int16) int16
+
+//go:noescape
+func diffInt16RVV(dst []int16, a []int16)
+
+//go:noescape
+func minrUint8RVV(a []byte) byte
+
+//go:noescape
+func maxrUint8RVV(a []byte) byte
+
+//go:noescape
+func sumsqUint8RVV(a []byte) byte
+
+//go:noescape
+func sumsqdevUint8RVV(a []byte, c byte) byte
+
+//go:noescape
+func sumsqdiffUint8RVV(a []byte, b []byte) byte
+
+//go:noescape
+func diffUint8RVV(dst []byte, a []byte)
+
+//go:noescape
+func minrUint16RVV(a []uint16) uint16
+
+//go:noescape
+func maxrUint16RVV(a []uint16) uint16
+
+//go:noescape
+func sumsqUint16RVV(a []uint16) uint16
+
+//go:noescape
+func sumsqdevUint16RVV(a []uint16, c uint16) uint16
+
+//go:noescape
+func sumsqdiffUint16RVV(a []uint16, b []uint16) uint16
+
+//go:noescape
+func diffUint16RVV(dst []uint16, a []uint16)
+
+//go:noescape
+func minrUint32RVV(a []uint32) uint32
+
+//go:noescape
+func maxrUint32RVV(a []uint32) uint32
+
+//go:noescape
+func sumsqUint32RVV(a []uint32) uint32
+
+//go:noescape
+func sumsqdevUint32RVV(a []uint32, c uint32) uint32
+
+//go:noescape
+func sumsqdiffUint32RVV(a []uint32, b []uint32) uint32
+
+//go:noescape
+func diffUint32RVV(dst []uint32, a []uint32)
+
+//go:noescape
+func minrUint64RVV(a []uint64) uint64
+
+//go:noescape
+func maxrUint64RVV(a []uint64) uint64
+
+//go:noescape
+func sumsqUint64RVV(a []uint64) uint64
+
+//go:noescape
+func sumsqdevUint64RVV(a []uint64, c uint64) uint64
+
+//go:noescape
+func sumsqdiffUint64RVV(a []uint64, b []uint64) uint64
+
+//go:noescape
+func diffUint64RVV(dst []uint64, a []uint64)
+
+//go:noescape
 func sumFloat32RVV(a []float32) float32
 
 //go:noescape
@@ -140,3 +248,93 @@ func l1normInt64RVV(a []int64) int64
 
 //go:noescape
 func l1diffInt64RVV(a []int64, b []int64) int64
+
+//go:noescape
+func sumInt8RVV(a []int8) int8
+
+//go:noescape
+func prodInt8RVV(a []int8) int8
+
+//go:noescape
+func dotInt8RVV(a []int8, b []int8) int8
+
+//go:noescape
+func l1normInt8RVV(a []int8) int8
+
+//go:noescape
+func l1diffInt8RVV(a []int8, b []int8) int8
+
+//go:noescape
+func sumInt16RVV(a []int16) int16
+
+//go:noescape
+func prodInt16RVV(a []int16) int16
+
+//go:noescape
+func dotInt16RVV(a []int16, b []int16) int16
+
+//go:noescape
+func l1normInt16RVV(a []int16) int16
+
+//go:noescape
+func l1diffInt16RVV(a []int16, b []int16) int16
+
+//go:noescape
+func sumUint8RVV(a []byte) byte
+
+//go:noescape
+func prodUint8RVV(a []byte) byte
+
+//go:noescape
+func dotUint8RVV(a []byte, b []byte) byte
+
+//go:noescape
+func l1normUint8RVV(a []byte) byte
+
+//go:noescape
+func l1diffUint8RVV(a []byte, b []byte) byte
+
+//go:noescape
+func sumUint16RVV(a []uint16) uint16
+
+//go:noescape
+func prodUint16RVV(a []uint16) uint16
+
+//go:noescape
+func dotUint16RVV(a []uint16, b []uint16) uint16
+
+//go:noescape
+func l1normUint16RVV(a []uint16) uint16
+
+//go:noescape
+func l1diffUint16RVV(a []uint16, b []uint16) uint16
+
+//go:noescape
+func sumUint32RVV(a []uint32) uint32
+
+//go:noescape
+func prodUint32RVV(a []uint32) uint32
+
+//go:noescape
+func dotUint32RVV(a []uint32, b []uint32) uint32
+
+//go:noescape
+func l1normUint32RVV(a []uint32) uint32
+
+//go:noescape
+func l1diffUint32RVV(a []uint32, b []uint32) uint32
+
+//go:noescape
+func sumUint64RVV(a []uint64) uint64
+
+//go:noescape
+func prodUint64RVV(a []uint64) uint64
+
+//go:noescape
+func dotUint64RVV(a []uint64, b []uint64) uint64
+
+//go:noescape
+func l1normUint64RVV(a []uint64) uint64
+
+//go:noescape
+func l1diffUint64RVV(a []uint64, b []uint64) uint64

@@ -64,6 +64,12 @@ func scatterInt32AVX2(dst []int32, idx []int32, src []int32)
 func scatterInt64AVX2(dst []int64, idx []int32, src []int64)
 
 //go:noescape
+func scatterUint32AVX2(dst []uint32, idx []int32, src []uint32)
+
+//go:noescape
+func scatterUint64AVX2(dst []uint64, idx []int32, src []uint64)
+
+//go:noescape
 func movingAverageFloat32AVX2(dst []float32, a []float32, width int)
 
 //go:noescape

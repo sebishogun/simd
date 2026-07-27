@@ -217,6 +217,48 @@ and stubs are committed.
 4. **Vectorized transcendentals in Go** — SLEEF removed its Go support and no port exists.
 5. **Works for every consumer** — no `GOEXPERIMENT`, plain `go get`.
 
+### D11 — A register the ABI reserves *by value* is not a register the compiler can be asked about
+
+Two architectures reserve a general-purpose register not by forbidding its use but by requiring it
+to hold a particular value, and clang has no way to be told about either.
+
+**ppc64le r0.** `cmd/compile/abi-internal.md` gives it "Zero value" as its meaning on call, on
+return and in the body, and `PPC64Ops.go` lowers a memory clear to a run of `MOVD R0,(Rn)` on the
+understanding that the register contains the zero it is storing. Under ELFv2 r0 is volatile
+scratch, so LLVM allocates it freely — 212 writes across `csrc/` — and clang's PowerPC target has
+no `-ffixed-rN` at all. A global register variable is accepted and ignored, exactly as on SystemZ.
+The failure is not a wrong answer from a kernel: the kernel is right and returns cleanly, and the
+*next* allocation in Go comes back non-zero. One `li r0, -1` in an otherwise empty assembly
+function reproduces it.
+
+The fix is an epilogue, which a compiled body normally cannot have — LLVM lays basic blocks out
+after the return, so no position at the end is guaranteed to execute. What it does have is a known
+set of exits: every return is a `bclr`, one instruction with one encoding, and `bc` takes the same
+BO and BI fields in the same bit positions. Rewriting each return into a branch to the end of the
+body makes the end of the body the single exit, and `MOVD $0, R0` there always runs.
+
+**loong64 r22.** The current goroutine, and unlike ppc64le's r0 there is no epilogue that helps:
+r22 is callee-saved, so its value on *return* was always correct, and the corruption is entirely in
+the window while the kernel runs. loong64's `sigtramp` reads g from the register rather than from
+thread-local storage unless cgo is in play, so any signal arriving in that window — async
+preemption, the profiler, the collector — enters the runtime with a garbage g and segfaults. There
+is no `-ffixed` for LoongArch either, and the global register variable is ignored for every
+spelling of the register. So those kernels are rejected and keep the portable path: 32 of 500.
+
+**What made both invisible for so long is the same thing, and it is the more useful lesson.** The
+check in `package verify` that rejects a kernel for using a register the runtime owns compares
+against the operand text llvm-objdump prints, and the spelling has to match exactly. PowerPC prints
+bare numbers, where a register and an immediate are the same text — `addi 10, 9, 2` names two
+registers and a constant — so the check matched nothing at all; `-ppc-asm-full-reg-names` fixes it,
+and with it the check immediately found six kernels reading constants through r2. LoongArch prints
+ABI names, so `r22` never matched what is printed as `$fp`. Both targets had a check that read as
+if it were doing something and was not.
+
+The consequence for the design: a target's `GoOwned` entries must be verified against real
+disassembler output when the target is added, and the only proof that a backend is sound is
+executing it. Neither bug was reachable from amd64, from reading the code, or from any test that
+did not run on the architecture.
+
 ## Non-goals
 
 - A portable vector type. Go 1.27's `simd` package is that, upstream owns it, and it can inline —

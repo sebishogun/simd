@@ -52,6 +52,36 @@ func gatherInt32RVV(dst []int32, src []int32, idx []int32)
 func scatterInt32RVV(dst []int32, idx []int32, src []int32)
 
 //go:noescape
+func gatherInt8RVV(dst []int8, src []int8, idx []int32)
+
+//go:noescape
+func scatterInt8RVV(dst []int8, idx []int32, src []int8)
+
+//go:noescape
+func gatherInt16RVV(dst []int16, src []int16, idx []int32)
+
+//go:noescape
+func scatterInt16RVV(dst []int16, idx []int32, src []int16)
+
+//go:noescape
+func gatherUint8RVV(dst []byte, src []byte, idx []int32)
+
+//go:noescape
+func scatterUint8RVV(dst []byte, idx []int32, src []byte)
+
+//go:noescape
+func gatherUint16RVV(dst []uint16, src []uint16, idx []int32)
+
+//go:noescape
+func scatterUint16RVV(dst []uint16, idx []int32, src []uint16)
+
+//go:noescape
+func gatherUint32RVV(dst []uint32, src []uint32, idx []int32)
+
+//go:noescape
+func scatterUint32RVV(dst []uint32, idx []int32, src []uint32)
+
+//go:noescape
 func movingAverageFloat32RVV(dst []float32, a []float32, width int)
 
 //go:noescape

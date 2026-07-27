@@ -146,6 +146,22 @@ func scatterInt64AVX2Guarded(dst []int64, idx []int32, src []int64) {
 	scatterInt64AVX2(dst, idx, src)
 }
 
+func scatterUint32AVX2Guarded(dst []uint32, idx []int32, src []uint32) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint32AVX2(dst, idx, src)
+}
+
+func scatterUint64AVX2Guarded(dst []uint64, idx []int32, src []uint64) {
+	if len(dst) < 16 {
+		ref.Scatter(dst, idx, src)
+		return
+	}
+	scatterUint64AVX2(dst, idx, src)
+}
+
 func movingAverageFloat32AVX2Guarded(dst []float32, a []float32, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
@@ -198,6 +214,8 @@ func init() {
 	s.F64.Scatter = scatterFloat64AVX2Guarded
 	s.I32.Scatter = scatterInt32AVX2Guarded
 	s.I64.Scatter = scatterInt64AVX2Guarded
+	s.U32.Scatter = scatterUint32AVX2Guarded
+	s.U64.Scatter = scatterUint64AVX2Guarded
 	s.F32.MovingAverage = movingAverageFloat32AVX2Guarded
 	s.F32.MatMul = matMulFloat32AVX2Guarded
 	s.F64.MovingAverage = movingAverageFloat64AVX2Guarded

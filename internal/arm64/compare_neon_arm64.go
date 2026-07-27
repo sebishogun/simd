@@ -172,6 +172,240 @@ func geScalarInt64MaskNEON(dst []bool, a []int64, v int64)
 func selectInt64NEON(dst []int64, mask []bool, yes []int64, no []int64)
 
 //go:noescape
+func eqInt8MaskNEON(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func eqScalarInt8MaskNEON(dst []bool, a []int8, v int8)
+
+//go:noescape
+func neInt8MaskNEON(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func neScalarInt8MaskNEON(dst []bool, a []int8, v int8)
+
+//go:noescape
+func ltInt8MaskNEON(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func ltScalarInt8MaskNEON(dst []bool, a []int8, v int8)
+
+//go:noescape
+func leInt8MaskNEON(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func leScalarInt8MaskNEON(dst []bool, a []int8, v int8)
+
+//go:noescape
+func gtInt8MaskNEON(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func gtScalarInt8MaskNEON(dst []bool, a []int8, v int8)
+
+//go:noescape
+func geInt8MaskNEON(dst []bool, a []int8, b []int8)
+
+//go:noescape
+func geScalarInt8MaskNEON(dst []bool, a []int8, v int8)
+
+//go:noescape
+func selectInt8NEON(dst []int8, mask []bool, yes []int8, no []int8)
+
+//go:noescape
+func eqInt16MaskNEON(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func eqScalarInt16MaskNEON(dst []bool, a []int16, v int16)
+
+//go:noescape
+func neInt16MaskNEON(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func neScalarInt16MaskNEON(dst []bool, a []int16, v int16)
+
+//go:noescape
+func ltInt16MaskNEON(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func ltScalarInt16MaskNEON(dst []bool, a []int16, v int16)
+
+//go:noescape
+func leInt16MaskNEON(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func leScalarInt16MaskNEON(dst []bool, a []int16, v int16)
+
+//go:noescape
+func gtInt16MaskNEON(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func gtScalarInt16MaskNEON(dst []bool, a []int16, v int16)
+
+//go:noescape
+func geInt16MaskNEON(dst []bool, a []int16, b []int16)
+
+//go:noescape
+func geScalarInt16MaskNEON(dst []bool, a []int16, v int16)
+
+//go:noescape
+func selectInt16NEON(dst []int16, mask []bool, yes []int16, no []int16)
+
+//go:noescape
+func eqUint8MaskNEON(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func eqScalarUint8MaskNEON(dst []bool, a []byte, v byte)
+
+//go:noescape
+func neUint8MaskNEON(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func neScalarUint8MaskNEON(dst []bool, a []byte, v byte)
+
+//go:noescape
+func ltUint8MaskNEON(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func ltScalarUint8MaskNEON(dst []bool, a []byte, v byte)
+
+//go:noescape
+func leUint8MaskNEON(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func leScalarUint8MaskNEON(dst []bool, a []byte, v byte)
+
+//go:noescape
+func gtUint8MaskNEON(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func gtScalarUint8MaskNEON(dst []bool, a []byte, v byte)
+
+//go:noescape
+func geUint8MaskNEON(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func geScalarUint8MaskNEON(dst []bool, a []byte, v byte)
+
+//go:noescape
+func selectUint8NEON(dst []byte, mask []bool, yes []byte, no []byte)
+
+//go:noescape
+func eqUint16MaskNEON(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func eqScalarUint16MaskNEON(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func neUint16MaskNEON(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func neScalarUint16MaskNEON(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func ltUint16MaskNEON(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func ltScalarUint16MaskNEON(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func leUint16MaskNEON(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func leScalarUint16MaskNEON(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func gtUint16MaskNEON(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func gtScalarUint16MaskNEON(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func geUint16MaskNEON(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func geScalarUint16MaskNEON(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func selectUint16NEON(dst []uint16, mask []bool, yes []uint16, no []uint16)
+
+//go:noescape
+func eqUint32MaskNEON(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func eqScalarUint32MaskNEON(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func neUint32MaskNEON(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func neScalarUint32MaskNEON(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func ltUint32MaskNEON(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func ltScalarUint32MaskNEON(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func leUint32MaskNEON(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func leScalarUint32MaskNEON(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func gtUint32MaskNEON(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func gtScalarUint32MaskNEON(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func geUint32MaskNEON(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func geScalarUint32MaskNEON(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func selectUint32NEON(dst []uint32, mask []bool, yes []uint32, no []uint32)
+
+//go:noescape
+func eqUint64MaskNEON(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func eqScalarUint64MaskNEON(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func neUint64MaskNEON(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func neScalarUint64MaskNEON(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func ltUint64MaskNEON(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func ltScalarUint64MaskNEON(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func leUint64MaskNEON(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func leScalarUint64MaskNEON(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func gtUint64MaskNEON(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func gtScalarUint64MaskNEON(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func geUint64MaskNEON(dst []bool, a []uint64, b []uint64)
+
+//go:noescape
+func geScalarUint64MaskNEON(dst []bool, a []uint64, v uint64)
+
+//go:noescape
+func selectUint64NEON(dst []uint64, mask []bool, yes []uint64, no []uint64)
+
+//go:noescape
 func maskAllNEON(m []bool) bool
 
 //go:noescape

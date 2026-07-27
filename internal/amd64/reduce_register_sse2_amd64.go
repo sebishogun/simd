@@ -196,6 +196,270 @@ func diffInt64SSE2Guarded(dst []int64, a []int64) {
 	diffInt64SSE2(dst, a)
 }
 
+func minrInt8SSE2Guarded(a []int8) int8 {
+	if len(a) < 24 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt8SSE2(a)
+}
+
+func maxrInt8SSE2Guarded(a []int8) int8 {
+	if len(a) < 24 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt8SSE2(a)
+}
+
+func sumsqInt8SSE2Guarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt8SSE2(a)
+}
+
+func sumsqdevInt8SSE2Guarded(a []int8, c int8) int8 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt8SSE2(a, c)
+}
+
+func sumsqdiffInt8SSE2Guarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt8SSE2(a[:n:n], b)
+}
+
+func diffInt8SSE2Guarded(dst []int8, a []int8) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt8SSE2(dst, a)
+}
+
+func minrInt16SSE2Guarded(a []int16) int16 {
+	if len(a) < 16 {
+		return ref.MinReduceInt(a)
+	}
+	return minrInt16SSE2(a)
+}
+
+func maxrInt16SSE2Guarded(a []int16) int16 {
+	if len(a) < 16 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrInt16SSE2(a)
+}
+
+func sumsqInt16SSE2Guarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqInt16SSE2(a)
+}
+
+func sumsqdevInt16SSE2Guarded(a []int16, c int16) int16 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevInt16SSE2(a, c)
+}
+
+func sumsqdiffInt16SSE2Guarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffInt16SSE2(a[:n:n], b)
+}
+
+func diffInt16SSE2Guarded(dst []int16, a []int16) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffInt16SSE2(dst, a)
+}
+
+func minrUint8SSE2Guarded(a []byte) byte {
+	if len(a) < 24 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint8SSE2(a)
+}
+
+func maxrUint8SSE2Guarded(a []byte) byte {
+	if len(a) < 24 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint8SSE2(a)
+}
+
+func sumsqUint8SSE2Guarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint8SSE2(a)
+}
+
+func sumsqdevUint8SSE2Guarded(a []byte, c byte) byte {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint8SSE2(a, c)
+}
+
+func sumsqdiffUint8SSE2Guarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint8SSE2(a[:n:n], b)
+}
+
+func diffUint8SSE2Guarded(dst []byte, a []byte) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint8SSE2(dst, a)
+}
+
+func minrUint16SSE2Guarded(a []uint16) uint16 {
+	if len(a) < 16 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint16SSE2(a)
+}
+
+func maxrUint16SSE2Guarded(a []uint16) uint16 {
+	if len(a) < 16 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint16SSE2(a)
+}
+
+func sumsqUint16SSE2Guarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint16SSE2(a)
+}
+
+func sumsqdevUint16SSE2Guarded(a []uint16, c uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint16SSE2(a, c)
+}
+
+func sumsqdiffUint16SSE2Guarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint16SSE2(a[:n:n], b)
+}
+
+func diffUint16SSE2Guarded(dst []uint16, a []uint16) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint16SSE2(dst, a)
+}
+
+func minrUint32SSE2Guarded(a []uint32) uint32 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint32SSE2(a)
+}
+
+func maxrUint32SSE2Guarded(a []uint32) uint32 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint32SSE2(a)
+}
+
+func sumsqUint32SSE2Guarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint32SSE2(a)
+}
+
+func sumsqdevUint32SSE2Guarded(a []uint32, c uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint32SSE2(a, c)
+}
+
+func sumsqdiffUint32SSE2Guarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint32SSE2(a[:n:n], b)
+}
+
+func diffUint32SSE2Guarded(dst []uint32, a []uint32) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint32SSE2(dst, a)
+}
+
+func minrUint64SSE2Guarded(a []uint64) uint64 {
+	if len(a) < 1 {
+		return ref.MinReduceInt(a)
+	}
+	return minrUint64SSE2(a)
+}
+
+func maxrUint64SSE2Guarded(a []uint64) uint64 {
+	if len(a) < 1 {
+		return ref.MaxReduceInt(a)
+	}
+	return maxrUint64SSE2(a)
+}
+
+func sumsqUint64SSE2Guarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumSquaresInt(a)
+	}
+	return sumsqUint64SSE2(a)
+}
+
+func sumsqdevUint64SSE2Guarded(a []uint64, c uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumSqDevInt(a, c)
+	}
+	return sumsqdevUint64SSE2(a, c)
+}
+
+func sumsqdiffUint64SSE2Guarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.SumSqDiffInt(a, b)
+	}
+	return sumsqdiffUint64SSE2(a[:n:n], b)
+}
+
+func diffUint64SSE2Guarded(dst []uint64, a []uint64) {
+	if len(dst) < 16 {
+		ref.Diff(dst, a)
+		return
+	}
+	diffUint64SSE2(dst, a)
+}
+
 func sumFloat32SSE2Guarded(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -293,6 +557,207 @@ func l1diffInt64SSE2Guarded(a []int64, b []int64) int64 {
 	return l1diffInt64SSE2(a[:n:n], b)
 }
 
+func sumInt8SSE2Guarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt8SSE2(a)
+}
+
+func dotInt8SSE2Guarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt8SSE2(a[:n:n], b)
+}
+
+func l1normInt8SSE2Guarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt8SSE2(a)
+}
+
+func l1diffInt8SSE2Guarded(a []int8, b []int8) int8 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt8SSE2(a[:n:n], b)
+}
+
+func sumInt16SSE2Guarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumInt16SSE2(a)
+}
+
+func prodInt16SSE2Guarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt16SSE2(a)
+}
+
+func dotInt16SSE2Guarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotInt16SSE2(a[:n:n], b)
+}
+
+func l1normInt16SSE2Guarded(a []int16) int16 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normInt16SSE2(a)
+}
+
+func l1diffInt16SSE2Guarded(a []int16, b []int16) int16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffInt16SSE2(a[:n:n], b)
+}
+
+func sumUint8SSE2Guarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint8SSE2(a)
+}
+
+func dotUint8SSE2Guarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint8SSE2(a[:n:n], b)
+}
+
+func l1normUint8SSE2Guarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint8SSE2(a)
+}
+
+func l1diffUint8SSE2Guarded(a []byte, b []byte) byte {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint8SSE2(a[:n:n], b)
+}
+
+func sumUint16SSE2Guarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint16SSE2(a)
+}
+
+func prodUint16SSE2Guarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint16SSE2(a)
+}
+
+func dotUint16SSE2Guarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint16SSE2(a[:n:n], b)
+}
+
+func l1normUint16SSE2Guarded(a []uint16) uint16 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint16SSE2(a)
+}
+
+func l1diffUint16SSE2Guarded(a []uint16, b []uint16) uint16 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint16SSE2(a[:n:n], b)
+}
+
+func sumUint32SSE2Guarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint32SSE2(a)
+}
+
+func prodUint32SSE2Guarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint32SSE2(a)
+}
+
+func dotUint32SSE2Guarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint32SSE2(a[:n:n], b)
+}
+
+func l1normUint32SSE2Guarded(a []uint32) uint32 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint32SSE2(a)
+}
+
+func l1diffUint32SSE2Guarded(a []uint32, b []uint32) uint32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint32SSE2(a[:n:n], b)
+}
+
+func sumUint64SSE2Guarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.SumInt(a)
+	}
+	return sumUint64SSE2(a)
+}
+
+func dotUint64SSE2Guarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.DotInt(a, b)
+	}
+	return dotUint64SSE2(a[:n:n], b)
+}
+
+func l1normUint64SSE2Guarded(a []uint64) uint64 {
+	if len(a) < 0 {
+		return ref.L1NormInt(a)
+	}
+	return l1normUint64SSE2(a)
+}
+
+func l1diffUint64SSE2Guarded(a []uint64, b []uint64) uint64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffInt(a, b)
+	}
+	return l1diffUint64SSE2(a[:n:n], b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -321,6 +786,42 @@ func init() {
 	s.I64.SumSqDev = sumsqdevInt64SSE2Guarded
 	s.I64.SumSqDiff = sumsqdiffInt64SSE2Guarded
 	s.I64.Diff = diffInt64SSE2Guarded
+	s.I8.Min = minrInt8SSE2Guarded
+	s.I8.Max = maxrInt8SSE2Guarded
+	s.I8.SumSquares = sumsqInt8SSE2Guarded
+	s.I8.SumSqDev = sumsqdevInt8SSE2Guarded
+	s.I8.SumSqDiff = sumsqdiffInt8SSE2Guarded
+	s.I8.Diff = diffInt8SSE2Guarded
+	s.I16.Min = minrInt16SSE2Guarded
+	s.I16.Max = maxrInt16SSE2Guarded
+	s.I16.SumSquares = sumsqInt16SSE2Guarded
+	s.I16.SumSqDev = sumsqdevInt16SSE2Guarded
+	s.I16.SumSqDiff = sumsqdiffInt16SSE2Guarded
+	s.I16.Diff = diffInt16SSE2Guarded
+	s.U8.Min = minrUint8SSE2Guarded
+	s.U8.Max = maxrUint8SSE2Guarded
+	s.U8.SumSquares = sumsqUint8SSE2Guarded
+	s.U8.SumSqDev = sumsqdevUint8SSE2Guarded
+	s.U8.SumSqDiff = sumsqdiffUint8SSE2Guarded
+	s.U8.Diff = diffUint8SSE2Guarded
+	s.U16.Min = minrUint16SSE2Guarded
+	s.U16.Max = maxrUint16SSE2Guarded
+	s.U16.SumSquares = sumsqUint16SSE2Guarded
+	s.U16.SumSqDev = sumsqdevUint16SSE2Guarded
+	s.U16.SumSqDiff = sumsqdiffUint16SSE2Guarded
+	s.U16.Diff = diffUint16SSE2Guarded
+	s.U32.Min = minrUint32SSE2Guarded
+	s.U32.Max = maxrUint32SSE2Guarded
+	s.U32.SumSquares = sumsqUint32SSE2Guarded
+	s.U32.SumSqDev = sumsqdevUint32SSE2Guarded
+	s.U32.SumSqDiff = sumsqdiffUint32SSE2Guarded
+	s.U32.Diff = diffUint32SSE2Guarded
+	s.U64.Min = minrUint64SSE2Guarded
+	s.U64.Max = maxrUint64SSE2Guarded
+	s.U64.SumSquares = sumsqUint64SSE2Guarded
+	s.U64.SumSqDev = sumsqdevUint64SSE2Guarded
+	s.U64.SumSqDiff = sumsqdiffUint64SSE2Guarded
+	s.U64.Diff = diffUint64SSE2Guarded
 	s.F32.Sum = sumFloat32SSE2Guarded
 	s.F32.Dot = dotFloat32SSE2Guarded
 	s.F64.Sum = sumFloat64SSE2Guarded
@@ -334,4 +835,31 @@ func init() {
 	s.I64.Dot = dotInt64SSE2Guarded
 	s.I64.L1Norm = l1normInt64SSE2Guarded
 	s.I64.L1Diff = l1diffInt64SSE2Guarded
+	s.I8.Sum = sumInt8SSE2Guarded
+	s.I8.Dot = dotInt8SSE2Guarded
+	s.I8.L1Norm = l1normInt8SSE2Guarded
+	s.I8.L1Diff = l1diffInt8SSE2Guarded
+	s.I16.Sum = sumInt16SSE2Guarded
+	s.I16.Prod = prodInt16SSE2Guarded
+	s.I16.Dot = dotInt16SSE2Guarded
+	s.I16.L1Norm = l1normInt16SSE2Guarded
+	s.I16.L1Diff = l1diffInt16SSE2Guarded
+	s.U8.Sum = sumUint8SSE2Guarded
+	s.U8.Dot = dotUint8SSE2Guarded
+	s.U8.L1Norm = l1normUint8SSE2Guarded
+	s.U8.L1Diff = l1diffUint8SSE2Guarded
+	s.U16.Sum = sumUint16SSE2Guarded
+	s.U16.Prod = prodUint16SSE2Guarded
+	s.U16.Dot = dotUint16SSE2Guarded
+	s.U16.L1Norm = l1normUint16SSE2Guarded
+	s.U16.L1Diff = l1diffUint16SSE2Guarded
+	s.U32.Sum = sumUint32SSE2Guarded
+	s.U32.Prod = prodUint32SSE2Guarded
+	s.U32.Dot = dotUint32SSE2Guarded
+	s.U32.L1Norm = l1normUint32SSE2Guarded
+	s.U32.L1Diff = l1diffUint32SSE2Guarded
+	s.U64.Sum = sumUint64SSE2Guarded
+	s.U64.Dot = dotUint64SSE2Guarded
+	s.U64.L1Norm = l1normUint64SSE2Guarded
+	s.U64.L1Diff = l1diffUint64SSE2Guarded
 }
