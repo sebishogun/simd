@@ -1,38 +1,66 @@
 # simd
 
 [![Latest Release](docs/assets/badges/release.svg)](https://github.com/sebishogun/simd/releases/latest)
-[![CI](https://github.com/sebishogun/simd/actions/workflows/ci-local.yml/badge.svg)](https://github.com/sebishogun/simd/actions/workflows/ci-local.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sebishogun/simd.svg)](https://pkg.go.dev/github.com/sebishogun/simd)
-[![no cgo](https://img.shields.io/badge/cgo-none-2ea44f?style=flat-square)](#requirements)
-[![9 targets](https://img.shields.io/badge/ISA%20tiers-9-1f6feb?style=flat-square)](#coverage-honestly)
+[![CI](https://github.com/sebishogun/simd/actions/workflows/ci-local.yml/badge.svg)](https://github.com/sebishogun/simd/actions/workflows/ci-local.yml)
 
-SIMD-accelerated slice operations for Go, on every architecture that has a
-vector unit, **without cgo**.
+**Fast slice math and text scanning for Go, using the vector unit your CPU
+already has — without cgo.**
+
+```
+go get github.com/sebishogun/simd
+```
 
 ```go
 import "github.com/sebishogun/simd"
 
-simd.Add(a, b)                    // a[i] += b[i]     — in place, no allocation
-simd.AddScaled(a, b, 0.5)         // a[i] += b[i]*0.5 — one pass over memory
-total := simd.Sum(a)
-i     := simd.Index(line, ",")    // string or []byte, no copy
-n     := simd.Base64Encode(dst, src)
+simd.Add(a, b)                     // a[i] += b[i]      — in place, no allocation
+simd.AddScaled(a, b, 0.5)          // a[i] += b[i]*0.5  — one pass over memory
+total := simd.Sum(a)               // fixed accumulation order, same bits everywhere
+i     := simd.Index(line, ",")     // takes string or []byte, no copy
+simd.GemvInto(y, matrix, x, m, k)  // matrix times vector
 ```
 
-Ordinary functions on ordinary slices. No vector type, no lane count, no target
-selection, nothing to initialize, and nothing that allocates.
+That is the whole API surface: **ordinary generic functions on ordinary Go
+slices**. There is no vector type, no lane count, no target to select, nothing
+to initialize, no build tag, and nothing that allocates. It compiles and runs
+correctly on any machine Go supports, and goes fast on the ones with a vector
+unit.
 
----
+## Scope
+
+**What this is for** — the loops that dominate numeric and parsing code, where
+the same operation runs over a whole slice:
+
+- **Array math**: elementwise arithmetic, saturating arithmetic, scalar
+  operations, rounding, comparisons to masks, prefix scans.
+- **Reductions**: sum, dot, min/max, argmin/argmax, norms, mean, variance.
+- **Transcendentals**: exp, log, sin, tan, tanh, sigmoid and the rest — with a
+  stated ULP bound, and a `Fast*` twin where you would rather have the speed.
+- **Text and bytes**: index, count, trim, UTF-8 validation, case folding, hex,
+  base64 — taking `string` or `[]byte` without copying.
+- **Linear algebra**: dot, `Gemv`, a register-blocked `MatMul`.
+
+**What this is not.** It is not a BLAS, not a tensor library, not an
+autodiff framework, and not a place to get a `Vector[T]` type. It has no
+opinion about how your data is laid out beyond "it is a slice". Operations are
+one-shot over whole slices, because the alternative — exposing a vector value
+you combine yourself — costs a non-inlinable call per operation in Go and loses
+to a plain loop.
+
+**Where the win is.** The crossover is around 16–64 elements depending on the
+operation; below it the library runs a plain Go loop, because crossing into
+assembly costs more than it saves. It is worth reaching for when your slices
+are thousands of elements, not tens.
 
 ## Status
 
-**Early, and honest about it.** v0.1.0 is the first tag; see
-[CHANGELOG.md](CHANGELOG.md) for what it does and does not promise. What is in
-place:
+**v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and
+is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 
-- **298 exported functions** over ten element types, plus complex, bytes, text
+- **~300 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
-- **4,721 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
+- **4,700+ generated kernels** across nine targets — amd64 sse2/avx2/avx512,
   arm64 neon/sve2, riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx.
 - Every architecture is **executed**, under emulation, on every change.
 - The portable Go implementation is always there. A kernel that could not be
@@ -81,6 +109,9 @@ riscv64 RVV numeric kernels.
 **Compression** `CompressInto` `ExpandInto` `FilterInto` — a comparison writes
 the mask, `CompressInto` packs it, so one function serves every predicate
 
+**Linear algebra** `MatMulInto` (register-blocked microkernel) `GemvInto`
+`AddScaled` `Dot` `Norm` — `Gemv` is bit-identical to `Dot` per row
+
 **Complex** `AddComplex` … `DotComplexConj` `AbsComplexInto` `FromPartsInto`
 
 **Text and bytes**, taking `string` or `[]byte` without copying: `Index`
@@ -123,6 +154,35 @@ hand-written assembly on four of the six architectures. Geomean **+186%**.
 | `TrimSpaceASCII` | +29% |
 
 **Against `encoding/base64`:** −42% to −63%, +74% throughput.
+
+**`MatMulInto`**, register-blocked against the previous naive kernel — and the
+right-hand column is the number that matters, since single-core AVX-512 f32
+peak on this machine is about 290 GFLOP/s:
+
+| f32, square | naive | blocked | | GFLOP/s |
+|---|---|---|---|---|
+| n=64 | 9.51 µs | 2.13 µs | −78% | 246 |
+| n=128 | 51.7 µs | 16.9 µs | −67% | 249 |
+| n=256 | 331 µs | 129 µs | −61% | **260** |
+| n=512 | 3.25 ms | 1.31 ms | −60% | 204 |
+
+`GemvInto` reaches 172 GB/s while the matrix is cache-resident and 49 GB/s at
+4096×4096, where it is bound by memory rather than by arithmetic.
+
+**`CompressInto` against the scalar filter loop it replaces**, geomean −51%.
+The axis that matters is match density, and a single-density benchmark
+misreports it in either direction — the scalar loop costs a branch per element,
+so it is fastest exactly when that branch is predictable:
+
+| 1 M int32 | scalar loop | `CompressInto` | |
+|---|---|---|---|
+| 1% match | 12.3 GiB/s | 19.3 GiB/s | −36% |
+| 25% match | 2.17 GiB/s | 19.4 GiB/s | −89% |
+| 50% match | 1.29 GiB/s | 19.3 GiB/s | **−93%** |
+| 90% match | 4.12 GiB/s | 19.1 GiB/s | −78% |
+
+The right column barely moves. That is the point: the vector version costs the
+same whatever the data does, and the branch predictor is what collapses.
 
 **`Fast` against accurate:** `FastSin` −45%, `FastExp` −43%, `FastSigmoid`
 −36%, `FastLog` −25%.

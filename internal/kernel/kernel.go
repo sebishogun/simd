@@ -205,6 +205,12 @@ type Ops[T any] struct {
 	// MovingAverage writes the mean of each window of the given width,
 	// producing len(a)-width+1 elements.
 	MovingAverage func(dst, a []T, width int)
+	// Gemv multiplies an m*k row-major matrix by a k-vector into m results.
+	//
+	// Each result is a reduction, so it follows the same fixed accumulation
+	// shape as Dot — and by construction, not by coincidence: row i of Gemv is
+	// bit-identical to Dot of row i against x.
+	Gemv func(dst, a, x []T, m, k int)
 	// EMA is the exponentially weighted moving average, which is inherently
 	// sequential: dst[i] = alpha*a[i] + (1-alpha)*dst[i-1].
 	EMA func(dst, a []T, alpha T)

@@ -68,13 +68,25 @@ fuzz:
 # -short skips the repetition benchmarks, which measure a minimum over many
 # runs and are meaningless under emulation anyway — and would take hours.
 # Slow even so; allow half an hour. Run before any release, and nightly in CI.
+#
+# Each lane asserts an accelerated tier was selected before it believes a PASS,
+# for the reason spelled out under QEMU_PKGS below: a suite that skipped every
+# accelerated tier is green and reads exactly like one that tested them. The
+# three lanes here reach sve2, vxe and vsx respectively, so a run that comes
+# back reporting scalar means the emulator changed under us, not that the code
+# is fine.
+#
+# riscv64 is absent deliberately. It has an official image, but the qemu inside
+# it emulates a CPU with no vector extension, so the lane can only ever report
+# scalar and would verify nothing. It is covered by test-riscv64 instead.
 .PHONY: test-cross
 test-cross: cross-setup
-	@for p in linux/arm64 linux/riscv64 linux/s390x linux/ppc64le; do \
+	@for p in linux/arm64 linux/s390x linux/ppc64le; do \
 		echo "--- $$p"; \
 		$(DOCKER) run --rm --platform $$p -v "$(PWD)":/src -w /src \
 			-e GOFLAGS=-buildvcs=false golang:1.26 \
-			go test -short ./... || exit 1; \
+			sh -c 'go run ./cmd/simdinfo -require-accelerated && go test -short ./...' \
+			|| exit 1; \
 	done
 
 # Two architectures cannot be tested by the docker lane above, for two

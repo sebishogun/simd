@@ -202,28 +202,12 @@ func movingAverageFloat32SSE2Guarded(dst []float32, a []float32, width int) {
 	movingAverageFloat32SSE2(dst, a, width)
 }
 
-func matMulFloat32SSE2Guarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
-	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
-		ref.MatMul(dst, a, b, m, k, n)
-		return
-	}
-	matMulFloat32SSE2(dst, a, b, m, k, n)
-}
-
 func movingAverageFloat64SSE2Guarded(dst []float64, a []float64, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
 		return
 	}
 	movingAverageFloat64SSE2(dst, a, width)
-}
-
-func matMulFloat64SSE2Guarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
-	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
-		ref.MatMul(dst, a, b, m, k, n)
-		return
-	}
-	matMulFloat64SSE2(dst, a, b, m, k, n)
 }
 
 func init() {
@@ -253,7 +237,5 @@ func init() {
 	s.U32.Tile = tileUint32SSE2Guarded
 	s.U64.Tile = tileUint64SSE2Guarded
 	s.F32.MovingAverage = movingAverageFloat32SSE2Guarded
-	s.F32.MatMul = matMulFloat32SSE2Guarded
 	s.F64.MovingAverage = movingAverageFloat64SSE2Guarded
-	s.F64.MatMul = matMulFloat64SSE2Guarded
 }

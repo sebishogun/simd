@@ -165,7 +165,29 @@ func Median[T Number](a []T) T { return ops[T]().Median(a) }
 //
 //	// 2x3 times 3x2 into 2x2
 //	simd.MatMulInto(dst, a, b, 2, 3, 2)
+//
+// Each output element is one accumulator summed over the shared dimension in
+// ascending order, which is what makes every instruction set here agree bit for
+// bit. Zeros in a are not treated specially: a zero times an infinity is a NaN,
+// as IEEE 754 says and as BLAS and numpy both produce.
 func MatMulInto[T Number](dst, a, b []T, m, k, n int) { ops[T]().MatMul(dst, a, b, m, k, n) }
+
+// GemvInto multiplies an m*k row-major matrix by a k-vector into m results:
+// dst[i] = sum over p of a[i*k+p] * x[p].
+//
+// This is the shape most callers actually want — a matrix applied to a vector,
+// once per row — and it is much cheaper than going through MatMulInto with
+// n=1, which would treat the vector as a one-column matrix and give up the
+// contiguous reads that make the reduction fast.
+//
+// Row i is bit-identical to [Dot] of that row against x. That is by
+// construction rather than by coincidence, so a caller can freely mix the two.
+//
+// It does nothing if the slices are too short for the stated dimensions.
+//
+//	// a 1000x256 matrix applied to a 256-vector
+//	simd.GemvInto(dst, a, x, 1000, 256)
+func GemvInto[T Number](dst, a, x []T, m, k int) { ops[T]().Gemv(dst, a, x, m, k) }
 
 // Quantile returns the q-th quantile of a, **reordering a in the process**.
 //

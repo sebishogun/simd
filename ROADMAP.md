@@ -32,18 +32,23 @@ different algorithm — a sorting network on register-sized blocks, then a
 bitonic merge. Worth doing because the gap over `slices.Sort` on primitives is
 large, and because `argsort` has no good answer in Go at all today.
 
-### A blocked GEMM microkernel, and `Gemv`
+### ~~A blocked GEMM microkernel, and `Gemv`~~ — done in v0.1.0
 
-`MatMul` currently exists and is honest about being naive: it is a triple loop
-with a vectorized inner product, which is memory-bound above cache size and
-leaves most of the machine idle.
+`MatMul` is register-blocked: a tile of the output is accumulated in registers
+across the whole shared dimension and stored once, so the traffic falls from
+2·m·k·n element accesses to about m·n·k·(1/MR + 1/NR) + m·n. The tile
+dimensions are chosen per target by `#if`, because it is the register file
+rather than the instruction set that constrains them.
 
-The replacement is the standard shape — register-blocked microkernel, packed
-panels, cache-blocked outer loops. This is the single largest performance item
-on the list and also the largest amount of work, which is why it is not first.
+Still not done, and the next thing to do here: **packed panels and
+cache-blocked outer loops**. Register blocking fixes the innermost level only.
+Above the L2 working set, B is re-read from memory for every row block, and the
+strided read of A costs a TLB miss per row on a large matrix. Packing both into
+contiguous scratch is the standard fix and is worth another large factor — but
+it needs scratch memory, and this library promises zero allocations, so it
+needs a design decision first rather than just an implementation.
 
-`Gemv` is separate and much smaller, and it is the operation `gonum` users
-actually call.
+`Gemv` ships and is bit-identical to `Dot` per row.
 
 ---
 

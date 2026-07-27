@@ -52,8 +52,16 @@ transcendentals guarantee a stated ULP bound rather than bit identity, and
   anyway.
 - **`HexDecode` is portable everywhere**, because it returns two values where
   the generator's result slot holds one.
-- **Not yet built:** sort/argsort, a blocked GEMM microkernel, `Gemv`. See
-  [ROADMAP.md](ROADMAP.md).
+- **Not yet built:** sort/argsort. See [ROADMAP.md](ROADMAP.md).
+
+### One deliberate semantic choice worth stating
+
+`MatMul` does not skip zeros in `a`. An earlier draft did, and it is not the
+free optimization it looks like: under IEEE 754 a zero times an infinity is a
+NaN, and skipping suppresses it. BLAS does not skip, numpy does not skip, and
+the standard says what the answer is — so neither does this. It is also what
+makes the register-blocked microkernel possible, since in a tile that test
+would guard a single fused multiply-add rather than a whole row.
 
 ### On Go's own SIMD intrinsics
 
@@ -85,5 +93,12 @@ assembly on four of the six architectures — geomean **+186%**. `LastIndex` at
 n=4096 is +8309%; `IndexAny` at 1 MiB is +1084%.
 
 Against `encoding/base64`: −42% to −63%.
+
+`MatMulInto` against the naive kernel it replaced: **−60% to −86%** depending
+on size, reaching 260 GFLOP/s on f32 — about 90% of this core's single-thread
+AVX-512 peak. `GemvInto` is new, and is bit-identical to `Dot` per row.
+
+`CompressInto` against the scalar filter loop, geomean **−51%**; at 1 M
+elements and 50% match density, **−93%** (1.29 GiB/s → 19.3 GiB/s).
 
 `Fast` against accurate: `FastSin` −45%, `FastExp` −43%.

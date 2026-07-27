@@ -936,7 +936,7 @@ func Numeric() []spec.Kernel {
 		ks = append(ks, tileK(e), gatherK(e), scatterK(e))
 	}
 	for _, e := range floats() {
-		ks = append(ks, movAvgK(e), matMulK(e))
+		ks = append(ks, movAvgK(e))
 	}
 	return ks
 }
@@ -966,6 +966,41 @@ func movAvgK(e elem) spec.Kernel {
 		CArgs: []spec.CArg{base("dst"), base("a"), lenOf("dst"), lenOf("a"),
 			val("width")},
 		Threshold: thElementwise,
+	}
+}
+
+// Gemm is the matrix family: the blocked matrix multiply and the
+// matrix-vector product built beside it.
+//
+// They are their own source file because the microkernel is the one place here
+// where the register file, not the instruction set, sets the shape — the tile
+// dimensions are chosen per target by #if, which nothing else in csrc needs.
+func Gemm() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range floats() {
+		ks = append(ks, matMulK(e), gemvK(e))
+	}
+	return ks
+}
+
+// gemvK multiplies an m*k row-major matrix by a k-vector.
+//
+// Five arguments, so it stays inside the register-passed set on every ABI
+// here, and the size checks live in RefWhen for the same reason matMulK's do.
+func gemvK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_gemv_" + e.c, GoName: "gemv" + e.goName,
+		Group: e.group, Field: "Gemv", RefFunc: e.ref("Gemv"),
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			sl("x", e.slice), {Name: "m", Type: spec.Int},
+			{Name: "k", Type: spec.Int}},
+		CArgs: []spec.CArg{base("dst"), base("a"), base("x"),
+			val("m"), val("k")},
+		RefWhen: "m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k",
+		// Every row is a reduction over k, and reductions are worth calling
+		// into assembly at any length; the threshold that matters is on k,
+		// which the guard cannot see.
+		Threshold: 0,
 	}
 }
 
@@ -1191,6 +1226,7 @@ func Compress() []spec.Kernel {
 // All is every source file the generator processes.
 var All = []Source{
 	{Path: "csrc/compress.c", Kernels: Compress()},
+	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/arith.c", Kernels: Arith()},
 	{Path: "csrc/reduce.c", Kernels: Reduce()},
 	{Path: "csrc/compare.c", Kernels: Compare()},

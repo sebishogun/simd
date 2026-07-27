@@ -292,6 +292,17 @@ func lessNaNLast[T float](x, y T) bool {
 // rows, so the inner loop is a scaled vector add over n elements. That is both
 // cache-friendly and the shape a vector unit wants; the textbook order strides
 // down a column of b and defeats both.
+//
+// Each output element is one accumulator summed over p ascending. The
+// accelerated kernel holds a tile of those accumulators in registers instead of
+// in dst, but sums in the same order, so the two agree bit for bit.
+//
+// There is deliberately no "skip a zero scalar" shortcut. It reads like a free
+// optimization and is not one: under IEEE 754 a zero in a multiplied by an
+// infinity in b is a NaN, and skipping suppresses it. BLAS does not skip,
+// numpy does not skip, and the standard says what the answer is. See the note
+// at the top of csrc/gemm.c, where the same choice also buys the register
+// blocking.
 func matMul[T number](dst, a, b []T, m, k, n int) {
 	if m <= 0 || k <= 0 || n <= 0 ||
 		len(dst) < m*n || len(a) < m*k || len(b) < k*n {
@@ -304,14 +315,45 @@ func matMul[T number](dst, a, b []T, m, k, n int) {
 		row := dst[i*n : (i+1)*n : (i+1)*n]
 		for p := range k {
 			s := a[i*k+p]
-			if s == 0 {
-				continue
-			}
 			br := b[p*n : (p+1)*n : (p+1)*n]
 			for j := range row {
 				row[j] += T(s * br[j])
 			}
 		}
+	}
+}
+
+// gemvSized reports whether the shape is one gemv can act on, and is shared so
+// that the float and integer forms cannot disagree about it.
+func gemvSized[T number](dst, a, x []T, m, k int) bool {
+	return m > 0 && k > 0 && len(dst) >= m && len(a) >= m*k && len(x) >= k
+}
+
+// gemvFloat multiplies an m*k row-major matrix by a k-vector.
+//
+// Unlike matMul this is a reduction, so it has a summation order to pin down,
+// and it uses the library's standard one by the simplest possible means: each
+// row is literally dotFloat of that row against x. So row i of Gemv is
+// bit-identical to Dot(a[i*k:(i+1)*k], x) — a property worth being able to
+// state rather than merely believe — and the answer does not depend on the
+// vector width, because dotFloat's does not.
+func gemvFloat[T float](dst, a, x []T, m, k int) {
+	if !gemvSized(dst, a, x, m, k) {
+		return
+	}
+	for i := range m {
+		dst[i] = dotFloat(a[i*k:i*k+k:i*k+k], x[:k:k])
+	}
+}
+
+// gemvInt is the same for integer types, where addition is associative modulo
+// two's complement wrapping and so no accumulation order is observable.
+func gemvInt[T integer](dst, a, x []T, m, k int) {
+	if !gemvSized(dst, a, x, m, k) {
+		return
+	}
+	for i := range m {
+		dst[i] = dotInt(a[i*k:i*k+k:i*k+k], x[:k:k])
 	}
 }
 
@@ -415,6 +457,9 @@ func compareOps[T number](o *kernel.Ops[T], median func(a []T) T, less func(x, y
 
 // Exported entry points for generated code; see the note on the exports in
 // ref.go for why the threshold guards call these directly.
+
+func GemvFloat[T float](dst, a, x []T, m, k int) { gemvFloat(dst, a, x, m, k) }
+func GemvInt[T integer](dst, a, x []T, m, k int) { gemvInt(dst, a, x, m, k) }
 
 func EqualMask[T number](dst []bool, a, b []T)        { cmp2(dst, a, b, eq[T]) }
 func NotEqualMask[T number](dst []bool, a, b []T)     { cmp2(dst, a, b, ne[T]) }

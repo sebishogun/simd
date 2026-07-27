@@ -255,6 +255,10 @@ func TrimSpaceASCII[S Text](s S) S { return TrimAny(s, asciiSpace) }
 //	offsets := make([]int32, 1024)
 //	n := simd.IndexAll(offsets, line, ',')
 //	for _, off := range offsets[:n] { ... }
+//
+// Offsets are int32, so an input longer than 2 GiB cannot be indexed past that
+// point; every path here truncates identically rather than one disagreeing
+// with another. Split such an input and add the base yourself.
 func IndexAll[S Text](dst []int32, s S, c byte) int {
 	return active.Bytes.IndexAll(dst, textBytes(s), c)
 }

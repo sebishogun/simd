@@ -43,10 +43,4 @@ func correlateFloat64NEON(dst []float64, sig []float64, ker []float64)
 func movingAverageFloat32NEON(dst []float32, a []float32, width int)
 
 //go:noescape
-func matMulFloat32NEON(dst []float32, a []float32, b []float32, m int, k int, n int)
-
-//go:noescape
 func movingAverageFloat64NEON(dst []float64, a []float64, width int)
-
-//go:noescape
-func matMulFloat64NEON(dst []float64, a []float64, b []float64, m int, k int, n int)

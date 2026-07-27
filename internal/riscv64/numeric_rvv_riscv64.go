@@ -124,10 +124,4 @@ func gatherUint64RVV(dst []uint64, src []uint64, idx []int32)
 func movingAverageFloat32RVV(dst []float32, a []float32, width int)
 
 //go:noescape
-func matMulFloat32RVV(dst []float32, a []float32, b []float32, m int, k int, n int)
-
-//go:noescape
 func movingAverageFloat64RVV(dst []float64, a []float64, width int)
-
-//go:noescape
-func matMulFloat64RVV(dst []float64, a []float64, b []float64, m int, k int, n int)
