@@ -64,6 +64,12 @@ func equalFoldASCIIRVV(a []byte, b []byte) bool
 func indexAnyRVV(b []byte, chars []byte) int
 
 //go:noescape
+func indexNotAnyRVV(b []byte, chars []byte) int
+
+//go:noescape
+func lastIndexNotAnyRVV(b []byte, chars []byte) int
+
+//go:noescape
 func countAnyRVV(b []byte, chars []byte) int
 
 //go:noescape
@@ -71,6 +77,12 @@ func hexEncodeRVV(dst []byte, b []byte) int
 
 //go:noescape
 func indexRVV(haystack []byte, needle []byte) int
+
+//go:noescape
+func lastIndexRVV(haystack []byte, needle []byte) int
+
+//go:noescape
+func countSeqRVV(haystack []byte, needle []byte) int
 
 //go:noescape
 func toUpperASCIIRVV(dst []byte, b []byte)

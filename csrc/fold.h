@@ -115,8 +115,50 @@ typedef unsigned int u32xC __attribute__((ext_vector_type(COUNT_LANES), aligned(
     hit = OR_ANY(acc) != 0;                                              \
   }
 
+// COUNT_BYTES sums a 0-or-1 expression of the index p over the whole slice,
+// accumulating in byte lanes.
+//
+// COUNT_FOLD below is the general form and takes 32-bit lanes, because the
+// expressions it serves can be larger than one. For a predicate — which is
+// what counting a byte or counting a set bit in a mask actually is — those
+// lanes are three quarters waste: sixteen bytes of input become sixty-four
+// bytes of accumulator, so four times the vector work per byte of input. That
+// is measurable and it was measured: against bytes.Count, whose amd64
+// implementation compares a register and popcounts the mask, the 32-bit form
+// was between 45% and 72% slower at every length.
+//
+// Byte lanes give one accumulator byte per input byte, and the only cost is
+// that a lane wraps after 255 additions. Draining every 255 blocks fixes that
+// and the drain is one horizontal sum per eight kilobytes of input, which
+// nothing can measure. The drain is written as a scalar loop deliberately:
+// __builtin_reduce_add over byte lanes reduces *in* byte width and would wrap
+// exactly where this is trying not to.
+#define COUNT_BYTES(EXPR)                                                \
+  isize total_ = 0;                                                      \
+  isize i = 0;                                                           \
+  while (i + BYTE_LANES <= n) {                                          \
+    isize blocks_ = (n - i) / BYTE_LANES;                                \
+    if (blocks_ > 255) blocks_ = 255;                                    \
+    u8xB acc = 0;                                                        \
+    for (isize k_ = 0; k_ < blocks_; k_++, i += BYTE_LANES) {            \
+      u8xB v;                                                            \
+      for (int j = 0; j < BYTE_LANES; j++) {                             \
+        isize p = i + j;                                                 \
+        v[j] = (unsigned char)(EXPR);                                    \
+      }                                                                  \
+      acc += v;                                                          \
+    }                                                                    \
+    for (int j = 0; j < BYTE_LANES; j++) total_ += acc[j];               \
+  }                                                                      \
+  for (; i < n; i++) {                                                   \
+    isize p = i;                                                         \
+    total_ += (EXPR);                                                    \
+  }                                                                      \
+  *out = total_;
+
 // COUNT_FOLD sums EXPR, a small non-negative expression of the index p, over
 // the whole slice. There is no escape here: a count has to see everything.
+// Use COUNT_BYTES instead wherever EXPR is a predicate.
 #define COUNT_FOLD(EXPR)                                                 \
   u32xC acc = 0;                                                         \
   isize i = 0;                                                           \

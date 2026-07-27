@@ -64,6 +64,12 @@ func equalFoldASCIIAVX2(a []byte, b []byte) bool
 func indexAnyAVX2(b []byte, chars []byte) int
 
 //go:noescape
+func indexNotAnyAVX2(b []byte, chars []byte) int
+
+//go:noescape
+func lastIndexNotAnyAVX2(b []byte, chars []byte) int
+
+//go:noescape
 func countAnyAVX2(b []byte, chars []byte) int
 
 //go:noescape
@@ -71,6 +77,12 @@ func hexEncodeAVX2(dst []byte, b []byte) int
 
 //go:noescape
 func indexAVX2(haystack []byte, needle []byte) int
+
+//go:noescape
+func lastIndexAVX2(haystack []byte, needle []byte) int
+
+//go:noescape
+func countSeqAVX2(haystack []byte, needle []byte) int
 
 //go:noescape
 func toUpperASCIIAVX2(dst []byte, b []byte)

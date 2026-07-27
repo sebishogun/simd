@@ -64,6 +64,12 @@ func equalFoldASCIINEON(a []byte, b []byte) bool
 func indexAnyNEON(b []byte, chars []byte) int
 
 //go:noescape
+func indexNotAnyNEON(b []byte, chars []byte) int
+
+//go:noescape
+func lastIndexNotAnyNEON(b []byte, chars []byte) int
+
+//go:noescape
 func countAnyNEON(b []byte, chars []byte) int
 
 //go:noescape
@@ -71,6 +77,12 @@ func hexEncodeNEON(dst []byte, b []byte) int
 
 //go:noescape
 func indexNEON(haystack []byte, needle []byte) int
+
+//go:noescape
+func lastIndexNEON(haystack []byte, needle []byte) int
+
+//go:noescape
+func countSeqNEON(haystack []byte, needle []byte) int
 
 //go:noescape
 func toUpperASCIINEON(dst []byte, b []byte)

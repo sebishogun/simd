@@ -775,7 +775,7 @@ func Backend(kernels []spec.Kernel, tgt target.Target, pkg string, prov Provenan
 	// a direct call to the assembly rather than an indirect one through a
 	// captured variable.
 	for _, k := range kernels {
-		emitGuard(&b, k, suffix)
+		emitGuard(&b, k, suffix, string(tgt.Arch))
 	}
 
 	fmt.Fprintf(&b, "func init() {\n")
@@ -815,7 +815,7 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == %[1]q: {}}
 func guardName(k spec.Kernel, _ string) string { return k.GoName + "Guarded" }
 
 // emitGuard writes the threshold wrapper for one kernel.
-func emitGuard(b *strings.Builder, k spec.Kernel, suffix string) {
+func emitGuard(b *strings.Builder, k spec.Kernel, suffix, arch string) {
 	params := goParams(k)
 	result := goResult(k)
 
@@ -845,7 +845,7 @@ func emitGuard(b *strings.Builder, k spec.Kernel, suffix string) {
 		args := append([]string{"len(" + clamped + ")"}, boundingSlices(k, clamped)...)
 		fmt.Fprintf(b, "\tn := min(%s)\n", strings.Join(args, ", "))
 	}
-	fmt.Fprintf(b, "\tif %s < %d%s {\n", lenExpr, k.Threshold, extraRefCond(k))
+	fmt.Fprintf(b, "\tif %s < %d%s {\n", lenExpr, k.ThresholdFor(arch), extraRefCond(k))
 	// Call the portable implementation directly rather than through the
 	// kernel set. Going via the function pointer costs an indirect call that a
 	// purego build never pays, which made the accelerated build slower than

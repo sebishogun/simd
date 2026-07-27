@@ -112,7 +112,7 @@ func Example_scenarios() {
 func Example_bytes() {
 	b := []byte("hello world")
 	fmt.Println(simd.IndexByte(b, 'w'))
-	fmt.Println(simd.Count(b, 'l'))
+	fmt.Println(simd.CountByte(b, 'l'))
 	fmt.Println(simd.Equal(b, []byte("hello world")))
 
 	data := []byte{0xab, 0xcd, 0xef}

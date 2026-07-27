@@ -90,7 +90,7 @@ func TestNoAllocations(t *testing.T) {
 
 		// bytes and bits
 		{"IndexByte", func() { sinkN = simd.IndexByte(by, 0xff) }},
-		{"Count", func() { sinkN = simd.Count(by, 0) }},
+		{"CountByte", func() { sinkN = simd.CountByte(by, 0) }},
 		{"Equal", func() { sinkB = simd.Equal(by, byb) }},
 		{"Compare", func() { sinkN = simd.Compare(by, byb) }},
 		{"PopCount", func() { sinkN = simd.PopCount(by) }},

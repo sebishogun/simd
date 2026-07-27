@@ -89,6 +89,13 @@ const (
 	thReduction   = 0
 )
 
+// withThresholds attaches per-architecture thresholds to a kernel built by one
+// of the shape helpers.
+func withThresholds(k spec.Kernel, on map[string]int) spec.Kernel {
+	k.ThresholdOn = on
+	return k
+}
+
 func base(n string) spec.CArg  { return spec.CArg{From: n, Part: spec.Base} }
 func lenOf(n string) spec.CArg { return spec.CArg{From: n, Part: spec.Len} }
 func val(n string) spec.CArg   { return spec.CArg{From: n, Part: spec.Value} }
@@ -388,6 +395,36 @@ const (
 	thScan  = 64
 )
 
+// stdlibAsm is where the standard library already has a hand-written assembly
+// implementation of the identical function, which is the only place in this
+// package where the portable path is not a plain Go loop.
+//
+// bytealg carries assembly for amd64, arm64, ppc64x and s390x, and generic Go
+// for riscv64 and loong64. So on the first four the kernel has to beat tuned
+// assembly before it is worth a call it cannot inline, and on the last two it
+// only has to beat a loop. One threshold cannot express both.
+//
+// The numbers are measured on this machine and are the length at which the
+// kernel starts winning; see the crossover sweeps in BenchmarkText*. Where a
+// kernel does not reliably win at any length the threshold is `never`, which
+// leaves the standard library in place on those architectures and the kernel
+// in place on the two where it is the only vectorized implementation there is.
+var stdlibAsm = []string{"amd64", "arm64", "ppc64le", "s390x"}
+
+// onStdlibAsm builds a ThresholdOn map setting n for every architecture whose
+// standard library is assembly.
+func onStdlibAsm(n int) map[string]int {
+	m := make(map[string]int, len(stdlibAsm))
+	for _, a := range stdlibAsm {
+		m[a] = n
+	}
+	return m
+}
+
+// never is a threshold no caller reaches, which keeps the standard library's
+// implementation in place. Used only where it wins at every measured length.
+const never = 1 << 30
+
 // cmpK is a comparison writing one bool per element.
 func cmpK(op, field string, e elem) spec.Kernel {
 	return spec.Kernel{
@@ -520,8 +557,19 @@ func byteMap(cname, goName, field, refFunc string) spec.Kernel {
 // Bytes is everything in csrc/bytes.c.
 func Bytes() []spec.Kernel {
 	return []spec.Kernel{
-		byteScan("simd_count_byte", "countByte", "Count", "CountByte", spec.Int, true),
-		byteScan("simd_index_byte", "indexByte", "IndexByte", "IndexByte", spec.Int, true),
+		// bytealg.Count on amd64 compares a register and popcounts the mask,
+		// which this kernel matches to within a few percent and does not
+		// reliably beat at any length. On riscv64 and loong64 it is the only
+		// vector implementation there is.
+		withThresholds(
+			byteScan("simd_count_byte", "countByte", "Count", "CountByte", spec.Int, true),
+			onStdlibAsm(never)),
+		// Measured crossover 1024 on amd64: bytealg.IndexByte is assembly and
+		// inlinable, so a call cannot pay for itself until there is a
+		// kilobyte of work behind it.
+		withThresholds(
+			byteScan("simd_index_byte", "indexByte", "IndexByte", "IndexByte", spec.Int, true),
+			onStdlibAsm(1024)),
 		byteScan("simd_last_index_byte", "lastIndexByte", "LastIndexByte",
 			"LastIndexByte", spec.Int, true),
 		byteScan("simd_popcount", "popCount", "PopCount", "PopCount", spec.Int, false),
@@ -538,6 +586,10 @@ func Bytes() []spec.Kernel {
 			CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a")},
 			RefWhen:   "len(a) != len(b)",
 			Threshold: thScan,
+			// bytes.Equal is memequal, which is already bandwidth-bound: the
+			// kernel measured within 7% of it either way from 1 KiB to 1 MiB.
+			// There is nothing for a vector to add to a memory compare.
+			ThresholdOn: onStdlibAsm(never),
 		},
 
 		byteBinary("and", "And"),
@@ -564,6 +616,8 @@ func Bytes() []spec.Kernel {
 			Result:    &spec.Param{Name: "ret", Type: spec.Int},
 			CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a"), lenOf("b")},
 			Threshold: thScan,
+			// Measured crossover 2048 on amd64; +20% from 16 KiB.
+			ThresholdOn: onStdlibAsm(2048),
 		},
 		{
 			CName: "simd_equal_fold_ascii", GoName: "equalFoldASCII",
@@ -579,6 +633,23 @@ func Bytes() []spec.Kernel {
 			// clamp the haystack against it.
 			CName: "simd_index_any", GoName: "indexAny",
 			Group: "Bytes", Field: "IndexAny", RefFunc: "IndexAny",
+			Params:    []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars")},
+			Threshold: thScan,
+		},
+		{
+			// The complement of IndexAny, and the primitive under trimming.
+			CName: "simd_index_not_any", GoName: "indexNotAny",
+			Group: "Bytes", Field: "IndexNotAny", RefFunc: "IndexNotAny",
+			Params:    []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars")},
+			Threshold: thScan,
+		},
+		{
+			CName: "simd_last_index_not_any", GoName: "lastIndexNotAny",
+			Group: "Bytes", Field: "LastIndexNotAny", RefFunc: "LastIndexNotAny",
 			Params:    []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8)},
 			Result:    &spec.Param{Name: "ret", Type: spec.Int},
 			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars")},
@@ -614,6 +685,37 @@ func Bytes() []spec.Kernel {
 			CArgs: []spec.CArg{out(), base("haystack"), base("needle"),
 				lenOf("haystack"), lenOf("needle")},
 			Threshold: thScan,
+			// Measured crossover 256 on amd64, against the standard
+			// library's Rabin-Karp: +495% at 4 KiB and +655% at 1 MiB.
+			ThresholdOn: onStdlibAsm(256),
+		},
+		{
+			// Backward substring search. Same two independent lengths.
+			CName: "simd_last_index", GoName: "lastIndex",
+			Group: "Bytes", Field: "LastIndex", RefFunc: "LastIndex",
+			Params: []spec.Param{sl("haystack", spec.SliceU8),
+				sl("needle", spec.SliceU8)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("haystack"), base("needle"),
+				lenOf("haystack"), lenOf("needle")},
+			Threshold: thScan,
+		},
+		{
+			// Non-overlapping occurrence count. RefWhen sends the empty
+			// needle to the portable path, because bytes.Count answers that
+			// one by counting runes and the kernel has no business knowing
+			// about UTF-8.
+			CName: "simd_count_seq", GoName: "countSeq",
+			Group: "Bytes", Field: "CountSeq", RefFunc: "CountSeq",
+			Params: []spec.Param{sl("haystack", spec.SliceU8),
+				sl("needle", spec.SliceU8)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("haystack"), base("needle"),
+				lenOf("haystack"), lenOf("needle")},
+			Threshold: thScan,
+			// Same filter as Index and the same crossover.
+			ThresholdOn: onStdlibAsm(256),
+			RefWhen:     "len(needle) == 0",
 		},
 
 		byteMap("simd_to_upper_ascii", "toUpperASCII", "ToUpperASCII", "ToUpperASCII"),

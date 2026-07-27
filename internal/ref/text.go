@@ -1,6 +1,9 @@
 package ref
 
-import "unicode/utf8"
+import (
+	"bytes"
+	"unicode/utf8"
+)
 
 // Text scanning kernels.
 //
@@ -71,26 +74,56 @@ func countAny(b, chars []byte) int {
 	return n
 }
 
-// index is substring search, matching bytes.Index.
-//
-// The vectorized form of this compares broadcasts of the needle's first and
-// last bytes against the haystack, intersects the two masks, and only then
-// verifies candidates — so most positions are rejected without a memcmp. The
-// reference just needs to define the answer.
-func index(haystack, needle []byte) int {
-	m := len(needle)
-	switch {
-	case m == 0:
+// index, lastIndex and countSeq are the substring operations the standard
+// library defines exactly; see the note in ref.go on why these delegate.
+func index(haystack, needle []byte) int     { return bytes.Index(haystack, needle) }
+func lastIndex(haystack, needle []byte) int { return bytes.LastIndex(haystack, needle) }
+
+// countSeq is bytes.Count for every separator but the empty one, which
+// bytes.Count answers by counting runes. That is a UTF-8 question rather than
+// a byte one; the wrapper in package simd answers it and never reaches here.
+func countSeq(haystack, needle []byte) int {
+	if len(needle) == 0 {
 		return 0
-	case m > len(haystack):
-		return -1
-	case m == 1:
-		return indexByte(haystack, needle[0])
 	}
-	first, last := needle[0], needle[m-1]
-	for i := 0; i+m <= len(haystack); i++ {
-		if haystack[i] == first && haystack[i+m-1] == last &&
-			equalBytes(haystack[i:i+m], needle) {
+	return bytes.Count(haystack, needle)
+}
+
+// indexNotAny is the complement of indexAny: the first byte that is not in the
+// set, or -1 if every byte is.
+//
+// An empty set contains nothing, so the first byte of a non-empty slice is
+// already not in it. That is the opposite of indexAny's answer for the same
+// input and both are right: "find one in the set" fails, "find one outside it"
+// succeeds immediately.
+func indexNotAny(b, chars []byte) int {
+	if len(chars) == 0 {
+		if len(b) == 0 {
+			return -1
+		}
+		return 0
+	}
+	set := makeCharSet(chars)
+	for i := range b {
+		if !set.has(b[i]) {
+			return i
+		}
+	}
+	return -1
+}
+
+// lastIndexNotAny is indexNotAny from the other end.
+//
+// An empty set again contains nothing, so the last byte is already outside it;
+// for an empty slice there is no such byte and the answer is -1, which the
+// arithmetic gives without a special case.
+func lastIndexNotAny(b, chars []byte) int {
+	if len(chars) == 0 {
+		return len(b) - 1
+	}
+	set := makeCharSet(chars)
+	for i := len(b) - 1; i >= 0; i-- {
+		if !set.has(b[i]) {
 			return i
 		}
 	}
@@ -237,3 +270,9 @@ func ReplaceByte(dst, b []byte, old, with byte) { replaceByte(dst, b, old, with)
 func Index(haystack, needle []byte) int { return index(haystack, needle) }
 
 func ValidUTF8(b []byte) bool { return validUTF8(b) }
+
+func IndexNotAny(b, chars []byte) int       { return indexNotAny(b, chars) }
+func LastIndex(haystack, needle []byte) int { return lastIndex(haystack, needle) }
+func CountSeq(haystack, needle []byte) int  { return countSeq(haystack, needle) }
+
+func LastIndexNotAny(b, chars []byte) int { return lastIndexNotAny(b, chars) }

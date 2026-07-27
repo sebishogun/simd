@@ -267,8 +267,15 @@ type Bytes struct {
 	IndexAll func(dst []int32, b []byte, c byte) int
 	// IndexAny and CountAny match against a set of bytes rather than one.
 	IndexAny, CountAny func(b, chars []byte) int
-	// Index is substring search.
-	Index func(haystack, needle []byte) int
+	// IndexNotAny is the complement: the first byte that is *not* in the set.
+	// It is the primitive under trimming and under skipping a run of
+	// whitespace, which is where a tokenizer spends the time it is not
+	// spending in IndexAny.
+	// IndexNotAny and LastIndexNotAny are trimming, from each end.
+	IndexNotAny, LastIndexNotAny func(b, chars []byte) int
+	// Index and LastIndex are substring search, forward and backward.
+	// CountSeq counts non-overlapping occurrences.
+	Index, LastIndex, CountSeq func(haystack, needle []byte) int
 	// IsASCII reports whether every byte is below 0x80; ValidUTF8 reports
 	// whether the whole slice is well-formed UTF-8.
 	IsASCII, ValidUTF8 func(b []byte) bool

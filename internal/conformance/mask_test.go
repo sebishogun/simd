@@ -11,6 +11,7 @@ package conformance
 // the interesting lengths are listed explicitly and go past 256.
 
 import (
+	"bytes"
 	"math/rand/v2"
 	"testing"
 
@@ -445,6 +446,103 @@ func checkBytes(t *testing.T, tier string, got, want kernel.Bytes) {
 				if g, w := got.CountAny(b, set), want.CountAny(b, set); g != w {
 					t.Fatalf("%s/Bytes.CountAny n=%d set=%q: got %d want %d",
 						tier, n, set, g, w)
+				}
+			}
+		}
+	}
+
+	// LastIndex and CountSeq answer the same questions as Index over the same
+	// needles, so they share its table rather than getting one that would drift
+	// away from it.
+	for _, c := range []struct {
+		op        string
+		got, want func(h, n []byte) int
+	}{
+		{"LastIndex", got.LastIndex, want.LastIndex},
+		{"CountSeq", got.CountSeq, want.CountSeq},
+	} {
+		if c.got == nil || c.want == nil {
+			continue
+		}
+		for _, n := range byteLens {
+			h := genBytes(n, r)
+			needles := [][]byte{{}, {'a'}, {'z'}, {'a', 'a'}, {'a', 'b', 'a'}}
+			if n > 0 {
+				for _, at := range []int{0, n / 2, n - 1} {
+					for _, l := range []int{1, 2, 3, 9, 33} {
+						if at+l <= n {
+							needles = append(needles, h[at:at+l])
+						}
+					}
+				}
+				needles = append(needles, h)
+			}
+			flat := make([]byte, n)
+			for i := range flat {
+				flat[i] = 'a'
+			}
+			for _, hay := range [][]byte{h, flat} {
+				for _, ndl := range needles {
+					if g, w := c.got(hay, ndl), c.want(hay, ndl); g != w {
+						t.Fatalf("%s/Bytes.%s n=%d needle=%q: got %d want %d",
+							tier, c.op, n, ndl, g, w)
+					}
+				}
+			}
+		}
+	}
+
+	// The set scans and their complements. The sets are chosen so that the
+	// answer is at every position in turn: one that matches nothing, one that
+	// matches everything the generator produces, and the boundary bytes a
+	// signed comparison would get wrong.
+	for _, c := range []struct {
+		op        string
+		got, want func(b, chars []byte) int
+	}{
+		{"IndexNotAny", got.IndexNotAny, want.IndexNotAny},
+		{"LastIndexNotAny", got.LastIndexNotAny, want.LastIndexNotAny},
+	} {
+		if c.got == nil || c.want == nil {
+			continue
+		}
+		for _, n := range byteLens {
+			b := genBytes(n, r)
+			for _, set := range [][]byte{
+				{}, {'q'}, {0x00}, {0x80}, {0xff}, {0x7f, 0x80},
+				[]byte("abcdefghijklmnopqrstuvwxyz"),
+			} {
+				if g, w := c.got(b, set), c.want(b, set); g != w {
+					t.Fatalf("%s/Bytes.%s n=%d set=%q: got %d want %d",
+						tier, c.op, n, set, g, w)
+				}
+			}
+			// A slice made entirely of one byte, with the set holding exactly
+			// that byte, is the case where the scan runs to the end and must
+			// report -1 rather than the last index it looked at.
+			flat := make([]byte, n)
+			for i := range flat {
+				flat[i] = 'a'
+			}
+			if g, w := c.got(flat, []byte("a")), c.want(flat, []byte("a")); g != w {
+				t.Fatalf("%s/Bytes.%s all-'a' n=%d: got %d want %d", tier, c.op, n, g, w)
+			}
+		}
+	}
+
+	// A set with a byte in it twice is still one member. index_any folds with
+	// OR and does not care; count_any sums and did, counting every position
+	// once per duplicate. Found by the fuzzer, kept here by name.
+	if got.CountAny != nil && want.CountAny != nil {
+		for _, n := range byteLens {
+			b := genBytes(n, r)
+			for _, set := range [][]byte{
+				{'a', 'a'}, {'a', 'a', 'a', 'b', 'b'},
+				bytes.Repeat([]byte{0}, 64), bytes.Repeat([]byte("ab"), 40),
+			} {
+				if g, w := got.CountAny(b, set), want.CountAny(b, set); g != w {
+					t.Fatalf("%s/Bytes.CountAny n=%d duplicated set (%d bytes): got %d want %d",
+						tier, n, len(set), g, w)
 				}
 			}
 		}

@@ -1071,6 +1071,13 @@ func maskAllSSE2Guarded(m []bool) bool {
 	return maskAllSSE2(m)
 }
 
+func maskCountSSE2Guarded(m []bool) int {
+	if len(m) < 32 {
+		return ref.MaskCount(m)
+	}
+	return maskCountSSE2(m)
+}
+
 func maskAndSSE2Guarded(dst []bool, a []bool, b []bool) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
@@ -1228,6 +1235,7 @@ func init() {
 	s.U64.NotEqualMask = neUint64MaskSSE2Guarded
 	s.U64.Select = selectUint64SSE2Guarded
 	s.Mask.All = maskAllSSE2Guarded
+	s.Mask.Count = maskCountSSE2Guarded
 	s.Mask.And = maskAndSSE2Guarded
 	s.Mask.Or = maskOrSSE2Guarded
 	s.Mask.Xor = maskXorSSE2Guarded

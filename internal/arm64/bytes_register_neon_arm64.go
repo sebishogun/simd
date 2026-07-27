@@ -21,14 +21,14 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 func countByteNEONGuarded(b []byte, c byte) int {
-	if len(b) < 64 {
+	if len(b) < 1073741824 {
 		return ref.CountByte(b, c)
 	}
 	return countByteNEON(b, c)
 }
 
 func indexByteNEONGuarded(b []byte, c byte) int {
-	if len(b) < 64 {
+	if len(b) < 1024 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteNEON(b, c)
@@ -64,7 +64,7 @@ func validUTF8NEONGuarded(b []byte) bool {
 
 func equalBytesNEONGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
-	if n < 64 || len(a) != len(b) {
+	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
 	}
 	return equalBytesNEON(a[:n:n], b)
@@ -124,7 +124,7 @@ func fillBytesNEONGuarded(dst []byte, v byte) {
 }
 
 func compareBytesNEONGuarded(a []byte, b []byte) int {
-	if len(a) < 64 {
+	if len(a) < 2048 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesNEON(a, b)
@@ -145,6 +145,20 @@ func indexAnyNEONGuarded(b []byte, chars []byte) int {
 	return indexAnyNEON(b, chars)
 }
 
+func indexNotAnyNEONGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexNotAny(b, chars)
+	}
+	return indexNotAnyNEON(b, chars)
+}
+
+func lastIndexNotAnyNEONGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.LastIndexNotAny(b, chars)
+	}
+	return lastIndexNotAnyNEON(b, chars)
+}
+
 func countAnyNEONGuarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
@@ -160,10 +174,24 @@ func hexEncodeNEONGuarded(dst []byte, b []byte) int {
 }
 
 func indexNEONGuarded(haystack []byte, needle []byte) int {
-	if len(haystack) < 64 {
+	if len(haystack) < 256 {
 		return ref.Index(haystack, needle)
 	}
 	return indexNEON(haystack, needle)
+}
+
+func lastIndexNEONGuarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.LastIndex(haystack, needle)
+	}
+	return lastIndexNEON(haystack, needle)
+}
+
+func countSeqNEONGuarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 256 || len(needle) == 0 {
+		return ref.CountSeq(haystack, needle)
+	}
+	return countSeqNEON(haystack, needle)
 }
 
 func toUpperASCIINEONGuarded(dst []byte, b []byte) {
@@ -213,9 +241,13 @@ func init() {
 	s.Bytes.Compare = compareBytesNEONGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIINEONGuarded
 	s.Bytes.IndexAny = indexAnyNEONGuarded
+	s.Bytes.IndexNotAny = indexNotAnyNEONGuarded
+	s.Bytes.LastIndexNotAny = lastIndexNotAnyNEONGuarded
 	s.Bytes.CountAny = countAnyNEONGuarded
 	s.Bytes.HexEncode = hexEncodeNEONGuarded
 	s.Bytes.Index = indexNEONGuarded
+	s.Bytes.LastIndex = lastIndexNEONGuarded
+	s.Bytes.CountSeq = countSeqNEONGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIINEONGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIINEONGuarded
 	s.Bytes.ReplaceByte = replaceByteNEONGuarded

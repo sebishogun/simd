@@ -358,13 +358,6 @@ func maskAnyVXGuarded(m []bool) bool {
 	return maskAnyVX(m)
 }
 
-func maskCountVXGuarded(m []bool) int {
-	if len(m) < 32 {
-		return ref.MaskCount(m)
-	}
-	return maskCountVX(m)
-}
-
 func maskAndVXGuarded(dst []bool, a []bool, b []bool) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
@@ -443,7 +436,6 @@ func init() {
 	s.U8.GreaterEqualScalarMask = geScalarUint8MaskVXGuarded
 	s.Mask.All = maskAllVXGuarded
 	s.Mask.Any = maskAnyVXGuarded
-	s.Mask.Count = maskCountVXGuarded
 	s.Mask.And = maskAndVXGuarded
 	s.Mask.Or = maskOrVXGuarded
 	s.Mask.Xor = maskXorVXGuarded

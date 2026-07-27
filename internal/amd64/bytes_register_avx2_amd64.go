@@ -21,14 +21,14 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 func countByteAVX2Guarded(b []byte, c byte) int {
-	if len(b) < 64 {
+	if len(b) < 1073741824 {
 		return ref.CountByte(b, c)
 	}
 	return countByteAVX2(b, c)
 }
 
 func indexByteAVX2Guarded(b []byte, c byte) int {
-	if len(b) < 64 {
+	if len(b) < 1024 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteAVX2(b, c)
@@ -64,7 +64,7 @@ func validUTF8AVX2Guarded(b []byte) bool {
 
 func equalBytesAVX2Guarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
-	if n < 64 || len(a) != len(b) {
+	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
 	}
 	return equalBytesAVX2(a[:n:n], b)
@@ -124,7 +124,7 @@ func fillBytesAVX2Guarded(dst []byte, v byte) {
 }
 
 func compareBytesAVX2Guarded(a []byte, b []byte) int {
-	if len(a) < 64 {
+	if len(a) < 2048 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesAVX2(a, b)
@@ -145,6 +145,20 @@ func indexAnyAVX2Guarded(b []byte, chars []byte) int {
 	return indexAnyAVX2(b, chars)
 }
 
+func indexNotAnyAVX2Guarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexNotAny(b, chars)
+	}
+	return indexNotAnyAVX2(b, chars)
+}
+
+func lastIndexNotAnyAVX2Guarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.LastIndexNotAny(b, chars)
+	}
+	return lastIndexNotAnyAVX2(b, chars)
+}
+
 func countAnyAVX2Guarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
@@ -160,10 +174,24 @@ func hexEncodeAVX2Guarded(dst []byte, b []byte) int {
 }
 
 func indexAVX2Guarded(haystack []byte, needle []byte) int {
-	if len(haystack) < 64 {
+	if len(haystack) < 256 {
 		return ref.Index(haystack, needle)
 	}
 	return indexAVX2(haystack, needle)
+}
+
+func lastIndexAVX2Guarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.LastIndex(haystack, needle)
+	}
+	return lastIndexAVX2(haystack, needle)
+}
+
+func countSeqAVX2Guarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 256 || len(needle) == 0 {
+		return ref.CountSeq(haystack, needle)
+	}
+	return countSeqAVX2(haystack, needle)
 }
 
 func toUpperASCIIAVX2Guarded(dst []byte, b []byte) {
@@ -213,9 +241,13 @@ func init() {
 	s.Bytes.Compare = compareBytesAVX2Guarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIIAVX2Guarded
 	s.Bytes.IndexAny = indexAnyAVX2Guarded
+	s.Bytes.IndexNotAny = indexNotAnyAVX2Guarded
+	s.Bytes.LastIndexNotAny = lastIndexNotAnyAVX2Guarded
 	s.Bytes.CountAny = countAnyAVX2Guarded
 	s.Bytes.HexEncode = hexEncodeAVX2Guarded
 	s.Bytes.Index = indexAVX2Guarded
+	s.Bytes.LastIndex = lastIndexAVX2Guarded
+	s.Bytes.CountSeq = countSeqAVX2Guarded
 	s.Bytes.ToUpperASCII = toUpperASCIIAVX2Guarded
 	s.Bytes.ToLowerASCII = toLowerASCIIAVX2Guarded
 	s.Bytes.ReplaceByte = replaceByteAVX2Guarded

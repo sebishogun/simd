@@ -21,14 +21,14 @@ import (
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 func countByteSVE2Guarded(b []byte, c byte) int {
-	if len(b) < 64 {
+	if len(b) < 1073741824 {
 		return ref.CountByte(b, c)
 	}
 	return countByteSVE2(b, c)
 }
 
 func indexByteSVE2Guarded(b []byte, c byte) int {
-	if len(b) < 64 {
+	if len(b) < 1024 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteSVE2(b, c)
@@ -64,7 +64,7 @@ func validUTF8SVE2Guarded(b []byte) bool {
 
 func equalBytesSVE2Guarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
-	if n < 64 || len(a) != len(b) {
+	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
 	}
 	return equalBytesSVE2(a[:n:n], b)
@@ -124,7 +124,7 @@ func fillBytesSVE2Guarded(dst []byte, v byte) {
 }
 
 func compareBytesSVE2Guarded(a []byte, b []byte) int {
-	if len(a) < 64 {
+	if len(a) < 2048 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesSVE2(a, b)
@@ -145,6 +145,20 @@ func indexAnySVE2Guarded(b []byte, chars []byte) int {
 	return indexAnySVE2(b, chars)
 }
 
+func indexNotAnySVE2Guarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexNotAny(b, chars)
+	}
+	return indexNotAnySVE2(b, chars)
+}
+
+func lastIndexNotAnySVE2Guarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.LastIndexNotAny(b, chars)
+	}
+	return lastIndexNotAnySVE2(b, chars)
+}
+
 func countAnySVE2Guarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
@@ -160,10 +174,24 @@ func hexEncodeSVE2Guarded(dst []byte, b []byte) int {
 }
 
 func indexSVE2Guarded(haystack []byte, needle []byte) int {
-	if len(haystack) < 64 {
+	if len(haystack) < 256 {
 		return ref.Index(haystack, needle)
 	}
 	return indexSVE2(haystack, needle)
+}
+
+func lastIndexSVE2Guarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.LastIndex(haystack, needle)
+	}
+	return lastIndexSVE2(haystack, needle)
+}
+
+func countSeqSVE2Guarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 256 || len(needle) == 0 {
+		return ref.CountSeq(haystack, needle)
+	}
+	return countSeqSVE2(haystack, needle)
 }
 
 func toUpperASCIISVE2Guarded(dst []byte, b []byte) {
@@ -213,9 +241,13 @@ func init() {
 	s.Bytes.Compare = compareBytesSVE2Guarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIISVE2Guarded
 	s.Bytes.IndexAny = indexAnySVE2Guarded
+	s.Bytes.IndexNotAny = indexNotAnySVE2Guarded
+	s.Bytes.LastIndexNotAny = lastIndexNotAnySVE2Guarded
 	s.Bytes.CountAny = countAnySVE2Guarded
 	s.Bytes.HexEncode = hexEncodeSVE2Guarded
 	s.Bytes.Index = indexSVE2Guarded
+	s.Bytes.LastIndex = lastIndexSVE2Guarded
+	s.Bytes.CountSeq = countSeqSVE2Guarded
 	s.Bytes.ToUpperASCII = toUpperASCIISVE2Guarded
 	s.Bytes.ToLowerASCII = toLowerASCIISVE2Guarded
 	s.Bytes.ReplaceByte = replaceByteSVE2Guarded

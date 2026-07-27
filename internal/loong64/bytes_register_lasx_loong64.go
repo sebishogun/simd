@@ -138,6 +138,20 @@ func indexAnyLASXGuarded(b []byte, chars []byte) int {
 	return indexAnyLASX(b, chars)
 }
 
+func lastIndexNotAnyLASXGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.LastIndexNotAny(b, chars)
+	}
+	return lastIndexNotAnyLASX(b, chars)
+}
+
+func countAnyLASXGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.CountAny(b, chars)
+	}
+	return countAnyLASX(b, chars)
+}
+
 func toUpperASCIILASXGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -184,6 +198,8 @@ func init() {
 	s.Bytes.Compare = compareBytesLASXGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIILASXGuarded
 	s.Bytes.IndexAny = indexAnyLASXGuarded
+	s.Bytes.LastIndexNotAny = lastIndexNotAnyLASXGuarded
+	s.Bytes.CountAny = countAnyLASXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIILASXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIILASXGuarded
 	s.Bytes.ReplaceByte = replaceByteLASXGuarded

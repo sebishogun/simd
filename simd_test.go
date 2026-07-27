@@ -829,7 +829,7 @@ func TestBytesAgainstStdlib(t *testing.T) {
 			if got, want := simd.IndexByte(b, c), bytes.IndexByte(b, c); got != want {
 				t.Fatalf("IndexByte n=%d c=%d: got %d want %d", n, c, got, want)
 			}
-			if got, want := simd.Count(b, c), bytes.Count(b, []byte{c}); got != want {
+			if got, want := simd.CountByte(b, c), bytes.Count(b, []byte{c}); got != want {
 				t.Fatalf("Count n=%d c=%d: got %d want %d", n, c, got, want)
 			}
 		}

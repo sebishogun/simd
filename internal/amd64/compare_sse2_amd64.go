@@ -367,6 +367,9 @@ func selectUint64SSE2(dst []uint64, mask []bool, yes []uint64, no []uint64)
 func maskAllSSE2(m []bool) bool
 
 //go:noescape
+func maskCountSSE2(m []bool) int
+
+//go:noescape
 func maskAndSSE2(dst []bool, a []bool, b []bool)
 
 //go:noescape

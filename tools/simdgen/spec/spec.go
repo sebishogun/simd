@@ -241,6 +241,30 @@ type Kernel struct {
 	// operation and the element type, and it must be measured rather than
 	// guessed — see the benchmarks.
 	Threshold int
+
+	// ThresholdOn overrides Threshold for named architectures.
+	//
+	// It exists because the thing on the other side of the threshold is not
+	// the same everywhere. Below it the dispatcher runs the reference, and for
+	// the byte scanners the reference is the standard library — which is
+	// hand-written assembly on amd64, arm64, ppc64x and s390x and a plain Go
+	// loop on riscv64 and loong64. So the length at which crossing into a
+	// kernel starts to pay is a property of the *pair*, and one number cannot
+	// be right for both: bytes.Count on amd64 needs 512 bytes before this
+	// package's kernel is worth the call, and on riscv64 it is worth it
+	// immediately.
+	//
+	// Keyed by GOARCH. Absent means Threshold.
+	ThresholdOn map[string]int
+}
+
+// ThresholdFor returns the element count below which this kernel should defer
+// to the portable path on the given architecture.
+func (k Kernel) ThresholdFor(arch string) int {
+	if n, ok := k.ThresholdOn[arch]; ok {
+		return n
+	}
+	return k.Threshold
 }
 
 // LenParam returns the name of the parameter whose length bounds the work,

@@ -86,8 +86,21 @@ without it. Nothing to configure, nothing to build twice.
 
 ## Operations
 
-234 exported functions. The plain name works in place; the `Into` suffix takes
+248 exported functions. The plain name works in place; the `Into` suffix takes
 a destination.
+
+**Text and bytes** — every scanning function takes `string` or `[]byte`
+without copying and without allocating: `Index` `LastIndex` `IndexByte`
+`LastIndexByte` `IndexAny` `IndexNotAny` `LastIndexNotAny` `Contains`
+`ContainsByte` `ContainsAny` `HasPrefix` `HasSuffix` `Count` `CountByte`
+`CountAny` `IndexAll` `TrimAny` `TrimLeftAny` `TrimRightAny` `TrimSpaceASCII`
+`IsASCII` `ValidUTF8` `EqualFoldASCII` `ToUpperASCII` `ToLowerASCII`
+`ReplaceByte` `HexEncode` `HexDecode`
+
+These are measured against `bytes` and `strings` rather than against a plain
+Go loop, because that is the comparison a caller actually faces — and the
+package defers to the standard library wherever the standard library is
+already assembly doing the same thing, so it is never the slower choice.
 
 **Elementwise** — `Add` `Sub` `Mul` `Div` `Minimum` `Maximum` `Abs` `Neg`
 `Sqrt` `Reciprocal` `Reverse`

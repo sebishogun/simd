@@ -19,7 +19,7 @@ typedef unsigned char u8;
 
 void simd_count_byte(isize *__restrict out, const u8 *__restrict b, u8 c,
                      isize n) {
-  COUNT_FOLD(b[p] == c)
+  COUNT_BYTES(b[p] == c)
 }
 
 // simd_index_byte returns the offset of the first occurrence, or -1.
@@ -213,13 +213,16 @@ void simd_equal_fold_ascii(_Bool *__restrict out, const u8 *__restrict a,
 // callers actually pass — whitespace, delimiters, a handful of punctuation.
 void simd_index_any(isize *__restrict out, const u8 *__restrict b,
                     const u8 *__restrict set, isize n, isize k) {
-  const isize block = 64;
   isize i = 0;
-  for (; i + block <= n; i += block) {
-    unsigned char hit = 0;
-    for (isize s = 0; s < k; s++)
-      for (isize j = 0; j < block; j++) hit |= (b[i + j] == set[s]);
-    if (hit) break;
+  for (; i + BYTE_LANES <= n; i += BYTE_LANES) {
+    // The mirror of NOTANY_MASK: OR the per-member equality masks instead of
+    // ANDing the inequalities. Both are one whole-vector operation per set
+    // member per register, and both depend on the accumulator never being
+    // indexed by lane — see the note there.
+    u8xB v = VLOAD(b, i);
+    u8xB hit = 0;
+    for (isize s = 0; s < k; s++) hit |= (u8xB)(v == (u8xB)set[s]);
+    if (OR_ANY(hit)) break;
   }
   for (; i < n; i++)
     for (isize s = 0; s < k; s++)
@@ -237,6 +240,18 @@ void simd_count_any(isize *__restrict out, const u8 *__restrict b,
     u32xC acc = 0;
     isize i = 0;
     u8 c = set[s];
+    // A byte that appears twice in the set is still one member of it, and
+    // counting it twice is the difference between this and index_any, where
+    // the fold is an OR and a duplicate changes nothing. Found by the
+    // differential fuzzer with a 256-byte set of zeros: 65536 against 256.
+    //
+    // The scan is quadratic in the size of the set and linear in the input,
+    // and the set is a handful of delimiters, so this costs nothing that can
+    // be measured. It is inside the outer loop rather than a separate pass so
+    // that no scratch buffer is needed — the kernels have no stack to spare.
+    unsigned char dup = 0;
+    for (isize p = 0; p < s; p++) dup |= (set[p] == c);
+    if (dup) continue;
     for (; i + COUNT_LANES <= n; i += COUNT_LANES) {
       u32xC v;
       for (int j = 0; j < COUNT_LANES; j++) v[j] = (b[i + j] == c);
@@ -325,6 +340,221 @@ void simd_index(isize *__restrict out, const u8 *__restrict h,
       return;
     }
   }
+  *out = -1;
+}
+
+// simd_last_index is simd_index run backwards, matching bytes.LastIndex.
+//
+// The filter is the same one and for the same reason — compare a block against
+// the needle's first and last bytes, and only where both match is a full
+// comparison worth doing — but the blocks are walked from the end, so that the
+// first match found is the last one in the haystack and the scan can stop
+// there rather than running to the end and keeping the highest.
+void simd_last_index(isize *__restrict out, const u8 *__restrict h,
+                     const u8 *__restrict n_, isize nh, isize nn) {
+  if (nn == 0) {
+    *out = nh;
+    return;
+  }
+  if (nn > nh) {
+    *out = -1;
+    return;
+  }
+  u8 first = n_[0], last = n_[nn - 1];
+  const isize block = 64;
+  // The highest position a match can begin at. The scan walks down from here.
+  isize i = nh - nn;
+  for (; i >= block - 1; i -= block) {
+    isize lo = i - block + 1;
+    unsigned char any = 0;
+    for (isize j = 0; j < block; j++)
+      any |= (unsigned char)(h[lo + j] == first) &
+             (unsigned char)(h[lo + j + nn - 1] == last);
+    if (!any) continue;
+    for (isize j = block - 1; j >= 0; j--) {
+      isize p = lo + j;
+      if (h[p] != first || h[p + nn - 1] != last) continue;
+      isize k = 1;
+      while (k < nn - 1 && h[p + k] == n_[k]) k++;
+      if (k >= nn - 1) {
+        *out = p;
+        return;
+      }
+    }
+  }
+  for (; i >= 0; i--) {
+    if (h[i] != first || h[i + nn - 1] != last) continue;
+    isize k = 1;
+    while (k < nn - 1 && h[i + k] == n_[k]) k++;
+    if (k >= nn - 1) {
+      *out = i;
+      return;
+    }
+  }
+  *out = -1;
+}
+
+// simd_count_seq counts non-overlapping occurrences of a needle, matching
+// bytes.Count.
+//
+// Non-overlapping is what makes it a scan rather than a reduction: after a
+// match the next search starts past the whole needle, so the positions are not
+// independent and the outer loop cannot be vectorized. What can be, and is, is
+// the candidate filter — the same first-and-last-byte test as simd_index — so
+// the common case of a needle that does not occur costs one pass at vector
+// speed rather than a comparison per position.
+void simd_count_seq(isize *__restrict out, const u8 *__restrict h,
+                    const u8 *__restrict n_, isize nh, isize nn) {
+  if (nn == 0) {
+    // bytes.Count with an empty separator returns the number of runes plus
+    // one; that is a UTF-8 question rather than a byte one, so the wrapper in
+    // package simd answers it and never calls this.
+    *out = 0;
+    return;
+  }
+  if (nn > nh) {
+    *out = 0;
+    return;
+  }
+  u8 first = n_[0], last = n_[nn - 1];
+  isize last_start = nh - nn;
+  const isize block = 64;
+  isize total = 0;
+  isize i = 0;
+  while (i <= last_start) {
+    if (i + block <= last_start + 1) {
+      unsigned char any = 0;
+      for (isize j = 0; j < block; j++)
+        any |= (unsigned char)(h[i + j] == first) &
+               (unsigned char)(h[i + j + nn - 1] == last);
+      if (!any) {
+        i += block;
+        continue;
+      }
+      // A candidate somewhere in this block. Verify the whole block here and
+      // then move past it, rather than dropping out to the scalar tail and
+      // re-running the filter one position later — that is a 64-wide compare
+      // per byte of input for a needle that occurs often, and it made this
+      // twice as slow as strings.Count on prose before the shape was measured.
+      //
+      // A match beginning near the end of the block may run past it. That is
+      // fine: i jumps to the end of the match, the inner loop exits, and the
+      // outer one resumes wherever that landed.
+      isize end = i + block;
+      while (i < end && i <= last_start) {
+        if (h[i] != first || h[i + nn - 1] != last) {
+          i++;
+          continue;
+        }
+        isize k = 1;
+        while (k < nn - 1 && h[i + k] == n_[k]) k++;
+        if (k >= nn - 1) {
+          total++;
+          i += nn;
+          continue;
+        }
+        i++;
+      }
+      continue;
+    }
+    if (h[i] != first || h[i + nn - 1] != last) {
+      i++;
+      continue;
+    }
+    isize k = 1;
+    while (k < nn - 1 && h[i + k] == n_[k]) k++;
+    if (k >= nn - 1) {
+      total++;
+      i += nn;
+      continue;
+    }
+    i++;
+  }
+  *out = total;
+}
+
+// simd_index_not_any returns the offset of the first byte of b that is *not*
+// in set, or -1 if every byte is; simd_last_index_not_any is the same question
+// from the other end. The pair of them is trimming — TrimLeft is the forward
+// one, TrimRight this one, Trim both — and it is the primitive under skipping a
+// run of whitespace, which is where a tokenizer spends the time it is not
+// spending in index_any.
+//
+// The loop nest is the whole performance story and it is not the obvious one.
+// Written the way the question reads — for each byte, is it in the set? — the
+// inner loop is over the set, whose length is a runtime value, and LLVM cannot
+// vectorize across the outer loop because of it. That version was measured at
+// 220ns against 17ns for index_any on the same input and the same set: twelve
+// times slower for a strictly simpler question, entirely scalar.
+//
+// Turning it inside out fixes it. For each *member* of the set, compare a whole
+// register against a broadcast of it and AND the "not equal" masks together;
+// after k passes a lane is all-ones exactly where that byte matched no member.
+// The inner loop is then over contiguous bytes with a loop-invariant operand,
+// which is the shape every vector unit here has an instruction for, and the set
+// length only decides how many passes.
+// The mask is built with whole-vector operations and no element indexing.
+// Writing it as a loop over lanes — notin[j] &= ... — is the same arithmetic
+// and six times slower: the accumulator is live across the loop over the set,
+// so indexing it gives it an address and it spills, once per set member per
+// block. Measured at 1379ns against 220ns for the scalar version it was meant
+// to replace. The comment on OR_ANY in fold.h is about the same trap.
+#define NOTANY_MASK(OFF)                                                 \
+  u8xB notin = (u8xB)(u8)0xFF;                                           \
+  u8xB v_ = VLOAD(b, (OFF));                                             \
+  for (isize s_ = 0; s_ < k; s_++) {                                     \
+    u8xB c_ = (u8xB)set[s_];                                             \
+    notin &= (u8xB)(v_ != c_);                                           \
+  }
+
+// NOTANY_SCALAR answers the same question for one byte.
+#define NOTANY_SCALAR(IDX)                                               \
+  ({                                                                     \
+    unsigned char in_ = 0;                                               \
+    for (isize s_ = 0; s_ < k; s_++) in_ |= (b[(IDX)] == set[s_]);       \
+    !in_;                                                                \
+  })
+
+void simd_index_not_any(isize *__restrict out, const u8 *__restrict b,
+                        const u8 *__restrict set, isize n, isize k) {
+  if (k == 0) {
+    // An empty set contains nothing, so the first byte is already outside it.
+    *out = n == 0 ? -1 : 0;
+    return;
+  }
+  isize i = 0;
+  for (; i + BYTE_LANES <= n; i += BYTE_LANES) {
+    NOTANY_MASK(i)
+    if (OR_ANY(notin)) break;
+  }
+  for (; i < n; i++)
+    if (NOTANY_SCALAR(i)) {
+      *out = i;
+      return;
+    }
+  *out = -1;
+}
+
+void simd_last_index_not_any(isize *__restrict out, const u8 *__restrict b,
+                             const u8 *__restrict set, isize n, isize k) {
+  if (k == 0) {
+    *out = n - 1;
+    return;
+  }
+  isize i = n - BYTE_LANES;
+  for (; i >= 0; i -= BYTE_LANES) {
+    NOTANY_MASK(i)
+    if (OR_ANY(notin)) break;
+  }
+  // The block that stopped the scan, and everything below it, byte by byte
+  // from the top. i may be negative here, which is the short-input case.
+  isize from = i + BYTE_LANES - 1;
+  if (from > n - 1) from = n - 1;
+  for (isize p = from; p >= 0; p--)
+    if (NOTANY_SCALAR(p)) {
+      *out = p;
+      return;
+    }
   *out = -1;
 }
 

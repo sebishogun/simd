@@ -1,5 +1,7 @@
 package simd
 
+import "bytes"
+
 // This file holds the byte and bit operations. They take []byte directly
 // rather than going through the generic Number path, because that is how
 // callers already hold this data.
@@ -10,29 +12,36 @@ package simd
 
 // ---------- queries ----------
 
-// IndexByte returns the index of the first occurrence of c in b, or -1.
+// IndexByte returns the index of the first occurrence of c in s, or -1.
 //
-// It matches bytes.IndexByte exactly and is a drop-in replacement.
-func IndexByte(b []byte, c byte) int { return active.Bytes.IndexByte(b, c) }
+// It matches bytes.IndexByte and strings.IndexByte and is a drop-in
+// replacement for either.
+func IndexByte[S Text](s S, c byte) int {
+	b := textBytes(s)
+	if len(b) < shortText {
+		return bytes.IndexByte(b, c)
+	}
+	return active.Bytes.IndexByte(b, c)
+}
 
-// Count returns the number of occurrences of c in b.
-//
-// It matches bytes.Count with a single-byte separator.
-func Count(b []byte, c byte) int { return active.Bytes.Count(b, c) }
+// LastIndexByte returns the index of the last occurrence of c in s, or -1.
+func LastIndexByte[S Text](s S, c byte) int {
+	return active.Bytes.LastIndexByte(textBytes(s), c)
+}
 
 // Equal reports whether a and b are the same length and hold the same bytes.
 //
 // It matches bytes.Equal. A nil argument is equivalent to an empty slice.
-func Equal(a, b []byte) bool { return active.Bytes.Equal(a, b) }
+func Equal[S, T Text](a S, b T) bool { return active.Bytes.Equal(textBytes(a), textBytes(b)) }
 
 // Compare returns -1, 0 or +1 ordering a before, equal to, or after b,
 // lexicographically by content and then by length.
 //
 // It matches bytes.Compare.
-func Compare(a, b []byte) int { return active.Bytes.Compare(a, b) }
+func Compare[S, T Text](a S, b T) int { return active.Bytes.Compare(textBytes(a), textBytes(b)) }
 
 // PopCount returns the total number of set bits across every byte of b.
-func PopCount(b []byte) int { return active.Bytes.PopCount(b) }
+func PopCount[S Text](s S) int { return active.Bytes.PopCount(textBytes(s)) }
 
 // ---------- in place ----------
 

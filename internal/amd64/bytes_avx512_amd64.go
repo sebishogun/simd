@@ -64,6 +64,12 @@ func equalFoldASCIIAVX512(a []byte, b []byte) bool
 func indexAnyAVX512(b []byte, chars []byte) int
 
 //go:noescape
+func indexNotAnyAVX512(b []byte, chars []byte) int
+
+//go:noescape
+func lastIndexNotAnyAVX512(b []byte, chars []byte) int
+
+//go:noescape
 func countAnyAVX512(b []byte, chars []byte) int
 
 //go:noescape
@@ -71,6 +77,12 @@ func hexEncodeAVX512(dst []byte, b []byte) int
 
 //go:noescape
 func indexAVX512(haystack []byte, needle []byte) int
+
+//go:noescape
+func lastIndexAVX512(haystack []byte, needle []byte) int
+
+//go:noescape
+func countSeqAVX512(haystack []byte, needle []byte) int
 
 //go:noescape
 func toUpperASCIIAVX512(dst []byte, b []byte)

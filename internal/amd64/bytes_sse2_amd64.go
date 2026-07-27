@@ -64,6 +64,12 @@ func equalFoldASCIISSE2(a []byte, b []byte) bool
 func indexAnySSE2(b []byte, chars []byte) int
 
 //go:noescape
+func indexNotAnySSE2(b []byte, chars []byte) int
+
+//go:noescape
+func lastIndexNotAnySSE2(b []byte, chars []byte) int
+
+//go:noescape
 func countAnySSE2(b []byte, chars []byte) int
 
 //go:noescape
@@ -71,6 +77,12 @@ func hexEncodeSSE2(dst []byte, b []byte) int
 
 //go:noescape
 func indexSSE2(haystack []byte, needle []byte) int
+
+//go:noescape
+func lastIndexSSE2(haystack []byte, needle []byte) int
+
+//go:noescape
+func countSeqSSE2(haystack []byte, needle []byte) int
 
 //go:noescape
 func toUpperASCIISSE2(dst []byte, b []byte)

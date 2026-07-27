@@ -130,9 +130,6 @@ func maskAllVX(m []bool) bool
 func maskAnyVX(m []bool) bool
 
 //go:noescape
-func maskCountVX(m []bool) int
-
-//go:noescape
 func maskAndVX(dst []bool, a []bool, b []bool)
 
 //go:noescape

@@ -339,3 +339,54 @@ extension, so the whole backend was skipped as unexecutable and the lane was
 green. See D11 in `05-decisions.md` for the general form of that, and
 `simdinfo -require-accelerated`, which is now the first thing every emulated
 lane runs.
+
+## Where a vector unit does not beat the standard library, and why
+
+The text kernels are the only ones in this package whose competition is not a
+plain Go loop. `bytes` and `strings` reach into `internal/bytealg`, which is
+hand-written assembly on amd64, arm64, ppc64x and s390x. Measuring against a
+scalar reference there says nothing about whether a caller should switch, so
+these were measured against the standard library, and the answer came in three
+kinds.
+
+**Where the standard library has no assembly, the margin is enormous.**
+`strings.LastIndexByte` is a backward Go loop; the kernel is 30x faster at
+every length from 64 bytes to 64 KiB. `IndexAny` is 1.4x to 2.2x, `IndexAll`
+1.9x to 2.4x — the last against the loop over `IndexByte` a caller writes today,
+since nothing in the standard library produces a structural index.
+
+**Where it has assembly but vectors change the algorithm, the margin arrives
+with length.** Substring search is 5.9x at 4 KiB and 7.6x at 1 MiB against
+`strings.Index`'s Rabin-Karp, because comparing broadcasts of the needle's
+first and last bytes rejects a whole register of positions at a time.
+
+**Where it has assembly doing the same thing, there is no margin and pretending
+otherwise would be dishonest.** `bytes.Equal` is `memequal`: bandwidth-bound,
+and the kernel is within 7% either way from 1 KiB to 1 MiB. `bytealg.Count`
+popcounts a compare mask, which is what the hardware can do and no more.
+
+Three findings came out of measuring rather than assuming.
+
+The first two were bugs. Substring counting was twice as slow as
+`strings.Count` on prose, because when the candidate filter fired the scan
+dropped to the scalar tail and re-ran the 64-wide filter one position later —
+a full-width compare per byte of input for a needle that occurs often. Byte
+counting was 3.5x slower than `bytealg.Count`, because the counting fold
+accumulated into 32-bit lanes: sixteen bytes of input became sixty-four bytes
+of accumulator, four times the vector work per byte. Byte-lane accumulation
+with a drain every 255 blocks fixed it, 1612ns to 554ns at 64 KiB.
+
+The third was structural. Below each kernel's length threshold the dispatcher
+runs the portable reference, and for these functions the reference was a
+hand-written loop competing with assembly — so the package was 5.3x *slower*
+than `strings.IndexByte` on a 64-byte input, which would make it the wrong
+choice for every short string however good the kernels were on long ones. The
+reference now delegates to the standard library for exactly the functions the
+two define identically, which makes the short path the thing it replaces and
+makes the reference the specification rather than a reading of it.
+
+That last change moved every crossover, because the thing on the other side of
+the threshold changed. It also made one threshold unable to be right
+everywhere: `bytealg` is generic Go on riscv64 and loong64, so the same kernel
+is worth calling immediately there and never on amd64. Thresholds are now
+per-architecture where that matters.

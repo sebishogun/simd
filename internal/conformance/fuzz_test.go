@@ -252,8 +252,43 @@ func FuzzKernelsAgainstReference(f *testing.F) {
 			fuzzOps(t, tier, "U64", got.U64, want.U64, aU64, bU64)
 
 			fuzzBytes(t, tier, got.Bytes, want.Bytes, ab[:n], bb[:n])
+			fuzzTextPairs(t, tier, got.Bytes, want.Bytes, ab[:n], bb[:n])
 		}
 	})
+}
+
+// fuzzTextPairs compares the kernels that take two byte slices, with the
+// fuzzer choosing both. Substring search and set scanning are where an
+// off-by-one at a block boundary hides, and the fuzzer reaches lengths and
+// contents the tables do not.
+func fuzzTextPairs(t *testing.T, tier string, got, want kernel.Bytes, a, b []byte) {
+	// The needle is taken from the haystack as well as used as given, so the
+	// found path is exercised rather than only the rejecting one.
+	needles := [][]byte{b}
+	if len(a) > 3 {
+		needles = append(needles, a[:3], a[len(a)-3:], a[len(a)/2:len(a)/2+2])
+	}
+	for _, ndl := range needles {
+		for _, c := range []struct {
+			op        string
+			got, want func(x, y []byte) int
+		}{
+			{"Index", got.Index, want.Index},
+			{"LastIndex", got.LastIndex, want.LastIndex},
+			{"CountSeq", got.CountSeq, want.CountSeq},
+			{"IndexAny", got.IndexAny, want.IndexAny},
+			{"CountAny", got.CountAny, want.CountAny},
+			{"IndexNotAny", got.IndexNotAny, want.IndexNotAny},
+			{"LastIndexNotAny", got.LastIndexNotAny, want.LastIndexNotAny},
+		} {
+			if c.got == nil || c.want == nil {
+				continue
+			}
+			if g, w := c.got(a, ndl), c.want(a, ndl); g != w {
+				t.Fatalf("%s/Bytes.%s(%x, %x) = %d, want %d", tier, c.op, a, ndl, g, w)
+			}
+		}
+	}
 }
 
 // fuzzBytes compares the byte kernels, which have the sharpest contract of

@@ -145,6 +145,20 @@ func indexAnyRVVGuarded(b []byte, chars []byte) int {
 	return indexAnyRVV(b, chars)
 }
 
+func indexNotAnyRVVGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.IndexNotAny(b, chars)
+	}
+	return indexNotAnyRVV(b, chars)
+}
+
+func lastIndexNotAnyRVVGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.LastIndexNotAny(b, chars)
+	}
+	return lastIndexNotAnyRVV(b, chars)
+}
+
 func countAnyRVVGuarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
@@ -164,6 +178,20 @@ func indexRVVGuarded(haystack []byte, needle []byte) int {
 		return ref.Index(haystack, needle)
 	}
 	return indexRVV(haystack, needle)
+}
+
+func lastIndexRVVGuarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 {
+		return ref.LastIndex(haystack, needle)
+	}
+	return lastIndexRVV(haystack, needle)
+}
+
+func countSeqRVVGuarded(haystack []byte, needle []byte) int {
+	if len(haystack) < 64 || len(needle) == 0 {
+		return ref.CountSeq(haystack, needle)
+	}
+	return countSeqRVV(haystack, needle)
 }
 
 func toUpperASCIIRVVGuarded(dst []byte, b []byte) {
@@ -213,9 +241,13 @@ func init() {
 	s.Bytes.Compare = compareBytesRVVGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIIRVVGuarded
 	s.Bytes.IndexAny = indexAnyRVVGuarded
+	s.Bytes.IndexNotAny = indexNotAnyRVVGuarded
+	s.Bytes.LastIndexNotAny = lastIndexNotAnyRVVGuarded
 	s.Bytes.CountAny = countAnyRVVGuarded
 	s.Bytes.HexEncode = hexEncodeRVVGuarded
 	s.Bytes.Index = indexRVVGuarded
+	s.Bytes.LastIndex = lastIndexRVVGuarded
+	s.Bytes.CountSeq = countSeqRVVGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIIRVVGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIIRVVGuarded
 	s.Bytes.ReplaceByte = replaceByteRVVGuarded

@@ -90,7 +90,7 @@ void simd_mask_any(_Bool *__restrict out, const _Bool *__restrict m, isize n) {
 // A count has to see every element, so there is no escape here.
 void simd_mask_count(isize *__restrict out, const _Bool *__restrict m,
                      isize n) {
-  COUNT_FOLD((unsigned char)m[p])
+  COUNT_BYTES((unsigned char)m[p])
 }
 
 #define MASK_BIN(NAME, EXPR)                                             \

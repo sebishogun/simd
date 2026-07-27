@@ -43,7 +43,7 @@ func isASCIIVXGuarded(b []byte) bool {
 
 func equalBytesVXGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
-	if n < 64 || len(a) != len(b) {
+	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
 	}
 	return equalBytesVX(a[:n:n], b)

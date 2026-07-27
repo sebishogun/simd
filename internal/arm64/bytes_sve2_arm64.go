@@ -64,6 +64,12 @@ func equalFoldASCIISVE2(a []byte, b []byte) bool
 func indexAnySVE2(b []byte, chars []byte) int
 
 //go:noescape
+func indexNotAnySVE2(b []byte, chars []byte) int
+
+//go:noescape
+func lastIndexNotAnySVE2(b []byte, chars []byte) int
+
+//go:noescape
 func countAnySVE2(b []byte, chars []byte) int
 
 //go:noescape
@@ -71,6 +77,12 @@ func hexEncodeSVE2(dst []byte, b []byte) int
 
 //go:noescape
 func indexSVE2(haystack []byte, needle []byte) int
+
+//go:noescape
+func lastIndexSVE2(haystack []byte, needle []byte) int
+
+//go:noescape
+func countSeqSVE2(haystack []byte, needle []byte) int
 
 //go:noescape
 func toUpperASCIISVE2(dst []byte, b []byte)

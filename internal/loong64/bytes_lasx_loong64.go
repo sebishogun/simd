@@ -61,6 +61,12 @@ func equalFoldASCIILASX(a []byte, b []byte) bool
 func indexAnyLASX(b []byte, chars []byte) int
 
 //go:noescape
+func lastIndexNotAnyLASX(b []byte, chars []byte) int
+
+//go:noescape
+func countAnyLASX(b []byte, chars []byte) int
+
+//go:noescape
 func toUpperASCIILASX(dst []byte, b []byte)
 
 //go:noescape

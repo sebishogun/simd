@@ -234,7 +234,7 @@ func TestWrappersDoNotAllocate(t *testing.T) {
 		{"All", func() { sinkBoolAPI = All(mask) }},
 		{"CountTrue", func() { sinkIntAPI = CountTrue(mask) }},
 		{"IndexByte", func() { sinkIntAPI = IndexByte(bytesA, 'x') }},
-		{"Count", func() { sinkIntAPI = Count(bytesA, 'x') }},
+		{"CountByte", func() { sinkIntAPI = CountByte(bytesA, 'x') }},
 		{"Equal", func() { sinkBoolAPI = Equal(bytesA, bytesB) }},
 		{"Compare", func() { sinkIntAPI = Compare(bytesA, bytesB) }},
 		{"PopCount", func() { sinkIntAPI = PopCount(bytesA) }},

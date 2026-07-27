@@ -21,6 +21,7 @@
 package ref
 
 import (
+	"bytes"
 	gomath "math"
 	"unsafe"
 
@@ -649,67 +650,34 @@ func argMaxInt[T integer](a []T) int {
 
 // ---------- bytes and bits ----------
 
-func indexByte(b []byte, c byte) int {
-	for i := range b {
-		if b[i] == c {
-			return i
-		}
-	}
-	return -1
-}
+// The byte scanners the standard library already defines exactly.
+//
+// These delegate rather than reimplement, which is a departure from the rest
+// of this package and is deliberate in both directions.
+//
+// It makes the reference stronger. The documented contract for each of these
+// is "matches bytes.IndexByte and is a drop-in replacement", so the standard
+// library is the specification, and comparing the kernels against a
+// reimplementation of it only proves the kernels agree with our reading.
+//
+// It also makes the small-n path fast. The dispatcher runs the reference below
+// each kernel's length threshold, and `bytes` is not naive Go there: IndexByte
+// and Equal are assembly on the architectures that matter and can be inlined,
+// where a call into this package cannot be. Written as a plain loop, this
+// package *lost* to the standard library on a 64-byte input — which would make
+// it a worse choice than the thing it replaces for every short string, however
+// good the kernels are on a long one.
+//
+// Only the functions where the two agree exactly are here. IndexAny, CountAny
+// and their complements are not: those are byte-set operations and the
+// standard library's are rune-set operations, which is a different answer for
+// any non-ASCII set and is documented as such on the exported wrappers.
 
-func lastIndexByte(b []byte, c byte) int {
-	for i := len(b) - 1; i >= 0; i-- {
-		if b[i] == c {
-			return i
-		}
-	}
-	return -1
-}
-
-func countByte(b []byte, c byte) int {
-	n := 0
-	for i := range b {
-		if b[i] == c {
-			n++
-		}
-	}
-	return n
-}
-
-func equalBytes(a, b []byte) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	b = b[:len(a)]
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
-// compareBytes orders lexicographically on content, then on length, matching
-// bytes.Compare.
-func compareBytes(a, b []byte) int {
-	n := min(len(a), len(b))
-	for i := range n {
-		switch {
-		case a[i] < b[i]:
-			return -1
-		case a[i] > b[i]:
-			return +1
-		}
-	}
-	switch {
-	case len(a) < len(b):
-		return -1
-	case len(a) > len(b):
-		return +1
-	}
-	return 0
-}
+func indexByte(b []byte, c byte) int     { return bytes.IndexByte(b, c) }
+func lastIndexByte(b []byte, c byte) int { return bytes.LastIndexByte(b, c) }
+func countByte(b []byte, c byte) int     { return bytes.Count(b, []byte{c}) }
+func equalBytes(a, b []byte) bool        { return bytes.Equal(a, b) }
+func compareBytes(a, b []byte) int       { return bytes.Compare(a, b) }
 
 func popCount(b []byte) int {
 	n := 0
@@ -891,6 +859,7 @@ func Set() kernel.Set {
 			Fill: fillBytes,
 
 			IndexAll: indexAll, IndexAny: indexAny, CountAny: countAny, Index: index,
+			IndexNotAny: indexNotAny, LastIndexNotAny: lastIndexNotAny, LastIndex: lastIndex, CountSeq: countSeq,
 			IsASCII: isASCII, ValidUTF8: validUTF8,
 			ToUpperASCII: toUpperASCII, ToLowerASCII: toLowerASCII,
 			EqualFoldASCII: equalFoldASCII, ReplaceByte: replaceByte,
