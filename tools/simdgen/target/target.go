@@ -102,6 +102,11 @@ type Target struct {
 	// and AAPCS64, RISC-V and System V all do the same.
 	FloatArgsUseIntSlot bool
 
+	// StackReg is the stack pointer as the disassembler prints it, for the
+	// above-the-stack-pointer check in package verify. Empty where the ABI
+	// makes that mistake impossible, in which case the check is skipped.
+	StackReg string
+
 	// SaveArea is how many bytes of Go frame the kernel must reserve for a
 	// register save area the C ABI expects its *caller* to have provided.
 	//
@@ -248,56 +253,45 @@ var sysvIntArgs = []string{"DI", "SI", "DX", "CX", "R8", "R9"}
 var aapcsIntArgs = []string{"R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7"}
 
 // All is every target the generator can build.
-// ppc64le is deliberately absent.
-//
-// It generated 141 kernels and none of them could be trusted. Two ABI
-// mismatches were found and fixed — the ELFv2 parameter save area, where a
-// float argument also consumes an integer register slot, and the missing
-// stackmap on a framed function — and a third remained: the link register is
-// clobbered somewhere in the selection kernels, so control returns to address
-// 1. Each round of diagnosis costs ten minutes of emulation, and POWER is the
-// least-used target here.
-//
-// Leaving it out is not a loss of function. Every one of the 209 exported
-// functions still works on ppc64le through the portable Go implementation,
-// which is what a build for it now uses. The alternative was shipping memory
-// corruption to the one architecture nobody would be watching.
-//
-// The generator can still target it — pass -arch ppc64le — so the work to
-// finish it starts from where it left off rather than from nothing. Lookup
-// consults this entry; All does not include it, so the default matrix and
-// every build skip it.
-var disabledPPC64LE = Target{
-	Arch: PPC64LE, Tier: "vsx", Triple: "powerpc64le-linux-gnu",
-	GoOwned:             []string{"r30", "r2"},
-	FloatArgsUseIntSlot: true,
-	// No SaveArea: measured, these kernels write nothing above the stack
-	// pointer, so there is nothing for a trampoline to contain.
-	// The one target with a non-trivial relocation model: constants are
-	// reached through the TOC, which needs its own handling. Scheduled
-	// last for that reason.
-	MArch:      []string{"-mcpu=power9"},
-	InstrWidth: 4,
-	Directives: dirWord,
-	IntArgs:    []string{"R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"},
-	FloatArgs:  []string{"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"},
-	IntResult:  "R3", FloatResult: "F1",
-	AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBZ",
-	MovFloat32: "FMOVS", MovFloat64: "FMOVD",
-	// No -ffixed here: clang's ppc64 target does not accept -ffixed-rN,
-	// and the ABI already reserves what the Go runtime needs. r2 is the
-	// TOC pointer and clang treats it as fixed of its own accord.
-	DisasmFlags: []string{"--mcpu=pwr9"},
-	MinFeature:  FeatVSX,
-}
-
-// Disabled returns targets the generator knows about but does not build by
-// default. Naming one explicitly on the command line still works.
-func Disabled() []Target { return []Target{disabledPPC64LE} }
-
 var All = []Target{
 	{
+		Arch: PPC64LE, Tier: "vsx", Triple: "powerpc64le-linux-gnu",
+		GoOwned:             []string{"r30", "r2"},
+		StackReg:            "1",
+		FloatArgsUseIntSlot: true,
+		// No SaveArea, deliberately, even though seven of 246 kernels do save
+		// the link register at 16(r1) — the caller's frame under ELFv2.
+		//
+		// The trampoline that fixes this on s390x is not safe here. ELFv2
+		// convention is that a bl to a global symbol is followed by a slot the
+		// linker may rewrite into a TOC reload, and the instruction after the
+		// bl in a trampoline is the RET. Losing that RET is exactly the
+		// "returns to address 1" this target was failing with.
+		//
+		// So those seven kernels are rejected by the writes-above-the-stack-
+		// pointer check in package verify and keep the portable path. Seven
+		// out of 246 is a far better trade than a call convention that is
+		// almost right.
+		// The one target with a non-trivial relocation model: constants are
+		// reached through the TOC, which needs its own handling. Scheduled
+		// last for that reason.
+		MArch:      []string{"-mcpu=power9"},
+		InstrWidth: 4,
+		Directives: dirWord,
+		IntArgs:    []string{"R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"},
+		FloatArgs:  []string{"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"},
+		IntResult:  "R3", FloatResult: "F1",
+		AddrOf: "MOVD", MovPtr: "MOVD", MovInt32: "MOVW", MovByte: "MOVBZ",
+		MovFloat32: "FMOVS", MovFloat64: "FMOVD",
+		// No -ffixed here: clang's ppc64 target does not accept -ffixed-rN,
+		// and the ABI already reserves what the Go runtime needs. r2 is the
+		// TOC pointer and clang treats it as fixed of its own accord.
+		DisasmFlags: []string{"--mcpu=pwr9"},
+		MinFeature:  FeatVSX,
+	},
+	{
 		Arch: AMD64, Tier: "sse2", Triple: "x86_64-linux-gnu",
+		StackReg: "%rsp",
 		// x86-64 baseline already includes SSE2, so this tier needs no
 		// runtime check at all — which is why gonum gets away with having no
 		// dispatch layer whatsoever.
@@ -313,6 +307,7 @@ var All = []Target{
 	},
 	{
 		Arch: AMD64, Tier: "avx2", Triple: "x86_64-linux-gnu",
+		StackReg: "%rsp",
 		// x86-64-v3 is AVX2 + FMA + BMI, which is what the avx2 tier gates on.
 		MArch:      []string{"-march=x86-64-v3"},
 		InstrWidth: 0,
@@ -326,6 +321,7 @@ var All = []Target{
 	},
 	{
 		Arch: AMD64, Tier: "avx512", Triple: "x86_64-linux-gnu",
+		StackReg: "%rsp",
 		// -mprefer-vector-width=512 is required, not optional: without it LLVM
 		// caps at 256 bits even on x86-64-v4. Measured on one kernel, zero zmm
 		// registers appear without the flag and 74 appear with it.
@@ -468,10 +464,9 @@ func (t Target) BuildTag() string {
 // build constraints on the filename agree with the build tag.
 func (t Target) Suffix() string { return fmt.Sprintf("_%s_%s", t.Tier, t.Arch) }
 
-// Find returns the target with the given architecture and tier, including the
-// disabled ones, so that naming one explicitly still works.
+// Find returns the target with the given architecture and tier.
 func Find(arch Arch, tier string) (Target, bool) {
-	for _, t := range append(append([]Target(nil), All...), Disabled()...) {
+	for _, t := range All {
 		if t.Arch == arch && t.Tier == tier {
 			return t, true
 		}
@@ -479,12 +474,10 @@ func Find(arch Arch, tier string) (Target, bool) {
 	return Target{}, false
 }
 
-// ForArch returns every tier of one architecture, weakest first. A disabled
-// architecture is returned only when asked for by name; it is not in All, so
-// the default matrix never reaches it.
+// ForArch returns every tier of one architecture, weakest first.
 func ForArch(arch Arch) []Target {
 	var out []Target
-	for _, t := range append(append([]Target(nil), All...), Disabled()...) {
+	for _, t := range All {
 		if t.Arch == arch {
 			out = append(out, t)
 		}

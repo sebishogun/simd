@@ -55,7 +55,26 @@ func main() {
 		verbose  = flag.Bool("v", false, "report every kernel verified")
 		dryRun   = flag.Bool("n", false, "verify and report, but write nothing")
 	)
+	// -only restricts generation to one C source, which is how a
+	// cross-architecture failure gets bisected down to the kernels that cause
+	// it. Emulated test runs are slow enough that guessing is more expensive
+	// than measuring.
+	onlySrc := flag.String("only", "", "generate only this csrc file (e.g. csrc/arith.c)")
 	flag.Parse()
+	sources = kernels.All
+	if *onlySrc != "" {
+		var keep []kernels.Source
+		for _, s := range kernels.All {
+			if s.Path == *onlySrc {
+				keep = append(keep, s)
+			}
+		}
+		if len(keep) == 0 {
+			fmt.Fprintf(os.Stderr, "simdgen: no source named %q\n", *onlySrc)
+			os.Exit(1)
+		}
+		sources = keep
+	}
 
 	abs := func(p string) string {
 		if filepath.IsAbs(p) {
@@ -85,10 +104,14 @@ func forEmitInstrs(ins []verify.Instr) []emit.Instr {
 // caller can report them. The generator is single-threaded.
 var lastSkipped []string
 
+// sources is the manifest actually generated, which -only can narrow to one
+// file for bisecting.
+var sources = kernels.All
+
 func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, verbose, dryRun bool) error {
 	// Validate the manifest before touching a compiler, so a typo in a
 	// declaration is an immediate, precise error.
-	for _, src := range kernels.All {
+	for _, src := range sources {
 		for _, k := range src.Kernels {
 			if err := k.Validate(); err != nil {
 				return err
@@ -115,7 +138,7 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 	// before anything is compiled for a specific target. A signature that has
 	// drifted produces a prologue loading arguments from the wrong registers,
 	// which no compiler or assembler would object to.
-	for _, src := range kernels.All {
+	for _, src := range sources {
 		sigs, err := astcheck.Parse(clangBin, filepath.Join(root, src.Path), nil)
 		if err != nil {
 			return err
@@ -135,7 +158,7 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 	opt.ObjdumpPath = objdumpBin
 
 	var failures []string
-	for _, src := range kernels.All {
+	for _, src := range sources {
 		for _, tgt := range targets {
 			n, err := build(cc, src, tgt, root, outDir, opt, verbose, dryRun)
 			if err != nil {

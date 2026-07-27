@@ -196,20 +196,51 @@ Every other target assigns its integer and floating-point argument registers
 independently. s390x reads the same kernel's length from r4, and AAPCS64,
 RISC-V and System V all behave the same way. Only ELFv2 does this.
 
-## 4d. Why ppc64le is not in the default matrix
+## 4d. The red zone that has no flag, and the parser hole that hid it
 
-Three ABI bugs were found there, two fixed — the save-area slot above and a
-framed assembly function needing NO_LOCAL_POINTERS, without which the runtime
-aborts with "missing stackmap" the first time a goroutine stack grows under
-one — and a third remains: the link register is clobbered somewhere in the
-selection kernels and control returns to address 1.
+ppc64le took four bugs to get right, and the last one had been quietly
+weakening every check on that target.
 
-Each round of diagnosis costs about ten minutes of emulation, and POWER is the
-least-used target here. The backend was removed from the default matrix rather
-than shipped: every one of the 209 exported functions still works on ppc64le
-through the portable Go implementation, and the alternative was shipping
-memory corruption to the one architecture nobody would be watching. The target
-definition is kept, and `simdgen -arch ppc64le` still works.
+**The protected zone.** ELFv2 gives a leaf function 288 bytes *below* the
+stack pointer to use without adjusting it — x86-64's red zone by another name.
+Go writes below the stack pointer during signal delivery and stack growth,
+which is why amd64 is compiled with `-mno-red-zone`. There is no equivalent
+for ppc64le: `-mno-red-zone` is accepted there and merely reduces the count,
+from 74 stores to 52. Forty-six percent of the kernels use it, and they must
+be rejected.
+
+**Why that took so long to see.** The check that should have caught it found
+nothing, because llvm-objdump separates a mnemonic from its operands with a
+tab only when the mnemonic is long enough to need one, and with a space
+otherwise:
+
+    cmpdi\t7, 0
+    std 24, -64(1)
+
+The parser assumed a tab. So `std 24, -64(1)` was read as a *mnemonic* with no
+operands at all, and every check that looks at operands — the stack-frame
+check, the Go-owned-register check, the register half of the feature gate —
+silently matched nothing on ppc64le. That is the third parser hole in this
+package, after the s390x `<unknown>` instructions and the internal-label
+truncation, and all three had the same shape: a parse that failed quietly and
+left a check passing on an empty list.
+
+The lesson is in the code now: every one of those checks fails loudly on an
+unparseable line rather than skipping it.
+
+
+
+Four bugs, all fixed: the parameter save area slot, a framed assembly function
+needing NO_LOCAL_POINTERS, the protected zone above, and the parser hole that
+hid the last one. ppc64le ships 87 kernels and passes the full suite under
+emulation. The rest of its kernels keep the portable path because they use the
+protected zone, which no flag can turn off.
+
+Not attempted: a trampoline like the s390x one. ELFv2 convention is that a
+`bl` to a global symbol is followed by a slot the linker may rewrite into a
+TOC reload, and in a trampoline the instruction after the `bl` is the `RET`.
+Losing that is precisely the "returns to address 1" this target was failing
+with, so the trampoline is not safe here even though it is on s390x.
 
 ## 5. Constant pools on AArch64
 

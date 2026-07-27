@@ -242,7 +242,45 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 		r.Unsupported = fmt.Sprintf("uses %s, which the Go runtime owns", reg)
 	}
 
-	// 6. The function returns at all. Multiple returns are fine — the body is
+	// 6. Nothing is written outside the kernel's own stack frame.
+	//
+	// Memory above the callee's stack pointer belongs to the caller. Two ABIs
+	// here have the callee write there anyway — s390x puts its register save
+	// area at the caller's stack pointer, and ELFv2 has the callee save the
+	// link register at 16(r1) — and under Go that is the calling function's
+	// locals. The symptom is a slice header with a length past its capacity,
+	// panicking somewhere else entirely, or a return to address 1.
+	//
+	// Targets that do this declare a SaveArea, and the kernel is emitted as a
+	// framed trampoline calling the body, so the writes land in the
+	// trampoline's own frame.
+	//
+	// Below the stack pointer is just as bad and has no such remedy. x86-64's
+	// red zone is the familiar case, and -mno-red-zone is why amd64 is safe;
+	// ppc64le's ELFv2 has a 288-byte "protected zone" with the same meaning
+	// and no flag that turns it off — -mno-red-zone is accepted there and
+	// merely reduces the count. Go writes below the stack pointer during
+	// signal delivery and stack growth, so a kernel that keeps anything there
+	// is corrupted by the runtime rather than the other way round. Forty-six
+	// percent of ppc64le kernels do, which is why that target is only
+	// partially accelerated.
+	//
+	// This is what makes both a decision rather than an assumption. It is
+	// also the check that would have caught the first ppc64le measurement,
+	// which looked at one source file and concluded there was nothing to
+	// contain.
+	if tgt.StackReg != "" {
+		if off, ok := writesOutsideFrame(instrs, tgt); ok {
+			where := "the caller's frame; the target needs a SaveArea"
+			if off < 0 {
+				where = "below the stack pointer, where the Go runtime writes"
+			}
+			r.Unsupported = fmt.Sprintf("writes to %s%+d, which is %s",
+				tgt.StackReg, off, where)
+		}
+	}
+
+	// 7. The function returns at all. Multiple returns are fine — the body is
 	// copied whole and nothing is appended after it — but a kernel that never
 	// returns would run off the end of its own code into whatever the linker
 	// placed next.
@@ -275,6 +313,52 @@ func countUndecoded(instrs []Instr) int {
 }
 
 // isReturn reports whether the instruction returns from the function.
+// storeMnemonics are the store instructions of each architecture, for the
+// above-the-stack-pointer check. Only the targets whose ABI makes the mistake
+// possible need an entry; the rest declare no StackReg and are not checked.
+var storeMnemonics = map[string]bool{
+	// s390x
+	"stmg": true, "stm": true, "stg": true, "st": true, "sty": true,
+	"std": true, "ste": true, "vst": true, "vstm": true,
+	// ppc64le shares std; add the rest of its family
+	"stw": true, "stb": true, "sth": true, "stfd": true, "stfs": true,
+	"stxv": true, "stxvd2x": true, "stvx": true, "stmw": true,
+}
+
+// writesOutsideFrame reports whether any instruction stores outside the
+// kernel's own frame, and at what displacement from the stack pointer.
+//
+// A non-negative displacement is the caller's frame; a negative one is the
+// red or protected zone. Both are forbidden under Go, and a SaveArea excuses
+// only the first, because it moves the stack pointer down far enough that the
+// positive offsets land in the kernel's own frame.
+func writesOutsideFrame(instrs []Instr, tgt target.Target) (int, bool) {
+	re := regexp.MustCompile(`(-?\d+)\(` + regexp.QuoteMeta(tgt.StackReg) + `\)`)
+	for _, in := range instrs {
+		if !storeMnemonics[in.Mnemonic] || frameAlloc[in.Mnemonic] {
+			continue
+		}
+		for _, m := range re.FindAllStringSubmatch(in.Operands, -1) {
+			n, err := strconv.Atoi(m[1])
+			if err != nil {
+				continue
+			}
+			if n < 0 {
+				return n, true
+			}
+			if tgt.SaveArea == 0 {
+				return n, true
+			}
+		}
+	}
+	return 0, false
+}
+
+// frameAlloc are the store-and-update instructions that allocate a frame: they
+// write at the new stack pointer rather than below the old one, so they are
+// not a violation.
+var frameAlloc = map[string]bool{"stdu": true, "stwu": true}
+
 // saveRestore reports whether an instruction is a bulk register save or
 // restore rather than a use. These move a range of registers to or from the
 // frame and leave every one of them as it was.
@@ -580,13 +664,29 @@ func parseInstr(line string) (Instr, bool) {
 	}
 	in := Instr{Offset: off, Raw: parseRaw(strings.TrimSpace(fields[0]))}
 	in.Mnemonic = strings.TrimSpace(fields[1])
+	// llvm-objdump separates the mnemonic from its operands with a tab only
+	// when the mnemonic is long enough to need one; short ones get a space:
+	//
+	//	cmpdi\t7, 0
+	//	std 24, -64(1)
+	//
+	// Reading the whole of the second field as the mnemonic therefore leaves
+	// "std 24, -64(1)" as a mnemonic with no operands, which silently
+	// disables every check that looks at operands — the stack-frame check,
+	// the Go-owned-register check, and the register half of the feature gate.
+	// It matched nothing on ppc64le for exactly that reason.
+	var inlineOps string
+	if i := strings.IndexAny(in.Mnemonic, " \t"); i >= 0 {
+		inlineOps = strings.TrimSpace(in.Mnemonic[i+1:])
+		in.Mnemonic = in.Mnemonic[:i]
+	}
 	if in.Mnemonic == "" {
 		// Keep it rather than dropping it: an unparsed line is an unverified
 		// instruction, and countUndecoded needs to see it.
 		in.Mnemonic = "<unknown>"
 	}
-	if len(fields) > 2 {
-		ops := strings.Join(fields[2:], " ")
+	if len(fields) > 2 || inlineOps != "" {
+		ops := strings.TrimSpace(inlineOps + " " + strings.Join(fields[2:], " "))
 		// Drop llvm-objdump's trailing "# imm = 0x..." annotation, which would
 		// otherwise be mistaken for an operand.
 		if i := strings.Index(ops, "#"); i >= 0 {
