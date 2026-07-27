@@ -40,6 +40,57 @@ func convolveFloat64SVE2(dst []float64, sig []float64, ker []float64)
 func correlateFloat64SVE2(dst []float64, sig []float64, ker []float64)
 
 //go:noescape
+func tileFloat32SVE2(dst []float32, pattern []float32)
+
+//go:noescape
+func gatherFloat32SVE2(dst []float32, src []float32, idx []int32)
+
+//go:noescape
+func tileFloat64SVE2(dst []float64, pattern []float64)
+
+//go:noescape
+func tileInt32SVE2(dst []int32, pattern []int32)
+
+//go:noescape
+func gatherInt32SVE2(dst []int32, src []int32, idx []int32)
+
+//go:noescape
+func tileInt64SVE2(dst []int64, pattern []int64)
+
+//go:noescape
+func tileInt8SVE2(dst []int8, pattern []int8)
+
+//go:noescape
+func gatherInt8SVE2(dst []int8, src []int8, idx []int32)
+
+//go:noescape
+func tileInt16SVE2(dst []int16, pattern []int16)
+
+//go:noescape
+func gatherInt16SVE2(dst []int16, src []int16, idx []int32)
+
+//go:noescape
+func tileUint8SVE2(dst []byte, pattern []byte)
+
+//go:noescape
+func gatherUint8SVE2(dst []byte, src []byte, idx []int32)
+
+//go:noescape
+func tileUint16SVE2(dst []uint16, pattern []uint16)
+
+//go:noescape
+func gatherUint16SVE2(dst []uint16, src []uint16, idx []int32)
+
+//go:noescape
+func tileUint32SVE2(dst []uint32, pattern []uint32)
+
+//go:noescape
+func gatherUint32SVE2(dst []uint32, src []uint32, idx []int32)
+
+//go:noescape
+func tileUint64SVE2(dst []uint64, pattern []uint64)
+
+//go:noescape
 func movingAverageFloat32SVE2(dst []float32, a []float32, width int)
 
 //go:noescape

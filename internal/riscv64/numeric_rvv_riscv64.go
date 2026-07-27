@@ -40,10 +40,22 @@ func convolveFloat64RVV(dst []float64, sig []float64, ker []float64)
 func correlateFloat64RVV(dst []float64, sig []float64, ker []float64)
 
 //go:noescape
+func tileFloat32RVV(dst []float32, pattern []float32)
+
+//go:noescape
 func gatherFloat32RVV(dst []float32, src []float32, idx []int32)
 
 //go:noescape
 func scatterFloat32RVV(dst []float32, idx []int32, src []float32)
+
+//go:noescape
+func tileFloat64RVV(dst []float64, pattern []float64)
+
+//go:noescape
+func gatherFloat64RVV(dst []float64, src []float64, idx []int32)
+
+//go:noescape
+func tileInt32RVV(dst []int32, pattern []int32)
 
 //go:noescape
 func gatherInt32RVV(dst []int32, src []int32, idx []int32)
@@ -52,10 +64,22 @@ func gatherInt32RVV(dst []int32, src []int32, idx []int32)
 func scatterInt32RVV(dst []int32, idx []int32, src []int32)
 
 //go:noescape
+func tileInt64RVV(dst []int64, pattern []int64)
+
+//go:noescape
+func gatherInt64RVV(dst []int64, src []int64, idx []int32)
+
+//go:noescape
+func tileInt8RVV(dst []int8, pattern []int8)
+
+//go:noescape
 func gatherInt8RVV(dst []int8, src []int8, idx []int32)
 
 //go:noescape
 func scatterInt8RVV(dst []int8, idx []int32, src []int8)
+
+//go:noescape
+func tileInt16RVV(dst []int16, pattern []int16)
 
 //go:noescape
 func gatherInt16RVV(dst []int16, src []int16, idx []int32)
@@ -64,10 +88,16 @@ func gatherInt16RVV(dst []int16, src []int16, idx []int32)
 func scatterInt16RVV(dst []int16, idx []int32, src []int16)
 
 //go:noescape
+func tileUint8RVV(dst []byte, pattern []byte)
+
+//go:noescape
 func gatherUint8RVV(dst []byte, src []byte, idx []int32)
 
 //go:noescape
 func scatterUint8RVV(dst []byte, idx []int32, src []byte)
+
+//go:noescape
+func tileUint16RVV(dst []uint16, pattern []uint16)
 
 //go:noescape
 func gatherUint16RVV(dst []uint16, src []uint16, idx []int32)
@@ -76,10 +106,19 @@ func gatherUint16RVV(dst []uint16, src []uint16, idx []int32)
 func scatterUint16RVV(dst []uint16, idx []int32, src []uint16)
 
 //go:noescape
+func tileUint32RVV(dst []uint32, pattern []uint32)
+
+//go:noescape
 func gatherUint32RVV(dst []uint32, src []uint32, idx []int32)
 
 //go:noescape
 func scatterUint32RVV(dst []uint32, idx []int32, src []uint32)
+
+//go:noescape
+func tileUint64RVV(dst []uint64, pattern []uint64)
+
+//go:noescape
+func gatherUint64RVV(dst []uint64, src []uint64, idx []int32)
 
 //go:noescape
 func movingAverageFloat32RVV(dst []float32, a []float32, width int)

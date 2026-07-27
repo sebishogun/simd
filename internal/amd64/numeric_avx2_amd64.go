@@ -58,13 +58,61 @@ func gatherFloat64AVX2(dst []float64, src []float64, idx []int32)
 func scatterFloat64AVX2(dst []float64, idx []int32, src []float64)
 
 //go:noescape
+func tileInt32AVX2(dst []int32, pattern []int32)
+
+//go:noescape
+func gatherInt32AVX2(dst []int32, src []int32, idx []int32)
+
+//go:noescape
 func scatterInt32AVX2(dst []int32, idx []int32, src []int32)
+
+//go:noescape
+func tileInt64AVX2(dst []int64, pattern []int64)
+
+//go:noescape
+func gatherInt64AVX2(dst []int64, src []int64, idx []int32)
 
 //go:noescape
 func scatterInt64AVX2(dst []int64, idx []int32, src []int64)
 
 //go:noescape
+func tileInt8AVX2(dst []int8, pattern []int8)
+
+//go:noescape
+func gatherInt8AVX2(dst []int8, src []int8, idx []int32)
+
+//go:noescape
+func tileInt16AVX2(dst []int16, pattern []int16)
+
+//go:noescape
+func gatherInt16AVX2(dst []int16, src []int16, idx []int32)
+
+//go:noescape
+func tileUint8AVX2(dst []byte, pattern []byte)
+
+//go:noescape
+func gatherUint8AVX2(dst []byte, src []byte, idx []int32)
+
+//go:noescape
+func tileUint16AVX2(dst []uint16, pattern []uint16)
+
+//go:noescape
+func gatherUint16AVX2(dst []uint16, src []uint16, idx []int32)
+
+//go:noescape
+func tileUint32AVX2(dst []uint32, pattern []uint32)
+
+//go:noescape
+func gatherUint32AVX2(dst []uint32, src []uint32, idx []int32)
+
+//go:noescape
 func scatterUint32AVX2(dst []uint32, idx []int32, src []uint32)
+
+//go:noescape
+func tileUint64AVX2(dst []uint64, pattern []uint64)
+
+//go:noescape
+func gatherUint64AVX2(dst []uint64, src []uint64, idx []int32)
 
 //go:noescape
 func scatterUint64AVX2(dst []uint64, idx []int32, src []uint64)

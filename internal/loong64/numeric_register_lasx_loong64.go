@@ -82,6 +82,166 @@ func correlateFloat64LASXGuarded(dst []float64, sig []float64, ker []float64) {
 	correlateFloat64LASX(dst, sig, ker)
 }
 
+func tileFloat32LASXGuarded(dst []float32, pattern []float32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileFloat32LASX(dst, pattern)
+}
+
+func gatherFloat32LASXGuarded(dst []float32, src []float32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherFloat32LASX(dst, src, idx)
+}
+
+func tileFloat64LASXGuarded(dst []float64, pattern []float64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileFloat64LASX(dst, pattern)
+}
+
+func gatherFloat64LASXGuarded(dst []float64, src []float64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherFloat64LASX(dst, src, idx)
+}
+
+func tileInt32LASXGuarded(dst []int32, pattern []int32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt32LASX(dst, pattern)
+}
+
+func gatherInt32LASXGuarded(dst []int32, src []int32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt32LASX(dst, src, idx)
+}
+
+func tileInt64LASXGuarded(dst []int64, pattern []int64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt64LASX(dst, pattern)
+}
+
+func gatherInt64LASXGuarded(dst []int64, src []int64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt64LASX(dst, src, idx)
+}
+
+func tileInt8LASXGuarded(dst []int8, pattern []int8) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt8LASX(dst, pattern)
+}
+
+func gatherInt8LASXGuarded(dst []int8, src []int8, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt8LASX(dst, src, idx)
+}
+
+func tileInt16LASXGuarded(dst []int16, pattern []int16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt16LASX(dst, pattern)
+}
+
+func gatherInt16LASXGuarded(dst []int16, src []int16, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt16LASX(dst, src, idx)
+}
+
+func tileUint8LASXGuarded(dst []byte, pattern []byte) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint8LASX(dst, pattern)
+}
+
+func gatherUint8LASXGuarded(dst []byte, src []byte, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint8LASX(dst, src, idx)
+}
+
+func tileUint16LASXGuarded(dst []uint16, pattern []uint16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint16LASX(dst, pattern)
+}
+
+func gatherUint16LASXGuarded(dst []uint16, src []uint16, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint16LASX(dst, src, idx)
+}
+
+func tileUint32LASXGuarded(dst []uint32, pattern []uint32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint32LASX(dst, pattern)
+}
+
+func gatherUint32LASXGuarded(dst []uint32, src []uint32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint32LASX(dst, src, idx)
+}
+
+func tileUint64LASXGuarded(dst []uint64, pattern []uint64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint64LASX(dst, pattern)
+}
+
+func gatherUint64LASXGuarded(dst []uint64, src []uint64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint64LASX(dst, src, idx)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -94,4 +254,24 @@ func init() {
 	s.F64.PolyEval = polyEvalFloat64LASXGuarded
 	s.F64.Convolve = convolveFloat64LASXGuarded
 	s.F64.Correlate = correlateFloat64LASXGuarded
+	s.F32.Tile = tileFloat32LASXGuarded
+	s.F32.Gather = gatherFloat32LASXGuarded
+	s.F64.Tile = tileFloat64LASXGuarded
+	s.F64.Gather = gatherFloat64LASXGuarded
+	s.I32.Tile = tileInt32LASXGuarded
+	s.I32.Gather = gatherInt32LASXGuarded
+	s.I64.Tile = tileInt64LASXGuarded
+	s.I64.Gather = gatherInt64LASXGuarded
+	s.I8.Tile = tileInt8LASXGuarded
+	s.I8.Gather = gatherInt8LASXGuarded
+	s.I16.Tile = tileInt16LASXGuarded
+	s.I16.Gather = gatherInt16LASXGuarded
+	s.U8.Tile = tileUint8LASXGuarded
+	s.U8.Gather = gatherUint8LASXGuarded
+	s.U16.Tile = tileUint16LASXGuarded
+	s.U16.Gather = gatherUint16LASXGuarded
+	s.U32.Tile = tileUint32LASXGuarded
+	s.U32.Gather = gatherUint32LASXGuarded
+	s.U64.Tile = tileUint64LASXGuarded
+	s.U64.Gather = gatherUint64LASXGuarded
 }

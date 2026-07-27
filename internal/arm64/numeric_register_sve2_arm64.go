@@ -82,6 +82,142 @@ func correlateFloat64SVE2Guarded(dst []float64, sig []float64, ker []float64) {
 	correlateFloat64SVE2(dst, sig, ker)
 }
 
+func tileFloat32SVE2Guarded(dst []float32, pattern []float32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileFloat32SVE2(dst, pattern)
+}
+
+func gatherFloat32SVE2Guarded(dst []float32, src []float32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherFloat32SVE2(dst, src, idx)
+}
+
+func tileFloat64SVE2Guarded(dst []float64, pattern []float64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileFloat64SVE2(dst, pattern)
+}
+
+func tileInt32SVE2Guarded(dst []int32, pattern []int32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt32SVE2(dst, pattern)
+}
+
+func gatherInt32SVE2Guarded(dst []int32, src []int32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt32SVE2(dst, src, idx)
+}
+
+func tileInt64SVE2Guarded(dst []int64, pattern []int64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt64SVE2(dst, pattern)
+}
+
+func tileInt8SVE2Guarded(dst []int8, pattern []int8) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt8SVE2(dst, pattern)
+}
+
+func gatherInt8SVE2Guarded(dst []int8, src []int8, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt8SVE2(dst, src, idx)
+}
+
+func tileInt16SVE2Guarded(dst []int16, pattern []int16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt16SVE2(dst, pattern)
+}
+
+func gatherInt16SVE2Guarded(dst []int16, src []int16, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt16SVE2(dst, src, idx)
+}
+
+func tileUint8SVE2Guarded(dst []byte, pattern []byte) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint8SVE2(dst, pattern)
+}
+
+func gatherUint8SVE2Guarded(dst []byte, src []byte, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint8SVE2(dst, src, idx)
+}
+
+func tileUint16SVE2Guarded(dst []uint16, pattern []uint16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint16SVE2(dst, pattern)
+}
+
+func gatherUint16SVE2Guarded(dst []uint16, src []uint16, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint16SVE2(dst, src, idx)
+}
+
+func tileUint32SVE2Guarded(dst []uint32, pattern []uint32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint32SVE2(dst, pattern)
+}
+
+func gatherUint32SVE2Guarded(dst []uint32, src []uint32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint32SVE2(dst, src, idx)
+}
+
+func tileUint64SVE2Guarded(dst []uint64, pattern []uint64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint64SVE2(dst, pattern)
+}
+
 func movingAverageFloat32SVE2Guarded(dst []float32, a []float32, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
@@ -126,6 +262,23 @@ func init() {
 	s.F64.PolyEval = polyEvalFloat64SVE2Guarded
 	s.F64.Convolve = convolveFloat64SVE2Guarded
 	s.F64.Correlate = correlateFloat64SVE2Guarded
+	s.F32.Tile = tileFloat32SVE2Guarded
+	s.F32.Gather = gatherFloat32SVE2Guarded
+	s.F64.Tile = tileFloat64SVE2Guarded
+	s.I32.Tile = tileInt32SVE2Guarded
+	s.I32.Gather = gatherInt32SVE2Guarded
+	s.I64.Tile = tileInt64SVE2Guarded
+	s.I8.Tile = tileInt8SVE2Guarded
+	s.I8.Gather = gatherInt8SVE2Guarded
+	s.I16.Tile = tileInt16SVE2Guarded
+	s.I16.Gather = gatherInt16SVE2Guarded
+	s.U8.Tile = tileUint8SVE2Guarded
+	s.U8.Gather = gatherUint8SVE2Guarded
+	s.U16.Tile = tileUint16SVE2Guarded
+	s.U16.Gather = gatherUint16SVE2Guarded
+	s.U32.Tile = tileUint32SVE2Guarded
+	s.U32.Gather = gatherUint32SVE2Guarded
+	s.U64.Tile = tileUint64SVE2Guarded
 	s.F32.MovingAverage = movingAverageFloat32SVE2Guarded
 	s.F32.MatMul = matMulFloat32SVE2Guarded
 	s.F64.MovingAverage = movingAverageFloat64SVE2Guarded

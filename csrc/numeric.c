@@ -144,13 +144,26 @@ void simd_correlate_f64(double *__restrict d, const double *__restrict s,
 // Repeat a pattern across the destination. The copy is independent per
 // element; the modulo is what would stop it vectorizing, so the pattern index
 // is carried as a counter that wraps rather than recomputed.
+// The obvious spelling carries a counter that wraps — p++, and if p == np then
+// p = 0 — and that is a loop-carried dependency no vectorizer will take. It
+// did not vectorize on a single target here.
+//
+// Written as a doubling fill it is nothing but straight copies. Lay down one
+// period, then repeatedly copy everything written so far to just after itself.
+// What has been written is always a whole number of periods — it starts at one
+// and doubles — so the copy is period-correct without any index arithmetic, and
+// the final partial copy is the first m elements of the sequence, which is what
+// belongs there. The whole thing is O(nd) with log(nd/np) iterations, each one
+// a contiguous copy the compiler turns into wide loads and stores.
 #define TILE(T)                                                          \
-  if (np == 0) return;                                                   \
-  isize p = 0;                                                           \
-  for (isize i = 0; i < nd; i++) {                                       \
-    d[i] = s[p];                                                         \
-    p++;                                                                 \
-    if (p == np) p = 0;                                                  \
+  if (np <= 0 || nd <= 0) return;                                        \
+  isize first = np < nd ? np : nd;                                       \
+  for (isize j = 0; j < first; j++) d[j] = s[j];                         \
+  for (isize have = first; have < nd;) {                                 \
+    isize m = have;                                                      \
+    if (have + m > nd) m = nd - have;                                    \
+    for (isize j = 0; j < m; j++) d[have + j] = d[j];                    \
+    have += m;                                                           \
   }
 
 void simd_tile_f32(float *__restrict d, const float *__restrict s, isize nd,
@@ -214,11 +227,34 @@ void simd_tile_u64(unsigned long long *__restrict d, const unsigned long long *_
 // zeroing it, which is what the reference does. Writing a zero would be a
 // different function, and a caller checking for untouched output would never
 // see the bad index.
+// The bounds test decides whether this vectorizes, and the obvious form of it
+// is the one that does not. Written as a conditional load — if the index is in
+// range, read — the load is control-dependent, and the vectorizer will not
+// hoist it because it may not read memory the scalar code would not have read.
+// That is exactly right in general and exactly wrong here, where there is an
+// element that is always safe to read.
+//
+// So the index is clamped to a known-good one and the *result* is selected
+// instead. The load becomes unconditional, which is a gather instruction on
+// AVX2, AVX-512, SVE2 and RVV and a lane-wise loop everywhere else, and the
+// select is a blend. The comparison is unsigned, which folds the negative case
+// into the same test: a negative index becomes a huge unsigned value and fails
+// the upper bound.
+//
+// Out-of-range leaves the destination element alone rather than zeroing it,
+// which is what the reference does. Writing a zero would be a different
+// function, and a caller checking for untouched output would never see the bad
+// index.
 #define GATHER(T)                                                        \
   isize n = nd < ni ? nd : ni;                                           \
+  if (ns <= 0) return;                                                   \
   for (isize i = 0; i < n; i++) {                                        \
     int ix = idx[i];                                                     \
-    if (ix >= 0 && (isize)ix < ns) d[i] = s[ix];                         \
+    _Bool ok = (unsigned)ix < (unsigned)ns;                              \
+    isize safe = ok ? (isize)ix : 0;                                     \
+    T v = s[safe];                                                       \
+    T keep = d[i];                                                       \
+    d[i] = ok ? v : keep;                                                \
   }
 
 void simd_gather_f32(float *__restrict d, const float *__restrict s,

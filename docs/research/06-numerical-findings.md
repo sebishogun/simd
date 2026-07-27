@@ -390,3 +390,50 @@ the threshold changed. It also made one threshold unable to be right
 everywhere: `bytealg` is generic Go on riscv64 and loong64, so the same kernel
 is worth calling immediately there and never on amd64. Thresholds are now
 per-architecture where that matters.
+
+## Five shapes LLVM will not vectorize, and what to write instead
+
+Autovectorization does most of the work in this package and the policy is to
+believe it when it declines — a target's cost model usually knows something. But
+five of the declines were not about the target at all. They were about how the
+loop was written, and in each case the same arithmetic spelled differently
+vectorizes on every target at once. They are collected here because the shapes
+recur.
+
+**A counter that wraps is a loop-carried dependency.** `simd_tile` advanced a
+pattern index with `p++; if (p == np) p = 0;` and vectorized on nothing. Written
+as a doubling fill — lay down one period, then repeatedly copy everything
+written so far to just after itself — it is nothing but contiguous copies, and
+what has been written is always a whole number of periods so no index
+arithmetic is needed. Forty-two times faster at n=1024.
+
+**A control-dependent load will not be hoisted.** `simd_gather` skipped
+out-of-range indices with `if (in range) d[i] = s[ix];`, and a vectorizer may
+not read memory the scalar code would not have read. Clamping the index to a
+known-safe one and selecting the *result* instead makes the load unconditional
+— a gather instruction where one exists — and the bounds test folds the
+negative case in by comparing unsigned.
+
+**An inner loop over a runtime-length set stops vectorization dead.**
+`simd_index_not_any` asked, for each byte, whether it was in the set: 220ns
+against 17ns for `simd_index_any` on the same input, entirely scalar. Turned
+inside out — for each set member, compare a whole register and combine the
+masks — it is 10.5ns. The same rewrite took `index_any` from 17.3ns to 5.6ns.
+
+**Indexing an accumulator by lane gives it an address.** The first version of
+that rewrite built the mask with `notin[j] &= ...` and was *six times slower*
+than the scalar code it replaced, because the accumulator is live across the
+loop over the set and spilled once per member per block. Whole-vector
+operations only. `OR_ANY` in fold.h carries the same warning for the same
+reason.
+
+**A predicate does not need 32-bit lanes.** The counting fold accumulated
+into `u32` lanes, so sixteen bytes of input became sixty-four bytes of
+accumulator — four times the vector work per byte, and 3.5x slower than
+`bytealg.Count`. Byte lanes with a drain every 255 blocks, which is the only
+point at which a lane could wrap, took 64 KiB from 1612ns to 554ns.
+
+What is left declining is 65 scatter kernels, and that one is deliberate: a
+hardware scatter leaves the winner unspecified when two indices collide, while
+the contract here says the later one wins. The rest is per-target cost-model
+judgement on individual tiers, which is the kind of decline worth believing.

@@ -130,12 +130,44 @@ func scatterFloat64AVX2Guarded(dst []float64, idx []int32, src []float64) {
 	scatterFloat64AVX2(dst, idx, src)
 }
 
+func tileInt32AVX2Guarded(dst []int32, pattern []int32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt32AVX2(dst, pattern)
+}
+
+func gatherInt32AVX2Guarded(dst []int32, src []int32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt32AVX2(dst, src, idx)
+}
+
 func scatterInt32AVX2Guarded(dst []int32, idx []int32, src []int32) {
 	if len(dst) < 16 {
 		ref.Scatter(dst, idx, src)
 		return
 	}
 	scatterInt32AVX2(dst, idx, src)
+}
+
+func tileInt64AVX2Guarded(dst []int64, pattern []int64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt64AVX2(dst, pattern)
+}
+
+func gatherInt64AVX2Guarded(dst []int64, src []int64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt64AVX2(dst, src, idx)
 }
 
 func scatterInt64AVX2Guarded(dst []int64, idx []int32, src []int64) {
@@ -146,12 +178,108 @@ func scatterInt64AVX2Guarded(dst []int64, idx []int32, src []int64) {
 	scatterInt64AVX2(dst, idx, src)
 }
 
+func tileInt8AVX2Guarded(dst []int8, pattern []int8) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt8AVX2(dst, pattern)
+}
+
+func gatherInt8AVX2Guarded(dst []int8, src []int8, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt8AVX2(dst, src, idx)
+}
+
+func tileInt16AVX2Guarded(dst []int16, pattern []int16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt16AVX2(dst, pattern)
+}
+
+func gatherInt16AVX2Guarded(dst []int16, src []int16, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt16AVX2(dst, src, idx)
+}
+
+func tileUint8AVX2Guarded(dst []byte, pattern []byte) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint8AVX2(dst, pattern)
+}
+
+func gatherUint8AVX2Guarded(dst []byte, src []byte, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint8AVX2(dst, src, idx)
+}
+
+func tileUint16AVX2Guarded(dst []uint16, pattern []uint16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint16AVX2(dst, pattern)
+}
+
+func gatherUint16AVX2Guarded(dst []uint16, src []uint16, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint16AVX2(dst, src, idx)
+}
+
+func tileUint32AVX2Guarded(dst []uint32, pattern []uint32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint32AVX2(dst, pattern)
+}
+
+func gatherUint32AVX2Guarded(dst []uint32, src []uint32, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint32AVX2(dst, src, idx)
+}
+
 func scatterUint32AVX2Guarded(dst []uint32, idx []int32, src []uint32) {
 	if len(dst) < 16 {
 		ref.Scatter(dst, idx, src)
 		return
 	}
 	scatterUint32AVX2(dst, idx, src)
+}
+
+func tileUint64AVX2Guarded(dst []uint64, pattern []uint64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint64AVX2(dst, pattern)
+}
+
+func gatherUint64AVX2Guarded(dst []uint64, src []uint64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint64AVX2(dst, src, idx)
 }
 
 func scatterUint64AVX2Guarded(dst []uint64, idx []int32, src []uint64) {
@@ -212,9 +340,25 @@ func init() {
 	s.F64.Tile = tileFloat64AVX2Guarded
 	s.F64.Gather = gatherFloat64AVX2Guarded
 	s.F64.Scatter = scatterFloat64AVX2Guarded
+	s.I32.Tile = tileInt32AVX2Guarded
+	s.I32.Gather = gatherInt32AVX2Guarded
 	s.I32.Scatter = scatterInt32AVX2Guarded
+	s.I64.Tile = tileInt64AVX2Guarded
+	s.I64.Gather = gatherInt64AVX2Guarded
 	s.I64.Scatter = scatterInt64AVX2Guarded
+	s.I8.Tile = tileInt8AVX2Guarded
+	s.I8.Gather = gatherInt8AVX2Guarded
+	s.I16.Tile = tileInt16AVX2Guarded
+	s.I16.Gather = gatherInt16AVX2Guarded
+	s.U8.Tile = tileUint8AVX2Guarded
+	s.U8.Gather = gatherUint8AVX2Guarded
+	s.U16.Tile = tileUint16AVX2Guarded
+	s.U16.Gather = gatherUint16AVX2Guarded
+	s.U32.Tile = tileUint32AVX2Guarded
+	s.U32.Gather = gatherUint32AVX2Guarded
 	s.U32.Scatter = scatterUint32AVX2Guarded
+	s.U64.Tile = tileUint64AVX2Guarded
+	s.U64.Gather = gatherUint64AVX2Guarded
 	s.U64.Scatter = scatterUint64AVX2Guarded
 	s.F32.MovingAverage = movingAverageFloat32AVX2Guarded
 	s.F32.MatMul = matMulFloat32AVX2Guarded

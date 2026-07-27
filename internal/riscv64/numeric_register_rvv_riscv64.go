@@ -82,6 +82,14 @@ func correlateFloat64RVVGuarded(dst []float64, sig []float64, ker []float64) {
 	correlateFloat64RVV(dst, sig, ker)
 }
 
+func tileFloat32RVVGuarded(dst []float32, pattern []float32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileFloat32RVV(dst, pattern)
+}
+
 func gatherFloat32RVVGuarded(dst []float32, src []float32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
@@ -96,6 +104,30 @@ func scatterFloat32RVVGuarded(dst []float32, idx []int32, src []float32) {
 		return
 	}
 	scatterFloat32RVV(dst, idx, src)
+}
+
+func tileFloat64RVVGuarded(dst []float64, pattern []float64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileFloat64RVV(dst, pattern)
+}
+
+func gatherFloat64RVVGuarded(dst []float64, src []float64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherFloat64RVV(dst, src, idx)
+}
+
+func tileInt32RVVGuarded(dst []int32, pattern []int32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt32RVV(dst, pattern)
 }
 
 func gatherInt32RVVGuarded(dst []int32, src []int32, idx []int32) {
@@ -114,6 +146,30 @@ func scatterInt32RVVGuarded(dst []int32, idx []int32, src []int32) {
 	scatterInt32RVV(dst, idx, src)
 }
 
+func tileInt64RVVGuarded(dst []int64, pattern []int64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt64RVV(dst, pattern)
+}
+
+func gatherInt64RVVGuarded(dst []int64, src []int64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherInt64RVV(dst, src, idx)
+}
+
+func tileInt8RVVGuarded(dst []int8, pattern []int8) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt8RVV(dst, pattern)
+}
+
 func gatherInt8RVVGuarded(dst []int8, src []int8, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
@@ -128,6 +184,14 @@ func scatterInt8RVVGuarded(dst []int8, idx []int32, src []int8) {
 		return
 	}
 	scatterInt8RVV(dst, idx, src)
+}
+
+func tileInt16RVVGuarded(dst []int16, pattern []int16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt16RVV(dst, pattern)
 }
 
 func gatherInt16RVVGuarded(dst []int16, src []int16, idx []int32) {
@@ -146,6 +210,14 @@ func scatterInt16RVVGuarded(dst []int16, idx []int32, src []int16) {
 	scatterInt16RVV(dst, idx, src)
 }
 
+func tileUint8RVVGuarded(dst []byte, pattern []byte) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint8RVV(dst, pattern)
+}
+
 func gatherUint8RVVGuarded(dst []byte, src []byte, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
@@ -160,6 +232,14 @@ func scatterUint8RVVGuarded(dst []byte, idx []int32, src []byte) {
 		return
 	}
 	scatterUint8RVV(dst, idx, src)
+}
+
+func tileUint16RVVGuarded(dst []uint16, pattern []uint16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint16RVV(dst, pattern)
 }
 
 func gatherUint16RVVGuarded(dst []uint16, src []uint16, idx []int32) {
@@ -178,6 +258,14 @@ func scatterUint16RVVGuarded(dst []uint16, idx []int32, src []uint16) {
 	scatterUint16RVV(dst, idx, src)
 }
 
+func tileUint32RVVGuarded(dst []uint32, pattern []uint32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint32RVV(dst, pattern)
+}
+
 func gatherUint32RVVGuarded(dst []uint32, src []uint32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
@@ -192,6 +280,22 @@ func scatterUint32RVVGuarded(dst []uint32, idx []int32, src []uint32) {
 		return
 	}
 	scatterUint32RVV(dst, idx, src)
+}
+
+func tileUint64RVVGuarded(dst []uint64, pattern []uint64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint64RVV(dst, pattern)
+}
+
+func gatherUint64RVVGuarded(dst []uint64, src []uint64, idx []int32) {
+	if len(dst) < 16 {
+		ref.Gather(dst, src, idx)
+		return
+	}
+	gatherUint64RVV(dst, src, idx)
 }
 
 func movingAverageFloat32RVVGuarded(dst []float32, a []float32, width int) {
@@ -238,20 +342,33 @@ func init() {
 	s.F64.PolyEval = polyEvalFloat64RVVGuarded
 	s.F64.Convolve = convolveFloat64RVVGuarded
 	s.F64.Correlate = correlateFloat64RVVGuarded
+	s.F32.Tile = tileFloat32RVVGuarded
 	s.F32.Gather = gatherFloat32RVVGuarded
 	s.F32.Scatter = scatterFloat32RVVGuarded
+	s.F64.Tile = tileFloat64RVVGuarded
+	s.F64.Gather = gatherFloat64RVVGuarded
+	s.I32.Tile = tileInt32RVVGuarded
 	s.I32.Gather = gatherInt32RVVGuarded
 	s.I32.Scatter = scatterInt32RVVGuarded
+	s.I64.Tile = tileInt64RVVGuarded
+	s.I64.Gather = gatherInt64RVVGuarded
+	s.I8.Tile = tileInt8RVVGuarded
 	s.I8.Gather = gatherInt8RVVGuarded
 	s.I8.Scatter = scatterInt8RVVGuarded
+	s.I16.Tile = tileInt16RVVGuarded
 	s.I16.Gather = gatherInt16RVVGuarded
 	s.I16.Scatter = scatterInt16RVVGuarded
+	s.U8.Tile = tileUint8RVVGuarded
 	s.U8.Gather = gatherUint8RVVGuarded
 	s.U8.Scatter = scatterUint8RVVGuarded
+	s.U16.Tile = tileUint16RVVGuarded
 	s.U16.Gather = gatherUint16RVVGuarded
 	s.U16.Scatter = scatterUint16RVVGuarded
+	s.U32.Tile = tileUint32RVVGuarded
 	s.U32.Gather = gatherUint32RVVGuarded
 	s.U32.Scatter = scatterUint32RVVGuarded
+	s.U64.Tile = tileUint64RVVGuarded
+	s.U64.Gather = gatherUint64RVVGuarded
 	s.F32.MovingAverage = movingAverageFloat32RVVGuarded
 	s.F32.MatMul = matMulFloat32RVVGuarded
 	s.F64.MovingAverage = movingAverageFloat64RVVGuarded

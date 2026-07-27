@@ -130,6 +130,70 @@ func scatterFloat64SSE2Guarded(dst []float64, idx []int32, src []float64) {
 	scatterFloat64SSE2(dst, idx, src)
 }
 
+func tileInt32SSE2Guarded(dst []int32, pattern []int32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt32SSE2(dst, pattern)
+}
+
+func tileInt64SSE2Guarded(dst []int64, pattern []int64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt64SSE2(dst, pattern)
+}
+
+func tileInt8SSE2Guarded(dst []int8, pattern []int8) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt8SSE2(dst, pattern)
+}
+
+func tileInt16SSE2Guarded(dst []int16, pattern []int16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileInt16SSE2(dst, pattern)
+}
+
+func tileUint8SSE2Guarded(dst []byte, pattern []byte) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint8SSE2(dst, pattern)
+}
+
+func tileUint16SSE2Guarded(dst []uint16, pattern []uint16) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint16SSE2(dst, pattern)
+}
+
+func tileUint32SSE2Guarded(dst []uint32, pattern []uint32) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint32SSE2(dst, pattern)
+}
+
+func tileUint64SSE2Guarded(dst []uint64, pattern []uint64) {
+	if len(dst) < 16 {
+		ref.Tile(dst, pattern)
+		return
+	}
+	tileUint64SSE2(dst, pattern)
+}
+
 func movingAverageFloat32SSE2Guarded(dst []float32, a []float32, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
@@ -180,6 +244,14 @@ func init() {
 	s.F64.Tile = tileFloat64SSE2Guarded
 	s.F64.Gather = gatherFloat64SSE2Guarded
 	s.F64.Scatter = scatterFloat64SSE2Guarded
+	s.I32.Tile = tileInt32SSE2Guarded
+	s.I64.Tile = tileInt64SSE2Guarded
+	s.I8.Tile = tileInt8SSE2Guarded
+	s.I16.Tile = tileInt16SSE2Guarded
+	s.U8.Tile = tileUint8SSE2Guarded
+	s.U16.Tile = tileUint16SSE2Guarded
+	s.U32.Tile = tileUint32SSE2Guarded
+	s.U64.Tile = tileUint64SSE2Guarded
 	s.F32.MovingAverage = movingAverageFloat32SSE2Guarded
 	s.F32.MatMul = matMulFloat32SSE2Guarded
 	s.F64.MovingAverage = movingAverageFloat64SSE2Guarded

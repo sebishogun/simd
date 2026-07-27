@@ -38,3 +38,63 @@ func convolveFloat64LASX(dst []float64, sig []float64, ker []float64)
 
 //go:noescape
 func correlateFloat64LASX(dst []float64, sig []float64, ker []float64)
+
+//go:noescape
+func tileFloat32LASX(dst []float32, pattern []float32)
+
+//go:noescape
+func gatherFloat32LASX(dst []float32, src []float32, idx []int32)
+
+//go:noescape
+func tileFloat64LASX(dst []float64, pattern []float64)
+
+//go:noescape
+func gatherFloat64LASX(dst []float64, src []float64, idx []int32)
+
+//go:noescape
+func tileInt32LASX(dst []int32, pattern []int32)
+
+//go:noescape
+func gatherInt32LASX(dst []int32, src []int32, idx []int32)
+
+//go:noescape
+func tileInt64LASX(dst []int64, pattern []int64)
+
+//go:noescape
+func gatherInt64LASX(dst []int64, src []int64, idx []int32)
+
+//go:noescape
+func tileInt8LASX(dst []int8, pattern []int8)
+
+//go:noescape
+func gatherInt8LASX(dst []int8, src []int8, idx []int32)
+
+//go:noescape
+func tileInt16LASX(dst []int16, pattern []int16)
+
+//go:noescape
+func gatherInt16LASX(dst []int16, src []int16, idx []int32)
+
+//go:noescape
+func tileUint8LASX(dst []byte, pattern []byte)
+
+//go:noescape
+func gatherUint8LASX(dst []byte, src []byte, idx []int32)
+
+//go:noescape
+func tileUint16LASX(dst []uint16, pattern []uint16)
+
+//go:noescape
+func gatherUint16LASX(dst []uint16, src []uint16, idx []int32)
+
+//go:noescape
+func tileUint32LASX(dst []uint32, pattern []uint32)
+
+//go:noescape
+func gatherUint32LASX(dst []uint32, src []uint32, idx []int32)
+
+//go:noescape
+func tileUint64LASX(dst []uint64, pattern []uint64)
+
+//go:noescape
+func gatherUint64LASX(dst []uint64, src []uint64, idx []int32)
