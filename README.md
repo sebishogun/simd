@@ -91,9 +91,9 @@ called. Every one of these has a runnable example in
 **v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and
 is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 
-- **~300 exported functions** over ten element types, plus complex, bytes, text
+- **302 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
-- **4,700+ generated kernels** across nine targets — amd64 sse2/avx2/avx512,
+- **4,744 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
   arm64 neon/sve2, riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx.
 - Every architecture is **executed**, under emulation, on every change.
 - The portable Go implementation is always there. A kernel that could not be
@@ -258,12 +258,12 @@ effort.
 
 | | kernels | |
 |---|---|---|
-| amd64 (3 tiers) | 1652 | essentially complete |
-| arm64 (2 tiers) | 1112 | essentially complete |
+| amd64 (3 tiers) | 1664 | essentially complete |
+| arm64 (2 tiers) | 1121 | essentially complete |
 | s390x | 614 | **partial** |
-| riscv64 | 556 | essentially complete |
+| riscv64 | 558 | essentially complete |
 | loong64 | 506 | ~88% |
-| ppc64le | 281 | **partial** |
+| ppc64le | 281 | **partial** — see [ROADMAP](ROADMAP.md) |
 
 - **s390x** loses kernels because clang uses `r13`, the register Go keeps the
   current goroutine in, and there is no `-ffixed` for SystemZ — the global

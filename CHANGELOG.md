@@ -7,9 +7,9 @@ The first tagged version. Everything below is new; there was nothing before it.
 ### What this is
 
 SIMD-accelerated slice operations for Go on every architecture with a vector
-unit, without cgo. 298 exported functions, 4,721 generated kernels across nine
-targets: amd64 sse2/avx2/avx512, arm64 neon/sve2, riscv64 rvv, s390x vx,
-loong64 lasx, ppc64le vsx.
+unit, without cgo. 302 exported functions, 4,744 generated kernels across nine
+targets: amd64 sse2/avx2/avx512 (1664), arm64 neon/sve2 (1121), s390x vx (614),
+riscv64 rvv (558), loong64 lasx (506), ppc64le vsx (281).
 
 ### What is covered by compatibility
 
@@ -52,7 +52,19 @@ transcendentals guarantee a stated ULP bound rather than bit identity, and
   anyway.
 - **`HexDecode` is portable everywhere**, because it returns two values where
   the generator's result slot holds one.
-- **Not yet built:** sort/argsort. See [ROADMAP.md](ROADMAP.md).
+- **Not yet built:** sort/argsort, n-ary/variadic forms, and packed-panel
+  cache blocking above the GEMM microkernel. See [ROADMAP.md](ROADMAP.md).
+
+### Where to start
+
+[`example_test.go`](example_test.go) has a runnable example for every operation
+— checked by `go test`, so none of them can drift — and
+[`docs/examples/`](docs/examples/) has complete programs. The README opens with
+a table indexed by what you are trying to do rather than by what the operation
+is called.
+
+[`docs/wrong.md`](docs/wrong.md) is the sixteen things that turned out not to
+be true, which is the part of this project most worth borrowing.
 
 ### One deliberate semantic choice worth stating
 
