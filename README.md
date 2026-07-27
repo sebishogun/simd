@@ -1,5 +1,11 @@
 # simd
 
+[![Latest Release](docs/assets/badges/release.svg)](https://github.com/sebishogun/simd/releases/latest)
+[![CI](https://github.com/sebishogun/simd/actions/workflows/ci-local.yml/badge.svg)](https://github.com/sebishogun/simd/actions/workflows/ci-local.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sebishogun/simd.svg)](https://pkg.go.dev/github.com/sebishogun/simd)
+[![no cgo](https://img.shields.io/badge/cgo-none-2ea44f?style=flat-square)](#requirements)
+[![9 targets](https://img.shields.io/badge/ISA%20tiers-9-1f6feb?style=flat-square)](#coverage-honestly)
+
 SIMD-accelerated slice operations for Go, on every architecture that has a
 vector unit, **without cgo**.
 
@@ -20,8 +26,9 @@ selection, nothing to initialize, and nothing that allocates.
 
 ## Status
 
-**Early, and honest about it.** There is no tagged release and the API changed
-twice in the last week. What is in place:
+**Early, and honest about it.** v0.1.0 is the first tag; see
+[CHANGELOG.md](CHANGELOG.md) for what it does and does not promise. What is in
+place:
 
 - **298 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.

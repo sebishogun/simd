@@ -1,0 +1,96 @@
+name: Update Release Badge
+
+# The release pill in the README is a committed SVG rather than a live
+# shields.io URL. Two reasons: a committed file renders identically for a reader
+# who is offline or behind a proxy that blocks img.shields.io, and it cannot
+# quietly change under a reader who is looking at an old tag — the badge in the
+# v0.1.0 tree says v0.1.0 forever, which is what a badge in a versioned tree
+# ought to do.
+#
+# The cost is that it has to be refreshed, which is this workflow.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Explicit tag to display (defaults to the newest vX.Y.Z tag)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update-badge:
+    runs-on: [self-hosted, linux]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Resolve the tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --force origin
+
+          tag="${INPUT_TAG:-}"
+          [ -n "$tag" ] || tag="$(git tag -l 'v*' --sort=-v:refname | head -n1)"
+
+          if [ -z "$tag" ]; then
+            echo "No release tag exists yet; nothing to update."
+            echo "tag=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          case "$tag" in v*) ;; *) tag="v$tag" ;; esac
+
+          # A tag is not a trusted string — it is whatever the pusher chose, and
+          # it is about to be interpolated into a URL. Allow-list a plain
+          # semantic version rather than trying to escape an arbitrary one.
+          if ! printf '%s' "$tag" | grep -q '^v[0-9]\+\.[0-9]\+\.[0-9]\+\(-[0-9A-Za-z.-]\+\)\?$'; then
+            echo "::error::refusing to build a badge for a non-semver tag: $tag"
+            exit 1
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Release tag: $tag"
+
+      - name: Fetch the badge
+        if: ${{ steps.tag.outputs.tag != '' }}
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p docs/assets/badges
+          # --hyphen is doubled because shields.io reads a single one as its own
+          # field separator; the tags this accepts contain no other reserved
+          # character, which the semver check above is what guarantees.
+          label="$(printf '%s' "$TAG" | sed 's/-/--/g')"
+          curl -fsSL --retry 3 --retry-delay 2 \
+            "https://img.shields.io/badge/release-${label}-2ea44f?style=flat-square" \
+            -o docs/assets/badges/release.svg
+          # A shields.io error page is still a 200 with a valid SVG saying
+          # "invalid"; check the alt text carries the tag we asked for.
+          grep -q "$TAG" docs/assets/badges/release.svg
+
+      - name: Commit if it changed
+        if: ${{ steps.tag.outputs.tag != '' }}
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- docs/assets/badges/release.svg; then
+            echo "Badge already reads ${TAG}."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/assets/badges/release.svg
+          git commit -m "docs: update the release badge to ${TAG}"
+          git push origin HEAD:main
