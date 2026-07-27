@@ -163,7 +163,27 @@ combine tree, so a 128-bit and a 512-bit machine reproduce it exactly.
 
 ---
 
-## 9. The standard library is the more accurate side
+## 9. A test written in Go is a neutral judge of a kernel
+
+**Assumed.** A textbook triple loop written in Go is a safe reference to check
+a matrix multiply against, because it is obviously correct.
+
+**Actually.** `acc += a[i]*b[j]` in Go may be fused into a single
+multiply-add with one rounding, and on arm64 it is. So the reference computed
+different bits from the kernel it was checking — and the kernel was the correct
+one, since it deliberately does not fuse.
+
+**How it surfaced.** `TestMatMulExactBits` passed on amd64 and failed on
+arm64 under emulation. Entry 8 is the same trap one level down, and this test
+walked into it anyway, which is the point: knowing about it is not protection.
+
+**Fix.** An explicit conversion rounds to the target type and forbids the
+fusion: `acc += T(a[i] * b[j])`. `internal/ref` had always done this; the new
+test had not.
+
+---
+
+## 10. The standard library is the more accurate side
 
 **Assumed.** Where a kernel and Go's `math` disagree, the kernel is wrong.
 
@@ -174,7 +194,7 @@ theory.
 
 ---
 
-## 10. `-0.0 < 0.0`
+## 11. `-0.0 < 0.0`
 
 **Assumed.** A sign test can be written as a comparison against zero.
 
@@ -185,7 +205,7 @@ theory.
 
 ---
 
-## 11. Skipping a zero multiply is a free optimization
+## 12. Skipping a zero multiply is a free optimization
 
 **Assumed.** `if (s == 0) continue` in a matrix multiply changes nothing but
 speed.
@@ -201,7 +221,7 @@ test in both the tiled path and the edges.
 
 ---
 
-## 12. A rewrite that produces correct instructions is a correct rewrite
+## 13. A rewrite that produces correct instructions is a correct rewrite
 
 **Assumed.** A constant-pool reference can be re-spelled as a Plan 9 mnemonic
 naming a `DATA` symbol, letting Go's linker compute the displacement.
@@ -217,7 +237,7 @@ changes length, so every branch that was correct in the object file still is.
 
 ---
 
-## 13. Vectorizing a loop makes it faster
+## 14. Vectorizing a loop makes it faster
 
 **Assumed.** Any loop turned into vector instructions beats the scalar version.
 
@@ -243,7 +263,7 @@ library because it is genuinely better.
 
 ---
 
-## 14. A disassembler prints register names
+## 15. A disassembler prints register names
 
 **Assumed.** Checking generated code for a forbidden register is a text search
 for its name.
@@ -259,7 +279,7 @@ written in the spelling that target's disassembler actually emits.
 
 ---
 
-## 15. The benchmark said it got slower
+## 16. The benchmark said it got slower
 
 **Assumed.** A regression harness reporting sixteen benchmarks over the
 threshold means sixteen regressions.
@@ -276,7 +296,7 @@ flagged, check whether the generated code changed before believing it.
 
 ---
 
-## 16. A test lane that produces no output is running slowly
+## 17. A test lane that produces no output is running slowly
 
 **Assumed.** The emulated arm64 lane sitting silent for half an hour is qemu
 being qemu. The Makefile even says to allow that long.
@@ -296,7 +316,7 @@ in `make verify` and its findings do not depend on GOARCH.
 
 ---
 
-## 17. "No space left on device" means the disk is full
+## 18. "No space left on device" means the disk is full
 
 **Assumed.** `ENOSPC` means bytes.
 

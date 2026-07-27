@@ -22,12 +22,20 @@ import (
 
 // naiveMatMul is the textbook triple loop, in the order the contract specifies:
 // each output element accumulated over p ascending.
+//
+// The conversion around the product is load-bearing and is not a style choice.
+// Go's spec permits an implementation to fuse a multiply and an add into a
+// single operation with one rounding, and on arm64 it does exactly that — so
+// written the obvious way this reference computes different bits from the
+// kernel it is checking, and the test fails on arm64 while passing on amd64.
+// An explicit conversion rounds to the target type and forbids the fusion.
+// internal/ref does the same thing for the same reason.
 func naiveMatMul[T float32 | float64](dst, a, b []T, m, k, n int) {
 	for i := range m {
 		for j := range n {
 			var acc T
 			for p := range k {
-				acc += a[i*k+p] * b[p*n+j]
+				acc += T(a[i*k+p] * b[p*n+j])
 			}
 			dst[i*n+j] = acc
 		}

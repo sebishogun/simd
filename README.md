@@ -330,7 +330,7 @@ make codegen       # regenerate every backend (needs clang)
 ## Where the obvious answer was wrong
 
 **[`docs/wrong.md`](docs/wrong.md)** is the part of this project most worth
-borrowing: seventeen things a competent person would have assumed, that were
+borrowing: eighteen things a competent person would have assumed, that were
 false, and what each one cost. Among them —
 
 - A register can be reserved by *value* rather than by name, which makes it
