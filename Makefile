@@ -43,9 +43,17 @@ test-tiers:
 test-race:
 	$(GO) test -race $(PKG)
 
+# Two fuzz targets. FuzzDifferential drives the public API; the one under
+# internal/conformance drives every generated kernel of every tier against the
+# portable implementation, with the fuzzer choosing the bit patterns rather
+# than a table choosing the values. For floating point that distinction is the
+# whole point: the inputs that break a kernel are not large or small, they are
+# a signalling NaN or a denormal at the exact exponent boundary.
 .PHONY: fuzz
 fuzz:
 	$(GO) test -run '^$$' -fuzz FuzzDifferential -fuzztime $(or $(FUZZTIME),60s) .
+	$(GO) test -run '^$$' -fuzz FuzzKernelsAgainstReference \
+		-fuzztime $(or $(FUZZTIME),60s) ./internal/conformance/
 
 # Every architecture with a backend, under emulation.
 #
