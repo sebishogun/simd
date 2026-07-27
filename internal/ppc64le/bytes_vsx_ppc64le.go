@@ -16,6 +16,9 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func isASCIIVSX(b []byte) bool
+
+//go:noescape
 func validUTF8VSX(b []byte) bool
 
 //go:noescape

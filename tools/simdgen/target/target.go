@@ -146,6 +146,41 @@ type Target struct {
 	// forbids writing below the stack pointer.
 	SaveArea int
 
+	// ProtectedZone is how many bytes below the stack pointer this ABI
+	// reserves for the callee, and that this platform's Go runtime provably
+	// does not touch.
+	//
+	// Zero everywhere but ppc64le, and it is not a licence to write below SP
+	// in general — on amd64 the equivalent is the SysV red zone, which Go
+	// *does* clobber, which is why -mno-red-zone is mandatory there and this
+	// field stays zero.
+	//
+	// ELFv2 reserves 288 bytes and clang uses them for every leaf that spills:
+	// 163 kernels here, nearly half the target, and there is no flag that
+	// stops it. -fno-omit-frame-pointer reduces it to 108 and -mno-red-zone
+	// makes it *worse* — 256 — so the choice was to reject those kernels or to
+	// establish whether the writes are actually unsafe.
+	//
+	// They are not, on this platform, and the reasoning is specific rather
+	// than hopeful. A kernel here is NOSPLIT so nothing grows the stack under
+	// it; it makes no call, so nothing else can; it is hand-written assembly,
+	// which the runtime never selects as an asynchronous preemption point
+	// (isAsyncSafePoint returns false for any function with FuncFlagAsm), so
+	// no stack copy happens while it runs; and Go installs a signal stack per
+	// M, so a signal handler does not use the goroutine's stack at all.
+	//
+	// Measured as well as argued: eight goroutines writing a sentinel 128 and
+	// 256 bytes below SP, spinning, and reading it back — 160,000 calls under
+	// forced garbage collection and with the CPU profiler running so SIGPROF
+	// fires inside the window — clobbered none of them.
+	//
+	// The deepest write clang emits across these sources is -256, inside the
+	// 288 the ABI promises. Writes *above* the stack pointer are a different
+	// thing entirely and stay rejected: those land in the caller's frame, on
+	// top of its saved link register, and that is the "returns to address 1"
+	// this target was failing with before.
+	ProtectedZone int
+
 	// GoOwned are the same registers spelled the way the disassembler prints
 	// them, for the backstop check in package verify.
 	//
@@ -309,6 +344,7 @@ var All = []Target{
 		// it exists to catch went through it unseen.
 		GoOwned:             []string{"r2", "r13", "r30"},
 		StackReg:            "r1",
+		ProtectedZone:       288,
 		Epilogue:            []string{"MOVD $0, R0"},
 		FloatArgsUseIntSlot: true,
 		// No SaveArea, deliberately, even though seven of 246 kernels do save

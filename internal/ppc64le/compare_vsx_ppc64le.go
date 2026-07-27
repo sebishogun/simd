@@ -136,6 +136,12 @@ func gtUint16MaskVSX(dst []bool, a []uint16, b []uint16)
 func geUint16MaskVSX(dst []bool, a []uint16, b []uint16)
 
 //go:noescape
+func maskAllVSX(m []bool) bool
+
+//go:noescape
+func maskAnyVSX(m []bool) bool
+
+//go:noescape
 func maskAndVSX(dst []bool, a []bool, b []bool)
 
 //go:noescape

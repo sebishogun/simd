@@ -380,6 +380,20 @@ func geUint16MaskVSXGuarded(dst []bool, a []uint16, b []uint16) {
 	geUint16MaskVSX(dst[:n:n], a, b)
 }
 
+func maskAllVSXGuarded(m []bool) bool {
+	if len(m) < 32 {
+		return ref.MaskAll(m)
+	}
+	return maskAllVSX(m)
+}
+
+func maskAnyVSXGuarded(m []bool) bool {
+	if len(m) < 32 {
+		return ref.MaskAny(m)
+	}
+	return maskAnyVSX(m)
+}
+
 func maskAndVSXGuarded(dst []bool, a []bool, b []bool) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
@@ -460,6 +474,8 @@ func init() {
 	s.U16.LessEqualMask = leUint16MaskVSXGuarded
 	s.U16.GreaterMask = gtUint16MaskVSXGuarded
 	s.U16.GreaterEqualMask = geUint16MaskVSXGuarded
+	s.Mask.All = maskAllVSXGuarded
+	s.Mask.Any = maskAnyVSXGuarded
 	s.Mask.And = maskAndVSXGuarded
 	s.Mask.Or = maskOrVSXGuarded
 	s.Mask.Xor = maskXorVSXGuarded

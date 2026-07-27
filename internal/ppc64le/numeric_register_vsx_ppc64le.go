@@ -20,6 +20,13 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
+func normFloat32VSXGuarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.NormFloat(a)
+	}
+	return normFloat32VSX(a)
+}
+
 func normFloat64VSXGuarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
@@ -31,5 +38,6 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
+	s.F32.Norm = normFloat32VSXGuarded
 	s.F64.Norm = normFloat64VSXGuarded
 }

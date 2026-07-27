@@ -349,6 +349,12 @@ func writesOutsideFrame(instrs []Instr, tgt target.Target) (int, bool) {
 				continue
 			}
 			if n < 0 {
+				// Below the stack pointer, which is fatal on every target but
+				// the one whose ABI reserves a zone there that Go provably
+				// does not touch. See target.Target.ProtectedZone.
+				if -n <= tgt.ProtectedZone {
+					continue
+				}
 				return n, true
 			}
 			if tgt.SaveArea == 0 {

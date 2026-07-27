@@ -25,16 +25,97 @@ func maxrFloat32VSX(a []float32) float32
 func diffFloat32VSX(dst []float32, a []float32)
 
 //go:noescape
+func minrFloat64VSX(a []float64) float64
+
+//go:noescape
+func maxrFloat64VSX(a []float64) float64
+
+//go:noescape
 func sumsqFloat64VSX(a []float64) float64
 
 //go:noescape
 func sumsqdevFloat64VSX(a []float64, c float64) float64
 
 //go:noescape
+func sumsqdiffFloat64VSX(a []float64, b []float64) float64
+
+//go:noescape
+func minrInt32VSX(a []int32) int32
+
+//go:noescape
+func maxrInt32VSX(a []int32) int32
+
+//go:noescape
+func sumsqInt32VSX(a []int32) int32
+
+//go:noescape
+func sumsqdevInt32VSX(a []int32, c int32) int32
+
+//go:noescape
+func sumsqdiffInt32VSX(a []int32, b []int32) int32
+
+//go:noescape
 func diffInt32VSX(dst []int32, a []int32)
 
 //go:noescape
+func minrInt64VSX(a []int64) int64
+
+//go:noescape
+func maxrInt64VSX(a []int64) int64
+
+//go:noescape
+func minrInt8VSX(a []int8) int8
+
+//go:noescape
+func maxrInt8VSX(a []int8) int8
+
+//go:noescape
+func minrInt16VSX(a []int16) int16
+
+//go:noescape
+func maxrInt16VSX(a []int16) int16
+
+//go:noescape
+func minrUint8VSX(a []byte) byte
+
+//go:noescape
+func maxrUint8VSX(a []byte) byte
+
+//go:noescape
+func minrUint16VSX(a []uint16) uint16
+
+//go:noescape
+func maxrUint16VSX(a []uint16) uint16
+
+//go:noescape
+func minrUint32VSX(a []uint32) uint32
+
+//go:noescape
+func maxrUint32VSX(a []uint32) uint32
+
+//go:noescape
+func sumsqUint32VSX(a []uint32) uint32
+
+//go:noescape
+func sumsqdevUint32VSX(a []uint32, c uint32) uint32
+
+//go:noescape
+func sumsqdiffUint32VSX(a []uint32, b []uint32) uint32
+
+//go:noescape
 func diffUint32VSX(dst []uint32, a []uint32)
+
+//go:noescape
+func minrUint64VSX(a []uint64) uint64
+
+//go:noescape
+func maxrUint64VSX(a []uint64) uint64
+
+//go:noescape
+func sumFloat32VSX(a []float32) float32
+
+//go:noescape
+func dotFloat32VSX(a []float32, b []float32) float32
 
 //go:noescape
 func sumFloat64VSX(a []float64) float64
@@ -46,13 +127,52 @@ func dotFloat64VSX(a []float64, b []float64) float64
 func l1normFloat64VSX(a []float64) float64
 
 //go:noescape
+func l1diffFloat64VSX(a []float64, b []float64) float64
+
+//go:noescape
+func sumInt32VSX(a []int32) int32
+
+//go:noescape
+func prodInt32VSX(a []int32) int32
+
+//go:noescape
+func dotInt32VSX(a []int32, b []int32) int32
+
+//go:noescape
+func l1normInt32VSX(a []int32) int32
+
+//go:noescape
 func l1diffInt32VSX(a []int32, b []int32) int32
+
+//go:noescape
+func sumInt64VSX(a []int64) int64
+
+//go:noescape
+func l1normInt64VSX(a []int64) int64
 
 //go:noescape
 func l1diffInt64VSX(a []int64, b []int64) int64
 
 //go:noescape
+func sumUint32VSX(a []uint32) uint32
+
+//go:noescape
+func prodUint32VSX(a []uint32) uint32
+
+//go:noescape
+func dotUint32VSX(a []uint32, b []uint32) uint32
+
+//go:noescape
+func l1normUint32VSX(a []uint32) uint32
+
+//go:noescape
 func l1diffUint32VSX(a []uint32, b []uint32) uint32
+
+//go:noescape
+func sumUint64VSX(a []uint64) uint64
+
+//go:noescape
+func l1normUint64VSX(a []uint64) uint64
 
 //go:noescape
 func l1diffUint64VSX(a []uint64, b []uint64) uint64

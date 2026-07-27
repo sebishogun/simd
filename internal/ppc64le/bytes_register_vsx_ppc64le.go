@@ -20,6 +20,13 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
+func isASCIIVSXGuarded(b []byte) bool {
+	if len(b) < 64 {
+		return ref.IsASCII(b)
+	}
+	return isASCIIVSX(b)
+}
+
 func validUTF8VSXGuarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.ValidUTF8(b)
@@ -118,6 +125,7 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
+	s.Bytes.IsASCII = isASCIIVSXGuarded
 	s.Bytes.ValidUTF8 = validUTF8VSXGuarded
 	s.Bytes.And = bitAndVSXGuarded
 	s.Bytes.Or = bitOrVSXGuarded

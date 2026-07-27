@@ -16,4 +16,7 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func normFloat32VSX(a []float32) float32
+
+//go:noescape
 func normFloat64VSX(a []float64) float64
