@@ -274,14 +274,68 @@ type Bytes struct {
 	HexDecode func(dst, src []byte) (int, bool)
 }
 
+// Complex is the kernel group for complex numbers, parameterised by the
+// complex type C and its real component type R.
+//
+// It is a separate group rather than another Ops instantiation because most
+// of Ops does not apply: there is no ordering on the complex numbers, so
+// Minimum, the comparisons and the sorts are all meaningless, and the ones
+// that do apply often return a real rather than a complex.
+//
+// Go stores a complex as its two components adjacent in memory, so a slice of
+// them is the interleaved layout, and that is what these kernels read. It is
+// not the layout that vectorizes best — a multiply needs the real and
+// imaginary parts in separate registers, which from interleaved data costs a
+// shuffle — but it is the layout the caller already has, and converting would
+// cost more than the shuffle does.
+// The group is split in two by whether an operation's signature mentions the
+// real component type. That is not tidiness, it is what lets the public API
+// stay generic: a function over complex alone, like Add, cannot name the
+// matching real type, because Go has no way to derive float32 from complex64
+// in a type parameter list. Splitting means Add needs one parameter and Abs
+// needs two, and each is inferable from its own arguments.
+type Complex[C any] struct {
+	Add, Sub, Mul, Div func(dst, a, b []C)
+	Neg, Conj          func(dst, a []C)
+
+	// Sum accumulates into the fixed lane count the real reductions use, so
+	// that a complex sum does not change value with the vector width either.
+	Sum func(a []C) C
+	// Dot is the bilinear product, sum(a[i]*b[i]). DotConj is the Hermitian
+	// one, sum(conj(a[i])*b[i]), which is the inner product most linear
+	// algebra means; both are offered because both are wanted and neither is
+	// obviously the default.
+	Dot, DotConj func(a, b []C) C
+}
+
+// ComplexParts holds the operations that cross between a complex slice and a
+// real one.
+type ComplexParts[C any, R any] struct {
+	// Scale multiplies by a real, which is the common case and avoids the
+	// four multiplies a full complex product needs.
+	Scale func(dst, a []C, s R)
+
+	// Abs is the magnitude, computed through the scaled form that cannot
+	// overflow for a representable answer, the same as Hypot.
+	Abs func(dst []R, a []C)
+
+	// Real and Imag extract a component; FromParts is the inverse.
+	Real, Imag func(dst []R, a []C)
+	FromParts  func(dst []C, re, im []R)
+}
+
 // Set is one complete backend: every kernel, for one tier.
 type Set struct {
 	// Name identifies the tier, matching cpu.Tier.String.
-	Name  string
-	F32   Ops[float32]
-	F64   Ops[float64]
-	I32   Ops[int32]
-	I64   Ops[int64]
-	Bytes Bytes
-	Mask  Mask
+	Name      string
+	F32       Ops[float32]
+	F64       Ops[float64]
+	I32       Ops[int32]
+	I64       Ops[int64]
+	Bytes     Bytes
+	Mask      Mask
+	C64       Complex[complex64]
+	C128      Complex[complex128]
+	C64Parts  ComplexParts[complex64, float32]
+	C128Parts ComplexParts[complex128, float64]
 }

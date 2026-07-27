@@ -23,26 +23,32 @@ type Type int
 const (
 	Invalid Type = iota
 
-	SliceF32 // []float32
-	SliceF64 // []float64
-	SliceI32 // []int32
-	SliceI64 // []int64
-	SliceU8  // []byte
-	SliceB   // []bool
+	SliceF32  // []float32
+	SliceF64  // []float64
+	SliceI32  // []int32
+	SliceI64  // []int64
+	SliceU8   // []byte
+	SliceB    // []bool
+	SliceC64  // []complex64
+	SliceC128 // []complex128
 
-	F32 // float32
-	F64 // float64
-	I32 // int32
-	I64 // int64
-	U8  // byte
-	Int // int
-	B   // bool
+	F32  // float32
+	F64  // float64
+	I32  // int32
+	I64  // int64
+	U8   // byte
+	Int  // int
+	B    // bool
+	C64  // complex64
+	C128 // complex128
 )
 
 var typeNames = map[Type]string{
 	SliceF32: "[]float32", SliceF64: "[]float64",
 	SliceI32: "[]int32", SliceI64: "[]int64",
 	SliceU8: "[]byte", SliceB: "[]bool",
+	SliceC64: "[]complex64", SliceC128: "[]complex128",
+	C64: "complex64", C128: "complex128",
 	F32: "float32", F64: "float64", I32: "int32", I64: "int64",
 	U8: "byte", Int: "int", B: "bool",
 }
@@ -59,7 +65,8 @@ func (t Type) GoString() string {
 // frame rather than one.
 func (t Type) IsSlice() bool {
 	switch t {
-	case SliceF32, SliceF64, SliceI32, SliceI64, SliceU8, SliceB:
+	case SliceF32, SliceF64, SliceI32, SliceI64, SliceU8, SliceB,
+		SliceC64, SliceC128:
 		return true
 	}
 	return false
@@ -76,6 +83,11 @@ func (t Type) Size() int {
 		return 24
 	}
 	switch t {
+	case C128:
+		// Two float64s. Passed in the frame like any other 16-byte value.
+		return 16
+	case C64:
+		return 8
 	case B, U8:
 		// A bool or byte occupies one byte but is aligned to its own size;
 		// the frame layout rounds up between arguments.
@@ -90,6 +102,14 @@ func (t Type) Size() int {
 // Align is the alignment of the type in a Go argument frame.
 func (t Type) Align() int {
 	if t.IsSlice() {
+		return 8
+	}
+	switch t {
+	case C64:
+		// Two float32s, so aligned like a float32 rather than like its own
+		// eight-byte size. Getting this wrong shifts every later argument.
+		return 4
+	case C128:
 		return 8
 	}
 	return t.Size()

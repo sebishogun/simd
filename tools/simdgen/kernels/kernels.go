@@ -766,6 +766,94 @@ func matMulK(e elem) spec.Kernel {
 	}
 }
 
+// ---------- complex ----------
+
+// celem describes one complex type alongside its real component type.
+type celem struct {
+	c      string    // suffix in the C symbol: c64
+	goName string    // suffix in the Go name: Complex64
+	slice  spec.Type // []complex64
+	rslice spec.Type // []float32
+	rscal  spec.Type // float32
+	group  string    // the kernel.Set group: C64
+	suf    string    // the ref function suffix: 64
+}
+
+var celems = []celem{
+	{"c64", "Complex64", spec.SliceC64, spec.SliceF32, spec.F32, "C64", "64"},
+	{"c128", "Complex128", spec.SliceC128, spec.SliceF64, spec.F64, "C128", "128"},
+}
+
+// Complex is everything in csrc/complex.c.
+//
+// The length passed to C is the number of complex elements, not of
+// components: the kernels index as 2i and 2i+1 and the componentwise ones
+// double it themselves, so a slice length is exactly what they want.
+func Complex() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range celems {
+		bin := func(op, field, ref string) spec.Kernel {
+			return spec.Kernel{
+				CName: "simd_c" + op + "_" + e.c, GoName: "c" + op + e.goName,
+				Group: e.group, Field: field, RefFunc: ref,
+				Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+					sl("b", e.slice)},
+				CArgs:     []spec.CArg{base("dst"), base("a"), base("b"), lenOf("dst")},
+				Threshold: thElementwise,
+			}
+		}
+		un := func(op, field, ref string) spec.Kernel {
+			return spec.Kernel{
+				CName: "simd_c" + op + "_" + e.c, GoName: "c" + op + e.goName,
+				Group: e.group, Field: field, RefFunc: ref,
+				Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
+				CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
+				Threshold: thElementwise,
+			}
+		}
+		// A complex in, a real out: the destination is the real slice, and
+		// its length is the element count either way. These live in the Parts
+		// group, which is the half of the split that names the real type.
+		toRealParts := func(op, field, ref string) spec.Kernel {
+			return spec.Kernel{
+				CName: "simd_c" + op + "_" + e.c, GoName: "c" + op + e.goName,
+				Group: e.group + "Parts", Field: field, RefFunc: ref,
+				Params:    []spec.Param{sl("dst", e.rslice), sl("a", e.slice)},
+				CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
+				Threshold: thElementwise,
+			}
+		}
+		ks = append(ks,
+			bin("add", "Add", "CAdd"),
+			bin("sub", "Sub", "CSub"),
+			bin("mul", "Mul", "CMul"+e.suf),
+			bin("div", "Div", "CDiv"+e.suf),
+			un("neg", "Neg", "CNeg"),
+			un("conj", "Conj", "CConj"+e.suf),
+			toRealParts("abs", "Abs", "CAbs"+e.suf),
+			toRealParts("real", "Real", "CReal"+e.suf),
+			toRealParts("imag", "Imag", "CImag"+e.suf),
+			spec.Kernel{
+				CName: "simd_cscale_" + e.c, GoName: "cscale" + e.goName,
+				Group: e.group + "Parts", Field: "Scale", RefFunc: "CScale" + e.suf,
+				Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+					{Name: "s", Type: e.rscal}},
+				CArgs:     []spec.CArg{base("dst"), base("a"), val("s"), lenOf("dst")},
+				Threshold: thElementwise,
+			},
+			spec.Kernel{
+				CName: "simd_cfromparts_" + e.c, GoName: "cfromParts" + e.goName,
+				Group: e.group + "Parts", Field: "FromParts", RefFunc: "CFromParts" + e.suf,
+				Params: []spec.Param{sl("dst", e.slice), sl("re", e.rslice),
+					sl("im", e.rslice)},
+				CArgs:     []spec.CArg{base("dst"), base("re"), base("im"), lenOf("dst")},
+				Threshold: thElementwise,
+			},
+		)
+	}
+	return ks
+}
+
 // Source is a C file and the kernels compiled from it.
 type Source struct {
 	// Path is relative to the repository root.
@@ -782,4 +870,5 @@ var All = []Source{
 	{Path: "csrc/bytes.c", Kernels: Bytes()},
 	{Path: "csrc/math.c", Kernels: Math()},
 	{Path: "csrc/numeric.c", Kernels: Numeric()},
+	{Path: "csrc/complex.c", Kernels: Complex()},
 }

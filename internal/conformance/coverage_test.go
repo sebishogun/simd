@@ -72,6 +72,10 @@ func TestGeneratedKernelCoverage(t *testing.T) {
 				{"I64", got.I64, want.I64},
 				{"Bytes", got.Bytes, want.Bytes},
 				{"Mask", got.Mask, want.Mask},
+				{"C64", got.C64, want.C64},
+				{"C128", got.C128, want.C128},
+				{"C64Parts", got.C64Parts, want.C64Parts},
+				{"C128Parts", got.C128Parts, want.C128Parts},
 			}
 			total := 0
 			for _, g := range groups {
@@ -110,6 +114,10 @@ func TestEveryGroupIsExercised(t *testing.T) {
 			{"I64", got.I64, want.I64},
 			{"Bytes", got.Bytes, want.Bytes},
 			{"Mask", got.Mask, want.Mask},
+			{"C64", got.C64, want.C64},
+			{"C128", got.C128, want.C128},
+			{"C64Parts", got.C64Parts, want.C64Parts},
+			{"C128Parts", got.C128Parts, want.C128Parts},
 		} {
 			if n, _ := generatedFields(g.got, g.want); n > best[g.name] {
 				best[g.name] = n

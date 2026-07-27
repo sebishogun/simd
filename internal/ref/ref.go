@@ -823,8 +823,27 @@ func Set() kernel.Set {
 			EqualFoldASCII: equalFoldASCII, ReplaceByte: replaceByte,
 			HexEncode: hexEncode, HexDecode: hexDecode,
 		},
-		Mask: maskOps(),
+		Mask:      maskOps(),
+		C64:       complexGroup[complex64, float32](),
+		C128:      complexGroup[complex128, float64](),
+		C64Parts:  complexPartsGroup[complex64, float32](),
+		C128Parts: complexPartsGroup[complex128, float64](),
 	}
+}
+
+// complexGroup builds one complex kernel group. It exists because the
+// composite literal above cannot call a function that fills through a
+// pointer, and filling through a pointer is what keeps complexOps readable.
+func complexGroup[C complexT, R float]() kernel.Complex[C] {
+	var o kernel.Complex[C]
+	complexOps[C, R](&o)
+	return o
+}
+
+func complexPartsGroup[C complexT, R float]() kernel.ComplexParts[C, R] {
+	var o kernel.ComplexParts[C, R]
+	complexPartsOps(&o)
+	return o
 }
 
 // Exported entry points for generated code.
