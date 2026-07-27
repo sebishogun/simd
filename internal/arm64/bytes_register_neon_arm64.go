@@ -166,6 +166,20 @@ func countAnyNEONGuarded(b []byte, chars []byte) int {
 	return countAnyNEON(b, chars)
 }
 
+func b64EncodeNEONGuarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.B64Encode(dst, b)
+	}
+	return b64EncodeNEON(dst, b)
+}
+
+func b64DecodeNEONGuarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.B64Decode(dst, b)
+	}
+	return b64DecodeNEON(dst, b)
+}
+
 func hexEncodeNEONGuarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
@@ -244,6 +258,8 @@ func init() {
 	s.Bytes.IndexNotAny = indexNotAnyNEONGuarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyNEONGuarded
 	s.Bytes.CountAny = countAnyNEONGuarded
+	s.Bytes.B64Encode = b64EncodeNEONGuarded
+	s.Bytes.B64Decode = b64DecodeNEONGuarded
 	s.Bytes.HexEncode = hexEncodeNEONGuarded
 	s.Bytes.Index = indexNEONGuarded
 	s.Bytes.LastIndex = lastIndexNEONGuarded

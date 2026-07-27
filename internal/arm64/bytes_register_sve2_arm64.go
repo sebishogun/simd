@@ -166,6 +166,20 @@ func countAnySVE2Guarded(b []byte, chars []byte) int {
 	return countAnySVE2(b, chars)
 }
 
+func b64EncodeSVE2Guarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.B64Encode(dst, b)
+	}
+	return b64EncodeSVE2(dst, b)
+}
+
+func b64DecodeSVE2Guarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.B64Decode(dst, b)
+	}
+	return b64DecodeSVE2(dst, b)
+}
+
 func hexEncodeSVE2Guarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
@@ -244,6 +258,8 @@ func init() {
 	s.Bytes.IndexNotAny = indexNotAnySVE2Guarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnySVE2Guarded
 	s.Bytes.CountAny = countAnySVE2Guarded
+	s.Bytes.B64Encode = b64EncodeSVE2Guarded
+	s.Bytes.B64Decode = b64DecodeSVE2Guarded
 	s.Bytes.HexEncode = hexEncodeSVE2Guarded
 	s.Bytes.Index = indexSVE2Guarded
 	s.Bytes.LastIndex = lastIndexSVE2Guarded

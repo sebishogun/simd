@@ -73,6 +73,12 @@ func lastIndexNotAnyRVV(b []byte, chars []byte) int
 func countAnyRVV(b []byte, chars []byte) int
 
 //go:noescape
+func b64EncodeRVV(dst []byte, b []byte) int
+
+//go:noescape
+func b64DecodeRVV(dst []byte, b []byte) int
+
+//go:noescape
 func hexEncodeRVV(dst []byte, b []byte) int
 
 //go:noescape

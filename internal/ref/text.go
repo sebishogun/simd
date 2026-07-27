@@ -276,3 +276,128 @@ func LastIndex(haystack, needle []byte) int { return lastIndex(haystack, needle)
 func CountSeq(haystack, needle []byte) int  { return countSeq(haystack, needle) }
 
 func LastIndexNotAny(b, chars []byte) int { return lastIndexNotAny(b, chars) }
+
+// ---------- base64 ----------
+//
+// RFC 4648 with padding, matching encoding/base64.StdEncoding.
+//
+// Unlike the byte scanners above these do not delegate to the standard
+// library, because the contract differs in a way that matters: these write
+// into a caller's buffer and report -1 rather than allocating or panicking.
+// Building the standard library's answer and copying it would allocate, which
+// this package does not do.
+
+const b64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+func b64Encode(dst, src []byte) int {
+	full := len(src) / 3
+	rem := len(src) - full*3
+	need := (full + boolToInt(rem != 0)) * 4
+	if len(dst) < need {
+		return -1
+	}
+	for i := range full {
+		x, y, z := src[i*3], src[i*3+1], src[i*3+2]
+		dst[i*4] = b64Alphabet[x>>2]
+		dst[i*4+1] = b64Alphabet[(x&0x03)<<4|y>>4]
+		dst[i*4+2] = b64Alphabet[(y&0x0f)<<2|z>>6]
+		dst[i*4+3] = b64Alphabet[z&0x3f]
+	}
+	if rem != 0 {
+		x := src[full*3]
+		var y byte
+		if rem == 2 {
+			y = src[full*3+1]
+		}
+		dst[full*4] = b64Alphabet[x>>2]
+		dst[full*4+1] = b64Alphabet[(x&0x03)<<4|y>>4]
+		dst[full*4+2] = '='
+		if rem == 2 {
+			dst[full*4+2] = b64Alphabet[(y&0x0f)<<2]
+		}
+		dst[full*4+3] = '='
+	}
+	return need
+}
+
+// b64Value is a character's six-bit value, or 64 for anything outside the
+// alphabet. The kernel uses the same encoding of "invalid" so that a whole
+// register's worth can be validated with one OR; see csrc/bytes.c.
+func b64Value(c byte) byte {
+	switch {
+	case c >= 'A' && c <= 'Z':
+		return c - 'A'
+	case c >= 'a' && c <= 'z':
+		return c - 'a' + 26
+	case c >= '0' && c <= '9':
+		return c - '0' + 52
+	case c == '+':
+		return 62
+	case c == '/':
+		return 63
+	}
+	return 64
+}
+
+func b64Decode(dst, src []byte) int {
+	if len(src)%4 != 0 {
+		return -1
+	}
+	if len(src) == 0 {
+		return 0
+	}
+	pad := 0
+	if src[len(src)-1] == '=' {
+		pad++
+	}
+	if len(src) >= 2 && src[len(src)-2] == '=' {
+		pad++
+	}
+	need := len(src)/4*3 - pad
+	if len(dst) < need {
+		return -1
+	}
+	groups := len(src)/4 - 1
+	var bad byte
+	for i := range groups {
+		a0, a1 := b64Value(src[i*4]), b64Value(src[i*4+1])
+		a2, a3 := b64Value(src[i*4+2]), b64Value(src[i*4+3])
+		bad |= a0 | a1 | a2 | a3
+		dst[i*3] = a0<<2 | a1>>4
+		dst[i*3+1] = a1<<4 | a2>>2
+		dst[i*3+2] = a2<<6 | a3
+	}
+	if bad&0x40 != 0 {
+		return -1
+	}
+	i := groups
+	a0, a1 := b64Value(src[i*4]), b64Value(src[i*4+1])
+	var a2, a3 byte
+	if pad < 2 {
+		a2 = b64Value(src[i*4+2])
+	}
+	if pad < 1 {
+		a3 = b64Value(src[i*4+3])
+	}
+	if (a0|a1|a2|a3)&0x40 != 0 {
+		return -1
+	}
+	dst[i*3] = a0<<2 | a1>>4
+	if pad < 2 {
+		dst[i*3+1] = a1<<4 | a2>>2
+	}
+	if pad < 1 {
+		dst[i*3+2] = a2<<6 | a3
+	}
+	return need
+}
+
+func boolToInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func B64Encode(dst, src []byte) int { return b64Encode(dst, src) }
+func B64Decode(dst, src []byte) int { return b64Decode(dst, src) }

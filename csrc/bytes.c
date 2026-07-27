@@ -645,3 +645,142 @@ void simd_valid_utf8(_Bool *__restrict out, const u8 *__restrict b, isize n) {
   }
   *out = 1;
 }
+
+// ---------- base64 ----------
+//
+// Standard alphabet, RFC 4648, with padding. Three input bytes become four
+// output characters, and the whole difficulty is that neither the gather of
+// the six-bit fields nor the mapping to characters is a shape a vectorizer
+// finds on its own.
+//
+// The field extraction is written per output position rather than as a shift
+// of a 24-bit accumulator. Written the accumulator way — load three bytes,
+// combine, shift out four times — the loads are a strided gather and the
+// combine is a loop-carried expression, and LLVM declines. Written as four
+// independent expressions of b[3i], b[3i+1] and b[3i+2], each output lane
+// depends only on input lanes at a fixed offset, which is a shuffle, and every
+// target here has one.
+//
+// The character mapping is arithmetic, not a table. A 64-entry lookup is a
+// gather on every target and a constant pool on most, and this generator
+// cannot relocate a pool on four of the six. The alphabet is five contiguous
+// runs, so five compares and four adds give the answer branch-free:
+//
+//	 0..25  ->  'A' + v          26..51 ->  'a' + v - 26
+//	52..61  ->  '0' + v - 52     62     ->  '+'        63 -> '/'
+//
+// Each step is a select against a constant, which is one instruction per lane.
+#define B64_CHAR(V)                                                      \
+  ({                                                                     \
+    u8 v_ = (V);                                                         \
+    int c_ = 'A' + v_;                                                   \
+    c_ = v_ > 25 ? 'a' + v_ - 26 : c_;                                   \
+    c_ = v_ > 51 ? '0' + v_ - 52 : c_;                                   \
+    c_ = v_ == 62 ? '+' : c_;                                            \
+    c_ = v_ == 63 ? '/' : c_;                                            \
+    (u8) c_;                                                             \
+  })
+
+// simd_b64_encode writes the base64 of b into d and reports how many bytes it
+// wrote, or -1 if d is too short. Both lengths are taken because the output is
+// four thirds of the input rounded up to a multiple of four, which is not a
+// number the caller's guard can clamp to.
+void simd_b64_encode(isize *__restrict out, u8 *__restrict d,
+                     const u8 *__restrict b, isize nd, isize nb) {
+  isize full = nb / 3;             // whole three-byte groups
+  isize rem = nb - full * 3;       // 0, 1 or 2 trailing bytes
+  isize need = (full + (rem ? 1 : 0)) * 4;
+  if (nd < need) {
+    *out = -1;
+    return;
+  }
+  for (isize i = 0; i < full; i++) {
+    u8 x = b[i * 3], y = b[i * 3 + 1], z = b[i * 3 + 2];
+    d[i * 4] = B64_CHAR((u8)(x >> 2));
+    d[i * 4 + 1] = B64_CHAR((u8)(((x & 0x03) << 4) | (y >> 4)));
+    d[i * 4 + 2] = B64_CHAR((u8)(((y & 0x0f) << 2) | (z >> 6)));
+    d[i * 4 + 3] = B64_CHAR((u8)(z & 0x3f));
+  }
+  // The tail, which is at most one group and so is not worth vectorizing.
+  if (rem) {
+    u8 x = b[full * 3];
+    u8 y = rem == 2 ? b[full * 3 + 1] : 0;
+    d[full * 4] = B64_CHAR((u8)(x >> 2));
+    d[full * 4 + 1] = B64_CHAR((u8)(((x & 0x03) << 4) | (y >> 4)));
+    d[full * 4 + 2] = rem == 2 ? B64_CHAR((u8)((y & 0x0f) << 2)) : (u8)'=';
+    d[full * 4 + 3] = '=';
+  }
+  *out = need;
+}
+
+// B64_VALUE is the inverse mapping: a character to its six-bit value, or 64
+// for anything outside the alphabet, which the caller turns into a rejection.
+//
+// Written as five range tests for the same reason the forward direction is:
+// the alternative is a 256-entry table, which is a gather.
+#define B64_VALUE(C)                                                     \
+  ({                                                                     \
+    u8 c_ = (C);                                                         \
+    int v_ = 64;                                                         \
+    v_ = (c_ >= 'A' && c_ <= 'Z') ? c_ - 'A' : v_;                       \
+    v_ = (c_ >= 'a' && c_ <= 'z') ? c_ - 'a' + 26 : v_;                  \
+    v_ = (c_ >= '0' && c_ <= '9') ? c_ - '0' + 52 : v_;                  \
+    v_ = c_ == '+' ? 62 : v_;                                            \
+    v_ = c_ == '/' ? 63 : v_;                                            \
+    (u8) v_;                                                             \
+  })
+
+// simd_b64_decode writes the decoded bytes of b into d and reports how many it
+// wrote, or -1 if the input is not valid base64 or d is too short.
+//
+// Validation and decoding are one pass, not two. The value of an invalid
+// character is 64, which has bit 6 set, so ORing every value together and
+// testing that one bit at the end says whether anything was rejected — one
+// extra OR per lane rather than a branch per character.
+void simd_b64_decode(isize *__restrict out, u8 *__restrict d,
+                     const u8 *__restrict b, isize nd, isize nb) {
+  if (nb % 4 != 0) {
+    *out = -1;
+    return;
+  }
+  if (nb == 0) {
+    *out = 0;
+    return;
+  }
+  // Padding is only legal in the final group, and there is at most two of it.
+  isize pad = 0;
+  if (b[nb - 1] == '=') pad++;
+  if (nb >= 2 && b[nb - 2] == '=') pad++;
+  isize need = nb / 4 * 3 - pad;
+  if (nd < need) {
+    *out = -1;
+    return;
+  }
+  isize groups = nb / 4 - 1; // every group but the last, which may be padded
+  u8 bad = 0;
+  for (isize i = 0; i < groups; i++) {
+    u8 a0 = B64_VALUE(b[i * 4]), a1 = B64_VALUE(b[i * 4 + 1]);
+    u8 a2 = B64_VALUE(b[i * 4 + 2]), a3 = B64_VALUE(b[i * 4 + 3]);
+    bad |= (u8)(a0 | a1 | a2 | a3);
+    d[i * 3] = (u8)((a0 << 2) | (a1 >> 4));
+    d[i * 3 + 1] = (u8)((a1 << 4) | (a2 >> 2));
+    d[i * 3 + 2] = (u8)((a2 << 6) | a3);
+  }
+  if (bad & 0x40) {
+    *out = -1;
+    return;
+  }
+  // The final group, where the padding lives.
+  isize i = groups;
+  u8 a0 = B64_VALUE(b[i * 4]), a1 = B64_VALUE(b[i * 4 + 1]);
+  u8 a2 = pad < 2 ? B64_VALUE(b[i * 4 + 2]) : 0;
+  u8 a3 = pad < 1 ? B64_VALUE(b[i * 4 + 3]) : 0;
+  if ((a0 | a1 | a2 | a3) & 0x40) {
+    *out = -1;
+    return;
+  }
+  d[i * 3] = (u8)((a0 << 2) | (a1 >> 4));
+  if (pad < 2) d[i * 3 + 1] = (u8)((a1 << 4) | (a2 >> 2));
+  if (pad < 1) d[i * 3 + 2] = (u8)((a2 << 6) | a3);
+  *out = need;
+}

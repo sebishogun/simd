@@ -73,6 +73,12 @@ func lastIndexNotAnyNEON(b []byte, chars []byte) int
 func countAnyNEON(b []byte, chars []byte) int
 
 //go:noescape
+func b64EncodeNEON(dst []byte, b []byte) int
+
+//go:noescape
+func b64DecodeNEON(dst []byte, b []byte) int
+
+//go:noescape
 func hexEncodeNEON(dst []byte, b []byte) int
 
 //go:noescape

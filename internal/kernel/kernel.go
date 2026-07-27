@@ -311,6 +311,14 @@ type Bytes struct {
 	// whether the input was valid.
 	HexEncode func(dst, src []byte) int
 	HexDecode func(dst, src []byte) (int, bool)
+
+	// Base64, RFC 4648 with padding. Both report how many bytes they wrote,
+	// or -1: for the encoder that means dst was too short, for the decoder it
+	// means that or that the input was not valid base64. One number rather
+	// than a count and a bool because the kernel's result slot holds one
+	// value; the wrapper in package simd splits it.
+	B64Encode func(dst, src []byte) int
+	B64Decode func(dst, src []byte) int
 }
 
 // Complex is the kernel group for complex numbers, parameterised by the

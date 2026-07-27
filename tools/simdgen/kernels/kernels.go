@@ -670,6 +670,25 @@ func Bytes() []spec.Kernel {
 		{
 			// Also two lengths: the output holds two bytes per input byte, so
 			// clamping them together would give the wrong count for either.
+			// Base64. Two lengths for the same reason hex has two: the
+			// output is four thirds of the input rounded up, which is not a
+			// number the guard can clamp to.
+			CName: "simd_b64_encode", GoName: "b64Encode",
+			Group: "Bytes", Field: "B64Encode", RefFunc: "B64Encode",
+			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("dst"), base("b"), lenOf("dst"), lenOf("b")},
+			Threshold: thBytes,
+		},
+		{
+			CName: "simd_b64_decode", GoName: "b64Decode",
+			Group: "Bytes", Field: "B64Decode", RefFunc: "B64Decode",
+			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("dst"), base("b"), lenOf("dst"), lenOf("b")},
+			Threshold: thBytes,
+		},
+		{
 			CName: "simd_hex_encode", GoName: "hexEncode",
 			Group: "Bytes", Field: "HexEncode", RefFunc: "HexEncode",
 			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8)},

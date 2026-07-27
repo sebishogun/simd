@@ -73,6 +73,12 @@ func lastIndexNotAnySVE2(b []byte, chars []byte) int
 func countAnySVE2(b []byte, chars []byte) int
 
 //go:noescape
+func b64EncodeSVE2(dst []byte, b []byte) int
+
+//go:noescape
+func b64DecodeSVE2(dst []byte, b []byte) int
+
+//go:noescape
 func hexEncodeSVE2(dst []byte, b []byte) int
 
 //go:noescape

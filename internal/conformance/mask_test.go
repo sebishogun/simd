@@ -548,6 +548,54 @@ func checkBytes(t *testing.T, tier string, got, want kernel.Bytes) {
 		}
 	}
 
+	// Base64. Every length rather than a sample: the encoder's tail is one of
+	// three shapes depending on len%3 and the decoder's is one of three
+	// depending on the padding, and each has its own arithmetic.
+	if got.B64Encode != nil && want.B64Encode != nil {
+		for _, n := range byteLens {
+			b := genBytes(n, r)
+			enc := (n + 2) / 3 * 4
+			for _, dn := range []int{0, enc - 1, enc, enc + 7} {
+				if dn < 0 {
+					continue
+				}
+				gd, wd := make([]byte, dn), make([]byte, dn)
+				g, w := got.B64Encode(gd, b), want.B64Encode(wd, b)
+				if g != w {
+					t.Fatalf("%s/Bytes.B64Encode n=%d dst=%d: wrote %d want %d",
+						tier, n, dn, g, w)
+				}
+				if i, ok := same(gd, wd); !ok {
+					t.Fatalf("%s/Bytes.B64Encode n=%d dst=%d i=%d: got %#02x want %#02x",
+						tier, n, dn, i, gd[i], wd[i])
+				}
+			}
+			// And the decode of a well-formed encoding, plus a corrupted one
+			// so the rejection path is exercised at every length too.
+			buf := make([]byte, enc)
+			want.B64Encode(buf, b)
+			for _, mutate := range []bool{false, true} {
+				in := append([]byte(nil), buf...)
+				if mutate && len(in) > 0 {
+					in[len(in)/2] = '!'
+				}
+				dn := n + 3
+				gd, wd := make([]byte, dn), make([]byte, dn)
+				g, w := got.B64Decode(gd, in), want.B64Decode(wd, in)
+				if g != w {
+					t.Fatalf("%s/Bytes.B64Decode n=%d mutated=%v: wrote %d want %d",
+						tier, n, mutate, g, w)
+				}
+				if g > 0 {
+					if i, ok := same(gd[:g], wd[:g]); !ok {
+						t.Fatalf("%s/Bytes.B64Decode n=%d i=%d: got %#02x want %#02x",
+							tier, n, i, gd[i], wd[i])
+					}
+				}
+			}
+		}
+	}
+
 	if got.Index != nil && want.Index != nil {
 		for _, n := range byteLens {
 			h := genBytes(n, r)

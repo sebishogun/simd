@@ -332,3 +332,39 @@ func HexEncode[S Text](dst []byte, src S) int {
 func HexDecode[S Text](dst []byte, src S) (int, bool) {
 	return active.Bytes.HexDecode(dst, textBytes(src))
 }
+
+// ---------- base64 ----------
+
+// Base64EncodedLen is the length [Base64Encode] needs in dst for n input
+// bytes, matching base64.StdEncoding.EncodedLen.
+func Base64EncodedLen(n int) int { return (n + 2) / 3 * 4 }
+
+// Base64DecodedLen is the largest length [Base64Decode] can write for n input
+// bytes, matching base64.StdEncoding.DecodedLen. The actual count is smaller
+// when the input is padded, and is what Base64Decode returns.
+func Base64DecodedLen(n int) int { return n / 4 * 3 }
+
+// Base64Encode writes the standard base64 encoding of src into dst and returns
+// how many bytes it wrote, or -1 if dst is shorter than [Base64EncodedLen].
+//
+// It matches base64.StdEncoding: the RFC 4648 alphabet, with padding. Nothing
+// is allocated — which is the difference from encoding/base64's EncodeToString
+// and the reason the length is the caller's to provide.
+func Base64Encode[S Text](dst []byte, src S) int {
+	return active.Bytes.B64Encode(dst, textBytes(src))
+}
+
+// Base64Decode writes the decoded bytes of src into dst and returns how many
+// it wrote, or -1 if src is not valid standard base64 or dst is too short.
+//
+// It matches base64.StdEncoding.Decode, except in how it reports a problem:
+// one number rather than a count and an error, because returning an error
+// would allocate.
+//
+// Validation is not a separate pass. Every character's value is folded
+// together as it is decoded and one bit says whether anything was outside the
+// alphabet, so a rejected input costs the same as an accepted one rather than
+// a branch per character.
+func Base64Decode[S Text](dst []byte, src S) int {
+	return active.Bytes.B64Decode(dst, textBytes(src))
+}

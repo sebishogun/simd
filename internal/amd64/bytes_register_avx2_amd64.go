@@ -166,6 +166,13 @@ func countAnyAVX2Guarded(b []byte, chars []byte) int {
 	return countAnyAVX2(b, chars)
 }
 
+func b64EncodeAVX2Guarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.B64Encode(dst, b)
+	}
+	return b64EncodeAVX2(dst, b)
+}
+
 func hexEncodeAVX2Guarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
@@ -244,6 +251,7 @@ func init() {
 	s.Bytes.IndexNotAny = indexNotAnyAVX2Guarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyAVX2Guarded
 	s.Bytes.CountAny = countAnyAVX2Guarded
+	s.Bytes.B64Encode = b64EncodeAVX2Guarded
 	s.Bytes.HexEncode = hexEncodeAVX2Guarded
 	s.Bytes.Index = indexAVX2Guarded
 	s.Bytes.LastIndex = lastIndexAVX2Guarded

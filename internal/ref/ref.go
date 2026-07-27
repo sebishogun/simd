@@ -864,6 +864,7 @@ func Set() kernel.Set {
 			ToUpperASCII: toUpperASCII, ToLowerASCII: toLowerASCII,
 			EqualFoldASCII: equalFoldASCII, ReplaceByte: replaceByte,
 			HexEncode: hexEncode, HexDecode: hexDecode,
+			B64Encode: b64Encode, B64Decode: b64Decode,
 		},
 		Mask:      maskOps(),
 		C64:       complexGroup[complex64, float32](),

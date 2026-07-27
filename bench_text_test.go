@@ -16,6 +16,7 @@ package simd_test
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"strings"
 	"testing"
@@ -187,6 +188,44 @@ func BenchmarkTextIndexAll(b *testing.B) {
 					k++
 					off += i + 1
 				}
+				sinkTextInt = k
+			}
+		})
+	}
+}
+
+// BenchmarkTextBase64 is against encoding/base64, which is a byte-at-a-time
+// state machine — the comparison a caller actually faces, and the reason
+// base64 is one of the standard examples of what a vector unit is for.
+func BenchmarkTextBase64(b *testing.B) {
+	for _, n := range textSizes {
+		src := []byte(textCorpus(n))
+		dst := make([]byte, simd.Base64EncodedLen(n))
+		enc := base64.StdEncoding.EncodeToString(src)
+		out := make([]byte, simd.Base64DecodedLen(len(enc)))
+		b.Run(fmt.Sprintf("Encode/n=%d/impl=simd", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				sinkTextInt = simd.Base64Encode(dst, src)
+			}
+		})
+		b.Run(fmt.Sprintf("Encode/n=%d/impl=std", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				base64.StdEncoding.Encode(dst, src)
+				sinkTextInt = len(dst)
+			}
+		})
+		b.Run(fmt.Sprintf("Decode/n=%d/impl=simd", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				sinkTextInt = simd.Base64Decode(out, enc)
+			}
+		})
+		b.Run(fmt.Sprintf("Decode/n=%d/impl=std", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				k, _ := base64.StdEncoding.Decode(out, []byte(enc))
 				sinkTextInt = k
 			}
 		})
