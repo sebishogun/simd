@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.1.1 — 2026-07-28
+
+**Fixes a crash.** `PartitionInto` dereferenced a nil function pointer on every
+architecture without a hardware compress instruction — s390x, ppc64le, riscv64,
+loong64, and amd64 below AVX-512 or arm64 without SVE2. That is most machines,
+and it was a panic on the first call rather than a wrong answer. Anyone on
+v0.1.0 who touches the sorting API should take this.
+
+The cause was two things at once: the portable implementation was never
+registered in the reference, because a scripted edit stopped matching after
+gofmt reflowed the surrounding lines and failed silently; and `PartitionInto`
+called through the slot unguarded, although `CompressInto` — the same
+arrangement — already had the guard. Both are fixed, and the emulated s390x
+lane is what found it. See entry 12 of [docs/wrong.md](docs/wrong.md).
+
+### Added since v0.1.0
+
+- **Sorting**: `Sort`, `SortInto` (allocation-free), `Argsort`, `PartitionInto`
+  and `SortedIndex`. A quicksort around a compress-based partition, 19–27%
+  faster than `slices.Sort` above 16K elements on float64. NaN sorts last, as
+  in `Median` and `Quantile`, which differs from `slices.Sort`.
+- **N-ary arithmetic**: `AddAll` and `MulAll` over any number of slices in a
+  single pass, with the element type enforced by the compiler.
+
 ## v0.1.0 — 2026-07-28
 
 The first tagged version. Everything below is new; there was nothing before it.
