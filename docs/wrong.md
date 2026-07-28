@@ -549,3 +549,43 @@ bitcast. Whether InstCombine sees through the second load is the open question.
 
 The transferable part: when a compiler says a transform is not *beneficial*,
 check whether it is instead not *costed*. The two produce the same silence.
+
+## 26. A check that never fires is a check that passes
+
+**Wrong**, and this one cost two kernels and a wrong explanation for each.
+
+`writesOutsideFrame` in tools/simdgen/verify is the guard against a kernel
+storing outside its own frame — into the caller's frame above the stack pointer
+or the protected zone below it. Both are fatal under Go, and the failure is
+delayed and unrecognisable: the kernel passes its own differential tests, and
+the process later dies with SIGSEGV inside `runtime.scanstack`, in a garbage
+collection, walking the stack of a goroutine that has nothing to do with it.
+
+Two kernels have exactly that signature. `countAnyVSX` on ppc64le, skipped for
+months with the cause recorded as unknown. And the whole compress family on
+riscv64 — found only because the noCompress list claimed RVV has no compress
+instruction, which is false, and removing the entry produced five working-looking
+kernels that destroy the heap.
+
+The guard could not have caught either, because on riscv64 it does not run:
+
+- It needs `tgt.StackReg`, and only ppc64le, the three amd64 tiers and loong64
+  declare one. **riscv64, arm64 and s390x declare none**, so the check returns
+  immediately on all three.
+- `storeMnemonics` lists only s390x and ppc64le instructions. So on amd64 and
+  loong64, where the check does run, it matches no store and always passes.
+- The displacement is found with a regex for a literal `N(sp)`. An RVV vector
+  store is `vse32.v v8, (a5)` — register-indirect through an address computed
+  from the stack pointer — and is invisible even with the mnemonic listed.
+
+So of six architectures, the check meaningfully covers **one**: ppc64le. Its
+comment says "Only the targets whose ABI makes the mistake possible need an
+entry; the rest declare no StackReg and are not checked", which reads as a
+deliberate narrowing and is really a description of the gap.
+
+**Fix**: not applied yet — the entries have to be added and every existing
+kernel re-verified, because kernels that pass today may only be passing because
+nothing looked. The transferable part is the title. A conditional guard that
+silently no-ops on most of its inputs reports success identically to a guard
+that ran and found nothing, and the only way to tell them apart is to make it
+fail on purpose.
