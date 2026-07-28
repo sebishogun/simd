@@ -34,6 +34,13 @@ func argMaxFloat32SVE2Guarded(a []float32) int {
 	return argMaxFloat32SVE2(a)
 }
 
+func minMaxFloat32SVE2Guarded(a []float32) (lo float32, hi float32) {
+	if len(a) < 1 {
+		return ref.MinMaxFloat(a)
+	}
+	return minMaxFloat32SVE2(a)
+}
+
 func argMinFloat64SVE2Guarded(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
@@ -46,6 +53,13 @@ func argMaxFloat64SVE2Guarded(a []float64) int {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat64SVE2(a)
+}
+
+func minMaxFloat64SVE2Guarded(a []float64) (lo float64, hi float64) {
+	if len(a) < 1 {
+		return ref.MinMaxFloat(a)
+	}
+	return minMaxFloat64SVE2(a)
 }
 
 func argMinInt32SVE2Guarded(a []int32) int {
@@ -62,6 +76,13 @@ func argMaxInt32SVE2Guarded(a []int32) int {
 	return argMaxInt32SVE2(a)
 }
 
+func minMaxInt32SVE2Guarded(a []int32) (lo int32, hi int32) {
+	if len(a) < 1 {
+		return ref.MinMaxInt(a)
+	}
+	return minMaxInt32SVE2(a)
+}
+
 func argMinInt64SVE2Guarded(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
@@ -76,16 +97,27 @@ func argMaxInt64SVE2Guarded(a []int64) int {
 	return argMaxInt64SVE2(a)
 }
 
+func minMaxInt64SVE2Guarded(a []int64) (lo int64, hi int64) {
+	if len(a) < 1 {
+		return ref.MinMaxInt(a)
+	}
+	return minMaxInt64SVE2(a)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sve2")
 	s.F32.ArgMin = argMinFloat32SVE2Guarded
 	s.F32.ArgMax = argMaxFloat32SVE2Guarded
+	s.F32.MinMax = minMaxFloat32SVE2Guarded
 	s.F64.ArgMin = argMinFloat64SVE2Guarded
 	s.F64.ArgMax = argMaxFloat64SVE2Guarded
+	s.F64.MinMax = minMaxFloat64SVE2Guarded
 	s.I32.ArgMin = argMinInt32SVE2Guarded
 	s.I32.ArgMax = argMaxInt32SVE2Guarded
+	s.I32.MinMax = minMaxInt32SVE2Guarded
 	s.I64.ArgMin = argMinInt64SVE2Guarded
 	s.I64.ArgMax = argMaxInt64SVE2Guarded
+	s.I64.MinMax = minMaxInt64SVE2Guarded
 }

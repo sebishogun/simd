@@ -16,10 +16,16 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
 //go:noescape
+func minMaxFloat32LASX(a []float32) (lo float32, hi float32)
+
+//go:noescape
 func argMinFloat64LASX(a []float64) int
 
 //go:noescape
 func argMaxFloat64LASX(a []float64) int
+
+//go:noescape
+func minMaxFloat64LASX(a []float64) (lo float64, hi float64)
 
 //go:noescape
 func argMinInt32LASX(a []int32) int
@@ -28,7 +34,13 @@ func argMinInt32LASX(a []int32) int
 func argMaxInt32LASX(a []int32) int
 
 //go:noescape
+func minMaxInt32LASX(a []int32) (lo int32, hi int32)
+
+//go:noescape
 func argMinInt64LASX(a []int64) int
 
 //go:noescape
 func argMaxInt64LASX(a []int64) int
+
+//go:noescape
+func minMaxInt64LASX(a []int64) (lo int64, hi int64)

@@ -53,6 +53,8 @@ type Frame struct {
 	Offsets map[string]int
 	// ResultOff is the offset of the result, or -1 if there is none.
 	ResultOff int
+	// ResultOff2 is the offset of the second result, or -1. See spec.Result2.
+	ResultOff2 int
 	// Size is the total argument-plus-result frame size, which is the N in
 	// the TEXT directive's $0-N.
 	Size int
@@ -66,7 +68,7 @@ type Frame struct {
 // the wrong memory, which is why `go vet`'s asmdecl check exists and why the
 // generated declaration is emitted from this same layout.
 func LayoutFrame(k spec.Kernel) Frame {
-	f := Frame{Offsets: map[string]int{}, ResultOff: -1}
+	f := Frame{Offsets: map[string]int{}, ResultOff: -1, ResultOff2: -1}
 	off := 0
 	align := func(a int) {
 		if r := off % a; r != 0 {
@@ -100,6 +102,13 @@ func LayoutFrame(k spec.Kernel) Frame {
 		align(8)
 		f.ResultOff = off
 		off += k.Result.Type.Size()
+		if k.Result2 != nil {
+			// The second result follows at its own natural alignment inside
+			// the results section, which has already been word-aligned.
+			align(k.Result2.Type.Align())
+			f.ResultOff2 = off
+			off += k.Result2.Type.Size()
+		}
 	}
 	f.Size = off
 	return f
@@ -530,7 +539,7 @@ func prologueFor(k spec.Kernel, frame Frame, tgt target.Target) ([]string, error
 			off  int
 			typ  spec.Type
 		)
-		if ca.Part == spec.ResultAddr {
+		if ca.Part == spec.ResultAddr || ca.Part == spec.ResultAddr2 {
 			if tgt.AddrOf == "" {
 				return nil, fmt.Errorf("emit: %s: no address-of mnemonic for %s", k.GoName, tgt.Arch)
 			}
@@ -539,7 +548,16 @@ func prologueFor(k spec.Kernel, frame Frame, tgt target.Target) ([]string, error
 			}
 			reg := tgt.IntArgs[nextInt]
 			nextInt++
-			operand := fmt.Sprintf("ret+%d(FP)", frame.ResultOff)
+			// The name has to be the one in the generated Go declaration, not
+			// a fixed "ret": go vet's asmdecl matches assembly operands to
+			// declared parameter names, and a pair of results is declared with
+			// names because Go requires all-or-none. Single-result kernels
+			// carry the name "ret" in the manifest, so this is uniform.
+			name, off := k.Result.Name, frame.ResultOff
+			if ca.Part == spec.ResultAddr2 {
+				name, off = k.Result2.Name, frame.ResultOff2
+			}
+			operand := fmt.Sprintf("%s+%d(FP)", name, off)
 			if tgt.Arch != target.AMD64 {
 				// RISC-style assemblers spell "address of" as a move of a
 				// $-prefixed operand.
@@ -774,7 +792,15 @@ func goResult(k spec.Kernel) string {
 	if k.Result == nil {
 		return ""
 	}
-	return " " + k.Result.Type.GoString()
+	if k.Result2 == nil {
+		return " " + k.Result.Type.GoString()
+	}
+	// Named, because Go requires either all results named or none, and the
+	// declaration this feeds is what `go vet`'s asmdecl checks against the
+	// frame layout above.
+	return fmt.Sprintf(" (%s %s, %s %s)",
+		k.Result.Name, k.Result.Type.GoString(),
+		k.Result2.Name, k.Result2.Type.GoString())
 }
 
 // Backend renders the Go file that registers the generated kernels with the

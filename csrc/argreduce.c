@@ -34,8 +34,16 @@
 // NaN in the array.
 
 #include "goabi.h"
+#include "minmax.h"
 
 typedef long isize;
+
+// The IEEE-2019 min and max used by MinMax below come from minmax.h, which is
+// the same copy arith.c and scan.c use.
+MINMAX_FLOAT(float, f32, __builtin_signbitf)
+MINMAX_FLOAT(double, f64, __builtin_signbit)
+MINMAX_INT(int, i32)
+MINMAX_INT(long long, i64)
 
 // Lane counts differ by element width, and the horizontal loops below are
 // unrolled by pragma. Both are load-bearing for the same reason reduce.c gives:
@@ -160,3 +168,50 @@ ARG_INT(int, int, i32xA, i32xA, i32, min, <, ARG_LANES)
 ARG_INT(int, int, i32xA, i32xA, i32, max, >, ARG_LANES)
 ARG_INT(long long, long long, i64xA, i64xA, i64, min, <, ARG_LANES64)
 ARG_INT(long long, long long, i64xA, i64xA, i64, max, >, ARG_LANES64)
+
+// ---------- MinMax ----------
+//
+// Both extremes from one pass over memory, which is the entire reason it exists
+// rather than being Min followed by Max: the array is read once instead of
+// twice, and above the last level of cache that is the whole cost.
+//
+// Two results, so two out pointers. A kernel cannot return in a register — see
+// spec.ResultAddr — so each result is written through a pointer to its frame
+// slot, and a second result is simply a second pointer.
+#define MINMAX_KERNEL(T, VT, SUF, L, VMIN, VMAX, SMIN, SMAX)              \
+  void simd_minmax_##SUF(T *__restrict lo_out, T *__restrict hi_out,      \
+                         const T *__restrict a, isize n) {                \
+    if (n <= 0) {                                                         \
+      *lo_out = 0;                                                        \
+      *hi_out = 0;                                                        \
+      return;                                                             \
+    }                                                                     \
+    VT vlo = (VT)a[0], vhi = (VT)a[0];                                    \
+    isize i = 0;                                                          \
+    for (; i + (L) <= n; i += (L)) {                                      \
+      VT v = *(const VT *)(a + i);                                        \
+      vlo = VMIN(vlo, v);                                                 \
+      vhi = VMAX(vhi, v);                                                 \
+    }                                                                     \
+    T lo = vlo[0], hi = vhi[0];                                           \
+    _Pragma("clang loop unroll(full)") for (int j = 1; j < (L); j++) {    \
+      lo = SMIN(lo, vlo[j]);                                              \
+      hi = SMAX(hi, vhi[j]);                                              \
+    }                                                                     \
+    for (; i < n; i++) {                                                  \
+      lo = SMIN(lo, a[i]);                                                \
+      hi = SMAX(hi, a[i]);                                                \
+    }                                                                     \
+    *lo_out = lo;                                                         \
+    *hi_out = hi;                                                         \
+  }
+
+#define MMVMINF32(x, y) VMIN_FLOAT(f32xA, i32xA, x, y)
+#define MMVMAXF32(x, y) VMAX_FLOAT(f32xA, i32xA, x, y)
+#define MMVMINF64(x, y) VMIN_FLOAT(f64xA, i64xA, x, y)
+#define MMVMAXF64(x, y) VMAX_FLOAT(f64xA, i64xA, x, y)
+
+MINMAX_KERNEL(float, f32xA, f32, ARG_LANES, MMVMINF32, MMVMAXF32, min_f32, max_f32)
+MINMAX_KERNEL(double, f64xA, f64, ARG_LANES64, MMVMINF64, MMVMAXF64, min_f64, max_f64)
+MINMAX_KERNEL(int, i32xA, i32, ARG_LANES, VMIN_INT, VMAX_INT, min_i32, max_i32)
+MINMAX_KERNEL(long long, i64xA, i64, ARG_LANES64, VMIN_INT, VMAX_INT, min_i64, max_i64)

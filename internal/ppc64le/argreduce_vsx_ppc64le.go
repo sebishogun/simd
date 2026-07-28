@@ -22,10 +22,16 @@ func argMinFloat32VSX(a []float32) int
 func argMaxFloat32VSX(a []float32) int
 
 //go:noescape
+func minMaxFloat32VSX(a []float32) (lo float32, hi float32)
+
+//go:noescape
 func argMinFloat64VSX(a []float64) int
 
 //go:noescape
 func argMaxFloat64VSX(a []float64) int
+
+//go:noescape
+func minMaxFloat64VSX(a []float64) (lo float64, hi float64)
 
 //go:noescape
 func argMinInt32VSX(a []int32) int

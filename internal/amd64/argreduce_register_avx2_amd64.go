@@ -34,6 +34,13 @@ func argMaxFloat32AVX2Guarded(a []float32) int {
 	return argMaxFloat32AVX2(a)
 }
 
+func minMaxFloat32AVX2Guarded(a []float32) (lo float32, hi float32) {
+	if len(a) < 1 {
+		return ref.MinMaxFloat(a)
+	}
+	return minMaxFloat32AVX2(a)
+}
+
 func argMinFloat64AVX2Guarded(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
@@ -46,6 +53,13 @@ func argMaxFloat64AVX2Guarded(a []float64) int {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat64AVX2(a)
+}
+
+func minMaxFloat64AVX2Guarded(a []float64) (lo float64, hi float64) {
+	if len(a) < 1 {
+		return ref.MinMaxFloat(a)
+	}
+	return minMaxFloat64AVX2(a)
 }
 
 func argMinInt32AVX2Guarded(a []int32) int {
@@ -62,6 +76,13 @@ func argMaxInt32AVX2Guarded(a []int32) int {
 	return argMaxInt32AVX2(a)
 }
 
+func minMaxInt32AVX2Guarded(a []int32) (lo int32, hi int32) {
+	if len(a) < 1 {
+		return ref.MinMaxInt(a)
+	}
+	return minMaxInt32AVX2(a)
+}
+
 func argMinInt64AVX2Guarded(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
@@ -76,16 +97,27 @@ func argMaxInt64AVX2Guarded(a []int64) int {
 	return argMaxInt64AVX2(a)
 }
 
+func minMaxInt64AVX2Guarded(a []int64) (lo int64, hi int64) {
+	if len(a) < 1 {
+		return ref.MinMaxInt(a)
+	}
+	return minMaxInt64AVX2(a)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("avx2")
 	s.F32.ArgMin = argMinFloat32AVX2Guarded
 	s.F32.ArgMax = argMaxFloat32AVX2Guarded
+	s.F32.MinMax = minMaxFloat32AVX2Guarded
 	s.F64.ArgMin = argMinFloat64AVX2Guarded
 	s.F64.ArgMax = argMaxFloat64AVX2Guarded
+	s.F64.MinMax = minMaxFloat64AVX2Guarded
 	s.I32.ArgMin = argMinInt32AVX2Guarded
 	s.I32.ArgMax = argMaxInt32AVX2Guarded
+	s.I32.MinMax = minMaxInt32AVX2Guarded
 	s.I64.ArgMin = argMinInt64AVX2Guarded
 	s.I64.ArgMax = argMaxInt64AVX2Guarded
+	s.I64.MinMax = minMaxInt64AVX2Guarded
 }

@@ -166,6 +166,8 @@ const (
 	// lays basic blocks out after the return instruction. Handing the kernel
 	// somewhere to write removes the need to append anything.
 	ResultAddr
+	// ResultAddr2 is the address of the second Go result slot; see Result2.
+	ResultAddr2
 )
 
 // CArg is one argument of the C function, in C declaration order.
@@ -190,6 +192,18 @@ type Kernel struct {
 	Params []Param
 	// Result is the Go result, or nil for a function that returns nothing.
 	Result *Param
+	// Result2 is the second Go result, for the handful of kernels that return
+	// a pair. MinMax returns both extremes from one pass, and HexDecode
+	// returns a count and a validity flag.
+	//
+	// A kernel cannot return in a register — LLVM lays basic blocks out after
+	// the compiled body's own return, so there is no position afterwards that
+	// is guaranteed to run — so each result is written through a pointer to
+	// its frame slot. A second result is therefore a second pointer argument
+	// and costs one more integer register, which is why it is a distinct field
+	// rather than a slice: two is the most any kernel here needs, and making
+	// it unbounded would hide that cost.
+	Result2 *Param
 
 	// CArgs maps Go parameters onto the C function's arguments, in C order.
 	CArgs []CArg
@@ -324,6 +338,13 @@ func (k Kernel) Validate() error {
 			}
 			continue
 		}
+		if a.Part == ResultAddr2 {
+			if k.Result2 == nil {
+				return fmt.Errorf("kernel %s: C argument %d wants the second result "+
+					"address but the kernel has only one result", k.GoName, i)
+			}
+			continue
+		}
 		p, ok := k.Param(a.From)
 		if !ok {
 			return fmt.Errorf("kernel %s: C argument %d refers to unknown parameter %q",
@@ -362,6 +383,8 @@ func (p Part) String() string {
 		return "value"
 	case ResultAddr:
 		return "result address"
+	case ResultAddr2:
+		return "second result address"
 	}
 	return "?"
 }

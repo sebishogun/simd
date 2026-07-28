@@ -197,7 +197,8 @@ func Check(kernels []spec.Kernel, sigs map[string]Signature) []error {
 				k.CName, sig.Result))
 		}
 		for i, ca := range k.CArgs {
-			wantPtr := ca.Part == spec.Base || ca.Part == spec.ResultAddr
+			wantPtr := ca.Part == spec.Base || ca.Part == spec.ResultAddr ||
+				ca.Part == spec.ResultAddr2
 			if got := sig.IsPointer(i); got != wantPtr {
 				what := "a pointer"
 				if !wantPtr {

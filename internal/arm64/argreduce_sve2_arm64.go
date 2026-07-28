@@ -22,10 +22,16 @@ func argMinFloat32SVE2(a []float32) int
 func argMaxFloat32SVE2(a []float32) int
 
 //go:noescape
+func minMaxFloat32SVE2(a []float32) (lo float32, hi float32)
+
+//go:noescape
 func argMinFloat64SVE2(a []float64) int
 
 //go:noescape
 func argMaxFloat64SVE2(a []float64) int
+
+//go:noescape
+func minMaxFloat64SVE2(a []float64) (lo float64, hi float64)
 
 //go:noescape
 func argMinInt32SVE2(a []int32) int
@@ -34,7 +40,13 @@ func argMinInt32SVE2(a []int32) int
 func argMaxInt32SVE2(a []int32) int
 
 //go:noescape
+func minMaxInt32SVE2(a []int32) (lo int32, hi int32)
+
+//go:noescape
 func argMinInt64SVE2(a []int64) int
 
 //go:noescape
 func argMaxInt64SVE2(a []int64) int
+
+//go:noescape
+func minMaxInt64SVE2(a []int64) (lo int64, hi int64)

@@ -22,10 +22,16 @@ func argMinFloat32AVX512(a []float32) int
 func argMaxFloat32AVX512(a []float32) int
 
 //go:noescape
+func minMaxFloat32AVX512(a []float32) (lo float32, hi float32)
+
+//go:noescape
 func argMinFloat64AVX512(a []float64) int
 
 //go:noescape
 func argMaxFloat64AVX512(a []float64) int
+
+//go:noescape
+func minMaxFloat64AVX512(a []float64) (lo float64, hi float64)
 
 //go:noescape
 func argMinInt32AVX512(a []int32) int
@@ -34,7 +40,13 @@ func argMinInt32AVX512(a []int32) int
 func argMaxInt32AVX512(a []int32) int
 
 //go:noescape
+func minMaxInt32AVX512(a []int32) (lo int32, hi int32)
+
+//go:noescape
 func argMinInt64AVX512(a []int64) int
 
 //go:noescape
 func argMaxInt64AVX512(a []int64) int
+
+//go:noescape
+func minMaxInt64AVX512(a []int64) (lo int64, hi int64)

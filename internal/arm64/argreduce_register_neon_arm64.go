@@ -34,6 +34,13 @@ func argMaxFloat32NEONGuarded(a []float32) int {
 	return argMaxFloat32NEON(a)
 }
 
+func minMaxFloat32NEONGuarded(a []float32) (lo float32, hi float32) {
+	if len(a) < 1 {
+		return ref.MinMaxFloat(a)
+	}
+	return minMaxFloat32NEON(a)
+}
+
 func argMinFloat64NEONGuarded(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
@@ -46,6 +53,13 @@ func argMaxFloat64NEONGuarded(a []float64) int {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat64NEON(a)
+}
+
+func minMaxFloat64NEONGuarded(a []float64) (lo float64, hi float64) {
+	if len(a) < 1 {
+		return ref.MinMaxFloat(a)
+	}
+	return minMaxFloat64NEON(a)
 }
 
 func argMinInt32NEONGuarded(a []int32) int {
@@ -62,6 +76,13 @@ func argMaxInt32NEONGuarded(a []int32) int {
 	return argMaxInt32NEON(a)
 }
 
+func minMaxInt32NEONGuarded(a []int32) (lo int32, hi int32) {
+	if len(a) < 1 {
+		return ref.MinMaxInt(a)
+	}
+	return minMaxInt32NEON(a)
+}
+
 func argMinInt64NEONGuarded(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
@@ -76,16 +97,27 @@ func argMaxInt64NEONGuarded(a []int64) int {
 	return argMaxInt64NEON(a)
 }
 
+func minMaxInt64NEONGuarded(a []int64) (lo int64, hi int64) {
+	if len(a) < 1 {
+		return ref.MinMaxInt(a)
+	}
+	return minMaxInt64NEON(a)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("neon")
 	s.F32.ArgMin = argMinFloat32NEONGuarded
 	s.F32.ArgMax = argMaxFloat32NEONGuarded
+	s.F32.MinMax = minMaxFloat32NEONGuarded
 	s.F64.ArgMin = argMinFloat64NEONGuarded
 	s.F64.ArgMax = argMaxFloat64NEONGuarded
+	s.F64.MinMax = minMaxFloat64NEONGuarded
 	s.I32.ArgMin = argMinInt32NEONGuarded
 	s.I32.ArgMax = argMaxInt32NEONGuarded
+	s.I32.MinMax = minMaxInt32NEONGuarded
 	s.I64.ArgMin = argMinInt64NEONGuarded
 	s.I64.ArgMax = argMaxInt64NEONGuarded
+	s.I64.MinMax = minMaxInt64NEONGuarded
 }

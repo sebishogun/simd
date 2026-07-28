@@ -1006,6 +1006,9 @@ func IndexAll(dst []int32, b []byte, c byte) int { return indexAll(dst, b, c) }
 // ArgMin and ArgMax are exported for the generated threshold guards. The float
 // and integer forms differ because only one of them has NaN to reckon with.
 
+func MinMaxFloat[T Float](a []T) (T, T) { return minMaxFloat(a) }
+func MinMaxInt[T Integer](a []T) (T, T) { return minMaxInt(a) }
+
 func CumMinFloat[T Float](dst, a []T) { cumMinFloat(dst, a) }
 func CumMaxFloat[T Float](dst, a []T) { cumMaxFloat(dst, a) }
 func CumMinInt[T Integer](dst, a []T) { cumMinInt(dst, a) }

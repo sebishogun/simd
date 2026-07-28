@@ -319,13 +319,37 @@ func Scan() []spec.Kernel {
 	return ks
 }
 
-// ArgReduce is the position-returning reduction family.
+// minMaxPairK returns both extremes from one pass, which is the point of having
+// it at all rather than calling Min and Max: the array is read once.
+//
+// It is the first kernel with two results. Each is written through a pointer to
+// its frame slot, so a pair costs one extra integer argument register; see
+// spec.Result2.
+func minMaxPairK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_minmax_" + e.c, GoName: "minMax" + e.goName,
+		Group: e.group, Field: "MinMax", RefFunc: e.ref("MinMax"),
+		Params:  []spec.Param{sl("a", e.slice)},
+		Result:  &spec.Param{Name: "lo", Type: e.scalar},
+		Result2: &spec.Param{Name: "hi", Type: e.scalar},
+		CArgs: []spec.CArg{{Part: spec.ResultAddr}, {Part: spec.ResultAddr2},
+			base("a"), lenOf("a")},
+		// One rather than zero: MinMax of an empty slice panics, and a kernel
+		// cannot, so the empty case has to reach the reference. Same reasoning
+		// as argK.
+		Threshold: 1,
+	}
+}
+
+// ArgReduce is the position-returning reduction family, plus the pair-returning
+// MinMax which shares its file.
 func ArgReduce() []spec.Kernel {
 	var ks []spec.Kernel
 	for _, e := range elems {
 		switch e.group {
 		case "F32", "F64", "I32", "I64":
-			ks = append(ks, argK("min", "Min", e), argK("max", "Max", e))
+			ks = append(ks, argK("min", "Min", e), argK("max", "Max", e),
+				minMaxPairK(e))
 		}
 	}
 	return ks
