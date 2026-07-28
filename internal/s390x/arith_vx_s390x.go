@@ -100,6 +100,9 @@ func lerpFloat64VX(dst []float64, a []float64, b []float64, t float64)
 func addScaledFloat64VX(dst []float64, a []float64, b []float64, s float64)
 
 //go:noescape
+func rampFloat64VX(dst []float64, start float64, step float64)
+
+//go:noescape
 func addInt32VX(dst []int32, a []int32, b []int32)
 
 //go:noescape
@@ -140,6 +143,9 @@ func lerpInt32VX(dst []int32, a []int32, b []int32, t int32)
 
 //go:noescape
 func addScaledInt32VX(dst []int32, a []int32, b []int32, s int32)
+
+//go:noescape
+func rampInt32VX(dst []int32, start int32, step int32)
 
 //go:noescape
 func addInt64VX(dst []int64, a []int64, b []int64)
@@ -214,6 +220,9 @@ func lerpInt8VX(dst []int8, a []int8, b []int8, t int8)
 func addScaledInt8VX(dst []int8, a []int8, b []int8, s int8)
 
 //go:noescape
+func rampInt8VX(dst []int8, start int8, step int8)
+
+//go:noescape
 func addInt16VX(dst []int16, a []int16, b []int16)
 
 //go:noescape
@@ -254,6 +263,9 @@ func lerpInt16VX(dst []int16, a []int16, b []int16, t int16)
 
 //go:noescape
 func addScaledInt16VX(dst []int16, a []int16, b []int16, s int16)
+
+//go:noescape
+func rampInt16VX(dst []int16, start int16, step int16)
 
 //go:noescape
 func addUint8VX(dst []byte, a []byte, b []byte)
@@ -298,6 +310,9 @@ func lerpUint8VX(dst []byte, a []byte, b []byte, t byte)
 func addScaledUint8VX(dst []byte, a []byte, b []byte, s byte)
 
 //go:noescape
+func rampUint8VX(dst []byte, start byte, step byte)
+
+//go:noescape
 func addUint16VX(dst []uint16, a []uint16, b []uint16)
 
 //go:noescape
@@ -340,6 +355,9 @@ func lerpUint16VX(dst []uint16, a []uint16, b []uint16, t uint16)
 func addScaledUint16VX(dst []uint16, a []uint16, b []uint16, s uint16)
 
 //go:noescape
+func rampUint16VX(dst []uint16, start uint16, step uint16)
+
+//go:noescape
 func addUint32VX(dst []uint32, a []uint32, b []uint32)
 
 //go:noescape
@@ -380,6 +398,9 @@ func lerpUint32VX(dst []uint32, a []uint32, b []uint32, t uint32)
 
 //go:noescape
 func addScaledUint32VX(dst []uint32, a []uint32, b []uint32, s uint32)
+
+//go:noescape
+func rampUint32VX(dst []uint32, start uint32, step uint32)
 
 //go:noescape
 func addUint64VX(dst []uint64, a []uint64, b []uint64)

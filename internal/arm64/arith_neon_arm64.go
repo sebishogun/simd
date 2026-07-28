@@ -58,6 +58,9 @@ func lerpFloat32NEON(dst []float32, a []float32, b []float32, t float32)
 func addScaledFloat32NEON(dst []float32, a []float32, b []float32, s float32)
 
 //go:noescape
+func rampFloat32NEON(dst []float32, start float32, step float32)
+
+//go:noescape
 func addFloat64NEON(dst []float64, a []float64, b []float64)
 
 //go:noescape
@@ -100,6 +103,9 @@ func lerpFloat64NEON(dst []float64, a []float64, b []float64, t float64)
 func addScaledFloat64NEON(dst []float64, a []float64, b []float64, s float64)
 
 //go:noescape
+func rampFloat64NEON(dst []float64, start float64, step float64)
+
+//go:noescape
 func addInt32NEON(dst []int32, a []int32, b []int32)
 
 //go:noescape
@@ -140,6 +146,9 @@ func lerpInt32NEON(dst []int32, a []int32, b []int32, t int32)
 
 //go:noescape
 func addScaledInt32NEON(dst []int32, a []int32, b []int32, s int32)
+
+//go:noescape
+func rampInt32NEON(dst []int32, start int32, step int32)
 
 //go:noescape
 func addInt64NEON(dst []int64, a []int64, b []int64)
@@ -217,6 +226,9 @@ func lerpInt8NEON(dst []int8, a []int8, b []int8, t int8)
 func addScaledInt8NEON(dst []int8, a []int8, b []int8, s int8)
 
 //go:noescape
+func rampInt8NEON(dst []int8, start int8, step int8)
+
+//go:noescape
 func addInt16NEON(dst []int16, a []int16, b []int16)
 
 //go:noescape
@@ -259,6 +271,9 @@ func lerpInt16NEON(dst []int16, a []int16, b []int16, t int16)
 func addScaledInt16NEON(dst []int16, a []int16, b []int16, s int16)
 
 //go:noescape
+func rampInt16NEON(dst []int16, start int16, step int16)
+
+//go:noescape
 func addUint8NEON(dst []byte, a []byte, b []byte)
 
 //go:noescape
@@ -296,6 +311,9 @@ func lerpUint8NEON(dst []byte, a []byte, b []byte, t byte)
 
 //go:noescape
 func addScaledUint8NEON(dst []byte, a []byte, b []byte, s byte)
+
+//go:noescape
+func rampUint8NEON(dst []byte, start byte, step byte)
 
 //go:noescape
 func addUint16NEON(dst []uint16, a []uint16, b []uint16)
@@ -337,6 +355,9 @@ func lerpUint16NEON(dst []uint16, a []uint16, b []uint16, t uint16)
 func addScaledUint16NEON(dst []uint16, a []uint16, b []uint16, s uint16)
 
 //go:noescape
+func rampUint16NEON(dst []uint16, start uint16, step uint16)
+
+//go:noescape
 func addUint32NEON(dst []uint32, a []uint32, b []uint32)
 
 //go:noescape
@@ -374,6 +395,9 @@ func lerpUint32NEON(dst []uint32, a []uint32, b []uint32, t uint32)
 
 //go:noescape
 func addScaledUint32NEON(dst []uint32, a []uint32, b []uint32, s uint32)
+
+//go:noescape
+func rampUint32NEON(dst []uint32, start uint32, step uint32)
 
 //go:noescape
 func addUint64NEON(dst []uint64, a []uint64, b []uint64)

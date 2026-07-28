@@ -145,6 +145,14 @@ func addScaledFloat32VSXGuarded(dst []float32, a []float32, b []float32, s float
 	addScaledFloat32VSX(dst[:n:n], a, b, s)
 }
 
+func rampFloat32VSXGuarded(dst []float32, start float32, step float32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampFloat32VSX(dst, start, step)
+}
+
 func addFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -270,6 +278,14 @@ func addScaledFloat64VSXGuarded(dst []float64, a []float64, b []float64, s float
 	addScaledFloat64VSX(dst[:n:n], a, b, s)
 }
 
+func rampFloat64VSXGuarded(dst []float64, start float64, step float64) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampFloat64VSX(dst, start, step)
+}
+
 func addInt32VSXGuarded(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -393,6 +409,14 @@ func addScaledInt32VSXGuarded(dst []int32, a []int32, b []int32, s int32) {
 		return
 	}
 	addScaledInt32VSX(dst[:n:n], a, b, s)
+}
+
+func rampInt32VSXGuarded(dst []int32, start int32, step int32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt32VSX(dst, start, step)
 }
 
 func addInt64VSXGuarded(dst []int64, a []int64, b []int64) {
@@ -609,6 +633,14 @@ func addScaledInt8VSXGuarded(dst []int8, a []int8, b []int8, s int8) {
 	addScaledInt8VSX(dst[:n:n], a, b, s)
 }
 
+func rampInt8VSXGuarded(dst []int8, start int8, step int8) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt8VSX(dst, start, step)
+}
+
 func addInt16VSXGuarded(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -732,6 +764,14 @@ func addScaledInt16VSXGuarded(dst []int16, a []int16, b []int16, s int16) {
 		return
 	}
 	addScaledInt16VSX(dst[:n:n], a, b, s)
+}
+
+func rampInt16VSXGuarded(dst []int16, start int16, step int16) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt16VSX(dst, start, step)
 }
 
 func addUint8VSXGuarded(dst []byte, a []byte, b []byte) {
@@ -859,6 +899,14 @@ func addScaledUint8VSXGuarded(dst []byte, a []byte, b []byte, s byte) {
 	addScaledUint8VSX(dst[:n:n], a, b, s)
 }
 
+func rampUint8VSXGuarded(dst []byte, start byte, step byte) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint8VSX(dst, start, step)
+}
+
 func addUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -984,6 +1032,14 @@ func addScaledUint16VSXGuarded(dst []uint16, a []uint16, b []uint16, s uint16) {
 	addScaledUint16VSX(dst[:n:n], a, b, s)
 }
 
+func rampUint16VSXGuarded(dst []uint16, start uint16, step uint16) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint16VSX(dst, start, step)
+}
+
 func addUint32VSXGuarded(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1107,6 +1163,14 @@ func addScaledUint32VSXGuarded(dst []uint32, a []uint32, b []uint32, s uint32) {
 		return
 	}
 	addScaledUint32VSX(dst[:n:n], a, b, s)
+}
+
+func rampUint32VSXGuarded(dst []uint32, start uint32, step uint32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint32VSX(dst, start, step)
 }
 
 func addUint64VSXGuarded(dst []uint64, a []uint64, b []uint64) {
@@ -1468,6 +1532,7 @@ func init() {
 	s.F32.Fill = fillFloat32VSXGuarded
 	s.F32.Lerp = lerpFloat32VSXGuarded
 	s.F32.AddScaled = addScaledFloat32VSXGuarded
+	s.F32.Ramp = rampFloat32VSXGuarded
 	s.F64.Add = addFloat64VSXGuarded
 	s.F64.Sub = subFloat64VSXGuarded
 	s.F64.Mul = mulFloat64VSXGuarded
@@ -1482,6 +1547,7 @@ func init() {
 	s.F64.Fill = fillFloat64VSXGuarded
 	s.F64.Lerp = lerpFloat64VSXGuarded
 	s.F64.AddScaled = addScaledFloat64VSXGuarded
+	s.F64.Ramp = rampFloat64VSXGuarded
 	s.I32.Add = addInt32VSXGuarded
 	s.I32.Sub = subInt32VSXGuarded
 	s.I32.Mul = mulInt32VSXGuarded
@@ -1496,6 +1562,7 @@ func init() {
 	s.I32.Fill = fillInt32VSXGuarded
 	s.I32.Lerp = lerpInt32VSXGuarded
 	s.I32.AddScaled = addScaledInt32VSXGuarded
+	s.I32.Ramp = rampInt32VSXGuarded
 	s.I64.Add = addInt64VSXGuarded
 	s.I64.Sub = subInt64VSXGuarded
 	s.I64.Minimum = minimumInt64VSXGuarded
@@ -1520,6 +1587,7 @@ func init() {
 	s.I8.Fill = fillInt8VSXGuarded
 	s.I8.Lerp = lerpInt8VSXGuarded
 	s.I8.AddScaled = addScaledInt8VSXGuarded
+	s.I8.Ramp = rampInt8VSXGuarded
 	s.I16.Add = addInt16VSXGuarded
 	s.I16.Sub = subInt16VSXGuarded
 	s.I16.Mul = mulInt16VSXGuarded
@@ -1534,6 +1602,7 @@ func init() {
 	s.I16.Fill = fillInt16VSXGuarded
 	s.I16.Lerp = lerpInt16VSXGuarded
 	s.I16.AddScaled = addScaledInt16VSXGuarded
+	s.I16.Ramp = rampInt16VSXGuarded
 	s.U8.Add = addUint8VSXGuarded
 	s.U8.Sub = subUint8VSXGuarded
 	s.U8.Mul = mulUint8VSXGuarded
@@ -1548,6 +1617,7 @@ func init() {
 	s.U8.Fill = fillUint8VSXGuarded
 	s.U8.Lerp = lerpUint8VSXGuarded
 	s.U8.AddScaled = addScaledUint8VSXGuarded
+	s.U8.Ramp = rampUint8VSXGuarded
 	s.U16.Add = addUint16VSXGuarded
 	s.U16.Sub = subUint16VSXGuarded
 	s.U16.Mul = mulUint16VSXGuarded
@@ -1562,6 +1632,7 @@ func init() {
 	s.U16.Fill = fillUint16VSXGuarded
 	s.U16.Lerp = lerpUint16VSXGuarded
 	s.U16.AddScaled = addScaledUint16VSXGuarded
+	s.U16.Ramp = rampUint16VSXGuarded
 	s.U32.Add = addUint32VSXGuarded
 	s.U32.Sub = subUint32VSXGuarded
 	s.U32.Mul = mulUint32VSXGuarded
@@ -1576,6 +1647,7 @@ func init() {
 	s.U32.Fill = fillUint32VSXGuarded
 	s.U32.Lerp = lerpUint32VSXGuarded
 	s.U32.AddScaled = addScaledUint32VSXGuarded
+	s.U32.Ramp = rampUint32VSXGuarded
 	s.U64.Add = addUint64VSXGuarded
 	s.U64.Sub = subUint64VSXGuarded
 	s.U64.Minimum = minimumUint64VSXGuarded

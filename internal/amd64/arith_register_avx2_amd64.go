@@ -145,6 +145,14 @@ func addScaledFloat32AVX2Guarded(dst []float32, a []float32, b []float32, s floa
 	addScaledFloat32AVX2(dst[:n:n], a, b, s)
 }
 
+func rampFloat32AVX2Guarded(dst []float32, start float32, step float32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampFloat32AVX2(dst, start, step)
+}
+
 func addFloat64AVX2Guarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -268,6 +276,14 @@ func addScaledFloat64AVX2Guarded(dst []float64, a []float64, b []float64, s floa
 		return
 	}
 	addScaledFloat64AVX2(dst[:n:n], a, b, s)
+}
+
+func rampFloat64AVX2Guarded(dst []float64, start float64, step float64) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampFloat64AVX2(dst, start, step)
 }
 
 func addInt32AVX2Guarded(dst []int32, a []int32, b []int32) {
@@ -395,6 +411,14 @@ func addScaledInt32AVX2Guarded(dst []int32, a []int32, b []int32, s int32) {
 	addScaledInt32AVX2(dst[:n:n], a, b, s)
 }
 
+func rampInt32AVX2Guarded(dst []int32, start int32, step int32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt32AVX2(dst, start, step)
+}
+
 func addInt64AVX2Guarded(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -518,6 +542,14 @@ func addScaledInt64AVX2Guarded(dst []int64, a []int64, b []int64, s int64) {
 		return
 	}
 	addScaledInt64AVX2(dst[:n:n], a, b, s)
+}
+
+func rampInt64AVX2Guarded(dst []int64, start int64, step int64) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt64AVX2(dst, start, step)
 }
 
 func addInt8AVX2Guarded(dst []int8, a []int8, b []int8) {
@@ -645,6 +677,14 @@ func addScaledInt8AVX2Guarded(dst []int8, a []int8, b []int8, s int8) {
 	addScaledInt8AVX2(dst[:n:n], a, b, s)
 }
 
+func rampInt8AVX2Guarded(dst []int8, start int8, step int8) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt8AVX2(dst, start, step)
+}
+
 func addInt16AVX2Guarded(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -768,6 +808,14 @@ func addScaledInt16AVX2Guarded(dst []int16, a []int16, b []int16, s int16) {
 		return
 	}
 	addScaledInt16AVX2(dst[:n:n], a, b, s)
+}
+
+func rampInt16AVX2Guarded(dst []int16, start int16, step int16) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt16AVX2(dst, start, step)
 }
 
 func addUint8AVX2Guarded(dst []byte, a []byte, b []byte) {
@@ -895,6 +943,14 @@ func addScaledUint8AVX2Guarded(dst []byte, a []byte, b []byte, s byte) {
 	addScaledUint8AVX2(dst[:n:n], a, b, s)
 }
 
+func rampUint8AVX2Guarded(dst []byte, start byte, step byte) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint8AVX2(dst, start, step)
+}
+
 func addUint16AVX2Guarded(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1018,6 +1074,14 @@ func addScaledUint16AVX2Guarded(dst []uint16, a []uint16, b []uint16, s uint16) 
 		return
 	}
 	addScaledUint16AVX2(dst[:n:n], a, b, s)
+}
+
+func rampUint16AVX2Guarded(dst []uint16, start uint16, step uint16) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint16AVX2(dst, start, step)
 }
 
 func addUint32AVX2Guarded(dst []uint32, a []uint32, b []uint32) {
@@ -1145,6 +1209,14 @@ func addScaledUint32AVX2Guarded(dst []uint32, a []uint32, b []uint32, s uint32) 
 	addScaledUint32AVX2(dst[:n:n], a, b, s)
 }
 
+func rampUint32AVX2Guarded(dst []uint32, start uint32, step uint32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint32AVX2(dst, start, step)
+}
+
 func addUint64AVX2Guarded(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1268,6 +1340,14 @@ func addScaledUint64AVX2Guarded(dst []uint64, a []uint64, b []uint64, s uint64) 
 		return
 	}
 	addScaledUint64AVX2(dst[:n:n], a, b, s)
+}
+
+func rampUint64AVX2Guarded(dst []uint64, start uint64, step uint64) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint64AVX2(dst, start, step)
 }
 
 func divFloat32AVX2Guarded(dst []float32, a []float32, b []float32) {
@@ -1432,6 +1512,24 @@ func roundToEvenFloat64AVX2Guarded(dst []float64, a []float64) {
 	roundToEvenFloat64AVX2(dst[:n:n], a)
 }
 
+func reverseFloat32AVX2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Reverse(dst, a)
+		return
+	}
+	reverseFloat32AVX2(dst[:n:n], a)
+}
+
+func reverseFloat64AVX2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Reverse(dst, a)
+		return
+	}
+	reverseFloat64AVX2(dst[:n:n], a)
+}
+
 func satAddInt32AVX2Guarded(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1558,6 +1656,7 @@ func init() {
 	s.F32.Fill = fillFloat32AVX2Guarded
 	s.F32.Lerp = lerpFloat32AVX2Guarded
 	s.F32.AddScaled = addScaledFloat32AVX2Guarded
+	s.F32.Ramp = rampFloat32AVX2Guarded
 	s.F64.Add = addFloat64AVX2Guarded
 	s.F64.Sub = subFloat64AVX2Guarded
 	s.F64.Mul = mulFloat64AVX2Guarded
@@ -1572,6 +1671,7 @@ func init() {
 	s.F64.Fill = fillFloat64AVX2Guarded
 	s.F64.Lerp = lerpFloat64AVX2Guarded
 	s.F64.AddScaled = addScaledFloat64AVX2Guarded
+	s.F64.Ramp = rampFloat64AVX2Guarded
 	s.I32.Add = addInt32AVX2Guarded
 	s.I32.Sub = subInt32AVX2Guarded
 	s.I32.Mul = mulInt32AVX2Guarded
@@ -1586,6 +1686,7 @@ func init() {
 	s.I32.Fill = fillInt32AVX2Guarded
 	s.I32.Lerp = lerpInt32AVX2Guarded
 	s.I32.AddScaled = addScaledInt32AVX2Guarded
+	s.I32.Ramp = rampInt32AVX2Guarded
 	s.I64.Add = addInt64AVX2Guarded
 	s.I64.Sub = subInt64AVX2Guarded
 	s.I64.Mul = mulInt64AVX2Guarded
@@ -1600,6 +1701,7 @@ func init() {
 	s.I64.Fill = fillInt64AVX2Guarded
 	s.I64.Lerp = lerpInt64AVX2Guarded
 	s.I64.AddScaled = addScaledInt64AVX2Guarded
+	s.I64.Ramp = rampInt64AVX2Guarded
 	s.I8.Add = addInt8AVX2Guarded
 	s.I8.Sub = subInt8AVX2Guarded
 	s.I8.Mul = mulInt8AVX2Guarded
@@ -1614,6 +1716,7 @@ func init() {
 	s.I8.Fill = fillInt8AVX2Guarded
 	s.I8.Lerp = lerpInt8AVX2Guarded
 	s.I8.AddScaled = addScaledInt8AVX2Guarded
+	s.I8.Ramp = rampInt8AVX2Guarded
 	s.I16.Add = addInt16AVX2Guarded
 	s.I16.Sub = subInt16AVX2Guarded
 	s.I16.Mul = mulInt16AVX2Guarded
@@ -1628,6 +1731,7 @@ func init() {
 	s.I16.Fill = fillInt16AVX2Guarded
 	s.I16.Lerp = lerpInt16AVX2Guarded
 	s.I16.AddScaled = addScaledInt16AVX2Guarded
+	s.I16.Ramp = rampInt16AVX2Guarded
 	s.U8.Add = addUint8AVX2Guarded
 	s.U8.Sub = subUint8AVX2Guarded
 	s.U8.Mul = mulUint8AVX2Guarded
@@ -1642,6 +1746,7 @@ func init() {
 	s.U8.Fill = fillUint8AVX2Guarded
 	s.U8.Lerp = lerpUint8AVX2Guarded
 	s.U8.AddScaled = addScaledUint8AVX2Guarded
+	s.U8.Ramp = rampUint8AVX2Guarded
 	s.U16.Add = addUint16AVX2Guarded
 	s.U16.Sub = subUint16AVX2Guarded
 	s.U16.Mul = mulUint16AVX2Guarded
@@ -1656,6 +1761,7 @@ func init() {
 	s.U16.Fill = fillUint16AVX2Guarded
 	s.U16.Lerp = lerpUint16AVX2Guarded
 	s.U16.AddScaled = addScaledUint16AVX2Guarded
+	s.U16.Ramp = rampUint16AVX2Guarded
 	s.U32.Add = addUint32AVX2Guarded
 	s.U32.Sub = subUint32AVX2Guarded
 	s.U32.Mul = mulUint32AVX2Guarded
@@ -1670,6 +1776,7 @@ func init() {
 	s.U32.Fill = fillUint32AVX2Guarded
 	s.U32.Lerp = lerpUint32AVX2Guarded
 	s.U32.AddScaled = addScaledUint32AVX2Guarded
+	s.U32.Ramp = rampUint32AVX2Guarded
 	s.U64.Add = addUint64AVX2Guarded
 	s.U64.Sub = subUint64AVX2Guarded
 	s.U64.Mul = mulUint64AVX2Guarded
@@ -1684,6 +1791,7 @@ func init() {
 	s.U64.Fill = fillUint64AVX2Guarded
 	s.U64.Lerp = lerpUint64AVX2Guarded
 	s.U64.AddScaled = addScaledUint64AVX2Guarded
+	s.U64.Ramp = rampUint64AVX2Guarded
 	s.F32.Div = divFloat32AVX2Guarded
 	s.F32.DivScalar = divScalarFloat32AVX2Guarded
 	s.F32.Sqrt = sqrtFloat32AVX2Guarded
@@ -1702,6 +1810,8 @@ func init() {
 	s.F64.Trunc = truncFloat64AVX2Guarded
 	s.F64.Round = roundFloat64AVX2Guarded
 	s.F64.RoundToEven = roundToEvenFloat64AVX2Guarded
+	s.F32.Reverse = reverseFloat32AVX2Guarded
+	s.F64.Reverse = reverseFloat64AVX2Guarded
 	s.I32.SatAdd = satAddInt32AVX2Guarded
 	s.I32.SatSub = satSubInt32AVX2Guarded
 	s.I8.SatAdd = satAddInt8AVX2Guarded

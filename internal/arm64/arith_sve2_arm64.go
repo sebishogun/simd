@@ -58,6 +58,9 @@ func lerpFloat32SVE2(dst []float32, a []float32, b []float32, t float32)
 func addScaledFloat32SVE2(dst []float32, a []float32, b []float32, s float32)
 
 //go:noescape
+func rampFloat32SVE2(dst []float32, start float32, step float32)
+
+//go:noescape
 func addFloat64SVE2(dst []float64, a []float64, b []float64)
 
 //go:noescape
@@ -98,6 +101,9 @@ func lerpFloat64SVE2(dst []float64, a []float64, b []float64, t float64)
 
 //go:noescape
 func addScaledFloat64SVE2(dst []float64, a []float64, b []float64, s float64)
+
+//go:noescape
+func rampFloat64SVE2(dst []float64, start float64, step float64)
 
 //go:noescape
 func addInt32SVE2(dst []int32, a []int32, b []int32)
@@ -142,6 +148,9 @@ func lerpInt32SVE2(dst []int32, a []int32, b []int32, t int32)
 func addScaledInt32SVE2(dst []int32, a []int32, b []int32, s int32)
 
 //go:noescape
+func rampInt32SVE2(dst []int32, start int32, step int32)
+
+//go:noescape
 func addInt64SVE2(dst []int64, a []int64, b []int64)
 
 //go:noescape
@@ -182,6 +191,9 @@ func lerpInt64SVE2(dst []int64, a []int64, b []int64, t int64)
 
 //go:noescape
 func addScaledInt64SVE2(dst []int64, a []int64, b []int64, s int64)
+
+//go:noescape
+func rampInt64SVE2(dst []int64, start int64, step int64)
 
 //go:noescape
 func addInt8SVE2(dst []int8, a []int8, b []int8)
@@ -226,6 +238,9 @@ func lerpInt8SVE2(dst []int8, a []int8, b []int8, t int8)
 func addScaledInt8SVE2(dst []int8, a []int8, b []int8, s int8)
 
 //go:noescape
+func rampInt8SVE2(dst []int8, start int8, step int8)
+
+//go:noescape
 func addInt16SVE2(dst []int16, a []int16, b []int16)
 
 //go:noescape
@@ -266,6 +281,9 @@ func lerpInt16SVE2(dst []int16, a []int16, b []int16, t int16)
 
 //go:noescape
 func addScaledInt16SVE2(dst []int16, a []int16, b []int16, s int16)
+
+//go:noescape
+func rampInt16SVE2(dst []int16, start int16, step int16)
 
 //go:noescape
 func addUint8SVE2(dst []byte, a []byte, b []byte)
@@ -310,6 +328,9 @@ func lerpUint8SVE2(dst []byte, a []byte, b []byte, t byte)
 func addScaledUint8SVE2(dst []byte, a []byte, b []byte, s byte)
 
 //go:noescape
+func rampUint8SVE2(dst []byte, start byte, step byte)
+
+//go:noescape
 func addUint16SVE2(dst []uint16, a []uint16, b []uint16)
 
 //go:noescape
@@ -347,6 +368,9 @@ func lerpUint16SVE2(dst []uint16, a []uint16, b []uint16, t uint16)
 
 //go:noescape
 func addScaledUint16SVE2(dst []uint16, a []uint16, b []uint16, s uint16)
+
+//go:noescape
+func rampUint16SVE2(dst []uint16, start uint16, step uint16)
 
 //go:noescape
 func addUint32SVE2(dst []uint32, a []uint32, b []uint32)
@@ -388,6 +412,9 @@ func lerpUint32SVE2(dst []uint32, a []uint32, b []uint32, t uint32)
 func addScaledUint32SVE2(dst []uint32, a []uint32, b []uint32, s uint32)
 
 //go:noescape
+func rampUint32SVE2(dst []uint32, start uint32, step uint32)
+
+//go:noescape
 func addUint64SVE2(dst []uint64, a []uint64, b []uint64)
 
 //go:noescape
@@ -425,6 +452,9 @@ func lerpUint64SVE2(dst []uint64, a []uint64, b []uint64, t uint64)
 
 //go:noescape
 func addScaledUint64SVE2(dst []uint64, a []uint64, b []uint64, s uint64)
+
+//go:noescape
+func rampUint64SVE2(dst []uint64, start uint64, step uint64)
 
 //go:noescape
 func divFloat32SVE2(dst []float32, a []float32, b []float32)

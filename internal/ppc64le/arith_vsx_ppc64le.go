@@ -58,6 +58,9 @@ func lerpFloat32VSX(dst []float32, a []float32, b []float32, t float32)
 func addScaledFloat32VSX(dst []float32, a []float32, b []float32, s float32)
 
 //go:noescape
+func rampFloat32VSX(dst []float32, start float32, step float32)
+
+//go:noescape
 func addFloat64VSX(dst []float64, a []float64, b []float64)
 
 //go:noescape
@@ -100,6 +103,9 @@ func lerpFloat64VSX(dst []float64, a []float64, b []float64, t float64)
 func addScaledFloat64VSX(dst []float64, a []float64, b []float64, s float64)
 
 //go:noescape
+func rampFloat64VSX(dst []float64, start float64, step float64)
+
+//go:noescape
 func addInt32VSX(dst []int32, a []int32, b []int32)
 
 //go:noescape
@@ -140,6 +146,9 @@ func lerpInt32VSX(dst []int32, a []int32, b []int32, t int32)
 
 //go:noescape
 func addScaledInt32VSX(dst []int32, a []int32, b []int32, s int32)
+
+//go:noescape
+func rampInt32VSX(dst []int32, start int32, step int32)
 
 //go:noescape
 func addInt64VSX(dst []int64, a []int64, b []int64)
@@ -214,6 +223,9 @@ func lerpInt8VSX(dst []int8, a []int8, b []int8, t int8)
 func addScaledInt8VSX(dst []int8, a []int8, b []int8, s int8)
 
 //go:noescape
+func rampInt8VSX(dst []int8, start int8, step int8)
+
+//go:noescape
 func addInt16VSX(dst []int16, a []int16, b []int16)
 
 //go:noescape
@@ -254,6 +266,9 @@ func lerpInt16VSX(dst []int16, a []int16, b []int16, t int16)
 
 //go:noescape
 func addScaledInt16VSX(dst []int16, a []int16, b []int16, s int16)
+
+//go:noescape
+func rampInt16VSX(dst []int16, start int16, step int16)
 
 //go:noescape
 func addUint8VSX(dst []byte, a []byte, b []byte)
@@ -298,6 +313,9 @@ func lerpUint8VSX(dst []byte, a []byte, b []byte, t byte)
 func addScaledUint8VSX(dst []byte, a []byte, b []byte, s byte)
 
 //go:noescape
+func rampUint8VSX(dst []byte, start byte, step byte)
+
+//go:noescape
 func addUint16VSX(dst []uint16, a []uint16, b []uint16)
 
 //go:noescape
@@ -340,6 +358,9 @@ func lerpUint16VSX(dst []uint16, a []uint16, b []uint16, t uint16)
 func addScaledUint16VSX(dst []uint16, a []uint16, b []uint16, s uint16)
 
 //go:noescape
+func rampUint16VSX(dst []uint16, start uint16, step uint16)
+
+//go:noescape
 func addUint32VSX(dst []uint32, a []uint32, b []uint32)
 
 //go:noescape
@@ -380,6 +401,9 @@ func lerpUint32VSX(dst []uint32, a []uint32, b []uint32, t uint32)
 
 //go:noescape
 func addScaledUint32VSX(dst []uint32, a []uint32, b []uint32, s uint32)
+
+//go:noescape
+func rampUint32VSX(dst []uint32, start uint32, step uint32)
 
 //go:noescape
 func addUint64VSX(dst []uint64, a []uint64, b []uint64)

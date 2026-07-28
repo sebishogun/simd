@@ -1836,6 +1836,100 @@ TEXT ·addScaledFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	BYTE $0xfe
 	RET
 
+// func rampFloat64VX(dst []float64, start float64, step float64)
+TEXT ·rampFloat64VX(SB), NOSPLIT, $160-40
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	FMOVD start+24(FP), F0
+	FMOVD step+32(FP), F2
+	MOVD dst_len+8(FP), R3
+	BL ·rampFloat64VXBody(SB)
+	RET
+
+// rampFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·rampFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xec3c004c
+	WORD $0x007ca719
+	WORD $0x0000ec38
+	WORD $0x0031017c
+	WORD $0xc0400000
+	WORD $0x0058e740
+	WORD $0x40003006
+	WORD $0xec1301be
+	WORD $0x0059e712
+	WORD $0x0000304d
+	WORD $0xe7300000
+	WORD $0x304de750
+	WORD $0x00023045
+	WORD $0xb9040042
+	WORD $0xb9040001
+	WORD $0xe7640000
+	WORD $0x30c1e761
+	WORD $0x600030e7
+	WORD $0xe7636000
+	WORD $0x30e3e744
+	WORD $0x500030f3
+	WORD $0xe7604000
+	WORD $0x300ea70b
+	WORD $0xfffe4140
+	WORD $0x4010a774
+	WORD $0xffedec31
+	WORD $0xe00080e4
+	WORD $0xeb010003
+	WORD $0x000db908
+	WORD $0x0020b3a1
+	WORD $0x0011e712
+	WORD $0x100830e7
+	WORD $0xe7101008
+	WORD $0x30e36010
+	WORD $0x20004110
+	WORD $0x10014120
+	WORD $0x2008ec31
+	WORD $0xfff26064
+	WORD $0x07fe0000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000002
+	WORD $0x00000000
+	WORD $0x00000003
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	RET
+
 // func addInt32VX(dst []int32, a []int32, b []int32)
 TEXT ·addInt32VX(SB), NOSPLIT, $160-72
 	NO_LOCAL_POINTERS
@@ -2468,6 +2562,100 @@ TEXT ·addScaledInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xf0300004
 	BYTE $0x07
 	BYTE $0xfe
+	RET
+
+// func rampInt32VX(dst []int32, start int32, step int32)
+TEXT ·rampInt32VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVW start+24(FP), R3
+	MOVW step+28(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·rampInt32VXBody(SB)
+	RET
+
+// rampInt32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·rampInt32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0047007c
+	WORD $0xa7090000
+	WORD $0xec540031
+	WORD $0x047de704
+	WORD $0x40000062
+	WORD $0xc0100000
+	WORD $0x005ae723
+	WORD $0x30000062
+	WORD $0xe7101000
+	WORD $0x3006ec05
+	WORD $0x01bd0059
+	WORD $0xe7000001
+	WORD $0x204de722
+	WORD $0x0001204d
+	WORD $0xe7300004
+	WORD $0x2045b904
+	WORD $0x0012b904
+	WORD $0x00e0e740
+	WORD $0x120020aa
+	WORD $0xe7113000
+	WORD $0x20f3e740
+	WORD $0x1000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764fff3
+	WORD $0xec500014
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0002000d
+	WORD $0xb9fd0004
+	WORD $0xb9080021
+	WORD $0x1a305030
+	WORD $0x20004120
+	WORD $0x20041a34
+	WORD $0xa757fffb
+	WORD $0xebeff070
+	WORD $0x000407fe
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000002
+	WORD $0x00000000
+	WORD $0x00000003
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
 	RET
 
 // func addInt64VX(dst []int64, a []int64, b []int64)
@@ -3526,6 +3714,96 @@ TEXT ·addScaledInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	BYTE $0xfe
 	RET
 
+// func rampInt8VX(dst []int8, start int8, step int8)
+TEXT ·rampInt8VX(SB), NOSPLIT, $160-26
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVB start+24(FP), R3
+	MOVB step+25(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·rampInt8VXBody(SB)
+	RET
+
+// rampInt8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·rampInt8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x003f007c
+	WORD $0xa7190000
+	WORD $0xec540030
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xc0e00000
+	WORD $0x005ae723
+	WORD $0x30000062
+	WORD $0xe710e000
+	WORD $0x3006ec15
+	WORD $0x01bb0059
+	WORD $0xe7000007
+	WORD $0x004de722
+	WORD $0x0007004d
+	WORD $0xe7300010
+	WORD $0x0045b904
+	WORD $0x00e2b904
+	WORD $0x0001e741
+	WORD $0x000020aa
+	WORD $0xe7113000
+	WORD $0x00f3e740
+	WORD $0xe000000e
+	WORD $0xa70bfff0
+	WORD $0x41e0e010
+	WORD $0xa764fff3
+	WORD $0xa7f40009
+	WORD $0xb9fd4001
+	WORD $0x1a034201
+	WORD $0x20004110
+	WORD $0x1001ec51
+	WORD $0xfff96064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000002
+	WORD $0x00000000
+	WORD $0x00000003
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	RET
+
 // func addInt16VX(dst []int16, a []int16, b []int16)
 TEXT ·addInt16VX(SB), NOSPLIT, $160-72
 	NO_LOCAL_POINTERS
@@ -4162,6 +4440,100 @@ TEXT ·addScaledInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	BYTE $0xfe
 	RET
 
+// func rampInt16VX(dst []int16, start int16, step int16)
+TEXT ·rampInt16VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVH start+24(FP), R3
+	MOVH step+26(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·rampInt16VXBody(SB)
+	RET
+
+// rampInt16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·rampInt16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0047007c
+	WORD $0xa7190000
+	WORD $0xec540031
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xc0e00000
+	WORD $0x006ae723
+	WORD $0x30000062
+	WORD $0xe710e000
+	WORD $0x3006ec15
+	WORD $0x01bc0059
+	WORD $0xe7000003
+	WORD $0x104de722
+	WORD $0x0003104d
+	WORD $0xe7300008
+	WORD $0x1045b904
+	WORD $0x00e2b904
+	WORD $0x0001e741
+	WORD $0x010020aa
+	WORD $0xe7113000
+	WORD $0x10f3e740
+	WORD $0xe000000e
+	WORD $0xa70bfff8
+	WORD $0x41e0e010
+	WORD $0xa764fff3
+	WORD $0xec510014
+	WORD $0x8064eb01
+	WORD $0x0001000d
+	WORD $0xb9080020
+	WORD $0xb9fd4001
+	WORD $0x1a034000
+	WORD $0x20004110
+	WORD $0x10014120
+	WORD $0x2002ec51
+	WORD $0xfff76064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000002
+	WORD $0x00000000
+	WORD $0x00000003
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	RET
+
 // func addUint8VX(dst []byte, a []byte, b []byte)
 TEXT ·addUint8VX(SB), NOSPLIT, $160-72
 	NO_LOCAL_POINTERS
@@ -4764,6 +5136,96 @@ TEXT ·addScaledUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xf0700004
 	BYTE $0x07
 	BYTE $0xfe
+	RET
+
+// func rampUint8VX(dst []byte, start byte, step byte)
+TEXT ·rampUint8VX(SB), NOSPLIT, $160-26
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVBZ start+24(FP), R3
+	MOVBZ step+25(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·rampUint8VXBody(SB)
+	RET
+
+// rampUint8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·rampUint8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x003f007c
+	WORD $0xa7190000
+	WORD $0xec540030
+	WORD $0x107de704
+	WORD $0x40000062
+	WORD $0xc0e00000
+	WORD $0x006ae723
+	WORD $0x30000062
+	WORD $0xe710e000
+	WORD $0x3006ec15
+	WORD $0x01bb0059
+	WORD $0xe7000007
+	WORD $0x004de722
+	WORD $0x0007004d
+	WORD $0xe7300010
+	WORD $0x0045b904
+	WORD $0x00e2b904
+	WORD $0x0001e741
+	WORD $0x000020aa
+	WORD $0xe7113000
+	WORD $0x00f3e740
+	WORD $0xe000000e
+	WORD $0xa70bfff0
+	WORD $0x41e0e010
+	WORD $0xa764fff3
+	WORD $0xa7f40009
+	WORD $0xb9fd4001
+	WORD $0x1a034201
+	WORD $0x20004110
+	WORD $0x1001ec51
+	WORD $0xfff96064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000002
+	WORD $0x00000000
+	WORD $0x00000003
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
 	RET
 
 // func addUint16VX(dst []uint16, a []uint16, b []uint16)
@@ -5410,6 +5872,100 @@ TEXT ·addScaledUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	BYTE $0xfe
 	RET
 
+// func rampUint16VX(dst []uint16, start uint16, step uint16)
+TEXT ·rampUint16VX(SB), NOSPLIT, $160-28
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVHZ start+24(FP), R3
+	MOVHZ step+26(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·rampUint16VXBody(SB)
+	RET
+
+// rampUint16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·rampUint16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0047007c
+	WORD $0xa7190000
+	WORD $0xec540031
+	WORD $0x087de704
+	WORD $0x40000062
+	WORD $0xc0e00000
+	WORD $0x007ae723
+	WORD $0x30000062
+	WORD $0xe710e000
+	WORD $0x3006ec15
+	WORD $0x01bc0059
+	WORD $0xe7000003
+	WORD $0x104de722
+	WORD $0x0003104d
+	WORD $0xe7300008
+	WORD $0x1045b904
+	WORD $0x00e2b904
+	WORD $0x0001e741
+	WORD $0x010020aa
+	WORD $0xe7113000
+	WORD $0x10f3e740
+	WORD $0xe000000e
+	WORD $0xa70bfff8
+	WORD $0x41e0e010
+	WORD $0xa764fff3
+	WORD $0xec510014
+	WORD $0x8064eb01
+	WORD $0x0001000d
+	WORD $0xb9080020
+	WORD $0xb9fd4001
+	WORD $0x1a034000
+	WORD $0x20004110
+	WORD $0x10014120
+	WORD $0x2002ec51
+	WORD $0xfff76064
+	WORD $0xebeff070
+	WORD $0x000407fe
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000002
+	WORD $0x00000000
+	WORD $0x00000003
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	RET
+
 // func addUint32VX(dst []uint32, a []uint32, b []uint32)
 TEXT ·addUint32VX(SB), NOSPLIT, $160-72
 	NO_LOCAL_POINTERS
@@ -6046,6 +6602,100 @@ TEXT ·addScaledUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xf0300004
 	BYTE $0x07
 	BYTE $0xfe
+	RET
+
+// func rampUint32VX(dst []uint32, start uint32, step uint32)
+TEXT ·rampUint32VX(SB), NOSPLIT, $160-32
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVWZ start+24(FP), R3
+	MOVWZ step+28(FP), R4
+	MOVD dst_len+8(FP), R5
+	BL ·rampUint32VXBody(SB)
+	RET
+
+// rampUint32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·rampUint32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xebeff070
+	WORD $0x0024ec5c
+	WORD $0x0047007c
+	WORD $0xa7090000
+	WORD $0xec540031
+	WORD $0x047de704
+	WORD $0x40000062
+	WORD $0xc0100000
+	WORD $0x0082e723
+	WORD $0x30000062
+	WORD $0xe7101000
+	WORD $0x3006ec05
+	WORD $0x01bd0059
+	WORD $0xe7000001
+	WORD $0x204de722
+	WORD $0x0001204d
+	WORD $0xe7300004
+	WORD $0x2045b904
+	WORD $0x0012b904
+	WORD $0x00e0e741
+	WORD $0x020020aa
+	WORD $0xe7113000
+	WORD $0x20f3e740
+	WORD $0x1000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764fff3
+	WORD $0xec500014
+	WORD $0x8064b909
+	WORD $0x0050eb10
+	WORD $0x0002000d
+	WORD $0xb9fd4000
+	WORD $0xb9080021
+	WORD $0x1a305030
+	WORD $0x20004120
+	WORD $0x20041a34
+	WORD $0xa757fffb
+	WORD $0xebeff070
+	WORD $0x000407fe
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000002
+	WORD $0x00000000
+	WORD $0x00000003
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00010203
+	WORD $0x04050607
+	WORD $0x08090a0b
+	WORD $0x0c0d0e0f
+	WORD $0x00000001
+	WORD $0x00020003
+	WORD $0x00040005
+	WORD $0x00060007
+	WORD $0x00000000
+	WORD $0x00000001
+	WORD $0x00000002
+	WORD $0x00000003
 	RET
 
 // func addUint64VX(dst []uint64, a []uint64, b []uint64)

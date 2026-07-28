@@ -58,6 +58,9 @@ func lerpFloat32AVX512(dst []float32, a []float32, b []float32, t float32)
 func addScaledFloat32AVX512(dst []float32, a []float32, b []float32, s float32)
 
 //go:noescape
+func rampFloat32AVX512(dst []float32, start float32, step float32)
+
+//go:noescape
 func addFloat64AVX512(dst []float64, a []float64, b []float64)
 
 //go:noescape
@@ -98,6 +101,9 @@ func lerpFloat64AVX512(dst []float64, a []float64, b []float64, t float64)
 
 //go:noescape
 func addScaledFloat64AVX512(dst []float64, a []float64, b []float64, s float64)
+
+//go:noescape
+func rampFloat64AVX512(dst []float64, start float64, step float64)
 
 //go:noescape
 func addInt32AVX512(dst []int32, a []int32, b []int32)
@@ -142,6 +148,9 @@ func lerpInt32AVX512(dst []int32, a []int32, b []int32, t int32)
 func addScaledInt32AVX512(dst []int32, a []int32, b []int32, s int32)
 
 //go:noescape
+func rampInt32AVX512(dst []int32, start int32, step int32)
+
+//go:noescape
 func addInt64AVX512(dst []int64, a []int64, b []int64)
 
 //go:noescape
@@ -182,6 +191,9 @@ func lerpInt64AVX512(dst []int64, a []int64, b []int64, t int64)
 
 //go:noescape
 func addScaledInt64AVX512(dst []int64, a []int64, b []int64, s int64)
+
+//go:noescape
+func rampInt64AVX512(dst []int64, start int64, step int64)
 
 //go:noescape
 func addInt8AVX512(dst []int8, a []int8, b []int8)
@@ -226,6 +238,9 @@ func lerpInt8AVX512(dst []int8, a []int8, b []int8, t int8)
 func addScaledInt8AVX512(dst []int8, a []int8, b []int8, s int8)
 
 //go:noescape
+func rampInt8AVX512(dst []int8, start int8, step int8)
+
+//go:noescape
 func addInt16AVX512(dst []int16, a []int16, b []int16)
 
 //go:noescape
@@ -266,6 +281,9 @@ func lerpInt16AVX512(dst []int16, a []int16, b []int16, t int16)
 
 //go:noescape
 func addScaledInt16AVX512(dst []int16, a []int16, b []int16, s int16)
+
+//go:noescape
+func rampInt16AVX512(dst []int16, start int16, step int16)
 
 //go:noescape
 func addUint8AVX512(dst []byte, a []byte, b []byte)
@@ -310,6 +328,9 @@ func lerpUint8AVX512(dst []byte, a []byte, b []byte, t byte)
 func addScaledUint8AVX512(dst []byte, a []byte, b []byte, s byte)
 
 //go:noescape
+func rampUint8AVX512(dst []byte, start byte, step byte)
+
+//go:noescape
 func addUint16AVX512(dst []uint16, a []uint16, b []uint16)
 
 //go:noescape
@@ -350,6 +371,9 @@ func lerpUint16AVX512(dst []uint16, a []uint16, b []uint16, t uint16)
 
 //go:noescape
 func addScaledUint16AVX512(dst []uint16, a []uint16, b []uint16, s uint16)
+
+//go:noescape
+func rampUint16AVX512(dst []uint16, start uint16, step uint16)
 
 //go:noescape
 func addUint32AVX512(dst []uint32, a []uint32, b []uint32)
@@ -394,6 +418,9 @@ func lerpUint32AVX512(dst []uint32, a []uint32, b []uint32, t uint32)
 func addScaledUint32AVX512(dst []uint32, a []uint32, b []uint32, s uint32)
 
 //go:noescape
+func rampUint32AVX512(dst []uint32, start uint32, step uint32)
+
+//go:noescape
 func addUint64AVX512(dst []uint64, a []uint64, b []uint64)
 
 //go:noescape
@@ -434,6 +461,9 @@ func lerpUint64AVX512(dst []uint64, a []uint64, b []uint64, t uint64)
 
 //go:noescape
 func addScaledUint64AVX512(dst []uint64, a []uint64, b []uint64, s uint64)
+
+//go:noescape
+func rampUint64AVX512(dst []uint64, start uint64, step uint64)
 
 //go:noescape
 func divFloat32AVX512(dst []float32, a []float32, b []float32)
@@ -488,6 +518,12 @@ func roundFloat64AVX512(dst []float64, a []float64)
 
 //go:noescape
 func roundToEvenFloat64AVX512(dst []float64, a []float64)
+
+//go:noescape
+func reverseFloat32AVX512(dst []float32, a []float32)
+
+//go:noescape
+func reverseFloat64AVX512(dst []float64, a []float64)
 
 //go:noescape
 func satAddInt32AVX512(dst []int32, a []int32, b []int32)

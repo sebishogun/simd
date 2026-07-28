@@ -58,6 +58,9 @@ func lerpFloat32SSE2(dst []float32, a []float32, b []float32, t float32)
 func addScaledFloat32SSE2(dst []float32, a []float32, b []float32, s float32)
 
 //go:noescape
+func rampFloat32SSE2(dst []float32, start float32, step float32)
+
+//go:noescape
 func addFloat64SSE2(dst []float64, a []float64, b []float64)
 
 //go:noescape
@@ -98,6 +101,9 @@ func lerpFloat64SSE2(dst []float64, a []float64, b []float64, t float64)
 
 //go:noescape
 func addScaledFloat64SSE2(dst []float64, a []float64, b []float64, s float64)
+
+//go:noescape
+func rampFloat64SSE2(dst []float64, start float64, step float64)
 
 //go:noescape
 func addInt32SSE2(dst []int32, a []int32, b []int32)
@@ -142,6 +148,9 @@ func lerpInt32SSE2(dst []int32, a []int32, b []int32, t int32)
 func addScaledInt32SSE2(dst []int32, a []int32, b []int32, s int32)
 
 //go:noescape
+func rampInt32SSE2(dst []int32, start int32, step int32)
+
+//go:noescape
 func addInt64SSE2(dst []int64, a []int64, b []int64)
 
 //go:noescape
@@ -179,6 +188,9 @@ func lerpInt64SSE2(dst []int64, a []int64, b []int64, t int64)
 
 //go:noescape
 func addScaledInt64SSE2(dst []int64, a []int64, b []int64, s int64)
+
+//go:noescape
+func rampInt64SSE2(dst []int64, start int64, step int64)
 
 //go:noescape
 func addInt8SSE2(dst []int8, a []int8, b []int8)
@@ -391,6 +403,9 @@ func lerpUint32SSE2(dst []uint32, a []uint32, b []uint32, t uint32)
 func addScaledUint32SSE2(dst []uint32, a []uint32, b []uint32, s uint32)
 
 //go:noescape
+func rampUint32SSE2(dst []uint32, start uint32, step uint32)
+
+//go:noescape
 func addUint64SSE2(dst []uint64, a []uint64, b []uint64)
 
 //go:noescape
@@ -430,6 +445,9 @@ func lerpUint64SSE2(dst []uint64, a []uint64, b []uint64, t uint64)
 func addScaledUint64SSE2(dst []uint64, a []uint64, b []uint64, s uint64)
 
 //go:noescape
+func rampUint64SSE2(dst []uint64, start uint64, step uint64)
+
+//go:noescape
 func divFloat32SSE2(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -452,6 +470,12 @@ func sqrtFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape
 func reciprocalFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func reverseFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func reverseFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape
 func satAddInt32SSE2(dst []int32, a []int32, b []int32)

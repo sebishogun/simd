@@ -247,6 +247,20 @@ func op2go(op string) string {
 // ---------- the manifest ----------
 
 // Arith is everything in csrc/arith.c.
+// reverseK is the in-place-capable reverse. Its C takes no __restrict — d and
+// a are the same slice in the common case — and it exists only for the four
+// wide types, because the narrow ones would want a byte shuffle rather than the
+// element swap the macro generates.
+func reverseK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_reverse_" + e.c, GoName: "reverse" + e.goName,
+		Group: e.group, Field: "Reverse", RefFunc: "Reverse",
+		Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
+
 func Arith() []spec.Kernel {
 	var ks []spec.Kernel
 	for _, e := range elems {
@@ -261,7 +275,7 @@ func Arith() []spec.Kernel {
 			scalarOp("scale", "Scale", "Scale", e),
 			scalarOp("addscalar", "AddScalar", "AddScalar", e),
 			scalarOp("subscalar", "SubScalar", "SubScalar", e),
-			clampK(e), fillK(e), lerpK(e), axpyK(e),
+			clampK(e), fillK(e), lerpK(e), axpyK(e), rampK(e),
 			// Ramp and Reverse are deliberately absent. Ramp needs an index
 			// vector [0,1,2,...] as a constant, which on every architecture but
 			// amd64 is reached through a high/low instruction pair this
@@ -286,6 +300,15 @@ func Arith() []spec.Kernel {
 			unary("round", "Round", "Round", e, "amd64/sse2", "loong64"),
 			unary("roundeven", "RoundToEven", "RoundToEven", e, "amd64/sse2", "ppc64le"),
 		)
+	}
+	// Reverse only exists for the four wide types; the C macro is not
+	// instantiated for the narrow ones, which would want a byte shuffle rather
+	// than the element swap it generates.
+	for _, e := range elems {
+		switch e.group {
+		case "F32", "F64", "I32", "I64":
+			ks = append(ks, reverseK(e))
+		}
 	}
 	for _, e := range saturating() {
 		ks = append(ks,

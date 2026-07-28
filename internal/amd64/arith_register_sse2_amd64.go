@@ -145,6 +145,14 @@ func addScaledFloat32SSE2Guarded(dst []float32, a []float32, b []float32, s floa
 	addScaledFloat32SSE2(dst[:n:n], a, b, s)
 }
 
+func rampFloat32SSE2Guarded(dst []float32, start float32, step float32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampFloat32SSE2(dst, start, step)
+}
+
 func addFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -268,6 +276,14 @@ func addScaledFloat64SSE2Guarded(dst []float64, a []float64, b []float64, s floa
 		return
 	}
 	addScaledFloat64SSE2(dst[:n:n], a, b, s)
+}
+
+func rampFloat64SSE2Guarded(dst []float64, start float64, step float64) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampFloat64SSE2(dst, start, step)
 }
 
 func addInt32SSE2Guarded(dst []int32, a []int32, b []int32) {
@@ -395,6 +411,14 @@ func addScaledInt32SSE2Guarded(dst []int32, a []int32, b []int32, s int32) {
 	addScaledInt32SSE2(dst[:n:n], a, b, s)
 }
 
+func rampInt32SSE2Guarded(dst []int32, start int32, step int32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt32SSE2(dst, start, step)
+}
+
 func addInt64SSE2Guarded(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -509,6 +533,14 @@ func addScaledInt64SSE2Guarded(dst []int64, a []int64, b []int64, s int64) {
 		return
 	}
 	addScaledInt64SSE2(dst[:n:n], a, b, s)
+}
+
+func rampInt64SSE2Guarded(dst []int64, start int64, step int64) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt64SSE2(dst, start, step)
 }
 
 func addInt8SSE2Guarded(dst []int8, a []int8, b []int8) {
@@ -1136,6 +1168,14 @@ func addScaledUint32SSE2Guarded(dst []uint32, a []uint32, b []uint32, s uint32) 
 	addScaledUint32SSE2(dst[:n:n], a, b, s)
 }
 
+func rampUint32SSE2Guarded(dst []uint32, start uint32, step uint32) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint32SSE2(dst, start, step)
+}
+
 func addUint64SSE2Guarded(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1252,6 +1292,14 @@ func addScaledUint64SSE2Guarded(dst []uint64, a []uint64, b []uint64, s uint64) 
 	addScaledUint64SSE2(dst[:n:n], a, b, s)
 }
 
+func rampUint64SSE2Guarded(dst []uint64, start uint64, step uint64) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint64SSE2(dst, start, step)
+}
+
 func divFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1322,6 +1370,24 @@ func reciprocalFloat64SSE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	reciprocalFloat64SSE2(dst[:n:n], a)
+}
+
+func reverseFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Reverse(dst, a)
+		return
+	}
+	reverseFloat32SSE2(dst[:n:n], a)
+}
+
+func reverseFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Reverse(dst, a)
+		return
+	}
+	reverseFloat64SSE2(dst[:n:n], a)
 }
 
 func satAddInt32SSE2Guarded(dst []int32, a []int32, b []int32) {
@@ -1450,6 +1516,7 @@ func init() {
 	s.F32.Fill = fillFloat32SSE2Guarded
 	s.F32.Lerp = lerpFloat32SSE2Guarded
 	s.F32.AddScaled = addScaledFloat32SSE2Guarded
+	s.F32.Ramp = rampFloat32SSE2Guarded
 	s.F64.Add = addFloat64SSE2Guarded
 	s.F64.Sub = subFloat64SSE2Guarded
 	s.F64.Mul = mulFloat64SSE2Guarded
@@ -1464,6 +1531,7 @@ func init() {
 	s.F64.Fill = fillFloat64SSE2Guarded
 	s.F64.Lerp = lerpFloat64SSE2Guarded
 	s.F64.AddScaled = addScaledFloat64SSE2Guarded
+	s.F64.Ramp = rampFloat64SSE2Guarded
 	s.I32.Add = addInt32SSE2Guarded
 	s.I32.Sub = subInt32SSE2Guarded
 	s.I32.Mul = mulInt32SSE2Guarded
@@ -1478,6 +1546,7 @@ func init() {
 	s.I32.Fill = fillInt32SSE2Guarded
 	s.I32.Lerp = lerpInt32SSE2Guarded
 	s.I32.AddScaled = addScaledInt32SSE2Guarded
+	s.I32.Ramp = rampInt32SSE2Guarded
 	s.I64.Add = addInt64SSE2Guarded
 	s.I64.Sub = subInt64SSE2Guarded
 	s.I64.Mul = mulInt64SSE2Guarded
@@ -1491,6 +1560,7 @@ func init() {
 	s.I64.Fill = fillInt64SSE2Guarded
 	s.I64.Lerp = lerpInt64SSE2Guarded
 	s.I64.AddScaled = addScaledInt64SSE2Guarded
+	s.I64.Ramp = rampInt64SSE2Guarded
 	s.I8.Add = addInt8SSE2Guarded
 	s.I8.Sub = subInt8SSE2Guarded
 	s.I8.Mul = mulInt8SSE2Guarded
@@ -1561,6 +1631,7 @@ func init() {
 	s.U32.Fill = fillUint32SSE2Guarded
 	s.U32.Lerp = lerpUint32SSE2Guarded
 	s.U32.AddScaled = addScaledUint32SSE2Guarded
+	s.U32.Ramp = rampUint32SSE2Guarded
 	s.U64.Add = addUint64SSE2Guarded
 	s.U64.Sub = subUint64SSE2Guarded
 	s.U64.Mul = mulUint64SSE2Guarded
@@ -1574,6 +1645,7 @@ func init() {
 	s.U64.Fill = fillUint64SSE2Guarded
 	s.U64.Lerp = lerpUint64SSE2Guarded
 	s.U64.AddScaled = addScaledUint64SSE2Guarded
+	s.U64.Ramp = rampUint64SSE2Guarded
 	s.F32.Div = divFloat32SSE2Guarded
 	s.F32.DivScalar = divScalarFloat32SSE2Guarded
 	s.F32.Sqrt = sqrtFloat32SSE2Guarded
@@ -1582,6 +1654,8 @@ func init() {
 	s.F64.DivScalar = divScalarFloat64SSE2Guarded
 	s.F64.Sqrt = sqrtFloat64SSE2Guarded
 	s.F64.Reciprocal = reciprocalFloat64SSE2Guarded
+	s.F32.Reverse = reverseFloat32SSE2Guarded
+	s.F64.Reverse = reverseFloat64SSE2Guarded
 	s.I32.SatAdd = satAddInt32SSE2Guarded
 	s.I32.SatSub = satSubInt32SSE2Guarded
 	s.I8.SatAdd = satAddInt8SSE2Guarded
