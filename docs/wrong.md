@@ -608,3 +608,45 @@ no-ops on most of its inputs reports success identically to a guard that ran
 and found nothing, and the only way to tell them apart is to make it fail on
 purpose. The corollary, learned here: when you do make it fire, check what it
 catches before believing it.
+
+## 27. The corruption is on the stack, because the crash is in the stack scanner
+
+**Wrong**, and it took chasing the wrong thing all the way to a working fix to
+find out.
+
+Two kernels destroy memory — `countAnyVSX` on ppc64le and the compress family
+on riscv64 — and both die identically: SIGSEGV inside `runtime.scanstack`,
+during a collection, walking a goroutine that has nothing to do with either.
+The stack unwinder crashing on a frame is a very good reason to suspect a
+kernel that wrote outside its frame, and entry 26 found a real gap that would
+have hidden exactly that: `writesOutsideFrame` runs on one architecture of six.
+
+The riscv64 compress kernels contain **zero references to the stack pointer**.
+Not one store, not one load, no `addi sp, sp, -N` — they allocate no frame at
+all. They cannot have written outside a frame they do not have.
+
+What they do have is the contract at `compressK`: the store is unconditional
+and it is the *pointer* that advances, so dst must have room for the whole of
+src. On AVX-512 that is safe because `vpcompressd` writes only the lanes the
+mask selects, and on SVE2 because `compact` does the same. LLVM emitted no
+`vcompress` for RVV — thirty-one vector instructions and not one of them the
+instruction the whole design rests on — so whatever it did emit stores a full
+vector at the output cursor. Near the end of dst the cursor plus a vector
+length runs off the end of the slice and into whatever the Go allocator put
+next. The heap is corrupt; the collector finds it later, somewhere else.
+
+So the crash site named the *victim*, not the culprit. `scanstack` walks stacks,
+but the object graph it walks lives in the heap, and a heap header overwritten
+by a stray vector store presents as a stack that will not unwind.
+
+**Fix**: the compress kernels stay excluded on riscv64 and the reason is now the
+right one — LLVM does not use `vcompress.vm`, so the unconditional-store
+contract they are built on does not hold there. Whether ppc64le's `countAnyVSX`
+is the same fault or a different one is still open; the two were assumed
+identical because their symptoms are, and that assumption is exactly what this
+entry is about.
+
+The transferable part: a crash in the garbage collector tells you when the
+damage was *noticed*, never where it was *done*. Reading it as a location cost
+two wrong hypotheses here — one of which produced a plausible, committed,
+entirely irrelevant patch.
