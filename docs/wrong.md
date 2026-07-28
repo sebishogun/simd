@@ -469,3 +469,36 @@ with a fixed inode count, and an unrelated test suite had consumed all 1,048,576
 of them. Nothing could create a file of any size.
 
 **Fix.** `df -i`, not `df -h`.
+
+## 24. Two correct sorts of the same slice hold the same bits
+
+**Wrong.** They hold the same *values*. Bits are a stronger claim, and this
+package promises the stronger one — accelerated and portable paths must agree
+bit for bit — so the gap is a contract violation and not a curiosity.
+
+A differential test written for the new accelerated `Median` failed on its
+first run: at 2047 elements the accelerated path returned `+0` and the
+reference returned `-0`. The obvious suspicion was a bug in the new
+quickselect. It was not. `-0 < +0` is false and so is `+0 < -0`, so under the
+`<` that `slices.Sort` and `cmp.Less` are built on, the two zeros are *equal*.
+Which of two equal-comparing values lands in a given position is decided by the
+algorithm, and the two paths are different algorithms.
+
+Checking `Sort` directly, on 4096 float64 containing both zeros, the
+accelerated and portable results differed in **848 of 4096 positions**. The
+property was already there, undocumented, and no test had looked — every
+existing `Median` and `Quantile` test ran at `maxLen = 70`, far below the
+threshold where the accelerated path even engages, so none of them executed it
+at all.
+
+**Fix.** Not a fix — a decision, and a documented one. Forcing agreement means
+giving the zeros a total order, which means `slices.SortFunc` with a comparator
+closure. That was already measured at 2.5x slower (entry 12), for a
+distinction only `math.Signbit` can observe. So the exception is stated at
+`Sort`, inherited by `Median` and `Quantile`, and the differential test carves
+out exactly `x == 0 && y == 0` and nothing else — NaN, the infinities and every
+ordinary value still have to match bit for bit.
+
+The transferable part is the second sentence of the first paragraph. A test
+that never crosses a dispatch threshold is testing the fallback and reporting
+success.

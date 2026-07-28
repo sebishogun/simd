@@ -421,3 +421,152 @@ func TestQuantileAgainstSortedOracle(t *testing.T) {
 		t.Errorf("Quantile allocated %.1f times, want 0", got)
 	}
 }
+
+// TestSelectAcceleratedMatchesReference pins the accelerated Median and
+// Quantile against the portable ones at sizes above selectCutoff.
+//
+// Every other test in this file runs at maxLen = 70, which is far below the
+// threshold, so none of them execute the quickselect built on the partition
+// kernel at all. This one does, and it compares against the reference rather
+// than against a sorted oracle: the contract is bit-identical results between
+// the accelerated and portable paths, which is stricter than agreeing with an
+// oracle to within a tolerance.
+//
+// Passing a nil scratch is what forces the reference path — MedianInto falls
+// back when the scratch is too short rather than panicking — so both sides of
+// the comparison go through exactly the same entry point.
+func TestSelectAcceleratedMatchesReference(t *testing.T) {
+	r := rand.New(rand.NewPCG(97, 98))
+
+	shapes := map[string]func(n int) []float64{
+		"random":   func(n int) []float64 { return randF64(n, r) },
+		"sorted":   func(n int) []float64 { s := randF64(n, r); slices.Sort(s); return s },
+		"reversed": func(n int) []float64 { s := randF64(n, r); slices.Sort(s); slices.Reverse(s); return s },
+		"constant": func(n int) []float64 { s := make([]float64, n); simd.Fill(s, 7); return s },
+		// Few distinct values is the shape that makes a median-of-three pivot
+		// equal to much of the window, which is where a select stops making
+		// progress and has to notice.
+		"fewDistinct": func(n int) []float64 {
+			s := make([]float64, n)
+			for i := range s {
+				s[i] = float64(i % 3)
+			}
+			return s
+		},
+		"withNaN": func(n int) []float64 {
+			s := randF64(n, r)
+			for i := 0; i < n; i += 17 {
+				s[i] = math.NaN()
+			}
+			return s
+		},
+		"signedZeroAndInf": func(n int) []float64 {
+			s := randF64(n, r)
+			for i := 0; i < n; i += 11 {
+				switch i % 44 {
+				case 0:
+					s[i] = 0
+				case 11:
+					s[i] = math.Copysign(0, -1)
+				case 22:
+					s[i] = math.Inf(1)
+				default:
+					s[i] = math.Inf(-1)
+				}
+			}
+			return s
+		},
+	}
+
+	// Straddling the cutoff on both sides and on both parities, because the
+	// even case takes a different route through the lower middle.
+	sizes := []int{simd.SelectMinLenForTest - 1, simd.SelectMinLenForTest, simd.SelectMinLenForTest + 1,
+		2047, 2048, 4097, 10000}
+
+	// Bit equality, with one carve-out: -0 and +0. The order these functions
+	// use is defined by `<`, exactly as slices.Sort and cmp.Less define it,
+	// and under `<` the two zeros compare equal. Which of two equal-comparing
+	// values lands in a given position is therefore a property of the
+	// algorithm, and the accelerated path is a different algorithm — a stable
+	// out-of-place partition feeding pdqsort, against an in-place Hoare
+	// quickselect. Sort has always had this; see the note there. Everything
+	// else, NaN included, must match bit for bit.
+	eq := func(x, y float64) bool {
+		if x == 0 && y == 0 {
+			return true
+		}
+		return math.Float64bits(x) == math.Float64bits(y) ||
+			(math.IsNaN(x) && math.IsNaN(y))
+	}
+
+	for name, gen := range shapes {
+		t.Run(name, func(t *testing.T) {
+			for _, n := range sizes {
+				in := gen(n)
+				scratch := make([]float64, n)
+
+				want := simd.MedianInto(clone(in), nil)
+				got := simd.MedianInto(clone(in), scratch)
+				if !eq(got, want) {
+					t.Fatalf("Median n=%d: accelerated %v, reference %v", n, got, want)
+				}
+
+				for _, q := range []float64{0, 0.001, 0.25, 0.5, 0.75, 0.999, 1} {
+					want := simd.QuantileInto(clone(in), nil, q)
+					got := simd.QuantileInto(clone(in), scratch, q)
+					if !eq(got, want) {
+						t.Fatalf("Quantile n=%d q=%v: accelerated %v, reference %v",
+							n, q, got, want)
+					}
+				}
+			}
+		})
+	}
+
+	// Integers too, where the even-length average halves the gap rather than
+	// the sum and must not overflow.
+	t.Run("int64", func(t *testing.T) {
+		for _, n := range sizes {
+			in := randI64(n, r)
+			scratch := make([]int64, n)
+			if got, want := simd.MedianInto(clone(in), scratch), simd.MedianInto(clone(in), nil); got != want {
+				t.Fatalf("Median int64 n=%d: accelerated %d, reference %d", n, got, want)
+			}
+			for _, q := range []float64{0, 0.25, 0.5, 0.75, 1} {
+				got := simd.QuantileInto(clone(in), scratch, q)
+				want := simd.QuantileInto(clone(in), nil, q)
+				if got != want {
+					t.Fatalf("Quantile int64 n=%d q=%v: accelerated %d, reference %d",
+						n, q, got, want)
+				}
+			}
+		}
+	})
+
+	// The reordering contract: a[k] is the k-th order statistic and nothing
+	// left of it is larger. Median promises this implicitly by returning the
+	// middle, but a caller that reuses the slice depends on it directly.
+	t.Run("leavesSlicePartitioned", func(t *testing.T) {
+		a := randF64(4096, r)
+		scratch := make([]float64, len(a))
+		m := simd.MedianInto(a, scratch)
+		mid := a[len(a)/2]
+		for i, v := range a[:len(a)/2] {
+			if v > mid {
+				t.Fatalf("a[%d]=%v is greater than the middle %v (median %v)", i, v, mid, m)
+			}
+		}
+	})
+
+	// The whole point of the Into forms.
+	t.Run("allocFree", func(t *testing.T) {
+		a := randF64(4096, r)
+		scratch := make([]float64, len(a))
+		if got := testing.AllocsPerRun(20, func() { sinkF = simd.MedianInto(a, scratch) }); got != 0 {
+			t.Errorf("MedianInto allocated %.1f times, want 0", got)
+		}
+		if got := testing.AllocsPerRun(20, func() { sinkF = simd.QuantileInto(a, scratch, 0.9) }); got != 0 {
+			t.Errorf("QuantileInto allocated %.1f times, want 0", got)
+		}
+	})
+}

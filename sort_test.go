@@ -315,3 +315,43 @@ func BenchmarkSort(b *testing.B) {
 		}
 	}
 }
+
+// BenchmarkMedian measures the accelerated quickselect against the portable
+// one, and against sorting — which is what a caller without a Median reaches
+// for. The reference path is selected by passing a nil scratch, so both sides
+// enter through the same function and the only difference is which algorithm
+// runs.
+//
+// The sizes straddle simd.SelectMinLenForTest so the crossover is visible
+// rather than assumed.
+func BenchmarkMedian(b *testing.B) {
+	for _, n := range []int{256, 512, 1024, 4096, 65536, 1 << 20} {
+		for _, kind := range []string{"random", "few-distinct"} {
+			src := sortInputs(n, kind, 42)
+			work := make([]float64, n)
+			scratch := make([]float64, n)
+
+			b.Run(fmt.Sprintf("n=%d/%s/impl=simd", n, kind), func(b *testing.B) {
+				for b.Loop() {
+					copy(work, src)
+					sinkSortF = simd.MedianInto(work, scratch)
+				}
+			})
+			b.Run(fmt.Sprintf("n=%d/%s/impl=portable", n, kind), func(b *testing.B) {
+				for b.Loop() {
+					copy(work, src)
+					sinkSortF = simd.MedianInto(work, nil)
+				}
+			})
+			b.Run(fmt.Sprintf("n=%d/%s/impl=sort", n, kind), func(b *testing.B) {
+				for b.Loop() {
+					copy(work, src)
+					slices.Sort(work)
+					sinkSortF = work[n/2]
+				}
+			})
+		}
+	}
+}
+
+var sinkSortF float64

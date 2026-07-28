@@ -1,5 +1,56 @@
 # Changelog
 
+## Unreleased
+
+### Four operations leave the portable path on x86
+
+`HexDecode`, `Base64Decode`, `Median` and `Quantile` were four of the eight
+operations still running plain Go on amd64. Each was blocked on something
+different, and only one of the four was blocked on what the roadmap said.
+
+**HexDecode** genuinely needed the two-value return. It reports a count and a
+validity flag, and the generator's result slot held one value, so it was
+portable on every architecture for a reason that had nothing to do with the
+hardware. The kernel validates a block without branching and only decodes one
+that is wholly valid, dropping to a scalar tail to find the exact offset of a
+bad character. Against `encoding/hex` at 1 MiB: **44.2us versus 660us**, 15x,
+at 22 GB/s.
+
+**Base64Decode** returns one value and was never blocked on that at all. It was
+excluded for spilling 576 bytes on AVX2 and 704 on AVX-512, past the 512-byte
+budget a NOSPLIT function has. Four bytes in and three out makes LLVM build a
+shuffle tree whose cost grows faster than the vector width, and left alone it
+picked a width that spilled. Pinning that width — 64 where `__AVX512F__` is
+defined, 32 elsewhere, because 64 everywhere would cost the AVX2 and ppc64le
+tiers — gives **43.7us at 1 MiB against 894us portable and 399us for
+`encoding/base64`**: 20.5x and 9.1x.
+
+**Median and Quantile** now run a quickselect around the accelerated partition.
+float64, taking the median of nine runs:
+
+| n | accelerated | portable | via `slices.Sort` |
+|---|---|---|---|
+| 4096 | 10.4us | 15.0us | 119us |
+| 65536 | 157us | 762us | 3.80ms |
+| 1048576 | 3.12ms | 13.4ms | 76.7ms |
+
+New `MedianInto` and `QuantileInto` take the scratch buffer from the caller and
+allocate nothing, in the same relationship `SortInto` has to `Sort`.
+
+That leaves `EMA`, `CumSum` and `CumProd` as the only operations still portable
+on amd64, and all three are permanently so: each is serial through its own
+output, and the contract forbids the reassociation that would break the
+dependency.
+
+### Fixed
+
+- **Signed zero in `Sort` is now documented.** The accelerated and portable
+  paths can place `-0` and `+0` differently — 848 of 4096 positions on a slice
+  containing both — because `-0 < +0` is false and the two therefore tie under
+  the `<` that defines the order. Every such output is a correct sort and every
+  differing pair is `==`. Making them agree needs a comparator closure, already
+  measured at 2.5x slower. `Median` and `Quantile` inherit the caveat.
+
 ## v0.2.0 — 2026-07-28
 
 ### ppc64le: 281 kernels become 468

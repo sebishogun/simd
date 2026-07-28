@@ -1,5 +1,7 @@
 package simd
 
+import "math"
+
 // Comparisons, boolean vectors, selection, gather and scatter.
 //
 // # Comparisons produce []bool
@@ -152,8 +154,50 @@ func Tile[T Number](a, pattern []T) { ops[T]().Tile(a, pattern) }
 // values are averaged, so the result need not be an element of the input.
 // NaN sorts to the end and so does not corrupt the middle.
 //
+// Where the two middle values compare equal but differ in bits — the only
+// case being negative and positive zero — which one is returned may differ
+// between the accelerated and portable paths. See the note on [Sort].
+//
+// Above a threshold it runs a quickselect around the accelerated partition
+// and allocates a scratch slice to do it, for the same reason [Sort] does: the
+// partition kernel is out of place and needs somewhere to write. Use
+// [MedianInto] on a hot path to supply that scratch yourself and allocate
+// nothing. Below the threshold, and on architectures with no compress
+// instruction, it stays on the scalar quickselect and allocates nothing.
+//
 // It panics on an empty slice.
-func Median[T Number](a []T) T { return ops[T]().Median(a) }
+func Median[T Number](a []T) T {
+	if len(a) < selectMinLen || ops[T]().Partition == nil {
+		return ops[T]().Median(a)
+	}
+	return MedianInto(a, make([]T, len(a)))
+}
+
+// MedianInto is [Median] using scratch as working space, allocating nothing.
+//
+// scratch must be at least as long as a; if it is shorter, this falls back to
+// the scalar quickselect rather than panicking, so a short scratch costs speed
+// and not correctness. Its contents afterwards are unspecified, and a is
+// reordered exactly as [Median] reorders it.
+//
+//	scratch := make([]T, len(a))   // once
+//	for _, batch := range batches {
+//	    m := simd.MedianInto(batch, scratch)
+//	}
+func MedianInto[T Number](a, scratch []T) T {
+	if len(a) < selectMinLen || len(scratch) < len(a) || ops[T]().Partition == nil {
+		return ops[T]().Median(a)
+	}
+	n := len(a)
+	selectKthInto(a, scratch, n/2)
+	hi := a[n/2]
+	if n%2 == 1 {
+		return hi
+	}
+	// The lower middle is the largest value left of n/2, which the select has
+	// already placed there. No second pass over the whole slice.
+	return average(maxNaNLast(a[:n/2]), hi)
+}
 
 // ---------- linear algebra ----------
 
@@ -199,5 +243,43 @@ func GemvInto[T Number](dst, a, x []T, m, k int) { ops[T]().Gemv(dst, a, x, m, k
 // allocation-free. Copy the slice first if you need to keep its order. For
 // integer types the interpolated value truncates toward zero.
 //
+// Like [Median] it uses the accelerated partition above a threshold and
+// allocates a scratch slice to do so; [QuantileInto] takes that scratch from
+// the caller and allocates nothing.
+//
 // It panics on an empty slice.
-func Quantile[T Number](a []T, q float64) T { return ops[T]().Quantile(a, q) }
+func Quantile[T Number](a []T, q float64) T {
+	if len(a) < selectMinLen || ops[T]().Partition == nil {
+		return ops[T]().Quantile(a, q)
+	}
+	return QuantileInto(a, make([]T, len(a)), q)
+}
+
+// QuantileInto is [Quantile] using scratch as working space, allocating
+// nothing. scratch must be at least as long as a; a shorter one falls back to
+// the scalar quickselect rather than panicking.
+func QuantileInto[T Number](a, scratch []T, q float64) T {
+	if len(a) < selectMinLen || len(scratch) < len(a) || ops[T]().Partition == nil {
+		return ops[T]().Quantile(a, q)
+	}
+	n := len(a)
+	q = math.Min(math.Max(q, 0), 1)
+
+	pos := q * float64(n-1)
+	lo := int(pos)
+	frac := pos - float64(lo)
+	if lo >= n-1 {
+		selectKthInto(a, scratch, n-1)
+		return a[n-1]
+	}
+
+	selectKthInto(a, scratch, lo)
+	x := a[lo]
+	if frac == 0 {
+		return x
+	}
+	// Everything right of lo is at least x after the select, so the next order
+	// statistic up is the smallest of them.
+	y := minNaNLast(a[lo+1:])
+	return x + T(frac*float64(y-x))
+}
