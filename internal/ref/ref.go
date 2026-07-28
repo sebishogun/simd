@@ -1003,4 +1003,17 @@ func CountAny(b, chars []byte) int               { return countAny(b, chars) }
 func HexEncode(dst, src []byte) int              { return hexEncode(dst, src) }
 func IndexAll(dst []int32, b []byte, c byte) int { return indexAll(dst, b, c) }
 
+// ArgMin and ArgMax are exported for the generated threshold guards. The float
+// and integer forms differ because only one of them has NaN to reckon with.
+
+func CumMinFloat[T Float](dst, a []T) { cumMinFloat(dst, a) }
+func CumMaxFloat[T Float](dst, a []T) { cumMaxFloat(dst, a) }
+func CumMinInt[T Integer](dst, a []T) { cumMinInt(dst, a) }
+func CumMaxInt[T Integer](dst, a []T) { cumMaxInt(dst, a) }
+
+func ArgMinFloat[T Float](a []T) int { return argMinFloat(a) }
+func ArgMaxFloat[T Float](a []T) int { return argMaxFloat(a) }
+func ArgMinInt[T Integer](a []T) int { return argMinInt(a) }
+func ArgMaxInt[T Integer](a []T) int { return argMaxInt(a) }
+
 func NormFloat[T Float](a []T) T { return normFloat(a) }

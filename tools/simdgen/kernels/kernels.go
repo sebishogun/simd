@@ -261,6 +261,76 @@ func reverseK(e elem) spec.Kernel {
 	}
 }
 
+// argK is a reduction that returns a position rather than a value.
+//
+// Only the four wide types: the index vector has to have the same lane count as
+// the value vector, and for an 8-bit element that would mean four index vectors
+// per value vector, which costs more than it saves.
+func argK(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_arg" + op + "_" + e.c, GoName: "arg" + field + e.goName,
+		Group: e.group, Field: "Arg" + field, RefFunc: e.ref("Arg" + field),
+		Params: []spec.Param{sl("a", e.slice)},
+		Result: &spec.Param{Name: "ret", Type: spec.Int},
+		CArgs:  []spec.CArg{out(), base("a"), lenOf("a")},
+		// One, not zero. ArgMin and ArgMax panic on an empty slice — there is
+		// no index to return — and a kernel cannot panic, so the empty case has
+		// to reach the reference. A threshold of 1 is what routes it there.
+		// With thReduction the kernel answered 0 for an empty slice instead,
+		// which the existing contract test caught.
+		Threshold: 1,
+	}
+}
+
+// scanK is a prefix scan. Only min and max: sum and product are serial under
+// the bit-identity contract, because every partial result of a scan is written
+// to dst and the log-shift form regroups the additions. See csrc/scan.c.
+func scanK(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_cum" + op + "_" + e.c, GoName: "cum" + field + e.goName,
+		Group: e.group, Field: "Cum" + field, RefFunc: e.ref("Cum" + field),
+		Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
+
+// Scan is the associative prefix-scan family, and it is integers only.
+//
+// The float versions were built, measured and dropped. A prefix scan costs
+// log2(lanes) combines per block instead of one per element, which is only
+// worth it if the combine is cheap. Integer minimum is one instruction, so it
+// is: CumMin on int32 over a million elements is 266µs against the scalar
+// loop's 626µs, 2.4x faster. IEEE-754-2019 minimum on floats is a five-operation
+// select chain — NaN propagation and -0 ordering are not what the hardware
+// instruction does — so the scan pays five times that, and float64 measured
+// 877µs against the scalar loop's 601µs, 46% *slower*.
+//
+// So the rule that makes a scan vectorizable at all (associativity) is not
+// enough on its own; the combine has to be cheap too.
+func Scan() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range elems {
+		switch e.group {
+		case "I32", "I64":
+			ks = append(ks, scanK("min", "Min", e), scanK("max", "Max", e))
+		}
+	}
+	return ks
+}
+
+// ArgReduce is the position-returning reduction family.
+func ArgReduce() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range elems {
+		switch e.group {
+		case "F32", "F64", "I32", "I64":
+			ks = append(ks, argK("min", "Min", e), argK("max", "Max", e))
+		}
+	}
+	return ks
+}
+
 func Arith() []spec.Kernel {
 	var ks []spec.Kernel
 	for _, e := range elems {
@@ -1339,6 +1409,8 @@ var All = []Source{
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},
 	{Path: "csrc/sort.c", Kernels: Sort()},
+	{Path: "csrc/argreduce.c", Kernels: ArgReduce()},
+	{Path: "csrc/scan.c", Kernels: Scan()},
 	{Path: "csrc/arith.c", Kernels: Arith()},
 	{Path: "csrc/reduce.c", Kernels: Reduce()},
 	{Path: "csrc/compare.c", Kernels: Compare()},

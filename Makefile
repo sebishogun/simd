@@ -186,9 +186,26 @@ BENCH_BASELINE = testdata/bench/$(shell $(GO) env GOARCH).txt
 BENCH_COUNT   ?= 6
 BENCH_OUT     ?= /tmp/simd-bench-$(shell $(GO) env GOARCH).txt
 
+# Benchmarks are pinned to one L3 domain so that other work on this machine can
+# run at the same time without landing in the same cache.
+#
+# This box is 16 cores and 32 threads across two CCXs with 32 MiB of L3 each.
+# Sharing a domain is what actually perturbs a measurement here — most of these
+# kernels are memory-bound, so a compile on a neighbouring core evicts the
+# working set rather than merely competing for issue slots. Two runs were thrown
+# away earlier to exactly that, once from a stray `go vet` and once from two
+# benchmark runs overlapping.
+#
+# Pinning does not isolate DRAM bandwidth, which is shared whatever happens, so
+# a heavy neighbour can still move the largest sizes. It removes the L3 and
+# core contention, which is most of it.
+#
+# Override with BENCH_PIN= to disable, or BENCH_PIN='taskset -c 0-3' to narrow.
+BENCH_PIN ?= taskset -c 0-7
+
 .PHONY: bench-run
 bench-run:
-	$(GO) test -run '^$$' -bench . -count $(BENCH_COUNT) $(PKG) > $(BENCH_OUT)
+	$(BENCH_PIN) $(GO) test -run '^$$' -bench . -count $(BENCH_COUNT) $(PKG) > $(BENCH_OUT)
 	@echo "wrote $(BENCH_OUT)"
 
 .PHONY: bench-check

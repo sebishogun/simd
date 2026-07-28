@@ -21,43 +21,12 @@ typedef long isize;
 
 // ---------- IEEE 754 minimum and maximum ----------
 //
-// These are written out rather than using __builtin_elementwise_min/max
-// because the contract is specific and the builtins are not: the library
-// promises IEEE 754-2019 minimum and maximum, where NaN propagates and -0
-// compares below +0. The min/max *instructions* on most architectures do
-// neither — x86's MINPS returns its second operand when either is NaN — and
-// the maxnum family returns the non-NaN operand rather than propagating.
-//
-// Written as compares and selects, LLVM vectorizes this into exactly the
-// compare-and-blend sequence a hand-written kernel would use, and it matches
-// the portable reference bit for bit, which the differential tests check.
-// Written as one branchless expression rather than a sequence of early
-// returns. The two are the same computation, but the early-return form leaves
-// LLVM to if-convert five branches before it can vectorize, and on three
-// targets it declined to for float64 while managing it for float32. A single
-// select chain is what the vectorizer wants, and it costs nothing to write.
-#define MINMAX_FLOAT(T, SUF, SIGNBIT)                              \
-  static inline T min_##SUF(T x, T y) {                            \
-    return (x != x)   ? x                                          \
-           : (y != y) ? y                                          \
-           : (x < y)  ? x                                          \
-           : (y < x)  ? y                                          \
-                      : (SIGNBIT(x) ? x : y); /* -0 wins */        \
-  }                                                                \
-  static inline T max_##SUF(T x, T y) {                            \
-    return (x != x)   ? x                                          \
-           : (y != y) ? y                                          \
-           : (x > y)  ? x                                          \
-           : (y > x)  ? y                                          \
-                      : (SIGNBIT(x) ? y : x); /* +0 wins */        \
-  }
+// The definitions live in minmax.h so that scan.c and anything else needing
+// them shares one copy. See that file for why the builtins are not usable.
+#include "minmax.h"
 
 MINMAX_FLOAT(float, f32, __builtin_signbitf)
 MINMAX_FLOAT(double, f64, __builtin_signbit)
-
-#define MINMAX_INT(T, SUF)                                        \
-  static inline T min_##SUF(T x, T y) { return x < y ? x : y; }   \
-  static inline T max_##SUF(T x, T y) { return x > y ? x : y; }
 
 MINMAX_INT(int, i32)
 MINMAX_INT(long long, i64)

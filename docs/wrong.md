@@ -290,7 +290,44 @@ that admits a rare instruction form rather than at any one family.
 
 ---
 
-## 14. The standard library is the more accurate side
+## 14. Associativity is what makes a scan vectorizable
+
+**Assumed.** A prefix scan can be vectorized exactly when its operation is
+associative, because then the log-shift regrouping is not observable. Minimum
+and maximum are associative, so CumMin and CumMax get the fast path and CumSum
+and CumProd cannot.
+
+**Actually.** Associativity makes it *valid*, not *profitable*, and the second
+question has a different answer per element type. A scan costs log2(lanes)
+combines per block where the serial loop costs one combine per element, so the
+combine has to be cheap for the trade to pay:
+
+    CumMin, 1M elements     vectorized   scalar
+    int32                       266µs      626µs    2.4x faster
+    float64                     877µs      601µs    46% SLOWER
+
+**Why.** Integer minimum is one instruction. IEEE-754-2019 minimum is a
+five-operation select chain — NaN propagation and -0 ordering are exactly what
+the hardware `minps` does *not* do — so the float scan pays five times as much
+at every one of the four steps.
+
+**Fix.** The integer scans ship and the float ones do not. The kernels are left
+in the source, compiled and unreferenced, because the measurement is worth being
+able to repeat.
+
+**And the near miss.** The first version was slower for *both* types, and the
+instruction count said why: sixty vector instructions for a sixteen-element
+block. The shift had been written as an elementwise select — `sh[j] = (j >= s)
+? v[j-s] : v[j]`, fully unrolled — which clang turns into sixteen inserts per
+step rather than one permute. Replacing it with `__builtin_shufflevector`, whose
+indices must be source literals rather than merely constant after unrolling,
+is what let the integer case win. Had that not been fixed first, the honest
+conclusion would have been "scans do not vectorize", and it would have been
+wrong.
+
+---
+
+## 15. The standard library is the more accurate side
 
 **Assumed.** Where a kernel and Go's `math` disagree, the kernel is wrong.
 
@@ -301,7 +338,7 @@ theory.
 
 ---
 
-## 15. `-0.0 < 0.0`
+## 16. `-0.0 < 0.0`
 
 **Assumed.** A sign test can be written as a comparison against zero.
 
@@ -312,7 +349,7 @@ theory.
 
 ---
 
-## 16. Skipping a zero multiply is a free optimization
+## 17. Skipping a zero multiply is a free optimization
 
 **Assumed.** `if (s == 0) continue` in a matrix multiply changes nothing but
 speed.
@@ -328,7 +365,7 @@ test in both the tiled path and the edges.
 
 ---
 
-## 17. A rewrite that produces correct instructions is a correct rewrite
+## 18. A rewrite that produces correct instructions is a correct rewrite
 
 **Assumed.** A constant-pool reference can be re-spelled as a Plan 9 mnemonic
 naming a `DATA` symbol, letting Go's linker compute the displacement.
@@ -344,7 +381,7 @@ changes length, so every branch that was correct in the object file still is.
 
 ---
 
-## 18. Vectorizing a loop makes it faster
+## 19. Vectorizing a loop makes it faster
 
 **Assumed.** Any loop turned into vector instructions beats the scalar version.
 
@@ -370,7 +407,7 @@ library because it is genuinely better.
 
 ---
 
-## 19. A disassembler prints register names
+## 20. A disassembler prints register names
 
 **Assumed.** Checking generated code for a forbidden register is a text search
 for its name.
@@ -386,7 +423,7 @@ written in the spelling that target's disassembler actually emits.
 
 ---
 
-## 20. The benchmark said it got slower
+## 21. The benchmark said it got slower
 
 **Assumed.** A regression harness reporting sixteen benchmarks over the
 threshold means sixteen regressions.
@@ -403,7 +440,7 @@ flagged, check whether the generated code changed before believing it.
 
 ---
 
-## 21. A test lane that produces no output is running slowly
+## 22. A test lane that produces no output is running slowly
 
 **Assumed.** The emulated arm64 lane sitting silent for half an hour is qemu
 being qemu. The Makefile even says to allow that long.
@@ -423,7 +460,7 @@ in `make verify` and its findings do not depend on GOARCH.
 
 ---
 
-## 22. "No space left on device" means the disk is full
+## 23. "No space left on device" means the disk is full
 
 **Assumed.** `ENOSPC` means bytes.
 
