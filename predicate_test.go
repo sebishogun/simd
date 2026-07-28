@@ -71,6 +71,46 @@ func TestPredicates(t *testing.T) {
 		t.Errorf("float32 IsNaN = %v, want [true false false false]", m32)
 	}
 
+	// NanSum and NanMean against the obvious loop, on data that is part NaN,
+	// entirely NaN and entirely finite.
+	for _, n := range []int{0, 1, 5, 64, 257, 1000} {
+		for _, shape := range []string{"mixed", "allNaN", "noNaN"} {
+			a := make([]float64, n)
+			for i := range a {
+				switch {
+				case shape == "allNaN" || (shape == "mixed" && i%3 == 0):
+					a[i] = math.NaN()
+				default:
+					a[i] = float64(i%17) - 8
+				}
+			}
+			var wantSum float64
+			wantK := 0
+			for _, v := range a {
+				if !math.IsNaN(v) {
+					wantSum += v
+					wantK++
+				}
+			}
+			scratch := make([]float64, n)
+			mask := make([]bool, n)
+			if got := simd.NanSum(a, scratch, mask); got != wantSum {
+				t.Fatalf("NanSum n=%d %s = %v, want %v", n, shape, got, wantSum)
+			}
+			gotMean, gotK := simd.NanMean(a, scratch, mask)
+			if gotK != wantK {
+				t.Fatalf("NanMean n=%d %s count = %d, want %d", n, shape, gotK, wantK)
+			}
+			if wantK == 0 {
+				if !math.IsNaN(gotMean) {
+					t.Fatalf("NanMean n=%d %s = %v, want NaN", n, shape, gotMean)
+				}
+			} else if gotMean != wantSum/float64(wantK) {
+				t.Fatalf("NanMean n=%d %s = %v, want %v", n, shape, gotMean, wantSum/float64(wantK))
+			}
+		}
+	}
+
 	// A short scratch must cost an allocation, not correctness.
 	if got := simd.CountNaN([]float64{math.NaN(), 1}, nil); got != 1 {
 		t.Errorf("CountNaN with nil scratch = %d, want 1", got)

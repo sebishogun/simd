@@ -78,3 +78,59 @@ func AnyNaN[T Float](a []T, mask []bool) bool {
 	IsNaNInto(mask[:len(a)], a)
 	return Any(mask[:len(a)])
 }
+
+// NanSum returns the sum of the non-NaN elements of a, treating NaN as absent
+// rather than as poison.
+//
+// [Sum] propagates: one NaN anywhere makes the whole answer NaN, which is what
+// IEEE says and usually what you want. This is the other convention — numpy's
+// nansum, R's sum(na.rm=TRUE) — for data with gaps in it.
+//
+// It is a select and a sum, both accelerated: the NaN lanes are replaced by
+// zero and the ordinary reduction runs over the result. Adding zero is exact,
+// so the answer is the sum of the surviving elements and nothing has been
+// perturbed by the substitution.
+//
+// scratch and mask are working space of at least len(a); short ones are
+// replaced by allocations. An empty slice, or one that is entirely NaN, sums
+// to zero — the identity, consistently with [Sum] of an empty slice.
+func NanSum[T Float](a []T, scratch []T, mask []bool) T {
+	n := len(a)
+	if len(scratch) < n {
+		scratch = make([]T, n)
+	}
+	if len(mask) < n {
+		mask = make([]bool, n)
+	}
+	scratch, mask = scratch[:n], mask[:n]
+	IsNaNInto(mask, a)
+	// SelectInto takes from yes where the mask is true, so the NaN lanes want
+	// a zeroed slice as yes and the input as no. scratch serves as both the
+	// destination and yes, which is why it is cleared first — and aliasing
+	// those two is safe because the select is elementwise with no dependency
+	// between lanes.
+	clear(scratch)
+	SelectInto(scratch, mask, scratch, a)
+	return Sum(scratch)
+}
+
+// NanMean returns the mean of the non-NaN elements of a, and how many there
+// were.
+//
+// The count is returned rather than discarded because it is the thing a caller
+// needs to know whether the mean means anything: a mean over three surviving
+// points out of a thousand is not a mean. A slice with no non-NaN elements
+// returns NaN and zero rather than dividing by zero.
+func NanMean[T Float](a []T, scratch []T, mask []bool) (T, int) {
+	n := len(a)
+	if len(mask) < n {
+		mask = make([]bool, n)
+	}
+	mask = mask[:n]
+	IsNaNInto(mask, a)
+	k := n - CountTrue(mask)
+	if k == 0 {
+		return T(math.NaN()), 0
+	}
+	return NanSum(a, scratch, mask) / T(k), k
+}
