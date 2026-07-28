@@ -62,18 +62,50 @@ here.
 
 ## Backends
 
-### ppc64le: rewrite TOC-relative constant loads to PC-relative
+### ppc64le: repoint the TOC prologue at an appended pool
 
-182 kernels are not generated for ppc64le because clang reaches its constants
+**The design is settled and the mechanism is verified on hardware. What remains
+is the generator change.**
+
+157 kernels are not generated for ppc64le because clang reaches its constants
 through `r2`, the TOC pointer, which Go does not maintain for these objects.
+This is the largest single coverage gap in the library: ppc64le has 281 kernels
+where amd64 has 1664.
 
-Power9 has no PC-relative data addressing, so the fix is a rewriter: recognise
-the `addis`/`ld` TOC pair, resolve what it was pointing at, and re-materialise
-the address the way the other backends do. A further 64 kernels use `r30`,
-which Go's linker owns, and that is a separate investigation.
+The shape is uniform and that is what makes it tractable. Every one of those
+kernels opens with clang's ELFv2 global-entry prologue —
 
-This is the largest single coverage gap in the library — ppc64le has 281
-kernels where amd64 has 1652.
+    addis r2, r12, .TOC.@ha     R_PPC64_REL16_HA
+    addi  r2, r2,  .TOC.@l      R_PPC64_REL16_LO
+
+— and only 10 of 541 functions surveyed write `r2` after it.
+
+Power9 has no PC-relative data addressing, which for a long time looked like
+the obstacle. It is not, because none is needed. **Go's own assembler
+materialises a RODATA address in two instructions with no TOC at all:**
+
+    MOVD $pool<>(SB), R12   ->   lis  r12, 15
+                                 addi r12, r12, -560
+
+Go builds non-PIE, so the address is a link-time constant. A probe doing this
+was built and *run* under emulated ppc64le and read back the right value. So
+there is no need to clobber the link register with `bcl`/`mflr`, no need for a
+protected-zone slot to save it in, and no dependency on whatever `r2` held on
+entry.
+
+The rewrite is therefore:
+
+1. Emit the pool as a Go `DATA`/`GLOBL` symbol, as the amd64 path already does.
+2. Put `MOVD $pool<>(SB), R2` in the generator's prologue. Its length is free —
+   the prologue precedes the body, and the body's branches are all relative to
+   the body.
+3. Overwrite the two global-entry instructions with NOPs. Length-preserving,
+   which `constpool.go` explains is not optional.
+4. Recompute each `R_PPC64_TOC16_HA/LO` immediate as an offset from the pool
+   base instead of from `.TOC.`, minding the HA/LO sign adjustment — the same
+   arithmetic `resolvePool` already does for four other architectures.
+
+A further 64 kernels use `r30`, which Go's linker owns; that is separate.
 
 ### s390x
 
