@@ -262,7 +262,35 @@ Two other registrations made the same way happened to land, which is luck.
 
 ---
 
-## 13. The standard library is the more accurate side
+## 13. The kernel that reports the wrong answer is the kernel with the bug
+
+**Assumed.** When a differential test says `I8.Mul` returned 9 where it should
+have returned 0, the fault is in `I8.Mul`.
+
+**Actually.** Under memory corruption the failure surfaces wherever the
+scribbled-on memory is next read, which has nothing to do with where the
+scribbling happened. Bisecting the ppc64le TOC rewrite showed `simd_mul_` in
+isolation — which contains `simd_mul_i8` — running 1.74 million fuzz executions
+clean. The kernel named in the failure was innocent.
+
+**What it cost.** A whole hypothesis was built on that name. The DS-form
+displacement patch was the obvious suspect for an `int8` multiply going wrong,
+it was investigated first, and excluding all 360 DS relocations changed nothing.
+
+**The general form.** A wrong *value* points at the code that computed it. A
+wrong value caused by corruption points nowhere at all, and the two are
+indistinguishable from a single test failure. Reproducibility separates them: a
+fault that names a different input every run is corruption, and the name in the
+report is noise.
+
+**What worked instead.** Bisecting by *how much* was enabled rather than by
+which kernel failed. Every subset up to 367 kernels was clean and every set from
+419 up crashed, which said scale rather than identity, and pointed at a check
+that admits a rare instruction form rather than at any one family.
+
+---
+
+## 14. The standard library is the more accurate side
 
 **Assumed.** Where a kernel and Go's `math` disagree, the kernel is wrong.
 
@@ -273,7 +301,7 @@ theory.
 
 ---
 
-## 14. `-0.0 < 0.0`
+## 15. `-0.0 < 0.0`
 
 **Assumed.** A sign test can be written as a comparison against zero.
 
@@ -284,7 +312,7 @@ theory.
 
 ---
 
-## 15. Skipping a zero multiply is a free optimization
+## 16. Skipping a zero multiply is a free optimization
 
 **Assumed.** `if (s == 0) continue` in a matrix multiply changes nothing but
 speed.
@@ -300,7 +328,7 @@ test in both the tiled path and the edges.
 
 ---
 
-## 16. A rewrite that produces correct instructions is a correct rewrite
+## 17. A rewrite that produces correct instructions is a correct rewrite
 
 **Assumed.** A constant-pool reference can be re-spelled as a Plan 9 mnemonic
 naming a `DATA` symbol, letting Go's linker compute the displacement.
@@ -316,7 +344,7 @@ changes length, so every branch that was correct in the object file still is.
 
 ---
 
-## 17. Vectorizing a loop makes it faster
+## 18. Vectorizing a loop makes it faster
 
 **Assumed.** Any loop turned into vector instructions beats the scalar version.
 
@@ -342,7 +370,7 @@ library because it is genuinely better.
 
 ---
 
-## 18. A disassembler prints register names
+## 19. A disassembler prints register names
 
 **Assumed.** Checking generated code for a forbidden register is a text search
 for its name.
@@ -358,7 +386,7 @@ written in the spelling that target's disassembler actually emits.
 
 ---
 
-## 19. The benchmark said it got slower
+## 20. The benchmark said it got slower
 
 **Assumed.** A regression harness reporting sixteen benchmarks over the
 threshold means sixteen regressions.
@@ -375,7 +403,7 @@ flagged, check whether the generated code changed before believing it.
 
 ---
 
-## 20. A test lane that produces no output is running slowly
+## 21. A test lane that produces no output is running slowly
 
 **Assumed.** The emulated arm64 lane sitting silent for half an hour is qemu
 being qemu. The Makefile even says to allow that long.
@@ -395,7 +423,7 @@ in `make verify` and its findings do not depend on GOARCH.
 
 ---
 
-## 21. "No space left on device" means the disk is full
+## 22. "No space left on device" means the disk is full
 
 **Assumed.** `ENOSPC` means bytes.
 

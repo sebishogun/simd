@@ -339,7 +339,7 @@ make codegen       # regenerate every backend (needs clang)
 ## Where the obvious answer was wrong
 
 **[`docs/wrong.md`](docs/wrong.md)** is the part of this project most worth
-borrowing: twenty-one things a competent person would have assumed, that were
+borrowing: twenty-two things a competent person would have assumed, that were
 false, and what each one cost. Among them —
 
 - A register can be reserved by *value* rather than by name, which makes it
@@ -353,6 +353,7 @@ false, and what each one cost. Among them —
 - Go's own SIMD intrinsics being 4.4× *slower* than the generated assembly.
 - A closure comparator costing a sort 2.5×, and the wrong fix making it worse.
 - A scripted edit that silently did not apply, and would have crashed most CPUs.
+- A failing test naming a kernel that was not the one with the bug.
 - A test lane that was hung, not slow — thirty-two minutes at 0.1% CPU.
 - `ENOSPC` with 40 GB free.
 
