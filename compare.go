@@ -130,6 +130,18 @@ func GatherInto[T Number](dst, src []T, idx []int32) { ops[T]().Gather(dst, src,
 //
 // Indices outside dst are skipped. Where two indices collide the later write
 // wins, matching what the hardware instruction does.
+//
+// This is accelerated on amd64 and riscv64 and portable on arm64, s390x,
+// loong64 and ppc64le, and that split is hardware and not an omission. NEON
+// has no scatter instruction at all — a scatter there is a loop of scalar
+// stores, which is what the portable path already is. SVE2 does have one, but
+// skipping out-of-range indices makes the store predicated, and LLVM declines
+// to form a predicated scatter from this loop; forcing it with
+// vectorize(assume_safety) or an explicit width produced one or two vector
+// registers of incidental use and no scatter, so there is nothing to gain by
+// pushing harder. [GatherInto] has no such problem, because a gather is a load
+// and every one of these architectures either has the instruction or can
+// synthesise it without predication.
 func ScatterInto[T Number](dst []T, idx []int32, src []T) { ops[T]().Scatter(dst, idx, src) }
 
 // ---------- construction ----------

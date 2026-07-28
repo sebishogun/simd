@@ -53,9 +53,18 @@ func MovingAverageInto[T Number](dst, a []T, width int) { ops[T]().MovingAverage
 // EMAInto writes the exponentially weighted moving average of a, where alpha
 // is the weight given to each new sample: dst[i] = alpha*a[i] + (1-alpha)*dst[i-1].
 //
-// This one is inherently sequential — each output depends on the previous —
-// so it does not vectorize and will not get faster as backends land. It is
-// here because it belongs next to [MovingAverageInto], not for speed.
+// This one is permanently portable, on every architecture, and the reason has
+// nothing to do with any instruction set. Each output depends on the one
+// before it, so the only way to vectorize it is to regroup the arithmetic —
+// and every partial result is written to dst, so the regrouping is visible in
+// the answer. The package's contract is that the accelerated and portable
+// paths agree bit for bit, which forbids exactly that. [CumSum] and [CumProd]
+// are portable for the same reason; [CumMin] and [CumMax] are not, because
+// minimum and maximum are associative and regrouping them changes nothing.
+//
+// It is here because it belongs next to [MovingAverageInto], not for speed. A
+// FastEMA that truncates the geometric tail and states its error bound would
+// vectorize, and is the shape any future version of this would take.
 func EMAInto[T Number](dst, a []T, alpha T) { ops[T]().EMA(dst, a, alpha) }
 
 // ---------- quadrature ----------
