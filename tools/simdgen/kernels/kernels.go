@@ -1399,6 +1399,26 @@ func Sort() []spec.Kernel {
 //
 // A skipped kernel is not registered and the portable path stands, which is
 // the same arrangement every other partial backend uses.
+//
+// # riscv64 is on this list for a different reason, and it is not the stated one
+//
+// RVV 1.0 does have vcompress.vm, so the paragraph above is simply wrong about
+// riscv64, and removing it from this list does produce kernels: five of them,
+// registering nine slots, which would also unblock PartitionInto and with it
+// Sort, Median and Quantile on that architecture. LLVM vectorizes csrc/compress.c
+// for rv64gcv into thirty-one vector instructions without complaint.
+//
+// They corrupt memory. Under qemu at vlen=256 the suite dies in
+// runtime.scanstack during a garbage collection — a SIGSEGV inside the stack
+// unwinder, which means the kernel wrote outside its frame and the collector
+// found the damage later, somewhere unrelated to the cause.
+//
+// That is the same signature as countAnyVSX on ppc64le, which is skipped for
+// the same reason and whose root cause is also unknown. Two instances of one
+// fault in two unrelated backends points at the generator rather than at
+// either kernel, and until that is understood shipping a kernel that passes
+// its own tests and then breaks the collector is worse than shipping no kernel
+// at all.
 var noCompress = []string{
 	"amd64/sse2", "amd64/avx2", "arm64/neon",
 	"riscv64", "s390x", "loong64", "ppc64le",
