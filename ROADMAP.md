@@ -45,7 +45,37 @@ that way.
 
 ### sort / argsort
 
-The partition step is compress, which now exists.
+The partition step is compress, which now exists. Two things were measured
+while scoping it, and both change how it should be written:
+
+**The single-pass partition does not vectorize.** The natural shape — one load,
+one comparison, two compress stores, one to each end — is scalarized completely
+by clang: `vucomiss`, `seta` and `cmovaq` per element, no compress at all. The
+second store's address depends on the population count of the first mask, so
+the two are serially dependent. Written as *two* passes, one per side, each has
+exactly the shape `csrc/compress.c` already uses, and it vectorizes.
+
+**And then it vectorizes for integers but not for floats.** In the two-pass
+form, `partition_i32` emits two `vpcompress` instructions and `partition_f32`
+emits none. Undiagnosed; the likely cause is that a float comparison carries
+NaN semantics the optimizer will not speculate through, so the lane count and
+the lane mask stop being provably the same predicate. Deriving the count from
+the mask rather than from a second comparison is the thing to try.
+
+The partition should be out of place with caller-supplied scratch, not in
+place. The in-place two-sided form is what a production AVX-512 sort does and
+is faster, but a read-before-overwrite mistake there produces a permutation
+that is still a permutation — it survives every "is it sorted" check that does
+not also verify multiset equality.
+
+**Measure against `slices.Sort` before shipping any of it.** Go's pdqsort is
+good, and if a vectorized partition does not win end to end then the right
+answer is to say so and not ship a slower sort — the same call this library
+already makes for `bytes.Equal` and `bytealg.Count`.
+
+`Argsort` is the more clearly valuable half: Go has no good answer for it
+today, and applying the resulting permutation is a gather, which is already
+accelerated.
 
 A vectorized sort is not a vectorized version of a scalar sort; it is a
 different algorithm — a sorting network on register-sized blocks, then a
