@@ -639,12 +639,23 @@ So the crash site named the *victim*, not the culprit. `scanstack` walks stacks,
 but the object graph it walks lives in the heap, and a heap header overwritten
 by a stray vector store presents as a stack that will not unwind.
 
-**Fix**: the compress kernels stay excluded on riscv64 and the reason is now the
-right one — LLVM does not use `vcompress.vm`, so the unconditional-store
-contract they are built on does not hold there. Whether ppc64le's `countAnyVSX`
-is the same fault or a different one is still open; the two were assumed
-identical because their symptoms are, and that assumption is exactly what this
-entry is about.
+**And the heap-overrun explanation does not survive either.** Written above as
+though it were established, it is not. The Go side refuses the call unless
+`len(dst) >= len(src)`, and inside the loop `k <= i` while `i + 16 <= n`, so
+`k + 16 <= n <= len(dst)`: a sixteen-lane store at `dst+k` is in bounds at every
+iteration, by construction. The bound holds whatever LLVM lowers the builtin
+to, as long as it stores sixteen elements.
+
+So the cause is **unknown**, which is where `countAnyVSX` has been all along, and
+this entry has now produced two confident wrong answers about one bug. The
+kernels stay excluded on that basis and not on a story.
+
+What is actually established: LLVM emits no `vcompress.vm` for RVV, the kernels
+touch no stack, and the sixteen-lane store cannot leave `dst`. What is not:
+anything about what does go wrong. The next step is to stop reasoning about it
+and instrument — run the riscv64 compress family under a checked allocator, or
+bisect the kernel body the way `countAnyVSX` was bisected, rather than produce a
+third theory.
 
 The transferable part: a crash in the garbage collector tells you when the
 damage was *noticed*, never where it was *done*. Reading it as a location cost
