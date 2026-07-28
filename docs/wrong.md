@@ -583,9 +583,28 @@ comment says "Only the targets whose ABI makes the mistake possible need an
 entry; the rest declare no StackReg and are not checked", which reads as a
 deliberate narrowing and is really a description of the gap.
 
-**Fix**: not applied yet — the entries have to be added and every existing
-kernel re-verified, because kernels that pass today may only be passing because
-nothing looked. The transferable part is the title. A conditional guard that
-silently no-ops on most of its inputs reports success identically to a guard
-that ran and found nothing, and the only way to tell them apart is to make it
-fail on purpose.
+**Fix**: attempted, reverted, and the attempt is the more useful half.
+
+Adding the `StackReg` entries, the missing mnemonics and an `[sp, #16]` pattern
+for arm64's bracket syntax makes the check run everywhere — and it immediately
+drops six kernels on amd64, fifteen on arm64 and four on riscv64. That looks
+like twenty-five latent corruptions found. It is not.
+
+The check reads *any* non-negative offset from the stack pointer as the
+caller's frame. That is true on ppc64le, where clang leaves the stack pointer
+alone in a leaf and spills into the protected zone below it, so a positive
+offset really does belong to the caller. It is false on arm64 and amd64, where
+clang emits `sub sp, sp, #N` and then spills at positive offsets **inside the
+frame it just allocated**. Every one of those is legal, and the check condemns
+them all.
+
+So the guard cannot be extended without first tracking frame allocation: find
+the prologue's stack adjustment N, and flag only offsets at or above N. Until
+that exists, turning the check on elsewhere trades a false negative for
+twenty-one false positives and deletes working kernels.
+
+The transferable part is still the title. A conditional guard that silently
+no-ops on most of its inputs reports success identically to a guard that ran
+and found nothing, and the only way to tell them apart is to make it fail on
+purpose. The corollary, learned here: when you do make it fire, check what it
+catches before believing it.
