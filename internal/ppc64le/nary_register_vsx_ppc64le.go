@@ -56,6 +56,42 @@ func mul4Float64VSXGuarded(dst []float64, a []float64, b []float64, c []float64,
 	mul4Float64VSX(dst[:n:n], a, b, c, d)
 }
 
+func mul3Int8VSXGuarded(dst []int8, a []int8, b []int8, c []int8) {
+	n := min(len(dst), len(a), len(b), len(c))
+	if n < 256 {
+		ref.Mul3(dst, a, b, c)
+		return
+	}
+	mul3Int8VSX(dst[:n:n], a, b, c)
+}
+
+func mul4Int8VSXGuarded(dst []int8, a []int8, b []int8, c []int8, d []int8) {
+	n := min(len(dst), len(a), len(b), len(c), len(d))
+	if n < 256 {
+		ref.Mul4(dst, a, b, c, d)
+		return
+	}
+	mul4Int8VSX(dst[:n:n], a, b, c, d)
+}
+
+func mul3Uint8VSXGuarded(dst []byte, a []byte, b []byte, c []byte) {
+	n := min(len(dst), len(a), len(b), len(c))
+	if n < 256 {
+		ref.Mul3(dst, a, b, c)
+		return
+	}
+	mul3Uint8VSX(dst[:n:n], a, b, c)
+}
+
+func mul4Uint8VSXGuarded(dst []byte, a []byte, b []byte, c []byte, d []byte) {
+	n := min(len(dst), len(a), len(b), len(c), len(d))
+	if n < 256 {
+		ref.Mul4(dst, a, b, c, d)
+		return
+	}
+	mul4Uint8VSX(dst[:n:n], a, b, c, d)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -64,4 +100,8 @@ func init() {
 	s.F32.Mul4 = mul4Float32VSXGuarded
 	s.F64.Add4 = add4Float64VSXGuarded
 	s.F64.Mul4 = mul4Float64VSXGuarded
+	s.I8.Mul3 = mul3Int8VSXGuarded
+	s.I8.Mul4 = mul4Int8VSXGuarded
+	s.U8.Mul3 = mul3Uint8VSXGuarded
+	s.U8.Mul4 = mul4Uint8VSXGuarded
 }

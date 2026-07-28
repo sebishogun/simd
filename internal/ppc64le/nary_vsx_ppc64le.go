@@ -26,3 +26,15 @@ func add4Float64VSX(dst []float64, a []float64, b []float64, c []float64, d []fl
 
 //go:noescape
 func mul4Float64VSX(dst []float64, a []float64, b []float64, c []float64, d []float64)
+
+//go:noescape
+func mul3Int8VSX(dst []int8, a []int8, b []int8, c []int8)
+
+//go:noescape
+func mul4Int8VSX(dst []int8, a []int8, b []int8, c []int8, d []int8)
+
+//go:noescape
+func mul3Uint8VSX(dst []byte, a []byte, b []byte, c []byte)
+
+//go:noescape
+func mul4Uint8VSX(dst []byte, a []byte, b []byte, c []byte, d []byte)

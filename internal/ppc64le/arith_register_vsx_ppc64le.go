@@ -502,6 +502,15 @@ func subInt8VSXGuarded(dst []int8, a []int8, b []int8) {
 	subInt8VSX(dst[:n:n], a, b)
 }
 
+func mulInt8VSXGuarded(dst []int8, a []int8, b []int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulInt8VSX(dst[:n:n], a, b)
+}
+
 func minimumInt8VSXGuarded(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -538,6 +547,15 @@ func negInt8VSXGuarded(dst []int8, a []int8) {
 	negInt8VSX(dst[:n:n], a)
 }
 
+func scaleInt8VSXGuarded(dst []int8, a []int8, s int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleInt8VSX(dst[:n:n], a, s)
+}
+
 func addScalarInt8VSXGuarded(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -571,6 +589,24 @@ func fillInt8VSXGuarded(dst []int8, v int8) {
 		return
 	}
 	fillInt8VSX(dst, v)
+}
+
+func lerpInt8VSXGuarded(dst []int8, a []int8, b []int8, t int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpInt8VSX(dst[:n:n], a, b, t)
+}
+
+func addScaledInt8VSXGuarded(dst []int8, a []int8, b []int8, s int8) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledInt8VSX(dst[:n:n], a, b, s)
 }
 
 func addInt16VSXGuarded(dst []int16, a []int16, b []int16) {
@@ -716,6 +752,15 @@ func subUint8VSXGuarded(dst []byte, a []byte, b []byte) {
 	subUint8VSX(dst[:n:n], a, b)
 }
 
+func mulUint8VSXGuarded(dst []byte, a []byte, b []byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Mul(dst, a, b)
+		return
+	}
+	mulUint8VSX(dst[:n:n], a, b)
+}
+
 func minimumUint8VSXGuarded(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -752,6 +797,15 @@ func negUint8VSXGuarded(dst []byte, a []byte) {
 	negUint8VSX(dst[:n:n], a)
 }
 
+func scaleUint8VSXGuarded(dst []byte, a []byte, s byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Scale(dst, a, s)
+		return
+	}
+	scaleUint8VSX(dst[:n:n], a, s)
+}
+
 func addScalarUint8VSXGuarded(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -785,6 +839,24 @@ func fillUint8VSXGuarded(dst []byte, v byte) {
 		return
 	}
 	fillUint8VSX(dst, v)
+}
+
+func lerpUint8VSXGuarded(dst []byte, a []byte, b []byte, t byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.Lerp(dst, a, b, t)
+		return
+	}
+	lerpUint8VSX(dst[:n:n], a, b, t)
+}
+
+func addScaledUint8VSXGuarded(dst []byte, a []byte, b []byte, s byte) {
+	n := min(len(dst), len(a), len(b))
+	if n < 16 {
+		ref.AddScaled(dst, a, b, s)
+		return
+	}
+	addScaledUint8VSX(dst[:n:n], a, b, s)
 }
 
 func addUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
@@ -1153,6 +1225,15 @@ func sqrtFloat32VSXGuarded(dst []float32, a []float32) {
 	sqrtFloat32VSX(dst[:n:n], a)
 }
 
+func reciprocalFloat32VSXGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Reciprocal(dst, a)
+		return
+	}
+	reciprocalFloat32VSX(dst[:n:n], a)
+}
+
 func floorFloat32VSXGuarded(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1214,6 +1295,15 @@ func sqrtFloat64VSXGuarded(dst []float64, a []float64) {
 		return
 	}
 	sqrtFloat64VSX(dst[:n:n], a)
+}
+
+func reciprocalFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Reciprocal(dst, a)
+		return
+	}
+	reciprocalFloat64VSX(dst[:n:n], a)
 }
 
 func floorFloat64VSXGuarded(dst []float64, a []float64) {
@@ -1418,14 +1508,18 @@ func init() {
 	s.I64.Fill = fillInt64VSXGuarded
 	s.I8.Add = addInt8VSXGuarded
 	s.I8.Sub = subInt8VSXGuarded
+	s.I8.Mul = mulInt8VSXGuarded
 	s.I8.Minimum = minimumInt8VSXGuarded
 	s.I8.Maximum = maximumInt8VSXGuarded
 	s.I8.Abs = absInt8VSXGuarded
 	s.I8.Neg = negInt8VSXGuarded
+	s.I8.Scale = scaleInt8VSXGuarded
 	s.I8.AddScalar = addScalarInt8VSXGuarded
 	s.I8.SubScalar = subScalarInt8VSXGuarded
 	s.I8.Clamp = clampInt8VSXGuarded
 	s.I8.Fill = fillInt8VSXGuarded
+	s.I8.Lerp = lerpInt8VSXGuarded
+	s.I8.AddScaled = addScaledInt8VSXGuarded
 	s.I16.Add = addInt16VSXGuarded
 	s.I16.Sub = subInt16VSXGuarded
 	s.I16.Mul = mulInt16VSXGuarded
@@ -1442,14 +1536,18 @@ func init() {
 	s.I16.AddScaled = addScaledInt16VSXGuarded
 	s.U8.Add = addUint8VSXGuarded
 	s.U8.Sub = subUint8VSXGuarded
+	s.U8.Mul = mulUint8VSXGuarded
 	s.U8.Minimum = minimumUint8VSXGuarded
 	s.U8.Maximum = maximumUint8VSXGuarded
 	s.U8.Abs = absUint8VSXGuarded
 	s.U8.Neg = negUint8VSXGuarded
+	s.U8.Scale = scaleUint8VSXGuarded
 	s.U8.AddScalar = addScalarUint8VSXGuarded
 	s.U8.SubScalar = subScalarUint8VSXGuarded
 	s.U8.Clamp = clampUint8VSXGuarded
 	s.U8.Fill = fillUint8VSXGuarded
+	s.U8.Lerp = lerpUint8VSXGuarded
+	s.U8.AddScaled = addScaledUint8VSXGuarded
 	s.U16.Add = addUint16VSXGuarded
 	s.U16.Sub = subUint16VSXGuarded
 	s.U16.Mul = mulUint16VSXGuarded
@@ -1491,6 +1589,7 @@ func init() {
 	s.F32.Div = divFloat32VSXGuarded
 	s.F32.DivScalar = divScalarFloat32VSXGuarded
 	s.F32.Sqrt = sqrtFloat32VSXGuarded
+	s.F32.Reciprocal = reciprocalFloat32VSXGuarded
 	s.F32.Floor = floorFloat32VSXGuarded
 	s.F32.Ceil = ceilFloat32VSXGuarded
 	s.F32.Trunc = truncFloat32VSXGuarded
@@ -1498,6 +1597,7 @@ func init() {
 	s.F64.Div = divFloat64VSXGuarded
 	s.F64.DivScalar = divScalarFloat64VSXGuarded
 	s.F64.Sqrt = sqrtFloat64VSXGuarded
+	s.F64.Reciprocal = reciprocalFloat64VSXGuarded
 	s.F64.Floor = floorFloat64VSXGuarded
 	s.F64.Ceil = ceilFloat64VSXGuarded
 	s.F64.Trunc = truncFloat64VSXGuarded

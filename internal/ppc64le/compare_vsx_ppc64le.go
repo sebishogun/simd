@@ -16,6 +16,78 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func eqFloat32MaskVSX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func eqScalarFloat32MaskVSX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func neFloat32MaskVSX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func neScalarFloat32MaskVSX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func ltFloat32MaskVSX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func ltScalarFloat32MaskVSX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func leFloat32MaskVSX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func leScalarFloat32MaskVSX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func gtFloat32MaskVSX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func gtScalarFloat32MaskVSX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func geFloat32MaskVSX(dst []bool, a []float32, b []float32)
+
+//go:noescape
+func geScalarFloat32MaskVSX(dst []bool, a []float32, v float32)
+
+//go:noescape
+func eqInt32MaskVSX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func eqScalarInt32MaskVSX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func neInt32MaskVSX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func neScalarInt32MaskVSX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func ltInt32MaskVSX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func ltScalarInt32MaskVSX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func leInt32MaskVSX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func leScalarInt32MaskVSX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func gtInt32MaskVSX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func gtScalarInt32MaskVSX(dst []bool, a []int32, v int32)
+
+//go:noescape
+func geInt32MaskVSX(dst []bool, a []int32, b []int32)
+
+//go:noescape
+func geScalarInt32MaskVSX(dst []bool, a []int32, v int32)
+
+//go:noescape
 func eqInt8MaskVSX(dst []bool, a []int8, b []int8)
 
 //go:noescape
@@ -103,13 +175,25 @@ func neScalarUint8MaskVSX(dst []bool, a []byte, v byte)
 func ltUint8MaskVSX(dst []bool, a []byte, b []byte)
 
 //go:noescape
+func ltScalarUint8MaskVSX(dst []bool, a []byte, v byte)
+
+//go:noescape
 func leUint8MaskVSX(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func leScalarUint8MaskVSX(dst []bool, a []byte, v byte)
 
 //go:noescape
 func gtUint8MaskVSX(dst []bool, a []byte, b []byte)
 
 //go:noescape
+func gtScalarUint8MaskVSX(dst []bool, a []byte, v byte)
+
+//go:noescape
 func geUint8MaskVSX(dst []bool, a []byte, b []byte)
+
+//go:noescape
+func geScalarUint8MaskVSX(dst []bool, a []byte, v byte)
 
 //go:noescape
 func eqUint16MaskVSX(dst []bool, a []uint16, b []uint16)
@@ -127,13 +211,61 @@ func neScalarUint16MaskVSX(dst []bool, a []uint16, v uint16)
 func ltUint16MaskVSX(dst []bool, a []uint16, b []uint16)
 
 //go:noescape
+func ltScalarUint16MaskVSX(dst []bool, a []uint16, v uint16)
+
+//go:noescape
 func leUint16MaskVSX(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func leScalarUint16MaskVSX(dst []bool, a []uint16, v uint16)
 
 //go:noescape
 func gtUint16MaskVSX(dst []bool, a []uint16, b []uint16)
 
 //go:noescape
+func gtScalarUint16MaskVSX(dst []bool, a []uint16, v uint16)
+
+//go:noescape
 func geUint16MaskVSX(dst []bool, a []uint16, b []uint16)
+
+//go:noescape
+func geScalarUint16MaskVSX(dst []bool, a []uint16, v uint16)
+
+//go:noescape
+func eqUint32MaskVSX(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func eqScalarUint32MaskVSX(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func neUint32MaskVSX(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func neScalarUint32MaskVSX(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func ltUint32MaskVSX(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func ltScalarUint32MaskVSX(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func leUint32MaskVSX(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func leScalarUint32MaskVSX(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func gtUint32MaskVSX(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func gtScalarUint32MaskVSX(dst []bool, a []uint32, v uint32)
+
+//go:noescape
+func geUint32MaskVSX(dst []bool, a []uint32, b []uint32)
+
+//go:noescape
+func geScalarUint32MaskVSX(dst []bool, a []uint32, v uint32)
 
 //go:noescape
 func maskAllVSX(m []bool) bool

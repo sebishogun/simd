@@ -22,7 +22,19 @@ func caddComplex64VSX(dst []complex64, a []complex64, b []complex64)
 func csubComplex64VSX(dst []complex64, a []complex64, b []complex64)
 
 //go:noescape
+func cmulComplex64VSX(dst []complex64, a []complex64, b []complex64)
+
+//go:noescape
+func cdivComplex64VSX(dst []complex64, a []complex64, b []complex64)
+
+//go:noescape
 func cnegComplex64VSX(dst []complex64, a []complex64)
+
+//go:noescape
+func cconjComplex64VSX(dst []complex64, a []complex64)
+
+//go:noescape
+func cabsComplex64VSX(dst []float32, a []complex64)
 
 //go:noescape
 func crealComplex64VSX(dst []float32, a []complex64)
@@ -50,6 +62,9 @@ func cnegComplex128VSX(dst []complex128, a []complex128)
 
 //go:noescape
 func cconjComplex128VSX(dst []complex128, a []complex128)
+
+//go:noescape
+func cabsComplex128VSX(dst []float64, a []complex128)
 
 //go:noescape
 func crealComplex128VSX(dst []float64, a []complex128)

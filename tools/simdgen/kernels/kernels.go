@@ -668,6 +668,17 @@ func Bytes() []spec.Kernel {
 		{
 			CName: "simd_count_any", GoName: "countAny",
 			Group: "Bytes", Field: "CountAny", RefFunc: "CountAny",
+			// Skipped on ppc64le. With the TOC rewrite enabled this is the one
+			// kernel of 469 that corrupts memory: bisected to it in fourteen
+			// runs, and its constant addressing verified correct by hand, so
+			// the fault is something else about it — most likely the 256-byte
+			// character-set table it writes at -256(r1), the deepest stack use
+			// of any kernel here and close to the 288-byte protected zone.
+			//
+			// Not registering it is the same arrangement every partial backend
+			// in this library uses. The portable implementation stands in, so
+			// this is a performance property and never a correctness one.
+			SkipOn: []string{"ppc64le"},
 			Params:    []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8)},
 			Result:    &spec.Param{Name: "ret", Type: spec.Int},
 			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars")},
