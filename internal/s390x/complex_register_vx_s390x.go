@@ -110,6 +110,13 @@ func cscaleComplex64VXGuarded(dst []complex64, a []complex64, s float32) {
 	cscaleComplex64VX(dst[:n:n], a, s)
 }
 
+func csumComplex64VXGuarded(a []complex64) complex64 {
+	if len(a) < 0 {
+		return ref.CSum64(a)
+	}
+	return csumComplex64VX(a)
+}
+
 func caddComplex128VXGuarded(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -191,6 +198,29 @@ func cscaleComplex128VXGuarded(dst []complex128, a []complex128, s float64) {
 	cscaleComplex128VX(dst[:n:n], a, s)
 }
 
+func csumComplex128VXGuarded(a []complex128) complex128 {
+	if len(a) < 0 {
+		return ref.CSum128(a)
+	}
+	return csumComplex128VX(a)
+}
+
+func cdotComplex128VXGuarded(a []complex128, b []complex128) complex128 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.CDot128(a, b)
+	}
+	return cdotComplex128VX(a[:n:n], b)
+}
+
+func cdotconjComplex128VXGuarded(a []complex128, b []complex128) complex128 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.CDotConj128(a, b)
+	}
+	return cdotconjComplex128VX(a[:n:n], b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -205,6 +235,7 @@ func init() {
 	s.C64Parts.Real = crealComplex64VXGuarded
 	s.C64Parts.Imag = cimagComplex64VXGuarded
 	s.C64Parts.Scale = cscaleComplex64VXGuarded
+	s.C64.Sum = csumComplex64VXGuarded
 	s.C128.Add = caddComplex128VXGuarded
 	s.C128.Sub = csubComplex128VXGuarded
 	s.C128.Mul = cmulComplex128VXGuarded
@@ -214,4 +245,7 @@ func init() {
 	s.C128Parts.Real = crealComplex128VXGuarded
 	s.C128Parts.Imag = cimagComplex128VXGuarded
 	s.C128Parts.Scale = cscaleComplex128VXGuarded
+	s.C128.Sum = csumComplex128VXGuarded
+	s.C128.Dot = cdotComplex128VXGuarded
+	s.C128.DotConj = cdotconjComplex128VXGuarded
 }

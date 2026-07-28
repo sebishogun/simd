@@ -1186,13 +1186,14 @@ type celem struct {
 	slice  spec.Type // []complex64
 	rslice spec.Type // []float32
 	rscal  spec.Type // float32
+	cscal  spec.Type // complex64, for the reductions that return one
 	group  string    // the kernel.Set group: C64
 	suf    string    // the ref function suffix: 64
 }
 
 var celems = []celem{
-	{"c64", "Complex64", spec.SliceC64, spec.SliceF32, spec.F32, "C64", "64"},
-	{"c128", "Complex128", spec.SliceC128, spec.SliceF64, spec.F64, "C128", "128"},
+	{"c64", "Complex64", spec.SliceC64, spec.SliceF32, spec.F32, spec.C64, "C64", "64"},
+	{"c128", "Complex128", spec.SliceC128, spec.SliceF64, spec.F64, spec.C128, "C128", "128"},
 }
 
 // Complex is everything in csrc/complex.c.
@@ -1251,6 +1252,34 @@ func Complex() []spec.Kernel {
 					{Name: "s", Type: e.rscal}},
 				CArgs:     []spec.CArg{base("dst"), base("a"), val("s"), lenOf("dst")},
 				Threshold: thElementwise,
+			},
+			// The three reductions. They return a complex value, which the
+			// generator writes through a pointer to the result slot like any
+			// other — a Go complex64 is two float32s laid out contiguously,
+			// so a float* into that slot fills it correctly.
+			spec.Kernel{
+				CName: "simd_csum_" + e.c, GoName: "csum" + e.goName,
+				Group: e.group, Field: "Sum", RefFunc: "CSum" + e.suf,
+				Params:    []spec.Param{sl("a", e.slice)},
+				Result:    &spec.Param{Name: "ret", Type: e.cscal},
+				CArgs:     []spec.CArg{out(), base("a"), lenOf("a")},
+				Threshold: thReduction,
+			},
+			spec.Kernel{
+				CName: "simd_cdot_" + e.c, GoName: "cdot" + e.goName,
+				Group: e.group, Field: "Dot", RefFunc: "CDot" + e.suf,
+				Params:    []spec.Param{sl("a", e.slice), sl("b", e.slice)},
+				Result:    &spec.Param{Name: "ret", Type: e.cscal},
+				CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a")},
+				Threshold: thReduction,
+			},
+			spec.Kernel{
+				CName: "simd_cdotconj_" + e.c, GoName: "cdotconj" + e.goName,
+				Group: e.group, Field: "DotConj", RefFunc: "CDotConj" + e.suf,
+				Params:    []spec.Param{sl("a", e.slice), sl("b", e.slice)},
+				Result:    &spec.Param{Name: "ret", Type: e.cscal},
+				CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a")},
+				Threshold: thReduction,
 			},
 			spec.Kernel{
 				CName: "simd_cfromparts_" + e.c, GoName: "cfromParts" + e.goName,

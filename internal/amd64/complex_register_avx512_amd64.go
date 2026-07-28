@@ -110,6 +110,29 @@ func cscaleComplex64AVX512Guarded(dst []complex64, a []complex64, s float32) {
 	cscaleComplex64AVX512(dst[:n:n], a, s)
 }
 
+func csumComplex64AVX512Guarded(a []complex64) complex64 {
+	if len(a) < 0 {
+		return ref.CSum64(a)
+	}
+	return csumComplex64AVX512(a)
+}
+
+func cdotComplex64AVX512Guarded(a []complex64, b []complex64) complex64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.CDot64(a, b)
+	}
+	return cdotComplex64AVX512(a[:n:n], b)
+}
+
+func cdotconjComplex64AVX512Guarded(a []complex64, b []complex64) complex64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.CDotConj64(a, b)
+	}
+	return cdotconjComplex64AVX512(a[:n:n], b)
+}
+
 func cfromPartsComplex64AVX512Guarded(dst []complex64, re []float32, im []float32) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
@@ -209,6 +232,29 @@ func cscaleComplex128AVX512Guarded(dst []complex128, a []complex128, s float64) 
 	cscaleComplex128AVX512(dst[:n:n], a, s)
 }
 
+func csumComplex128AVX512Guarded(a []complex128) complex128 {
+	if len(a) < 0 {
+		return ref.CSum128(a)
+	}
+	return csumComplex128AVX512(a)
+}
+
+func cdotComplex128AVX512Guarded(a []complex128, b []complex128) complex128 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.CDot128(a, b)
+	}
+	return cdotComplex128AVX512(a[:n:n], b)
+}
+
+func cdotconjComplex128AVX512Guarded(a []complex128, b []complex128) complex128 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.CDotConj128(a, b)
+	}
+	return cdotconjComplex128AVX512(a[:n:n], b)
+}
+
 func cfromPartsComplex128AVX512Guarded(dst []complex128, re []float64, im []float64) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
@@ -232,6 +278,9 @@ func init() {
 	s.C64Parts.Real = crealComplex64AVX512Guarded
 	s.C64Parts.Imag = cimagComplex64AVX512Guarded
 	s.C64Parts.Scale = cscaleComplex64AVX512Guarded
+	s.C64.Sum = csumComplex64AVX512Guarded
+	s.C64.Dot = cdotComplex64AVX512Guarded
+	s.C64.DotConj = cdotconjComplex64AVX512Guarded
 	s.C64Parts.FromParts = cfromPartsComplex64AVX512Guarded
 	s.C128.Add = caddComplex128AVX512Guarded
 	s.C128.Sub = csubComplex128AVX512Guarded
@@ -243,5 +292,8 @@ func init() {
 	s.C128Parts.Real = crealComplex128AVX512Guarded
 	s.C128Parts.Imag = cimagComplex128AVX512Guarded
 	s.C128Parts.Scale = cscaleComplex128AVX512Guarded
+	s.C128.Sum = csumComplex128AVX512Guarded
+	s.C128.Dot = cdotComplex128AVX512Guarded
+	s.C128.DotConj = cdotconjComplex128AVX512Guarded
 	s.C128Parts.FromParts = cfromPartsComplex128AVX512Guarded
 }

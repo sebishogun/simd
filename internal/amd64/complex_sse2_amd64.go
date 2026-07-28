@@ -46,6 +46,15 @@ func cimagComplex64SSE2(dst []float32, a []complex64)
 func cscaleComplex64SSE2(dst []complex64, a []complex64, s float32)
 
 //go:noescape
+func csumComplex64SSE2(a []complex64) complex64
+
+//go:noescape
+func cdotComplex64SSE2(a []complex64, b []complex64) complex64
+
+//go:noescape
+func cdotconjComplex64SSE2(a []complex64, b []complex64) complex64
+
+//go:noescape
 func cfromPartsComplex64SSE2(dst []complex64, re []float32, im []float32)
 
 //go:noescape
@@ -77,6 +86,15 @@ func cimagComplex128SSE2(dst []float64, a []complex128)
 
 //go:noescape
 func cscaleComplex128SSE2(dst []complex128, a []complex128, s float64)
+
+//go:noescape
+func csumComplex128SSE2(a []complex128) complex128
+
+//go:noescape
+func cdotComplex128SSE2(a []complex128, b []complex128) complex128
+
+//go:noescape
+func cdotconjComplex128SSE2(a []complex128, b []complex128) complex128
 
 //go:noescape
 func cfromPartsComplex128SSE2(dst []complex128, re []float64, im []float64)
