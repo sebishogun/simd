@@ -29,9 +29,39 @@ func bf16ToF32VSXGuarded(dst []float32, a []uint16) {
 	bf16ToF32VSX(dst[:n:n], a)
 }
 
+func f32ToBF16VSXGuarded(dst []uint16, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F32ToBF16(dst, a)
+		return
+	}
+	f32ToBF16VSX(dst[:n:n], a)
+}
+
+func f16ToF32VSXGuarded(dst []float32, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F16ToF32(dst, a)
+		return
+	}
+	f16ToF32VSX(dst[:n:n], a)
+}
+
+func f32ToF16VSXGuarded(dst []uint16, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F32ToF16(dst, a)
+		return
+	}
+	f32ToF16VSX(dst[:n:n], a)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
 	s.Convert.BF16ToF32 = bf16ToF32VSXGuarded
+	s.Convert.F32ToBF16 = f32ToBF16VSXGuarded
+	s.Convert.F16ToF32 = f16ToF32VSXGuarded
+	s.Convert.F32ToF16 = f32ToF16VSXGuarded
 }

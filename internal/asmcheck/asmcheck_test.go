@@ -43,6 +43,14 @@ func texts(t *testing.T, path string) map[string][]string {
 		if name == "" {
 			continue
 		}
+		// A DATA or GLOBL directive ends the function it follows. ppc64le
+		// emits its constant pools as standalone symbols after the last
+		// kernel in a file, so without this the tail of that kernel reads as
+		// pool bytes and the epilogue check below looks in the wrong place.
+		if strings.HasPrefix(line, "DATA ") || strings.HasPrefix(line, "GLOBL ") {
+			name = ""
+			continue
+		}
 		if line = strings.TrimSpace(line); line != "" && !strings.HasPrefix(line, "//") {
 			out[name] = append(out[name], line)
 		}

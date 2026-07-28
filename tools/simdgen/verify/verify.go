@@ -244,7 +244,20 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 	// intact for the caller, and it is how a C prologue treats any
 	// callee-saved register.
 	if reg, ok := usesGoRegister(instrs, tgt); ok {
-		r.Unsupported = fmt.Sprintf("uses %s, which the Go runtime owns", reg)
+		// r2 on ppc64le is the one exemption, and a narrow one. Every kernel
+		// that reads a constant there sets r2 itself in clang's ELFv2
+		// global-entry prologue and then uses it only as the base of its own
+		// constant loads — it never reads the caller's value. The emitter
+		// repoints those loads at a pool appended to the body and replaces the
+		// prologue, so the finished kernel does not depend on Go's r2 either;
+		// see emit/constpool_power.go.
+		//
+		// The exemption is conditional on the pattern being exactly that. A
+		// kernel using r2 for anything else is still rejected, which is what
+		// tocPatternOnly checks.
+		if !(tgt.Arch == target.PPC64LE && reg == "r2" && tocPatternOnly(instrs)) {
+			r.Unsupported = fmt.Sprintf("uses %s, which the Go runtime owns", reg)
+		}
 	}
 
 	// 6. Nothing is written outside the kernel's own stack frame.
@@ -381,6 +394,32 @@ func saveRestore(m string) bool {
 		return true
 	}
 	return false
+}
+
+// tocPatternOnly reports whether every mention of r2 is part of the TOC
+// addressing the emitter knows how to rewrite: the two global-entry
+// instructions that set it, and reads that use it as a base.
+//
+// A write to r2 anywhere else means the kernel is doing something this
+// generator has not accounted for, and it stays rejected.
+func tocPatternOnly(instrs []Instr) bool {
+	for i, in := range instrs {
+		if !mentionsRegister(in.Operands, "r2") {
+			continue
+		}
+		// The first two instructions are the global-entry prologue, which is
+		// allowed to write r2 because the emitter replaces both.
+		if i < 2 {
+			continue
+		}
+		// Everywhere else r2 may only be read. It is read when it appears
+		// anywhere but the first operand, which on PowerPC is the destination.
+		ops := strings.Split(in.Operands, ",")
+		if len(ops) > 0 && mentionsRegister(ops[0], "r2") {
+			return false
+		}
+	}
+	return true
 }
 
 // usesGoRegister reports whether any instruction names a register the Go

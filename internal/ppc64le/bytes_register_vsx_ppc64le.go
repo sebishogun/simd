@@ -87,6 +87,20 @@ func fillBytesVSXGuarded(dst []byte, v byte) {
 	fillBytesVSX(dst, v)
 }
 
+func countAnyVSXGuarded(b []byte, chars []byte) int {
+	if len(b) < 64 {
+		return ref.CountAny(b, chars)
+	}
+	return countAnyVSX(b, chars)
+}
+
+func b64EncodeVSXGuarded(dst []byte, b []byte) int {
+	if len(dst) < 32 {
+		return ref.B64Encode(dst, b)
+	}
+	return b64EncodeVSX(dst, b)
+}
+
 func hexEncodeVSXGuarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
@@ -133,6 +147,8 @@ func init() {
 	s.Bytes.AndNot = bitAndNotVSXGuarded
 	s.Bytes.Not = bitNotVSXGuarded
 	s.Bytes.Fill = fillBytesVSXGuarded
+	s.Bytes.CountAny = countAnyVSXGuarded
+	s.Bytes.B64Encode = b64EncodeVSXGuarded
 	s.Bytes.HexEncode = hexEncodeVSXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIIVSXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIIVSXGuarded

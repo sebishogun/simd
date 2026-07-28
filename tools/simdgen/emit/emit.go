@@ -361,8 +361,24 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 		return emitBody(b, code, tgt)
 	}
 
-	code, err := resolvePool(fn, instrs, tgt)
-	if err != nil {
+	var code []byte
+	var err error
+	if tgt.Arch == target.PPC64LE {
+		// ppc64le returns its pool separately rather than appended, because r2
+		// points at the pool symbol and the offsets are from its base; see
+		// constpool_power.go.
+		var pool []byte
+		if code, pool, err = resolvePoolPPC64(fn); err != nil {
+			return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
+		}
+		if len(pool) > 0 {
+			sym := pools.add(goName+"_pool", pool)
+			fmt.Fprintf(b, "\t// The constants live in %s<>(SB) and are reached through\n", sym)
+			fmt.Fprintf(b, "\t// R2. clang computed that from r12 and a TOC which does not\n")
+			fmt.Fprintf(b, "\t// exist here, so its two global-entry instructions are nops.\n")
+			fmt.Fprintf(b, "\tMOVD\t$%s<>(SB), R2\n", sym)
+		}
+	} else if code, err = resolvePool(fn, instrs, tgt); err != nil {
 		return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
 	}
 	// After the pool, not before: resolvePool appends data past the last
@@ -377,6 +393,17 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 	fmt.Fprintf(b, "\t// above were patched to reach it and the aligned loads made\n")
 	fmt.Fprintf(b, "\t// unaligned, since nothing promises alignment inside a TEXT.\n")
 	return emitBody(b, code, tgt)
+}
+
+// hasOutOfFuncReloc reports whether a function refers to anything outside
+// itself, which is what decides whether a pool rewrite is needed at all.
+func hasOutOfFuncReloc(fn *objfile.Func) bool {
+	for _, r := range fn.Relocs {
+		if !isSelfRelative(r.TypeName) {
+			return true
+		}
+	}
+	return false
 }
 
 // CanLift reports whether a function's references out of itself can be
@@ -399,8 +426,15 @@ func CanLift(fn *objfile.Func, instrs []Instr, tgt target.Target) (bool, string)
 	case target.RISCV64:
 		return canLiftRISCV64(fn)
 	case target.PPC64LE:
+		// Two separate conditions on this target and both must hold. The
+		// returns have to be retargetable so the r0-restoring epilogue always
+		// runs (see returns_power.go), and any constant pool has to be one the
+		// TOC rewrite can repoint (see constpool_power.go).
 		if ok, why := canRetargetPPC64(fn.Code); !ok {
 			return false, why
+		}
+		if hasOutOfFuncReloc(fn) {
+			return canLiftPPC64(fn)
 		}
 	}
 	for _, r := range fn.Relocs {
