@@ -250,9 +250,6 @@ func addUint8VSX(dst []byte, a []byte, b []byte)
 func subUint8VSX(dst []byte, a []byte, b []byte)
 
 //go:noescape
-func mulUint8VSX(dst []byte, a []byte, b []byte)
-
-//go:noescape
 func minimumUint8VSX(dst []byte, a []byte, b []byte)
 
 //go:noescape
@@ -265,9 +262,6 @@ func absUint8VSX(dst []byte, a []byte)
 func negUint8VSX(dst []byte, a []byte)
 
 //go:noescape
-func scaleUint8VSX(dst []byte, a []byte, s byte)
-
-//go:noescape
 func addScalarUint8VSX(dst []byte, a []byte, s byte)
 
 //go:noescape
@@ -278,12 +272,6 @@ func clampUint8VSX(dst []byte, a []byte, lo byte, hi byte)
 
 //go:noescape
 func fillUint8VSX(dst []byte, v byte)
-
-//go:noescape
-func lerpUint8VSX(dst []byte, a []byte, b []byte, t byte)
-
-//go:noescape
-func addScaledUint8VSX(dst []byte, a []byte, b []byte, s byte)
 
 //go:noescape
 func addUint16VSX(dst []uint16, a []uint16, b []uint16)

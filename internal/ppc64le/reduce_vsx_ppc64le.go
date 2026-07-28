@@ -82,18 +82,6 @@ func minrUint8VSX(a []byte) byte
 func maxrUint8VSX(a []byte) byte
 
 //go:noescape
-func sumsqUint8VSX(a []byte) byte
-
-//go:noescape
-func sumsqdevUint8VSX(a []byte, c byte) byte
-
-//go:noescape
-func sumsqdiffUint8VSX(a []byte, b []byte) byte
-
-//go:noescape
-func diffUint8VSX(dst []byte, a []byte)
-
-//go:noescape
 func minrUint16VSX(a []uint16) uint16
 
 //go:noescape
@@ -164,21 +152,6 @@ func l1normInt64VSX(a []int64) int64
 
 //go:noescape
 func l1diffInt64VSX(a []int64, b []int64) int64
-
-//go:noescape
-func sumUint8VSX(a []byte) byte
-
-//go:noescape
-func prodUint8VSX(a []byte) byte
-
-//go:noescape
-func dotUint8VSX(a []byte, b []byte) byte
-
-//go:noescape
-func l1normUint8VSX(a []byte) byte
-
-//go:noescape
-func l1diffUint8VSX(a []byte, b []byte) byte
 
 //go:noescape
 func sumUint32VSX(a []uint32) uint32

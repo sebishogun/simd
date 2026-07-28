@@ -716,15 +716,6 @@ func subUint8VSXGuarded(dst []byte, a []byte, b []byte) {
 	subUint8VSX(dst[:n:n], a, b)
 }
 
-func mulUint8VSXGuarded(dst []byte, a []byte, b []byte) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.Mul(dst, a, b)
-		return
-	}
-	mulUint8VSX(dst[:n:n], a, b)
-}
-
 func minimumUint8VSXGuarded(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -761,15 +752,6 @@ func negUint8VSXGuarded(dst []byte, a []byte) {
 	negUint8VSX(dst[:n:n], a)
 }
 
-func scaleUint8VSXGuarded(dst []byte, a []byte, s byte) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.Scale(dst, a, s)
-		return
-	}
-	scaleUint8VSX(dst[:n:n], a, s)
-}
-
 func addScalarUint8VSXGuarded(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -803,24 +785,6 @@ func fillUint8VSXGuarded(dst []byte, v byte) {
 		return
 	}
 	fillUint8VSX(dst, v)
-}
-
-func lerpUint8VSXGuarded(dst []byte, a []byte, b []byte, t byte) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.Lerp(dst, a, b, t)
-		return
-	}
-	lerpUint8VSX(dst[:n:n], a, b, t)
-}
-
-func addScaledUint8VSXGuarded(dst []byte, a []byte, b []byte, s byte) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.AddScaled(dst, a, b, s)
-		return
-	}
-	addScaledUint8VSX(dst[:n:n], a, b, s)
 }
 
 func addUint16VSXGuarded(dst []uint16, a []uint16, b []uint16) {
@@ -1478,18 +1442,14 @@ func init() {
 	s.I16.AddScaled = addScaledInt16VSXGuarded
 	s.U8.Add = addUint8VSXGuarded
 	s.U8.Sub = subUint8VSXGuarded
-	s.U8.Mul = mulUint8VSXGuarded
 	s.U8.Minimum = minimumUint8VSXGuarded
 	s.U8.Maximum = maximumUint8VSXGuarded
 	s.U8.Abs = absUint8VSXGuarded
 	s.U8.Neg = negUint8VSXGuarded
-	s.U8.Scale = scaleUint8VSXGuarded
 	s.U8.AddScalar = addScalarUint8VSXGuarded
 	s.U8.SubScalar = subScalarUint8VSXGuarded
 	s.U8.Clamp = clampUint8VSXGuarded
 	s.U8.Fill = fillUint8VSXGuarded
-	s.U8.Lerp = lerpUint8VSXGuarded
-	s.U8.AddScaled = addScaledUint8VSXGuarded
 	s.U16.Add = addUint16VSXGuarded
 	s.U16.Sub = subUint16VSXGuarded
 	s.U16.Mul = mulUint16VSXGuarded

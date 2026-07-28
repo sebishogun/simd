@@ -103,25 +103,13 @@ func neScalarUint8MaskVSX(dst []bool, a []byte, v byte)
 func ltUint8MaskVSX(dst []bool, a []byte, b []byte)
 
 //go:noescape
-func ltScalarUint8MaskVSX(dst []bool, a []byte, v byte)
-
-//go:noescape
 func leUint8MaskVSX(dst []bool, a []byte, b []byte)
-
-//go:noescape
-func leScalarUint8MaskVSX(dst []bool, a []byte, v byte)
 
 //go:noescape
 func gtUint8MaskVSX(dst []bool, a []byte, b []byte)
 
 //go:noescape
-func gtScalarUint8MaskVSX(dst []bool, a []byte, v byte)
-
-//go:noescape
 func geUint8MaskVSX(dst []bool, a []byte, b []byte)
-
-//go:noescape
-func geScalarUint8MaskVSX(dst []bool, a []byte, v byte)
 
 //go:noescape
 func eqUint16MaskVSX(dst []bool, a []uint16, b []uint16)

@@ -178,36 +178,6 @@ func maxrUint8VSXGuarded(a []byte) byte {
 	return maxrUint8VSX(a)
 }
 
-func sumsqUint8VSXGuarded(a []byte) byte {
-	if len(a) < 0 {
-		return ref.SumSquaresInt(a)
-	}
-	return sumsqUint8VSX(a)
-}
-
-func sumsqdevUint8VSXGuarded(a []byte, c byte) byte {
-	if len(a) < 0 {
-		return ref.SumSqDevInt(a, c)
-	}
-	return sumsqdevUint8VSX(a, c)
-}
-
-func sumsqdiffUint8VSXGuarded(a []byte, b []byte) byte {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.SumSqDiffInt(a, b)
-	}
-	return sumsqdiffUint8VSX(a[:n:n], b)
-}
-
-func diffUint8VSXGuarded(dst []byte, a []byte) {
-	if len(dst) < 16 {
-		ref.Diff(dst, a)
-		return
-	}
-	diffUint8VSX(dst, a)
-}
-
 func minrUint16VSXGuarded(a []uint16) uint16 {
 	if len(a) < 16 {
 		return ref.MinReduceInt(a)
@@ -384,43 +354,6 @@ func l1diffInt64VSXGuarded(a []int64, b []int64) int64 {
 	return l1diffInt64VSX(a[:n:n], b)
 }
 
-func sumUint8VSXGuarded(a []byte) byte {
-	if len(a) < 0 {
-		return ref.SumInt(a)
-	}
-	return sumUint8VSX(a)
-}
-
-func prodUint8VSXGuarded(a []byte) byte {
-	if len(a) < 0 {
-		return ref.ProdInt(a)
-	}
-	return prodUint8VSX(a)
-}
-
-func dotUint8VSXGuarded(a []byte, b []byte) byte {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.DotInt(a, b)
-	}
-	return dotUint8VSX(a[:n:n], b)
-}
-
-func l1normUint8VSXGuarded(a []byte) byte {
-	if len(a) < 0 {
-		return ref.L1NormInt(a)
-	}
-	return l1normUint8VSX(a)
-}
-
-func l1diffUint8VSXGuarded(a []byte, b []byte) byte {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.L1DiffInt(a, b)
-	}
-	return l1diffUint8VSX(a[:n:n], b)
-}
-
 func sumUint32VSXGuarded(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
@@ -506,10 +439,6 @@ func init() {
 	s.I16.Max = maxrInt16VSXGuarded
 	s.U8.Min = minrUint8VSXGuarded
 	s.U8.Max = maxrUint8VSXGuarded
-	s.U8.SumSquares = sumsqUint8VSXGuarded
-	s.U8.SumSqDev = sumsqdevUint8VSXGuarded
-	s.U8.SumSqDiff = sumsqdiffUint8VSXGuarded
-	s.U8.Diff = diffUint8VSXGuarded
 	s.U16.Min = minrUint16VSXGuarded
 	s.U16.Max = maxrUint16VSXGuarded
 	s.U32.Min = minrUint32VSXGuarded
@@ -534,11 +463,6 @@ func init() {
 	s.I64.Sum = sumInt64VSXGuarded
 	s.I64.L1Norm = l1normInt64VSXGuarded
 	s.I64.L1Diff = l1diffInt64VSXGuarded
-	s.U8.Sum = sumUint8VSXGuarded
-	s.U8.Prod = prodUint8VSXGuarded
-	s.U8.Dot = dotUint8VSXGuarded
-	s.U8.L1Norm = l1normUint8VSXGuarded
-	s.U8.L1Diff = l1diffUint8VSXGuarded
 	s.U32.Sum = sumUint32VSXGuarded
 	s.U32.Prod = prodUint32VSXGuarded
 	s.U32.Dot = dotUint32VSXGuarded

@@ -200,6 +200,186 @@ func fastHypotFloat32VSXGuarded(dst []float32, a []float32, b []float32) {
 	fastHypotFloat32VSX(dst[:n:n], a, b)
 }
 
+func fastExpFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp(dst, a)
+		return
+	}
+	fastExpFloat64VSX(dst[:n:n], a)
+}
+
+func fastExp2Float64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp2(dst, a)
+		return
+	}
+	fastExp2Float64VSX(dst[:n:n], a)
+}
+
+func fastExpm1Float64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Expm1(dst, a)
+		return
+	}
+	fastExpm1Float64VSX(dst[:n:n], a)
+}
+
+func fastLogFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log(dst, a)
+		return
+	}
+	fastLogFloat64VSX(dst[:n:n], a)
+}
+
+func fastLog2Float64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log2(dst, a)
+		return
+	}
+	fastLog2Float64VSX(dst[:n:n], a)
+}
+
+func fastLog10Float64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log10(dst, a)
+		return
+	}
+	fastLog10Float64VSX(dst[:n:n], a)
+}
+
+func fastLog1pFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	fastLog1pFloat64VSX(dst[:n:n], a)
+}
+
+func fastCbrtFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	fastCbrtFloat64VSX(dst[:n:n], a)
+}
+
+func fastSigmoidFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sigmoid(dst, a)
+		return
+	}
+	fastSigmoidFloat64VSX(dst[:n:n], a)
+}
+
+func fastSinFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sin(dst, a)
+		return
+	}
+	fastSinFloat64VSX(dst[:n:n], a)
+}
+
+func fastCosFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cos(dst, a)
+		return
+	}
+	fastCosFloat64VSX(dst[:n:n], a)
+}
+
+func fastTanFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tan(dst, a)
+		return
+	}
+	fastTanFloat64VSX(dst[:n:n], a)
+}
+
+func fastAsinFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asin(dst, a)
+		return
+	}
+	fastAsinFloat64VSX(dst[:n:n], a)
+}
+
+func fastAcosFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acos(dst, a)
+		return
+	}
+	fastAcosFloat64VSX(dst[:n:n], a)
+}
+
+func fastAtanFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atan(dst, a)
+		return
+	}
+	fastAtanFloat64VSX(dst[:n:n], a)
+}
+
+func fastSinhFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	fastSinhFloat64VSX(dst[:n:n], a)
+}
+
+func fastCoshFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cosh(dst, a)
+		return
+	}
+	fastCoshFloat64VSX(dst[:n:n], a)
+}
+
+func fastTanhFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tanh(dst, a)
+		return
+	}
+	fastTanhFloat64VSX(dst[:n:n], a)
+}
+
+func fastAtan2Float64VSXGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Atan2(dst, a, b)
+		return
+	}
+	fastAtan2Float64VSX(dst[:n:n], a, b)
+}
+
+func fastHypotFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Hypot(dst, a, b)
+		return
+	}
+	fastHypotFloat64VSX(dst[:n:n], a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -224,4 +404,24 @@ func init() {
 	s.F32.FastTanh = fastTanhFloat32VSXGuarded
 	s.F32.FastAtan2 = fastAtan2Float32VSXGuarded
 	s.F32.FastHypot = fastHypotFloat32VSXGuarded
+	s.F64.FastExp = fastExpFloat64VSXGuarded
+	s.F64.FastExp2 = fastExp2Float64VSXGuarded
+	s.F64.FastExpm1 = fastExpm1Float64VSXGuarded
+	s.F64.FastLog = fastLogFloat64VSXGuarded
+	s.F64.FastLog2 = fastLog2Float64VSXGuarded
+	s.F64.FastLog10 = fastLog10Float64VSXGuarded
+	s.F64.FastLog1p = fastLog1pFloat64VSXGuarded
+	s.F64.FastCbrt = fastCbrtFloat64VSXGuarded
+	s.F64.FastSigmoid = fastSigmoidFloat64VSXGuarded
+	s.F64.FastSin = fastSinFloat64VSXGuarded
+	s.F64.FastCos = fastCosFloat64VSXGuarded
+	s.F64.FastTan = fastTanFloat64VSXGuarded
+	s.F64.FastAsin = fastAsinFloat64VSXGuarded
+	s.F64.FastAcos = fastAcosFloat64VSXGuarded
+	s.F64.FastAtan = fastAtanFloat64VSXGuarded
+	s.F64.FastSinh = fastSinhFloat64VSXGuarded
+	s.F64.FastCosh = fastCoshFloat64VSXGuarded
+	s.F64.FastTanh = fastTanhFloat64VSXGuarded
+	s.F64.FastAtan2 = fastAtan2Float64VSXGuarded
+	s.F64.FastHypot = fastHypotFloat64VSXGuarded
 }

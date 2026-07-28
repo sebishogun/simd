@@ -74,3 +74,63 @@ func atan2Float32VSX(dst []float32, a []float32, b []float32)
 
 //go:noescape
 func hypotFloat32VSX(dst []float32, a []float32, b []float32)
+
+//go:noescape
+func expFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func exp2Float64VSX(dst []float64, a []float64)
+
+//go:noescape
+func expm1Float64VSX(dst []float64, a []float64)
+
+//go:noescape
+func logFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func log2Float64VSX(dst []float64, a []float64)
+
+//go:noescape
+func log10Float64VSX(dst []float64, a []float64)
+
+//go:noescape
+func log1pFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func cbrtFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func sigmoidFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func sinFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func cosFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func tanFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func asinFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func acosFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func atanFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func sinhFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func coshFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func tanhFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func atan2Float64VSX(dst []float64, a []float64, b []float64)
+
+//go:noescape
+func hypotFloat64VSX(dst []float64, a []float64, b []float64)

@@ -200,6 +200,186 @@ func hypotFloat32VSXGuarded(dst []float32, a []float32, b []float32) {
 	hypotFloat32VSX(dst[:n:n], a, b)
 }
 
+func expFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp(dst, a)
+		return
+	}
+	expFloat64VSX(dst[:n:n], a)
+}
+
+func exp2Float64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp2(dst, a)
+		return
+	}
+	exp2Float64VSX(dst[:n:n], a)
+}
+
+func expm1Float64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Expm1(dst, a)
+		return
+	}
+	expm1Float64VSX(dst[:n:n], a)
+}
+
+func logFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log(dst, a)
+		return
+	}
+	logFloat64VSX(dst[:n:n], a)
+}
+
+func log2Float64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log2(dst, a)
+		return
+	}
+	log2Float64VSX(dst[:n:n], a)
+}
+
+func log10Float64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log10(dst, a)
+		return
+	}
+	log10Float64VSX(dst[:n:n], a)
+}
+
+func log1pFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	log1pFloat64VSX(dst[:n:n], a)
+}
+
+func cbrtFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	cbrtFloat64VSX(dst[:n:n], a)
+}
+
+func sigmoidFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sigmoid(dst, a)
+		return
+	}
+	sigmoidFloat64VSX(dst[:n:n], a)
+}
+
+func sinFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sin(dst, a)
+		return
+	}
+	sinFloat64VSX(dst[:n:n], a)
+}
+
+func cosFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cos(dst, a)
+		return
+	}
+	cosFloat64VSX(dst[:n:n], a)
+}
+
+func tanFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tan(dst, a)
+		return
+	}
+	tanFloat64VSX(dst[:n:n], a)
+}
+
+func asinFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asin(dst, a)
+		return
+	}
+	asinFloat64VSX(dst[:n:n], a)
+}
+
+func acosFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acos(dst, a)
+		return
+	}
+	acosFloat64VSX(dst[:n:n], a)
+}
+
+func atanFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atan(dst, a)
+		return
+	}
+	atanFloat64VSX(dst[:n:n], a)
+}
+
+func sinhFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	sinhFloat64VSX(dst[:n:n], a)
+}
+
+func coshFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cosh(dst, a)
+		return
+	}
+	coshFloat64VSX(dst[:n:n], a)
+}
+
+func tanhFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tanh(dst, a)
+		return
+	}
+	tanhFloat64VSX(dst[:n:n], a)
+}
+
+func atan2Float64VSXGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Atan2(dst, a, b)
+		return
+	}
+	atan2Float64VSX(dst[:n:n], a, b)
+}
+
+func hypotFloat64VSXGuarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Hypot(dst, a, b)
+		return
+	}
+	hypotFloat64VSX(dst[:n:n], a, b)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -224,4 +404,24 @@ func init() {
 	s.F32.Tanh = tanhFloat32VSXGuarded
 	s.F32.Atan2 = atan2Float32VSXGuarded
 	s.F32.Hypot = hypotFloat32VSXGuarded
+	s.F64.Exp = expFloat64VSXGuarded
+	s.F64.Exp2 = exp2Float64VSXGuarded
+	s.F64.Expm1 = expm1Float64VSXGuarded
+	s.F64.Log = logFloat64VSXGuarded
+	s.F64.Log2 = log2Float64VSXGuarded
+	s.F64.Log10 = log10Float64VSXGuarded
+	s.F64.Log1p = log1pFloat64VSXGuarded
+	s.F64.Cbrt = cbrtFloat64VSXGuarded
+	s.F64.Sigmoid = sigmoidFloat64VSXGuarded
+	s.F64.Sin = sinFloat64VSXGuarded
+	s.F64.Cos = cosFloat64VSXGuarded
+	s.F64.Tan = tanFloat64VSXGuarded
+	s.F64.Asin = asinFloat64VSXGuarded
+	s.F64.Acos = acosFloat64VSXGuarded
+	s.F64.Atan = atanFloat64VSXGuarded
+	s.F64.Sinh = sinhFloat64VSXGuarded
+	s.F64.Cosh = coshFloat64VSXGuarded
+	s.F64.Tanh = tanhFloat64VSXGuarded
+	s.F64.Atan2 = atan2Float64VSXGuarded
+	s.F64.Hypot = hypotFloat64VSXGuarded
 }

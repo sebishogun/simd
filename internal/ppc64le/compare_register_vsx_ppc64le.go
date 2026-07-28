@@ -281,15 +281,6 @@ func ltUint8MaskVSXGuarded(dst []bool, a []byte, b []byte) {
 	ltUint8MaskVSX(dst[:n:n], a, b)
 }
 
-func ltScalarUint8MaskVSXGuarded(dst []bool, a []byte, v byte) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.LessScalarMask(dst, a, v)
-		return
-	}
-	ltScalarUint8MaskVSX(dst[:n:n], a, v)
-}
-
 func leUint8MaskVSXGuarded(dst []bool, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -297,15 +288,6 @@ func leUint8MaskVSXGuarded(dst []bool, a []byte, b []byte) {
 		return
 	}
 	leUint8MaskVSX(dst[:n:n], a, b)
-}
-
-func leScalarUint8MaskVSXGuarded(dst []bool, a []byte, v byte) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.LessEqualScalarMask(dst, a, v)
-		return
-	}
-	leScalarUint8MaskVSX(dst[:n:n], a, v)
 }
 
 func gtUint8MaskVSXGuarded(dst []bool, a []byte, b []byte) {
@@ -317,15 +299,6 @@ func gtUint8MaskVSXGuarded(dst []bool, a []byte, b []byte) {
 	gtUint8MaskVSX(dst[:n:n], a, b)
 }
 
-func gtScalarUint8MaskVSXGuarded(dst []bool, a []byte, v byte) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.GreaterScalarMask(dst, a, v)
-		return
-	}
-	gtScalarUint8MaskVSX(dst[:n:n], a, v)
-}
-
 func geUint8MaskVSXGuarded(dst []bool, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -333,15 +306,6 @@ func geUint8MaskVSXGuarded(dst []bool, a []byte, b []byte) {
 		return
 	}
 	geUint8MaskVSX(dst[:n:n], a, b)
-}
-
-func geScalarUint8MaskVSXGuarded(dst []bool, a []byte, v byte) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.GreaterEqualScalarMask(dst, a, v)
-		return
-	}
-	geScalarUint8MaskVSX(dst[:n:n], a, v)
 }
 
 func eqUint16MaskVSXGuarded(dst []bool, a []uint16, b []uint16) {
@@ -499,13 +463,9 @@ func init() {
 	s.U8.NotEqualMask = neUint8MaskVSXGuarded
 	s.U8.NotEqualScalarMask = neScalarUint8MaskVSXGuarded
 	s.U8.LessMask = ltUint8MaskVSXGuarded
-	s.U8.LessScalarMask = ltScalarUint8MaskVSXGuarded
 	s.U8.LessEqualMask = leUint8MaskVSXGuarded
-	s.U8.LessEqualScalarMask = leScalarUint8MaskVSXGuarded
 	s.U8.GreaterMask = gtUint8MaskVSXGuarded
-	s.U8.GreaterScalarMask = gtScalarUint8MaskVSXGuarded
 	s.U8.GreaterEqualMask = geUint8MaskVSXGuarded
-	s.U8.GreaterEqualScalarMask = geScalarUint8MaskVSXGuarded
 	s.U16.EqualMask = eqUint16MaskVSXGuarded
 	s.U16.EqualScalarMask = eqScalarUint16MaskVSXGuarded
 	s.U16.NotEqualMask = neUint16MaskVSXGuarded
