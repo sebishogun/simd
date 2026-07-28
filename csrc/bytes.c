@@ -730,6 +730,30 @@ void simd_b64_encode(isize *__restrict out, u8 *__restrict d,
     (u8) v_;                                                             \
   })
 
+// B64_VW pins the vectorization factor of the decode loop, and it has to be
+// pinned per target rather than left to LLVM.
+//
+// The loop reads four bytes per group and writes three, so LLVM models it as
+// interleaved access groups and needs a shuffle tree to deinterleave the loads
+// and reinterleave the stores. The cost of that tree grows faster than the
+// width, and left alone LLVM chose a factor that spilled 576 bytes on AVX2 and
+// 704 on AVX-512, over the 512-byte budget a NOSPLIT function has. Both tiers
+// were dropped, which is why base64 decoding ran the portable Go loop on every
+// x86 machine while arm64 and riscv64 got a kernel.
+//
+// Measured on AVX-512 at 1 MiB, decoding into 768 KiB: width 16 gives 116us,
+// width 32 gives 70us, width 64 gives 44us, against 912us for the portable
+// loop. So wider is better here, up to the point where it spills again — and
+// that point is target-dependent. At 64, AVX-512 fits but AVX2 spills 608
+// bytes and ppc64le needs a save area, so both are lost. At 32 every target
+// fits. Taking 64 only where the registers exist to pay for it keeps all six
+// tiers and still gets AVX-512 its best number.
+#if defined(__AVX512F__)
+#define B64_VW 64
+#else
+#define B64_VW 32
+#endif
+
 // simd_b64_decode writes the decoded bytes of b into d and reports how many it
 // wrote, or -1 if the input is not valid base64 or d is too short.
 //
@@ -758,6 +782,7 @@ void simd_b64_decode(isize *__restrict out, u8 *__restrict d,
   }
   isize groups = nb / 4 - 1; // every group but the last, which may be padded
   u8 bad = 0;
+  _Pragma("clang loop vectorize_width(B64_VW) interleave_count(1)")
   for (isize i = 0; i < groups; i++) {
     u8 a0 = B64_VALUE(b[i * 4]), a1 = B64_VALUE(b[i * 4 + 1]);
     u8 a2 = B64_VALUE(b[i * 4 + 2]), a3 = B64_VALUE(b[i * 4 + 3]);
@@ -783,4 +808,66 @@ void simd_b64_decode(isize *__restrict out, u8 *__restrict d,
   if (pad < 2) d[i * 3 + 1] = (u8)((a1 << 4) | (a2 >> 2));
   if (pad < 1) d[i * 3 + 2] = (u8)((a2 << 6) | a3);
   *out = need;
+}
+
+// simd_hex_decode decodes hex pairs until one is invalid.
+//
+// Two results — how many bytes were decoded, and whether the whole input was
+// valid — which is why this was portable until the generator learned to return
+// a pair. Nothing about it needs a scalar loop.
+//
+// The shape is validate-then-commit, the same escape-hatch pattern fold.h uses
+// for the byte searches: a whole block is checked for any invalid nibble
+// without branching, and only a block that is entirely valid is decoded and
+// written. A block containing an invalid character drops out to the scalar tail,
+// which finds the exact offset. The wasted work is bounded by one block, and
+// the common case — all valid — never leaves the vector path.
+//
+// The nibble value and its validity are computed branchlessly. Folding case
+// with |0x20 maps 'A'-'F' onto 'a'-'f' so one comparison covers both, and the
+// unsigned subtractions wrap on anything out of range, which turns "is it in
+// range" into a single unsigned compare rather than a pair of them.
+#define HEX_BLOCK 32
+
+void simd_hex_decode(isize *__restrict n_out, _Bool *__restrict ok_out,
+                     u8 *__restrict d, const u8 *__restrict s, isize nd,
+                     isize ns) {
+  isize n = ns / 2;
+  if (nd < n) n = nd;
+  isize i = 0;
+
+  for (; i + HEX_BLOCK <= n; i += HEX_BLOCK) {
+    unsigned char bad = 0;
+    for (isize j = 0; j < HEX_BLOCK * 2; j++) {
+      u8 c = s[i * 2 + j];
+      u8 dig = (u8)(c - (u8)'0');
+      u8 alpha = (u8)((c | 0x20) - (u8)'a');
+      bad |= (unsigned char)!((dig <= 9) | (alpha <= 5));
+    }
+    if (bad) break;
+    for (isize j = 0; j < HEX_BLOCK; j++) {
+      u8 hc = s[i * 2 + j * 2], lc = s[i * 2 + j * 2 + 1];
+      u8 hd = (u8)(hc - (u8)'0'), ha = (u8)((hc | 0x20) - (u8)'a');
+      u8 ld = (u8)(lc - (u8)'0'), la = (u8)((lc | 0x20) - (u8)'a');
+      u8 hv = (u8)(hd <= 9 ? hd : (u8)(ha + 10));
+      u8 lv = (u8)(ld <= 9 ? ld : (u8)(la + 10));
+      d[i + j] = (u8)((hv << 4) | lv);
+    }
+  }
+
+  for (; i < n; i++) {
+    u8 hc = s[i * 2], lc = s[i * 2 + 1];
+    u8 hd = (u8)(hc - (u8)'0'), ha = (u8)((hc | 0x20) - (u8)'a');
+    u8 ld = (u8)(lc - (u8)'0'), la = (u8)((lc | 0x20) - (u8)'a');
+    if (!((hd <= 9) | (ha <= 5)) || !((ld <= 9) | (la <= 5))) {
+      *n_out = i;
+      *ok_out = 0;
+      return;
+    }
+    u8 hv = (u8)(hd <= 9 ? hd : (u8)(ha + 10));
+    u8 lv = (u8)(ld <= 9 ? ld : (u8)(la + 10));
+    d[i] = (u8)((hv << 4) | lv);
+  }
+  *n_out = n;
+  *ok_out = 1;
 }

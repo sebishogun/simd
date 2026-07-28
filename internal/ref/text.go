@@ -399,5 +399,10 @@ func boolToInt(b bool) int {
 	return 0
 }
 
+// HexDecode is exported for the generated dispatch tables, which name the
+// reference by its exported identifier. The two results are what kept this
+// portable before the generator could return a pair.
+func HexDecode(dst, src []byte) (int, bool) { return hexDecode(dst, src) }
+
 func B64Encode(dst, src []byte) int { return b64Encode(dst, src) }
 func B64Decode(dst, src []byte) int { return b64Decode(dst, src) }

@@ -79,6 +79,9 @@ func b64EncodeSVE2(dst []byte, b []byte) int
 func b64DecodeSVE2(dst []byte, b []byte) int
 
 //go:noescape
+func hexDecodeSVE2(dst []byte, src []byte) (n int, ok bool)
+
+//go:noescape
 func hexEncodeSVE2(dst []byte, b []byte) int
 
 //go:noescape

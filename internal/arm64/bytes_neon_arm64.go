@@ -79,6 +79,9 @@ func b64EncodeNEON(dst []byte, b []byte) int
 func b64DecodeNEON(dst []byte, b []byte) int
 
 //go:noescape
+func hexDecodeNEON(dst []byte, src []byte) (n int, ok bool)
+
+//go:noescape
 func hexEncodeNEON(dst []byte, b []byte) int
 
 //go:noescape

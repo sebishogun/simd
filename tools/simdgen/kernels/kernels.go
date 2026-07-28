@@ -110,6 +110,7 @@ func base(n string) spec.CArg  { return spec.CArg{From: n, Part: spec.Base} }
 func lenOf(n string) spec.CArg { return spec.CArg{From: n, Part: spec.Len} }
 func val(n string) spec.CArg   { return spec.CArg{From: n, Part: spec.Value} }
 func out() spec.CArg           { return spec.CArg{Part: spec.ResultAddr} }
+func out2() spec.CArg          { return spec.CArg{Part: spec.ResultAddr2} }
 
 func sl(name string, t spec.Type) spec.Param { return spec.Param{Name: name, Type: t} }
 
@@ -820,6 +821,21 @@ func Bytes() []spec.Kernel {
 			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8)},
 			Result:    &spec.Param{Name: "ret", Type: spec.Int},
 			CArgs:     []spec.CArg{out(), base("dst"), base("b"), lenOf("dst"), lenOf("b")},
+			Threshold: thBytes,
+		},
+		{
+			// Two results, the count and whether the input was valid hex,
+			// which is the only reason this stayed portable everywhere until
+			// the generator learned to return a pair. Six C arguments, which
+			// is exactly the System V integer register budget, and the reason
+			// the two lengths cannot become three.
+			CName: "simd_hex_decode", GoName: "hexDecode",
+			Group: "Bytes", Field: "HexDecode", RefFunc: "HexDecode",
+			Params:  []spec.Param{sl("dst", spec.SliceU8), sl("src", spec.SliceU8)},
+			Result:  &spec.Param{Name: "n", Type: spec.Int},
+			Result2: &spec.Param{Name: "ok", Type: spec.B},
+			CArgs: []spec.CArg{out(), out2(), base("dst"), base("src"),
+				lenOf("dst"), lenOf("src")},
 			Threshold: thBytes,
 		},
 		{

@@ -166,6 +166,13 @@ func countAnySSE2Guarded(b []byte, chars []byte) int {
 	return countAnySSE2(b, chars)
 }
 
+func hexDecodeSSE2Guarded(dst []byte, src []byte) (n int, ok bool) {
+	if len(dst) < 32 {
+		return ref.HexDecode(dst, src)
+	}
+	return hexDecodeSSE2(dst, src)
+}
+
 func hexEncodeSSE2Guarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
@@ -244,6 +251,7 @@ func init() {
 	s.Bytes.IndexNotAny = indexNotAnySSE2Guarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnySSE2Guarded
 	s.Bytes.CountAny = countAnySSE2Guarded
+	s.Bytes.HexDecode = hexDecodeSSE2Guarded
 	s.Bytes.HexEncode = hexEncodeSSE2Guarded
 	s.Bytes.Index = indexSSE2Guarded
 	s.Bytes.LastIndex = lastIndexSSE2Guarded

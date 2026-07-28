@@ -43,6 +43,12 @@ func fillBytesVSX(dst []byte, v byte)
 func b64EncodeVSX(dst []byte, b []byte) int
 
 //go:noescape
+func b64DecodeVSX(dst []byte, b []byte) int
+
+//go:noescape
+func hexDecodeVSX(dst []byte, src []byte) (n int, ok bool)
+
+//go:noescape
 func hexEncodeVSX(dst []byte, b []byte) int
 
 //go:noescape

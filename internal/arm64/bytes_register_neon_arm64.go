@@ -180,6 +180,13 @@ func b64DecodeNEONGuarded(dst []byte, b []byte) int {
 	return b64DecodeNEON(dst, b)
 }
 
+func hexDecodeNEONGuarded(dst []byte, src []byte) (n int, ok bool) {
+	if len(dst) < 32 {
+		return ref.HexDecode(dst, src)
+	}
+	return hexDecodeNEON(dst, src)
+}
+
 func hexEncodeNEONGuarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
@@ -260,6 +267,7 @@ func init() {
 	s.Bytes.CountAny = countAnyNEONGuarded
 	s.Bytes.B64Encode = b64EncodeNEONGuarded
 	s.Bytes.B64Decode = b64DecodeNEONGuarded
+	s.Bytes.HexDecode = hexDecodeNEONGuarded
 	s.Bytes.HexEncode = hexEncodeNEONGuarded
 	s.Bytes.Index = indexNEONGuarded
 	s.Bytes.LastIndex = lastIndexNEONGuarded

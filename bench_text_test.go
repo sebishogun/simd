@@ -17,6 +17,7 @@ package simd_test
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"strings"
 	"testing"
@@ -226,6 +227,45 @@ func BenchmarkTextBase64(b *testing.B) {
 			b.SetBytes(int64(n))
 			for b.Loop() {
 				k, _ := base64.StdEncoding.Decode(out, []byte(enc))
+				sinkTextInt = k
+			}
+		})
+	}
+}
+
+// BenchmarkTextHex is against encoding/hex, which decodes a nibble at a time
+// through a 256-entry table and validates per character. Decode is the
+// interesting half: it returns a count and a validity flag, so until the
+// generator learned two-value returns it was portable on every architecture
+// for a reason that had nothing to do with the hardware.
+func BenchmarkTextHex(b *testing.B) {
+	for _, n := range textSizes {
+		src := []byte(textCorpus(n))
+		enc := make([]byte, hex.EncodedLen(n))
+		hex.Encode(enc, src)
+		out := make([]byte, n)
+		b.Run(fmt.Sprintf("Encode/n=%d/impl=simd", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				sinkTextInt = simd.HexEncode(enc, src)
+			}
+		})
+		b.Run(fmt.Sprintf("Encode/n=%d/impl=std", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				sinkTextInt = hex.Encode(enc, src)
+			}
+		})
+		b.Run(fmt.Sprintf("Decode/n=%d/impl=simd", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				sinkTextInt, _ = simd.HexDecode(out, enc)
+			}
+		})
+		b.Run(fmt.Sprintf("Decode/n=%d/impl=std", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				k, _ := hex.Decode(out, enc)
 				sinkTextInt = k
 			}
 		})

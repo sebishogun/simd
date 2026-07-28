@@ -76,6 +76,12 @@ func countAnyAVX512(b []byte, chars []byte) int
 func b64EncodeAVX512(dst []byte, b []byte) int
 
 //go:noescape
+func b64DecodeAVX512(dst []byte, b []byte) int
+
+//go:noescape
+func hexDecodeAVX512(dst []byte, src []byte) (n int, ok bool)
+
+//go:noescape
 func hexEncodeAVX512(dst []byte, b []byte) int
 
 //go:noescape

@@ -364,6 +364,10 @@ TEXT ·lastIndexByteVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x041c0607
 	WORD $0x1d090a1e
 	WORD $0x0c0d1f0f
+	WORD $0x00020406
+	WORD $0x080a0c0e
+	WORD $0x10121416
+	WORD $0x181a1c1e
 	RET
 
 // func popCountVX(b []byte) int
@@ -823,6 +827,10 @@ TEXT ·popCountVXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0x041c0607
 	WORD $0x1d090a1e
 	WORD $0x0c0d1f0f
+	WORD $0x00020406
+	WORD $0x080a0c0e
+	WORD $0x10121416
+	WORD $0x181a1c1e
 	RET
 
 // func isASCIIVX(b []byte) bool
