@@ -99,7 +99,51 @@ is not mistaken for an oversight.
 
 ## Tiers
 
-### A `GOEXPERIMENT=simd` tier, and the language feature after it
+### A `GOEXPERIMENT=simd` tier — measured, and deliberately not shipped
+
+**This has been built and benchmarked. The measurement says do not wire it up
+yet, and that is the decision.**
+
+Go 1.26's intrinsics are real and usable — `simd/archsimd` exists, the
+experiment is accepted, `LoadFloat32x8Slice` and friends compile to the
+instructions you would expect. So the question was never whether they work, it
+was whether they beat what is already here. On a Zen 5, float32 `AddInto`:
+
+| n | Go scalar loop | Go intrinsics | this library (assembly) |
+|---|---|---|---|
+| 4 | 3.87 ns | **3.81 ns** | 4.46 ns |
+| 8 | 7.15 ns | **2.82 ns** | 5.27 ns |
+| 16 | 14.23 ns | **3.74 ns** | 5.61 ns |
+| 32 | 26.91 ns | 6.13 ns | **5.83 ns** |
+| 64 | 53.81 ns | 11.07 ns | **5.83 ns** |
+| 128 | 77.22 ns | 20.09 ns | **6.91 ns** |
+| 256 | 158.75 ns | 38.70 ns | **8.81 ns** |
+
+Two things fall out, and the second was not expected.
+
+**The opportunity is real but tiny.** Intrinsics win only at n ≤ 16, by about
+two nanoseconds, in a band where the absolute cost is already about five.
+
+**Above n = 32 the assembly is not merely ahead, it is several times ahead** —
+4.4× at n = 256. The common assumption that intrinsics are equivalent to
+hand-written assembly is wrong here, and the reason is that they are equivalent
+to *what you write with them*: an idiomatic 8-lane Go loop against a
+clang-generated kernel that uses 512-bit vectors and unrolls. Matching it means
+writing that unrolled 512-bit loop by hand in Go, per type, per width — which
+is the work this library's generator exists to avoid.
+
+So shipping it now would mean asking consumers to set a `GOEXPERIMENT` — which
+a library cannot do — for two nanoseconds on amd64 only. The decision is no.
+
+**Revisit when it needs no flag** (targeted at Go 1.27). At that point it costs
+a consumer nothing, and the same measurement decides per operation: below the
+threshold where the dispatcher currently runs a scalar loop, an inlined
+intrinsic is worth having; above it, the assembly stays. The bit-identity
+contract binds it either way.
+
+The reasoning behind why it can only ever win at small n follows.
+
+### Why the small-n band is the only opening
 
 Go 1.26 shipped SIMD intrinsics behind `GOEXPERIMENT=simd`, and they are
 targeted at the language proper in 1.27.

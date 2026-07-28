@@ -333,7 +333,7 @@ make codegen       # regenerate every backend (needs clang)
 ## Where the obvious answer was wrong
 
 **[`docs/wrong.md`](docs/wrong.md)** is the part of this project most worth
-borrowing: eighteen things a competent person would have assumed, that were
+borrowing: nineteen things a competent person would have assumed, that were
 false, and what each one cost. Among them —
 
 - A register can be reserved by *value* rather than by name, which makes it
@@ -344,6 +344,7 @@ false, and what each one cost. Among them —
 - Green test lanes that had been executing no accelerated code for months.
 - Four loops that were slower *after* being vectorized, one of them by 1700×.
 - `--mattr=+sve2` removing NEON rather than adding SVE2.
+- Go's own SIMD intrinsics being 4.4× *slower* than the generated assembly.
 - A test lane that was hung, not slow — thirty-two minutes at 0.1% CPU.
 - `ENOSPC` with 40 GB free.
 

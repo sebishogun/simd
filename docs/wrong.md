@@ -183,7 +183,30 @@ test had not.
 
 ---
 
-## 10. The standard library is the more accurate side
+## 10. Compiler intrinsics are equivalent to hand-written assembly
+
+**Assumed.** Go 1.26's `simd/archsimd` intrinsics compile to the same
+instructions a generated kernel does, so the only difference is that intrinsics
+inline and assembly does not — which would make intrinsics strictly better below
+the call-boundary crossover and equal above it.
+
+**Actually.** Measured on float32 `AddInto`, the assembly is **4.4× faster at
+n = 256** and three times faster at n = 128. Intrinsics win only at n ≤ 16, by
+about two nanoseconds.
+
+**Why.** Intrinsics are equivalent to *what you write with them*. The idiomatic
+Go version is an 8-lane load-add-store loop; the generated kernel is
+clang-optimized, uses 512-bit vectors and unrolls. Closing that gap means
+hand-writing the unrolled 512-bit loop in Go, once per element type and once
+per vector width — which is precisely the work a generator exists to avoid.
+
+**Consequence.** The intrinsics tier was built, measured, and deliberately not
+shipped: it would ask consumers to set a `GOEXPERIMENT` a library cannot
+require, on amd64 only, for two nanoseconds. See ROADMAP.md.
+
+---
+
+## 11. The standard library is the more accurate side
 
 **Assumed.** Where a kernel and Go's `math` disagree, the kernel is wrong.
 
@@ -194,7 +217,7 @@ theory.
 
 ---
 
-## 11. `-0.0 < 0.0`
+## 12. `-0.0 < 0.0`
 
 **Assumed.** A sign test can be written as a comparison against zero.
 
@@ -205,7 +228,7 @@ theory.
 
 ---
 
-## 12. Skipping a zero multiply is a free optimization
+## 13. Skipping a zero multiply is a free optimization
 
 **Assumed.** `if (s == 0) continue` in a matrix multiply changes nothing but
 speed.
@@ -221,7 +244,7 @@ test in both the tiled path and the edges.
 
 ---
 
-## 13. A rewrite that produces correct instructions is a correct rewrite
+## 14. A rewrite that produces correct instructions is a correct rewrite
 
 **Assumed.** A constant-pool reference can be re-spelled as a Plan 9 mnemonic
 naming a `DATA` symbol, letting Go's linker compute the displacement.
@@ -237,7 +260,7 @@ changes length, so every branch that was correct in the object file still is.
 
 ---
 
-## 14. Vectorizing a loop makes it faster
+## 15. Vectorizing a loop makes it faster
 
 **Assumed.** Any loop turned into vector instructions beats the scalar version.
 
@@ -263,7 +286,7 @@ library because it is genuinely better.
 
 ---
 
-## 15. A disassembler prints register names
+## 16. A disassembler prints register names
 
 **Assumed.** Checking generated code for a forbidden register is a text search
 for its name.
@@ -279,7 +302,7 @@ written in the spelling that target's disassembler actually emits.
 
 ---
 
-## 16. The benchmark said it got slower
+## 17. The benchmark said it got slower
 
 **Assumed.** A regression harness reporting sixteen benchmarks over the
 threshold means sixteen regressions.
@@ -296,7 +319,7 @@ flagged, check whether the generated code changed before believing it.
 
 ---
 
-## 17. A test lane that produces no output is running slowly
+## 18. A test lane that produces no output is running slowly
 
 **Assumed.** The emulated arm64 lane sitting silent for half an hour is qemu
 being qemu. The Makefile even says to allow that long.
@@ -316,7 +339,7 @@ in `make verify` and its findings do not depend on GOARCH.
 
 ---
 
-## 18. "No space left on device" means the disk is full
+## 19. "No space left on device" means the disk is full
 
 **Assumed.** `ENOSPC` means bytes.
 

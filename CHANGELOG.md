@@ -63,7 +63,7 @@ transcendentals guarantee a stated ULP bound rather than bit identity, and
 a table indexed by what you are trying to do rather than by what the operation
 is called.
 
-[`docs/wrong.md`](docs/wrong.md) is the eighteen things that turned out not to
+[`docs/wrong.md`](docs/wrong.md) is the nineteen things that turned out not to
 be true, which is the part of this project most worth borrowing.
 
 ### One deliberate semantic choice worth stating
