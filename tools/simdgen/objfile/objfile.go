@@ -129,6 +129,15 @@ func (f *File) UndefinedRefs(fn *Func) []string {
 		if r.Sym == "" || seen[r.Sym] {
 			continue
 		}
+		// .TOC. is undefined in the object and is not a call. It is the ELFv2
+		// anchor the linker defines, and on ppc64le every kernel that reads a
+		// constant names it in the two-instruction global-entry prologue that
+		// computes the TOC pointer. Counting it as a call rejected 184 kernels
+		// for a procedure linkage table they never wanted; the emitter
+		// replaces those two instructions outright. See emit/constpool_power.go.
+		if r.Sym == ".TOC." {
+			continue
+		}
 		for _, s := range f.syms {
 			if s.Name == r.Sym && s.Section == elf.SHN_UNDEF {
 				seen[r.Sym] = true
