@@ -38,24 +38,6 @@ func csubComplex64VSXGuarded(dst []complex64, a []complex64, b []complex64) {
 	csubComplex64VSX(dst[:n:n], a, b)
 }
 
-func cmulComplex64VSXGuarded(dst []complex64, a []complex64, b []complex64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.CMul64(dst, a, b)
-		return
-	}
-	cmulComplex64VSX(dst[:n:n], a, b)
-}
-
-func cdivComplex64VSXGuarded(dst []complex64, a []complex64, b []complex64) {
-	n := min(len(dst), len(a), len(b))
-	if n < 16 {
-		ref.CDiv64(dst, a, b)
-		return
-	}
-	cdivComplex64VSX(dst[:n:n], a, b)
-}
-
 func cnegComplex64VSXGuarded(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -63,24 +45,6 @@ func cnegComplex64VSXGuarded(dst []complex64, a []complex64) {
 		return
 	}
 	cnegComplex64VSX(dst[:n:n], a)
-}
-
-func cconjComplex64VSXGuarded(dst []complex64, a []complex64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.CConj64(dst, a)
-		return
-	}
-	cconjComplex64VSX(dst[:n:n], a)
-}
-
-func cabsComplex64VSXGuarded(dst []float32, a []complex64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.CAbs64(dst, a)
-		return
-	}
-	cabsComplex64VSX(dst[:n:n], a)
 }
 
 func crealComplex64VSXGuarded(dst []float32, a []complex64) {
@@ -164,15 +128,6 @@ func cconjComplex128VSXGuarded(dst []complex128, a []complex128) {
 	cconjComplex128VSX(dst[:n:n], a)
 }
 
-func cabsComplex128VSXGuarded(dst []float64, a []complex128) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.CAbs128(dst, a)
-		return
-	}
-	cabsComplex128VSX(dst[:n:n], a)
-}
-
 func crealComplex128VSXGuarded(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -215,11 +170,7 @@ func init() {
 	s := backend.For("vsx")
 	s.C64.Add = caddComplex64VSXGuarded
 	s.C64.Sub = csubComplex64VSXGuarded
-	s.C64.Mul = cmulComplex64VSXGuarded
-	s.C64.Div = cdivComplex64VSXGuarded
 	s.C64.Neg = cnegComplex64VSXGuarded
-	s.C64.Conj = cconjComplex64VSXGuarded
-	s.C64Parts.Abs = cabsComplex64VSXGuarded
 	s.C64Parts.Real = crealComplex64VSXGuarded
 	s.C64Parts.Imag = cimagComplex64VSXGuarded
 	s.C64Parts.Scale = cscaleComplex64VSXGuarded
@@ -229,7 +180,6 @@ func init() {
 	s.C128.Mul = cmulComplex128VSXGuarded
 	s.C128.Neg = cnegComplex128VSXGuarded
 	s.C128.Conj = cconjComplex128VSXGuarded
-	s.C128Parts.Abs = cabsComplex128VSXGuarded
 	s.C128Parts.Real = crealComplex128VSXGuarded
 	s.C128Parts.Imag = cimagComplex128VSXGuarded
 	s.C128Parts.Scale = cscaleComplex128VSXGuarded

@@ -70,34 +70,10 @@ func minrInt8VSX(a []int8) int8
 func maxrInt8VSX(a []int8) int8
 
 //go:noescape
-func sumsqInt8VSX(a []int8) int8
-
-//go:noescape
-func sumsqdevInt8VSX(a []int8, c int8) int8
-
-//go:noescape
-func sumsqdiffInt8VSX(a []int8, b []int8) int8
-
-//go:noescape
-func diffInt8VSX(dst []int8, a []int8)
-
-//go:noescape
 func minrInt16VSX(a []int16) int16
 
 //go:noescape
 func maxrInt16VSX(a []int16) int16
-
-//go:noescape
-func sumsqInt16VSX(a []int16) int16
-
-//go:noescape
-func sumsqdevInt16VSX(a []int16, c int16) int16
-
-//go:noescape
-func sumsqdiffInt16VSX(a []int16, b []int16) int16
-
-//go:noescape
-func diffInt16VSX(dst []int16, a []int16)
 
 //go:noescape
 func minrUint8VSX(a []byte) byte
@@ -122,18 +98,6 @@ func minrUint16VSX(a []uint16) uint16
 
 //go:noescape
 func maxrUint16VSX(a []uint16) uint16
-
-//go:noescape
-func sumsqUint16VSX(a []uint16) uint16
-
-//go:noescape
-func sumsqdevUint16VSX(a []uint16, c uint16) uint16
-
-//go:noescape
-func sumsqdiffUint16VSX(a []uint16, b []uint16) uint16
-
-//go:noescape
-func diffUint16VSX(dst []uint16, a []uint16)
 
 //go:noescape
 func minrUint32VSX(a []uint32) uint32
@@ -202,36 +166,6 @@ func l1normInt64VSX(a []int64) int64
 func l1diffInt64VSX(a []int64, b []int64) int64
 
 //go:noescape
-func sumInt8VSX(a []int8) int8
-
-//go:noescape
-func prodInt8VSX(a []int8) int8
-
-//go:noescape
-func dotInt8VSX(a []int8, b []int8) int8
-
-//go:noescape
-func l1normInt8VSX(a []int8) int8
-
-//go:noescape
-func l1diffInt8VSX(a []int8, b []int8) int8
-
-//go:noescape
-func sumInt16VSX(a []int16) int16
-
-//go:noescape
-func prodInt16VSX(a []int16) int16
-
-//go:noescape
-func dotInt16VSX(a []int16, b []int16) int16
-
-//go:noescape
-func l1normInt16VSX(a []int16) int16
-
-//go:noescape
-func l1diffInt16VSX(a []int16, b []int16) int16
-
-//go:noescape
 func sumUint8VSX(a []byte) byte
 
 //go:noescape
@@ -245,21 +179,6 @@ func l1normUint8VSX(a []byte) byte
 
 //go:noescape
 func l1diffUint8VSX(a []byte, b []byte) byte
-
-//go:noescape
-func sumUint16VSX(a []uint16) uint16
-
-//go:noescape
-func prodUint16VSX(a []uint16) uint16
-
-//go:noescape
-func dotUint16VSX(a []uint16, b []uint16) uint16
-
-//go:noescape
-func l1normUint16VSX(a []uint16) uint16
-
-//go:noescape
-func l1diffUint16VSX(a []uint16, b []uint16) uint16
 
 //go:noescape
 func sumUint32VSX(a []uint32) uint32

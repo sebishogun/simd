@@ -40,12 +40,6 @@ func bitNotVSX(dst []byte, b []byte)
 func fillBytesVSX(dst []byte, v byte)
 
 //go:noescape
-func countAnyVSX(b []byte, chars []byte) int
-
-//go:noescape
-func b64EncodeVSX(dst []byte, b []byte) int
-
-//go:noescape
 func hexEncodeVSX(dst []byte, b []byte) int
 
 //go:noescape

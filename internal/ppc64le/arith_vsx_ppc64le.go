@@ -178,9 +178,6 @@ func addInt8VSX(dst []int8, a []int8, b []int8)
 func subInt8VSX(dst []int8, a []int8, b []int8)
 
 //go:noescape
-func mulInt8VSX(dst []int8, a []int8, b []int8)
-
-//go:noescape
 func minimumInt8VSX(dst []int8, a []int8, b []int8)
 
 //go:noescape
@@ -193,9 +190,6 @@ func absInt8VSX(dst []int8, a []int8)
 func negInt8VSX(dst []int8, a []int8)
 
 //go:noescape
-func scaleInt8VSX(dst []int8, a []int8, s int8)
-
-//go:noescape
 func addScalarInt8VSX(dst []int8, a []int8, s int8)
 
 //go:noescape
@@ -206,12 +200,6 @@ func clampInt8VSX(dst []int8, a []int8, lo int8, hi int8)
 
 //go:noescape
 func fillInt8VSX(dst []int8, v int8)
-
-//go:noescape
-func lerpInt8VSX(dst []int8, a []int8, b []int8, t int8)
-
-//go:noescape
-func addScaledInt8VSX(dst []int8, a []int8, b []int8, s int8)
 
 //go:noescape
 func addInt16VSX(dst []int16, a []int16, b []int16)
@@ -421,9 +409,6 @@ func divScalarFloat32VSX(dst []float32, a []float32, s float32)
 func sqrtFloat32VSX(dst []float32, a []float32)
 
 //go:noescape
-func reciprocalFloat32VSX(dst []float32, a []float32)
-
-//go:noescape
 func floorFloat32VSX(dst []float32, a []float32)
 
 //go:noescape
@@ -443,9 +428,6 @@ func divScalarFloat64VSX(dst []float64, a []float64, s float64)
 
 //go:noescape
 func sqrtFloat64VSX(dst []float64, a []float64)
-
-//go:noescape
-func reciprocalFloat64VSX(dst []float64, a []float64)
 
 //go:noescape
 func floorFloat64VSX(dst []float64, a []float64)

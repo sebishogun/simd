@@ -17,12 +17,3 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
 func bf16ToF32VSX(dst []float32, a []uint16)
-
-//go:noescape
-func f32ToBF16VSX(dst []uint16, a []float32)
-
-//go:noescape
-func f16ToF32VSX(dst []float32, a []uint16)
-
-//go:noescape
-func f32ToF16VSX(dst []uint16, a []float32)

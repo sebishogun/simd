@@ -54,10 +54,15 @@ package emit
 import (
 	"encoding/binary"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/sebishogun/simd/tools/simdgen/objfile"
 )
+
+// tocOnly restricts the TOC rewrite to kernels whose C name contains the given
+// substring, for bisecting. Temporary; not a supported knob.
+var tocOnly = os.Getenv("SIMD_TOC_ONLY")
 
 const (
 	opAddi  = 14 // addi  rD, rA, SI
@@ -105,6 +110,16 @@ func hasGlobalEntryPrologue(code []byte) bool {
 // canLiftPPC64 reports whether a kernel's out-of-function references are ones
 // this rewrite can resolve.
 func canLiftPPC64(fn *objfile.Func) (bool, string) {
+	if tocOnly != "" && !strings.Contains(fn.Name, tocOnly) {
+		return false, "excluded by SIMD_TOC_ONLY while bisecting"
+	}
+	if os.Getenv("SIMD_TOC_NO_DS") != "" {
+		for _, rel := range fn.Relocs {
+			if strings.Contains(rel.TypeName, "_DS") {
+				return false, "excluded: DS-form relocation, while bisecting"
+			}
+		}
+	}
 	if len(fn.Code)%4 != 0 {
 		return false, "body is not a whole number of instructions"
 	}
