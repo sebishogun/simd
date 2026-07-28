@@ -502,3 +502,50 @@ ordinary value still have to match bit for bit.
 The transferable part is the second sentence of the first paragraph. A test
 that never crosses a dispatch threshold is testing the fallback and reporting
 success.
+
+## 25. "LLVM did not vectorize it" means the loop cannot be vectorized
+
+**Wrong.** It can mean three quite different things, and only one of them is a
+property of the loop. Eighteen kernels on riscv64 — log, log2, log10, log1p,
+expm1, cbrt, pow, sinh and tanh, in both precisions — sat behind that message
+for months looking like a limitation of RVV. They are straight-line polynomial
+evaluation with no calls and no branches. Nothing about them resists a vector
+unit, and exp and sin, from the same file and the same macro, vectorize fine.
+
+`-Rpass-missed=loop-vectorize` said *"the cost-model indicates that
+vectorization is not beneficial"*, which reads like a preference and invites
+`#pragma clang loop vectorize(enable)`. Adding it changes the message to *"the
+optimizer was unable to perform the requested transformation"* — the pragma
+overrides the cost model's *opinion* but not a cost that is missing entirely.
+
+`-Rpass-analysis=loop-vectorize` gives the real answer:
+
+	Recipe with invalid costs prevented vectorization at
+	VF=(vscale x 1, vscale x 2, vscale x 4): call to llvm.is.fpclass
+
+Eighteen calls in the IR, one per affected function, all with test mask 128 —
+`fcPosInf`. Every one of the nine functions has a special-case chain that must
+return +Inf for +Inf, and the RVV backend has no cost entry for a vector
+`llvm.is.fpclass`, so the vectorizer discards every width and falls back to
+scalar.
+
+**Not fixed, and worth being precise about what was tried.** LLVM canonicalises
+*every* spelling of an infinity test into that one intrinsic:
+
+- `x == INF` — folds
+- `x > 0x1.fffffep+127f`, the largest finite float — folds
+- `bit_cast<unsigned>(x) == 0x7f800000u` — folds
+- `(bit_cast<unsigned>(x) << 1) == 0xff000000u` — folds
+
+Nor is it a scalable-vector problem: `-mrvv-vector-bits=zvl` pins RVV to a
+fixed width and the count stays at eighteen. clang 22.1.8.
+
+So this is an upstream gap, not something the kernel source can spell around,
+and the honest recording of it is the finding. The one route not yet tried is
+to stop asking the question about a float at all: load each element twice, once
+as `float` for the polynomial and once as `unsigned` for the classification, so
+the comparison is an ordinary integer compare on a value LLVM never saw
+bitcast. Whether InstCombine sees through the second load is the open question.
+
+The transferable part: when a compiler says a transform is not *beneficial*,
+check whether it is instead not *costed*. The two produce the same silence.
