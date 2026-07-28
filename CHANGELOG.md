@@ -1,5 +1,45 @@
 # Changelog
 
+## v0.2.0 — 2026-07-28
+
+### ppc64le: 281 kernels become 468
+
+The largest coverage gain in the library, and it came from discarding a
+constraint that was never real.
+
+clang reaches its constants on ppc64le through `r2`, the TOC pointer, which Go
+does not maintain for these objects. Power9 has no PC-relative data addressing,
+so reaching an appended pool appeared to require either `bcl`/`mflr` — which
+clobbers the link register and wants a save slot in a protected zone the kernels
+already use down to −256 bytes — or a dependency on whatever `r2` held on entry,
+which is unsafe under `-shared`.
+
+Neither is necessary. **Go's own assembler materialises a symbol address in two
+instructions with no TOC involvement**, because Go builds non-PIE and the
+address is a link-time constant. That was settled by building and running a
+probe under emulation rather than by reasoning about it.
+
+So the pool becomes a standalone `GLOBL`, `R2` is pointed at it with one `MOVD`
+in the prologue, clang's two global-entry instructions are replaced with nops in
+place, and every TOC16 immediate is rewritten as an offset from the pool base.
+Two other checks were in the way, and both were wrong rather than conservative:
+`.TOC.` was counted as an undefined *call* when it is a linker-defined data
+anchor, and `r2` was rejected outright when its only uses here are clang's own
+prologue and reads.
+
+One kernel of 469 corrupts memory with the rewrite enabled and is not
+registered, so `CountAny` keeps the portable path it already had on this
+architecture. It was bisected to `countAnyVSX` in fourteen runs and its
+addressing then verified correct by hand, so the fault is something else about
+that kernel — see the note at its skip.
+
+Verified on emulated ppc64le with 3.5 million clean fuzz executions.
+
+### Also
+
+- **Sorting**: `Sort`, `SortInto`, `Argsort`, `PartitionInto`, `SortedIndex`.
+- **N-ary arithmetic**: `AddAll`, `MulAll`.
+
 ## v0.1.1 — 2026-07-28
 
 **Fixes a crash.** `PartitionInto` dereferenced a nil function pointer on every
@@ -31,7 +71,7 @@ The first tagged version. Everything below is new; there was nothing before it.
 ### What this is
 
 SIMD-accelerated slice operations for Go on every architecture with a vector
-unit, without cgo. 302 exported functions, 4,744 generated kernels across nine
+unit, without cgo. 309 exported functions, 5,247 generated kernels across nine
 targets: amd64 sse2/avx2/avx512 (1664), arm64 neon/sve2 (1121), s390x vx (614),
 riscv64 rvv (558), loong64 lasx (506), ppc64le vsx (281).
 

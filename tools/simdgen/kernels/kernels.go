@@ -678,7 +678,7 @@ func Bytes() []spec.Kernel {
 			// Not registering it is the same arrangement every partial backend
 			// in this library uses. The portable implementation stands in, so
 			// this is a performance property and never a correctness one.
-			SkipOn: []string{"ppc64le"},
+			SkipOn:    []string{"ppc64le"},
 			Params:    []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8)},
 			Result:    &spec.Param{Name: "ret", Type: spec.Int},
 			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars")},

@@ -95,9 +95,9 @@ called. Every one of these has a runnable example in
 **v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and
 is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 
-- **302 exported functions** over ten element types, plus complex, bytes, text
+- **309 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
-- **4,744 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
+- **5,247 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
   arm64 neon/sve2, riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx.
 - Every architecture is **executed**, under emulation, on every change.
 - The portable Go implementation is always there. A kernel that could not be
@@ -267,19 +267,23 @@ effort.
 
 | | kernels | |
 |---|---|---|
-| amd64 (3 tiers) | 1664 | essentially complete |
-| arm64 (2 tiers) | 1121 | essentially complete |
-| s390x | 614 | **partial** |
-| riscv64 | 558 | essentially complete |
-| loong64 | 506 | ~88% |
-| ppc64le | 281 | **partial** — see [ROADMAP](ROADMAP.md) |
+| amd64 (3 tiers) | 1784 | essentially complete |
+| arm64 (2 tiers) | 1201 | essentially complete |
+| s390x | 650 | **partial** |
+| riscv64 | 598 | essentially complete |
+| loong64 | 546 | ~88% |
+| ppc64le | 468 | was 281; see below |
 
 - **s390x** loses kernels because clang uses `r13`, the register Go keeps the
   current goroutine in, and there is no `-ffixed` for SystemZ — the global
   register variable is accepted and silently ignored.
-- **ppc64le** loses kernels to the TOC pointer: clang reaches its constants
-  through `r2`, which Go does not maintain for these objects, and Power9 has no
-  PC-relative data addressing to rewrite it into.
+- **ppc64le** used to lose 184 kernels to the TOC pointer, and no longer does.
+  clang reaches its constants through `r2`, which Go does not maintain for
+  these objects, and Power9 has no PC-relative data addressing — which looked
+  like the obstacle and was not. Go's own assembler materialises a symbol
+  address in two instructions with no TOC involvement, so the pool becomes a
+  standalone symbol, `R2` is pointed at it, and clang's global-entry prologue
+  is replaced in place. 281 kernels became 468.
 
 Neither is a correctness hole. A kernel that cannot be generated is not
 registered, and the portable implementation stands in.
