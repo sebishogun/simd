@@ -198,6 +198,50 @@ and every architecture Go's intrinsics do not cover.
 
 ---
 
+## Releases
+
+Tags so far are `v0.1.0`, `v0.1.1` and `v0.2.0`. Two later numbers are spoken
+for, and the reasons are different in kind.
+
+### v1.0.0 — when the gaps close
+
+Not a date and not a feature count. `v1.0.0` says the API is stable and the
+numerical contract is one you can build on, so the bar is the things that would
+otherwise force a breaking change or a correction later:
+
+1. **Every operation accelerated on amd64, arm64 and riscv64**, or documented at
+   its declaration as permanently portable with the reason. Three qualify today
+   — `EMA`, `CumSum` and `CumProd`, all serial through their own output — and
+   that list should only shrink by explanation, never by omission.
+2. **The frame-write and stack-budget checks running on every architecture.**
+   They currently cover one of six and measure zero on four, so ABI
+   verification has been reporting green without looking. Until that is fixed,
+   no claim about correctness on arm64, riscv64, s390x or loong64 is backed by
+   anything. This is the single largest blocker.
+3. **The two unexplained corruptions explained** — `countAnyVSX` on ppc64le and
+   the compress family on riscv64. A library that ships one kernel it knows
+   destroys memory and cannot say why does not get a 1.
+4. **A threshold meta-test**, so no operation can be added whose accelerated
+   path is never exercised. Two were found that way already.
+5. **Verified on real hardware**, not only under emulation, for at least arm64
+   and riscv64.
+
+Anything not on that list — FFT, the DSP set, checksums, the rest of the C99
+math tail — is a feature and ships in a minor release. Features do not gate a
+1.0; contract and verification do.
+
+### v2.0.0 — reserved for Go's intrinsics
+
+Held deliberately empty. Go 1.26 shipped `simd/archsimd` behind
+`GOEXPERIMENT=simd`; when the intrinsics are in the language and need no build
+flag, the measurements in the Tiers section get re-run and anywhere an
+intrinsic beats the assembly, the intrinsic wins. That is a change to what the
+package compiles to on every architecture at once and to its minimum Go
+version, which is a major-version change even if not one line of the API moves.
+
+Reserving the number now means the intervening releases can stay minor without
+anyone having to decide later whether a backend swap counts as breaking.
+
 ## Verification
 
 ### Real hardware

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Versioning
+
+The release plan is now written down in ROADMAP.md rather than assumed. `v1.0.0`
+is gated on five things, of which the largest is that the frame-write and
+stack-budget checks currently run on one architecture of six — features are not
+on the list. `v2.0.0` is reserved for when Go's intrinsics leave
+`GOEXPERIMENT=simd` and the tier measurements get re-run against them.
+
 ### Four operations leave the portable path on x86
 
 `HexDecode`, `Base64Decode`, `Median` and `Quantile` were four of the eight
