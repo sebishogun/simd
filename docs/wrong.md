@@ -232,7 +232,37 @@ beats pdqsort by 19-27% at every large size.
 
 ---
 
-## 12. The standard library is the more accurate side
+## 12. A scripted edit that does not match is an edit that did not happen
+
+**Assumed.** A string replace over a source file either applies or is obviously
+wrong.
+
+**Actually.** It fails silently. Registering `Partition` in the portable
+reference was done with a scripted replace whose pattern no longer matched after
+gofmt reflowed the surrounding lines. Nothing errored. The slot stayed nil.
+
+**Why nothing caught it.** amd64 and arm64 generate a real partition kernel, so
+the backend filled the slot and every local test passed — `go test`, `make
+verify`, all green. The nil only exists where the kernel does not, which is
+every other architecture. `PartitionInto` would have panicked with a nil
+dereference for every user on s390x, ppc64le, riscv64, loong64, and on amd64
+below AVX-512 or arm64 without SVE2. Not a wrong answer — a crash on the first
+call, on the majority of machines.
+
+The emulated s390x lane found it, running the portable path that the two
+development architectures both mask.
+
+**Fix, in two places.** The registration, and a nil guard in `PartitionInto` so
+a missing kernel can never panic again — which `CompressInto` already had, for
+this exact reason, written by the same hand a day earlier and then not repeated
+for the slot with identical semantics.
+
+**And the process fix:** a scripted edit must assert that it changed something.
+Two other registrations made the same way happened to land, which is luck.
+
+---
+
+## 13. The standard library is the more accurate side
 
 **Assumed.** Where a kernel and Go's `math` disagree, the kernel is wrong.
 
@@ -243,7 +273,7 @@ theory.
 
 ---
 
-## 13. `-0.0 < 0.0`
+## 14. `-0.0 < 0.0`
 
 **Assumed.** A sign test can be written as a comparison against zero.
 
@@ -254,7 +284,7 @@ theory.
 
 ---
 
-## 14. Skipping a zero multiply is a free optimization
+## 15. Skipping a zero multiply is a free optimization
 
 **Assumed.** `if (s == 0) continue` in a matrix multiply changes nothing but
 speed.
@@ -270,7 +300,7 @@ test in both the tiled path and the edges.
 
 ---
 
-## 15. A rewrite that produces correct instructions is a correct rewrite
+## 16. A rewrite that produces correct instructions is a correct rewrite
 
 **Assumed.** A constant-pool reference can be re-spelled as a Plan 9 mnemonic
 naming a `DATA` symbol, letting Go's linker compute the displacement.
@@ -286,7 +316,7 @@ changes length, so every branch that was correct in the object file still is.
 
 ---
 
-## 16. Vectorizing a loop makes it faster
+## 17. Vectorizing a loop makes it faster
 
 **Assumed.** Any loop turned into vector instructions beats the scalar version.
 
@@ -312,7 +342,7 @@ library because it is genuinely better.
 
 ---
 
-## 17. A disassembler prints register names
+## 18. A disassembler prints register names
 
 **Assumed.** Checking generated code for a forbidden register is a text search
 for its name.
@@ -328,7 +358,7 @@ written in the spelling that target's disassembler actually emits.
 
 ---
 
-## 18. The benchmark said it got slower
+## 19. The benchmark said it got slower
 
 **Assumed.** A regression harness reporting sixteen benchmarks over the
 threshold means sixteen regressions.
@@ -345,7 +375,7 @@ flagged, check whether the generated code changed before believing it.
 
 ---
 
-## 19. A test lane that produces no output is running slowly
+## 20. A test lane that produces no output is running slowly
 
 **Assumed.** The emulated arm64 lane sitting silent for half an hour is qemu
 being qemu. The Makefile even says to allow that long.
@@ -365,7 +395,7 @@ in `make verify` and its findings do not depend on GOARCH.
 
 ---
 
-## 20. "No space left on device" means the disk is full
+## 21. "No space left on device" means the disk is full
 
 **Assumed.** `ENOSPC` means bytes.
 

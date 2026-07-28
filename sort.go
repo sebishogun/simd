@@ -3,6 +3,8 @@ package simd
 import (
 	"cmp"
 	"slices"
+
+	"github.com/sebishogun/simd/internal/ref"
 )
 
 // Sorting.
@@ -32,7 +34,15 @@ import (
 //	n := simd.PartitionInto(dst, src, 0)
 //	negatives, rest := dst[:n], dst[n:]
 func PartitionInto[T Number](dst, src []T, pivot T) int {
-	return ops[T]().Partition(dst, src, pivot)
+	// The nil check is not belt-and-braces. Partition is one of the slots that
+	// only exists where a hardware compress does, so on most architectures the
+	// backend leaves it unset and the portable implementation has to stand in.
+	// Calling through it unguarded panicked on s390x — see the note in
+	// CompressInto, which is the same arrangement.
+	if f := ops[T]().Partition; f != nil {
+		return f(dst, src, pivot)
+	}
+	return ref.Partition(dst, src, pivot)
 }
 
 // sortCutoff is where the quicksort stops recursing and hands the range to the
