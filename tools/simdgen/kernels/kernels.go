@@ -1184,6 +1184,34 @@ func Nary() []spec.Kernel {
 	return ks
 }
 
+// Sort is the partition step of a quicksort. The recursion and the pivot
+// choice live in Go; only this vectorizes, and only where compress exists.
+func Sort() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range elems {
+		switch e.group {
+		case "F32", "F64", "I32", "I64":
+		default:
+			continue
+		}
+		ks = append(ks, spec.Kernel{
+			CName: "simd_partition_" + e.c, GoName: "partition" + e.goName,
+			Group: e.group, Field: "Partition", RefFunc: "Partition",
+			Params: []spec.Param{sl("dst", e.slice), sl("src", e.slice),
+				sl("pivot", e.scalar)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("dst"), base("src"), val("pivot"),
+				lenOf("src")},
+			RefWhen: "len(dst) < len(src)",
+			// The partition is the inner loop of a quicksort and is only
+			// reached on ranges big enough to still be recursing.
+			Threshold: 64,
+			SkipOn:    noCompress,
+		})
+	}
+	return ks
+}
+
 // noCompress is every target with no hardware compress instruction, which is
 // all of them but two.
 //
@@ -1276,6 +1304,7 @@ var All = []Source{
 	{Path: "csrc/compress.c", Kernels: Compress()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},
+	{Path: "csrc/sort.c", Kernels: Sort()},
 	{Path: "csrc/arith.c", Kernels: Arith()},
 	{Path: "csrc/reduce.c", Kernels: Reduce()},
 	{Path: "csrc/compare.c", Kernels: Compare()},

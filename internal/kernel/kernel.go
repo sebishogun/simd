@@ -201,6 +201,13 @@ type Ops[T any] struct {
 	// have produced anyway.
 	Compress func(dst, src []T, keep []bool) int
 
+	// Partition splits src about a pivot into dst: everything strictly below
+	// the pivot first, everything else after, returning how many went first.
+	// Both sides keep their relative order.
+	//
+	// Nil wherever Compress is nil, and for the same reason.
+	Partition func(dst, src []T, pivot T) int
+
 	// Signal and polynomial kernels. These are their own kernels rather than
 	// compositions because composing them would cost one pass over memory per
 	// coefficient or per tap, which is exactly the memory-bound trap a

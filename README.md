@@ -69,6 +69,9 @@ called. Every one of these has a runnable example in
 | …without destroying the input | the same name with `Into` |
 | do `y += a*x` in one pass (axpy) | `AddScaled` |
 | **sum or multiply many slices at once** | `AddAll` `MulAll` — one pass, not one per slice |
+| sort a slice | `Sort` `SortInto` (allocation-free) |
+| **sort one slice by another's values** | `Argsort` + `GatherInto` |
+| split a slice about a threshold | `PartitionInto` — stable on both sides |
 | total / average / spread of a slice | `Sum` `Mean` `StdDev` `Variance` |
 | length of a vector, distance between two | `Norm` `Distance` `CosineSimilarity` |
 | make a vector unit length | `Normalize` |
@@ -145,6 +148,9 @@ memory, with the element type enforced by the compiler ·
 **Compression** `CompressInto` `ExpandInto` `FilterInto` — a comparison writes
 the mask, `CompressInto` packs it, so one function serves every predicate
 
+**Sorting** `Sort` `SortInto` `Argsort` `PartitionInto` `SortedIndex` — a
+quicksort around a compress-based partition, 19–27% faster than `slices.Sort`
+above ~16K elements ·
 **Linear algebra** `MatMulInto` (register-blocked microkernel) `GemvInto`
 `AddScaled` `Dot` `Norm` — `Gemv` is bit-identical to `Dot` per row
 
@@ -333,7 +339,7 @@ make codegen       # regenerate every backend (needs clang)
 ## Where the obvious answer was wrong
 
 **[`docs/wrong.md`](docs/wrong.md)** is the part of this project most worth
-borrowing: nineteen things a competent person would have assumed, that were
+borrowing: twenty things a competent person would have assumed, that were
 false, and what each one cost. Among them —
 
 - A register can be reserved by *value* rather than by name, which makes it
@@ -345,6 +351,7 @@ false, and what each one cost. Among them —
 - Four loops that were slower *after* being vectorized, one of them by 1700×.
 - `--mattr=+sve2` removing NEON rather than adding SVE2.
 - Go's own SIMD intrinsics being 4.4× *slower* than the generated assembly.
+- A closure comparator costing a sort 2.5×, and the wrong fix making it worse.
 - A test lane that was hung, not slow — thirty-two minutes at 0.1% CPU.
 - `ENOSPC` with 40 GB free.
 

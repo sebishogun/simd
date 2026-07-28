@@ -206,7 +206,33 @@ require, on amd64 only, for two nanoseconds. See ROADMAP.md.
 
 ---
 
-## 11. The standard library is the more accurate side
+## 11. A comparator is a detail, not a cost
+
+**Assumed.** Expressing "NaN sorts last" with `slices.SortFunc` and a small
+comparison function is equivalent to `slices.Sort`, give or take.
+
+**Actually.** It made sorting 1024 float64 take **17.5µs against pdqsort's
+6.9µs**. A closure comparator is called once per comparison and cannot be
+inlined; `slices.Sort` inlines a bare `<`.
+
+**How it surfaced, and the part worth keeping.** The 2.5x was attributed to the
+vectorized partition the sort was built around — the new, complicated,
+suspicious thing — and "fixed" by raising the cutoff so the partition ran less
+often. That made every size slower, some by 24%, because it removed the levels
+that were doing useful work. The wrong cause produced a fix that made things
+worse, which is the only reason the real cause got looked for.
+
+The tell was available from the start and was ignored: 17.5µs to sort 1024
+float64 is too slow for *any* correct algorithm. That number indicts the
+constant factor, not the strategy.
+
+**Fix.** `slices.Sort`, then rotate the leading NaN block to the end — one pass,
+and only when a NaN is present at all. With the comparator gone the same sort
+beats pdqsort by 19-27% at every large size.
+
+---
+
+## 12. The standard library is the more accurate side
 
 **Assumed.** Where a kernel and Go's `math` disagree, the kernel is wrong.
 
@@ -217,7 +243,7 @@ theory.
 
 ---
 
-## 12. `-0.0 < 0.0`
+## 13. `-0.0 < 0.0`
 
 **Assumed.** A sign test can be written as a comparison against zero.
 
@@ -228,7 +254,7 @@ theory.
 
 ---
 
-## 13. Skipping a zero multiply is a free optimization
+## 14. Skipping a zero multiply is a free optimization
 
 **Assumed.** `if (s == 0) continue` in a matrix multiply changes nothing but
 speed.
@@ -244,7 +270,7 @@ test in both the tiled path and the edges.
 
 ---
 
-## 14. A rewrite that produces correct instructions is a correct rewrite
+## 15. A rewrite that produces correct instructions is a correct rewrite
 
 **Assumed.** A constant-pool reference can be re-spelled as a Plan 9 mnemonic
 naming a `DATA` symbol, letting Go's linker compute the displacement.
@@ -260,7 +286,7 @@ changes length, so every branch that was correct in the object file still is.
 
 ---
 
-## 15. Vectorizing a loop makes it faster
+## 16. Vectorizing a loop makes it faster
 
 **Assumed.** Any loop turned into vector instructions beats the scalar version.
 
@@ -286,7 +312,7 @@ library because it is genuinely better.
 
 ---
 
-## 16. A disassembler prints register names
+## 17. A disassembler prints register names
 
 **Assumed.** Checking generated code for a forbidden register is a text search
 for its name.
@@ -302,7 +328,7 @@ written in the spelling that target's disassembler actually emits.
 
 ---
 
-## 17. The benchmark said it got slower
+## 18. The benchmark said it got slower
 
 **Assumed.** A regression harness reporting sixteen benchmarks over the
 threshold means sixteen regressions.
@@ -319,7 +345,7 @@ flagged, check whether the generated code changed before believing it.
 
 ---
 
-## 18. A test lane that produces no output is running slowly
+## 19. A test lane that produces no output is running slowly
 
 **Assumed.** The emulated arm64 lane sitting silent for half an hour is qemu
 being qemu. The Makefile even says to allow that long.
@@ -339,7 +365,7 @@ in `make verify` and its findings do not depend on GOARCH.
 
 ---
 
-## 19. "No space left on device" means the disk is full
+## 20. "No space left on device" means the disk is full
 
 **Assumed.** `ENOSPC` means bytes.
 
