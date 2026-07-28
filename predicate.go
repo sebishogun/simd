@@ -134,3 +134,53 @@ func NanMean[T Float](a []T, scratch []T, mask []bool) (T, int) {
 	}
 	return NanSum(a, scratch, mask) / T(k), k
 }
+
+// SignInto writes the sign of each element of a to dst: -1 for a negative, +1
+// for a positive, and zero for either zero.
+//
+// NaN propagates. sign(NaN) is NaN rather than zero, which is the rule the rest
+// of this package keeps and the one numpy chose; the alternative — treating a
+// NaN as unsigned and so as zero — quietly turns missing data into a real
+// value. Both zeros give +0, because zero has no sign to report even when its
+// bit pattern has one.
+//
+// scratch is working space of at least len(a) and mask of at least len(a);
+// short ones are replaced by allocations.
+//
+// # This costs more passes than a kernel would
+//
+// It is four passes over the data — two comparisons and two selects — where a
+// kernel would be one, and it is written this way deliberately: every pass is
+// already accelerated on every architecture, so this works everywhere today
+// with no new C and no new manifest entry. A single-pass kernel would be
+// faster and is worth writing if a measurement ever asks for it. Until then
+// the composition is correct on nine tiers, which the kernel would not be
+// until each one had been verified.
+func SignInto[T Float](dst []T, a []T, scratch []T, mask []bool) {
+	n := min(len(dst), len(a))
+	if n == 0 {
+		return
+	}
+	if len(scratch) < n {
+		scratch = make([]T, n)
+	}
+	if len(mask) < n {
+		mask = make([]bool, n)
+	}
+	dst, a, scratch, mask = dst[:n], a[:n], scratch[:n], mask[:n]
+
+	// Positive lanes take +1 and everything else zero, then negative lanes
+	// take -1. A NaN is neither greater nor less than zero, so it survives
+	// both selects as zero and the last one puts it back.
+	clear(dst)
+	Fill(scratch, 1)
+	GreaterScalarInto(mask, a, 0)
+	SelectInto(dst, mask, scratch, dst)
+
+	Fill(scratch, -1)
+	LessScalarInto(mask, a, 0)
+	SelectInto(dst, mask, scratch, dst)
+
+	IsNaNInto(mask, a)
+	SelectInto(dst, mask, a, dst)
+}

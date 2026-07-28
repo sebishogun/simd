@@ -111,6 +111,38 @@ func TestPredicates(t *testing.T) {
 		}
 	}
 
+	// Sign, including the two decisions that had to be made rather than
+	// inherited: NaN propagates, and both zeros give +0.
+	for _, n := range []int{0, 1, 5, 64, 257, 1000} {
+		a := make([]float64, n)
+		for i := range a {
+			a[i] = odd[i%len(odd)]
+		}
+		dst := make([]float64, n)
+		simd.SignInto(dst, a, make([]float64, n), make([]bool, n))
+		for i, v := range a {
+			switch {
+			case math.IsNaN(v):
+				if !math.IsNaN(dst[i]) {
+					t.Fatalf("Sign n=%d [%d] of NaN = %v, want NaN", n, i, dst[i])
+				}
+			case v > 0:
+				if dst[i] != 1 {
+					t.Fatalf("Sign n=%d [%d] of %v = %v, want 1", n, i, v, dst[i])
+				}
+			case v < 0:
+				if dst[i] != -1 {
+					t.Fatalf("Sign n=%d [%d] of %v = %v, want -1", n, i, v, dst[i])
+				}
+			default: // both zeros
+				if dst[i] != 0 || math.Signbit(dst[i]) {
+					t.Fatalf("Sign n=%d [%d] of %v = %v (signbit %v), want +0",
+						n, i, v, dst[i], math.Signbit(dst[i]))
+				}
+			}
+		}
+	}
+
 	// A short scratch must cost an allocation, not correctness.
 	if got := simd.CountNaN([]float64{math.NaN(), 1}, nil); got != 1 {
 		t.Errorf("CountNaN with nil scratch = %d, want 1", got)
