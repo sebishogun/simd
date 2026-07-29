@@ -1075,3 +1075,53 @@ patched and partially believed. The transferable rule joins entries 28 and
 31: before believing a discriminator, make it fail on purpose in both
 directions — a harness that cannot distinguish "kernel crashed" from "harness
 crashed" discriminates nothing.
+
+## 39. Only kernels need the FMA fusion barrier
+
+**Wrong.** The *reference* needs it too, and the reference is where it was
+missing.
+
+`matMul`'s inner line is `row[j] += T(s * br[j])`, and that conversion is not
+decoration: Go permits `x*y + z` to become a fused multiply-add, which keeps
+the product at full precision and yields a **different, more accurate** answer
+than the multiply-then-add a kernel performs. The conversion forces the
+rounding the kernel does.
+
+The new packed reference `matMulPk` was written as `dst[...] += s * bp[...]`.
+It passed every amd64 tier — the Go compiler did not fuse there — and failed
+on ppc64le at one ULP, `-3.0407238` against `-3.0407236`, in float32 where a
+single lost rounding is visible. Both paths were running the *reference* on
+that target, so this was reference-versus-reference: two functions that are
+supposed to compute identical values, one of which the compiler was allowed to
+improve.
+
+The trap is that the bug is invisible on the development machine by
+construction. Fusion is a per-architecture compiler choice, so a missing
+barrier is a latent disagreement that only appears on the targets that have
+FMA and only for types where one rounding shows.
+
+**Fix**: the conversion, plus a comment at the line saying why it is there —
+`matMul` had the barrier but not the explanation, which is how the copy lost
+it.
+
+## 40. The counter learned its lesson
+
+**Wrong**, twice, in the same night.
+
+Entry 38 recorded a crash counter that filed a guest panic as a kernel crash,
+and the fix was to classify outcomes rather than count non-successes. The
+replacement counter classified three ways — PASS, signal, unclassified — and
+was used to conclude that a rebuilt ppc64le tree "crashed 12 of 12", a
+deterministic new failure that looked alarming beside the intermittent one
+under investigation.
+
+It was the GEMM test failing. `go test` prints `FAIL`, not `PASS`, and the
+signal branch did not match, so twelve ordinary test failures landed in the
+bucket labelled *crash* — the same conflation as entry 38, in a counter
+written specifically to avoid it, because the third bucket was named
+"unclassified" and quietly believed to be empty rather than being *printed*.
+
+**Fix**: the classifier must have no default bucket. Every outcome is named —
+PASS, FAIL, signal — and anything unmatched is printed in full, not tallied.
+A counter that can absorb an outcome it does not understand will absorb the
+one that matters.

@@ -418,7 +418,14 @@ func matMulPk[T number](dst, a, bp []T, m, k, n int) {
 			s := a[i*k+p]
 			for j := range n {
 				t := j / W
-				dst[i*n+j] += s * bp[t*k*W+p*W+(j-t*W)]
+				// The T(...) is a fusion barrier and is load-bearing. Go
+				// permits x*y+z to become an FMA, which keeps the product at
+				// full precision and gives a DIFFERENT, more accurate answer
+				// than the kernel's multiply-then-add. matMul carries the
+				// same conversion for the same reason; omitting it here made
+				// the packed float32 path disagree by one ULP on ppc64le,
+				// where the Go compiler fuses, while amd64 passed.
+				dst[i*n+j] += T(s * bp[t*k*W+p*W+(j-t*W)])
 			}
 		}
 	}
