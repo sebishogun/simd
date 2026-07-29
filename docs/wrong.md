@@ -1045,3 +1045,33 @@ per-family thermal anchor. Until then, the protocol stands — a flagged row is
 re-measured alone before it is believed — and it caught this exactly as
 designed. What must NOT happen is bench-update after a long hot run being
 treated as truth for short benchmarks.
+
+## 38. A crash counter counts crashes
+
+**Wrong** — it counts *non-successes*, and the difference voided an evening's
+"decisive" result.
+
+To isolate which ppc64le kernel dies under signal load, a hammer program ran
+one operation per invocation, and a batch loop counted every run whose last
+line was not `OK` as a crash. All three suspects "crashed 6/6, alone". Strong,
+clean, wrong: after an unrelated edit, the same binary "crashed" with
+preemption off, with signals off, in every configuration — because the guest
+was panicking on `os.Args[1]` before touching a kernel. The argument had
+stopped surviving the qemu invocation, the panic's last line was not `OK`, and
+the counter filed it under crash. Whether the *original* 6/6 rounds measured
+kernels or argv is unrecoverable — which is the point: **every hammer-derived
+conclusion had to be discarded**, including the ones that might have been
+true.
+
+The results that survive are the ones from the untainted harness — the real
+fuzz binary, whose flags demonstrably worked because `-test.run` and
+`-test.count` visibly did their jobs, and whose crashes left cores with the
+right symptoms in them.
+
+**Fix**: the counter now distinguishes outcomes only where the success token
+is printed by code that runs *after* the operation under test, and any
+experiment series whose harness is found lying is discarded whole, not
+patched and partially believed. The transferable rule joins entries 28 and
+31: before believing a discriminator, make it fail on purpose in both
+directions — a harness that cannot distinguish "kernel crashed" from "harness
+crashed" discriminates nothing.
