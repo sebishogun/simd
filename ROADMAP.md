@@ -213,18 +213,28 @@ otherwise force a breaking change or a correction later:
    its declaration as permanently portable with the reason. Three qualify today
    — `EMA`, `CumSum` and `CumProd`, all serial through their own output — and
    that list should only shrink by explanation, never by omission.
-2. **The frame-write and stack-budget checks running on every architecture.**
-   They currently cover one of six and measure zero on four, so ABI
-   verification has been reporting green without looking. Until that is fixed,
-   no claim about correctness on arm64, riscv64, s390x or loong64 is backed by
-   anything. This is the single largest blocker.
-3. **The two unexplained corruptions explained** — `countAnyVSX` on ppc64le and
-   the compress family on riscv64. A library that ships one kernel it knows
-   destroys memory and cannot say why does not get a 1.
-4. **A threshold meta-test**, so no operation can be added whose accelerated
-   path is never exercised. Two were found that way already.
-5. **Verified on real hardware**, not only under emulation, for at least arm64
-   and riscv64.
+   *Nearly there:* the riscv64 transcendental gap is closed as upstream (an
+   LLVM cost-model entry for `llvm.is.fpclass`; five source spellings ruled
+   out, entry 35 of docs/wrong.md) and re-opens itself when the LLVM version
+   changes.
+2. ~~The frame-write and stack-budget checks running on every architecture.~~
+   **Done.** The root cause was the disassembly parser deleting every arm64
+   immediate; with that fixed the checks run on all six architectures, keep
+   all 740 arm64 slots with zero false positives, and immediately found ten
+   riscv64 kernels shipping over budget.
+3. **The two corruptions explained** — the riscv64 compress family is done: a
+   stack overflow, 640–2032 bytes against the 512-byte NOSPLIT budget, fixed
+   by per-target lane counts and back in service. `countAnyVSX` on ppc64le
+   remains open; with the budget check now working there, re-bisecting it is
+   the next step.
+4. ~~A threshold meta-test.~~ **Done**, and it found four more uncovered
+   kernels on its first run, which now have tests.
+5. **Verified on real hardware** — for *performance only*. The correctness
+   half is done under emulation, including `make test-gates`, which runs the
+   suite on a CPU that lacks the vector extension — the one configuration
+   `-cpu max` can never produce. What still needs metal is throughput: every
+   GB/s figure in this repo is amd64-only, and either the numbers get
+   measured or every figure gets marked amd64-only before the tag.
 
 Anything not on that list — FFT, the DSP set, checksums, the rest of the C99
 math tail — is a feature and ships in a minor release. Features do not gate a

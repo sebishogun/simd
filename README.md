@@ -89,6 +89,18 @@ called. Every one of these has a runnable example in
 | trim, fold case, validate UTF-8 | `TrimAny` `TrimSpaceASCII` `EqualFoldASCII` `ValidUTF8` |
 | hex or base64 | `HexEncode` `Base64Encode` `Base64Decode` |
 | convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |
+| median / percentile without sorting | `Median` `Quantile`, `MedianInto` for zero-alloc |
+| the k largest or smallest | `TopK` `BottomK` — selects, does not sort |
+| histogram / count occurrences | `Histogram` `Bincount` |
+| find the NaNs, sum around them | `IsNaNInto` `CountNaN` `NanSum` `NanMean` |
+| shifts, rotates, popcount per element | `Shl` `Rotl` `OnesCount` `LeadingZeros` `ByteSwapInto` |
+| a Fourier transform | `FFTInto` with a reusable plan; `RFFT` for real input |
+| envelope / analytic signal | `HilbertInto`, then `AbsComplexInto` |
+| window a signal | `Hann` `Hamming` `Blackman`, then `ApplyWindowInto` |
+| convolve or correlate | `ConvolveFullInto` — picks direct or FFT by a measured crossover |
+| interpolate a table | `InterpInto` — numpy's interp, clamping |
+| transpose a matrix | `TransposeInto` — blocked, 3.6× the naive loop |
+| parse a CSV of integers | `IndexAll` + `ParseInts` — 5× strconv |
 
 ## Status
 

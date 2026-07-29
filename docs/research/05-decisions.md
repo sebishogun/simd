@@ -3,6 +3,17 @@
 *Each row states the decision, the reason, and what would make us revisit it. Evidence lives in
 the sibling documents.*
 
+> **Status note.** These documents are the research as it stood before the first
+> kernel was generated, kept as the record of why the architecture is what it
+> is. Where reality has since diverged, the divergence is recorded here rather
+> than by rewriting history — and the running account of what turned out to be
+> wrong lives in [docs/wrong.md](../wrong.md), which is the more instructive
+> read. The two largest divergences so far: the ppc64le TOC problem rated
+> "medium risk, acceptable to ship scalar-only" below was solved outright
+> (281→468 kernels, v0.2.0); and the verification machinery this plan specified
+> was built but silently covered one architecture of six for its first weeks —
+> entries 26–33 of wrong.md are the story of noticing.
+
 ## The decisions
 
 ### D1 — Assembly-first, no `GOEXPERIMENT` dependency

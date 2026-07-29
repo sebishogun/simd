@@ -2,12 +2,68 @@
 
 ## Unreleased
 
+### New operations
+
+- **FFT.** Radix-2 Cooley-Tukey with a reusable plan, plus a real-input
+  transform and the Hilbert transform built on it. 6.20µs at n=1024 against
+  15.2ms for the naive DFT. `RFFT` returns the n/2+1 non-redundant bins and is
+  54% faster than transforming as complex at 65536.
+- **DSP.** Hann, HannPeriodic, Hamming, Blackman, Bartlett windows; full-mode
+  convolution and correlation with a **measured** direct/FFT crossover at
+  ~1234 taps, twenty times the 64 that folklore quotes.
+- **Shifts, rotates and bit manipulation.** `Shl`, `Shr`, `Rotl`, `Rotr`,
+  `OnesCount`, `LeadingZeros`, `TrailingZeros`, `ReverseBits`, `ByteSwap` for
+  all eight integer types, following Go's semantics rather than C's undefined
+  behaviour at and above the element width.
+- **`ParseInts`**, five times `strconv.ParseInt` on delimited integers.
+- **Predicates.** `IsNaN`, `IsInf`, `IsFinite`, `Sign`, `CountNaN`, `AnyNaN`,
+  `NanSum`, `NanMean` — all composed from existing kernels, 1.3× to 12× ahead
+  of the loop they replace.
+- **Selection and shaping.** `TopK`, `BottomK`, `Interp`, and a blocked
+  `Transpose` at 3.6× the naive loop.
+- **Statistics.** `Histogram` and `Bincount`.
+- **Transcendentals.** `Asinh`, `Acosh`, `Atanh` at ~2 ULP, and `Erf` at
+  1.4e-7 absolute. `Erfc` deliberately has no kernel: the same approximation is
+  1.2e-2 *relative* at x=6, which is the only regime anyone uses erfc for.
+
+### riscv64: 19 kernels recovered, and a two-session mystery closed
+
+`CompressInto`, `IndexAll` and `PartitionInto` now work on riscv64 — and
+through `PartitionInto`, so do `Sort`, `Median` and `Quantile`. Coverage goes
+from 698 to 717 slots.
+
+The compress family had been excluded since the architecture was added, first
+for a reason that was false (that RVV has no compress instruction; it has
+`vcompress.vm`) and then for memory corruption nobody could explain. It was a
+stack overflow: every kernel in the family spilled 640 to 2032 bytes against
+the 512-byte budget a NOSPLIT function has.
+
+The reason it took so long is the more useful part. The check that names this
+had been dead on riscv64 the whole time, because `stackAdjust` had no case for
+the architecture and measured every frame as zero. Underneath *that*, the
+disassembly parser was deleting every arm64 immediate by cutting operands at
+the first `#` — which on arm64 is the immediate prefix. Fixing the parser made
+the checks work, which explained the corruption, which pointed at the per-type
+lane counts that fixed it.
+
+The same check immediately found ten more kernels — `ArgMin`, `ArgMax`,
+`MinMax` on riscv64 — that were shipping over budget.
+
+### Verification
+
+- The frame-write and stack-budget checks now run on **every** architecture.
+  They previously covered one of six.
+- **`make test-gates`** runs the suite on a CPU that *lacks* the vector
+  extension. Every other lane runs `-cpu max`, which is the one configuration
+  where a mis-gated kernel cannot fail.
+- **A threshold meta-test** fails when an operation dispatches above the
+  suite's default input length without a test covering it. It found four text
+  kernels being exercised only by benchmarks.
+
 ### Versioning
 
 The release plan is now written down in ROADMAP.md rather than assumed. `v1.0.0`
-is gated on five things, of which the largest is that the frame-write and
-stack-budget checks currently run on one architecture of six — features are not
-on the list. `v2.0.0` is reserved for when Go's intrinsics leave
+is gated on five things. `v2.0.0` is reserved for when Go's intrinsics leave
 `GOEXPERIMENT=simd` and the tier measurements get re-run against them.
 
 ### Complex reductions

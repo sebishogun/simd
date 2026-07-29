@@ -18,6 +18,7 @@ name: ci
 #   make verify        # + purego and every tier this CPU can run
 #   make test-cross    # arm64, s390x, ppc64le under docker + qemu
 #   make test-riscv64  # and test-loong64
+#   make test-gates    # a CPU that LACKS the vector extension — the mis-gate case
 #   make bench-check   # against the stored baseline
 #   make fuzz
 
