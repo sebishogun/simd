@@ -978,3 +978,70 @@ The transferable part: when a compiler normalises many forms to one, the number
 of remaining forms to try is zero, and the effort is better spent confirming
 that than continuing. Five is more than enough evidence; the second or third
 should have prompted asking whether the canonicalisation was the point.
+
+## 36. The ppc64le corruption was countAnyVSX
+
+**Wrong**, and the disproof took one control run that the original
+fourteen-run bisection never had.
+
+Replaying the FuzzDifferential seed corpus under qemu-ppc64le crashes the
+process — SIGURG, then SIGSEGV inside `runtime.sigtrampgo` dereferencing a
+garbage g. With countAnyVSX skipped, the first replay batch passed; enabled,
+the first batch crashed. One variable, clean flip, case closed — until the
+batches were repeated. Enabled crashed 2 of 7. **Skipped crashed 3 of 7.** The
+"clean flip" was two coin tosses, and the historic bisection that condemned
+countAnyVSX was fourteen tosses read as a proof.
+
+What the controls then established, six batches each:
+
+	kernels registered, preemption on      crashes (~30-40% of batches)
+	GOSIMD=scalar (never executed)         6/6 PASS
+	GODEBUG=asyncpreemptoff=1              6/6 PASS
+
+So the crash needs a generated kernel *executing* when Go's preemption signal
+lands, and the suspect set is exactly the three kernels this fuzz reaches on
+ppc64le: addFloat64VSX, minMaxFloat64VSX, validUTF8VSX. Their disassembly
+shows no r30 use, no nonzero r0, no pool/R2 repointing — the three invariants
+checked so far — which is where the trail currently ends: a three-way
+registration bisection is the next step, not a theory.
+
+Found in passing and real regardless: **eleven ppc64le kernels write a nonzero
+value to r0 mid-body** — b64Decode, b64Encode, hexDecode, countAny, the three
+complex64 reductions, l1diff/sumsqdiff f64, mul3 i8/u8 — relying on the
+generator's epilogue `li r0, 0` to restore the ABI's r0-is-zero before
+returning. Between first write and epilogue, a signal sees r0 ≠ 0 in an ABI
+where Go's compiler and runtime treat r0 as constant zero. None of the eleven
+is called by the crashing fuzz, so this is not tonight's crash — it is a
+second latent class of the same shape, and it needs a verifier rule: GoOwned
+catches registers by *name*; nothing yet checks a register owned by *value*.
+
+The transferable parts: a bisection over a probabilistic failure needs
+repeated trials per step, or it converges confidently on an innocent; and
+`GOSIMD=scalar` / `asyncpreemptoff` cost two minutes and partitioned the
+space better than three hypotheses had — controls first, theories second.
+
+## 37. One long benchmark run gives one machine state
+
+**Wrong** — it gives a gradient.
+
+The regenerated baseline was recorded in a single 85-minute pinned run, and
+the validation pass flagged nineteen regressions. The Median rows re-measured
+on a quiet machine sat within ±2% of baseline: those flags were contamination
+from qemu work sharing the package (a trade knowingly made). But the ParseInts
+rows re-measured **30-50% faster than the baseline** — both the simd and the
+strconv side. The baseline itself is slow there.
+
+The benchmark files run alphabetically, so an 85-minute sustained run records
+the early families on a cold package at full boost and the late families —
+parse, sort, text — heat-soaked. Short, core-bound benchmarks late in the
+alphabet carry a machine-state floor of tens of percent, which no 25%
+threshold and no minimum-estimator can see through, because it is not noise
+around a value: it is a different value.
+
+**Fix**: not attempted tonight. The gate needs one of: interleaved
+baseline/candidate measurement of the same benchmark back-to-back; an
+auto-triage pass that re-runs only flagged rows alone and compares those; or a
+per-family thermal anchor. Until then, the protocol stands — a flagged row is
+re-measured alone before it is believed — and it caught this exactly as
+designed. What must NOT happen is bench-update after a long hot run being
+treated as truth for short benchmarks.
