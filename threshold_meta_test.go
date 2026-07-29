@@ -46,15 +46,13 @@ var coveredAboveThreshold = map[string]string{
 	"countByte":  "not accelerated by design; threshold is `never`",
 	"equalBytes": "not accelerated by design; threshold is `never`",
 
-	// UNCOVERED, and honestly recorded as such rather than silently allowed.
-	// Each has a real accelerated path above the length any test reaches, so
-	// the kernel is currently exercised only by benchmarks. Fixing this means
-	// adding a differential test at a length above the threshold, in the same
-	// shape as TestCompressAboveThreshold.
-	"index":        "UNCOVERED at 256 — text tests reach only 1000 for a few cases",
-	"countSeq":     "UNCOVERED at 256",
-	"indexByte":    "UNCOVERED at 1024",
-	"compareBytes": "UNCOVERED at 2048",
+	// Found uncovered by this test on its first run, and now covered. All four
+	// dispatch above any length the rest of the suite reaches, so every other
+	// test of them was exercising the reference.
+	"index":        "TestTextAboveThreshold, needles present and absent, n to 20000",
+	"countSeq":     "TestTextAboveThreshold",
+	"indexByte":    "TestTextAboveThreshold, every present byte value plus an absent one",
+	"compareBytes": "TestTextAboveThreshold, differing at start, middle, end, and not at all",
 	"transpose":    "TestTranspose, dimensions to 200x7 and 128x128",
 }
 
