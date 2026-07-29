@@ -132,6 +132,44 @@ test-riscv64:
 	@$(MAKE) --no-print-directory qemu-run \
 		ARCH=riscv64 QEMU=$(QEMU_RISCV) CPU=rv64,v=true,vlen=256,zba=true,zbb=true
 
+# test-gates runs the same binaries on a CPU that LACKS the vector extension.
+#
+# This is the half of hardware verification that does not need hardware, and it
+# is the half that catches the bug this library was designed against. Every
+# other emulated lane runs a CPU with everything switched on, so a kernel that
+# is gated on a feature it does not actually require, or worse gated on one
+# feature and built from another, is selected and runs fine. The failure only
+# appears on a machine that is missing the feature — as SIGILL, at the first
+# call, in production.
+#
+# So: no v extension on riscv64. The dispatcher must fall back to the portable
+# path and the whole suite must still pass. -require-accelerated is deliberately
+# NOT passed here; selecting a scalar tier is the correct outcome and asserting
+# otherwise would invert the test.
+.PHONY: test-gates
+test-gates:
+	@echo "--- riscv64 with no V extension: must fall back and still pass"
+	@$(MAKE) --no-print-directory qemu-run-plain \
+		ARCH=riscv64 QEMU=$(QEMU_RISCV) CPU=rv64
+
+# qemu-run-plain is qemu-run without the accelerated-tier assertion, for the
+# gate lanes where the portable path is the expected answer.
+.PHONY: qemu-run-plain
+qemu-run-plain:
+	@command -v $(QEMU) >/dev/null || { echo "$(QEMU) not found"; exit 1; }
+	@bin=$$(mktemp); \
+	GOARCH=$(ARCH) GOOS=linux $(GO) build -o $$bin ./cmd/simdinfo || exit 1; \
+	printf "%-9s tier: " $(ARCH); \
+	QEMU_CPU=$(CPU) $(QEMU) $$bin || exit 1; \
+	rm -f $$bin
+	@for p in $(QEMU_PKGS); do \
+		bin=$$(mktemp); \
+		GOARCH=$(ARCH) GOOS=linux $(GO) test -c -o $$bin $$p || exit 1; \
+		printf "%-9s %-28s " $(ARCH) $$p; \
+		QEMU_CPU=$(CPU) $(QEMU) $$bin -test.short | tail -1 || exit 1; \
+		rm -f $$bin; \
+	done
+
 # qemu-run is the shared body. It asserts an accelerated tier was selected
 # before it trusts a single PASS.
 .PHONY: qemu-run
