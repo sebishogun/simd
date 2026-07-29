@@ -661,3 +661,42 @@ The transferable part: a crash in the garbage collector tells you when the
 damage was *noticed*, never where it was *done*. Reading it as a location cost
 two wrong hypotheses here — one of which produced a plausible, committed,
 entirely irrelevant patch.
+
+## 28. Regressions that scale coherently with n are real
+
+**Wrong**, and this is the more dangerous half of entry 21, because the
+reasoning that produced it was better than a guess.
+
+`make bench-check` failed with 16 regressions across `AddInt/i16`,
+`MulInt/u8`, `SatSub/u8` and one `AddInt/i32`. A note already existed saying a
+stray `go vet` had once fabricated exactly 16 regressions here, so the run was
+repeated with the machine quiet — but the numbers looked too structured to be
+noise and were argued to be real on that basis:
+
+> The regressions are coherent across four orders of magnitude of n within each
+> type — i16 Add is 48-107% slower at every one of five sizes. Noise does not
+> scale like that; it scatters.
+
+The second run found **five** regressions, all `MinimumInt/u16`, and **not one
+of the original sixteen**. Zero overlap. Both sets are noise.
+
+The argument failed because of how the benchmarks are ordered. All the sizes
+for one type and operation run consecutively, so a single transient — a
+frequency drop, a migration, a noisy neighbour — spans the whole group and
+regresses n=16 through n=65536 together. The coherence that was read as
+evidence of a real defect **is the signature of a transient**, not evidence
+against one.
+
+The real fault is in the check. These bodies run at 6 to 15 ns/op, where
+`-count 6` and a flat 25% threshold cannot separate signal from scheduling, so
+every run produces a fresh set of plausible-looking regressions.
+
+**Fix**: not the kernels — nothing was wrong with them. The threshold has to
+scale with the measurement: more counts, or a wider band below some ns/op, or
+comparing distributions rather than two numbers. Until then a `bench-check`
+failure means "run it again", which is a check that cannot be trusted to gate
+anything.
+
+The transferable part: structure in noise is not evidence of signal when the
+sampling has structure too. Ask what the measurement order was before believing
+a pattern that follows it.
