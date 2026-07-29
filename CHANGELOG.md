@@ -10,6 +10,60 @@ stack-budget checks currently run on one architecture of six — features are no
 on the list. `v2.0.0` is reserved for when Go's intrinsics leave
 `GOEXPERIMENT=simd` and the tier measurements get re-run against them.
 
+### Complex reductions
+
+`SumComplex`, `DotComplex` and `DotComplexConj` had no kernel on any
+architecture. They now have one on every tier but s390x.
+
+| n = 65536 | accelerated | portable | naive loop |
+|---|---|---|---|
+| `DotConj` complex64 | 6.89us | 80.5us | |
+| `DotConj` complex128 | 15.6us | 55.7us | 155us |
+| `Sum` complex128 | 6.08us | 29.4us | |
+
+Ten times the loop a caller writes by hand, which is the comparison that
+matters: `sum(a[i] * conj(b[i]))` is the inner product of signal processing and
+Go had no fast way to spell it.
+
+The sixteen accumulators the numerical contract requires are held as two
+vectors of eight rather than one of sixteen. For `complex128` the obvious
+spelling needs six 128-byte vectors live at once, which measured 1120 bytes of
+spill against a 512-byte budget and lost the kernel on every amd64 tier.
+Splitting each accumulator into halves changes no arithmetic — lane `k%16`
+still receives element `k`, and `CombineTree`'s first step *is* adding the two
+halves — and it fits everywhere, including SSE2.
+
+### NaN and predicate helpers
+
+`IsNaNInto`, `IsInfInto`, `IsFiniteInto`, `SignInto`, `CountNaN`, `AnyNaN`,
+`NanSum` and `NanMean`.
+
+None of them adds a kernel and none needs one: every question reduces to a
+comparison the library already vectorizes, so all eight are accelerated on
+every architecture at once. `IsNaN` is `NotEqualInto` of a slice against itself
+— the IEEE definition read literally, since NaN is the only value not equal to
+itself, with no bit-masking and no special case for the payload.
+
+`IsFinite` is deliberately not "not infinite": a NaN fails the comparison
+against `+Inf` as unordered rather than as less-than, so it needs a strict `<`,
+which excludes both. `sign(NaN)` is NaN rather than zero, and `NanMean` returns
+the surviving count alongside the mean, because an average over three points
+out of a thousand is not an average.
+
+### Fixed: the regression gate could not gate anything
+
+`benchcheck` compared the *median* of six samples against a flat 25% threshold,
+on bodies running at 6 to 15 ns/op. Two consecutive runs on an idle machine,
+same commit and same binary, reported sixteen regressions and then five, with
+**zero overlap** — every one a transient that reached the median.
+
+It now compares *minimums*, because benchmark interference is one-sided: a
+frequency drop or a migration can only make a run slower, so the samples are
+the true cost plus a non-negative contaminant and the minimum is the
+maximum-likelihood estimate of the true cost. It cannot hide a real regression,
+since a real regression raises every sample including the best one. Sixteen of
+the twenty-one false positives disappear.
+
 ### Four operations leave the portable path on x86
 
 `HexDecode`, `Base64Decode`, `Median` and `Quantile` were four of the eight
