@@ -896,3 +896,41 @@ The transferable part is the arithmetic of it. Four entries in this file — 26,
 27, 30 and 32 — were spent on a fault that a working check would have named in
 one line. The cost of a check that silently no-ops is not the bug it misses; it
 is every hour spent explaining that bug by other means.
+
+## 34. A minimal reproduction proves the trigger is elsewhere
+
+**Wrong**, when the thing you removed to minimise it is the thing that caused
+it.
+
+Eighteen riscv64 kernels fail to vectorise because each contains an
+`llvm.is.fpclass` the RVV backend cannot cost. Entry 25 established that much.
+The suspicion was the special-case chain — `x < 0 ? NaN : x == 0 ? -Inf :
+x == Inf ? Inf : x != x ? x : v` — since a positive-infinity test is exactly
+what folds into that intrinsic.
+
+So it was extracted into a standalone probe. The identical four-test chain,
+compiled for the same target with the same flags, produced **zero**
+`is.fpclass` and vectorised to eighteen vector instructions. Reordering it and
+rewriting the infinity test as a magnitude comparison did too. Three
+formulations, none reproducing the fault, and the reasonable conclusion was
+that the trigger lay somewhere else in the inlined body.
+
+It did not. Reading `simd_log_f32` at `-O1` shows one `is.fpclass`, applied
+directly to the loaded value, before anything else happens to it. LLVM hoists
+the infinity guard to the front of the function — because `log2_frac`, which
+the guard protects, produces garbage for an infinite input — and canonicalises
+the hoisted guard into the intrinsic.
+
+The probe removed exactly that. Its polynomial was `x * 0.5f + 1.0f`, which is
+perfectly well-defined at infinity, so there was nothing to hoist and no guard
+to canonicalise. **The minimisation deleted the cause and kept the symptom's
+shape.**
+
+**Fix.** Not yet applied; the mechanism now points at making `log2_frac` total
+so there is nothing to guard, rather than at rewriting the test that guards it.
+
+The transferable part: a reduction that does not reproduce is evidence about
+the reduction, not about the original. Before concluding "the trigger is
+elsewhere", check whether the property you simplified away was load-bearing —
+here it was the *interaction* between the guard and what it guarded, which
+survives in neither half alone.
