@@ -27,13 +27,6 @@ func isASCIIVSXGuarded(b []byte) bool {
 	return isASCIIVSX(b)
 }
 
-func validUTF8VSXGuarded(b []byte) bool {
-	if len(b) < 64 {
-		return ref.ValidUTF8(b)
-	}
-	return validUTF8VSX(b)
-}
-
 func bitAndVSXGuarded(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
@@ -87,27 +80,6 @@ func fillBytesVSXGuarded(dst []byte, v byte) {
 	fillBytesVSX(dst, v)
 }
 
-func b64EncodeVSXGuarded(dst []byte, b []byte) int {
-	if len(dst) < 32 {
-		return ref.B64Encode(dst, b)
-	}
-	return b64EncodeVSX(dst, b)
-}
-
-func b64DecodeVSXGuarded(dst []byte, b []byte) int {
-	if len(dst) < 32 {
-		return ref.B64Decode(dst, b)
-	}
-	return b64DecodeVSX(dst, b)
-}
-
-func hexDecodeVSXGuarded(dst []byte, src []byte) (n int, ok bool) {
-	if len(dst) < 32 {
-		return ref.HexDecode(dst, src)
-	}
-	return hexDecodeVSX(dst, src)
-}
-
 func hexEncodeVSXGuarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
@@ -147,16 +119,12 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
 	s.Bytes.IsASCII = isASCIIVSXGuarded
-	s.Bytes.ValidUTF8 = validUTF8VSXGuarded
 	s.Bytes.And = bitAndVSXGuarded
 	s.Bytes.Or = bitOrVSXGuarded
 	s.Bytes.Xor = bitXorVSXGuarded
 	s.Bytes.AndNot = bitAndNotVSXGuarded
 	s.Bytes.Not = bitNotVSXGuarded
 	s.Bytes.Fill = fillBytesVSXGuarded
-	s.Bytes.B64Encode = b64EncodeVSXGuarded
-	s.Bytes.B64Decode = b64DecodeVSXGuarded
-	s.Bytes.HexDecode = hexDecodeVSXGuarded
 	s.Bytes.HexEncode = hexEncodeVSXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIIVSXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIIVSXGuarded

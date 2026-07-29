@@ -110,29 +110,6 @@ func cscaleComplex64VSXGuarded(dst []complex64, a []complex64, s float32) {
 	cscaleComplex64VSX(dst[:n:n], a, s)
 }
 
-func csumComplex64VSXGuarded(a []complex64) complex64 {
-	if len(a) < 0 {
-		return ref.CSum64(a)
-	}
-	return csumComplex64VSX(a)
-}
-
-func cdotComplex64VSXGuarded(a []complex64, b []complex64) complex64 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.CDot64(a, b)
-	}
-	return cdotComplex64VSX(a[:n:n], b)
-}
-
-func cdotconjComplex64VSXGuarded(a []complex64, b []complex64) complex64 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.CDotConj64(a, b)
-	}
-	return cdotconjComplex64VSX(a[:n:n], b)
-}
-
 func cfromPartsComplex64VSXGuarded(dst []complex64, re []float32, im []float32) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
@@ -269,9 +246,6 @@ func init() {
 	s.C64Parts.Real = crealComplex64VSXGuarded
 	s.C64Parts.Imag = cimagComplex64VSXGuarded
 	s.C64Parts.Scale = cscaleComplex64VSXGuarded
-	s.C64.Sum = csumComplex64VSXGuarded
-	s.C64.Dot = cdotComplex64VSXGuarded
-	s.C64.DotConj = cdotconjComplex64VSXGuarded
 	s.C64Parts.FromParts = cfromPartsComplex64VSXGuarded
 	s.C128.Add = caddComplex128VSXGuarded
 	s.C128.Sub = csubComplex128VSXGuarded

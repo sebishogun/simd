@@ -70,14 +70,6 @@ func sumsqdevFloat64VSXGuarded(a []float64, c float64) float64 {
 	return sumsqdevFloat64VSX(a, c)
 }
 
-func sumsqdiffFloat64VSXGuarded(a []float64, b []float64) float64 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.SumSqDiffFloat(a, b)
-	}
-	return sumsqdiffFloat64VSX(a[:n:n], b)
-}
-
 func minrInt32VSXGuarded(a []int32) int32 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
@@ -407,14 +399,6 @@ func l1normFloat64VSXGuarded(a []float64) float64 {
 	return l1normFloat64VSX(a)
 }
 
-func l1diffFloat64VSXGuarded(a []float64, b []float64) float64 {
-	n := min(len(a), len(b))
-	if n < 0 {
-		return ref.L1DiffFloat(a, b)
-	}
-	return l1diffFloat64VSX(a[:n:n], b)
-}
-
 func sumInt32VSXGuarded(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
@@ -692,7 +676,6 @@ func init() {
 	s.F64.Max = maxrFloat64VSXGuarded
 	s.F64.SumSquares = sumsqFloat64VSXGuarded
 	s.F64.SumSqDev = sumsqdevFloat64VSXGuarded
-	s.F64.SumSqDiff = sumsqdiffFloat64VSXGuarded
 	s.I32.Min = minrInt32VSXGuarded
 	s.I32.Max = maxrInt32VSXGuarded
 	s.I32.SumSquares = sumsqInt32VSXGuarded
@@ -738,7 +721,6 @@ func init() {
 	s.F64.Sum = sumFloat64VSXGuarded
 	s.F64.Dot = dotFloat64VSXGuarded
 	s.F64.L1Norm = l1normFloat64VSXGuarded
-	s.F64.L1Diff = l1diffFloat64VSXGuarded
 	s.I32.Sum = sumInt32VSXGuarded
 	s.I32.Prod = prodInt32VSXGuarded
 	s.I32.Dot = dotInt32VSXGuarded

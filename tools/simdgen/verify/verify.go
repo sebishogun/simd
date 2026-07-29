@@ -200,6 +200,28 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 		}
 	}
 
+	// 2b. Registers owned by VALUE rather than by name.
+	//
+	// GoOwned catches a register the runtime owns outright — r13, r30, $fp.
+	// ppc64le's r0 is a different contract: Go's compiler and runtime treat
+	// it as constant ZERO, and the generator's epilogue restores `li r0, 0`
+	// before returning. A kernel that parks a nonzero value in r0 mid-body is
+	// correct in isolation and wrong under signals: anything that interrupts
+	// the window — preemption, profiling, the collector suspending the thread
+	// — runs runtime code against an ABI whose zero register is not zero.
+	// Eleven kernels were doing exactly this, silently, until a crash
+	// investigation went looking (docs/wrong.md entry 36).
+	if tgt.Arch == target.PPC64LE {
+		if wit, bad := writesR0Nonzero(instrs); bad {
+			r.Unsupported = fmt.Sprintf(
+				"writes a nonzero value to r0 (%s), which Go's ppc64le ABI "+
+					"defines as constant zero; a signal landing before the "+
+					"epilogue restores it runs the runtime with a poisoned "+
+					"zero register",
+				wit)
+		}
+	}
+
 	// 3. Stack growth.
 	//
 	// A kernel that spills more than the budget is unusable on this target,
@@ -410,6 +432,61 @@ func writesOutsideFrame(instrs []Instr, tgt target.Target, frame int) (int, bool
 		}
 	}
 	return 0, false
+}
+
+// r0WriterMnemonics are the instructions whose FIRST operand is a
+// general-purpose destination register, for the r0-by-value check. The list
+// matters because bare "0," is ambiguous in POWER disassembly: `bf 0,` names
+// a condition bit and `lxv 0,` a vector register, and a naive scan flags
+// both. Only mnemonics known to write a GPR destination are consulted.
+var r0WriterMnemonics = map[string]bool{
+	"li": true, "lis": true, "mr": true, "ld": true, "ldu": true,
+	"lwz": true, "lwzu": true, "lbz": true, "lbzu": true, "lhz": true,
+	"lhzu": true, "lha": true, "lwa": true,
+	"add": true, "addi": true, "addis": true, "addic": true, "subf": true,
+	"subfic": true, "neg": true, "mulld": true, "mullw": true, "mulhd": true,
+	"mulhdu": true, "divd": true, "divdu": true, "divw": true, "divwu": true,
+	"xor": true, "xori": true, "xoris": true, "or": true, "ori": true,
+	"oris": true, "and": true, "andi.": true, "andis.": true, "nand": true,
+	"nor": true, "extsw": true, "extsh": true, "extsb": true,
+	"rldicl": true, "rldicr": true, "rldic": true, "rldimi": true,
+	"rlwinm": true, "rlwimi": true, "sldi": true, "srdi": true, "slwi": true,
+	"srwi": true, "sld": true, "srd": true, "slw": true, "srw": true,
+	"srad": true, "sraw": true, "sradi": true, "srawi": true,
+	"cntlzd": true, "cntlzw": true, "cnttzd": true, "cnttzw": true,
+	"popcntd": true, "popcntw": true, "popcntb": true,
+	"setb": true, "isel": true, "mfctr": true, "mflr": true, "mfcr": true,
+}
+
+// writesR0Nonzero reports whether any instruction writes a value other than
+// literal zero into GPR r0.
+func writesR0Nonzero(instrs []Instr) (string, bool) {
+	for _, in := range instrs {
+		if !r0WriterMnemonics[in.Mnemonic] {
+			continue
+		}
+		// The pipeline disassembles ppc64le with -ppc-asm-full-reg-names, so
+		// the destination reads "r0"; the bare "0" form is kept for safety
+		// against a flag change, since missing it would silently disable the
+		// whole rule (docs/wrong.md entry 26).
+		ops := strings.TrimSpace(in.Operands)
+		var rest string
+		switch {
+		case strings.HasPrefix(ops, "r0,"):
+			rest = ops[len("r0,"):]
+		case strings.HasPrefix(ops, "0,"):
+			rest = ops[len("0,"):]
+		case ops == "r0" || ops == "0":
+			rest = ""
+		default:
+			continue
+		}
+		if in.Mnemonic == "li" && strings.TrimSpace(rest) == "0" {
+			continue // the epilogue's restore, and any other explicit zeroing
+		}
+		return in.Mnemonic + " " + ops, true
+	}
+	return "", false
 }
 
 // frameAlloc are the store-and-update instructions that allocate a frame: they

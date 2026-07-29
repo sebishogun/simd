@@ -19,9 +19,6 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 func isASCIIVSX(b []byte) bool
 
 //go:noescape
-func validUTF8VSX(b []byte) bool
-
-//go:noescape
 func bitAndVSX(dst []byte, a []byte, b []byte)
 
 //go:noescape
@@ -38,15 +35,6 @@ func bitNotVSX(dst []byte, b []byte)
 
 //go:noescape
 func fillBytesVSX(dst []byte, v byte)
-
-//go:noescape
-func b64EncodeVSX(dst []byte, b []byte) int
-
-//go:noescape
-func b64DecodeVSX(dst []byte, b []byte) int
-
-//go:noescape
-func hexDecodeVSX(dst []byte, src []byte) (n int, ok bool)
 
 //go:noescape
 func hexEncodeVSX(dst []byte, b []byte) int

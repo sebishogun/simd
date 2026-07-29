@@ -20,39 +20,11 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func argMinFloat32VSXGuarded(a []float32) int {
-	if len(a) < 1 {
-		return ref.ArgMinFloat(a)
-	}
-	return argMinFloat32VSX(a)
-}
-
-func argMaxFloat32VSXGuarded(a []float32) int {
-	if len(a) < 1 {
-		return ref.ArgMaxFloat(a)
-	}
-	return argMaxFloat32VSX(a)
-}
-
 func minMaxFloat32VSXGuarded(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32VSX(a)
-}
-
-func argMinFloat64VSXGuarded(a []float64) int {
-	if len(a) < 1 {
-		return ref.ArgMinFloat(a)
-	}
-	return argMinFloat64VSX(a)
-}
-
-func argMaxFloat64VSXGuarded(a []float64) int {
-	if len(a) < 1 {
-		return ref.ArgMaxFloat(a)
-	}
-	return argMaxFloat64VSX(a)
 }
 
 func minMaxFloat64VSXGuarded(a []float64) (lo float64, hi float64) {
@@ -94,11 +66,7 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
-	s.F32.ArgMin = argMinFloat32VSXGuarded
-	s.F32.ArgMax = argMaxFloat32VSXGuarded
 	s.F32.MinMax = minMaxFloat32VSXGuarded
-	s.F64.ArgMin = argMinFloat64VSXGuarded
-	s.F64.ArgMax = argMaxFloat64VSXGuarded
 	s.F64.MinMax = minMaxFloat64VSXGuarded
 	s.I32.ArgMin = argMinInt32VSXGuarded
 	s.I32.ArgMax = argMaxInt32VSXGuarded

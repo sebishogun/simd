@@ -37,9 +37,6 @@ func sumsqFloat64VSX(a []float64) float64
 func sumsqdevFloat64VSX(a []float64, c float64) float64
 
 //go:noescape
-func sumsqdiffFloat64VSX(a []float64, b []float64) float64
-
-//go:noescape
 func minrInt32VSX(a []int32) int32
 
 //go:noescape
@@ -173,9 +170,6 @@ func dotFloat64VSX(a []float64, b []float64) float64
 
 //go:noescape
 func l1normFloat64VSX(a []float64) float64
-
-//go:noescape
-func l1diffFloat64VSX(a []float64, b []float64) float64
 
 //go:noescape
 func sumInt32VSX(a []int32) int32

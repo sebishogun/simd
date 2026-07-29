@@ -46,15 +46,6 @@ func cimagComplex64VSX(dst []float32, a []complex64)
 func cscaleComplex64VSX(dst []complex64, a []complex64, s float32)
 
 //go:noescape
-func csumComplex64VSX(a []complex64) complex64
-
-//go:noescape
-func cdotComplex64VSX(a []complex64, b []complex64) complex64
-
-//go:noescape
-func cdotconjComplex64VSX(a []complex64, b []complex64) complex64
-
-//go:noescape
 func cfromPartsComplex64VSX(dst []complex64, re []float32, im []float32)
 
 //go:noescape
