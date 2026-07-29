@@ -52,6 +52,38 @@ func gemvFloat64AVX512Guarded(dst []float64, a []float64, x []float64, m int, k 
 	gemvFloat64AVX512(dst, a, x, m, k)
 }
 
+func transposeFloat32AVX512Guarded(dst []float32, a []float32, m int, n int) {
+	if len(dst) < 1024 {
+		ref.Transpose(dst, a, m, n)
+		return
+	}
+	transposeFloat32AVX512(dst, a, m, n)
+}
+
+func transposeFloat64AVX512Guarded(dst []float64, a []float64, m int, n int) {
+	if len(dst) < 1024 {
+		ref.Transpose(dst, a, m, n)
+		return
+	}
+	transposeFloat64AVX512(dst, a, m, n)
+}
+
+func transposeInt32AVX512Guarded(dst []int32, a []int32, m int, n int) {
+	if len(dst) < 1024 {
+		ref.Transpose(dst, a, m, n)
+		return
+	}
+	transposeInt32AVX512(dst, a, m, n)
+}
+
+func transposeInt64AVX512Guarded(dst []int64, a []int64, m int, n int) {
+	if len(dst) < 1024 {
+		ref.Transpose(dst, a, m, n)
+		return
+	}
+	transposeInt64AVX512(dst, a, m, n)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -60,4 +92,8 @@ func init() {
 	s.F32.Gemv = gemvFloat32AVX512Guarded
 	s.F64.MatMul = matMulFloat64AVX512Guarded
 	s.F64.Gemv = gemvFloat64AVX512Guarded
+	s.F32.Transpose = transposeFloat32AVX512Guarded
+	s.F64.Transpose = transposeFloat64AVX512Guarded
+	s.I32.Transpose = transposeInt32AVX512Guarded
+	s.I64.Transpose = transposeInt64AVX512Guarded
 }

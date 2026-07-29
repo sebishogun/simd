@@ -26,3 +26,15 @@ func matMulFloat64RVV(dst []float64, a []float64, b []float64, m int, k int, n i
 
 //go:noescape
 func gemvFloat64RVV(dst []float64, a []float64, x []float64, m int, k int)
+
+//go:noescape
+func transposeFloat32RVV(dst []float32, a []float32, m int, n int)
+
+//go:noescape
+func transposeFloat64RVV(dst []float64, a []float64, m int, n int)
+
+//go:noescape
+func transposeInt32RVV(dst []int32, a []int32, m int, n int)
+
+//go:noescape
+func transposeInt64RVV(dst []int64, a []int64, m int, n int)

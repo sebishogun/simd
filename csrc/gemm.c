@@ -193,3 +193,45 @@ void simd_gemv_f64(double *__restrict d, const double *__restrict a,
                    const double *__restrict x, isize m, isize k) {
   GEMV(double, f64xV)
 }
+
+// ---------- transpose ----------
+//
+// Blocked, because the naive loop is a cache disaster and the block size is
+// the whole optimisation.
+//
+// Written as `d[j*m + i] = a[i*n + j]` the loop reads one row of a
+// contiguously and writes one column of d with a stride of m elements. Every
+// write lands in a different cache line, so a matrix wider than the cache
+// evicts each line before its next element arrives and the transpose runs at
+// one useful byte per line fetched.
+//
+// Walking a square block at a time fixes it: the block is small enough that
+// its rows of a and its columns of d are all resident at once, so each cache
+// line is filled completely before it leaves. 32 is chosen so a block of
+// float64 is 32*32*8 = 8 KiB, which fits L1 alongside the destination block on
+// every target here; for float32 it is half that and there is room to spare.
+//
+// The inner loops are left as scalar element moves rather than shuffles. LLVM
+// vectorises the contiguous read and, where the target has it, uses a gather
+// or an unrolled interleave for the write; hand-written shuffle networks are
+// per-architecture and this is not where the time goes once the blocking is
+// right.
+#define TBLOCK 32
+
+#define TRANSPOSE(T, SUF)                                                \
+  void simd_transpose_##SUF(T *__restrict d, const T *__restrict a,      \
+                            isize m, isize n) {                          \
+    for (isize i0 = 0; i0 < m; i0 += TBLOCK) {                           \
+      isize imax = i0 + TBLOCK < m ? i0 + TBLOCK : m;                    \
+      for (isize j0 = 0; j0 < n; j0 += TBLOCK) {                         \
+        isize jmax = j0 + TBLOCK < n ? j0 + TBLOCK : n;                  \
+        for (isize i = i0; i < imax; i++)                                \
+          for (isize j = j0; j < jmax; j++) d[j * m + i] = a[i * n + j]; \
+      }                                                                  \
+    }                                                                    \
+  }
+
+TRANSPOSE(float, f32)
+TRANSPOSE(double, f64)
+TRANSPOSE(int, i32)
+TRANSPOSE(long long, i64)

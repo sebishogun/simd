@@ -243,6 +243,9 @@ type Ops[T any] struct {
 	// shape as Dot — and by construction, not by coincidence: row i of Gemv is
 	// bit-identical to Dot of row i against x.
 	Gemv func(dst, a, x []T, m, k int)
+
+	// Transpose writes the m*n row-major matrix a as an n*m one into dst.
+	Transpose func(dst, a []T, m, n int)
 	// EMA is the exponentially weighted moving average, which is inherently
 	// sequential: dst[i] = alpha*a[i] + (1-alpha)*dst[i-1].
 	EMA func(dst, a []T, alpha T)

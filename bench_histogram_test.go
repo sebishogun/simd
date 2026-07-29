@@ -78,3 +78,35 @@ func BenchmarkHistogramBincount(b *testing.B) {
 		}
 	}
 }
+
+// BenchmarkTranspose checks the claim that blocking is what matters here.
+//
+// The naive arm is the loop a caller writes: read a row, write a column. If
+// the blocked kernel is not clearly ahead at sizes past the cache, the
+// blocking is not earning its complexity and should go.
+func BenchmarkTranspose(b *testing.B) {
+	for _, dims := range [][2]int{{64, 64}, {512, 512}, {2048, 2048}, {4096, 512}} {
+		m, n := dims[0], dims[1]
+		a := make([]float64, m*n)
+		for i := range a {
+			a[i] = float64(i)
+		}
+		dst := make([]float64, m*n)
+		b.Run(fmt.Sprintf("%dx%d/impl=simd", m, n), func(b *testing.B) {
+			b.SetBytes(int64(m) * int64(n) * 8)
+			for b.Loop() {
+				simd.TransposeInto(dst, a, m, n)
+			}
+		})
+		b.Run(fmt.Sprintf("%dx%d/impl=naive", m, n), func(b *testing.B) {
+			b.SetBytes(int64(m) * int64(n) * 8)
+			for b.Loop() {
+				for i := range m {
+					for j := range n {
+						dst[j*m+i] = a[i*n+j]
+					}
+				}
+			}
+		})
+	}
+}

@@ -358,6 +358,19 @@ func byteSwap[T integer](dst, a []T) {
 	}
 }
 
+// transpose writes the m*n row-major matrix a as an n*m one. It does nothing
+// if either slice is too short for the stated dimensions, matching MatMul.
+func transpose[T number](dst, a []T, m, n int) {
+	if m < 0 || n < 0 || len(a) < m*n || len(dst) < m*n {
+		return
+	}
+	for i := range m {
+		for j := range n {
+			dst[j*m+i] = a[i*n+j]
+		}
+	}
+}
+
 func addScalar[T number](dst, a []T, s T) {
 	n := min(len(dst), len(a))
 	dst, a = dst[:n], a[:n]
@@ -850,6 +863,7 @@ func floatOps[T float]() kernel.Ops[T] {
 		Add3:      add3[T], Add4: add4[T], Mul3: mul3[T], Mul4: mul4[T],
 		Partition: partitionOut[T],
 		Gemv:      gemvFloat[T],
+		Transpose: transpose[T],
 		Sum:       sumFloat[T], Min: minFloat[T], Max: maxFloat[T],
 		SumSquares: sumSquaresFloat[T], L1Norm: l1NormFloat[T], Norm: normFloat[T],
 		Dot:      dotFloat[T],
@@ -878,6 +892,7 @@ func intOps[T integer]() kernel.Ops[T] {
 		Add3:      add3[T], Add4: add4[T], Mul3: mul3[T], Mul4: mul4[T],
 		Partition: partitionOut[T],
 		Gemv:      gemvInt[T],
+		Transpose: transpose[T],
 		Sum:       sumInt[T], Min: minInt[T], Max: maxInt[T],
 		SumSquares: sumSquaresInt[T], L1Norm: l1NormInt[T],
 		Dot:      dotInt[T],
@@ -1098,6 +1113,8 @@ func LeadingZeros[T Integer](dst, a []T)  { leadingZeros(dst, a) }
 func TrailingZeros[T Integer](dst, a []T) { trailingZeros(dst, a) }
 func ReverseBits[T Integer](dst, a []T)   { reverseBits(dst, a) }
 func ByteSwap[T Integer](dst, a []T)      { byteSwap(dst, a) }
+
+func Transpose[T Number](dst, a []T, m, n int) { transpose(dst, a, m, n) }
 
 func Shl[T Integer](dst, a []T, s uint64)  { shl(dst, a, s) }
 func Shr[T Integer](dst, a []T, s uint64)  { shr(dst, a, s) }

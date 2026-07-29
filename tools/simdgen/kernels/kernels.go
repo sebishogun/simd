@@ -1174,10 +1174,34 @@ func movAvgK(e elem) spec.Kernel {
 // They are their own source file because the microkernel is the one place here
 // where the register file, not the instruction set, sets the shape — the tile
 // dimensions are chosen per target by #if, which nothing else in csrc needs.
+// transposeK is the blocked matrix transpose. Two dimensions and no result,
+// like the GEMM kernels, and the same guard: it does nothing if the slices are
+// too short for the stated shape.
+func transposeK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_transpose_" + e.c, GoName: "transpose" + e.goName,
+		Group: e.group, Field: "Transpose", RefFunc: "Transpose",
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			{Name: "m", Type: spec.Int}, {Name: "n", Type: spec.Int}},
+		CArgs: []spec.CArg{base("dst"), base("a"), val("m"), val("n")},
+		// Blocking only pays once the matrix is bigger than a block, and the
+		// guard has to see both dimensions, so the threshold is on the
+		// destination length rather than on either side.
+		Threshold: 1024,
+	}
+}
+
 func Gemm() []spec.Kernel {
 	var ks []spec.Kernel
 	for _, e := range floats() {
 		ks = append(ks, matMulK(e), gemvK(e))
+	}
+	// Transpose is not arithmetic, so it applies to the integer types too.
+	for _, e := range elems {
+		switch e.c {
+		case "f32", "f64", "i32", "i64":
+			ks = append(ks, transposeK(e))
+		}
 	}
 	return ks
 }

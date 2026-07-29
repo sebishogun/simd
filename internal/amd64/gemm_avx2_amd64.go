@@ -26,3 +26,15 @@ func matMulFloat64AVX2(dst []float64, a []float64, b []float64, m int, k int, n 
 
 //go:noescape
 func gemvFloat64AVX2(dst []float64, a []float64, x []float64, m int, k int)
+
+//go:noescape
+func transposeFloat32AVX2(dst []float32, a []float32, m int, n int)
+
+//go:noescape
+func transposeFloat64AVX2(dst []float64, a []float64, m int, n int)
+
+//go:noescape
+func transposeInt32AVX2(dst []int32, a []int32, m int, n int)
+
+//go:noescape
+func transposeInt64AVX2(dst []int64, a []int64, m int, n int)
