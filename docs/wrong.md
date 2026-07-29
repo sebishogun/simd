@@ -934,3 +934,47 @@ the reduction, not about the original. Before concluding "the trigger is
 elsewhere", check whether the property you simplified away was load-bearing —
 here it was the *interaction* between the guard and what it guarded, which
 survives in neither half alone.
+
+## 35. There must be some way to spell it that LLVM does not fold
+
+**Wrong**, and after five attempts that is the finding rather than a
+complaint.
+
+Eighteen riscv64 kernels will not vectorise because each contains an
+`llvm.is.fpclass` the RVV backend cannot cost. Entry 34 identified the
+mechanism: LLVM hoists the positive-infinity guard to the top of the function,
+because `log2_frac`'s result is meaningless for an infinite input, and
+canonicalises the hoisted guard into the intrinsic.
+
+That suggested a fix with a good shape — remove the *test* and let the special
+values fall out of arithmetic. Clamp with a minimum, which is one instruction
+and classifies nothing, then multiply by a correction factor that is exactly 1
+for every finite input, infinite for `+Inf`, and NaN for a NaN:
+
+	float xc = __builtin_elementwise_min(x, 0x1.fffffep+127f);
+	v = poly(xc) * (1.0f + (x - xc));
+
+No comparison against infinity anywhere. LLVM produced it anyway:
+
+	%12 = call float @llvm.minnum.f32(float %9, float 0x47EFFFFFE0000000)
+	%13 = call i1 @llvm.is.fpclass.f32(float %12, i32 128)
+
+It derived the classification *from the clamp*, because `minnum(x, MAX)` equals
+`MAX` exactly when `x >= MAX`, and folded that into the intrinsic.
+
+Five spellings have now been tried and all five fold: the float compare against
+infinity, the compare against the largest finite value, an integer comparison
+of the bit pattern, a shifted integer comparison, and now a clamp that never
+mentions infinity at all. LLVM is not failing to notice these are equivalent —
+it is deliberately normalising every form of "is this positive infinity" into
+one intrinsic, which is good compiler design and exactly what makes this
+unfixable in the source.
+
+**Fix.** Upstream, and only upstream: an RVV cost model entry for
+`llvm.is.fpclass`. clang 22.1.8 here. The task becomes tracking that change
+rather than looking for a sixth spelling.
+
+The transferable part: when a compiler normalises many forms to one, the number
+of remaining forms to try is zero, and the effort is better spent confirming
+that than continuing. Five is more than enough evidence; the second or third
+should have prompted asking whether the canonicalisation was the point.
