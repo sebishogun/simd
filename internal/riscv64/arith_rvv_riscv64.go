@@ -478,6 +478,21 @@ func rotlInt32RVV(dst []int32, a []int32, s uint64)
 func rotrInt32RVV(dst []int32, a []int32, s uint64)
 
 //go:noescape
+func onesCountInt32RVV(dst []int32, a []int32)
+
+//go:noescape
+func leadingZerosInt32RVV(dst []int32, a []int32)
+
+//go:noescape
+func trailingZerosInt32RVV(dst []int32, a []int32)
+
+//go:noescape
+func reverseBitsInt32RVV(dst []int32, a []int32)
+
+//go:noescape
+func byteSwapInt32RVV(dst []int32, a []int32)
+
+//go:noescape
 func shlInt64RVV(dst []int64, a []int64, s uint64)
 
 //go:noescape
@@ -488,6 +503,18 @@ func rotlInt64RVV(dst []int64, a []int64, s uint64)
 
 //go:noescape
 func rotrInt64RVV(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func onesCountInt64RVV(dst []int64, a []int64)
+
+//go:noescape
+func leadingZerosInt64RVV(dst []int64, a []int64)
+
+//go:noescape
+func trailingZerosInt64RVV(dst []int64, a []int64)
+
+//go:noescape
+func byteSwapInt64RVV(dst []int64, a []int64)
 
 //go:noescape
 func shlInt8RVV(dst []int8, a []int8, s uint64)
@@ -502,6 +529,18 @@ func rotlInt8RVV(dst []int8, a []int8, s uint64)
 func rotrInt8RVV(dst []int8, a []int8, s uint64)
 
 //go:noescape
+func onesCountInt8RVV(dst []int8, a []int8)
+
+//go:noescape
+func leadingZerosInt8RVV(dst []int8, a []int8)
+
+//go:noescape
+func trailingZerosInt8RVV(dst []int8, a []int8)
+
+//go:noescape
+func reverseBitsInt8RVV(dst []int8, a []int8)
+
+//go:noescape
 func shlInt16RVV(dst []int16, a []int16, s uint64)
 
 //go:noescape
@@ -512,6 +551,21 @@ func rotlInt16RVV(dst []int16, a []int16, s uint64)
 
 //go:noescape
 func rotrInt16RVV(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func onesCountInt16RVV(dst []int16, a []int16)
+
+//go:noescape
+func leadingZerosInt16RVV(dst []int16, a []int16)
+
+//go:noescape
+func trailingZerosInt16RVV(dst []int16, a []int16)
+
+//go:noescape
+func reverseBitsInt16RVV(dst []int16, a []int16)
+
+//go:noescape
+func byteSwapInt16RVV(dst []int16, a []int16)
 
 //go:noescape
 func shlUint8RVV(dst []byte, a []byte, s uint64)
@@ -526,6 +580,18 @@ func rotlUint8RVV(dst []byte, a []byte, s uint64)
 func rotrUint8RVV(dst []byte, a []byte, s uint64)
 
 //go:noescape
+func onesCountUint8RVV(dst []byte, a []byte)
+
+//go:noescape
+func leadingZerosUint8RVV(dst []byte, a []byte)
+
+//go:noescape
+func trailingZerosUint8RVV(dst []byte, a []byte)
+
+//go:noescape
+func reverseBitsUint8RVV(dst []byte, a []byte)
+
+//go:noescape
 func shlUint16RVV(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
@@ -536,6 +602,21 @@ func rotlUint16RVV(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
 func rotrUint16RVV(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func onesCountUint16RVV(dst []uint16, a []uint16)
+
+//go:noescape
+func leadingZerosUint16RVV(dst []uint16, a []uint16)
+
+//go:noescape
+func trailingZerosUint16RVV(dst []uint16, a []uint16)
+
+//go:noescape
+func reverseBitsUint16RVV(dst []uint16, a []uint16)
+
+//go:noescape
+func byteSwapUint16RVV(dst []uint16, a []uint16)
 
 //go:noescape
 func shlUint32RVV(dst []uint32, a []uint32, s uint64)
@@ -550,6 +631,21 @@ func rotlUint32RVV(dst []uint32, a []uint32, s uint64)
 func rotrUint32RVV(dst []uint32, a []uint32, s uint64)
 
 //go:noescape
+func onesCountUint32RVV(dst []uint32, a []uint32)
+
+//go:noescape
+func leadingZerosUint32RVV(dst []uint32, a []uint32)
+
+//go:noescape
+func trailingZerosUint32RVV(dst []uint32, a []uint32)
+
+//go:noescape
+func reverseBitsUint32RVV(dst []uint32, a []uint32)
+
+//go:noescape
+func byteSwapUint32RVV(dst []uint32, a []uint32)
+
+//go:noescape
 func shlUint64RVV(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
@@ -560,6 +656,18 @@ func rotlUint64RVV(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
 func rotrUint64RVV(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func onesCountUint64RVV(dst []uint64, a []uint64)
+
+//go:noescape
+func leadingZerosUint64RVV(dst []uint64, a []uint64)
+
+//go:noescape
+func trailingZerosUint64RVV(dst []uint64, a []uint64)
+
+//go:noescape
+func byteSwapUint64RVV(dst []uint64, a []uint64)
 
 //go:noescape
 func divFloat32RVV(dst []float32, a []float32, b []float32)

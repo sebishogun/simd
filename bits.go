@@ -50,3 +50,41 @@ func RotrInto[T Integer](dst, a []T, s uint64) { ops[T]().Rotr(dst, a, s) }
 
 // Rotr rotates a right by s bits in place.
 func Rotr[T Integer](a []T, s uint64) { ops[T]().Rotr(a, a, s) }
+
+// ---------- per-element bit counting ----------
+//
+// These follow math/bits, which means the zero case is defined where C leaves
+// it undefined. __builtin_clz and __builtin_ctz of zero are undefined
+// behaviour, and the hardware differs: x86's BSR and BSF leave the destination
+// unmodified, so the answer is whatever was in the register, while LZCNT and
+// TZCNT return the width but are a later feature. The kernels handle zero
+// before the builtin sees it.
+
+// OnesCountInto writes the number of one bits in each element of a to dst.
+func OnesCountInto[T Integer](dst, a []T) { ops[T]().OnesCount(dst, a) }
+
+// LeadingZerosInto writes the number of leading zero bits of each element of a
+// to dst. Zero gives the element width, as in [math/bits.LeadingZeros].
+func LeadingZerosInto[T Integer](dst, a []T) { ops[T]().LeadingZeros(dst, a) }
+
+// TrailingZerosInto writes the number of trailing zero bits of each element of
+// a to dst. Zero gives the element width, as in [math/bits.TrailingZeros].
+func TrailingZerosInto[T Integer](dst, a []T) { ops[T]().TrailingZeros(dst, a) }
+
+// ReverseBitsInto writes each element of a with its bits in reverse order to
+// dst.
+func ReverseBitsInto[T Integer](dst, a []T) { ops[T]().ReverseBits(dst, a) }
+
+// ByteSwapInto writes each element of a with its bytes in reverse order to
+// dst, which is the byte-order conversion a network or file format needs over
+// a whole slice.
+//
+// It does nothing for the eight-bit types, where a byte is its own reversal
+// and there is no kernel.
+func ByteSwapInto[T Integer](dst, a []T) {
+	if f := ops[T]().ByteSwap; f != nil {
+		f(dst, a)
+		return
+	}
+	copy(dst, a)
+}

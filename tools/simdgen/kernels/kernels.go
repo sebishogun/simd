@@ -248,6 +248,16 @@ func op2go(op string) string {
 		return "roundToEven"
 	case "addscalar":
 		return "addScalar"
+	case "popcount":
+		return "onesCount"
+	case "leadingzeros":
+		return "leadingZeros"
+	case "trailingzeros":
+		return "trailingZeros"
+	case "reversebits":
+		return "reverseBits"
+	case "byteswap":
+		return "byteSwap"
 	case "subscalar":
 		return "subScalar"
 	case "divscalar":
@@ -408,7 +418,15 @@ func Arith() []spec.Kernel {
 		ks = append(ks,
 			shiftK("shl", "Shl", e), shiftK("shr", "Shr", e),
 			shiftK("rotl", "Rotl", e), shiftK("rotr", "Rotr", e),
+			unary("popcount", "OnesCount", "OnesCount", e),
+			unary("leadingzeros", "LeadingZeros", "LeadingZeros", e),
+			unary("trailingzeros", "TrailingZeros", "TrailingZeros", e),
+			unary("reversebits", "ReverseBits", "ReverseBits", e),
 		)
+		// A byte is its own reversal, so there is no eight-bit swap.
+		if e.c != "i8" && e.c != "u8" {
+			ks = append(ks, unary("byteswap", "ByteSwap", "ByteSwap", e))
+		}
 	}
 	for _, e := range floats() {
 		ks = append(ks,

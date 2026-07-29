@@ -478,6 +478,21 @@ func rotlInt32AVX2(dst []int32, a []int32, s uint64)
 func rotrInt32AVX2(dst []int32, a []int32, s uint64)
 
 //go:noescape
+func onesCountInt32AVX2(dst []int32, a []int32)
+
+//go:noescape
+func leadingZerosInt32AVX2(dst []int32, a []int32)
+
+//go:noescape
+func trailingZerosInt32AVX2(dst []int32, a []int32)
+
+//go:noescape
+func reverseBitsInt32AVX2(dst []int32, a []int32)
+
+//go:noescape
+func byteSwapInt32AVX2(dst []int32, a []int32)
+
+//go:noescape
 func shlInt64AVX2(dst []int64, a []int64, s uint64)
 
 //go:noescape
@@ -488,6 +503,21 @@ func rotlInt64AVX2(dst []int64, a []int64, s uint64)
 
 //go:noescape
 func rotrInt64AVX2(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func onesCountInt64AVX2(dst []int64, a []int64)
+
+//go:noescape
+func leadingZerosInt64AVX2(dst []int64, a []int64)
+
+//go:noescape
+func trailingZerosInt64AVX2(dst []int64, a []int64)
+
+//go:noescape
+func reverseBitsInt64AVX2(dst []int64, a []int64)
+
+//go:noescape
+func byteSwapInt64AVX2(dst []int64, a []int64)
 
 //go:noescape
 func shlInt8AVX2(dst []int8, a []int8, s uint64)
@@ -502,6 +532,18 @@ func rotlInt8AVX2(dst []int8, a []int8, s uint64)
 func rotrInt8AVX2(dst []int8, a []int8, s uint64)
 
 //go:noescape
+func onesCountInt8AVX2(dst []int8, a []int8)
+
+//go:noescape
+func leadingZerosInt8AVX2(dst []int8, a []int8)
+
+//go:noescape
+func trailingZerosInt8AVX2(dst []int8, a []int8)
+
+//go:noescape
+func reverseBitsInt8AVX2(dst []int8, a []int8)
+
+//go:noescape
 func shlInt16AVX2(dst []int16, a []int16, s uint64)
 
 //go:noescape
@@ -512,6 +554,21 @@ func rotlInt16AVX2(dst []int16, a []int16, s uint64)
 
 //go:noescape
 func rotrInt16AVX2(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func onesCountInt16AVX2(dst []int16, a []int16)
+
+//go:noescape
+func leadingZerosInt16AVX2(dst []int16, a []int16)
+
+//go:noescape
+func trailingZerosInt16AVX2(dst []int16, a []int16)
+
+//go:noescape
+func reverseBitsInt16AVX2(dst []int16, a []int16)
+
+//go:noescape
+func byteSwapInt16AVX2(dst []int16, a []int16)
 
 //go:noescape
 func shlUint8AVX2(dst []byte, a []byte, s uint64)
@@ -526,6 +583,18 @@ func rotlUint8AVX2(dst []byte, a []byte, s uint64)
 func rotrUint8AVX2(dst []byte, a []byte, s uint64)
 
 //go:noescape
+func onesCountUint8AVX2(dst []byte, a []byte)
+
+//go:noescape
+func leadingZerosUint8AVX2(dst []byte, a []byte)
+
+//go:noescape
+func trailingZerosUint8AVX2(dst []byte, a []byte)
+
+//go:noescape
+func reverseBitsUint8AVX2(dst []byte, a []byte)
+
+//go:noescape
 func shlUint16AVX2(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
@@ -536,6 +605,21 @@ func rotlUint16AVX2(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
 func rotrUint16AVX2(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func onesCountUint16AVX2(dst []uint16, a []uint16)
+
+//go:noescape
+func leadingZerosUint16AVX2(dst []uint16, a []uint16)
+
+//go:noescape
+func trailingZerosUint16AVX2(dst []uint16, a []uint16)
+
+//go:noescape
+func reverseBitsUint16AVX2(dst []uint16, a []uint16)
+
+//go:noescape
+func byteSwapUint16AVX2(dst []uint16, a []uint16)
 
 //go:noescape
 func shlUint32AVX2(dst []uint32, a []uint32, s uint64)
@@ -550,6 +634,21 @@ func rotlUint32AVX2(dst []uint32, a []uint32, s uint64)
 func rotrUint32AVX2(dst []uint32, a []uint32, s uint64)
 
 //go:noescape
+func onesCountUint32AVX2(dst []uint32, a []uint32)
+
+//go:noescape
+func leadingZerosUint32AVX2(dst []uint32, a []uint32)
+
+//go:noescape
+func trailingZerosUint32AVX2(dst []uint32, a []uint32)
+
+//go:noescape
+func reverseBitsUint32AVX2(dst []uint32, a []uint32)
+
+//go:noescape
+func byteSwapUint32AVX2(dst []uint32, a []uint32)
+
+//go:noescape
 func shlUint64AVX2(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
@@ -560,6 +659,21 @@ func rotlUint64AVX2(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
 func rotrUint64AVX2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func onesCountUint64AVX2(dst []uint64, a []uint64)
+
+//go:noescape
+func leadingZerosUint64AVX2(dst []uint64, a []uint64)
+
+//go:noescape
+func trailingZerosUint64AVX2(dst []uint64, a []uint64)
+
+//go:noescape
+func reverseBitsUint64AVX2(dst []uint64, a []uint64)
+
+//go:noescape
+func byteSwapUint64AVX2(dst []uint64, a []uint64)
 
 //go:noescape
 func divFloat32AVX2(dst []float32, a []float32, b []float32)

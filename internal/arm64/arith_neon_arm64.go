@@ -442,6 +442,21 @@ func rotlInt32NEON(dst []int32, a []int32, s uint64)
 func rotrInt32NEON(dst []int32, a []int32, s uint64)
 
 //go:noescape
+func onesCountInt32NEON(dst []int32, a []int32)
+
+//go:noescape
+func leadingZerosInt32NEON(dst []int32, a []int32)
+
+//go:noescape
+func trailingZerosInt32NEON(dst []int32, a []int32)
+
+//go:noescape
+func reverseBitsInt32NEON(dst []int32, a []int32)
+
+//go:noescape
+func byteSwapInt32NEON(dst []int32, a []int32)
+
+//go:noescape
 func shlInt64NEON(dst []int64, a []int64, s uint64)
 
 //go:noescape
@@ -452,6 +467,15 @@ func rotlInt64NEON(dst []int64, a []int64, s uint64)
 
 //go:noescape
 func rotrInt64NEON(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func onesCountInt64NEON(dst []int64, a []int64)
+
+//go:noescape
+func reverseBitsInt64NEON(dst []int64, a []int64)
+
+//go:noescape
+func byteSwapInt64NEON(dst []int64, a []int64)
 
 //go:noescape
 func shlInt8NEON(dst []int8, a []int8, s uint64)
@@ -466,6 +490,18 @@ func rotlInt8NEON(dst []int8, a []int8, s uint64)
 func rotrInt8NEON(dst []int8, a []int8, s uint64)
 
 //go:noescape
+func onesCountInt8NEON(dst []int8, a []int8)
+
+//go:noescape
+func leadingZerosInt8NEON(dst []int8, a []int8)
+
+//go:noescape
+func trailingZerosInt8NEON(dst []int8, a []int8)
+
+//go:noescape
+func reverseBitsInt8NEON(dst []int8, a []int8)
+
+//go:noescape
 func shlInt16NEON(dst []int16, a []int16, s uint64)
 
 //go:noescape
@@ -476,6 +512,21 @@ func rotlInt16NEON(dst []int16, a []int16, s uint64)
 
 //go:noescape
 func rotrInt16NEON(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func onesCountInt16NEON(dst []int16, a []int16)
+
+//go:noescape
+func leadingZerosInt16NEON(dst []int16, a []int16)
+
+//go:noescape
+func trailingZerosInt16NEON(dst []int16, a []int16)
+
+//go:noescape
+func reverseBitsInt16NEON(dst []int16, a []int16)
+
+//go:noescape
+func byteSwapInt16NEON(dst []int16, a []int16)
 
 //go:noescape
 func shlUint8NEON(dst []byte, a []byte, s uint64)
@@ -490,6 +541,18 @@ func rotlUint8NEON(dst []byte, a []byte, s uint64)
 func rotrUint8NEON(dst []byte, a []byte, s uint64)
 
 //go:noescape
+func onesCountUint8NEON(dst []byte, a []byte)
+
+//go:noescape
+func leadingZerosUint8NEON(dst []byte, a []byte)
+
+//go:noescape
+func trailingZerosUint8NEON(dst []byte, a []byte)
+
+//go:noescape
+func reverseBitsUint8NEON(dst []byte, a []byte)
+
+//go:noescape
 func shlUint16NEON(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
@@ -500,6 +563,21 @@ func rotlUint16NEON(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
 func rotrUint16NEON(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func onesCountUint16NEON(dst []uint16, a []uint16)
+
+//go:noescape
+func leadingZerosUint16NEON(dst []uint16, a []uint16)
+
+//go:noescape
+func trailingZerosUint16NEON(dst []uint16, a []uint16)
+
+//go:noescape
+func reverseBitsUint16NEON(dst []uint16, a []uint16)
+
+//go:noescape
+func byteSwapUint16NEON(dst []uint16, a []uint16)
 
 //go:noescape
 func shlUint32NEON(dst []uint32, a []uint32, s uint64)
@@ -514,6 +592,21 @@ func rotlUint32NEON(dst []uint32, a []uint32, s uint64)
 func rotrUint32NEON(dst []uint32, a []uint32, s uint64)
 
 //go:noescape
+func onesCountUint32NEON(dst []uint32, a []uint32)
+
+//go:noescape
+func leadingZerosUint32NEON(dst []uint32, a []uint32)
+
+//go:noescape
+func trailingZerosUint32NEON(dst []uint32, a []uint32)
+
+//go:noescape
+func reverseBitsUint32NEON(dst []uint32, a []uint32)
+
+//go:noescape
+func byteSwapUint32NEON(dst []uint32, a []uint32)
+
+//go:noescape
 func shlUint64NEON(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
@@ -524,6 +617,15 @@ func rotlUint64NEON(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
 func rotrUint64NEON(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func onesCountUint64NEON(dst []uint64, a []uint64)
+
+//go:noescape
+func reverseBitsUint64NEON(dst []uint64, a []uint64)
+
+//go:noescape
+func byteSwapUint64NEON(dst []uint64, a []uint64)
 
 //go:noescape
 func divFloat32NEON(dst []float32, a []float32, b []float32)

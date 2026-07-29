@@ -311,6 +311,53 @@ func rotr[T integer](dst, a []T, s uint64) {
 	}
 }
 
+// The per-element bit operations, defined by math/bits rather than by C. The
+// zero case is the one that matters: LeadingZeros and TrailingZeros of zero
+// are the element width, where __builtin_clz and __builtin_ctz are undefined
+// and x86, arm64 and LLVM each do something different with it.
+func onesCount[T integer](dst, a []T) {
+	n, w := min(len(dst), len(a)), bitsOf[T]()
+	for i := range n {
+		dst[i] = T(bits.OnesCount64(uint64(a[i]) & (1<<w - 1)))
+	}
+}
+
+func leadingZeros[T integer](dst, a []T) {
+	n, w := min(len(dst), len(a)), bitsOf[T]()
+	for i := range n {
+		u := uint64(a[i]) & (1<<w - 1)
+		dst[i] = T(uint64(bits.LeadingZeros64(u)) - (64 - w))
+	}
+}
+
+func trailingZeros[T integer](dst, a []T) {
+	n, w := min(len(dst), len(a)), bitsOf[T]()
+	for i := range n {
+		u := uint64(a[i]) & (1<<w - 1)
+		if u == 0 {
+			dst[i] = T(w)
+			continue
+		}
+		dst[i] = T(bits.TrailingZeros64(u))
+	}
+}
+
+func reverseBits[T integer](dst, a []T) {
+	n, w := min(len(dst), len(a)), bitsOf[T]()
+	for i := range n {
+		u := uint64(a[i]) & (1<<w - 1)
+		dst[i] = T(bits.Reverse64(u) >> (64 - w))
+	}
+}
+
+func byteSwap[T integer](dst, a []T) {
+	n, w := min(len(dst), len(a)), bitsOf[T]()
+	for i := range n {
+		u := uint64(a[i]) & (1<<w - 1)
+		dst[i] = T(bits.ReverseBytes64(u) >> (64 - w))
+	}
+}
+
 func addScalar[T number](dst, a []T, s T) {
 	n := min(len(dst), len(a))
 	dst, a = dst[:n], a[:n]
@@ -837,6 +884,9 @@ func intOps[T integer]() kernel.Ops[T] {
 		SumSqDev: sumSqDevInt[T], SumSqDiff: sumSqDiffInt[T], L1Diff: l1DiffInt[T],
 		ArgMin: argMinInt[T], ArgMax: argMaxInt[T], MinMax: minMaxInt[T],
 		Shl: shl[T], Shr: shr[T], Rotl: rotl[T], Rotr: rotr[T],
+		OnesCount: onesCount[T], LeadingZeros: leadingZeros[T],
+		TrailingZeros: trailingZeros[T], ReverseBits: reverseBits[T],
+		ByteSwap: byteSwap[T],
 	}
 	intMathOps(&o)
 	signalOps(&o)
@@ -1042,6 +1092,12 @@ func SumSqDevFloat[T Float](a []T, c T) T { return sumSqDevFloat(a, c) }
 func SumSqDevInt[T Integer](a []T, c T) T { return sumSqDevInt(a, c) }
 func SumSqDiffFloat[T Float](a, b []T) T  { return sumSqDiffFloat(a, b) }
 func SumSqDiffInt[T Integer](a, b []T) T  { return sumSqDiffInt(a, b) }
+
+func OnesCount[T Integer](dst, a []T)     { onesCount(dst, a) }
+func LeadingZeros[T Integer](dst, a []T)  { leadingZeros(dst, a) }
+func TrailingZeros[T Integer](dst, a []T) { trailingZeros(dst, a) }
+func ReverseBits[T Integer](dst, a []T)   { reverseBits(dst, a) }
+func ByteSwap[T Integer](dst, a []T)      { byteSwap(dst, a) }
 
 func Shl[T Integer](dst, a []T, s uint64)  { shl(dst, a, s) }
 func Shr[T Integer](dst, a []T, s uint64)  { shr(dst, a, s) }

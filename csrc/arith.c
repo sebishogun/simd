@@ -212,6 +212,65 @@ ROTATE(unsigned short, unsigned short, u16, 16)
 ROTATE(unsigned int, unsigned int, u32, 32)
 ROTATE(unsigned long long, unsigned long long, u64, 64)
 
+// ---------- per-element bit counting ----------
+//
+// Zero is the trap here, and it is the same trap the shift count was.
+//
+// __builtin_clz and __builtin_ctz are undefined for a zero argument. On x86
+// the underlying BSR and BSF leave the destination unmodified, so the result
+// is whatever happened to be in the register; LZCNT and TZCNT return the width
+// but are a later feature; and LLVM may constant-fold the zero case to poison.
+// Go's math/bits returns the width, unambiguously, for every type.
+//
+// So the zero case is handled before the builtin sees it. The builtins with an
+// explicit zero-defined form -- __builtin_clzg and __builtin_ctzg take a
+// second argument giving the result for zero -- would do it too, but the
+// select is free here: it vectorises into the same compare-and-blend the rest
+// of this file uses, and it does not depend on a clang version.
+//
+// The builtins operate on unsigned int or wider, so the narrow types widen
+// first, and the leading-zero count then has to be corrected by the difference
+// in width. Getting that wrong gives 24 instead of 8 for a zero uint8, which
+// is why every width is spelled out rather than derived.
+#define BITCOUNT(T, UT, SUF, W, POPC, CLZ, CTZ)                            void simd_popcount_##SUF(T *__restrict d, const T *__restrict a,                                  isize n) {                                        for (isize i = 0; i < n; i++) d[i] = (T)POPC((UT)a[i]);                }                                                                        void simd_leadingzeros_##SUF(T *__restrict d, const T *__restrict a,                                  isize n) {                                    for (isize i = 0; i < n; i++) {                                            UT x = (UT)a[i];                                                         d[i] = (T)(x == 0 ? (W) : CLZ(x));                                     }                                                                      }                                                                        void simd_trailingzeros_##SUF(T *__restrict d, const T *__restrict a,                                  isize n) {                                   for (isize i = 0; i < n; i++) {                                            UT x = (UT)a[i];                                                         d[i] = (T)(x == 0 ? (W) : CTZ(x));                                     }                                                                      }                                                                        void simd_reversebits_##SUF(T *__restrict d, const T *__restrict a,                                  isize n) {                                     for (isize i = 0; i < n; i++)                                              d[i] = (T)__builtin_bitreverse##W((UT)a[i]);                         }
+
+// The narrow types widen to unsigned int for the builtin, so the leading-zero
+// count comes back 32-W too large and is corrected here. The trailing count
+// needs no correction, because the low bits are where they were.
+#define CLZ8(x) (__builtin_clz((unsigned)(x)) - 24)
+#define CLZ16(x) (__builtin_clz((unsigned)(x)) - 16)
+#define CLZ32(x) __builtin_clz(x)
+#define CLZ64(x) __builtin_clzll(x)
+#define CTZ8(x) __builtin_ctz((unsigned)(x))
+#define CTZ16(x) __builtin_ctz((unsigned)(x))
+#define CTZ32(x) __builtin_ctz(x)
+#define CTZ64(x) __builtin_ctzll(x)
+#define POPC8(x) __builtin_popcount((unsigned)(x))
+#define POPC16(x) __builtin_popcount((unsigned)(x))
+#define POPC32(x) __builtin_popcount(x)
+#define POPC64(x) __builtin_popcountll(x)
+
+BITCOUNT(signed char, unsigned char, i8, 8, POPC8, CLZ8, CTZ8)
+BITCOUNT(short, unsigned short, i16, 16, POPC16, CLZ16, CTZ16)
+BITCOUNT(int, unsigned int, i32, 32, POPC32, CLZ32, CTZ32)
+BITCOUNT(long long, unsigned long long, i64, 64, POPC64, CLZ64, CTZ64)
+BITCOUNT(unsigned char, unsigned char, u8, 8, POPC8, CLZ8, CTZ8)
+BITCOUNT(unsigned short, unsigned short, u16, 16, POPC16, CLZ16, CTZ16)
+BITCOUNT(unsigned int, unsigned int, u32, 32, POPC32, CLZ32, CTZ32)
+BITCOUNT(unsigned long long, unsigned long long, u64, 64, POPC64, CLZ64,
+         CTZ64)
+
+// Byte swapping. There is no eight-bit form: a single byte is its own
+// reversal, so the kernel is a copy and the manifest does not ask for one.
+#define BSWAP(T, UT, SUF, BUILTIN)                                         void simd_byteswap_##SUF(T *__restrict d, const T *__restrict a,                                  isize n) {                                        for (isize i = 0; i < n; i++) d[i] = (T)BUILTIN((UT)a[i]);             }
+
+BSWAP(short, unsigned short, i16, __builtin_bswap16)
+BSWAP(int, unsigned int, i32, __builtin_bswap32)
+BSWAP(long long, unsigned long long, i64, __builtin_bswap64)
+BSWAP(unsigned short, unsigned short, u16, __builtin_bswap16)
+BSWAP(unsigned int, unsigned int, u32, __builtin_bswap32)
+BSWAP(unsigned long long, unsigned long long, u64, __builtin_bswap64)
+
 // The whole elementwise family, per type. ST is the scalar transport type;
 // see SCALAR.
 #define ARITH_COMMON(T, ST, SUF)                                        \

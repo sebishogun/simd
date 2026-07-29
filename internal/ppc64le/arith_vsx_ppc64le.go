@@ -448,6 +448,18 @@ func rotlInt32VSX(dst []int32, a []int32, s uint64)
 func rotrInt32VSX(dst []int32, a []int32, s uint64)
 
 //go:noescape
+func onesCountInt32VSX(dst []int32, a []int32)
+
+//go:noescape
+func leadingZerosInt32VSX(dst []int32, a []int32)
+
+//go:noescape
+func trailingZerosInt32VSX(dst []int32, a []int32)
+
+//go:noescape
+func byteSwapInt32VSX(dst []int32, a []int32)
+
+//go:noescape
 func shlInt64VSX(dst []int64, a []int64, s uint64)
 
 //go:noescape
@@ -458,6 +470,18 @@ func rotlInt64VSX(dst []int64, a []int64, s uint64)
 
 //go:noescape
 func rotrInt64VSX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func onesCountInt64VSX(dst []int64, a []int64)
+
+//go:noescape
+func leadingZerosInt64VSX(dst []int64, a []int64)
+
+//go:noescape
+func trailingZerosInt64VSX(dst []int64, a []int64)
+
+//go:noescape
+func byteSwapInt64VSX(dst []int64, a []int64)
 
 //go:noescape
 func shlInt8VSX(dst []int8, a []int8, s uint64)
@@ -472,6 +496,15 @@ func rotlInt8VSX(dst []int8, a []int8, s uint64)
 func rotrInt8VSX(dst []int8, a []int8, s uint64)
 
 //go:noescape
+func onesCountInt8VSX(dst []int8, a []int8)
+
+//go:noescape
+func leadingZerosInt8VSX(dst []int8, a []int8)
+
+//go:noescape
+func trailingZerosInt8VSX(dst []int8, a []int8)
+
+//go:noescape
 func shlInt16VSX(dst []int16, a []int16, s uint64)
 
 //go:noescape
@@ -482,6 +515,18 @@ func rotlInt16VSX(dst []int16, a []int16, s uint64)
 
 //go:noescape
 func rotrInt16VSX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func onesCountInt16VSX(dst []int16, a []int16)
+
+//go:noescape
+func leadingZerosInt16VSX(dst []int16, a []int16)
+
+//go:noescape
+func trailingZerosInt16VSX(dst []int16, a []int16)
+
+//go:noescape
+func byteSwapInt16VSX(dst []int16, a []int16)
 
 //go:noescape
 func shlUint8VSX(dst []byte, a []byte, s uint64)
@@ -496,6 +541,15 @@ func rotlUint8VSX(dst []byte, a []byte, s uint64)
 func rotrUint8VSX(dst []byte, a []byte, s uint64)
 
 //go:noescape
+func onesCountUint8VSX(dst []byte, a []byte)
+
+//go:noescape
+func leadingZerosUint8VSX(dst []byte, a []byte)
+
+//go:noescape
+func trailingZerosUint8VSX(dst []byte, a []byte)
+
+//go:noescape
 func shlUint16VSX(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
@@ -506,6 +560,18 @@ func rotlUint16VSX(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
 func rotrUint16VSX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func onesCountUint16VSX(dst []uint16, a []uint16)
+
+//go:noescape
+func leadingZerosUint16VSX(dst []uint16, a []uint16)
+
+//go:noescape
+func trailingZerosUint16VSX(dst []uint16, a []uint16)
+
+//go:noescape
+func byteSwapUint16VSX(dst []uint16, a []uint16)
 
 //go:noescape
 func shlUint32VSX(dst []uint32, a []uint32, s uint64)
@@ -520,6 +586,18 @@ func rotlUint32VSX(dst []uint32, a []uint32, s uint64)
 func rotrUint32VSX(dst []uint32, a []uint32, s uint64)
 
 //go:noescape
+func onesCountUint32VSX(dst []uint32, a []uint32)
+
+//go:noescape
+func leadingZerosUint32VSX(dst []uint32, a []uint32)
+
+//go:noescape
+func trailingZerosUint32VSX(dst []uint32, a []uint32)
+
+//go:noescape
+func byteSwapUint32VSX(dst []uint32, a []uint32)
+
+//go:noescape
 func shlUint64VSX(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
@@ -530,6 +608,18 @@ func rotlUint64VSX(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
 func rotrUint64VSX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func onesCountUint64VSX(dst []uint64, a []uint64)
+
+//go:noescape
+func leadingZerosUint64VSX(dst []uint64, a []uint64)
+
+//go:noescape
+func trailingZerosUint64VSX(dst []uint64, a []uint64)
+
+//go:noescape
+func byteSwapUint64VSX(dst []uint64, a []uint64)
 
 //go:noescape
 func divFloat32VSX(dst []float32, a []float32, b []float32)

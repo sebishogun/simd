@@ -1386,6 +1386,51 @@ func rotrInt32LASXGuarded(dst []int32, a []int32, s uint64) {
 	rotrInt32LASX(dst[:n:n], a, s)
 }
 
+func onesCountInt32LASXGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountInt32LASX(dst[:n:n], a)
+}
+
+func leadingZerosInt32LASXGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosInt32LASX(dst[:n:n], a)
+}
+
+func trailingZerosInt32LASXGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosInt32LASX(dst[:n:n], a)
+}
+
+func reverseBitsInt32LASXGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsInt32LASX(dst[:n:n], a)
+}
+
+func byteSwapInt32LASXGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapInt32LASX(dst[:n:n], a)
+}
+
 func shlInt64LASXGuarded(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1420,6 +1465,51 @@ func rotrInt64LASXGuarded(dst []int64, a []int64, s uint64) {
 		return
 	}
 	rotrInt64LASX(dst[:n:n], a, s)
+}
+
+func onesCountInt64LASXGuarded(dst []int64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountInt64LASX(dst[:n:n], a)
+}
+
+func leadingZerosInt64LASXGuarded(dst []int64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosInt64LASX(dst[:n:n], a)
+}
+
+func trailingZerosInt64LASXGuarded(dst []int64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosInt64LASX(dst[:n:n], a)
+}
+
+func reverseBitsInt64LASXGuarded(dst []int64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsInt64LASX(dst[:n:n], a)
+}
+
+func byteSwapInt64LASXGuarded(dst []int64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapInt64LASX(dst[:n:n], a)
 }
 
 func shlInt8LASXGuarded(dst []int8, a []int8, s uint64) {
@@ -1458,6 +1548,42 @@ func rotrInt8LASXGuarded(dst []int8, a []int8, s uint64) {
 	rotrInt8LASX(dst[:n:n], a, s)
 }
 
+func onesCountInt8LASXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountInt8LASX(dst[:n:n], a)
+}
+
+func leadingZerosInt8LASXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosInt8LASX(dst[:n:n], a)
+}
+
+func trailingZerosInt8LASXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosInt8LASX(dst[:n:n], a)
+}
+
+func reverseBitsInt8LASXGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsInt8LASX(dst[:n:n], a)
+}
+
 func shlInt16LASXGuarded(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1492,6 +1618,51 @@ func rotrInt16LASXGuarded(dst []int16, a []int16, s uint64) {
 		return
 	}
 	rotrInt16LASX(dst[:n:n], a, s)
+}
+
+func onesCountInt16LASXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountInt16LASX(dst[:n:n], a)
+}
+
+func leadingZerosInt16LASXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosInt16LASX(dst[:n:n], a)
+}
+
+func trailingZerosInt16LASXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosInt16LASX(dst[:n:n], a)
+}
+
+func reverseBitsInt16LASXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsInt16LASX(dst[:n:n], a)
+}
+
+func byteSwapInt16LASXGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapInt16LASX(dst[:n:n], a)
 }
 
 func shlUint8LASXGuarded(dst []byte, a []byte, s uint64) {
@@ -1530,6 +1701,42 @@ func rotrUint8LASXGuarded(dst []byte, a []byte, s uint64) {
 	rotrUint8LASX(dst[:n:n], a, s)
 }
 
+func onesCountUint8LASXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountUint8LASX(dst[:n:n], a)
+}
+
+func leadingZerosUint8LASXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosUint8LASX(dst[:n:n], a)
+}
+
+func trailingZerosUint8LASXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosUint8LASX(dst[:n:n], a)
+}
+
+func reverseBitsUint8LASXGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsUint8LASX(dst[:n:n], a)
+}
+
 func shlUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1564,6 +1771,51 @@ func rotrUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
 		return
 	}
 	rotrUint16LASX(dst[:n:n], a, s)
+}
+
+func onesCountUint16LASXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountUint16LASX(dst[:n:n], a)
+}
+
+func leadingZerosUint16LASXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosUint16LASX(dst[:n:n], a)
+}
+
+func trailingZerosUint16LASXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosUint16LASX(dst[:n:n], a)
+}
+
+func reverseBitsUint16LASXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsUint16LASX(dst[:n:n], a)
+}
+
+func byteSwapUint16LASXGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapUint16LASX(dst[:n:n], a)
 }
 
 func shlUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
@@ -1602,6 +1854,51 @@ func rotrUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
 	rotrUint32LASX(dst[:n:n], a, s)
 }
 
+func onesCountUint32LASXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountUint32LASX(dst[:n:n], a)
+}
+
+func leadingZerosUint32LASXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosUint32LASX(dst[:n:n], a)
+}
+
+func trailingZerosUint32LASXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosUint32LASX(dst[:n:n], a)
+}
+
+func reverseBitsUint32LASXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsUint32LASX(dst[:n:n], a)
+}
+
+func byteSwapUint32LASXGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapUint32LASX(dst[:n:n], a)
+}
+
 func shlUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1636,6 +1933,51 @@ func rotrUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 		return
 	}
 	rotrUint64LASX(dst[:n:n], a, s)
+}
+
+func onesCountUint64LASXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountUint64LASX(dst[:n:n], a)
+}
+
+func leadingZerosUint64LASXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosUint64LASX(dst[:n:n], a)
+}
+
+func trailingZerosUint64LASXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosUint64LASX(dst[:n:n], a)
+}
+
+func reverseBitsUint64LASXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsUint64LASX(dst[:n:n], a)
+}
+
+func byteSwapUint64LASXGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapUint64LASX(dst[:n:n], a)
 }
 
 func divFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
@@ -2030,34 +2372,72 @@ func init() {
 	s.I32.Shr = shrInt32LASXGuarded
 	s.I32.Rotl = rotlInt32LASXGuarded
 	s.I32.Rotr = rotrInt32LASXGuarded
+	s.I32.OnesCount = onesCountInt32LASXGuarded
+	s.I32.LeadingZeros = leadingZerosInt32LASXGuarded
+	s.I32.TrailingZeros = trailingZerosInt32LASXGuarded
+	s.I32.ReverseBits = reverseBitsInt32LASXGuarded
+	s.I32.ByteSwap = byteSwapInt32LASXGuarded
 	s.I64.Shl = shlInt64LASXGuarded
 	s.I64.Shr = shrInt64LASXGuarded
 	s.I64.Rotl = rotlInt64LASXGuarded
 	s.I64.Rotr = rotrInt64LASXGuarded
+	s.I64.OnesCount = onesCountInt64LASXGuarded
+	s.I64.LeadingZeros = leadingZerosInt64LASXGuarded
+	s.I64.TrailingZeros = trailingZerosInt64LASXGuarded
+	s.I64.ReverseBits = reverseBitsInt64LASXGuarded
+	s.I64.ByteSwap = byteSwapInt64LASXGuarded
 	s.I8.Shl = shlInt8LASXGuarded
 	s.I8.Shr = shrInt8LASXGuarded
 	s.I8.Rotl = rotlInt8LASXGuarded
 	s.I8.Rotr = rotrInt8LASXGuarded
+	s.I8.OnesCount = onesCountInt8LASXGuarded
+	s.I8.LeadingZeros = leadingZerosInt8LASXGuarded
+	s.I8.TrailingZeros = trailingZerosInt8LASXGuarded
+	s.I8.ReverseBits = reverseBitsInt8LASXGuarded
 	s.I16.Shl = shlInt16LASXGuarded
 	s.I16.Shr = shrInt16LASXGuarded
 	s.I16.Rotl = rotlInt16LASXGuarded
 	s.I16.Rotr = rotrInt16LASXGuarded
+	s.I16.OnesCount = onesCountInt16LASXGuarded
+	s.I16.LeadingZeros = leadingZerosInt16LASXGuarded
+	s.I16.TrailingZeros = trailingZerosInt16LASXGuarded
+	s.I16.ReverseBits = reverseBitsInt16LASXGuarded
+	s.I16.ByteSwap = byteSwapInt16LASXGuarded
 	s.U8.Shl = shlUint8LASXGuarded
 	s.U8.Shr = shrUint8LASXGuarded
 	s.U8.Rotl = rotlUint8LASXGuarded
 	s.U8.Rotr = rotrUint8LASXGuarded
+	s.U8.OnesCount = onesCountUint8LASXGuarded
+	s.U8.LeadingZeros = leadingZerosUint8LASXGuarded
+	s.U8.TrailingZeros = trailingZerosUint8LASXGuarded
+	s.U8.ReverseBits = reverseBitsUint8LASXGuarded
 	s.U16.Shl = shlUint16LASXGuarded
 	s.U16.Shr = shrUint16LASXGuarded
 	s.U16.Rotl = rotlUint16LASXGuarded
 	s.U16.Rotr = rotrUint16LASXGuarded
+	s.U16.OnesCount = onesCountUint16LASXGuarded
+	s.U16.LeadingZeros = leadingZerosUint16LASXGuarded
+	s.U16.TrailingZeros = trailingZerosUint16LASXGuarded
+	s.U16.ReverseBits = reverseBitsUint16LASXGuarded
+	s.U16.ByteSwap = byteSwapUint16LASXGuarded
 	s.U32.Shl = shlUint32LASXGuarded
 	s.U32.Shr = shrUint32LASXGuarded
 	s.U32.Rotl = rotlUint32LASXGuarded
 	s.U32.Rotr = rotrUint32LASXGuarded
+	s.U32.OnesCount = onesCountUint32LASXGuarded
+	s.U32.LeadingZeros = leadingZerosUint32LASXGuarded
+	s.U32.TrailingZeros = trailingZerosUint32LASXGuarded
+	s.U32.ReverseBits = reverseBitsUint32LASXGuarded
+	s.U32.ByteSwap = byteSwapUint32LASXGuarded
 	s.U64.Shl = shlUint64LASXGuarded
 	s.U64.Shr = shrUint64LASXGuarded
 	s.U64.Rotl = rotlUint64LASXGuarded
 	s.U64.Rotr = rotrUint64LASXGuarded
+	s.U64.OnesCount = onesCountUint64LASXGuarded
+	s.U64.LeadingZeros = leadingZerosUint64LASXGuarded
+	s.U64.TrailingZeros = trailingZerosUint64LASXGuarded
+	s.U64.ReverseBits = reverseBitsUint64LASXGuarded
+	s.U64.ByteSwap = byteSwapUint64LASXGuarded
 	s.F32.Div = divFloat32LASXGuarded
 	s.F32.DivScalar = divScalarFloat32LASXGuarded
 	s.F32.Sqrt = sqrtFloat32LASXGuarded

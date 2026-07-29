@@ -1280,6 +1280,51 @@ func rotrInt32NEONGuarded(dst []int32, a []int32, s uint64) {
 	rotrInt32NEON(dst[:n:n], a, s)
 }
 
+func onesCountInt32NEONGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountInt32NEON(dst[:n:n], a)
+}
+
+func leadingZerosInt32NEONGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosInt32NEON(dst[:n:n], a)
+}
+
+func trailingZerosInt32NEONGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosInt32NEON(dst[:n:n], a)
+}
+
+func reverseBitsInt32NEONGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsInt32NEON(dst[:n:n], a)
+}
+
+func byteSwapInt32NEONGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapInt32NEON(dst[:n:n], a)
+}
+
 func shlInt64NEONGuarded(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1314,6 +1359,33 @@ func rotrInt64NEONGuarded(dst []int64, a []int64, s uint64) {
 		return
 	}
 	rotrInt64NEON(dst[:n:n], a, s)
+}
+
+func onesCountInt64NEONGuarded(dst []int64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountInt64NEON(dst[:n:n], a)
+}
+
+func reverseBitsInt64NEONGuarded(dst []int64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsInt64NEON(dst[:n:n], a)
+}
+
+func byteSwapInt64NEONGuarded(dst []int64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapInt64NEON(dst[:n:n], a)
 }
 
 func shlInt8NEONGuarded(dst []int8, a []int8, s uint64) {
@@ -1352,6 +1424,42 @@ func rotrInt8NEONGuarded(dst []int8, a []int8, s uint64) {
 	rotrInt8NEON(dst[:n:n], a, s)
 }
 
+func onesCountInt8NEONGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountInt8NEON(dst[:n:n], a)
+}
+
+func leadingZerosInt8NEONGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosInt8NEON(dst[:n:n], a)
+}
+
+func trailingZerosInt8NEONGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosInt8NEON(dst[:n:n], a)
+}
+
+func reverseBitsInt8NEONGuarded(dst []int8, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsInt8NEON(dst[:n:n], a)
+}
+
 func shlInt16NEONGuarded(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1386,6 +1494,51 @@ func rotrInt16NEONGuarded(dst []int16, a []int16, s uint64) {
 		return
 	}
 	rotrInt16NEON(dst[:n:n], a, s)
+}
+
+func onesCountInt16NEONGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountInt16NEON(dst[:n:n], a)
+}
+
+func leadingZerosInt16NEONGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosInt16NEON(dst[:n:n], a)
+}
+
+func trailingZerosInt16NEONGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosInt16NEON(dst[:n:n], a)
+}
+
+func reverseBitsInt16NEONGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsInt16NEON(dst[:n:n], a)
+}
+
+func byteSwapInt16NEONGuarded(dst []int16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapInt16NEON(dst[:n:n], a)
 }
 
 func shlUint8NEONGuarded(dst []byte, a []byte, s uint64) {
@@ -1424,6 +1577,42 @@ func rotrUint8NEONGuarded(dst []byte, a []byte, s uint64) {
 	rotrUint8NEON(dst[:n:n], a, s)
 }
 
+func onesCountUint8NEONGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountUint8NEON(dst[:n:n], a)
+}
+
+func leadingZerosUint8NEONGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosUint8NEON(dst[:n:n], a)
+}
+
+func trailingZerosUint8NEONGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosUint8NEON(dst[:n:n], a)
+}
+
+func reverseBitsUint8NEONGuarded(dst []byte, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsUint8NEON(dst[:n:n], a)
+}
+
 func shlUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1458,6 +1647,51 @@ func rotrUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
 		return
 	}
 	rotrUint16NEON(dst[:n:n], a, s)
+}
+
+func onesCountUint16NEONGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountUint16NEON(dst[:n:n], a)
+}
+
+func leadingZerosUint16NEONGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosUint16NEON(dst[:n:n], a)
+}
+
+func trailingZerosUint16NEONGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosUint16NEON(dst[:n:n], a)
+}
+
+func reverseBitsUint16NEONGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsUint16NEON(dst[:n:n], a)
+}
+
+func byteSwapUint16NEONGuarded(dst []uint16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapUint16NEON(dst[:n:n], a)
 }
 
 func shlUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
@@ -1496,6 +1730,51 @@ func rotrUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
 	rotrUint32NEON(dst[:n:n], a, s)
 }
 
+func onesCountUint32NEONGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountUint32NEON(dst[:n:n], a)
+}
+
+func leadingZerosUint32NEONGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.LeadingZeros(dst, a)
+		return
+	}
+	leadingZerosUint32NEON(dst[:n:n], a)
+}
+
+func trailingZerosUint32NEONGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.TrailingZeros(dst, a)
+		return
+	}
+	trailingZerosUint32NEON(dst[:n:n], a)
+}
+
+func reverseBitsUint32NEONGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsUint32NEON(dst[:n:n], a)
+}
+
+func byteSwapUint32NEONGuarded(dst []uint32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapUint32NEON(dst[:n:n], a)
+}
+
 func shlUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1530,6 +1809,33 @@ func rotrUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
 		return
 	}
 	rotrUint64NEON(dst[:n:n], a, s)
+}
+
+func onesCountUint64NEONGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.OnesCount(dst, a)
+		return
+	}
+	onesCountUint64NEON(dst[:n:n], a)
+}
+
+func reverseBitsUint64NEONGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ReverseBits(dst, a)
+		return
+	}
+	reverseBitsUint64NEON(dst[:n:n], a)
+}
+
+func byteSwapUint64NEONGuarded(dst []uint64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ByteSwap(dst, a)
+		return
+	}
+	byteSwapUint64NEON(dst[:n:n], a)
 }
 
 func divFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
@@ -1948,34 +2254,68 @@ func init() {
 	s.I32.Shr = shrInt32NEONGuarded
 	s.I32.Rotl = rotlInt32NEONGuarded
 	s.I32.Rotr = rotrInt32NEONGuarded
+	s.I32.OnesCount = onesCountInt32NEONGuarded
+	s.I32.LeadingZeros = leadingZerosInt32NEONGuarded
+	s.I32.TrailingZeros = trailingZerosInt32NEONGuarded
+	s.I32.ReverseBits = reverseBitsInt32NEONGuarded
+	s.I32.ByteSwap = byteSwapInt32NEONGuarded
 	s.I64.Shl = shlInt64NEONGuarded
 	s.I64.Shr = shrInt64NEONGuarded
 	s.I64.Rotl = rotlInt64NEONGuarded
 	s.I64.Rotr = rotrInt64NEONGuarded
+	s.I64.OnesCount = onesCountInt64NEONGuarded
+	s.I64.ReverseBits = reverseBitsInt64NEONGuarded
+	s.I64.ByteSwap = byteSwapInt64NEONGuarded
 	s.I8.Shl = shlInt8NEONGuarded
 	s.I8.Shr = shrInt8NEONGuarded
 	s.I8.Rotl = rotlInt8NEONGuarded
 	s.I8.Rotr = rotrInt8NEONGuarded
+	s.I8.OnesCount = onesCountInt8NEONGuarded
+	s.I8.LeadingZeros = leadingZerosInt8NEONGuarded
+	s.I8.TrailingZeros = trailingZerosInt8NEONGuarded
+	s.I8.ReverseBits = reverseBitsInt8NEONGuarded
 	s.I16.Shl = shlInt16NEONGuarded
 	s.I16.Shr = shrInt16NEONGuarded
 	s.I16.Rotl = rotlInt16NEONGuarded
 	s.I16.Rotr = rotrInt16NEONGuarded
+	s.I16.OnesCount = onesCountInt16NEONGuarded
+	s.I16.LeadingZeros = leadingZerosInt16NEONGuarded
+	s.I16.TrailingZeros = trailingZerosInt16NEONGuarded
+	s.I16.ReverseBits = reverseBitsInt16NEONGuarded
+	s.I16.ByteSwap = byteSwapInt16NEONGuarded
 	s.U8.Shl = shlUint8NEONGuarded
 	s.U8.Shr = shrUint8NEONGuarded
 	s.U8.Rotl = rotlUint8NEONGuarded
 	s.U8.Rotr = rotrUint8NEONGuarded
+	s.U8.OnesCount = onesCountUint8NEONGuarded
+	s.U8.LeadingZeros = leadingZerosUint8NEONGuarded
+	s.U8.TrailingZeros = trailingZerosUint8NEONGuarded
+	s.U8.ReverseBits = reverseBitsUint8NEONGuarded
 	s.U16.Shl = shlUint16NEONGuarded
 	s.U16.Shr = shrUint16NEONGuarded
 	s.U16.Rotl = rotlUint16NEONGuarded
 	s.U16.Rotr = rotrUint16NEONGuarded
+	s.U16.OnesCount = onesCountUint16NEONGuarded
+	s.U16.LeadingZeros = leadingZerosUint16NEONGuarded
+	s.U16.TrailingZeros = trailingZerosUint16NEONGuarded
+	s.U16.ReverseBits = reverseBitsUint16NEONGuarded
+	s.U16.ByteSwap = byteSwapUint16NEONGuarded
 	s.U32.Shl = shlUint32NEONGuarded
 	s.U32.Shr = shrUint32NEONGuarded
 	s.U32.Rotl = rotlUint32NEONGuarded
 	s.U32.Rotr = rotrUint32NEONGuarded
+	s.U32.OnesCount = onesCountUint32NEONGuarded
+	s.U32.LeadingZeros = leadingZerosUint32NEONGuarded
+	s.U32.TrailingZeros = trailingZerosUint32NEONGuarded
+	s.U32.ReverseBits = reverseBitsUint32NEONGuarded
+	s.U32.ByteSwap = byteSwapUint32NEONGuarded
 	s.U64.Shl = shlUint64NEONGuarded
 	s.U64.Shr = shrUint64NEONGuarded
 	s.U64.Rotl = rotlUint64NEONGuarded
 	s.U64.Rotr = rotrUint64NEONGuarded
+	s.U64.OnesCount = onesCountUint64NEONGuarded
+	s.U64.ReverseBits = reverseBitsUint64NEONGuarded
+	s.U64.ByteSwap = byteSwapUint64NEONGuarded
 	s.F32.Div = divFloat32NEONGuarded
 	s.F32.DivScalar = divScalarFloat32NEONGuarded
 	s.F32.Sqrt = sqrtFloat32NEONGuarded

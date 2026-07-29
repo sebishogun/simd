@@ -460,6 +460,18 @@ func rotlInt32SSE2(dst []int32, a []int32, s uint64)
 func rotrInt32SSE2(dst []int32, a []int32, s uint64)
 
 //go:noescape
+func onesCountInt32SSE2(dst []int32, a []int32)
+
+//go:noescape
+func leadingZerosInt32SSE2(dst []int32, a []int32)
+
+//go:noescape
+func reverseBitsInt32SSE2(dst []int32, a []int32)
+
+//go:noescape
+func byteSwapInt32SSE2(dst []int32, a []int32)
+
+//go:noescape
 func shlInt64SSE2(dst []int64, a []int64, s uint64)
 
 //go:noescape
@@ -472,10 +484,31 @@ func rotlInt64SSE2(dst []int64, a []int64, s uint64)
 func rotrInt64SSE2(dst []int64, a []int64, s uint64)
 
 //go:noescape
+func onesCountInt64SSE2(dst []int64, a []int64)
+
+//go:noescape
+func reverseBitsInt64SSE2(dst []int64, a []int64)
+
+//go:noescape
+func byteSwapInt64SSE2(dst []int64, a []int64)
+
+//go:noescape
 func shlInt8SSE2(dst []int8, a []int8, s uint64)
 
 //go:noescape
 func shrInt8SSE2(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func onesCountInt8SSE2(dst []int8, a []int8)
+
+//go:noescape
+func leadingZerosInt8SSE2(dst []int8, a []int8)
+
+//go:noescape
+func trailingZerosInt8SSE2(dst []int8, a []int8)
+
+//go:noescape
+func reverseBitsInt8SSE2(dst []int8, a []int8)
 
 //go:noescape
 func shlInt16SSE2(dst []int16, a []int16, s uint64)
@@ -484,16 +517,58 @@ func shlInt16SSE2(dst []int16, a []int16, s uint64)
 func shrInt16SSE2(dst []int16, a []int16, s uint64)
 
 //go:noescape
+func onesCountInt16SSE2(dst []int16, a []int16)
+
+//go:noescape
+func leadingZerosInt16SSE2(dst []int16, a []int16)
+
+//go:noescape
+func trailingZerosInt16SSE2(dst []int16, a []int16)
+
+//go:noescape
+func reverseBitsInt16SSE2(dst []int16, a []int16)
+
+//go:noescape
+func byteSwapInt16SSE2(dst []int16, a []int16)
+
+//go:noescape
 func shlUint8SSE2(dst []byte, a []byte, s uint64)
 
 //go:noescape
 func shrUint8SSE2(dst []byte, a []byte, s uint64)
 
 //go:noescape
+func onesCountUint8SSE2(dst []byte, a []byte)
+
+//go:noescape
+func leadingZerosUint8SSE2(dst []byte, a []byte)
+
+//go:noescape
+func trailingZerosUint8SSE2(dst []byte, a []byte)
+
+//go:noescape
+func reverseBitsUint8SSE2(dst []byte, a []byte)
+
+//go:noescape
 func shlUint16SSE2(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
 func shrUint16SSE2(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func onesCountUint16SSE2(dst []uint16, a []uint16)
+
+//go:noescape
+func leadingZerosUint16SSE2(dst []uint16, a []uint16)
+
+//go:noescape
+func trailingZerosUint16SSE2(dst []uint16, a []uint16)
+
+//go:noescape
+func reverseBitsUint16SSE2(dst []uint16, a []uint16)
+
+//go:noescape
+func byteSwapUint16SSE2(dst []uint16, a []uint16)
 
 //go:noescape
 func shlUint32SSE2(dst []uint32, a []uint32, s uint64)
@@ -508,6 +583,18 @@ func rotlUint32SSE2(dst []uint32, a []uint32, s uint64)
 func rotrUint32SSE2(dst []uint32, a []uint32, s uint64)
 
 //go:noescape
+func onesCountUint32SSE2(dst []uint32, a []uint32)
+
+//go:noescape
+func leadingZerosUint32SSE2(dst []uint32, a []uint32)
+
+//go:noescape
+func reverseBitsUint32SSE2(dst []uint32, a []uint32)
+
+//go:noescape
+func byteSwapUint32SSE2(dst []uint32, a []uint32)
+
+//go:noescape
 func shlUint64SSE2(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
@@ -518,6 +605,15 @@ func rotlUint64SSE2(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
 func rotrUint64SSE2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func onesCountUint64SSE2(dst []uint64, a []uint64)
+
+//go:noescape
+func reverseBitsUint64SSE2(dst []uint64, a []uint64)
+
+//go:noescape
+func byteSwapUint64SSE2(dst []uint64, a []uint64)
 
 //go:noescape
 func divFloat32SSE2(dst []float32, a []float32, b []float32)

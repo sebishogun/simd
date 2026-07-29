@@ -478,6 +478,21 @@ func rotlInt32LASX(dst []int32, a []int32, s uint64)
 func rotrInt32LASX(dst []int32, a []int32, s uint64)
 
 //go:noescape
+func onesCountInt32LASX(dst []int32, a []int32)
+
+//go:noescape
+func leadingZerosInt32LASX(dst []int32, a []int32)
+
+//go:noescape
+func trailingZerosInt32LASX(dst []int32, a []int32)
+
+//go:noescape
+func reverseBitsInt32LASX(dst []int32, a []int32)
+
+//go:noescape
+func byteSwapInt32LASX(dst []int32, a []int32)
+
+//go:noescape
 func shlInt64LASX(dst []int64, a []int64, s uint64)
 
 //go:noescape
@@ -488,6 +503,21 @@ func rotlInt64LASX(dst []int64, a []int64, s uint64)
 
 //go:noescape
 func rotrInt64LASX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func onesCountInt64LASX(dst []int64, a []int64)
+
+//go:noescape
+func leadingZerosInt64LASX(dst []int64, a []int64)
+
+//go:noescape
+func trailingZerosInt64LASX(dst []int64, a []int64)
+
+//go:noescape
+func reverseBitsInt64LASX(dst []int64, a []int64)
+
+//go:noescape
+func byteSwapInt64LASX(dst []int64, a []int64)
 
 //go:noescape
 func shlInt8LASX(dst []int8, a []int8, s uint64)
@@ -502,6 +532,18 @@ func rotlInt8LASX(dst []int8, a []int8, s uint64)
 func rotrInt8LASX(dst []int8, a []int8, s uint64)
 
 //go:noescape
+func onesCountInt8LASX(dst []int8, a []int8)
+
+//go:noescape
+func leadingZerosInt8LASX(dst []int8, a []int8)
+
+//go:noescape
+func trailingZerosInt8LASX(dst []int8, a []int8)
+
+//go:noescape
+func reverseBitsInt8LASX(dst []int8, a []int8)
+
+//go:noescape
 func shlInt16LASX(dst []int16, a []int16, s uint64)
 
 //go:noescape
@@ -512,6 +554,21 @@ func rotlInt16LASX(dst []int16, a []int16, s uint64)
 
 //go:noescape
 func rotrInt16LASX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func onesCountInt16LASX(dst []int16, a []int16)
+
+//go:noescape
+func leadingZerosInt16LASX(dst []int16, a []int16)
+
+//go:noescape
+func trailingZerosInt16LASX(dst []int16, a []int16)
+
+//go:noescape
+func reverseBitsInt16LASX(dst []int16, a []int16)
+
+//go:noescape
+func byteSwapInt16LASX(dst []int16, a []int16)
 
 //go:noescape
 func shlUint8LASX(dst []byte, a []byte, s uint64)
@@ -526,6 +583,18 @@ func rotlUint8LASX(dst []byte, a []byte, s uint64)
 func rotrUint8LASX(dst []byte, a []byte, s uint64)
 
 //go:noescape
+func onesCountUint8LASX(dst []byte, a []byte)
+
+//go:noescape
+func leadingZerosUint8LASX(dst []byte, a []byte)
+
+//go:noescape
+func trailingZerosUint8LASX(dst []byte, a []byte)
+
+//go:noescape
+func reverseBitsUint8LASX(dst []byte, a []byte)
+
+//go:noescape
 func shlUint16LASX(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
@@ -536,6 +605,21 @@ func rotlUint16LASX(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
 func rotrUint16LASX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func onesCountUint16LASX(dst []uint16, a []uint16)
+
+//go:noescape
+func leadingZerosUint16LASX(dst []uint16, a []uint16)
+
+//go:noescape
+func trailingZerosUint16LASX(dst []uint16, a []uint16)
+
+//go:noescape
+func reverseBitsUint16LASX(dst []uint16, a []uint16)
+
+//go:noescape
+func byteSwapUint16LASX(dst []uint16, a []uint16)
 
 //go:noescape
 func shlUint32LASX(dst []uint32, a []uint32, s uint64)
@@ -550,6 +634,21 @@ func rotlUint32LASX(dst []uint32, a []uint32, s uint64)
 func rotrUint32LASX(dst []uint32, a []uint32, s uint64)
 
 //go:noescape
+func onesCountUint32LASX(dst []uint32, a []uint32)
+
+//go:noescape
+func leadingZerosUint32LASX(dst []uint32, a []uint32)
+
+//go:noescape
+func trailingZerosUint32LASX(dst []uint32, a []uint32)
+
+//go:noescape
+func reverseBitsUint32LASX(dst []uint32, a []uint32)
+
+//go:noescape
+func byteSwapUint32LASX(dst []uint32, a []uint32)
+
+//go:noescape
 func shlUint64LASX(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
@@ -560,6 +659,21 @@ func rotlUint64LASX(dst []uint64, a []uint64, s uint64)
 
 //go:noescape
 func rotrUint64LASX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func onesCountUint64LASX(dst []uint64, a []uint64)
+
+//go:noescape
+func leadingZerosUint64LASX(dst []uint64, a []uint64)
+
+//go:noescape
+func trailingZerosUint64LASX(dst []uint64, a []uint64)
+
+//go:noescape
+func reverseBitsUint64LASX(dst []uint64, a []uint64)
+
+//go:noescape
+func byteSwapUint64LASX(dst []uint64, a []uint64)
 
 //go:noescape
 func divFloat32LASX(dst []float32, a []float32, b []float32)

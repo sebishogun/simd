@@ -180,8 +180,15 @@ type Ops[T any] struct {
 	// that undefined and the hardware disagrees about it, so the kernels clamp
 	// explicitly. Left nil for the float types, where they have no meaning.
 	Shl, Shr, Rotl, Rotr func(dst, a []T, s uint64)
-	Clamp                func(dst, a []T, lo, hi T)
-	Fill                 func(dst []T, v T)
+
+	// OnesCount, LeadingZeros, TrailingZeros, ReverseBits and ByteSwap are the
+	// per-element bit operations. They follow math/bits, which means the zero
+	// case is defined: LeadingZeros and TrailingZeros of zero are the element
+	// width, where the C builtins leave it undefined. ByteSwap is nil for the
+	// eight-bit types, where a byte is its own reversal.
+	OnesCount, LeadingZeros, TrailingZeros, ReverseBits, ByteSwap func(dst, a []T)
+	Clamp                                                         func(dst, a []T, lo, hi T)
+	Fill                                                          func(dst []T, v T)
 
 	// Fused. AddScaled is AXPY: dst[i] = a[i] + b[i]*s in one pass over
 	// memory, which is the whole reason a fused catalogue exists.
