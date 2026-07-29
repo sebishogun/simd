@@ -565,7 +565,13 @@ var All = []Target{
 		// them fatal the moment a signal arrives, because loong64's sigtramp
 		// reads g from the register rather than from thread-local storage
 		// unless cgo is in play.
-		GoOwned:    []string{"$fp"},
+		GoOwned: []string{"$fp"},
+		// Probed on clang 22.1.8 (2026-07): LoongArch has no -ffixed family
+		// (-ffixed-x22 is AArch64's and is "unsupported for target"), and a
+		// file-scope register variable bound to $r22/$fp is accepted and
+		// ignored — five fp-class uses in a GPR-pressure probe with the
+		// declaration and five without. Same conclusion as s390x's r13: the
+		// $fp exclusions stand until upstream clang gains reservation for it.
 		StackReg:   "$sp",
 		InstrWidth: 4,
 		Directives: dirWord,
