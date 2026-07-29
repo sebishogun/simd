@@ -437,6 +437,7 @@ var All = []Target{
 	},
 	{
 		Arch: ARM64, Tier: "neon", Triple: "aarch64-linux-gnu",
+		StackReg:   "sp",
 		MArch:      []string{"-march=armv8-a"},
 		InstrWidth: 4,
 		Directives: dirWord,
@@ -454,6 +455,7 @@ var All = []Target{
 	},
 	{
 		Arch: ARM64, Tier: "sve2", Triple: "aarch64-linux-gnu",
+		StackReg: "sp",
 		// The differentiator. Go's assembler cannot encode a single SVE
 		// instruction, and upstream has deferred scalable vectors with no
 		// design, so raw encodings are the only route. Conveniently this is
@@ -486,6 +488,7 @@ var All = []Target{
 	},
 	{
 		Arch: RISCV64, Tier: "rvv", Triple: "riscv64-linux-gnu",
+		StackReg: "sp",
 		// Deliberately rv64gv, not rv64gcv: the compressed extension makes
 		// some instructions two bytes wide, so a function can end on a 2-byte
 		// boundary — and Go's riscv64 assembler has no BYTE directive to
@@ -513,7 +516,8 @@ var All = []Target{
 	},
 	{
 		Arch: S390X, Tier: "vx", Triple: "s390x-linux-gnu",
-		MArch: []string{"-march=z14"},
+		StackReg: "%r15",
+		MArch:    []string{"-march=z14"},
 		// No Reserved: clang has no -ffixed for SystemZ at all, and it accepts
 		// the global register variable in csrc/goabi.h without honouring it.
 		// The backstop below is what actually keeps r13 safe here.

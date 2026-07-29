@@ -288,7 +288,7 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 	// which looked at one source file and concluded there was nothing to
 	// contain.
 	if tgt.StackReg != "" {
-		if off, ok := writesOutsideFrame(instrs, tgt); ok {
+		if off, ok := writesOutsideFrame(instrs, tgt, r.StackBytes); ok {
 			where := "the caller's frame; the target needs a SaveArea"
 			if off < 0 {
 				where = "below the stack pointer, where the Go runtime writes"
@@ -341,6 +341,19 @@ var storeMnemonics = map[string]bool{
 	// ppc64le shares std; add the rest of its family
 	"stw": true, "stb": true, "sth": true, "stfd": true, "stfs": true,
 	"stxv": true, "stxvd2x": true, "stvx": true, "stmw": true,
+	// riscv64, including the RVV unit-stride, strided and indexed stores.
+	"sb": true, "sh": true, "sw": true, "fsw": true, "fsd": true,
+	"vse8.v": true, "vse16.v": true, "vse32.v": true, "vse64.v": true,
+	"vs1r.v": true, "vs2r.v": true, "vs4r.v": true, "vs8r.v": true,
+	"vsse8.v": true, "vsse16.v": true, "vsse32.v": true, "vsse64.v": true,
+	"vsuxei8.v": true, "vsuxei16.v": true, "vsuxei32.v": true,
+	"vsuxei64.v": true, "vsoxei8.v": true, "vsoxei16.v": true,
+	"vsoxei32.v": true, "vsoxei64.v": true,
+	// arm64. st1 through st4 are the NEON and SVE structure stores.
+	"str": true, "strb": true, "strh": true, "stur": true, "sturb": true,
+	"sturh": true, "stp": true, "stnp": true,
+	"st1": true, "st2": true, "st3": true, "st4": true,
+	"st1b": true, "st1h": true, "st1w": true, "st1d": true,
 }
 
 // writesOutsideFrame reports whether any instruction stores outside the
@@ -350,17 +363,33 @@ var storeMnemonics = map[string]bool{
 // red or protected zone. Both are forbidden under Go, and a SaveArea excuses
 // only the first, because it moves the stack pointer down far enough that the
 // positive offsets land in the kernel's own frame.
-func writesOutsideFrame(instrs []Instr, tgt target.Target) (int, bool) {
-	re := regexp.MustCompile(`(-?\d+)\(` + regexp.QuoteMeta(tgt.StackReg) + `\)`)
+func writesOutsideFrame(instrs []Instr, tgt target.Target, frame int) (int, bool) {
+	sp := regexp.QuoteMeta(tgt.StackReg)
+	num := `(-?(?:0[xX])?[0-9a-fA-F]+)`
+	// Two syntaxes, because llvm-objdump prints two: a displacement before a
+	// parenthesised base on x86, PowerPC and RISC-V, and bracketed on arm64.
+	forms := []*regexp.Regexp{
+		regexp.MustCompile(num + `\(` + sp + `\)`),
+		regexp.MustCompile(`\[` + sp + `(?:,\s*#` + num + `)?\]`),
+	}
 	for _, in := range instrs {
 		if !storeMnemonics[in.Mnemonic] || frameAlloc[in.Mnemonic] {
 			continue
 		}
-		for _, m := range re.FindAllStringSubmatch(in.Operands, -1) {
-			n, err := strconv.Atoi(m[1])
-			if err != nil {
-				continue
+		// arm64 pre- and post-indexed stores move the stack pointer as they
+		// write, so they allocate rather than overrun.
+		if strings.Contains(in.Operands, "]!") || strings.Contains(in.Operands, "], #") {
+			continue
+		}
+		var ms [][]string
+		for _, re := range forms {
+			ms = append(ms, re.FindAllStringSubmatch(in.Operands, -1)...)
+		}
+		for _, m := range ms {
+			if m[1] == "" {
+				m[1] = "0"
 			}
+			n := parseHexOrDec(m[1])
 			if n < 0 {
 				// Below the stack pointer, which is fatal on every target but
 				// the one whose ABI reserves a zone there that Go provably
@@ -369,6 +398,11 @@ func writesOutsideFrame(instrs []Instr, tgt target.Target) (int, bool) {
 					continue
 				}
 				return n, true
+			}
+			// A non-negative offset below the frame the prologue allocated
+			// is the kernel's own frame, which is where a spill belongs.
+			if n < frame {
+				continue
 			}
 			if tgt.SaveArea == 0 {
 				return n, true
@@ -647,11 +681,34 @@ func clobbersBP(instrs []Instr) (string, bool) {
 // ---------- stack ----------
 
 var (
-	reSubRSP  = regexp.MustCompile(`^\$(?:0x([0-9a-f]+)|([0-9]+)),\s*%rsp$`)
-	reSubSPAA = regexp.MustCompile(`^sp,\s*sp,\s*#([0-9]+)$`)
+	reStpPreAA = regexp.MustCompile(`\[sp,\s*#-((?:0[xX])?[0-9a-fA-F]+)\]!`)
+	reAddiSPRV = regexp.MustCompile(`^sp,\s*sp,\s*-((?:0[xX])?[0-9a-fA-F]+)$`)
+	reSubRSP   = regexp.MustCompile(`^\$(?:0x([0-9a-f]+)|([0-9]+)),\s*%rsp$`)
+	reSubSPAA  = regexp.MustCompile(`^sp,\s*sp,\s*#((?:0[xX])?[0-9a-fA-F]+)$`)
 )
 
 // stackAdjust returns how far the instruction moves the stack pointer down.
+// parseHexOrDec reads a displacement in either of the forms llvm-objdump
+// prints. arm64 frames come out as #0xf0 and x86 offsets as -16.
+func parseHexOrDec(t string) int {
+	neg := strings.HasPrefix(t, "-")
+	if neg {
+		t = t[1:]
+	}
+	base := 10
+	if strings.HasPrefix(t, "0x") || strings.HasPrefix(t, "0X") {
+		t, base = t[2:], 16
+	}
+	v, err := strconv.ParseInt(t, base, 64)
+	if err != nil {
+		return 0
+	}
+	if neg {
+		return -int(v)
+	}
+	return int(v)
+}
+
 func stackAdjust(in Instr, arch target.Arch) int {
 	switch arch {
 	case target.AMD64:
@@ -668,13 +725,27 @@ func stackAdjust(in Instr, arch target.Arch) int {
 		}
 		n, _ := strconv.Atoi(m[2])
 		return n
+	case target.RISCV64:
+		if in.Mnemonic == "addi" {
+			if m := reAddiSPRV.FindStringSubmatch(strings.TrimSpace(in.Operands)); m != nil {
+				return parseHexOrDec(m[1])
+			}
+		}
+		return 0
 	case target.ARM64:
+		// Two prologue forms. clang allocates a small frame with a
+		// PRE-INDEXED store -- stp x29, x30, [sp, #-32]! -- which both writes
+		// and moves the stack pointer, rather than with a separate sub.
+		// Counting only the sub leaves the frame at zero and every subsequent
+		// spill at [sp, #k] reads as a write into the caller.
+		if m := reStpPreAA.FindStringSubmatch(strings.TrimSpace(in.Operands)); m != nil {
+			return parseHexOrDec(m[1])
+		}
 		if in.Mnemonic != "sub" {
 			return 0
 		}
 		if m := reSubSPAA.FindStringSubmatch(strings.TrimSpace(in.Operands)); m != nil {
-			n, _ := strconv.Atoi(m[1])
-			return n
+			return parseHexOrDec(m[1])
 		}
 	}
 	return 0
