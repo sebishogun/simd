@@ -1508,7 +1508,7 @@ func Sort() []spec.Kernel {
 // A skipped kernel is not registered and the portable path stands, which is
 // the same arrangement every other partial backend uses.
 //
-// # riscv64 is on this list for a different reason, and it is not the stated one
+// # riscv64 is on this list for a different reason, and it is now known
 //
 // RVV 1.0 does have vcompress.vm, so the paragraph above is simply wrong about
 // riscv64, and removing it from this list does produce kernels: five of them,
@@ -1516,17 +1516,24 @@ func Sort() []spec.Kernel {
 // Sort, Median and Quantile on that architecture. LLVM vectorizes csrc/compress.c
 // for rv64gcv into thirty-one vector instructions without complaint.
 //
-// They corrupt memory. Under qemu at vlen=256 the suite dies in
-// runtime.scanstack during a garbage collection — a SIGSEGV inside the stack
-// unwinder, which means the kernel wrote outside its frame and the collector
-// found the damage later, somewhere unrelated to the cause.
+// They overflow the stack. Every one of them spills far past the 512-byte
+// budget a NOSPLIT function has — 640 bytes for the int32 compress, 1216 for
+// float32, 1792 for the 64-bit types, 2032 for the partitions — and a NOSPLIT
+// function that uses four times the stack the runtime guarantees runs off the
+// end of the goroutine stack. The damage is silent and surfaces later, which
+// is why this presented as a SIGSEGV inside runtime.scanstack during a garbage
+// collection, in a goroutine unrelated to the kernel.
 //
-// That is the same signature as countAnyVSX on ppc64le, which is skipped for
-// the same reason and whose root cause is also unknown. Two instances of one
-// fault in two unrelated backends points at the generator rather than at
-// either kernel, and until that is understood shipping a kernel that passes
-// its own tests and then breaks the collector is worse than shipping no kernel
-// at all.
+// That was a mystery for as long as it was, and two confident explanations
+// were published and retracted along the way, because the check that says this
+// had been dead on riscv64 the whole time: stackAdjust had no case for the
+// architecture, so it measured every frame as zero and the budget was never
+// tested. See docs/wrong.md entries 26 through 32.
+//
+// So the exclusion stands, but for a stated and measurable reason, and the
+// route back is the ordinary one: bring the spill under 512 bytes. The
+// per-type lane counts that fixed the same overflow in argreduce.c are the
+// first thing to try.
 var noCompress = []string{
 	"amd64/sse2", "amd64/avx2", "arm64/neon",
 	"riscv64", "s390x", "loong64", "ppc64le",

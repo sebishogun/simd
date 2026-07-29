@@ -856,3 +856,43 @@ The transferable part: four consecutive plausible diagnoses, each confirmed
 true in isolation, none of which moved the number. When a fix that must work
 does not, the assumption to check is not the fix — it is the measurement you
 are using to judge it.
+
+## 33. The corruption was exotic
+
+**Wrong.** It was a stack overflow, and the check that says so had been dead on
+that architecture the whole time.
+
+Two kernels destroyed memory in a way that took most of a session to explain:
+`countAnyVSX` on ppc64le, and the compress family on riscv64. Both died the
+same way — SIGSEGV inside `runtime.scanstack`, during a collection, walking a
+goroutine unrelated to either. Two confident explanations were published and
+retracted along the way, an out-of-frame stack write (entry 27) and a heap
+overrun past `dst` (retracted in the same entry), and the honest conclusion was
+that the cause was unknown.
+
+It was not exotic. Every kernel in the riscv64 compress family spills far past
+the 512-byte budget a NOSPLIT function is allowed: 640 bytes for the int32
+compress, 1216 for float32, 1792 for the 64-bit types, 2032 for the partitions.
+A NOSPLIT function that uses four times the stack the runtime guarantees runs
+off the end of the goroutine stack. The damage is silent and the collector
+finds it later, somewhere else.
+
+The budget check has existed since long before any of this. It never fired on
+riscv64 because `stackAdjust` had no case for the architecture and so measured
+every frame as zero — and it never fired on arm64, s390x or loong64 either, for
+the same reason. Underneath that, `parseInstr` was deleting every arm64
+immediate by cutting operands at the first `#`, which on that architecture is
+the immediate prefix (entry 32). So the measurement feeding the check was
+empty, and the check reported success.
+
+**Fix.** Both are in the two commits that precede this entry. The parser cut
+moves to `"# "`; `stackAdjust` learns riscv64, ppc64le, s390x and loong64
+prologues and arm64's pre-indexed form; `writesOutsideFrame` reads both
+addressing syntaxes and compares against the frame actually allocated. arm64
+keeps all 740 slots with zero false positives, and riscv64 loses ten kernels
+that were genuinely over budget and shipping.
+
+The transferable part is the arithmetic of it. Four entries in this file — 26,
+27, 30 and 32 — were spent on a fault that a working check would have named in
+one line. The cost of a check that silently no-ops is not the bug it misses; it
+is every hour spent explaining that bug by other means.
