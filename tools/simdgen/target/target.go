@@ -521,6 +521,18 @@ var All = []Target{
 		// No Reserved: clang has no -ffixed for SystemZ at all, and it accepts
 		// the global register variable in csrc/goabi.h without honouring it.
 		// The backstop below is what actually keeps r13 safe here.
+		//
+		// Re-verified on clang 22.1.8 (2026-07): -ffixed-r13 is rejected for
+		// this target (the driver's "did you mean -ffixed-r19/-ffixed-a5"
+		// suggestions come from other targets' flag tables); -mllvm
+		// -help-hidden lists no SystemZ reserve option; and under forced GPR
+		// pressure a file-scope `register long g __asm__("r13")` changes the
+		// count of r13 uses not at all — eighteen with, eighteen without. A
+		// save/restore trampoline is not a route either: async preemption
+		// delivers SIGURG at any instruction, the signal path reads g from
+		// r13, and a kernel that has borrowed it at that moment hands the
+		// runtime a garbage g. The ~380 excluded slots stay excluded until
+		// upstream clang gains SystemZ register reservation.
 		GoOwned:    []string{"r13"},
 		SaveArea:   160, // the zSeries ABI register save area
 		InstrWidth: 0,
