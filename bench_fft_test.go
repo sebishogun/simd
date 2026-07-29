@@ -49,3 +49,34 @@ func BenchmarkFFT(b *testing.B) {
 		}
 	}
 }
+
+// RFFT against transforming the same real signal as complex, which is what a
+// caller does without it.
+func BenchmarkRFFT(b *testing.B) {
+	r := rand.New(rand.NewPCG(151, 157))
+	for _, n := range []int{1024, 65536} {
+		x := make([]float64, n)
+		cx := make([]complex128, n)
+		for i := range x {
+			x[i] = r.NormFloat64()
+			cx[i] = complex(x[i], 0)
+		}
+		rp := simd.NewRFFTPlan(n)
+		cp := simd.NewFFTPlan(n)
+		rd := make([]complex128, rp.OutLen())
+		cd := make([]complex128, n)
+		scr := make([]complex128, n/2)
+		b.Run(fmt.Sprintf("n=%d/impl=real", n), func(b *testing.B) {
+			for b.Loop() {
+				simd.RFFTInto(rp, rd, x, scr)
+			}
+			sinkFFT = rd
+		})
+		b.Run(fmt.Sprintf("n=%d/impl=complex", n), func(b *testing.B) {
+			for b.Loop() {
+				simd.FFTInto(cp, cd, cx)
+			}
+			sinkFFT = cd
+		})
+	}
+}
