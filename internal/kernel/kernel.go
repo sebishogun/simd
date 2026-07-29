@@ -252,6 +252,15 @@ type Ops[T any] struct {
 	// bit-identical to Dot of row i against x.
 	Gemv func(dst, a, x []T, m, k int)
 
+	// GemmPackB copies B into the tile-major layout MatMulPk consumes, and
+	// MatMulPk multiplies against that packed copy. Splitting them keeps each
+	// under the six-argument register budget, and lets a caller pack once for
+	// several multiplies. Bit-identical to MatMul by construction: packing is
+	// data movement, and the multiply consumes the same values in the same
+	// p-ascending order.
+	GemmPackB func(bp, b []T, k, n int)
+	MatMulPk  func(dst, a, bp []T, m, k, n int)
+
 	// Transpose writes the m*n row-major matrix a as an n*m one into dst.
 	Transpose func(dst, a []T, m, n int)
 	// EMA is the exponentially weighted moving average, which is inherently

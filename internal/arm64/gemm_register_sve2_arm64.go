@@ -52,6 +52,38 @@ func gemvFloat64SVE2Guarded(dst []float64, a []float64, x []float64, m int, k in
 	gemvFloat64SVE2(dst, a, x, m, k)
 }
 
+func gemmPackBFloat32SVE2Guarded(bp []float32, b []float32, k int, n int) {
+	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+16-1)/16)*k*16 {
+		ref.GemmPackB(bp, b, k, n)
+		return
+	}
+	gemmPackBFloat32SVE2(bp, b, k, n)
+}
+
+func matMulPkFloat32SVE2Guarded(dst []float32, a []float32, bp []float32, m int, k int, n int) {
+	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+16-1)/16)*k*16 {
+		ref.MatMulPk(dst, a, bp, m, k, n)
+		return
+	}
+	matMulPkFloat32SVE2(dst, a, bp, m, k, n)
+}
+
+func gemmPackBFloat64SVE2Guarded(bp []float64, b []float64, k int, n int) {
+	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+8-1)/8)*k*8 {
+		ref.GemmPackB(bp, b, k, n)
+		return
+	}
+	gemmPackBFloat64SVE2(bp, b, k, n)
+}
+
+func matMulPkFloat64SVE2Guarded(dst []float64, a []float64, bp []float64, m int, k int, n int) {
+	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+8-1)/8)*k*8 {
+		ref.MatMulPk(dst, a, bp, m, k, n)
+		return
+	}
+	matMulPkFloat64SVE2(dst, a, bp, m, k, n)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -60,4 +92,8 @@ func init() {
 	s.F32.Gemv = gemvFloat32SVE2Guarded
 	s.F64.MatMul = matMulFloat64SVE2Guarded
 	s.F64.Gemv = gemvFloat64SVE2Guarded
+	s.F32.GemmPackB = gemmPackBFloat32SVE2Guarded
+	s.F32.MatMulPk = matMulPkFloat32SVE2Guarded
+	s.F64.GemmPackB = gemmPackBFloat64SVE2Guarded
+	s.F64.MatMulPk = matMulPkFloat64SVE2Guarded
 }

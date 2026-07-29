@@ -371,6 +371,59 @@ func transpose[T number](dst, a []T, m, n int) {
 	}
 }
 
+// gemmPackVL is the reference packed-tile width. The kernels use their own
+// per-tier width; the reference only needs to agree with ITSELF, since pack
+// and multiply are always used as a pair through the same table.
+func gemmPackW[T number]() int {
+	var z T
+	if unsafe.Sizeof(z) == 4 {
+		return 16
+	}
+	return 8
+}
+
+func gemmPackB[T number](bp, b []T, k, n int) {
+	W := gemmPackW[T]()
+	tiles := (n + W - 1) / W
+	if len(bp) < tiles*k*W || len(b) < k*n || k < 0 || n < 0 {
+		return
+	}
+	for t := range tiles {
+		j0 := t * W
+		w := min(W, n-j0)
+		dst := bp[t*k*W:]
+		for p := range k {
+			for v := range w {
+				dst[p*W+v] = b[p*n+j0+v]
+			}
+			for v := w; v < W; v++ {
+				dst[p*W+v] = 0
+			}
+		}
+	}
+}
+
+func matMulPk[T number](dst, a, bp []T, m, k, n int) {
+	W := gemmPackW[T]()
+	tiles := (n + W - 1) / W
+	if m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k ||
+		len(bp) < tiles*k*W {
+		return
+	}
+	for i := range dst[:m*n] {
+		dst[i] = 0
+	}
+	for i := range m {
+		for p := range k {
+			s := a[i*k+p]
+			for j := range n {
+				t := j / W
+				dst[i*n+j] += s * bp[t*k*W+p*W+(j-t*W)]
+			}
+		}
+	}
+}
+
 func addScalar[T number](dst, a []T, s T) {
 	n := min(len(dst), len(a))
 	dst, a = dst[:n], a[:n]
@@ -864,7 +917,8 @@ func floatOps[T float]() kernel.Ops[T] {
 		Partition: partitionOut[T],
 		Gemv:      gemvFloat[T],
 		Transpose: transpose[T],
-		Sum:       sumFloat[T], Min: minFloat[T], Max: maxFloat[T],
+		GemmPackB: gemmPackB[T], MatMulPk: matMulPk[T],
+		Sum: sumFloat[T], Min: minFloat[T], Max: maxFloat[T],
 		SumSquares: sumSquaresFloat[T], L1Norm: l1NormFloat[T], Norm: normFloat[T],
 		Dot:      dotFloat[T],
 		SumSqDev: sumSqDevFloat[T], SumSqDiff: sumSqDiffFloat[T], L1Diff: l1DiffFloat[T],
@@ -1116,6 +1170,10 @@ func ReverseBits[T Integer](dst, a []T)   { reverseBits(dst, a) }
 func ByteSwap[T Integer](dst, a []T)      { byteSwap(dst, a) }
 
 func Transpose[T Number](dst, a []T, m, n int) { transpose(dst, a, m, n) }
+func GemmPackB[T Number](bp, b []T, k, n int)  { gemmPackB(bp, b, k, n) }
+func MatMulPk[T Number](dst, a, bp []T, m, k, n int) {
+	matMulPk(dst, a, bp, m, k, n)
+}
 
 func Shl[T Integer](dst, a []T, s uint64)  { shl(dst, a, s) }
 func Shr[T Integer](dst, a []T, s uint64)  { shr(dst, a, s) }

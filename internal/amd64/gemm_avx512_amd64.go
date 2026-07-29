@@ -28,6 +28,18 @@ func matMulFloat64AVX512(dst []float64, a []float64, b []float64, m int, k int, 
 func gemvFloat64AVX512(dst []float64, a []float64, x []float64, m int, k int)
 
 //go:noescape
+func gemmPackBFloat32AVX512(bp []float32, b []float32, k int, n int)
+
+//go:noescape
+func matMulPkFloat32AVX512(dst []float32, a []float32, bp []float32, m int, k int, n int)
+
+//go:noescape
+func gemmPackBFloat64AVX512(bp []float64, b []float64, k int, n int)
+
+//go:noescape
+func matMulPkFloat64AVX512(dst []float64, a []float64, bp []float64, m int, k int, n int)
+
+//go:noescape
 func transposeFloat32AVX512(dst []float32, a []float32, m int, n int)
 
 //go:noescape

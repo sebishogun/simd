@@ -52,6 +52,38 @@ func gemvFloat64AVX2Guarded(dst []float64, a []float64, x []float64, m int, k in
 	gemvFloat64AVX2(dst, a, x, m, k)
 }
 
+func gemmPackBFloat32AVX2Guarded(bp []float32, b []float32, k int, n int) {
+	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+16-1)/16)*k*16 {
+		ref.GemmPackB(bp, b, k, n)
+		return
+	}
+	gemmPackBFloat32AVX2(bp, b, k, n)
+}
+
+func matMulPkFloat32AVX2Guarded(dst []float32, a []float32, bp []float32, m int, k int, n int) {
+	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+16-1)/16)*k*16 {
+		ref.MatMulPk(dst, a, bp, m, k, n)
+		return
+	}
+	matMulPkFloat32AVX2(dst, a, bp, m, k, n)
+}
+
+func gemmPackBFloat64AVX2Guarded(bp []float64, b []float64, k int, n int) {
+	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+8-1)/8)*k*8 {
+		ref.GemmPackB(bp, b, k, n)
+		return
+	}
+	gemmPackBFloat64AVX2(bp, b, k, n)
+}
+
+func matMulPkFloat64AVX2Guarded(dst []float64, a []float64, bp []float64, m int, k int, n int) {
+	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+8-1)/8)*k*8 {
+		ref.MatMulPk(dst, a, bp, m, k, n)
+		return
+	}
+	matMulPkFloat64AVX2(dst, a, bp, m, k, n)
+}
+
 func transposeFloat32AVX2Guarded(dst []float32, a []float32, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
@@ -92,6 +124,10 @@ func init() {
 	s.F32.Gemv = gemvFloat32AVX2Guarded
 	s.F64.MatMul = matMulFloat64AVX2Guarded
 	s.F64.Gemv = gemvFloat64AVX2Guarded
+	s.F32.GemmPackB = gemmPackBFloat32AVX2Guarded
+	s.F32.MatMulPk = matMulPkFloat32AVX2Guarded
+	s.F64.GemmPackB = gemmPackBFloat64AVX2Guarded
+	s.F64.MatMulPk = matMulPkFloat64AVX2Guarded
 	s.F32.Transpose = transposeFloat32AVX2Guarded
 	s.F64.Transpose = transposeFloat64AVX2Guarded
 	s.I32.Transpose = transposeInt32AVX2Guarded

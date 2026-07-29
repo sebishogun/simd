@@ -235,3 +235,104 @@ TRANSPOSE(float, f32)
 TRANSPOSE(double, f64)
 TRANSPOSE(int, i32)
 TRANSPOSE(long long, i64)
+
+// ---------- packed-B matmul ----------
+//
+// The cliff this exists for: the unpacked microkernel reads b[p*n + j0] for
+// every p, walking a column strip of B with stride n. At 512x512 doubles the
+// operands stop fitting L2 and throughput fell from 124 to 34 GFLOP/s.
+// Packing the strip contiguous fixes the locality, and packing is data
+// MOVEMENT, not reassociation: the multiply consumes the same values in the
+// same p-ascending order, so the result is bit-identical to simd_matmul and
+// the contract at MatMulInto holds.
+//
+// The packed tile width is fixed PER ELEMENT TYPE, not per tier — sixteen
+// floats, eight doubles, everywhere, including the portable reference. That
+// is not an optimisation choice but a correctness one: the dispatch table
+// pairs the pack and multiply slots independently, so a tier could pack with
+// one function and multiply with another, and the two must agree on layout
+// no matter how they are mixed. A tier whose vector is narrower than the
+// tile reads two sub-vectors per tile; the load is still bp + p*W + h*VL,
+// contiguous in p, which is the property the packing exists to create.
+//
+// Two kernels rather than one taking scratch: dst, a, b, scratch plus m, k, n
+// is seven arguments, and the seventh leaves the integer registers on x86-64.
+//
+// Layout: bp[t*(k*W) + p*W + v] = b[p*n + t*W + v], zero-padded past n.
+#define GEMM_PKW_F32 16
+#define GEMM_PKW_F64 8
+
+#define GEMM_PACKB(SUF, T, W)                                             \
+  void simd_gemm_pack_b_##SUF(T *__restrict bp, const T *__restrict bsrc, \
+                              isize k, isize n) {                         \
+    isize tiles = (n + (W)-1) / (W);                                      \
+    for (isize t = 0; t < tiles; t++) {                                   \
+      isize j0 = t * (W);                                                 \
+      isize w = n - j0 < (W) ? n - j0 : (W);                              \
+      T *dstp = bp + t * k * (W);                                         \
+      for (isize p = 0; p < k; p++) {                                     \
+        for (isize v = 0; v < w; v++)                                     \
+          dstp[p * (W) + v] = bsrc[p * n + j0 + v];                       \
+        for (isize v = w; v < (W); v++) dstp[p * (W) + v] = (T)0;         \
+      }                                                                   \
+    }                                                                     \
+  }
+
+// H = W/VL sub-vectors per tile: 1 on the widest tier, 2 on the narrower.
+#define GEMM_TILE_PK(T, VT, VL, W)                                        \
+  {                                                                       \
+    VT acc[GEMM_MR][(W) / (VL)];                                          \
+    _Pragma("clang loop unroll(full)") for (int r = 0; r < GEMM_MR; r++)  \
+        _Pragma("clang loop unroll(full)") for (int h = 0;                \
+                                                h < (W) / (VL); h++)      \
+            acc[r][h] = (VT)(T)0;                                         \
+    const T *bt = bp + (j0 / (W)) * (k * (W));                            \
+    for (isize p = 0; p < k; p++) {                                       \
+      _Pragma("clang loop unroll(full)") for (int h = 0; h < (W) / (VL);  \
+                                              h++) {                      \
+        VT bv = *(const VT *)(bt + p * (W) + h * (VL));                   \
+        _Pragma("clang loop unroll(full)") for (int r = 0; r < GEMM_MR;   \
+                                                r++) acc[r][h] +=         \
+            a[(i0 + r) * k + p] * bv;                                     \
+      }                                                                   \
+    }                                                                     \
+    _Pragma("clang loop unroll(full)") for (int r = 0; r < GEMM_MR; r++)  \
+        _Pragma("clang loop unroll(full)") for (int h = 0;                \
+                                                h < (W) / (VL); h++)      \
+            *(VT *)(d + (i0 + r) * n + j0 + h * (VL)) = acc[r][h];        \
+  }
+
+#define GEMM_EDGE_PK(T, ROW, JLO, W)                                      \
+  for (isize p = 0; p < k; p++) {                                         \
+    T s_ = a[(ROW) * k + p];                                              \
+    for (isize j = (JLO); j < n; j++) {                                   \
+      isize t_ = j / (W);                                                 \
+      d[(ROW) * n + j] +=                                                 \
+          s_ * bp[t_ * (k * (W)) + p * (W) + (j - t_ * (W))];             \
+    }                                                                     \
+  }
+
+#define GEMM_PK(T, VT, VL, W)                                             \
+  for (isize z = 0; z < m * n; z++) d[z] = 0;                             \
+  isize i0 = 0;                                                           \
+  for (; i0 + GEMM_MR <= m; i0 += GEMM_MR) {                              \
+    isize j0 = 0;                                                         \
+    for (; j0 + (W) <= n; j0 += (W)) GEMM_TILE_PK(T, VT, VL, W)           \
+    for (isize r = 0; r < GEMM_MR; r++) GEMM_EDGE_PK(T, i0 + r, j0, W)    \
+  }                                                                       \
+  for (; i0 < m; i0++) GEMM_EDGE_PK(T, i0, 0, W)
+
+void simd_matmul_pk_f32(float *__restrict d, const float *__restrict a,
+                        const float *__restrict bp, isize m, isize k,
+                        isize n) {
+  GEMM_PK(float, f32xG, GEMM_VL_F32, GEMM_PKW_F32)
+}
+
+void simd_matmul_pk_f64(double *__restrict d, const double *__restrict a,
+                        const double *__restrict bp, isize m, isize k,
+                        isize n) {
+  GEMM_PK(double, f64xG, GEMM_VL_F64, GEMM_PKW_F64)
+}
+
+GEMM_PACKB(f32, float, GEMM_PKW_F32)
+GEMM_PACKB(f64, double, GEMM_PKW_F64)

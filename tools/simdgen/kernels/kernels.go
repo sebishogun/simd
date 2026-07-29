@@ -1231,6 +1231,39 @@ func Gemm() []spec.Kernel {
 	for _, e := range floats() {
 		ks = append(ks, matMulK(e), gemvK(e))
 	}
+	for _, e := range floats() {
+		// The packed tile width is fixed per element type across every tier
+		// and the reference — see the note in csrc/gemm.c. The guards repeat
+		// it because a short bp is an out-of-bounds read in raw assembly.
+		w := "8"
+		if e.c == "f32" {
+			w = "16"
+		}
+		bpLen := "((n+" + w + "-1)/" + w + ")*k*" + w
+		ks = append(ks,
+			spec.Kernel{
+				CName: "simd_gemm_pack_b_" + e.c, GoName: "gemmPackB" + e.goName,
+				Group: e.group, Field: "GemmPackB", RefFunc: "GemmPackB",
+				Params: []spec.Param{sl("bp", e.slice), sl("b", e.slice),
+					{Name: "k", Type: spec.Int}, {Name: "n", Type: spec.Int}},
+				CArgs:     []spec.CArg{base("bp"), base("b"), val("k"), val("n")},
+				RefWhen:   "k < 0 || n < 0 || len(b) < k*n || len(bp) < " + bpLen,
+				Threshold: 0,
+			},
+			spec.Kernel{
+				CName: "simd_matmul_pk_" + e.c, GoName: "matMulPk" + e.goName,
+				Group: e.group, Field: "MatMulPk", RefFunc: "MatMulPk",
+				Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+					sl("bp", e.slice), {Name: "m", Type: spec.Int},
+					{Name: "k", Type: spec.Int}, {Name: "n", Type: spec.Int}},
+				CArgs: []spec.CArg{base("dst"), base("a"), base("bp"),
+					val("m"), val("k"), val("n")},
+				RefWhen: "m < 0 || k < 0 || n < 0 || len(dst) < m*n || " +
+					"len(a) < m*k || len(bp) < " + bpLen,
+				Threshold: 0,
+			},
+		)
+	}
 	// Transpose is not arithmetic, so it applies to the integer types too.
 	for _, e := range elems {
 		switch e.c {
