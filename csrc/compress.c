@@ -38,7 +38,16 @@ typedef int i32;
 // COMPRESS_LANES is the widest useful block. AVX-512 holds 16 int32 in a zmm
 // and 16 bytes of mask in an xmm, which is the natural pairing for the index
 // scan; SVE2 is length-agnostic and takes it as a fixed unroll.
+// Per target, for the same reason argreduce.c's lane counts are: on a
+// scalable vector architecture LLVM sizes the spill for the largest vector
+// length the architecture allows, not the one the machine has. At sixteen
+// lanes the RVV compress kernels spilled 640 to 2032 bytes against a 512-byte
+// NOSPLIT budget.
+#if defined(__riscv_v)
+#define COMPRESS_LANES 8
+#else
 #define COMPRESS_LANES 16
+#endif
 
 typedef i32 i32xC __attribute__((ext_vector_type(COMPRESS_LANES), aligned(1)));
 typedef u8 u8xC __attribute__((ext_vector_type(COMPRESS_LANES), aligned(1)));

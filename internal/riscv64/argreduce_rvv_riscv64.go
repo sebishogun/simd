@@ -16,7 +16,37 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
 //go:noescape
+func argMinFloat32RVV(a []float32) int
+
+//go:noescape
+func argMaxFloat32RVV(a []float32) int
+
+//go:noescape
+func minMaxFloat32RVV(a []float32) (lo float32, hi float32)
+
+//go:noescape
+func argMinFloat64RVV(a []float64) int
+
+//go:noescape
+func argMaxFloat64RVV(a []float64) int
+
+//go:noescape
+func minMaxFloat64RVV(a []float64) (lo float64, hi float64)
+
+//go:noescape
+func argMinInt32RVV(a []int32) int
+
+//go:noescape
+func argMaxInt32RVV(a []int32) int
+
+//go:noescape
 func minMaxInt32RVV(a []int32) (lo int32, hi int32)
+
+//go:noescape
+func argMinInt64RVV(a []int64) int
+
+//go:noescape
+func argMaxInt64RVV(a []int64) int
 
 //go:noescape
 func minMaxInt64RVV(a []int64) (lo int64, hi int64)

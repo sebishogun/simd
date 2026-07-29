@@ -46,7 +46,16 @@
 
 typedef long isize;
 
+// Per target, as in compress.c and argreduce.c: a scalable vector
+// architecture makes LLVM size the spill for the largest vector length the
+// architecture permits, and at sixteen lanes the RVV partitions spilled 1216
+// to 2032 bytes against a 512-byte NOSPLIT budget.
+#if defined(__riscv_v)
+// Four, not eight: at eight the 64-bit partitions still came to 640 bytes.
+#define PART_LANES 4
+#else
 #define PART_LANES 16
+#endif
 
 typedef _Bool maskxP __attribute__((ext_vector_type(PART_LANES)));
 

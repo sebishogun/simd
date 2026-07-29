@@ -52,8 +52,22 @@ MINMAX_INT(long long, i64)
 // and a plain horizontal loop, and the 64-bit kernels spilled 576 bytes — over
 // the 512-byte budget a NOSPLIT function has — so they were dropped on every
 // target while the 32-bit ones survived.
+// The lane counts are per target, because the spill they cause is.
+//
+// The horizontal step holds a value vector and an index vector live at once,
+// and on a scalable target LLVM sizes the spill for the largest vector length
+// the architecture permits rather than the one the machine has. On RVV that
+// put ArgMin, ArgMax and MinMax at 576 bytes for the 64-bit types and 1152 for
+// the 32-bit ones, against a 512-byte NOSPLIT budget, and all ten were
+// dropped — silently, until the budget check was fixed to run on riscv64 at
+// all. Halving the counts halves the live state.
+#if defined(__riscv_v)
+#define ARG_LANES 8
+#define ARG_LANES64 4
+#else
 #define ARG_LANES 16
 #define ARG_LANES64 8
+#endif
 
 // ARG_INIT seeds every lane with the first element at index 0. That is correct
 // rather than merely convenient: index 0 is the earliest possible answer, so a

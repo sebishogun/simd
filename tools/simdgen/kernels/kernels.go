@@ -1536,7 +1536,7 @@ func Sort() []spec.Kernel {
 // first thing to try.
 var noCompress = []string{
 	"amd64/sse2", "amd64/avx2", "arm64/neon",
-	"riscv64", "s390x", "loong64", "ppc64le",
+	"s390x", "loong64", "ppc64le",
 }
 
 // compressK is the packing kernel for one element type.
