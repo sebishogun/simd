@@ -17,10 +17,14 @@
 // has to answer "should this merge", and for that a slow-but-certain 40%
 // regression and a noisy-but-likely 40% regression deserve the same answer.
 //
-// Noise is handled by the threshold rather than by statistics: 25% by default,
-// which is far above the run-to-run spread seen on this project's benchmarks
-// (typically 1-3%, occasionally 12% on the memory-bound ones) and far below
-// the smallest change worth blocking a merge over.
+// Noise is handled by taking the minimum of each benchmark's samples rather
+// than the median — see parse for why that is the right estimator and not
+// merely the optimistic one — and then by a percentage threshold on top: 25%
+// by default.
+//
+// The threshold alone was tried first and is not enough. It assumed a
+// run-to-run spread of 1-3%, and at 6 to 15 ns/op the spread against a median
+// exceeds 100%.
 package main
 
 import (
@@ -115,10 +119,29 @@ func main() {
 	fmt.Println("\nno regressions")
 }
 
-// parse reads `go test -bench` output and returns the median ns/op per
-// benchmark. The median rather than the minimum: the minimum is the right
-// statistic for "what can this machine do", which is what internal/perf
-// measures, but a gate wants the typical case rather than the luckiest one.
+// parse reads `go test -bench` output and returns the minimum ns/op per
+// benchmark.
+//
+// This was the median, on the reasoning that a gate wants the typical case
+// rather than the luckiest one. That is wrong here, and the argument against
+// it is not statistical taste but the shape of the noise: **benchmark
+// interference is one-sided**. A frequency drop, a migration, an interrupt or
+// a noisy neighbour can only ever make a run slower. Nothing makes a kernel
+// finish in less time than it takes. So the distribution is the true cost plus
+// a non-negative contaminant, and the minimum is the maximum-likelihood
+// estimate of the true cost while the median is the true cost plus however
+// much contamination reached the middle sample.
+//
+// That is not theoretical. Two consecutive runs of make bench-check on an idle
+// machine, same commit and same binary, reported sixteen regressions and then
+// five, with zero overlap — every one of them a transient that reached the
+// median of a six-sample run. At 6 to 15 ns/op, which is where the small
+// elementwise kernels live, a single scheduling event is larger than the
+// measurement.
+//
+// The minimum removes exactly that contaminant and nothing else. It cannot
+// hide a real regression, because a real regression raises every sample
+// including the best one.
 func parse(path string) (map[string]float64, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -166,7 +189,7 @@ func parse(path string) (map[string]float64, error) {
 	out := make(map[string]float64, len(samples))
 	for n, s := range samples {
 		sort.Float64s(s)
-		out[n] = s[len(s)/2]
+		out[n] = s[0]
 	}
 	if len(out) == 0 {
 		return nil, fmt.Errorf("%s: no benchmark results found", path)
