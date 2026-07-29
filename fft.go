@@ -167,3 +167,61 @@ func IFFT(a []complex128) []complex128 {
 	IFFTInto(p, dst, a)
 	return dst
 }
+
+// HilbertInto writes the analytic signal of the real sequence src to dst: a
+// complex sequence whose real part is src and whose imaginary part is its
+// Hilbert transform.
+//
+// len(src) must be p.Len(), a power of two, and dst must be at least as long.
+//
+// The construction is the frequency-domain one, which is why this lives beside
+// the FFT rather than in window.go: transform, discard the negative
+// frequencies and double the positive ones, transform back. The time-domain
+// alternative is convolution with a filter whose ideal impulse response decays
+// as 1/n and so has to be truncated, which is both slower and less accurate.
+//
+// The direct-current and Nyquist bins are left alone rather than doubled. They
+// have no negative-frequency partner to fold in — bin 0 and bin n/2 are their
+// own conjugates for real input — and doubling them is the classic error,
+// showing up as a constant offset and an alternating ripple.
+//
+// The envelope of a signal is the magnitude of its analytic signal, which is
+// what most callers want this for:
+//
+//	simd.HilbertInto(p, analytic, samples)
+//	simd.AbsComplexInto(env, analytic)
+func HilbertInto(p *FFTPlan, dst []complex128, src []float64) {
+	if p == nil || len(src) < p.n || len(dst) < p.n {
+		return
+	}
+	n := p.n
+	for i := range n {
+		dst[i] = complex(src[i], 0)
+	}
+	spec := make([]complex128, n)
+	FFTInto(p, spec, dst)
+
+	// Bin 0 and, for even n, bin n/2 keep their value; bins 1..n/2-1 double;
+	// the rest are zeroed. For n == 1 there is nothing but the DC bin.
+	if n > 1 {
+		for k := 1; k < n/2; k++ {
+			spec[k] *= 2
+		}
+		for k := n/2 + 1; k < n; k++ {
+			spec[k] = 0
+		}
+	}
+	IFFTInto(p, dst, spec)
+}
+
+// Hilbert returns the analytic signal of src, allocating the plan and the
+// result. len(src) must be a power of two; it returns nil otherwise.
+func Hilbert(src []float64) []complex128 {
+	p := NewFFTPlan(len(src))
+	if p == nil {
+		return nil
+	}
+	dst := make([]complex128, len(src))
+	HilbertInto(p, dst, src)
+	return dst
+}

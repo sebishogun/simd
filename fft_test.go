@@ -154,3 +154,69 @@ func TestFFT(t *testing.T) {
 		}
 	})
 }
+
+func TestHilbert(t *testing.T) {
+	// The defining property: the analytic signal's real part is the input.
+	// Anything that gets the doubling or the bin handling wrong breaks this
+	// before it breaks anything subtler.
+	r := rand.New(rand.NewPCG(107, 109))
+	for _, n := range []int{1, 2, 4, 16, 256, 1024} {
+		src := make([]float64, n)
+		for i := range src {
+			src[i] = r.NormFloat64()
+		}
+		got := simd.Hilbert(src)
+		for i := range src {
+			if math.Abs(real(got[i])-src[i]) > 1e-11 {
+				t.Fatalf("n=%d: real(analytic)[%d] = %v, want %v", n, i, real(got[i]), src[i])
+			}
+		}
+	}
+
+	// A cosine's analytic signal is exp(i*w*t), so its envelope is flat at the
+	// amplitude and its imaginary part is the sine. This is the case that
+	// catches doubling the DC or Nyquist bin: that shows up as an offset and
+	// an alternating ripple in the envelope, which a flat-envelope check sees
+	// immediately.
+	const n = 1024
+	const cycles = 8
+	sig := make([]float64, n)
+	for i := range sig {
+		sig[i] = 3 * math.Cos(2*math.Pi*cycles*float64(i)/n)
+	}
+	a := simd.Hilbert(sig)
+	env := make([]float64, n)
+	simd.AbsComplexInto(env, a)
+	for i := range env {
+		if math.Abs(env[i]-3) > 1e-9 {
+			t.Fatalf("envelope[%d] = %v, want 3 (flat)", i, env[i])
+		}
+		want := 3 * math.Sin(2*math.Pi*cycles*float64(i)/n)
+		if math.Abs(imag(a[i])-want) > 1e-9 {
+			t.Fatalf("imag[%d] = %v, want %v", i, imag(a[i]), want)
+		}
+	}
+
+	// An amplitude-modulated carrier: the envelope must recover the
+	// modulation, which is what this is actually used for.
+	mod := make([]float64, n)
+	for i := range mod {
+		m := 1 + 0.5*math.Sin(2*math.Pi*2*float64(i)/n)
+		mod[i] = m * math.Cos(2*math.Pi*64*float64(i)/n)
+	}
+	am := simd.Hilbert(mod)
+	simd.AbsComplexInto(env, am)
+	for i := range env {
+		want := 1 + 0.5*math.Sin(2*math.Pi*2*float64(i)/n)
+		if math.Abs(env[i]-want) > 1e-3 {
+			t.Fatalf("AM envelope[%d] = %v, want %v", i, env[i], want)
+		}
+	}
+
+	// Refused for non-powers of two, like the FFT it is built on.
+	for _, bad := range []int{0, 3, 100} {
+		if simd.Hilbert(make([]float64, bad)) != nil {
+			t.Errorf("Hilbert of length %d should be nil", bad)
+		}
+	}
+}
