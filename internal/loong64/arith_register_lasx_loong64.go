@@ -1350,6 +1350,294 @@ func rampUint64LASXGuarded(dst []uint64, start uint64, step uint64) {
 	rampUint64LASX(dst, start, step)
 }
 
+func shlInt32LASXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt32LASX(dst[:n:n], a, s)
+}
+
+func shrInt32LASXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt32LASX(dst[:n:n], a, s)
+}
+
+func rotlInt32LASXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt32LASX(dst[:n:n], a, s)
+}
+
+func rotrInt32LASXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt32LASX(dst[:n:n], a, s)
+}
+
+func shlInt64LASXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt64LASX(dst[:n:n], a, s)
+}
+
+func shrInt64LASXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt64LASX(dst[:n:n], a, s)
+}
+
+func rotlInt64LASXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt64LASX(dst[:n:n], a, s)
+}
+
+func rotrInt64LASXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt64LASX(dst[:n:n], a, s)
+}
+
+func shlInt8LASXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt8LASX(dst[:n:n], a, s)
+}
+
+func shrInt8LASXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt8LASX(dst[:n:n], a, s)
+}
+
+func rotlInt8LASXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt8LASX(dst[:n:n], a, s)
+}
+
+func rotrInt8LASXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt8LASX(dst[:n:n], a, s)
+}
+
+func shlInt16LASXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt16LASX(dst[:n:n], a, s)
+}
+
+func shrInt16LASXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt16LASX(dst[:n:n], a, s)
+}
+
+func rotlInt16LASXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt16LASX(dst[:n:n], a, s)
+}
+
+func rotrInt16LASXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt16LASX(dst[:n:n], a, s)
+}
+
+func shlUint8LASXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint8LASX(dst[:n:n], a, s)
+}
+
+func shrUint8LASXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint8LASX(dst[:n:n], a, s)
+}
+
+func rotlUint8LASXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint8LASX(dst[:n:n], a, s)
+}
+
+func rotrUint8LASXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint8LASX(dst[:n:n], a, s)
+}
+
+func shlUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint16LASX(dst[:n:n], a, s)
+}
+
+func shrUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint16LASX(dst[:n:n], a, s)
+}
+
+func rotlUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint16LASX(dst[:n:n], a, s)
+}
+
+func rotrUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint16LASX(dst[:n:n], a, s)
+}
+
+func shlUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint32LASX(dst[:n:n], a, s)
+}
+
+func shrUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint32LASX(dst[:n:n], a, s)
+}
+
+func rotlUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint32LASX(dst[:n:n], a, s)
+}
+
+func rotrUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint32LASX(dst[:n:n], a, s)
+}
+
+func shlUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint64LASX(dst[:n:n], a, s)
+}
+
+func shrUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint64LASX(dst[:n:n], a, s)
+}
+
+func rotlUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint64LASX(dst[:n:n], a, s)
+}
+
+func rotrUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint64LASX(dst[:n:n], a, s)
+}
+
 func divFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1738,6 +2026,38 @@ func init() {
 	s.U64.Lerp = lerpUint64LASXGuarded
 	s.U64.AddScaled = addScaledUint64LASXGuarded
 	s.U64.Ramp = rampUint64LASXGuarded
+	s.I32.Shl = shlInt32LASXGuarded
+	s.I32.Shr = shrInt32LASXGuarded
+	s.I32.Rotl = rotlInt32LASXGuarded
+	s.I32.Rotr = rotrInt32LASXGuarded
+	s.I64.Shl = shlInt64LASXGuarded
+	s.I64.Shr = shrInt64LASXGuarded
+	s.I64.Rotl = rotlInt64LASXGuarded
+	s.I64.Rotr = rotrInt64LASXGuarded
+	s.I8.Shl = shlInt8LASXGuarded
+	s.I8.Shr = shrInt8LASXGuarded
+	s.I8.Rotl = rotlInt8LASXGuarded
+	s.I8.Rotr = rotrInt8LASXGuarded
+	s.I16.Shl = shlInt16LASXGuarded
+	s.I16.Shr = shrInt16LASXGuarded
+	s.I16.Rotl = rotlInt16LASXGuarded
+	s.I16.Rotr = rotrInt16LASXGuarded
+	s.U8.Shl = shlUint8LASXGuarded
+	s.U8.Shr = shrUint8LASXGuarded
+	s.U8.Rotl = rotlUint8LASXGuarded
+	s.U8.Rotr = rotrUint8LASXGuarded
+	s.U16.Shl = shlUint16LASXGuarded
+	s.U16.Shr = shrUint16LASXGuarded
+	s.U16.Rotl = rotlUint16LASXGuarded
+	s.U16.Rotr = rotrUint16LASXGuarded
+	s.U32.Shl = shlUint32LASXGuarded
+	s.U32.Shr = shrUint32LASXGuarded
+	s.U32.Rotl = rotlUint32LASXGuarded
+	s.U32.Rotr = rotrUint32LASXGuarded
+	s.U64.Shl = shlUint64LASXGuarded
+	s.U64.Shr = shrUint64LASXGuarded
+	s.U64.Rotl = rotlUint64LASXGuarded
+	s.U64.Rotr = rotrUint64LASXGuarded
 	s.F32.Div = divFloat32LASXGuarded
 	s.F32.DivScalar = divScalarFloat32LASXGuarded
 	s.F32.Sqrt = sqrtFloat32LASXGuarded

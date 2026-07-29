@@ -457,6 +457,102 @@ func addScaledUint64SVE2(dst []uint64, a []uint64, b []uint64, s uint64)
 func rampUint64SVE2(dst []uint64, start uint64, step uint64)
 
 //go:noescape
+func shlInt32SVE2(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shrInt32SVE2(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotlInt32SVE2(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotrInt32SVE2(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shlInt64SVE2(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shrInt64SVE2(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotlInt64SVE2(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotrInt64SVE2(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shlInt8SVE2(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shrInt8SVE2(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotlInt8SVE2(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotrInt8SVE2(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shlInt16SVE2(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shrInt16SVE2(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotlInt16SVE2(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotrInt16SVE2(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shlUint8SVE2(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shrUint8SVE2(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotlUint8SVE2(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotrUint8SVE2(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shlUint16SVE2(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shrUint16SVE2(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotlUint16SVE2(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotrUint16SVE2(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shlUint32SVE2(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shrUint32SVE2(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotlUint32SVE2(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotrUint32SVE2(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shlUint64SVE2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func shrUint64SVE2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotlUint64SVE2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotrUint64SVE2(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
 func divFloat32SVE2(dst []float32, a []float32, b []float32)
 
 //go:noescape

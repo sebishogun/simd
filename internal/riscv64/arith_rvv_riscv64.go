@@ -466,6 +466,102 @@ func addScaledUint64RVV(dst []uint64, a []uint64, b []uint64, s uint64)
 func rampUint64RVV(dst []uint64, start uint64, step uint64)
 
 //go:noescape
+func shlInt32RVV(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shrInt32RVV(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotlInt32RVV(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotrInt32RVV(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shlInt64RVV(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shrInt64RVV(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotlInt64RVV(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotrInt64RVV(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shlInt8RVV(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shrInt8RVV(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotlInt8RVV(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotrInt8RVV(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shlInt16RVV(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shrInt16RVV(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotlInt16RVV(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotrInt16RVV(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shlUint8RVV(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shrUint8RVV(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotlUint8RVV(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotrUint8RVV(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shlUint16RVV(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shrUint16RVV(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotlUint16RVV(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotrUint16RVV(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shlUint32RVV(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shrUint32RVV(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotlUint32RVV(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotrUint32RVV(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shlUint64RVV(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func shrUint64RVV(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotlUint64RVV(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotrUint64RVV(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
 func divFloat32RVV(dst []float32, a []float32, b []float32)
 
 //go:noescape

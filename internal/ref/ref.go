@@ -258,6 +258,59 @@ func scale[T number](dst, a []T, s T) {
 	}
 }
 
+// shl, shr, rotl and rotr define the shift contract the kernels must match.
+//
+// Go's own operators already do the right thing for counts at or above the
+// width — zero for a left shift and for an unsigned right shift, and the sign
+// for a signed one — so the reference is simply the operator, and it is the C
+// side that has to be taught not to invoke undefined behaviour.
+func shl[T integer](dst, a []T, s uint64) {
+	n := min(len(dst), len(a))
+	for i := range n {
+		dst[i] = a[i] << s
+	}
+}
+
+func shr[T integer](dst, a []T, s uint64) {
+	n := min(len(dst), len(a))
+	for i := range n {
+		dst[i] = a[i] >> s
+	}
+}
+
+// bitsOf is the element width, from the type rather than from a parameter.
+func bitsOf[T integer]() uint64 { var z T; return uint64(unsafe.Sizeof(z)) * 8 }
+
+func rotl[T integer](dst, a []T, s uint64) {
+	w := bitsOf[T]()
+	s %= w
+	n := min(len(dst), len(a))
+	for i := range n {
+		if s == 0 {
+			dst[i] = a[i]
+			continue
+		}
+		// The shifts are done on the unsigned view so the right half brings in
+		// zeros rather than sign bits; T(x) narrows it back.
+		u := uint64(a[i]) & (1<<w - 1)
+		dst[i] = T(u<<s | u>>(w-s))
+	}
+}
+
+func rotr[T integer](dst, a []T, s uint64) {
+	w := bitsOf[T]()
+	s %= w
+	n := min(len(dst), len(a))
+	for i := range n {
+		if s == 0 {
+			dst[i] = a[i]
+			continue
+		}
+		u := uint64(a[i]) & (1<<w - 1)
+		dst[i] = T(u>>s | u<<(w-s))
+	}
+}
+
 func addScalar[T number](dst, a []T, s T) {
 	n := min(len(dst), len(a))
 	dst, a = dst[:n], a[:n]
@@ -783,6 +836,7 @@ func intOps[T integer]() kernel.Ops[T] {
 		Dot:      dotInt[T],
 		SumSqDev: sumSqDevInt[T], SumSqDiff: sumSqDiffInt[T], L1Diff: l1DiffInt[T],
 		ArgMin: argMinInt[T], ArgMax: argMaxInt[T], MinMax: minMaxInt[T],
+		Shl: shl[T], Shr: shr[T], Rotl: rotl[T], Rotr: rotr[T],
 	}
 	intMathOps(&o)
 	signalOps(&o)
@@ -988,6 +1042,11 @@ func SumSqDevFloat[T Float](a []T, c T) T { return sumSqDevFloat(a, c) }
 func SumSqDevInt[T Integer](a []T, c T) T { return sumSqDevInt(a, c) }
 func SumSqDiffFloat[T Float](a, b []T) T  { return sumSqDiffFloat(a, b) }
 func SumSqDiffInt[T Integer](a, b []T) T  { return sumSqDiffInt(a, b) }
+
+func Shl[T Integer](dst, a []T, s uint64)  { shl(dst, a, s) }
+func Shr[T Integer](dst, a []T, s uint64)  { shr(dst, a, s) }
+func Rotl[T Integer](dst, a []T, s uint64) { rotl(dst, a, s) }
+func Rotr[T Integer](dst, a []T, s uint64) { rotr(dst, a, s) }
 
 func SumInt[T Integer](a []T) T    { return sumInt(a) }
 func DotInt[T Integer](a, b []T) T { return dotInt(a, b) }

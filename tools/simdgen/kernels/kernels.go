@@ -146,6 +146,23 @@ func scalarOp(op, field, refFunc string, e elem, skip ...string) spec.Kernel {
 	}
 }
 
+// shiftK is a shift or rotate: elementwise, with an unsigned count that is not
+// the element type.
+//
+// The count travels as uint64 whatever the element width, because the contract
+// is defined for counts above the width — Go says a shift by 32 or more of a
+// uint32 is zero — and a count in the element type could not express one.
+func shiftK(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_" + op + "_" + e.c, GoName: op + e.goName,
+		Group: e.group, Field: field, RefFunc: field,
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			{Name: "s", Type: spec.U64}},
+		CArgs:     []spec.CArg{base("dst"), base("a"), val("s"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
+
 func clampK(e elem) spec.Kernel {
 	return spec.Kernel{
 		CName: "simd_clamp_" + e.c, GoName: "clamp" + e.goName,
@@ -377,6 +394,20 @@ func Arith() []spec.Kernel {
 			// generator does not rewrite. Reverse is a permutation that LLVM
 			// will not vectorize from a plain loop; it needs target-specific
 			// shuffles. Both stay portable, and neither is usually hot.
+		)
+	}
+	// Shifts and rotates, integers only. See the note above the SHIFT_LEFT
+	// macro in csrc/arith.c for why the count is clamped rather than passed
+	// through: a shift at or above the element width is undefined in C and the
+	// hardware disagrees about it, so the kernels implement Go's rule
+	// explicitly.
+	for _, e := range elems {
+		if e.float {
+			continue
+		}
+		ks = append(ks,
+			shiftK("shl", "Shl", e), shiftK("shr", "Shr", e),
+			shiftK("rotl", "Rotl", e), shiftK("rotr", "Rotr", e),
 		)
 	}
 	for _, e := range floats() {

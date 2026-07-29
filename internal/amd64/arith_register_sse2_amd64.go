@@ -1300,6 +1300,222 @@ func rampUint64SSE2Guarded(dst []uint64, start uint64, step uint64) {
 	rampUint64SSE2(dst, start, step)
 }
 
+func shlInt32SSE2Guarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt32SSE2(dst[:n:n], a, s)
+}
+
+func shrInt32SSE2Guarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt32SSE2(dst[:n:n], a, s)
+}
+
+func rotlInt32SSE2Guarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt32SSE2(dst[:n:n], a, s)
+}
+
+func rotrInt32SSE2Guarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt32SSE2(dst[:n:n], a, s)
+}
+
+func shlInt64SSE2Guarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt64SSE2(dst[:n:n], a, s)
+}
+
+func shrInt64SSE2Guarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt64SSE2(dst[:n:n], a, s)
+}
+
+func rotlInt64SSE2Guarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt64SSE2(dst[:n:n], a, s)
+}
+
+func rotrInt64SSE2Guarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt64SSE2(dst[:n:n], a, s)
+}
+
+func shlInt8SSE2Guarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt8SSE2(dst[:n:n], a, s)
+}
+
+func shrInt8SSE2Guarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt8SSE2(dst[:n:n], a, s)
+}
+
+func shlInt16SSE2Guarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt16SSE2(dst[:n:n], a, s)
+}
+
+func shrInt16SSE2Guarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt16SSE2(dst[:n:n], a, s)
+}
+
+func shlUint8SSE2Guarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint8SSE2(dst[:n:n], a, s)
+}
+
+func shrUint8SSE2Guarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint8SSE2(dst[:n:n], a, s)
+}
+
+func shlUint16SSE2Guarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint16SSE2(dst[:n:n], a, s)
+}
+
+func shrUint16SSE2Guarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint16SSE2(dst[:n:n], a, s)
+}
+
+func shlUint32SSE2Guarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint32SSE2(dst[:n:n], a, s)
+}
+
+func shrUint32SSE2Guarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint32SSE2(dst[:n:n], a, s)
+}
+
+func rotlUint32SSE2Guarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint32SSE2(dst[:n:n], a, s)
+}
+
+func rotrUint32SSE2Guarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint32SSE2(dst[:n:n], a, s)
+}
+
+func shlUint64SSE2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint64SSE2(dst[:n:n], a, s)
+}
+
+func shrUint64SSE2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint64SSE2(dst[:n:n], a, s)
+}
+
+func rotlUint64SSE2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint64SSE2(dst[:n:n], a, s)
+}
+
+func rotrUint64SSE2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint64SSE2(dst[:n:n], a, s)
+}
+
 func divFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1646,6 +1862,30 @@ func init() {
 	s.U64.Lerp = lerpUint64SSE2Guarded
 	s.U64.AddScaled = addScaledUint64SSE2Guarded
 	s.U64.Ramp = rampUint64SSE2Guarded
+	s.I32.Shl = shlInt32SSE2Guarded
+	s.I32.Shr = shrInt32SSE2Guarded
+	s.I32.Rotl = rotlInt32SSE2Guarded
+	s.I32.Rotr = rotrInt32SSE2Guarded
+	s.I64.Shl = shlInt64SSE2Guarded
+	s.I64.Shr = shrInt64SSE2Guarded
+	s.I64.Rotl = rotlInt64SSE2Guarded
+	s.I64.Rotr = rotrInt64SSE2Guarded
+	s.I8.Shl = shlInt8SSE2Guarded
+	s.I8.Shr = shrInt8SSE2Guarded
+	s.I16.Shl = shlInt16SSE2Guarded
+	s.I16.Shr = shrInt16SSE2Guarded
+	s.U8.Shl = shlUint8SSE2Guarded
+	s.U8.Shr = shrUint8SSE2Guarded
+	s.U16.Shl = shlUint16SSE2Guarded
+	s.U16.Shr = shrUint16SSE2Guarded
+	s.U32.Shl = shlUint32SSE2Guarded
+	s.U32.Shr = shrUint32SSE2Guarded
+	s.U32.Rotl = rotlUint32SSE2Guarded
+	s.U32.Rotr = rotrUint32SSE2Guarded
+	s.U64.Shl = shlUint64SSE2Guarded
+	s.U64.Shr = shrUint64SSE2Guarded
+	s.U64.Rotl = rotlUint64SSE2Guarded
+	s.U64.Rotr = rotrUint64SSE2Guarded
 	s.F32.Div = divFloat32SSE2Guarded
 	s.F32.DivScalar = divScalarFloat32SSE2Guarded
 	s.F32.Sqrt = sqrtFloat32SSE2Guarded

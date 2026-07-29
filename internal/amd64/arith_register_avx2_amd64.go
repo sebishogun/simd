@@ -1350,6 +1350,294 @@ func rampUint64AVX2Guarded(dst []uint64, start uint64, step uint64) {
 	rampUint64AVX2(dst, start, step)
 }
 
+func shlInt32AVX2Guarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt32AVX2(dst[:n:n], a, s)
+}
+
+func shrInt32AVX2Guarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt32AVX2(dst[:n:n], a, s)
+}
+
+func rotlInt32AVX2Guarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt32AVX2(dst[:n:n], a, s)
+}
+
+func rotrInt32AVX2Guarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt32AVX2(dst[:n:n], a, s)
+}
+
+func shlInt64AVX2Guarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt64AVX2(dst[:n:n], a, s)
+}
+
+func shrInt64AVX2Guarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt64AVX2(dst[:n:n], a, s)
+}
+
+func rotlInt64AVX2Guarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt64AVX2(dst[:n:n], a, s)
+}
+
+func rotrInt64AVX2Guarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt64AVX2(dst[:n:n], a, s)
+}
+
+func shlInt8AVX2Guarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt8AVX2(dst[:n:n], a, s)
+}
+
+func shrInt8AVX2Guarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt8AVX2(dst[:n:n], a, s)
+}
+
+func rotlInt8AVX2Guarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt8AVX2(dst[:n:n], a, s)
+}
+
+func rotrInt8AVX2Guarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt8AVX2(dst[:n:n], a, s)
+}
+
+func shlInt16AVX2Guarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt16AVX2(dst[:n:n], a, s)
+}
+
+func shrInt16AVX2Guarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt16AVX2(dst[:n:n], a, s)
+}
+
+func rotlInt16AVX2Guarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt16AVX2(dst[:n:n], a, s)
+}
+
+func rotrInt16AVX2Guarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt16AVX2(dst[:n:n], a, s)
+}
+
+func shlUint8AVX2Guarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint8AVX2(dst[:n:n], a, s)
+}
+
+func shrUint8AVX2Guarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint8AVX2(dst[:n:n], a, s)
+}
+
+func rotlUint8AVX2Guarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint8AVX2(dst[:n:n], a, s)
+}
+
+func rotrUint8AVX2Guarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint8AVX2(dst[:n:n], a, s)
+}
+
+func shlUint16AVX2Guarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint16AVX2(dst[:n:n], a, s)
+}
+
+func shrUint16AVX2Guarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint16AVX2(dst[:n:n], a, s)
+}
+
+func rotlUint16AVX2Guarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint16AVX2(dst[:n:n], a, s)
+}
+
+func rotrUint16AVX2Guarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint16AVX2(dst[:n:n], a, s)
+}
+
+func shlUint32AVX2Guarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint32AVX2(dst[:n:n], a, s)
+}
+
+func shrUint32AVX2Guarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint32AVX2(dst[:n:n], a, s)
+}
+
+func rotlUint32AVX2Guarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint32AVX2(dst[:n:n], a, s)
+}
+
+func rotrUint32AVX2Guarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint32AVX2(dst[:n:n], a, s)
+}
+
+func shlUint64AVX2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint64AVX2(dst[:n:n], a, s)
+}
+
+func shrUint64AVX2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint64AVX2(dst[:n:n], a, s)
+}
+
+func rotlUint64AVX2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint64AVX2(dst[:n:n], a, s)
+}
+
+func rotrUint64AVX2Guarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint64AVX2(dst[:n:n], a, s)
+}
+
 func divFloat32AVX2Guarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1792,6 +2080,38 @@ func init() {
 	s.U64.Lerp = lerpUint64AVX2Guarded
 	s.U64.AddScaled = addScaledUint64AVX2Guarded
 	s.U64.Ramp = rampUint64AVX2Guarded
+	s.I32.Shl = shlInt32AVX2Guarded
+	s.I32.Shr = shrInt32AVX2Guarded
+	s.I32.Rotl = rotlInt32AVX2Guarded
+	s.I32.Rotr = rotrInt32AVX2Guarded
+	s.I64.Shl = shlInt64AVX2Guarded
+	s.I64.Shr = shrInt64AVX2Guarded
+	s.I64.Rotl = rotlInt64AVX2Guarded
+	s.I64.Rotr = rotrInt64AVX2Guarded
+	s.I8.Shl = shlInt8AVX2Guarded
+	s.I8.Shr = shrInt8AVX2Guarded
+	s.I8.Rotl = rotlInt8AVX2Guarded
+	s.I8.Rotr = rotrInt8AVX2Guarded
+	s.I16.Shl = shlInt16AVX2Guarded
+	s.I16.Shr = shrInt16AVX2Guarded
+	s.I16.Rotl = rotlInt16AVX2Guarded
+	s.I16.Rotr = rotrInt16AVX2Guarded
+	s.U8.Shl = shlUint8AVX2Guarded
+	s.U8.Shr = shrUint8AVX2Guarded
+	s.U8.Rotl = rotlUint8AVX2Guarded
+	s.U8.Rotr = rotrUint8AVX2Guarded
+	s.U16.Shl = shlUint16AVX2Guarded
+	s.U16.Shr = shrUint16AVX2Guarded
+	s.U16.Rotl = rotlUint16AVX2Guarded
+	s.U16.Rotr = rotrUint16AVX2Guarded
+	s.U32.Shl = shlUint32AVX2Guarded
+	s.U32.Shr = shrUint32AVX2Guarded
+	s.U32.Rotl = rotlUint32AVX2Guarded
+	s.U32.Rotr = rotrUint32AVX2Guarded
+	s.U64.Shl = shlUint64AVX2Guarded
+	s.U64.Shr = shrUint64AVX2Guarded
+	s.U64.Rotl = rotlUint64AVX2Guarded
+	s.U64.Rotr = rotrUint64AVX2Guarded
 	s.F32.Div = divFloat32AVX2Guarded
 	s.F32.DivScalar = divScalarFloat32AVX2Guarded
 	s.F32.Sqrt = sqrtFloat32AVX2Guarded

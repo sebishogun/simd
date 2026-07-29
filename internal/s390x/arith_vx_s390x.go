@@ -433,6 +433,60 @@ func clampUint64VX(dst []uint64, a []uint64, lo uint64, hi uint64)
 func fillUint64VX(dst []uint64, v uint64)
 
 //go:noescape
+func shlInt32VX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shrInt32VX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotlInt32VX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotrInt32VX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shlInt64VX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shrInt64VX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shrInt8VX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shlInt16VX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shrInt16VX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shrUint8VX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shlUint16VX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shrUint16VX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shlUint32VX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shrUint32VX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotlUint32VX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotrUint32VX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shlUint64VX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func shrUint64VX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
 func divFloat32VX(dst []float32, a []float32, b []float32)
 
 //go:noescape

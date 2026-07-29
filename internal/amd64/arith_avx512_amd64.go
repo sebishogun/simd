@@ -466,6 +466,102 @@ func addScaledUint64AVX512(dst []uint64, a []uint64, b []uint64, s uint64)
 func rampUint64AVX512(dst []uint64, start uint64, step uint64)
 
 //go:noescape
+func shlInt32AVX512(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shrInt32AVX512(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotlInt32AVX512(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotrInt32AVX512(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shlInt64AVX512(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shrInt64AVX512(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotlInt64AVX512(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotrInt64AVX512(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shlInt8AVX512(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shrInt8AVX512(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotlInt8AVX512(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotrInt8AVX512(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shlInt16AVX512(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shrInt16AVX512(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotlInt16AVX512(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotrInt16AVX512(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shlUint8AVX512(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shrUint8AVX512(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotlUint8AVX512(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotrUint8AVX512(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shlUint16AVX512(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shrUint16AVX512(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotlUint16AVX512(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotrUint16AVX512(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shlUint32AVX512(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shrUint32AVX512(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotlUint32AVX512(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotrUint32AVX512(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shlUint64AVX512(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func shrUint64AVX512(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotlUint64AVX512(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotrUint64AVX512(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
 func divFloat32AVX512(dst []float32, a []float32, b []float32)
 
 //go:noescape

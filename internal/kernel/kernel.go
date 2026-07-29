@@ -173,8 +173,15 @@ type Ops[T any] struct {
 	// 0.6000000000000001 where 3/5 is exactly 0.6. Accuracy is the default
 	// here; a reciprocal-multiply variant belongs under a Fast name.
 	Scale, AddScalar, SubScalar, DivScalar func(dst, a []T, s T)
-	Clamp                                  func(dst, a []T, lo, hi T)
-	Fill                                   func(dst []T, v T)
+
+	// Shl, Shr, Rotl and Rotr take an unsigned count and follow Go's
+	// semantics rather than C's: a shift at or above the element width gives
+	// zero, or -1 for an arithmetic right shift of a negative value. C leaves
+	// that undefined and the hardware disagrees about it, so the kernels clamp
+	// explicitly. Left nil for the float types, where they have no meaning.
+	Shl, Shr, Rotl, Rotr func(dst, a []T, s uint64)
+	Clamp                func(dst, a []T, lo, hi T)
+	Fill                 func(dst []T, v T)
 
 	// Fused. AddScaled is AXPY: dst[i] = a[i] + b[i]*s in one pass over
 	// memory, which is the whole reason a fused catalogue exists.

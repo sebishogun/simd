@@ -1262,6 +1262,294 @@ func fillUint64VSXGuarded(dst []uint64, v uint64) {
 	fillUint64VSX(dst, v)
 }
 
+func shlInt32VSXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt32VSX(dst[:n:n], a, s)
+}
+
+func shrInt32VSXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt32VSX(dst[:n:n], a, s)
+}
+
+func rotlInt32VSXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt32VSX(dst[:n:n], a, s)
+}
+
+func rotrInt32VSXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt32VSX(dst[:n:n], a, s)
+}
+
+func shlInt64VSXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt64VSX(dst[:n:n], a, s)
+}
+
+func shrInt64VSXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt64VSX(dst[:n:n], a, s)
+}
+
+func rotlInt64VSXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt64VSX(dst[:n:n], a, s)
+}
+
+func rotrInt64VSXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt64VSX(dst[:n:n], a, s)
+}
+
+func shlInt8VSXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt8VSX(dst[:n:n], a, s)
+}
+
+func shrInt8VSXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt8VSX(dst[:n:n], a, s)
+}
+
+func rotlInt8VSXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt8VSX(dst[:n:n], a, s)
+}
+
+func rotrInt8VSXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt8VSX(dst[:n:n], a, s)
+}
+
+func shlInt16VSXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt16VSX(dst[:n:n], a, s)
+}
+
+func shrInt16VSXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt16VSX(dst[:n:n], a, s)
+}
+
+func rotlInt16VSXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt16VSX(dst[:n:n], a, s)
+}
+
+func rotrInt16VSXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt16VSX(dst[:n:n], a, s)
+}
+
+func shlUint8VSXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint8VSX(dst[:n:n], a, s)
+}
+
+func shrUint8VSXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint8VSX(dst[:n:n], a, s)
+}
+
+func rotlUint8VSXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint8VSX(dst[:n:n], a, s)
+}
+
+func rotrUint8VSXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint8VSX(dst[:n:n], a, s)
+}
+
+func shlUint16VSXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint16VSX(dst[:n:n], a, s)
+}
+
+func shrUint16VSXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint16VSX(dst[:n:n], a, s)
+}
+
+func rotlUint16VSXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint16VSX(dst[:n:n], a, s)
+}
+
+func rotrUint16VSXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint16VSX(dst[:n:n], a, s)
+}
+
+func shlUint32VSXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint32VSX(dst[:n:n], a, s)
+}
+
+func shrUint32VSXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint32VSX(dst[:n:n], a, s)
+}
+
+func rotlUint32VSXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint32VSX(dst[:n:n], a, s)
+}
+
+func rotrUint32VSXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint32VSX(dst[:n:n], a, s)
+}
+
+func shlUint64VSXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint64VSX(dst[:n:n], a, s)
+}
+
+func shrUint64VSXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint64VSX(dst[:n:n], a, s)
+}
+
+func rotlUint64VSXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint64VSX(dst[:n:n], a, s)
+}
+
+func rotrUint64VSXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint64VSX(dst[:n:n], a, s)
+}
+
 func divFloat32VSXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1658,6 +1946,38 @@ func init() {
 	s.U64.SubScalar = subScalarUint64VSXGuarded
 	s.U64.Clamp = clampUint64VSXGuarded
 	s.U64.Fill = fillUint64VSXGuarded
+	s.I32.Shl = shlInt32VSXGuarded
+	s.I32.Shr = shrInt32VSXGuarded
+	s.I32.Rotl = rotlInt32VSXGuarded
+	s.I32.Rotr = rotrInt32VSXGuarded
+	s.I64.Shl = shlInt64VSXGuarded
+	s.I64.Shr = shrInt64VSXGuarded
+	s.I64.Rotl = rotlInt64VSXGuarded
+	s.I64.Rotr = rotrInt64VSXGuarded
+	s.I8.Shl = shlInt8VSXGuarded
+	s.I8.Shr = shrInt8VSXGuarded
+	s.I8.Rotl = rotlInt8VSXGuarded
+	s.I8.Rotr = rotrInt8VSXGuarded
+	s.I16.Shl = shlInt16VSXGuarded
+	s.I16.Shr = shrInt16VSXGuarded
+	s.I16.Rotl = rotlInt16VSXGuarded
+	s.I16.Rotr = rotrInt16VSXGuarded
+	s.U8.Shl = shlUint8VSXGuarded
+	s.U8.Shr = shrUint8VSXGuarded
+	s.U8.Rotl = rotlUint8VSXGuarded
+	s.U8.Rotr = rotrUint8VSXGuarded
+	s.U16.Shl = shlUint16VSXGuarded
+	s.U16.Shr = shrUint16VSXGuarded
+	s.U16.Rotl = rotlUint16VSXGuarded
+	s.U16.Rotr = rotrUint16VSXGuarded
+	s.U32.Shl = shlUint32VSXGuarded
+	s.U32.Shr = shrUint32VSXGuarded
+	s.U32.Rotl = rotlUint32VSXGuarded
+	s.U32.Rotr = rotrUint32VSXGuarded
+	s.U64.Shl = shlUint64VSXGuarded
+	s.U64.Shr = shrUint64VSXGuarded
+	s.U64.Rotl = rotlUint64VSXGuarded
+	s.U64.Rotr = rotrUint64VSXGuarded
 	s.F32.Div = divFloat32VSXGuarded
 	s.F32.DivScalar = divScalarFloat32VSXGuarded
 	s.F32.Sqrt = sqrtFloat32VSXGuarded

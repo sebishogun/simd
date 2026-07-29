@@ -1254,6 +1254,168 @@ func fillUint64VXGuarded(dst []uint64, v uint64) {
 	fillUint64VX(dst, v)
 }
 
+func shlInt32VXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt32VX(dst[:n:n], a, s)
+}
+
+func shrInt32VXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt32VX(dst[:n:n], a, s)
+}
+
+func rotlInt32VXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt32VX(dst[:n:n], a, s)
+}
+
+func rotrInt32VXGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt32VX(dst[:n:n], a, s)
+}
+
+func shlInt64VXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt64VX(dst[:n:n], a, s)
+}
+
+func shrInt64VXGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt64VX(dst[:n:n], a, s)
+}
+
+func shrInt8VXGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt8VX(dst[:n:n], a, s)
+}
+
+func shlInt16VXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt16VX(dst[:n:n], a, s)
+}
+
+func shrInt16VXGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt16VX(dst[:n:n], a, s)
+}
+
+func shrUint8VXGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint8VX(dst[:n:n], a, s)
+}
+
+func shlUint16VXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint16VX(dst[:n:n], a, s)
+}
+
+func shrUint16VXGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint16VX(dst[:n:n], a, s)
+}
+
+func shlUint32VXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint32VX(dst[:n:n], a, s)
+}
+
+func shrUint32VXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint32VX(dst[:n:n], a, s)
+}
+
+func rotlUint32VXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint32VX(dst[:n:n], a, s)
+}
+
+func rotrUint32VXGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint32VX(dst[:n:n], a, s)
+}
+
+func shlUint64VXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint64VX(dst[:n:n], a, s)
+}
+
+func shrUint64VXGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint64VX(dst[:n:n], a, s)
+}
+
 func divFloat32VXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1640,6 +1802,24 @@ func init() {
 	s.U64.SubScalar = subScalarUint64VXGuarded
 	s.U64.Clamp = clampUint64VXGuarded
 	s.U64.Fill = fillUint64VXGuarded
+	s.I32.Shl = shlInt32VXGuarded
+	s.I32.Shr = shrInt32VXGuarded
+	s.I32.Rotl = rotlInt32VXGuarded
+	s.I32.Rotr = rotrInt32VXGuarded
+	s.I64.Shl = shlInt64VXGuarded
+	s.I64.Shr = shrInt64VXGuarded
+	s.I8.Shr = shrInt8VXGuarded
+	s.I16.Shl = shlInt16VXGuarded
+	s.I16.Shr = shrInt16VXGuarded
+	s.U8.Shr = shrUint8VXGuarded
+	s.U16.Shl = shlUint16VXGuarded
+	s.U16.Shr = shrUint16VXGuarded
+	s.U32.Shl = shlUint32VXGuarded
+	s.U32.Shr = shrUint32VXGuarded
+	s.U32.Rotl = rotlUint32VXGuarded
+	s.U32.Rotr = rotrUint32VXGuarded
+	s.U64.Shl = shlUint64VXGuarded
+	s.U64.Shr = shrUint64VXGuarded
 	s.F32.Div = divFloat32VXGuarded
 	s.F32.DivScalar = divScalarFloat32VXGuarded
 	s.F32.Sqrt = sqrtFloat32VXGuarded

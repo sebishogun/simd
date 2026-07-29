@@ -436,6 +436,102 @@ func clampUint64VSX(dst []uint64, a []uint64, lo uint64, hi uint64)
 func fillUint64VSX(dst []uint64, v uint64)
 
 //go:noescape
+func shlInt32VSX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shrInt32VSX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotlInt32VSX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotrInt32VSX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shlInt64VSX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shrInt64VSX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotlInt64VSX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotrInt64VSX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shlInt8VSX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shrInt8VSX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotlInt8VSX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotrInt8VSX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shlInt16VSX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shrInt16VSX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotlInt16VSX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotrInt16VSX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shlUint8VSX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shrUint8VSX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotlUint8VSX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotrUint8VSX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shlUint16VSX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shrUint16VSX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotlUint16VSX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotrUint16VSX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shlUint32VSX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shrUint32VSX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotlUint32VSX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotrUint32VSX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shlUint64VSX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func shrUint64VSX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotlUint64VSX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotrUint64VSX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
 func divFloat32VSX(dst []float32, a []float32, b []float32)
 
 //go:noescape

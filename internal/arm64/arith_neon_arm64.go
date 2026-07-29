@@ -430,6 +430,102 @@ func fillUint64NEON(dst []uint64, v uint64)
 func lerpUint64NEON(dst []uint64, a []uint64, b []uint64, t uint64)
 
 //go:noescape
+func shlInt32NEON(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shrInt32NEON(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotlInt32NEON(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotrInt32NEON(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shlInt64NEON(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shrInt64NEON(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotlInt64NEON(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotrInt64NEON(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shlInt8NEON(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shrInt8NEON(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotlInt8NEON(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotrInt8NEON(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shlInt16NEON(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shrInt16NEON(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotlInt16NEON(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotrInt16NEON(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shlUint8NEON(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shrUint8NEON(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotlUint8NEON(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotrUint8NEON(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shlUint16NEON(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shrUint16NEON(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotlUint16NEON(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotrUint16NEON(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shlUint32NEON(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shrUint32NEON(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotlUint32NEON(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotrUint32NEON(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shlUint64NEON(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func shrUint64NEON(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotlUint64NEON(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotrUint64NEON(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
 func divFloat32NEON(dst []float32, a []float32, b []float32)
 
 //go:noescape

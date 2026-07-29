@@ -146,6 +146,72 @@ ABSNEG_UNSIGNED(unsigned long long, u64)
     }                                                                   \
   }
 
+// ---------- shifts ----------
+//
+// The shift count is clamped rather than passed through, and that is the whole
+// difficulty of this family.
+//
+// In C a shift by the operand's width or more is undefined, and the hardware
+// disagrees about what it does: x86 masks the count to five or six bits, so
+// `x << 32` on a uint32 returns x; arm64's shift instructions saturate to
+// zero; and LLVM is free to fold the expression to poison. Three answers on
+// three targets is exactly the bit-identity failure this library exists to
+// prevent, and it would appear only for counts a test has to deliberately
+// generate.
+//
+// Go defines it and defines it well: `x << n` is zero for any n at or above
+// the width, for every integer type, with no undefined behaviour. That is the
+// contract here, and it is obtained by clamping explicitly rather than by
+// hoping a target does the right thing.
+//
+// The right shift of a signed value is arithmetic — it sign-extends — so
+// shifting a negative value far enough gives -1 rather than zero. C leaves
+// that implementation-defined, so it is spelled out too.
+//
+// The count is unsigned, which removes the fourth case: Go panics on a
+// negative shift and a kernel cannot panic.
+#define SHIFT_LEFT(T, SUF, W)                                              void simd_shl_##SUF(T *__restrict d, const T *__restrict a,                                  unsigned long long s_, isize n) {                      unsigned s = (unsigned)(s_ > (W) ? (W) : s_);                            for (isize i = 0; i < n; i++)                                              d[i] = (T)(s >= (W) ? 0 : (T)((unsigned long long)a[i] << s));       }
+
+#define SHIFT_RIGHT_U(T, SUF, W)                                           void simd_shr_##SUF(T *__restrict d, const T *__restrict a,                                  unsigned long long s_, isize n) {                      unsigned s = (unsigned)(s_ > (W) ? (W) : s_);                            for (isize i = 0; i < n; i++) d[i] = (T)(s >= (W) ? 0 : a[i] >> s);    }
+
+// Signed right shift saturates to the sign rather than to zero: an arithmetic
+// shift of a negative value by the width or more is -1, which is what Go
+// produces and what sign extension means taken to its limit.
+#define SHIFT_RIGHT_S(T, SUF, W)                                           void simd_shr_##SUF(T *__restrict d, const T *__restrict a,                                  unsigned long long s_, isize n) {                      unsigned s = (unsigned)(s_ >= (W) ? (W)-1 : s_);                         for (isize i = 0; i < n; i++) d[i] = (T)(a[i] >> s);                   }
+
+// A rotate has no undefined case and no width question once the count is
+// reduced modulo the width, so it needs no clamp — only the reduction, and a
+// guard against the zero case, where `x >> (W - 0)` would itself be a shift by
+// the width.
+#define ROTATE(T, UT, SUF, W)                                              void simd_rotl_##SUF(T *__restrict d, const T *__restrict a,                                  unsigned long long s_, isize n) {                     unsigned s = (unsigned)(s_ % (W));                                       for (isize i = 0; i < n; i++) {                                            UT x = (UT)a[i];                                                         d[i] = (T)(s == 0 ? x : (UT)((x << s) | (x >> ((W)-s))));              }                                                                      }                                                                        void simd_rotr_##SUF(T *__restrict d, const T *__restrict a,                                  unsigned long long s_, isize n) {                     unsigned s = (unsigned)(s_ % (W));                                       for (isize i = 0; i < n; i++) {                                            UT x = (UT)a[i];                                                         d[i] = (T)(s == 0 ? x : (UT)((x >> s) | (x << ((W)-s))));              }                                                                      }
+
+SHIFT_LEFT(signed char, i8, 8)
+SHIFT_LEFT(short, i16, 16)
+SHIFT_LEFT(int, i32, 32)
+SHIFT_LEFT(long long, i64, 64)
+SHIFT_LEFT(unsigned char, u8, 8)
+SHIFT_LEFT(unsigned short, u16, 16)
+SHIFT_LEFT(unsigned int, u32, 32)
+SHIFT_LEFT(unsigned long long, u64, 64)
+
+SHIFT_RIGHT_S(signed char, i8, 8)
+SHIFT_RIGHT_S(short, i16, 16)
+SHIFT_RIGHT_S(int, i32, 32)
+SHIFT_RIGHT_S(long long, i64, 64)
+SHIFT_RIGHT_U(unsigned char, u8, 8)
+SHIFT_RIGHT_U(unsigned short, u16, 16)
+SHIFT_RIGHT_U(unsigned int, u32, 32)
+SHIFT_RIGHT_U(unsigned long long, u64, 64)
+
+ROTATE(signed char, unsigned char, i8, 8)
+ROTATE(short, unsigned short, i16, 16)
+ROTATE(int, unsigned int, i32, 32)
+ROTATE(long long, unsigned long long, i64, 64)
+ROTATE(unsigned char, unsigned char, u8, 8)
+ROTATE(unsigned short, unsigned short, u16, 16)
+ROTATE(unsigned int, unsigned int, u32, 32)
+ROTATE(unsigned long long, unsigned long long, u64, 64)
+
 // The whole elementwise family, per type. ST is the scalar transport type;
 // see SCALAR.
 #define ARITH_COMMON(T, ST, SUF)                                        \

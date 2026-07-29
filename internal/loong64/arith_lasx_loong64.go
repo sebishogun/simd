@@ -466,6 +466,102 @@ func addScaledUint64LASX(dst []uint64, a []uint64, b []uint64, s uint64)
 func rampUint64LASX(dst []uint64, start uint64, step uint64)
 
 //go:noescape
+func shlInt32LASX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shrInt32LASX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotlInt32LASX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func rotrInt32LASX(dst []int32, a []int32, s uint64)
+
+//go:noescape
+func shlInt64LASX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shrInt64LASX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotlInt64LASX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func rotrInt64LASX(dst []int64, a []int64, s uint64)
+
+//go:noescape
+func shlInt8LASX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shrInt8LASX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotlInt8LASX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotrInt8LASX(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func shlInt16LASX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shrInt16LASX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotlInt16LASX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotrInt16LASX(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func shlUint8LASX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shrUint8LASX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotlUint8LASX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotrUint8LASX(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func shlUint16LASX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shrUint16LASX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotlUint16LASX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotrUint16LASX(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func shlUint32LASX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shrUint32LASX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotlUint32LASX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func rotrUint32LASX(dst []uint32, a []uint32, s uint64)
+
+//go:noescape
+func shlUint64LASX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func shrUint64LASX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotlUint64LASX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
+func rotrUint64LASX(dst []uint64, a []uint64, s uint64)
+
+//go:noescape
 func divFloat32LASX(dst []float32, a []float32, b []float32)
 
 //go:noescape

@@ -1244,6 +1244,294 @@ func lerpUint64NEONGuarded(dst []uint64, a []uint64, b []uint64, t uint64) {
 	lerpUint64NEON(dst[:n:n], a, b, t)
 }
 
+func shlInt32NEONGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt32NEON(dst[:n:n], a, s)
+}
+
+func shrInt32NEONGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt32NEON(dst[:n:n], a, s)
+}
+
+func rotlInt32NEONGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt32NEON(dst[:n:n], a, s)
+}
+
+func rotrInt32NEONGuarded(dst []int32, a []int32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt32NEON(dst[:n:n], a, s)
+}
+
+func shlInt64NEONGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt64NEON(dst[:n:n], a, s)
+}
+
+func shrInt64NEONGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt64NEON(dst[:n:n], a, s)
+}
+
+func rotlInt64NEONGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt64NEON(dst[:n:n], a, s)
+}
+
+func rotrInt64NEONGuarded(dst []int64, a []int64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt64NEON(dst[:n:n], a, s)
+}
+
+func shlInt8NEONGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt8NEON(dst[:n:n], a, s)
+}
+
+func shrInt8NEONGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt8NEON(dst[:n:n], a, s)
+}
+
+func rotlInt8NEONGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt8NEON(dst[:n:n], a, s)
+}
+
+func rotrInt8NEONGuarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt8NEON(dst[:n:n], a, s)
+}
+
+func shlInt16NEONGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlInt16NEON(dst[:n:n], a, s)
+}
+
+func shrInt16NEONGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrInt16NEON(dst[:n:n], a, s)
+}
+
+func rotlInt16NEONGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt16NEON(dst[:n:n], a, s)
+}
+
+func rotrInt16NEONGuarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt16NEON(dst[:n:n], a, s)
+}
+
+func shlUint8NEONGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint8NEON(dst[:n:n], a, s)
+}
+
+func shrUint8NEONGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint8NEON(dst[:n:n], a, s)
+}
+
+func rotlUint8NEONGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint8NEON(dst[:n:n], a, s)
+}
+
+func rotrUint8NEONGuarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint8NEON(dst[:n:n], a, s)
+}
+
+func shlUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint16NEON(dst[:n:n], a, s)
+}
+
+func shrUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint16NEON(dst[:n:n], a, s)
+}
+
+func rotlUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint16NEON(dst[:n:n], a, s)
+}
+
+func rotrUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint16NEON(dst[:n:n], a, s)
+}
+
+func shlUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint32NEON(dst[:n:n], a, s)
+}
+
+func shrUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint32NEON(dst[:n:n], a, s)
+}
+
+func rotlUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint32NEON(dst[:n:n], a, s)
+}
+
+func rotrUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint32NEON(dst[:n:n], a, s)
+}
+
+func shlUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shl(dst, a, s)
+		return
+	}
+	shlUint64NEON(dst[:n:n], a, s)
+}
+
+func shrUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Shr(dst, a, s)
+		return
+	}
+	shrUint64NEON(dst[:n:n], a, s)
+}
+
+func rotlUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint64NEON(dst[:n:n], a, s)
+}
+
+func rotrUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint64NEON(dst[:n:n], a, s)
+}
+
 func divFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1656,6 +1944,38 @@ func init() {
 	s.U64.Clamp = clampUint64NEONGuarded
 	s.U64.Fill = fillUint64NEONGuarded
 	s.U64.Lerp = lerpUint64NEONGuarded
+	s.I32.Shl = shlInt32NEONGuarded
+	s.I32.Shr = shrInt32NEONGuarded
+	s.I32.Rotl = rotlInt32NEONGuarded
+	s.I32.Rotr = rotrInt32NEONGuarded
+	s.I64.Shl = shlInt64NEONGuarded
+	s.I64.Shr = shrInt64NEONGuarded
+	s.I64.Rotl = rotlInt64NEONGuarded
+	s.I64.Rotr = rotrInt64NEONGuarded
+	s.I8.Shl = shlInt8NEONGuarded
+	s.I8.Shr = shrInt8NEONGuarded
+	s.I8.Rotl = rotlInt8NEONGuarded
+	s.I8.Rotr = rotrInt8NEONGuarded
+	s.I16.Shl = shlInt16NEONGuarded
+	s.I16.Shr = shrInt16NEONGuarded
+	s.I16.Rotl = rotlInt16NEONGuarded
+	s.I16.Rotr = rotrInt16NEONGuarded
+	s.U8.Shl = shlUint8NEONGuarded
+	s.U8.Shr = shrUint8NEONGuarded
+	s.U8.Rotl = rotlUint8NEONGuarded
+	s.U8.Rotr = rotrUint8NEONGuarded
+	s.U16.Shl = shlUint16NEONGuarded
+	s.U16.Shr = shrUint16NEONGuarded
+	s.U16.Rotl = rotlUint16NEONGuarded
+	s.U16.Rotr = rotrUint16NEONGuarded
+	s.U32.Shl = shlUint32NEONGuarded
+	s.U32.Shr = shrUint32NEONGuarded
+	s.U32.Rotl = rotlUint32NEONGuarded
+	s.U32.Rotr = rotrUint32NEONGuarded
+	s.U64.Shl = shlUint64NEONGuarded
+	s.U64.Shr = shrUint64NEONGuarded
+	s.U64.Rotl = rotlUint64NEONGuarded
+	s.U64.Rotr = rotrUint64NEONGuarded
 	s.F32.Div = divFloat32NEONGuarded
 	s.F32.DivScalar = divScalarFloat32NEONGuarded
 	s.F32.Sqrt = sqrtFloat32NEONGuarded
