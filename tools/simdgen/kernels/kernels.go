@@ -903,7 +903,12 @@ func Bytes() []spec.Kernel {
 			Group: "Bytes", Field: "FormatInts", RefFunc: "FormatInts",
 			Params: []spec.Param{sl("dst", spec.SliceU8), sl("vals", spec.SliceI64),
 				{Name: "sep", Type: spec.U8}},
-			Result: &spec.Param{Name: "count", Type: spec.Int},
+			// "ret", not "count": single results keep the conventional name,
+			// because asmdecl matches the prologue's ret+N(FP) against the
+			// declaration and a custom name fails vet. (ParseInts differs —
+			// with TWO results Go requires both named, and the generator uses
+			// the manifest names for both.)
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
 			CArgs: []spec.CArg{out(), base("dst"), base("vals"),
 				lenOf("vals"), lenOf("dst"), val("sep")},
 			RefWhen:   "len(dst) < 21*len(vals)",

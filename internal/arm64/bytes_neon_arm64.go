@@ -82,6 +82,9 @@ func b64DecodeNEON(dst []byte, b []byte) int
 func parseIntsNEON(dst []int64, src []byte, idx []int32) (count int, ok bool)
 
 //go:noescape
+func formatIntsNEON(dst []byte, vals []int64, sep byte) int
+
+//go:noescape
 func hexDecodeNEON(dst []byte, src []byte) (n int, ok bool)
 
 //go:noescape

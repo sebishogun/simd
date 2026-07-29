@@ -988,7 +988,11 @@ void simd_parse_ints(isize *__restrict n_out, _Bool *__restrict ok_out,
 // the worst case is a sign, nineteen digits and a separator. The Go guard
 // routes short destinations to the reference, which fits exactly, so -1
 // escapes only when even the exact answer cannot fit.
-static const char simd_fmt_pairs[201] =
+// 208 rather than 201: the literal is 200 digits plus a NUL, and a constant
+// pool whose length is not a multiple of four cannot be emitted on
+// architectures whose narrowest data directive is a word — the generator
+// reports "1 trailing byte(s)". The tail is zero-filled and never read.
+static const char simd_fmt_pairs[208] =
     "00010203040506070809101112131415161718192021222324"
     "25262728293031323334353637383940414243444546474849"
     "50515253545556575859606162636465666768697071727374"

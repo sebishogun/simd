@@ -188,6 +188,13 @@ func parseIntsNEONGuarded(dst []int64, src []byte, idx []int32) (count int, ok b
 	return parseIntsNEON(dst, src, idx[:n:n])
 }
 
+func formatIntsNEONGuarded(dst []byte, vals []int64, sep byte) int {
+	if len(vals) < 0 || len(dst) < 21*len(vals) {
+		return ref.FormatInts(dst, vals, sep)
+	}
+	return formatIntsNEON(dst, vals, sep)
+}
+
 func hexDecodeNEONGuarded(dst []byte, src []byte) (n int, ok bool) {
 	if len(dst) < 32 {
 		return ref.HexDecode(dst, src)
@@ -276,6 +283,7 @@ func init() {
 	s.Bytes.B64Encode = b64EncodeNEONGuarded
 	s.Bytes.B64Decode = b64DecodeNEONGuarded
 	s.Bytes.ParseInts = parseIntsNEONGuarded
+	s.Bytes.FormatInts = formatIntsNEONGuarded
 	s.Bytes.HexDecode = hexDecodeNEONGuarded
 	s.Bytes.HexEncode = hexEncodeNEONGuarded
 	s.Bytes.Index = indexNEONGuarded
