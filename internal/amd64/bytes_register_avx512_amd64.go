@@ -188,6 +188,13 @@ func parseIntsAVX512Guarded(dst []int64, src []byte, idx []int32) (count int, ok
 	return parseIntsAVX512(dst, src, idx[:n:n])
 }
 
+func formatIntsAVX512Guarded(dst []byte, vals []int64, sep byte) int {
+	if len(vals) < 0 || len(dst) < 21*len(vals) {
+		return ref.FormatInts(dst, vals, sep)
+	}
+	return formatIntsAVX512(dst, vals, sep)
+}
+
 func hexDecodeAVX512Guarded(dst []byte, src []byte) (n int, ok bool) {
 	if len(dst) < 32 {
 		return ref.HexDecode(dst, src)
@@ -276,6 +283,7 @@ func init() {
 	s.Bytes.B64Encode = b64EncodeAVX512Guarded
 	s.Bytes.B64Decode = b64DecodeAVX512Guarded
 	s.Bytes.ParseInts = parseIntsAVX512Guarded
+	s.Bytes.FormatInts = formatIntsAVX512Guarded
 	s.Bytes.HexDecode = hexDecodeAVX512Guarded
 	s.Bytes.HexEncode = hexEncodeAVX512Guarded
 	s.Bytes.Index = indexAVX512Guarded

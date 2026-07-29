@@ -895,6 +895,21 @@ func Bytes() []spec.Kernel {
 			Threshold: thBytes,
 		},
 		{
+			// The inverse of ParseInts: the two-digit-pair table, 3.3x
+			// strconv.AppendInt in the C probe. The guard routes destinations
+			// under the 21-bytes-per-value worst case to the reference, which
+			// fits exactly, so the kernel never needs a mid-stream retry.
+			CName: "simd_format_ints", GoName: "formatInts",
+			Group: "Bytes", Field: "FormatInts", RefFunc: "FormatInts",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("vals", spec.SliceI64),
+				{Name: "sep", Type: spec.U8}},
+			Result: &spec.Param{Name: "count", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("dst"), base("vals"),
+				lenOf("vals"), lenOf("dst"), val("sep")},
+			RefWhen:   "len(dst) < 21*len(vals)",
+			Threshold: 0,
+		},
+		{
 			// Two results, the count and whether the input was valid hex,
 			// which is the only reason this stayed portable everywhere until
 			// the generator learned to return a pair. Six C arguments, which

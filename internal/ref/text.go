@@ -2,6 +2,7 @@ package ref
 
 import (
 	"bytes"
+	"strconv"
 	"unicode/utf8"
 )
 
@@ -447,6 +448,33 @@ func ParseInts(dst []int64, src []byte, idx []int32) (int, bool) {
 		}
 	}
 	return n, true
+}
+
+// FormatInts is the reference formatter: exact-fit, so it succeeds wherever
+// success is possible, which is what makes it the safe fallback for short
+// destinations.
+func FormatInts(dst []byte, vals []int64, sep byte) int {
+	w := 0
+	var buf [20]byte
+	for i, v := range vals {
+		s := strconv.AppendInt(buf[:0], v, 10)
+		if len(dst)-w < len(s)+1 {
+			// room for the digits and, except at the end, the separator
+			need := len(s)
+			if i != len(vals)-1 {
+				need++
+			}
+			if len(dst)-w < need {
+				return -1
+			}
+		}
+		w += copy(dst[w:], s)
+		if i != len(vals)-1 {
+			dst[w] = sep
+			w++
+		}
+	}
+	return w
 }
 
 func B64Encode(dst, src []byte) int { return b64Encode(dst, src) }

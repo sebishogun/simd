@@ -387,6 +387,10 @@ type Bytes struct {
 	// all, stopping at the first field that is not a valid integer.
 	ParseInts func(dst []int64, src []byte, idx []int32) (int, bool)
 
+	// FormatInts writes vals as decimal, sep-separated, returning the bytes
+	// written or -1 when dst cannot hold even the exact rendering.
+	FormatInts func(dst []byte, vals []int64, sep byte) int
+
 	// Base64, RFC 4648 with padding. Both report how many bytes they wrote,
 	// or -1: for the encoder that means dst was too short, for the decoder it
 	// means that or that the input was not valid base64. One number rather

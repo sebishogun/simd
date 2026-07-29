@@ -1,6 +1,7 @@
 package simd_test
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"strconv"
@@ -107,5 +108,69 @@ func TestParseInts(t *testing.T) {
 	d := make([]int64, 2)
 	if n, ok := simd.ParseInts(d, l, boundaries(l, ',')); n != 2 || !ok {
 		t.Errorf("short dst: n=%d ok=%v, want 2 true", n, ok)
+	}
+}
+
+func TestFormatInts(t *testing.T) {
+	// Round-trip with ParseInts is the defining property; strconv is the
+	// per-value oracle. Both int64 extremes, zero, and single-digit values,
+	// at lengths on both sides of the guard.
+	cases := [][]int64{
+		{},
+		{0},
+		{5},
+		{-5},
+		{math.MaxInt64},
+		{math.MinInt64},
+		{0, 1, -1, 10, -10, 99, 100, -101},
+		{math.MinInt64, math.MaxInt64, 0, -9999999999999999},
+	}
+	big := make([]int64, 20000)
+	for i := range big {
+		big[i] = int64(i*7919-500000) * int64(1+i%3)
+	}
+	cases = append(cases, big)
+
+	for ci, vals := range cases {
+		want := make([]byte, 0, 21*len(vals))
+		for i, v := range vals {
+			want = strconv.AppendInt(want, v, 10)
+			if i != len(vals)-1 {
+				want = append(want, ';')
+			}
+		}
+		dst := make([]byte, 21*len(vals))
+		n := simd.FormatInts(dst, vals, ';')
+		if n != len(want) || !bytes.Equal(dst[:max(n, 0)], want) {
+			t.Fatalf("case %d: n=%d want %d; %q vs %q", ci, n, len(want),
+				dst[:max(n, 0)], want)
+		}
+		if len(vals) == 0 {
+			continue
+		}
+		// Round trip.
+		idx := boundaries(dst[:n], ';')
+		back := make([]int64, len(vals))
+		cnt, ok := simd.ParseInts(back, dst[:n], idx)
+		if !ok || cnt != len(vals) {
+			t.Fatalf("case %d: round-trip parse cnt=%d ok=%v", ci, cnt, ok)
+		}
+		for i := range vals {
+			if back[i] != vals[i] {
+				t.Fatalf("case %d: round-trip [%d] = %d, want %d", ci, i, back[i], vals[i])
+			}
+		}
+		// Exact-fit destination succeeds through the reference path.
+		exact := make([]byte, len(want))
+		if got := simd.FormatInts(exact, vals, ';'); got != len(want) {
+			t.Fatalf("case %d: exact-fit = %d, want %d", ci, got, len(want))
+		}
+		// One byte short fails cleanly.
+		if len(want) > 0 {
+			short := make([]byte, len(want)-1)
+			if got := simd.FormatInts(short, vals, ';'); got != -1 {
+				t.Fatalf("case %d: short dst = %d, want -1", ci, got)
+			}
+		}
 	}
 }

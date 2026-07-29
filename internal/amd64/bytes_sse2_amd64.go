@@ -76,6 +76,9 @@ func countAnySSE2(b []byte, chars []byte) int
 func parseIntsSSE2(dst []int64, src []byte, idx []int32) (count int, ok bool)
 
 //go:noescape
+func formatIntsSSE2(dst []byte, vals []int64, sep byte) int
+
+//go:noescape
 func hexDecodeSSE2(dst []byte, src []byte) (n int, ok bool)
 
 //go:noescape

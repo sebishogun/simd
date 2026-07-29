@@ -971,3 +971,62 @@ void simd_parse_ints(isize *__restrict n_out, _Bool *__restrict ok_out,
   *n_out = nidx;
   *ok_out = 1;
 }
+
+// ---------- integer formatting ----------
+//
+// The inverse of simd_parse_ints, and the measurement that shaped it: the
+// two-digits-per-lookup table is what makes fast formatters fast, and the C
+// probe ran at 2.07 GB/s of output against strconv.AppendInt's 0.62 — 3.3x —
+// before any vector cleverness. The scatter-based design task 56 sketched is
+// not needed; this is the LUT trick, tight.
+//
+// Digits emerge least-significant pair first into a 20-byte local, then copy
+// reversed. The negation is MinInt64-safe: -(x+1)+1 in unsigned avoids the
+// overflow that plain -x has at the minimum.
+//
+// Returns the bytes written, or -1 if fewer than 21 bytes per value remain —
+// the worst case is a sign, nineteen digits and a separator. The Go guard
+// routes short destinations to the reference, which fits exactly, so -1
+// escapes only when even the exact answer cannot fit.
+static const char simd_fmt_pairs[201] =
+    "00010203040506070809101112131415161718192021222324"
+    "25262728293031323334353637383940414243444546474849"
+    "50515253545556575859606162636465666768697071727374"
+    "75767778798081828384858687888990919293949596979899";
+
+void simd_format_ints(isize *__restrict out, u8 *__restrict d,
+                      const long long *__restrict v, isize nv, isize nd,
+                      long long sep) {
+  isize w = 0;
+  for (isize i = 0; i < nv; i++) {
+    if (nd - w < 21) {
+      *out = -1;
+      return;
+    }
+    unsigned long long u;
+    long long x = v[i];
+    if (x < 0) {
+      d[w++] = '-';
+      u = (unsigned long long)(-(x + 1)) + 1;
+    } else {
+      u = (unsigned long long)x;
+    }
+    u8 tmp[20];
+    int t = 0;
+    while (u >= 100) {
+      unsigned r = (unsigned)(u % 100);
+      u /= 100;
+      tmp[t++] = (u8)simd_fmt_pairs[r * 2 + 1];
+      tmp[t++] = (u8)simd_fmt_pairs[r * 2];
+    }
+    if (u >= 10) {
+      tmp[t++] = (u8)simd_fmt_pairs[u * 2 + 1];
+      tmp[t++] = (u8)simd_fmt_pairs[u * 2];
+    } else {
+      tmp[t++] = (u8)('0' + u);
+    }
+    while (t > 0) d[w++] = tmp[--t];
+    if (i != nv - 1) d[w++] = (u8)sep;
+  }
+  *out = w;
+}

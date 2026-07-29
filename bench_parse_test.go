@@ -56,3 +56,33 @@ func BenchmarkParseInts(b *testing.B) {
 		})
 	}
 }
+
+func BenchmarkFormatInts(b *testing.B) {
+	vals := make([]int64, 200000)
+	for i := range vals {
+		vals[i] = int64(i*7919 - 500000)
+	}
+	dst := make([]byte, 21*len(vals))
+	b.Run("impl=simd", func(b *testing.B) {
+		var n int
+		for b.Loop() {
+			n = simd.FormatInts(dst, vals, ',')
+		}
+		b.SetBytes(int64(n))
+		sinkParse = int64(n)
+	})
+	b.Run("impl=strconv", func(b *testing.B) {
+		var out []byte
+		for b.Loop() {
+			out = out[:0]
+			for i, v := range vals {
+				out = strconv.AppendInt(out, v, 10)
+				if i != len(vals)-1 {
+					out = append(out, ',')
+				}
+			}
+		}
+		b.SetBytes(int64(len(out)))
+		sinkParse = int64(len(out))
+	})
+}
