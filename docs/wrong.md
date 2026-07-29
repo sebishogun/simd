@@ -811,3 +811,48 @@ should have caught it asserted a peak position the author had reasoned out
 incorrectly, so it failed for the wrong reason and was nearly "fixed" by
 adjusting the expectation. Checking a whole short vector against arithmetic
 done by hand is both stricter and much harder to talk yourself out of.
+
+## 32. The frame-write check just needs the frame size added
+
+**Wrong four times running**, which is the point of this entry.
+
+Entry 26 found that `writesOutsideFrame` runs on one architecture of six.
+Entry 26's own attempted fix was reverted because switching it on flagged
+twenty-one legal spills on arm64. The diagnosis then was that it needed to know
+the frame the prologue allocated, and skip anything below it — a positive
+offset inside your own frame is where a spill belongs.
+
+That diagnosis is right and it is not sufficient. Implemented, with
+`stackAdjust` extended to riscv64, ppc64le, s390x and loong64, `StackReg`
+declared for the three targets that had none, the RVV and NEON store mnemonics
+added, arm64's `[sp, #16]` bracket syntax handled, and pre/post-indexed stores
+excluded as allocations rather than overruns — arm64 still lost twenty-one
+kernels and riscv64 five.
+
+Four hypotheses, each plausible, each wrong:
+
+1. *Positive offsets below the frame are legal.* True, implemented, insufficient.
+2. *clang allocates arm64 frames with a pre-indexed `stp x29, x30, [sp, #-N]!`,
+   which the size parser misses.* It does not; the disassembly shows a separate
+   `sub sp, sp, #0xf0`.
+3. *The displacement is printed in hex and the parser reads decimal.* True of
+   `#0xf0`, and fixing it changed nothing.
+4. *`reSubSPAA` was spelled `#([0-9]+)` so the hex widening missed it.* Also
+   true, also fixed, also changed nothing.
+
+Every rejection is at `sp+0` — a bare `[sp]` with no displacement, fifty-three
+of them. So the frame size is still measuring zero on arm64 after all four
+fixes, and the reason is not yet known.
+
+**Fix.** Reverted, again. Coverage is back to 772/740/708/392/654/576 and the
+check still covers one architecture. What is now known and was not before: the
+frame-size idea is necessary but not the whole answer, `stackAdjust` returns
+zero for arm64 even with a correct regex against a real `sub sp, sp, #0xf0`,
+and the surviving rejections are all zero-displacement stores. The next attempt
+should start by printing what `stackAdjust` actually receives as `in.Operands`
+for that instruction, rather than by reasoning about what it ought to receive.
+
+The transferable part: four consecutive plausible diagnoses, each confirmed
+true in isolation, none of which moved the number. When a fix that must work
+does not, the assumption to check is not the fix — it is the measurement you
+are using to judge it.
