@@ -776,3 +776,38 @@ was written as though none of it existed.
 what is genuinely absent. The cost of this one was low because the compiler
 caught the collision; had the names differed slightly it would have shipped two
 implementations of the same thing.
+
+## 31. Renaming a function is a mechanical change
+
+**Wrong** when a function of the same name and signature already exists, which
+is precisely when you are renaming to avoid a collision.
+
+`ConvolveFullInto` was added beside the existing `ConvolveInto`. They are
+different operations — the existing one is numpy's "valid" mode, returning
+`len(sig)-len(ker)+1` elements where the kernel fully overlaps, and the new one
+is "full" mode, returning `len(a)+len(b)-1` — so the new function was renamed
+to make room.
+
+The rename missed one call site, inside `CorrelateFullInto`, which still said
+`ConvolveInto(dst, a, rev)`. **It compiled.** Both functions take
+`(dst, a, b []T)` over the same constraint, so the call silently rebound to the
+other operation, and correlation returned the valid-mode answer padded with
+zeros: `[50 80 0 0]` where `[20 50 80 30]` was wanted — the right numbers,
+shifted, with the ends missing.
+
+The compiler cannot help here. A missed rename normally fails to build because
+the old name is gone; when the old name still exists and has a compatible
+signature, the failure is silent and semantic.
+
+**Fix.** Not just the call site — an assertion in the edit script that no bare
+`ConvolveInto(` survives outside the `ConvolveFullInto(` occurrences. The rule
+is that any rename made to resolve an ambiguity must be followed by a search
+for the *old* name, not a rebuild, because a rebuild is exactly what will not
+catch it.
+
+Worth noting how it was found: not by the differential tests, which passed,
+but by printing the output of a four-element worked example. The test that
+should have caught it asserted a peak position the author had reasoned out
+incorrectly, so it failed for the wrong reason and was nearly "fixed" by
+adjusting the expectation. Checking a whole short vector against arithmetic
+done by hand is both stricter and much harder to talk yourself out of.

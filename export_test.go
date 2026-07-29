@@ -12,3 +12,9 @@ const SelectMinLenForTest = selectMinLen
 
 // SortCutoffForTest is the equivalent threshold for Sort.
 const SortCutoffForTest = sortCutoff
+
+// ConvolveForTest runs one convolution path explicitly so the crossover
+// between them can be measured instead of quoted.
+func ConvolveForTest(dst, a, b []float64, useFFT bool) {
+	convolveForTest(dst, a, b, useFFT)
+}
