@@ -742,3 +742,37 @@ The transferable part is the first paragraph. A number from a hand-rolled
 timing loop is not a benchmark, and it is worth exactly as much scrutiny as the
 result it is being used to justify — more, when it is the thing that makes the
 work look worthwhile.
+
+## 30. Measure the gap against the standard library
+
+**Incomplete**, and the missing half wasted most of a task twice in one day.
+
+`bytes.ToLower` measures 1.9 GB/s, against a memory ceiling nearer 30, because
+it walks the input as runes to cover the whole of Unicode. That is a real and
+correctly measured gap, and ASCII case folding is a trivially vectorisable
+elementwise operation. So a kernel was written, wired through the manifest, the
+reference and the kernel slots — and every one of those edits collided with
+code that was already there. `simd_toupper_ascii` already existed in
+`csrc/bytes.c`. The slot already existed in `kernel.Bytes`. `ToLowerASCII` was
+already exported.
+
+**`simd.ToLowerASCII` was already running at 18.9 GB/s — ten times the standard
+library.** The gap was real, and this library had already closed it.
+
+The same shape had appeared an hour earlier with Adler-32, where the
+justification was a mismeasured baseline (entry 29). Together they are one
+mistake with two halves: *before* believing there is work to do, measure the
+standard library **with the benchmark harness**, and check what this package
+already exports. Either check alone is insufficient. The first tells you
+whether anyone needs it; the second tells you whether it is already done.
+
+For the record, the text API already covers `Index`, `IndexAll`, `IndexAny`,
+`Count`, `CountAny`, `Contains`, `HasPrefix`, `HasSuffix`, `EqualFoldASCII`,
+`ToLowerASCII`, `ToUpperASCII`, `ReplaceByte`, `TrimSpaceASCII`, `TrimAny`,
+`ValidUTF8`, `IsASCII`, hex and base64 — which is most of a roadmap entry that
+was written as though none of it existed.
+
+**Fix.** Reverted, nothing shipped, and the roadmap entry rewritten to name only
+what is genuinely absent. The cost of this one was low because the compiler
+caught the collision; had the names differed slightly it would have shipped two
+implementations of the same thing.
