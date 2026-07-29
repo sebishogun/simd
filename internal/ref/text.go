@@ -404,5 +404,50 @@ func boolToInt(b bool) int {
 // portable before the generator could return a pair.
 func HexDecode(dst, src []byte) (int, bool) { return hexDecode(dst, src) }
 
+// ParseInts is the reference for the integer field parser. Fields are
+// src[start:idx[k]] with start one past the previous separator, which is the
+// shape IndexAll produces.
+func ParseInts(dst []int64, src []byte, idx []int32) (int, bool) {
+	n := min(len(dst), len(idx))
+	start := 0
+	for k := range n {
+		end := int(idx[k])
+		if end > len(src) || end < start {
+			return k, false
+		}
+		f := src[start:end]
+		start = end + 1
+		neg := false
+		if len(f) > 0 && (f[0] == '-' || f[0] == '+') {
+			neg = f[0] == '-'
+			f = f[1:]
+		}
+		if len(f) == 0 || len(f) > 19 {
+			return k, false
+		}
+		var acc uint64
+		for _, c := range f {
+			d := c - '0'
+			if d > 9 {
+				return k, false
+			}
+			acc = acc*10 + uint64(d)
+		}
+		limit := uint64(1<<63 - 1)
+		if neg {
+			limit = 1 << 63
+		}
+		if acc > limit {
+			return k, false
+		}
+		if neg {
+			dst[k] = int64(-acc)
+		} else {
+			dst[k] = int64(acc)
+		}
+	}
+	return n, true
+}
+
 func B64Encode(dst, src []byte) int { return b64Encode(dst, src) }
 func B64Decode(dst, src []byte) int { return b64Decode(dst, src) }

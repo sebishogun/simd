@@ -79,6 +79,9 @@ func b64EncodeRVV(dst []byte, b []byte) int
 func b64DecodeRVV(dst []byte, b []byte) int
 
 //go:noescape
+func parseIntsRVV(dst []int64, src []byte, idx []int32) (count int, ok bool)
+
+//go:noescape
 func hexDecodeRVV(dst []byte, src []byte) (n int, ok bool)
 
 //go:noescape

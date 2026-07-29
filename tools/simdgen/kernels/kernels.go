@@ -873,6 +873,28 @@ func Bytes() []spec.Kernel {
 			Threshold: thBytes,
 		},
 		{
+			// Integer field parsing. The delimiter scan is deliberately not
+			// here: on 200,000 short CSV fields IndexAll alone runs at 4.06
+			// GB/s and IndexAll plus strconv.Atoi at 0.83, so the scan is a
+			// fifth of the work and the conversion is the rest. This takes the
+			// boundaries IndexAll already produced.
+			//
+			// Two results, the count and whether every field converted, so it
+			// needs the Result2 support.
+			CName: "simd_parse_ints", GoName: "parseInts",
+			Group: "Bytes", Field: "ParseInts", RefFunc: "ParseInts",
+			Params: []spec.Param{sl("dst", spec.SliceI64), sl("src", spec.SliceU8),
+				sl("idx", spec.SliceI32)},
+			// The result is "count" and not "n": the generated guard declares
+			// its own n for the clamped length, and a result of the same name
+			// collides with it.
+			Result:  &spec.Param{Name: "count", Type: spec.Int},
+			Result2: &spec.Param{Name: "ok", Type: spec.B},
+			CArgs: []spec.CArg{out(), out2(), base("dst"), base("src"),
+				base("idx"), lenOf("idx")},
+			Threshold: thBytes,
+		},
+		{
 			// Two results, the count and whether the input was valid hex,
 			// which is the only reason this stayed portable everywhere until
 			// the generator learned to return a pair. Six C arguments, which

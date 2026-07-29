@@ -180,6 +180,14 @@ func b64DecodeRVVGuarded(dst []byte, b []byte) int {
 	return b64DecodeRVV(dst, b)
 }
 
+func parseIntsRVVGuarded(dst []int64, src []byte, idx []int32) (count int, ok bool) {
+	n := min(len(idx), len(dst), len(src))
+	if n < 32 {
+		return ref.ParseInts(dst, src, idx)
+	}
+	return parseIntsRVV(dst, src, idx[:n:n])
+}
+
 func hexDecodeRVVGuarded(dst []byte, src []byte) (n int, ok bool) {
 	if len(dst) < 32 {
 		return ref.HexDecode(dst, src)
@@ -267,6 +275,7 @@ func init() {
 	s.Bytes.CountAny = countAnyRVVGuarded
 	s.Bytes.B64Encode = b64EncodeRVVGuarded
 	s.Bytes.B64Decode = b64DecodeRVVGuarded
+	s.Bytes.ParseInts = parseIntsRVVGuarded
 	s.Bytes.HexDecode = hexDecodeRVVGuarded
 	s.Bytes.HexEncode = hexEncodeRVVGuarded
 	s.Bytes.Index = indexRVVGuarded

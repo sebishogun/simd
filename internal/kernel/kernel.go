@@ -373,6 +373,11 @@ type Bytes struct {
 	HexEncode func(dst, src []byte) int
 	HexDecode func(dst, src []byte) (int, bool)
 
+	// ParseInts converts the fields of src delimited by the separator offsets
+	// in idx. It reports how many it converted and whether it consumed them
+	// all, stopping at the first field that is not a valid integer.
+	ParseInts func(dst []int64, src []byte, idx []int32) (int, bool)
+
 	// Base64, RFC 4648 with padding. Both report how many bytes they wrote,
 	// or -1: for the encoder that means dst was too short, for the decoder it
 	// means that or that the input was not valid base64. One number rather

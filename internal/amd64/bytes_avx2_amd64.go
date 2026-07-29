@@ -79,6 +79,9 @@ func b64EncodeAVX2(dst []byte, b []byte) int
 func b64DecodeAVX2(dst []byte, b []byte) int
 
 //go:noescape
+func parseIntsAVX2(dst []int64, src []byte, idx []int32) (count int, ok bool)
+
+//go:noescape
 func hexDecodeAVX2(dst []byte, src []byte) (n int, ok bool)
 
 //go:noescape
