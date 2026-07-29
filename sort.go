@@ -74,22 +74,28 @@ const sortSkewLimit = 16
 //
 // float64, Zen 5, this against Go's pdqsort:
 //
-//	n = 1024     random         6.80µs   6.82µs    even
-//	n = 16384    random          645µs    791µs    19% faster
-//	n = 262144   random         13.3ms   16.9ms    21% faster
-//	n = 2097152  random          125ms    156ms    19% faster
-//	n = 262144   few-distinct   1.19ms   1.55ms    24% faster
-//	n = 2097152  few-distinct   11.1ms   13.4ms    17% faster
-//	n = 16384    few-distinct   34.5µs   22.8µs    34% SLOWER
+//	n = 1024     random         6.76us   6.81us    even
+//	n = 16384    random          649us    804us    24% faster
+//	n = 262144   random         13.5ms   16.9ms    26% faster
+//	n = 2097152  random          127ms    156ms    24% faster
+//	n = 262144   few-distinct   1.10ms   1.58ms    43% faster
+//	n = 2097152  few-distinct   10.1ms   13.7ms    36% faster
+//	n = 16384    few-distinct   28.7us   22.9us    20% SLOWER
 //
-// The last row is the one case that loses and it is worth saying why rather
-// than hiding it. With few distinct values a median-of-three pivot is often
-// equal to much of the range, the split comes out lopsided, and the skew guard
-// hands the range to pdqsort — but only after paying for one partition. At
-// larger sizes that partition earns its cost back; at 16384 it does not. The
-// proper fix is a three-way partition that consumes the equal elements at each
-// level instead of pushing them all to one side, which needs a second kernel.
-
+// The last row is the one case that still loses, and it is worth saying what
+// changed. It used to lose by 34%, because a median-of-three pivot equal to
+// much of the range sent every copy of itself to the high side and the
+// recursion made no progress against them. extractEqual now takes that run out
+// when the split comes back skewed, which turned the two larger few-distinct
+// sizes from 24% and 17% ahead into 43% and 36%, and cut this row from 34%
+// behind to 20%.
+//
+// What is left at 16384 is the fixed cost: three passes to detect and remove
+// the equal run, against a range small enough that pdqsort's own
+// duplicate-handling finishes before they pay for themselves. Making that back
+// needs the extraction folded into the partition kernel itself rather than run
+// as separate passes over the result.
+//
 // Sort sorts a in ascending order, in place.
 //
 // For floating-point slices NaN sorts to the end, consistently with [Median]
@@ -153,15 +159,27 @@ func quicksort[T Number](a, scratch []T, depth int) {
 		n := PartitionInto(scratch[:len(a)], a, pivot)
 		copy(a, scratch[:len(a)])
 
-		// A badly skewed split means the pivot is a poor one — most often
-		// because it equals many elements, which duplicates make likely. Hand
-		// the range over rather than pay three more passes to learn the same
-		// thing again.
+		// A badly skewed split means the pivot is a poor one, and with
+		// duplicates it is almost always because the pivot EQUALS a large part
+		// of the range: the partition splits on strictly-less-than, so every
+		// copy of the pivot lands on the high side and the recursion makes no
+		// progress against them.
+		//
+		// Rather than hand the range to pdqsort, take the equal elements out.
+		// They are already in their final position once the two sides are
+		// sorted, so removing them from the recursion is exact and turns the
+		// case the two-way split handles worst into the one it handles best.
 		lo, hi := n, len(a)-n
 		if lo > hi {
 			lo, hi = hi, lo
 		}
 		if lo == 0 || hi/lo >= sortSkewLimit {
+			if eq := extractEqual(a[n:], pivot, scratch); eq > 0 {
+				// a[n:n+eq] is now the run of pivots and needs no sorting.
+				quicksort(a[:n], scratch, depth-1)
+				quicksort(a[n+eq:], scratch, depth-1)
+				return
+			}
 			sortFallback(a)
 			return
 		}
@@ -176,6 +194,46 @@ func quicksort[T Number](a, scratch []T, depth int) {
 		}
 	}
 	sortFallback(a)
+}
+
+// extractEqual moves every element of a equal to pivot to the front of a,
+// leaving the rest after them in their original relative order, and returns
+// how many it moved.
+//
+// a must contain no element less than pivot, which is what the partition above
+// guarantees for its high side. It returns 0 when the equal run is too small
+// to be worth the passes, so the caller can fall back.
+//
+// Every step is an operation this package already accelerates — a scalar
+// comparison, a mask negation, a count and a compress — so this needs no new
+// kernel. It costs three passes over the high side, against the three per
+// level the recursion would otherwise spend making no progress.
+func extractEqual[T Number](a []T, pivot T, scratch []T) int {
+	n := len(a)
+	if n == 0 || len(scratch) < n {
+		return 0
+	}
+	// The mask is bytes, so it needs its own space rather than sharing the
+	// element scratch.
+	mask := make([]bool, n)
+	EqualScalarInto(mask, a, pivot)
+	eq := CountTrue(mask)
+	// Below a quarter the equal run is not what is skewing the split, and
+	// three more passes would not pay.
+	if eq == 0 || eq*4 < n {
+		return 0
+	}
+	if eq == n {
+		return n // all pivots; nothing to move and nothing left to sort
+	}
+	NotMask(mask)
+	rest := scratch[:n-eq]
+	if got := CompressInto(rest, a, mask); got != n-eq {
+		return 0
+	}
+	Fill(a[:eq], pivot)
+	copy(a[eq:], rest)
+	return eq
 }
 
 // medianOfThree picks a pivot from the first, middle and last elements, which
