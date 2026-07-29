@@ -56,6 +56,33 @@ func asinFloat64SSE2Guarded(dst []float64, a []float64) {
 	asinFloat64SSE2(dst[:n:n], a)
 }
 
+func asinhFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	asinhFloat64SSE2(dst[:n:n], a)
+}
+
+func acoshFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	acoshFloat64SSE2(dst[:n:n], a)
+}
+
+func atanhFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	atanhFloat64SSE2(dst[:n:n], a)
+}
+
 func atan2Float64SSE2Guarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -82,6 +109,9 @@ func init() {
 	s.F64.Log1p = log1pFloat64SSE2Guarded
 	s.F64.Cbrt = cbrtFloat64SSE2Guarded
 	s.F64.Asin = asinFloat64SSE2Guarded
+	s.F64.Asinh = asinhFloat64SSE2Guarded
+	s.F64.Acosh = acoshFloat64SSE2Guarded
+	s.F64.Atanh = atanhFloat64SSE2Guarded
 	s.F64.Atan2 = atan2Float64SSE2Guarded
 	s.F64.Hypot = hypotFloat64SSE2Guarded
 }

@@ -70,6 +70,18 @@ func coshFloat32AVX2(dst []float32, a []float32)
 func tanhFloat32AVX2(dst []float32, a []float32)
 
 //go:noescape
+func asinhFloat32AVX2(dst []float32, a []float32)
+
+//go:noescape
+func acoshFloat32AVX2(dst []float32, a []float32)
+
+//go:noescape
+func atanhFloat32AVX2(dst []float32, a []float32)
+
+//go:noescape
+func erfFloat32AVX2(dst []float32, a []float32)
+
+//go:noescape
 func powFloat32AVX2(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -131,6 +143,18 @@ func coshFloat64AVX2(dst []float64, a []float64)
 
 //go:noescape
 func tanhFloat64AVX2(dst []float64, a []float64)
+
+//go:noescape
+func asinhFloat64AVX2(dst []float64, a []float64)
+
+//go:noescape
+func acoshFloat64AVX2(dst []float64, a []float64)
+
+//go:noescape
+func atanhFloat64AVX2(dst []float64, a []float64)
+
+//go:noescape
+func erfFloat64AVX2(dst []float64, a []float64)
 
 //go:noescape
 func powFloat64AVX2(dst []float64, a []float64, b []float64)

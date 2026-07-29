@@ -46,6 +46,9 @@ func atanFloat32RVV(dst []float32, a []float32)
 func coshFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
+func erfFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
 func atan2Float32RVV(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -80,6 +83,9 @@ func atanFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
 func coshFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func erfFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
 func atan2Float64RVV(dst []float64, a []float64, b []float64)

@@ -994,6 +994,19 @@ func Math() []spec.Kernel {
 		{"sin", "Sin"}, {"cos", "Cos"}, {"tan", "Tan"},
 		{"asin", "Asin"}, {"acos", "Acos"}, {"atan", "Atan"},
 		{"sinh", "Sinh"}, {"cosh", "Cosh"}, {"tanh", "Tanh"},
+		{"asinh", "Asinh"}, {"acosh", "Acosh"}, {"atanh", "Atanh"},
+		// Erf ships; Erfc does not, and the reason is measured rather than
+		// assumed. The Abramowitz and Stegun 7.1.26 form both are built on is
+		// 1.4e-7 ABSOLUTE, which for erf is a fair bound because erf is
+		// bounded by 1 and its interesting range is where it is O(1).
+		//
+		// erfc is the opposite shape. Its whole purpose is the tail, where it
+		// decays to nothing: erfc(6) is about 2e-17, so an absolute error of
+		// 1.4e-7 is a RELATIVE error of 1.2e-2 there — measured, not
+		// estimated. An operation whose only interesting regime is wrong to
+		// one percent is worse than no kernel, so Erfc keeps the portable path
+		// and Go's correctly-rounded math.Erfc.
+		{"erf", "Erf"},
 	}
 	binaries := []struct{ op, field string }{
 		{"pow", "Pow"}, {"atan2", "Atan2"}, {"hypot", "Hypot"},

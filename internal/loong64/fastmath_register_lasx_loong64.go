@@ -155,6 +155,42 @@ func fastCoshFloat64LASXGuarded(dst []float64, a []float64) {
 	fastCoshFloat64LASX(dst[:n:n], a)
 }
 
+func fastAsinhFloat64LASXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	fastAsinhFloat64LASX(dst[:n:n], a)
+}
+
+func fastAcoshFloat64LASXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	fastAcoshFloat64LASX(dst[:n:n], a)
+}
+
+func fastAtanhFloat64LASXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	fastAtanhFloat64LASX(dst[:n:n], a)
+}
+
+func fastErfFloat64LASXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat64LASX(dst[:n:n], a)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -174,4 +210,8 @@ func init() {
 	s.F64.FastAcos = fastAcosFloat64LASXGuarded
 	s.F64.FastAtan = fastAtanFloat64LASXGuarded
 	s.F64.FastCosh = fastCoshFloat64LASXGuarded
+	s.F64.FastAsinh = fastAsinhFloat64LASXGuarded
+	s.F64.FastAcosh = fastAcoshFloat64LASXGuarded
+	s.F64.FastAtanh = fastAtanhFloat64LASXGuarded
+	s.F64.FastErf = fastErfFloat64LASXGuarded
 }

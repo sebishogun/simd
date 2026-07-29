@@ -110,6 +110,15 @@ func fastCoshFloat32RVVGuarded(dst []float32, a []float32) {
 	fastCoshFloat32RVV(dst[:n:n], a)
 }
 
+func fastErfFloat32RVVGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat32RVV(dst[:n:n], a)
+}
+
 func fastAtan2Float32RVVGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -218,6 +227,15 @@ func fastCoshFloat64RVVGuarded(dst []float64, a []float64) {
 	fastCoshFloat64RVV(dst[:n:n], a)
 }
 
+func fastErfFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat64RVV(dst[:n:n], a)
+}
+
 func fastAtan2Float64RVVGuarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -250,6 +268,7 @@ func init() {
 	s.F32.FastAcos = fastAcosFloat32RVVGuarded
 	s.F32.FastAtan = fastAtanFloat32RVVGuarded
 	s.F32.FastCosh = fastCoshFloat32RVVGuarded
+	s.F32.FastErf = fastErfFloat32RVVGuarded
 	s.F32.FastAtan2 = fastAtan2Float32RVVGuarded
 	s.F32.FastHypot = fastHypotFloat32RVVGuarded
 	s.F64.FastExp = fastExpFloat64RVVGuarded
@@ -262,6 +281,7 @@ func init() {
 	s.F64.FastAcos = fastAcosFloat64RVVGuarded
 	s.F64.FastAtan = fastAtanFloat64RVVGuarded
 	s.F64.FastCosh = fastCoshFloat64RVVGuarded
+	s.F64.FastErf = fastErfFloat64RVVGuarded
 	s.F64.FastAtan2 = fastAtan2Float64RVVGuarded
 	s.F64.FastHypot = fastHypotFloat64RVVGuarded
 }

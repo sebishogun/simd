@@ -110,6 +110,15 @@ func coshFloat32RVVGuarded(dst []float32, a []float32) {
 	coshFloat32RVV(dst[:n:n], a)
 }
 
+func erfFloat32RVVGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	erfFloat32RVV(dst[:n:n], a)
+}
+
 func atan2Float32RVVGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -218,6 +227,15 @@ func coshFloat64RVVGuarded(dst []float64, a []float64) {
 	coshFloat64RVV(dst[:n:n], a)
 }
 
+func erfFloat64RVVGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	erfFloat64RVV(dst[:n:n], a)
+}
+
 func atan2Float64RVVGuarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -250,6 +268,7 @@ func init() {
 	s.F32.Acos = acosFloat32RVVGuarded
 	s.F32.Atan = atanFloat32RVVGuarded
 	s.F32.Cosh = coshFloat32RVVGuarded
+	s.F32.Erf = erfFloat32RVVGuarded
 	s.F32.Atan2 = atan2Float32RVVGuarded
 	s.F32.Hypot = hypotFloat32RVVGuarded
 	s.F64.Exp = expFloat64RVVGuarded
@@ -262,6 +281,7 @@ func init() {
 	s.F64.Acos = acosFloat64RVVGuarded
 	s.F64.Atan = atanFloat64RVVGuarded
 	s.F64.Cosh = coshFloat64RVVGuarded
+	s.F64.Erf = erfFloat64RVVGuarded
 	s.F64.Atan2 = atan2Float64RVVGuarded
 	s.F64.Hypot = hypotFloat64RVVGuarded
 }

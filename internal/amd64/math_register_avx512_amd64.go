@@ -182,6 +182,42 @@ func tanhFloat32AVX512Guarded(dst []float32, a []float32) {
 	tanhFloat32AVX512(dst[:n:n], a)
 }
 
+func asinhFloat32AVX512Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	asinhFloat32AVX512(dst[:n:n], a)
+}
+
+func acoshFloat32AVX512Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	acoshFloat32AVX512(dst[:n:n], a)
+}
+
+func atanhFloat32AVX512Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	atanhFloat32AVX512(dst[:n:n], a)
+}
+
+func erfFloat32AVX512Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	erfFloat32AVX512(dst[:n:n], a)
+}
+
 func powFloat32AVX512Guarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -371,6 +407,42 @@ func tanhFloat64AVX512Guarded(dst []float64, a []float64) {
 	tanhFloat64AVX512(dst[:n:n], a)
 }
 
+func asinhFloat64AVX512Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	asinhFloat64AVX512(dst[:n:n], a)
+}
+
+func acoshFloat64AVX512Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	acoshFloat64AVX512(dst[:n:n], a)
+}
+
+func atanhFloat64AVX512Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	atanhFloat64AVX512(dst[:n:n], a)
+}
+
+func erfFloat64AVX512Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	erfFloat64AVX512(dst[:n:n], a)
+}
+
 func powFloat64AVX512Guarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -420,6 +492,10 @@ func init() {
 	s.F32.Sinh = sinhFloat32AVX512Guarded
 	s.F32.Cosh = coshFloat32AVX512Guarded
 	s.F32.Tanh = tanhFloat32AVX512Guarded
+	s.F32.Asinh = asinhFloat32AVX512Guarded
+	s.F32.Acosh = acoshFloat32AVX512Guarded
+	s.F32.Atanh = atanhFloat32AVX512Guarded
+	s.F32.Erf = erfFloat32AVX512Guarded
 	s.F32.Pow = powFloat32AVX512Guarded
 	s.F32.Atan2 = atan2Float32AVX512Guarded
 	s.F32.Hypot = hypotFloat32AVX512Guarded
@@ -441,6 +517,10 @@ func init() {
 	s.F64.Sinh = sinhFloat64AVX512Guarded
 	s.F64.Cosh = coshFloat64AVX512Guarded
 	s.F64.Tanh = tanhFloat64AVX512Guarded
+	s.F64.Asinh = asinhFloat64AVX512Guarded
+	s.F64.Acosh = acoshFloat64AVX512Guarded
+	s.F64.Atanh = atanhFloat64AVX512Guarded
+	s.F64.Erf = erfFloat64AVX512Guarded
 	s.F64.Pow = powFloat64AVX512Guarded
 	s.F64.Atan2 = atan2Float64AVX512Guarded
 	s.F64.Hypot = hypotFloat64AVX512Guarded

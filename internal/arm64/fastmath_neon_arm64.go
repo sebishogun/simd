@@ -70,6 +70,18 @@ func fastCoshFloat32NEON(dst []float32, a []float32)
 func fastTanhFloat32NEON(dst []float32, a []float32)
 
 //go:noescape
+func fastAsinhFloat32NEON(dst []float32, a []float32)
+
+//go:noescape
+func fastAcoshFloat32NEON(dst []float32, a []float32)
+
+//go:noescape
+func fastAtanhFloat32NEON(dst []float32, a []float32)
+
+//go:noescape
+func fastErfFloat32NEON(dst []float32, a []float32)
+
+//go:noescape
 func fastPowFloat32NEON(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -122,6 +134,12 @@ func fastCoshFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
 func fastTanhFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func fastAsinhFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func fastErfFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
 func fastPowFloat64NEON(dst []float64, a []float64, b []float64)

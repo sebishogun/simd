@@ -262,6 +262,11 @@ func floatMathOps[T float](o *kernel.Ops[T]) {
 	o.Acos = unary[T](acosAccurate)
 	o.Atan = unary[T](math.Atan)
 	o.Sinh = unary[T](math.Sinh)
+	o.Asinh = unary[T](math.Asinh)
+	o.Acosh = unary[T](math.Acosh)
+	o.Atanh = unary[T](math.Atanh)
+	o.Erf = unary[T](math.Erf)
+	o.Erfc = unary[T](math.Erfc)
 	o.Cosh = unary[T](math.Cosh)
 	o.Tanh = unary[T](math.Tanh)
 
@@ -293,6 +298,8 @@ func fastFrom[T any](o *kernel.Ops[T]) {
 		{&o.FastSin, &o.Sin}, {&o.FastCos, &o.Cos}, {&o.FastTan, &o.Tan},
 		{&o.FastAsin, &o.Asin}, {&o.FastAcos, &o.Acos}, {&o.FastAtan, &o.Atan},
 		{&o.FastSinh, &o.Sinh}, {&o.FastCosh, &o.Cosh}, {&o.FastTanh, &o.Tanh},
+		{&o.FastAsinh, &o.Asinh}, {&o.FastAcosh, &o.Acosh},
+		{&o.FastAtanh, &o.Atanh}, {&o.FastErf, &o.Erf}, {&o.FastErfc, &o.Erfc},
 	}
 	for _, p := range pairs {
 		if *p.fast == nil {
@@ -373,6 +380,11 @@ func Asin[T float](dst, a []T)    { mapUnary(dst, a, asinAccurate) }
 func Acos[T float](dst, a []T)    { mapUnary(dst, a, acosAccurate) }
 func Atan[T float](dst, a []T)    { mapUnary(dst, a, math.Atan) }
 func Sinh[T float](dst, a []T)    { mapUnary(dst, a, math.Sinh) }
+func Asinh[T float](dst, a []T)   { mapUnary(dst, a, math.Asinh) }
+func Acosh[T float](dst, a []T)   { mapUnary(dst, a, math.Acosh) }
+func Atanh[T float](dst, a []T)   { mapUnary(dst, a, math.Atanh) }
+func Erf[T float](dst, a []T)     { mapUnary(dst, a, math.Erf) }
+func Erfc[T float](dst, a []T)    { mapUnary(dst, a, math.Erfc) }
 func Cosh[T float](dst, a []T)    { mapUnary(dst, a, math.Cosh) }
 func Tanh[T float](dst, a []T)    { mapUnary(dst, a, math.Tanh) }
 

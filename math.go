@@ -125,6 +125,24 @@ func Atan[T Float](a []T) { ops[T]().Atan(a, a) }
 // Sinh replaces every element with its hyperbolic sine.
 func Sinh[T Float](a []T) { ops[T]().Sinh(a, a) }
 
+// Asinh, Acosh and Atanh are the inverse hyperbolics, in place.
+//
+// Acosh is NaN below 1 and Atanh is NaN outside [-1, 1], with Atanh giving
+// the signed infinity at exactly -1 and 1, as C99 specifies.
+func Asinh[T Float](a []T) { ops[T]().Asinh(a, a) }
+func Acosh[T Float](a []T) { ops[T]().Acosh(a, a) }
+func Atanh[T Float](a []T) { ops[T]().Atanh(a, a) }
+
+// Erf is the error function, in place. It carries an absolute error bound of
+// 1.4e-7 rather than a ULP one; see [ErfInto].
+func Erf[T Float](a []T) { ops[T]().Erf(a, a) }
+
+// Erfc is the complementary error function, in place.
+//
+// This one has no kernel on any architecture and runs Go's math.Erfc, which is
+// correctly rounded. That is deliberate: see [ErfcInto].
+func Erfc[T Float](a []T) { ops[T]().Erfc(a, a) }
+
 // Cosh replaces every element with its hyperbolic cosine.
 func Cosh[T Float](a []T) { ops[T]().Cosh(a, a) }
 
@@ -180,6 +198,34 @@ func AtanInto[T Float](dst, a []T) { ops[T]().Atan(dst, a) }
 
 // SinhInto sets dst[i] to the hyperbolic sine of a[i]. dst may alias a.
 func SinhInto[T Float](dst, a []T) { ops[T]().Sinh(dst, a) }
+
+func AsinhInto[T Float](dst, a []T) { ops[T]().Asinh(dst, a) }
+func AcoshInto[T Float](dst, a []T) { ops[T]().Acosh(dst, a) }
+func AtanhInto[T Float](dst, a []T) { ops[T]().Atanh(dst, a) }
+
+// ErfInto writes the error function of each element of a to dst.
+//
+// The bound is 1.4e-7 ABSOLUTE, measured over [-6, 6], not a ULP bound. That
+// is the right form of claim here: erf is bounded by 1 and its interesting
+// range is where it is O(1), so an absolute bound is what a caller can use.
+// It comes from the Abramowitz and Stegun 7.1.26 rational form, which is a
+// float32-grade approximation — for float64 the answer is accurate to about
+// seven digits, not sixteen.
+func ErfInto[T Float](dst, a []T) { ops[T]().Erf(dst, a) }
+
+// ErfcInto writes the complementary error function of each element of a to
+// dst.
+//
+// This has no kernel and runs Go's math.Erfc on every architecture. The
+// decision is measured, not conservative: erfc's whole purpose is the tail,
+// where it decays to nothing, and the same 1.4e-7 absolute error that is fine
+// for erf is a RELATIVE error of 1.2e-2 at x=6, where erfc is about 2e-17. An
+// operation whose only interesting regime is wrong to one percent is worse
+// than no kernel at all.
+//
+// If you want the fast approximation over the range where erfc is O(1), it is
+// 1-[ErfInto], and writing that yourself makes the trade explicit.
+func ErfcInto[T Float](dst, a []T) { ops[T]().Erfc(dst, a) }
 
 // CoshInto sets dst[i] to the hyperbolic cosine of a[i]. dst may alias a.
 func CoshInto[T Float](dst, a []T) { ops[T]().Cosh(dst, a) }

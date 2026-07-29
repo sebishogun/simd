@@ -142,7 +142,12 @@ type Ops[T any] struct {
 	Sin, Cos, Tan        func(dst, a []T)
 	Asin, Acos, Atan     func(dst, a []T)
 	Sinh, Cosh, Tanh     func(dst, a []T)
-	Pow, Atan2, Hypot    func(dst, a, b []T)
+
+	// The inverse hyperbolics and the error functions. Erf and Erfc carry an
+	// absolute error bound rather than a ULP one, because that is what a
+	// rational approximation to erf actually gives.
+	Asinh, Acosh, Atanh, Erf, Erfc func(dst, a []T)
+	Pow, Atan2, Hypot              func(dst, a, b []T)
 
 	// The Fast tier: the same functions at 3.5 ULP instead of 1.0, from the
 	// same source compiled with shorter polynomials and fused multiply-add.
@@ -164,7 +169,10 @@ type Ops[T any] struct {
 	FastSin, FastCos, FastTan        func(dst, a []T)
 	FastAsin, FastAcos, FastAtan     func(dst, a []T)
 	FastSinh, FastCosh, FastTanh     func(dst, a []T)
-	FastPow, FastAtan2, FastHypot    func(dst, a, b []T)
+
+	// The 3.5-ULP forms of the inverse hyperbolics and error functions.
+	FastAsinh, FastAcosh, FastAtanh, FastErf, FastErfc func(dst, a []T)
+	FastPow, FastAtan2, FastHypot                      func(dst, a, b []T)
 
 	// Elementwise with a scalar operand.
 	//

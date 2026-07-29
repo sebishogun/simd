@@ -182,6 +182,42 @@ func tanhFloat32VSXGuarded(dst []float32, a []float32) {
 	tanhFloat32VSX(dst[:n:n], a)
 }
 
+func asinhFloat32VSXGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	asinhFloat32VSX(dst[:n:n], a)
+}
+
+func acoshFloat32VSXGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	acoshFloat32VSX(dst[:n:n], a)
+}
+
+func atanhFloat32VSXGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	atanhFloat32VSX(dst[:n:n], a)
+}
+
+func erfFloat32VSXGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	erfFloat32VSX(dst[:n:n], a)
+}
+
 func atan2Float32VSXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -362,6 +398,42 @@ func tanhFloat64VSXGuarded(dst []float64, a []float64) {
 	tanhFloat64VSX(dst[:n:n], a)
 }
 
+func asinhFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	asinhFloat64VSX(dst[:n:n], a)
+}
+
+func acoshFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	acoshFloat64VSX(dst[:n:n], a)
+}
+
+func atanhFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	atanhFloat64VSX(dst[:n:n], a)
+}
+
+func erfFloat64VSXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	erfFloat64VSX(dst[:n:n], a)
+}
+
 func atan2Float64VSXGuarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -402,6 +474,10 @@ func init() {
 	s.F32.Sinh = sinhFloat32VSXGuarded
 	s.F32.Cosh = coshFloat32VSXGuarded
 	s.F32.Tanh = tanhFloat32VSXGuarded
+	s.F32.Asinh = asinhFloat32VSXGuarded
+	s.F32.Acosh = acoshFloat32VSXGuarded
+	s.F32.Atanh = atanhFloat32VSXGuarded
+	s.F32.Erf = erfFloat32VSXGuarded
 	s.F32.Atan2 = atan2Float32VSXGuarded
 	s.F32.Hypot = hypotFloat32VSXGuarded
 	s.F64.Exp = expFloat64VSXGuarded
@@ -422,6 +498,10 @@ func init() {
 	s.F64.Sinh = sinhFloat64VSXGuarded
 	s.F64.Cosh = coshFloat64VSXGuarded
 	s.F64.Tanh = tanhFloat64VSXGuarded
+	s.F64.Asinh = asinhFloat64VSXGuarded
+	s.F64.Acosh = acoshFloat64VSXGuarded
+	s.F64.Atanh = atanhFloat64VSXGuarded
+	s.F64.Erf = erfFloat64VSXGuarded
 	s.F64.Atan2 = atan2Float64VSXGuarded
 	s.F64.Hypot = hypotFloat64VSXGuarded
 }

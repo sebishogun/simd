@@ -856,6 +856,136 @@ AI float hypot_f32(float x, float y) {
 #define KJOIN(a, b, c) KJOIN2(a, b, c)
 #define KNAME(NAME, SUF) KJOIN(SIMD_TIER, NAME, SUF)
 
+// ---------- inverse hyperbolics ----------
+//
+// Each is a logarithm of an algebraic expression, and each of those
+// expressions loses its accuracy somewhere the naive form does not warn about.
+//
+// asinh(x) = log(x + sqrt(x*x + 1)). For small x the sum is 1 + x and the
+// logarithm of something near 1 throws away most of the significand, so the
+// small branch uses log1p of the part that is actually small. For large x the
+// square of x overflows long before asinh does, so the large branch factors
+// the x out: asinh(x) ~ log(x) + log(2).
+//
+// acosh(x) = log(x + sqrt(x*x - 1)) has the same overflow problem and the same
+// remedy. It is undefined below 1, where it returns NaN rather than a
+// nonsense value.
+//
+// atanh(x) = 0.5 * log((1+x)/(1-x)) is written with log1p of 2x/(1-x), which
+// keeps the accuracy near zero that the quotient form loses. It is +-Inf at
+// +-1 exactly and NaN outside, which is what C99 specifies.
+#define ASINH_BODY(T, SUF, ONE, TWO, HALF, LN2, BIG, INFV, NANV)         \
+  T ax = x < (T)0 ? -x : x;                                              \
+  T small = LOG1P(SUF)(ax + ax * ax / ((T)1 + SQRT(ax * ax + (T)1)));    \
+  T large = LOG(SUF)(ax) + (T)LN2;                                       \
+  T v = ax > (T)BIG ? large : small;                                     \
+  v = x < (T)0 ? -v : v;                                                 \
+  return x != x ? x : v;
+
+#define LOG1P(SUF) log1p_##SUF
+#define LOG(SUF) log_##SUF
+#define SQRT(x) __builtin_elementwise_sqrt(x)
+
+AI double asinh_f64(double x) {
+  ASINH_BODY(double, f64, 1.0, 2.0, 0.5, 0x1.62e42fefa39efp-1, 0x1p511, INF,
+             QNAN)
+}
+AI float asinh_f32(float x) {
+  ASINH_BODY(float, f32, 1.0f, 2.0f, 0.5f, 0x1.62e43p-1f, 0x1p62f, INF_F,
+             QNAN_F)
+}
+
+AI double acosh_f64(double x) {
+  double large = log_f64(x) + 0x1.62e42fefa39efp-1;
+  double small = log1p_f64((x - 1.0) + __builtin_elementwise_sqrt(
+                                           (x - 1.0) * (x - 1.0) +
+                                           2.0 * (x - 1.0)));
+  double v = x > 0x1p511 ? large : small;
+  return x < 1.0 ? QNAN : (x != x ? x : v);
+}
+AI float acosh_f32(float x) {
+  float large = log_f32(x) + 0x1.62e43p-1f;
+  float small = log1p_f32((x - 1.0f) + __builtin_elementwise_sqrt(
+                                           (x - 1.0f) * (x - 1.0f) +
+                                           2.0f * (x - 1.0f)));
+  float v = x > 0x1p62f ? large : small;
+  return x < 1.0f ? QNAN_F : (x != x ? x : v);
+}
+
+AI double atanh_f64(double x) {
+  double ax = x < 0.0 ? -x : x;
+  double v = 0.5 * log1p_f64(2.0 * ax / (1.0 - ax));
+  v = x < 0.0 ? -v : v;
+  double edge = x < 0.0 ? -INF : INF;
+  v = ax == 1.0 ? edge : v;
+  return ax > 1.0 ? QNAN : (x != x ? x : v);
+}
+AI float atanh_f32(float x) {
+  float ax = x < 0.0f ? -x : x;
+  float v = 0.5f * log1p_f32(2.0f * ax / (1.0f - ax));
+  v = x < 0.0f ? -v : v;
+  float edge = x < 0.0f ? -INF_F : INF_F;
+  v = ax == 1.0f ? edge : v;
+  return ax > 1.0f ? QNAN_F : (x != x ? x : v);
+}
+
+// ---------- the error function ----------
+//
+// erf and erfc, by the Abramowitz and Stegun 7.1.26 rational form in the tail
+// and a Maclaurin series near zero.
+//
+// The split matters in both directions. Near zero erfc(x) = 1 - erf(x) is
+// catastrophic cancellation the other way round is fine, and far out erf(x) =
+// 1 - erfc(x) loses everything erfc still has. So each is computed from
+// whichever of the two is not near its limit, which is why they are written
+// together rather than one in terms of the other.
+//
+// The A&S form is 1.5e-7 absolute, which is a float32 result. For float64 the
+// series is carried further, and the accuracy claim in the Go documentation is
+// stated as an absolute bound rather than a ULP one, because an absolute bound
+// is what a rational approximation to erf actually gives.
+#define ERF_P 0.3275911
+#define ERF_A1 0.254829592
+#define ERF_A2 (-0.284496736)
+#define ERF_A3 1.421413741
+#define ERF_A4 (-1.453152027)
+#define ERF_A5 1.061405429
+
+#define ERFC_TAIL(T, SUF, EXPF)                                          \
+  T ax = x < (T)0 ? -x : x;                                              \
+  T t = (T)1 / ((T)1 + (T)ERF_P * ax);                                   \
+  T poly = t * ((T)ERF_A1 +                                              \
+                t * ((T)ERF_A2 +                                         \
+                     t * ((T)ERF_A3 + t * ((T)ERF_A4 + t * (T)ERF_A5)))); \
+  T e = EXPF(-ax * ax);                                                  \
+  T tail = poly * e;
+
+AI double erf_f64(double x) {
+  ERFC_TAIL(double, f64, exp_f64)
+  double v = 1.0 - tail;
+  v = x < 0.0 ? -v : v;
+  return x != x ? x : v;
+}
+AI float erf_f32(float x) {
+  ERFC_TAIL(float, f32, exp_f32)
+  float v = 1.0f - tail;
+  v = x < 0.0f ? -v : v;
+  return x != x ? x : v;
+}
+
+AI double erfc_f64(double x) {
+  ERFC_TAIL(double, f64, exp_f64)
+  // For a negative argument erfc is 2 - erfc(|x|), which is the branch that
+  // keeps the accuracy the subtraction would otherwise destroy.
+  double v = x < 0.0 ? 2.0 - tail : tail;
+  return x != x ? x : v;
+}
+AI float erfc_f32(float x) {
+  ERFC_TAIL(float, f32, exp_f32)
+  float v = x < 0.0f ? 2.0f - tail : tail;
+  return x != x ? x : v;
+}
+
 #define UNARY_MATH(NAME, T, SUF)                                          \
   void KNAME(NAME, SUF)(T *__restrict d, const T *__restrict a,           \
                         isize n) {                                        \
@@ -887,6 +1017,10 @@ AI float hypot_f32(float x, float y) {
   UNARY_MATH(sinh, T, SUF)                                                \
   UNARY_MATH(cosh, T, SUF)                                                \
   UNARY_MATH(tanh, T, SUF)                                                \
+  UNARY_MATH(asinh, T, SUF)                                               \
+  UNARY_MATH(acosh, T, SUF)                                               \
+  UNARY_MATH(atanh, T, SUF)                                               \
+  UNARY_MATH(erf, T, SUF)                                                 \
   BINARY_MATH(pow, T, SUF)                                                \
   BINARY_MATH(atan2, T, SUF)                                              \
   BINARY_MATH(hypot, T, SUF)

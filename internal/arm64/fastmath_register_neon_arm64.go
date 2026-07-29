@@ -182,6 +182,42 @@ func fastTanhFloat32NEONGuarded(dst []float32, a []float32) {
 	fastTanhFloat32NEON(dst[:n:n], a)
 }
 
+func fastAsinhFloat32NEONGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	fastAsinhFloat32NEON(dst[:n:n], a)
+}
+
+func fastAcoshFloat32NEONGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	fastAcoshFloat32NEON(dst[:n:n], a)
+}
+
+func fastAtanhFloat32NEONGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	fastAtanhFloat32NEON(dst[:n:n], a)
+}
+
+func fastErfFloat32NEONGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat32NEON(dst[:n:n], a)
+}
+
 func fastPowFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -344,6 +380,24 @@ func fastTanhFloat64NEONGuarded(dst []float64, a []float64) {
 	fastTanhFloat64NEON(dst[:n:n], a)
 }
 
+func fastAsinhFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	fastAsinhFloat64NEON(dst[:n:n], a)
+}
+
+func fastErfFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat64NEON(dst[:n:n], a)
+}
+
 func fastPowFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -393,6 +447,10 @@ func init() {
 	s.F32.FastSinh = fastSinhFloat32NEONGuarded
 	s.F32.FastCosh = fastCoshFloat32NEONGuarded
 	s.F32.FastTanh = fastTanhFloat32NEONGuarded
+	s.F32.FastAsinh = fastAsinhFloat32NEONGuarded
+	s.F32.FastAcosh = fastAcoshFloat32NEONGuarded
+	s.F32.FastAtanh = fastAtanhFloat32NEONGuarded
+	s.F32.FastErf = fastErfFloat32NEONGuarded
 	s.F32.FastPow = fastPowFloat32NEONGuarded
 	s.F32.FastAtan2 = fastAtan2Float32NEONGuarded
 	s.F32.FastHypot = fastHypotFloat32NEONGuarded
@@ -411,6 +469,8 @@ func init() {
 	s.F64.FastAtan = fastAtanFloat64NEONGuarded
 	s.F64.FastCosh = fastCoshFloat64NEONGuarded
 	s.F64.FastTanh = fastTanhFloat64NEONGuarded
+	s.F64.FastAsinh = fastAsinhFloat64NEONGuarded
+	s.F64.FastErf = fastErfFloat64NEONGuarded
 	s.F64.FastPow = fastPowFloat64NEONGuarded
 	s.F64.FastAtan2 = fastAtan2Float64NEONGuarded
 	s.F64.FastHypot = fastHypotFloat64NEONGuarded

@@ -70,6 +70,18 @@ func coshFloat32VSX(dst []float32, a []float32)
 func tanhFloat32VSX(dst []float32, a []float32)
 
 //go:noescape
+func asinhFloat32VSX(dst []float32, a []float32)
+
+//go:noescape
+func acoshFloat32VSX(dst []float32, a []float32)
+
+//go:noescape
+func atanhFloat32VSX(dst []float32, a []float32)
+
+//go:noescape
+func erfFloat32VSX(dst []float32, a []float32)
+
+//go:noescape
 func atan2Float32VSX(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -128,6 +140,18 @@ func coshFloat64VSX(dst []float64, a []float64)
 
 //go:noescape
 func tanhFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func asinhFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func acoshFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func atanhFloat64VSX(dst []float64, a []float64)
+
+//go:noescape
+func erfFloat64VSX(dst []float64, a []float64)
 
 //go:noescape
 func atan2Float64VSX(dst []float64, a []float64, b []float64)

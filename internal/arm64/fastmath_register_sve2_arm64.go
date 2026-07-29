@@ -182,6 +182,42 @@ func fastTanhFloat32SVE2Guarded(dst []float32, a []float32) {
 	fastTanhFloat32SVE2(dst[:n:n], a)
 }
 
+func fastAsinhFloat32SVE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	fastAsinhFloat32SVE2(dst[:n:n], a)
+}
+
+func fastAcoshFloat32SVE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	fastAcoshFloat32SVE2(dst[:n:n], a)
+}
+
+func fastAtanhFloat32SVE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	fastAtanhFloat32SVE2(dst[:n:n], a)
+}
+
+func fastErfFloat32SVE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat32SVE2(dst[:n:n], a)
+}
+
 func fastPowFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -344,6 +380,24 @@ func fastTanhFloat64SVE2Guarded(dst []float64, a []float64) {
 	fastTanhFloat64SVE2(dst[:n:n], a)
 }
 
+func fastAsinhFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	fastAsinhFloat64SVE2(dst[:n:n], a)
+}
+
+func fastErfFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat64SVE2(dst[:n:n], a)
+}
+
 func fastPowFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -393,6 +447,10 @@ func init() {
 	s.F32.FastSinh = fastSinhFloat32SVE2Guarded
 	s.F32.FastCosh = fastCoshFloat32SVE2Guarded
 	s.F32.FastTanh = fastTanhFloat32SVE2Guarded
+	s.F32.FastAsinh = fastAsinhFloat32SVE2Guarded
+	s.F32.FastAcosh = fastAcoshFloat32SVE2Guarded
+	s.F32.FastAtanh = fastAtanhFloat32SVE2Guarded
+	s.F32.FastErf = fastErfFloat32SVE2Guarded
 	s.F32.FastPow = fastPowFloat32SVE2Guarded
 	s.F32.FastAtan2 = fastAtan2Float32SVE2Guarded
 	s.F32.FastHypot = fastHypotFloat32SVE2Guarded
@@ -411,6 +469,8 @@ func init() {
 	s.F64.FastAtan = fastAtanFloat64SVE2Guarded
 	s.F64.FastCosh = fastCoshFloat64SVE2Guarded
 	s.F64.FastTanh = fastTanhFloat64SVE2Guarded
+	s.F64.FastAsinh = fastAsinhFloat64SVE2Guarded
+	s.F64.FastErf = fastErfFloat64SVE2Guarded
 	s.F64.FastPow = fastPowFloat64SVE2Guarded
 	s.F64.FastAtan2 = fastAtan2Float64SVE2Guarded
 	s.F64.FastHypot = fastHypotFloat64SVE2Guarded

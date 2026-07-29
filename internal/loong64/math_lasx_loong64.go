@@ -59,3 +59,15 @@ func atanFloat64LASX(dst []float64, a []float64)
 
 //go:noescape
 func coshFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func asinhFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func acoshFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func atanhFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func erfFloat64LASX(dst []float64, a []float64)

@@ -59,3 +59,15 @@ func fastAtanFloat64LASX(dst []float64, a []float64)
 
 //go:noescape
 func fastCoshFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func fastAsinhFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func fastAcoshFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func fastAtanhFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
+func fastErfFloat64LASX(dst []float64, a []float64)

@@ -70,6 +70,18 @@ func fastCoshFloat32AVX512(dst []float32, a []float32)
 func fastTanhFloat32AVX512(dst []float32, a []float32)
 
 //go:noescape
+func fastAsinhFloat32AVX512(dst []float32, a []float32)
+
+//go:noescape
+func fastAcoshFloat32AVX512(dst []float32, a []float32)
+
+//go:noescape
+func fastAtanhFloat32AVX512(dst []float32, a []float32)
+
+//go:noescape
+func fastErfFloat32AVX512(dst []float32, a []float32)
+
+//go:noescape
 func fastPowFloat32AVX512(dst []float32, a []float32, b []float32)
 
 //go:noescape
@@ -131,6 +143,18 @@ func fastCoshFloat64AVX512(dst []float64, a []float64)
 
 //go:noescape
 func fastTanhFloat64AVX512(dst []float64, a []float64)
+
+//go:noescape
+func fastAsinhFloat64AVX512(dst []float64, a []float64)
+
+//go:noescape
+func fastAcoshFloat64AVX512(dst []float64, a []float64)
+
+//go:noescape
+func fastAtanhFloat64AVX512(dst []float64, a []float64)
+
+//go:noescape
+func fastErfFloat64AVX512(dst []float64, a []float64)
 
 //go:noescape
 func fastPowFloat64AVX512(dst []float64, a []float64, b []float64)

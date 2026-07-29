@@ -28,6 +28,15 @@ func cbrtFloat64SSE2(dst []float64, a []float64)
 func asinFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape
+func asinhFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func acoshFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func atanhFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
 func atan2Float64SSE2(dst []float64, a []float64, b []float64)
 
 //go:noescape
