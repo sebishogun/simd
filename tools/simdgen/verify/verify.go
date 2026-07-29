@@ -739,7 +739,17 @@ func parseInstr(line string) (Instr, bool) {
 		ops := strings.TrimSpace(inlineOps + " " + strings.Join(fields[2:], " "))
 		// Drop llvm-objdump's trailing "# imm = 0x..." annotation, which would
 		// otherwise be mistaken for an operand.
-		if i := strings.Index(ops, "#"); i >= 0 {
+		//
+		// The cut is at "# " and not at "#", and the space is load-bearing.
+		// On arm64 the hash is the immediate PREFIX -- sub sp, sp, #0xf0 --
+		// so cutting at the bare hash deleted every immediate the
+		// architecture has. stackAdjust then measured every arm64 frame as
+		// zero, which made every ordinary spill look like a write into the
+		// caller's frame, and four separate attempts to fix the frame check
+		// failed against a parser that was never handing it the numbers. The
+		// annotation always has a space after the hash; an immediate never
+		// does.
+		if i := strings.Index(ops, "# "); i >= 0 {
 			ops = ops[:i]
 		}
 		in.Operands = strings.TrimSpace(ops)
