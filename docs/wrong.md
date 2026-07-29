@@ -700,3 +700,45 @@ anything.
 The transferable part: structure in noise is not evidence of signal when the
 sampling has structure too. Ask what the measurement order was before believing
 a pattern that follows it.
+
+## 29. hash/adler32 is a scalar byte loop, so there is 12x to win
+
+**Wrong**, and the whole of a day's work rested on it.
+
+Adler-32 looked like the obvious checksum to accelerate. CRC-32 was measured
+first and correctly dismissed: `hash/crc32` reaches 19 GB/s because amd64 and
+arm64 both have carry-less multiply and Go uses it, so there is nothing there.
+A quick probe then put `adler32.Checksum` at 636us for a megabyte — 1.65 GB/s,
+a twelvefold gap, and the algorithm vectorises cleanly. That is a good case.
+
+The probe was wrong. The proper benchmark, on the same machine and the same
+input size, measures `hash/adler32` at **220us — 4.7 GB/s**. The ad-hoc timing
+loop had measured something else: unwarmed, unpinned, and against a different
+buffer. The gap it reported was three times too large, and it was the entire
+justification.
+
+A kernel was written anyway, and it is worth recording what it cost, because
+the algorithm is genuinely vectorisable and the implementation is genuinely
+correct:
+
+- The first version summed the vector lanes with a scalar loop inside the block
+  loop — the trap `reduce.c` documents — and measured *identical* to the
+  standard library at a megabyte: 222.6us against 223.6us.
+- The rewrite used the right identity, `sum (L-i)*d[i] = L*sum(d) -
+  sum(i*d[i])`, with three vector accumulators reduced once per 5552-byte
+  chunk. It also got the prefix weighting backwards: adding the running sum
+  into an accumulator before each block gives `sum_b Sb*(B-1-b)`, not
+  `sum_b b*Sb`. Both forms agree for one block, so everything up to 63 bytes
+  passed and 64 failed.
+- Corrected, it lost three of its six tiers and the fallback path — a reference
+  doing a modulo per byte — made the benchmark 8.8x *slower* than the standard
+  library.
+
+**Fix.** Reverted, all of it. What survives is the measurement: `hash/adler32`
+is not a naive loop, it already blocks to NMAX before reducing, and beating it
+needs a better kernel than the one that fits this generator's constraints.
+
+The transferable part is the first paragraph. A number from a hand-rolled
+timing loop is not a benchmark, and it is worth exactly as much scrutiny as the
+result it is being used to justify — more, when it is the thing that makes the
+work look worthwhile.
