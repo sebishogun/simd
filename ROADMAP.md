@@ -85,7 +85,7 @@ is the `RET`. That decision is recorded at `target.go`.
 
 ### s390x
 
-395 kernels, and the missing thirteen are missing because clang uses `r13`,
+410 kernels, and the missing ones are missing because clang uses `r13`,
 which is where Go keeps the current goroutine. There is no `-ffixed-r13` for
 SystemZ; the global register variable is accepted and silently ignored. Four
 routes were probed and all four are dead, so this is upstream — recorded here
@@ -96,51 +96,109 @@ wrong: 614 was the count before the r13 rule was enforced, and 650 double-
 counted registrations and their wrappers. The number has in fact risen
 monotonically, 325 to 395, and never fell.
 
+### amd64 sse2: 170 kernels behind an alignment problem, not an ABI one
+
+The baseline x86-64 tier declines around 170 kernels because a legacy SSE
+instruction with a memory operand requires a 16-byte-aligned address and has no
+unaligned form of the same length. It is the largest addressable bucket in the
+repository, and the reason on file for not attempting it turns out to answer a
+different question.
+
+That reason — in the comment on `checkPatchable` — rejects padding the appended
+pool to a 16-byte offset, because it would rely on the linker aligning text
+symbols and `-ldflags=-funcalign=8` would then SIGSEGV. Correct, and it is
+about appending the pool *inside the TEXT symbol*, which is what the amd64 path
+does. It does not apply to a separate `DATA`/`GLOBL` symbol, which the ppc64le
+path already emits and which the linker aligns **by size**. Measured:
+
+```
+GLOBL simdpool<>(SB), RODATA|NOPTR, $32
+  default        0x4d0880   %16 = 0
+  -funcalign=8   0x4ca880   %16 = 0
+```
+
+Still aligned under the exact flag the objection is about, because `-funcalign`
+aligns text and not data.
+
+So the route is open, and the work is not the alignment. It is that a raw
+instruction encoding cannot carry a relocation, so each pool-referencing
+instruction would have to be emitted as a Plan 9 mnemonic —
+`MULPS simdpool<>+0x20(SB), X3` — and **the assembler's encoding must be
+byte-for-byte the same length as clang's RIP-relative form**, per mnemonic,
+across the dozen that occur. The body is raw encodings with branch
+displacements already computed, so a one-byte difference silently breaks every
+branch after it. [`docs/wrong.md`](docs/wrong.md) entry 61.
+
+### The wall four remaining items share
+
+Varint (Stream VByte), sorted-set intersection, the RVV transcendentals and the
+sse2 emission above all stop at the same place: **they need per-target shuffle
+tables or hand-written intrinsics rather than one portable C source.**
+
+That is not a difficulty ranking, it is a different kind of work. Everything in
+this repository gets its cross-architecture identity for free by compiling one
+source everywhere and checking the results against each other. The first kernel
+written per-target gives that up, and the differential suite becomes the only
+thing standing between a subtly different evaluation order and a shipped
+inconsistency. Worth doing; worth deciding to do deliberately.
+
+For the transcendentals specifically, the pragma route is closed rather than
+untried: `#pragma clang loop vectorize(enable)` on the RVV refusals produces 22
+instances of "the optimizer was unable to perform the requested
+transformation". Entry 63.
+
 ## Tiers
 
-### A `GOEXPERIMENT=simd` tier — measured, and deliberately not shipped
+### A `GOEXPERIMENT=simd` tier — half shipped, half measured and rejected
 
-**This has been built and benchmarked. The measurement says do not wire it up
-yet, and that is the decision.**
+**Both halves are now settled, and they went opposite ways.**
 
-Go 1.26's intrinsics are real and usable — `simd/archsimd` exists, the
-experiment is accepted, `LoadFloat32x8Slice` and friends compile to the
-instructions you would expect. So the question was never whether they work, it
-was whether they beat what is already here. On a Zen 5, float32 `AddInto`:
+**Shipped: the vector type.** `vec.go`, behind `//go:build goexperiment.simd &&
+amd64`, aliases `simd/archsimd`'s types so every one of its methods is
+available through one import, adds `Lanes[T]()` so a caller need not guess the
+width, and wraps the loop-plus-tail shape that hand-written SIMD gets wrong.
+`vec_stub.go` is what every other configuration compiles: `Lanes` returning 0
+and `HasVectorType` false, and deliberately nothing else — a `F32x8` aliased to
+something that is not a vector would compile everywhere and be fast in one
+place, with nothing saying which.
 
-| n | Go scalar loop | Go intrinsics | this library (assembly) |
-|---|---|---|---|
-| 4 | 3.87 ns | **3.81 ns** | 4.46 ns |
-| 8 | 7.15 ns | **2.82 ns** | 5.27 ns |
-| 16 | 14.23 ns | **3.74 ns** | 5.61 ns |
-| 32 | 26.91 ns | 6.13 ns | **5.83 ns** |
-| 64 | 53.81 ns | 11.07 ns | **5.83 ns** |
-| 128 | 77.22 ns | 20.09 ns | **6.91 ns** |
-| 256 | 158.75 ns | 38.70 ns | **8.81 ns** |
+`archsimd` is **amd64 only** in Go 1.26, verified rather than assumed: all ten
+of its implementation files are `_amd64.go`, `GOARCH=arm64` fails with
+`undefined: archsimd.LoadFloat32x8Slice`, and its own doc says "It currently
+supports AMD64". So five architectures get the stub.
 
-Two things fall out, and the second was not expected.
+`make verify` now runs `test-vec`, because a build tag nothing exercises is the
+vacuously-green lane [`docs/wrong.md`](docs/wrong.md) entry 41 warns about.
 
-**The opportunity is real but tiny.** Intrinsics win only at n ≤ 16, by about
-two nanoseconds, in a band where the absolute cost is already about five.
+**Rejected: routing the small-n fallback through it.** This was the plan, the
+prize looked like 2 ns in the band below the dispatch threshold, and the
+package was built, made bit-identical to `internal/ref` over an adversarial
+corpus, and benchmarked against it — where it won at every size, up to 2.1×.
 
-**Above n = 32 the assembly is not merely ahead, it is several times ahead** —
-4.4× at n = 256. The common assumption that intrinsics are equivalent to
-hand-written assembly is wrong here, and the reason is that they are equivalent
-to *what you write with them*: an idiomatic 8-lane Go loop against a
-clang-generated kernel that uses 512-bit vectors and unrolls. Matching it means
-writing that unrolled 512-bit loop by hand in Go, per type, per width — which
-is the work this library's generator exists to avoid.
+Then it was A/B'd through the **public API** against the previous tree, which
+is the only path a real program takes:
 
-So shipping it now would mean asking consumers to set a `GOEXPERIMENT` — which
-a library cannot do — for two nanoseconds on amd64 only. The decision is no.
+| n | before | after |
+|---|---|---|
+| 4 | 4.50 ns | 5.49 |
+| 8 | 5.50 | **8.04** |
+| 16 | 5.49 | 5.44 |
+| 256 | 9.05 | 9.47 |
 
-**Revisit when it needs no flag** (targeted at Go 1.27). At that point it costs
-a consumer nothing, and the same measurement decides per operation: below the
-threshold where the dispatcher currently runs a scalar loop, an inlined
-intrinsic is worth having; above it, the assembly stays. The bit-identity
-contract binds it either way.
+A 46% regression at n = 8. The package's own benchmark measured a call shape
+that does not exist: it passed a concrete `[]float32` the compiler inlines,
+where a generated guard cannot. And the band does not exist anyway — the
+fallback runs only below the threshold, which is 16, and at 16 and above the
+generated kernel already beats archsimd (5.44 against 6.42), because clang
+unrolls and schedules across iterations. The two windows do not overlap.
 
-The reasoning behind why it can only ever win at small n follows.
+Deleted rather than left unwired. [`docs/wrong.md`](docs/wrong.md) entry 58 has
+the whole chain, including the earlier generic version that boxed a slice
+header on every call.
+
+**What this changes about v2.** The vector type is already here and already
+structured for it: delete two build tags and bump the module path. What v2 does
+*not* get is the fastpath, and the reason is measured rather than deferred.
 
 ### Why the small-n band is the only opening
 
