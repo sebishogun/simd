@@ -946,17 +946,22 @@ func Bytes() []spec.Kernel {
 		{
 			CName: "simd_count_any", GoName: "countAny",
 			Group: "Bytes", Field: "CountAny", RefFunc: "CountAny",
-			// Skipped on ppc64le. With the TOC rewrite enabled this is the one
-			// kernel of 469 that corrupts memory: bisected to it in fourteen
-			// runs, and its constant addressing verified correct by hand, so
-			// the fault is something else about it — most likely the 256-byte
-			// character-set table it writes at -256(r1), the deepest stack use
-			// of any kernel here and close to the 288-byte protected zone.
+			// This carried a hand-written SkipOn for ppc64le, saying it was
+			// "the one kernel of 469 that corrupts memory", bisected to over
+			// fourteen runs, cause unknown and guessed at the 256-byte
+			// character-set table it builds near the protected zone.
 			//
-			// Not registering it is the same arrangement every partial backend
-			// in this library uses. The portable implementation stands in, so
-			// this is a performance property and never a correctness one.
-			SkipOn:    []string{"ppc64le"},
+			// That guess was wrong and the skip is now unnecessary. The cause
+			// was r0: this kernel writes a nonzero value there (`lis r0,
+			// 21845`), and Go's ppc64le ABI defines r0 as constant zero, so a
+			// signal arriving mid-kernel ran the runtime against a poisoned
+			// zero register. Fifteen kernels were doing it, which is why the
+			// bisection kept landing on coin flips — see entry 42.
+			//
+			// The verifier now rejects that class by value rather than by
+			// name, so this kernel is excluded mechanically, with a stated
+			// reason, alongside the other fifteen. The hand-written skip said
+			// the same thing less accurately and could go stale on its own.
 			Params:    []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8)},
 			Result:    &spec.Param{Name: "ret", Type: spec.Int},
 			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars")},
