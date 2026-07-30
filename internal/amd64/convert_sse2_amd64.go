@@ -28,6 +28,30 @@ func quantizeU8SSE2(dst []byte, a []float32, scale float32, zeroPoint int32)
 func dequantizeU8SSE2(dst []float32, a []byte, scale float32, zeroPoint int32)
 
 //go:noescape
+func zigzagEncodeI8SSE2(dst []byte, a []int8)
+
+//go:noescape
+func zigzagDecodeI8SSE2(dst []int8, a []byte)
+
+//go:noescape
+func zigzagEncodeI16SSE2(dst []uint16, a []int16)
+
+//go:noescape
+func zigzagDecodeI16SSE2(dst []int16, a []uint16)
+
+//go:noescape
+func zigzagEncodeI32SSE2(dst []uint32, a []int32)
+
+//go:noescape
+func zigzagDecodeI32SSE2(dst []int32, a []uint32)
+
+//go:noescape
+func zigzagEncodeI64SSE2(dst []uint64, a []int64)
+
+//go:noescape
+func zigzagDecodeI64SSE2(dst []int64, a []uint64)
+
+//go:noescape
 func bf16ToF32SSE2(dst []float32, a []uint16)
 
 //go:noescape

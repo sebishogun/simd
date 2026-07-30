@@ -56,6 +56,78 @@ func dequantizeU8LASXGuarded(dst []float32, a []byte, scale float32, zeroPoint i
 	dequantizeU8LASX(dst[:n:n], a, scale, zeroPoint)
 }
 
+func zigzagEncodeI8LASXGuarded(dst []byte, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI8(dst, a)
+		return
+	}
+	zigzagEncodeI8LASX(dst[:n:n], a)
+}
+
+func zigzagDecodeI8LASXGuarded(dst []int8, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI8(dst, a)
+		return
+	}
+	zigzagDecodeI8LASX(dst[:n:n], a)
+}
+
+func zigzagEncodeI16LASXGuarded(dst []uint16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI16(dst, a)
+		return
+	}
+	zigzagEncodeI16LASX(dst[:n:n], a)
+}
+
+func zigzagDecodeI16LASXGuarded(dst []int16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI16(dst, a)
+		return
+	}
+	zigzagDecodeI16LASX(dst[:n:n], a)
+}
+
+func zigzagEncodeI32LASXGuarded(dst []uint32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI32(dst, a)
+		return
+	}
+	zigzagEncodeI32LASX(dst[:n:n], a)
+}
+
+func zigzagDecodeI32LASXGuarded(dst []int32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI32(dst, a)
+		return
+	}
+	zigzagDecodeI32LASX(dst[:n:n], a)
+}
+
+func zigzagEncodeI64LASXGuarded(dst []uint64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI64(dst, a)
+		return
+	}
+	zigzagEncodeI64LASX(dst[:n:n], a)
+}
+
+func zigzagDecodeI64LASXGuarded(dst []int64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI64(dst, a)
+		return
+	}
+	zigzagDecodeI64LASX(dst[:n:n], a)
+}
+
 func bf16ToF32LASXGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -91,6 +163,14 @@ func init() {
 	s.Convert.DequantizeI8 = dequantizeI8LASXGuarded
 	s.Convert.QuantizeU8 = quantizeU8LASXGuarded
 	s.Convert.DequantizeU8 = dequantizeU8LASXGuarded
+	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8LASXGuarded
+	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8LASXGuarded
+	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16LASXGuarded
+	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16LASXGuarded
+	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32LASXGuarded
+	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32LASXGuarded
+	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64LASXGuarded
+	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64LASXGuarded
 	s.Convert.BF16ToF32 = bf16ToF32LASXGuarded
 	s.Convert.F32ToBF16 = f32ToBF16LASXGuarded
 	s.Convert.F32ToF16 = f32ToF16LASXGuarded

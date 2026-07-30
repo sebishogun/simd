@@ -84,3 +84,44 @@ func QuantizeUint8(dst []uint8, a []float32, scale float32, zeroPoint int32) {
 func DequantizeUint8(dst []float32, a []uint8, scale float32, zeroPoint int32) {
 	active.Convert.DequantizeU8(dst, a, scale, zeroPoint)
 }
+
+// ---------- zigzag ----------
+
+// ZigzagEncodeInt32Into maps signed integers onto unsigned ones so that a
+// small magnitude of either sign becomes a small unsigned value:
+//
+//	0, -1, 1, -2, 2  ->  0, 1, 2, 3, 4
+//
+// This is the transform that makes a varint of a negative number short, and it
+// is what protobuf, Avro and delta-encoded column stores apply before varint
+// encoding. Without it, -1 as a two's complement 32-bit value has every high
+// bit set and costs the full five bytes.
+//
+// The mapping is a bijection: every value round-trips through
+// [ZigzagDecodeInt32Into], including math.MinInt32, which is the case a naive
+// negate-and-double formulation overflows on.
+//
+// It writes min(len(dst), len(a)) elements and allocates nothing.
+func ZigzagEncodeInt32Into(dst []uint32, a []int32) { active.Convert.ZigzagEncodeI32(dst, a) }
+
+// ZigzagDecodeInt32Into is the inverse of [ZigzagEncodeInt32Into].
+func ZigzagDecodeInt32Into(dst []int32, a []uint32) { active.Convert.ZigzagDecodeI32(dst, a) }
+
+// ZigzagEncodeInt64Into is [ZigzagEncodeInt32Into] for 64-bit values, which is
+// the width protobuf's sint64 uses.
+func ZigzagEncodeInt64Into(dst []uint64, a []int64) { active.Convert.ZigzagEncodeI64(dst, a) }
+
+// ZigzagDecodeInt64Into is the inverse of [ZigzagEncodeInt64Into].
+func ZigzagDecodeInt64Into(dst []int64, a []uint64) { active.Convert.ZigzagDecodeI64(dst, a) }
+
+// ZigzagEncodeInt16Into is [ZigzagEncodeInt32Into] for 16-bit values.
+func ZigzagEncodeInt16Into(dst []uint16, a []int16) { active.Convert.ZigzagEncodeI16(dst, a) }
+
+// ZigzagDecodeInt16Into is the inverse of [ZigzagEncodeInt16Into].
+func ZigzagDecodeInt16Into(dst []int16, a []uint16) { active.Convert.ZigzagDecodeI16(dst, a) }
+
+// ZigzagEncodeInt8Into is [ZigzagEncodeInt32Into] for 8-bit values.
+func ZigzagEncodeInt8Into(dst []byte, a []int8) { active.Convert.ZigzagEncodeI8(dst, a) }
+
+// ZigzagDecodeInt8Into is the inverse of [ZigzagEncodeInt8Into].
+func ZigzagDecodeInt8Into(dst []int8, a []byte) { active.Convert.ZigzagDecodeI8(dst, a) }

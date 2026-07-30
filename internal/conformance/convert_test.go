@@ -100,3 +100,73 @@ func sameF32Bits(a, b float32) bool {
 	}
 	return math.Float32bits(a) == math.Float32bits(b)
 }
+
+// TestZigzagKernels drives every zigzag kernel against ref over the whole
+// domain where the domain is small enough to enumerate, and over the boundary
+// values where it is not.
+//
+// Zigzag is exact — shifts and exclusive ors — so this is bit identity and not
+// a bound, and the interesting inputs are the extremes: the most negative
+// value has no positive counterpart, so any formulation that negates it is
+// wrong there and nowhere else.
+func TestZigzagKernels(t *testing.T) {
+	want := ref.Set()
+
+	i8in := make([]int8, 256)
+	for i := range i8in {
+		i8in[i] = int8(i + math.MinInt8)
+	}
+	i16in := make([]int16, 65536)
+	for i := range i16in {
+		i16in[i] = int16(i + math.MinInt16)
+	}
+	i32in := []int32{0, -1, 1, -2, 2, math.MinInt32, math.MaxInt32,
+		math.MinInt32 + 1, math.MaxInt32 - 1, -65536, 65536}
+	i64in := []int64{0, -1, 1, -2, 2, math.MinInt64, math.MaxInt64,
+		math.MinInt64 + 1, math.MaxInt64 - 1, -1 << 40, 1 << 40}
+
+	for tier, got := range tiers(t) {
+		t.Run(tier, func(t *testing.T) {
+			zigzag(t, tier, "I8", i8in, got.Convert.ZigzagEncodeI8, want.Convert.ZigzagEncodeI8,
+				got.Convert.ZigzagDecodeI8, want.Convert.ZigzagDecodeI8)
+			zigzag(t, tier, "I16", i16in, got.Convert.ZigzagEncodeI16, want.Convert.ZigzagEncodeI16,
+				got.Convert.ZigzagDecodeI16, want.Convert.ZigzagDecodeI16)
+			zigzag(t, tier, "I32", i32in, got.Convert.ZigzagEncodeI32, want.Convert.ZigzagEncodeI32,
+				got.Convert.ZigzagDecodeI32, want.Convert.ZigzagDecodeI32)
+			zigzag(t, tier, "I64", i64in, got.Convert.ZigzagEncodeI64, want.Convert.ZigzagEncodeI64,
+				got.Convert.ZigzagDecodeI64, want.Convert.ZigzagDecodeI64)
+		})
+	}
+}
+
+// zigzag checks one width: the kernel agrees with ref on the encoding, and the
+// kernel's own decode inverts the kernel's own encode. The round trip is
+// checked against the input rather than against ref's decode, which makes it a
+// statement about the pair rather than about either half.
+func zigzag[S, U comparable](t *testing.T, tier, name string, in []S,
+	encGot, encWant func(dst []U, a []S), decGot, decWant func(dst []S, a []U)) {
+	t.Helper()
+	if encGot == nil || decGot == nil {
+		return
+	}
+	g, w := make([]U, len(in)), make([]U, len(in))
+	encGot(g, in)
+	encWant(w, in)
+	for i := range g {
+		if g[i] != w[i] {
+			t.Fatalf("%s/Convert.ZigzagEncode%s(%v): got %v want %v", tier, name, in[i], g[i], w[i])
+		}
+	}
+
+	back, backWant := make([]S, len(in)), make([]S, len(in))
+	decGot(back, g)
+	decWant(backWant, g)
+	for i := range back {
+		if back[i] != in[i] {
+			t.Fatalf("%s/Convert.Zigzag%s round trip: %v -> %v -> %v", tier, name, in[i], g[i], back[i])
+		}
+		if back[i] != backWant[i] {
+			t.Fatalf("%s/Convert.ZigzagDecode%s(%v): got %v want %v", tier, name, g[i], back[i], backWant[i])
+		}
+	}
+}

@@ -56,6 +56,78 @@ func dequantizeU8NEONGuarded(dst []float32, a []byte, scale float32, zeroPoint i
 	dequantizeU8NEON(dst[:n:n], a, scale, zeroPoint)
 }
 
+func zigzagEncodeI8NEONGuarded(dst []byte, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI8(dst, a)
+		return
+	}
+	zigzagEncodeI8NEON(dst[:n:n], a)
+}
+
+func zigzagDecodeI8NEONGuarded(dst []int8, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI8(dst, a)
+		return
+	}
+	zigzagDecodeI8NEON(dst[:n:n], a)
+}
+
+func zigzagEncodeI16NEONGuarded(dst []uint16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI16(dst, a)
+		return
+	}
+	zigzagEncodeI16NEON(dst[:n:n], a)
+}
+
+func zigzagDecodeI16NEONGuarded(dst []int16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI16(dst, a)
+		return
+	}
+	zigzagDecodeI16NEON(dst[:n:n], a)
+}
+
+func zigzagEncodeI32NEONGuarded(dst []uint32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI32(dst, a)
+		return
+	}
+	zigzagEncodeI32NEON(dst[:n:n], a)
+}
+
+func zigzagDecodeI32NEONGuarded(dst []int32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI32(dst, a)
+		return
+	}
+	zigzagDecodeI32NEON(dst[:n:n], a)
+}
+
+func zigzagEncodeI64NEONGuarded(dst []uint64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI64(dst, a)
+		return
+	}
+	zigzagEncodeI64NEON(dst[:n:n], a)
+}
+
+func zigzagDecodeI64NEONGuarded(dst []int64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI64(dst, a)
+		return
+	}
+	zigzagDecodeI64NEON(dst[:n:n], a)
+}
+
 func bf16ToF32NEONGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -100,6 +172,14 @@ func init() {
 	s.Convert.DequantizeI8 = dequantizeI8NEONGuarded
 	s.Convert.QuantizeU8 = quantizeU8NEONGuarded
 	s.Convert.DequantizeU8 = dequantizeU8NEONGuarded
+	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8NEONGuarded
+	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8NEONGuarded
+	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16NEONGuarded
+	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16NEONGuarded
+	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32NEONGuarded
+	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32NEONGuarded
+	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64NEONGuarded
+	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64NEONGuarded
 	s.Convert.BF16ToF32 = bf16ToF32NEONGuarded
 	s.Convert.F32ToBF16 = f32ToBF16NEONGuarded
 	s.Convert.F16ToF32 = f16ToF32NEONGuarded

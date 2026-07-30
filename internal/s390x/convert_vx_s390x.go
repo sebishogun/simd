@@ -16,6 +16,30 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
 //go:noescape
+func zigzagEncodeI8VX(dst []byte, a []int8)
+
+//go:noescape
+func zigzagDecodeI8VX(dst []int8, a []byte)
+
+//go:noescape
+func zigzagEncodeI16VX(dst []uint16, a []int16)
+
+//go:noescape
+func zigzagDecodeI16VX(dst []int16, a []uint16)
+
+//go:noescape
+func zigzagEncodeI32VX(dst []uint32, a []int32)
+
+//go:noescape
+func zigzagDecodeI32VX(dst []int32, a []uint32)
+
+//go:noescape
+func zigzagEncodeI64VX(dst []uint64, a []int64)
+
+//go:noescape
+func zigzagDecodeI64VX(dst []int64, a []uint64)
+
+//go:noescape
 func bf16ToF32VX(dst []float32, a []uint16)
 
 //go:noescape

@@ -243,3 +243,46 @@ void simd_dequantize_u8(float *__restrict d, const unsigned char *__restrict a,
     d[i] = (float)((int)a[i] - zero_point) * scale;
   }
 }
+
+// ---------- zigzag ----------
+//
+// Zigzag maps a signed integer onto an unsigned one so that small magnitudes
+// of either sign become small unsigned values: 0, -1, 1, -2, 2 become 0, 1, 2,
+// 3, 4. That is what makes a varint of a negative number short, so this is the
+// transform protobuf, Avro and every delta-encoded column store applies before
+// varint encoding.
+//
+// encode is (x << 1) ^ (x >> (W-1)) and decode is (u >> 1) ^ -(u & 1).
+//
+// Both are written entirely in the unsigned domain, for the reason csrc/wrap.h
+// gives at length: shifting a negative value left is undefined in C, and an
+// optimizer entitled to assume it never happens is entitled to delete the
+// branch that handles it. The sign mask is `x < 0 ? ~0 : 0` rather than an
+// arithmetic right shift of a signed value, which C leaves
+// implementation-defined; clang folds it back to one arithmetic shift, so the
+// vector code is the same and the source no longer depends on a guarantee the
+// standard does not give.
+//
+// Both directions are exact and total: every value round-trips, including the
+// most negative one, which is the case a naive `-x` formulation gets wrong.
+#define ZIGZAG(T, UT, SUF)                                                 \
+  void simd_zigzag_encode_##SUF(UT *__restrict d, const T *__restrict a,   \
+                                isize n) {                                 \
+    for (isize i = 0; i < n; i++) {                                        \
+      UT u = (UT)a[i];                                                     \
+      UT m = (UT)(a[i] < 0 ? ~(UT)0 : (UT)0);                              \
+      d[i] = (UT)((UT)(u << 1) ^ m);                                       \
+    }                                                                      \
+  }                                                                        \
+  void simd_zigzag_decode_##SUF(T *__restrict d, const UT *__restrict a,   \
+                                isize n) {                                 \
+    for (isize i = 0; i < n; i++) {                                        \
+      UT u = a[i];                                                         \
+      d[i] = (T)((UT)(u >> 1) ^ (UT)((UT)0 - (UT)(u & 1)));                \
+    }                                                                      \
+  }
+
+ZIGZAG(signed char, unsigned char, i8)
+ZIGZAG(short, unsigned short, i16)
+ZIGZAG(int, unsigned int, i32)
+ZIGZAG(long long, unsigned long long, i64)

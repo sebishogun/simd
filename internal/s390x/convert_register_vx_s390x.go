@@ -20,6 +20,78 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
+func zigzagEncodeI8VXGuarded(dst []byte, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI8(dst, a)
+		return
+	}
+	zigzagEncodeI8VX(dst[:n:n], a)
+}
+
+func zigzagDecodeI8VXGuarded(dst []int8, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI8(dst, a)
+		return
+	}
+	zigzagDecodeI8VX(dst[:n:n], a)
+}
+
+func zigzagEncodeI16VXGuarded(dst []uint16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI16(dst, a)
+		return
+	}
+	zigzagEncodeI16VX(dst[:n:n], a)
+}
+
+func zigzagDecodeI16VXGuarded(dst []int16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI16(dst, a)
+		return
+	}
+	zigzagDecodeI16VX(dst[:n:n], a)
+}
+
+func zigzagEncodeI32VXGuarded(dst []uint32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI32(dst, a)
+		return
+	}
+	zigzagEncodeI32VX(dst[:n:n], a)
+}
+
+func zigzagDecodeI32VXGuarded(dst []int32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI32(dst, a)
+		return
+	}
+	zigzagDecodeI32VX(dst[:n:n], a)
+}
+
+func zigzagEncodeI64VXGuarded(dst []uint64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI64(dst, a)
+		return
+	}
+	zigzagEncodeI64VX(dst[:n:n], a)
+}
+
+func zigzagDecodeI64VXGuarded(dst []int64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI64(dst, a)
+		return
+	}
+	zigzagDecodeI64VX(dst[:n:n], a)
+}
+
 func bf16ToF32VXGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -51,6 +123,14 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vx")
+	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8VXGuarded
+	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8VXGuarded
+	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16VXGuarded
+	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16VXGuarded
+	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32VXGuarded
+	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32VXGuarded
+	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64VXGuarded
+	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64VXGuarded
 	s.Convert.BF16ToF32 = bf16ToF32VXGuarded
 	s.Convert.F32ToBF16 = f32ToBF16VXGuarded
 	s.Convert.F32ToF16 = f32ToF16VXGuarded

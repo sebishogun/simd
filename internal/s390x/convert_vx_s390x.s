@@ -14,6 +14,373 @@
 #include "textflag.h"
 #include "funcdata.h"
 
+// func zigzagEncodeI8VX(dst []byte, a []int8)
+TEXT ·zigzagEncodeI8VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·zigzagEncodeI8VXBody(SB)
+	RET
+
+// zigzagEncodeI8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·zigzagEncodeI8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4ce000
+	WORD $0x00fca719
+	WORD $0x0000ec44
+	WORD $0x001e107d
+	WORD $0xec1401bb
+	WORD $0x0059a759
+	WORD $0x0000e705
+	WORD $0x30000006
+	WORD $0xe7100007
+	WORD $0x003ae700
+	WORD $0x00010030
+	WORD $0xe7001000
+	WORD $0x006de705
+	WORD $0x2000000e
+	WORD $0x41505010
+	WORD $0xec15ffef
+	WORD $0x6064a7f4
+	WORD $0x000fe301
+	WORD $0x30000076
+	WORD $0xeb500001
+	WORD $0x00dfec50
+	WORD $0x273f3957
+	WORD $0x42512000
+	WORD $0x41101001
+	WORD $0xec41fff3
+	WORD $0x606407fe
+	RET
+
+// func zigzagDecodeI8VX(dst []int8, a []byte)
+TEXT ·zigzagDecodeI8VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·zigzagDecodeI8VXBody(SB)
+	RET
+
+// zigzagDecodeI8VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·zigzagDecodeI8VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4ce000
+	WORD $0x00fca719
+	WORD $0x0000ec44
+	WORD $0x0024107d
+	WORD $0xe7000001
+	WORD $0x0045ec14
+	WORD $0x01bb0059
+	WORD $0xa7590000
+	WORD $0xe7153000
+	WORD $0x0006e721
+	WORD $0x00010038
+	WORD $0xe7110000
+	WORD $0x0068e711
+	WORD $0x000000de
+	WORD $0xe7121000
+	WORD $0x006de715
+	WORD $0x2000000e
+	WORD $0x41505010
+	WORD $0xec15ffec
+	WORD $0x6064a7f4
+	WORD $0x0010e301
+	WORD $0x30000094
+	WORD $0xec501f9f
+	WORD $0x00511355
+	WORD $0xec50213f
+	WORD $0x3f574251
+	WORD $0x20004110
+	WORD $0x1001ec41
+	WORD $0xfff26064
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func zigzagEncodeI16VX(dst []uint16, a []int16)
+TEXT ·zigzagEncodeI16VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·zigzagEncodeI16VXBody(SB)
+	RET
+
+// zigzagEncodeI16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·zigzagEncodeI16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c003a
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x0022087d
+	WORD $0xec0401bc
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x0050e701
+	WORD $0x30000006
+	WORD $0xe710000f
+	WORD $0x103ae700
+	WORD $0x00011030
+	WORD $0xe7001000
+	WORD $0x006de701
+	WORD $0x2000000e
+	WORD $0xa75bfff8
+	WORD $0x41101010
+	WORD $0xa764ffed
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0001000d
+	WORD $0x48013000
+	WORD $0xeb500001
+	WORD $0x00dfec50
+	WORD $0x2f3f3157
+	WORD $0x40512000
+	WORD $0x41101002
+	WORD $0xa747fff4
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func zigzagDecodeI16VX(dst []int16, a []uint16)
+TEXT ·zigzagDecodeI16VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·zigzagDecodeI16VXBody(SB)
+	RET
+
+// zigzagDecodeI16VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·zigzagDecodeI16VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c0042
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x0028087d
+	WORD $0xec0401bc
+	WORD $0x0059e700
+	WORD $0x00011045
+	WORD $0xa7190000
+	WORD $0xb9040050
+	WORD $0xe7113000
+	WORD $0x0006e721
+	WORD $0x00011038
+	WORD $0xe7110000
+	WORD $0x0068e711
+	WORD $0x000010de
+	WORD $0xe7121000
+	WORD $0x006de711
+	WORD $0x2000000e
+	WORD $0xa75bfff8
+	WORD $0x41101010
+	WORD $0xa764ffea
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0001000d
+	WORD $0xe3013000
+	WORD $0x0095ec50
+	WORD $0x1f9f0051
+	WORD $0x1355ec50
+	WORD $0x213f3f57
+	WORD $0x40512000
+	WORD $0x41101002
+	WORD $0xa747fff2
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func zigzagEncodeI32VX(dst []uint32, a []int32)
+TEXT ·zigzagEncodeI32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·zigzagEncodeI32VXBody(SB)
+	RET
+
+// zigzagEncodeI32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·zigzagEncodeI32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c003a
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x0022047d
+	WORD $0xec0401bd
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x0050e701
+	WORD $0x30000006
+	WORD $0xe710001f
+	WORD $0x203ae700
+	WORD $0x00012030
+	WORD $0xe7001000
+	WORD $0x006de701
+	WORD $0x2000000e
+	WORD $0xa75bfffc
+	WORD $0x41101010
+	WORD $0xa764ffed
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0002000d
+	WORD $0x58013000
+	WORD $0xeb50001f
+	WORD $0x00dcec50
+	WORD $0x203e0157
+	WORD $0x50512000
+	WORD $0x41101004
+	WORD $0xa747fff4
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func zigzagDecodeI32VX(dst []int32, a []uint32)
+TEXT ·zigzagDecodeI32VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·zigzagDecodeI32VXBody(SB)
+	RET
+
+// zigzagDecodeI32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·zigzagDecodeI32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c0041
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x0028047d
+	WORD $0xec0401bd
+	WORD $0x0059e700
+	WORD $0x00012045
+	WORD $0xa7190000
+	WORD $0xb9040050
+	WORD $0xe7113000
+	WORD $0x0006e721
+	WORD $0x00012038
+	WORD $0xe7110000
+	WORD $0x0068e711
+	WORD $0x000020de
+	WORD $0xe7121000
+	WORD $0x006de711
+	WORD $0x2000000e
+	WORD $0xa75bfffc
+	WORD $0x41101010
+	WORD $0xa764ffea
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0002000d
+	WORD $0x58013000
+	WORD $0xec501f9f
+	WORD $0x00511355
+	WORD $0xec50213f
+	WORD $0x3f575051
+	WORD $0x20004110
+	WORD $0x1004a747
+	WORD $0xfff307fe
+	RET
+
+// func zigzagEncodeI64VX(dst []uint64, a []int64)
+TEXT ·zigzagEncodeI64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·zigzagEncodeI64VXBody(SB)
+	RET
+
+// zigzagEncodeI64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·zigzagEncodeI64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c003c
+	WORD $0x007ca709
+	WORD $0x0000ec48
+	WORD $0x0022017c
+	WORD $0xec0401be
+	WORD $0x0059a719
+	WORD $0x0000b904
+	WORD $0x0050e701
+	WORD $0x30003006
+	WORD $0xe710003f
+	WORD $0x303ae700
+	WORD $0x00013030
+	WORD $0xe7001000
+	WORD $0x006de701
+	WORD $0x2000300e
+	WORD $0xa75bfffe
+	WORD $0x41101010
+	WORD $0xa774ffed
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0003000d
+	WORD $0xe3013000
+	WORD $0x0004eb50
+	WORD $0x003f000a
+	WORD $0xec50003e
+	WORD $0x0157e351
+	WORD $0x20000024
+	WORD $0x41101008
+	WORD $0xa747fff2
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
+// func zigzagDecodeI64VX(dst []int64, a []uint64)
+TEXT ·zigzagDecodeI64VX(SB), NOSPLIT, $160-48
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD dst_len+8(FP), R4
+	BL ·zigzagDecodeI64VXBody(SB)
+	RET
+
+// zigzagDecodeI64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·zigzagDecodeI64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c0044
+	WORD $0x007ca709
+	WORD $0x0000ec48
+	WORD $0x0028017c
+	WORD $0xec0401be
+	WORD $0x0059e700
+	WORD $0x00013045
+	WORD $0xa7190000
+	WORD $0xb9040050
+	WORD $0xe7113000
+	WORD $0x3006e721
+	WORD $0x00013038
+	WORD $0xe7110000
+	WORD $0x0068e711
+	WORD $0x000030de
+	WORD $0xe7121000
+	WORD $0x006de711
+	WORD $0x2000300e
+	WORD $0xa75bfffe
+	WORD $0x41101010
+	WORD $0xa774ffea
+	WORD $0xec40e000
+	WORD $0x80e4b909
+	WORD $0x0040eb10
+	WORD $0x0003000d
+	WORD $0xe3013000
+	WORD $0x0004ec50
+	WORD $0x3fbf0059
+	WORD $0xb9030055
+	WORD $0xec50013f
+	WORD $0x3f57e351
+	WORD $0x20000024
+	WORD $0x41101008
+	WORD $0xa747fff0
+	BYTE $0x07
+	BYTE $0xfe
+	RET
+
 // func bf16ToF32VX(dst []float32, a []uint16)
 TEXT ·bf16ToF32VX(SB), NOSPLIT, $160-48
 	NO_LOCAL_POINTERS

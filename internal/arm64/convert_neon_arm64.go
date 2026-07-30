@@ -28,6 +28,30 @@ func quantizeU8NEON(dst []byte, a []float32, scale float32, zeroPoint int32)
 func dequantizeU8NEON(dst []float32, a []byte, scale float32, zeroPoint int32)
 
 //go:noescape
+func zigzagEncodeI8NEON(dst []byte, a []int8)
+
+//go:noescape
+func zigzagDecodeI8NEON(dst []int8, a []byte)
+
+//go:noescape
+func zigzagEncodeI16NEON(dst []uint16, a []int16)
+
+//go:noescape
+func zigzagDecodeI16NEON(dst []int16, a []uint16)
+
+//go:noescape
+func zigzagEncodeI32NEON(dst []uint32, a []int32)
+
+//go:noescape
+func zigzagDecodeI32NEON(dst []int32, a []uint32)
+
+//go:noescape
+func zigzagEncodeI64NEON(dst []uint64, a []int64)
+
+//go:noescape
+func zigzagDecodeI64NEON(dst []int64, a []uint64)
+
+//go:noescape
 func bf16ToF32NEON(dst []float32, a []uint16)
 
 //go:noescape

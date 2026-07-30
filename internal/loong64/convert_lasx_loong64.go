@@ -28,6 +28,30 @@ func quantizeU8LASX(dst []byte, a []float32, scale float32, zeroPoint int32)
 func dequantizeU8LASX(dst []float32, a []byte, scale float32, zeroPoint int32)
 
 //go:noescape
+func zigzagEncodeI8LASX(dst []byte, a []int8)
+
+//go:noescape
+func zigzagDecodeI8LASX(dst []int8, a []byte)
+
+//go:noescape
+func zigzagEncodeI16LASX(dst []uint16, a []int16)
+
+//go:noescape
+func zigzagDecodeI16LASX(dst []int16, a []uint16)
+
+//go:noescape
+func zigzagEncodeI32LASX(dst []uint32, a []int32)
+
+//go:noescape
+func zigzagDecodeI32LASX(dst []int32, a []uint32)
+
+//go:noescape
+func zigzagEncodeI64LASX(dst []uint64, a []int64)
+
+//go:noescape
+func zigzagDecodeI64LASX(dst []int64, a []uint64)
+
+//go:noescape
 func bf16ToF32LASX(dst []float32, a []uint16)
 
 //go:noescape

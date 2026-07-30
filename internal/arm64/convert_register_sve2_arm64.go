@@ -56,6 +56,78 @@ func dequantizeU8SVE2Guarded(dst []float32, a []byte, scale float32, zeroPoint i
 	dequantizeU8SVE2(dst[:n:n], a, scale, zeroPoint)
 }
 
+func zigzagEncodeI8SVE2Guarded(dst []byte, a []int8) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI8(dst, a)
+		return
+	}
+	zigzagEncodeI8SVE2(dst[:n:n], a)
+}
+
+func zigzagDecodeI8SVE2Guarded(dst []int8, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI8(dst, a)
+		return
+	}
+	zigzagDecodeI8SVE2(dst[:n:n], a)
+}
+
+func zigzagEncodeI16SVE2Guarded(dst []uint16, a []int16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI16(dst, a)
+		return
+	}
+	zigzagEncodeI16SVE2(dst[:n:n], a)
+}
+
+func zigzagDecodeI16SVE2Guarded(dst []int16, a []uint16) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI16(dst, a)
+		return
+	}
+	zigzagDecodeI16SVE2(dst[:n:n], a)
+}
+
+func zigzagEncodeI32SVE2Guarded(dst []uint32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI32(dst, a)
+		return
+	}
+	zigzagEncodeI32SVE2(dst[:n:n], a)
+}
+
+func zigzagDecodeI32SVE2Guarded(dst []int32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI32(dst, a)
+		return
+	}
+	zigzagDecodeI32SVE2(dst[:n:n], a)
+}
+
+func zigzagEncodeI64SVE2Guarded(dst []uint64, a []int64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagEncodeI64(dst, a)
+		return
+	}
+	zigzagEncodeI64SVE2(dst[:n:n], a)
+}
+
+func zigzagDecodeI64SVE2Guarded(dst []int64, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ZigzagDecodeI64(dst, a)
+		return
+	}
+	zigzagDecodeI64SVE2(dst[:n:n], a)
+}
+
 func bf16ToF32SVE2Guarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -100,6 +172,14 @@ func init() {
 	s.Convert.DequantizeI8 = dequantizeI8SVE2Guarded
 	s.Convert.QuantizeU8 = quantizeU8SVE2Guarded
 	s.Convert.DequantizeU8 = dequantizeU8SVE2Guarded
+	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8SVE2Guarded
+	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8SVE2Guarded
+	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16SVE2Guarded
+	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16SVE2Guarded
+	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32SVE2Guarded
+	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32SVE2Guarded
+	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64SVE2Guarded
+	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64SVE2Guarded
 	s.Convert.BF16ToF32 = bf16ToF32SVE2Guarded
 	s.Convert.F32ToBF16 = f32ToBF16SVE2Guarded
 	s.Convert.F16ToF32 = f16ToF32SVE2Guarded

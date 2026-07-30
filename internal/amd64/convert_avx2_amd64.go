@@ -28,6 +28,30 @@ func quantizeU8AVX2(dst []byte, a []float32, scale float32, zeroPoint int32)
 func dequantizeU8AVX2(dst []float32, a []byte, scale float32, zeroPoint int32)
 
 //go:noescape
+func zigzagEncodeI8AVX2(dst []byte, a []int8)
+
+//go:noescape
+func zigzagDecodeI8AVX2(dst []int8, a []byte)
+
+//go:noescape
+func zigzagEncodeI16AVX2(dst []uint16, a []int16)
+
+//go:noescape
+func zigzagDecodeI16AVX2(dst []int16, a []uint16)
+
+//go:noescape
+func zigzagEncodeI32AVX2(dst []uint32, a []int32)
+
+//go:noescape
+func zigzagDecodeI32AVX2(dst []int32, a []uint32)
+
+//go:noescape
+func zigzagEncodeI64AVX2(dst []uint64, a []int64)
+
+//go:noescape
+func zigzagDecodeI64AVX2(dst []int64, a []uint64)
+
+//go:noescape
 func bf16ToF32AVX2(dst []float32, a []uint16)
 
 //go:noescape

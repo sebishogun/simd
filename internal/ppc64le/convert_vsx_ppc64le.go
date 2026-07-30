@@ -22,6 +22,30 @@ func quantizeI8VSX(dst []int8, a []float32, scale float32, zeroPoint int32)
 func quantizeU8VSX(dst []byte, a []float32, scale float32, zeroPoint int32)
 
 //go:noescape
+func zigzagEncodeI8VSX(dst []byte, a []int8)
+
+//go:noescape
+func zigzagDecodeI8VSX(dst []int8, a []byte)
+
+//go:noescape
+func zigzagEncodeI16VSX(dst []uint16, a []int16)
+
+//go:noescape
+func zigzagDecodeI16VSX(dst []int16, a []uint16)
+
+//go:noescape
+func zigzagEncodeI32VSX(dst []uint32, a []int32)
+
+//go:noescape
+func zigzagDecodeI32VSX(dst []int32, a []uint32)
+
+//go:noescape
+func zigzagEncodeI64VSX(dst []uint64, a []int64)
+
+//go:noescape
+func zigzagDecodeI64VSX(dst []int64, a []uint64)
+
+//go:noescape
 func bf16ToF32VSX(dst []float32, a []uint16)
 
 //go:noescape

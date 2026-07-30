@@ -472,6 +472,23 @@ type Convert struct {
 	DequantizeI8 func(dst []float32, a []int8, scale float32, zeroPoint int32)
 	QuantizeU8   func(dst []uint8, a []float32, scale float32, zeroPoint int32)
 	DequantizeU8 func(dst []float32, a []uint8, scale float32, zeroPoint int32)
+
+	// Zigzag maps a signed integer onto an unsigned one so that a small
+	// magnitude of either sign becomes a small unsigned value — 0, -1, 1, -2
+	// becomes 0, 1, 2, 3 — which is what makes a varint of a negative number
+	// short. Encode is (x << 1) ^ (x >> (W-1)); decode is (u >> 1) ^ -(u & 1).
+	//
+	// Exact and total in both directions under rule 1: these are shifts and
+	// exclusive ors, so every tier gives the same bits, and every value round
+	// trips including the most negative one.
+	ZigzagEncodeI8  func(dst []byte, a []int8)
+	ZigzagDecodeI8  func(dst []int8, a []byte)
+	ZigzagEncodeI16 func(dst []uint16, a []int16)
+	ZigzagDecodeI16 func(dst []int16, a []uint16)
+	ZigzagEncodeI32 func(dst []uint32, a []int32)
+	ZigzagDecodeI32 func(dst []int32, a []uint32)
+	ZigzagEncodeI64 func(dst []uint64, a []int64)
+	ZigzagDecodeI64 func(dst []int64, a []uint64)
 }
 
 // Complex is the kernel group for complex numbers, parameterised by the

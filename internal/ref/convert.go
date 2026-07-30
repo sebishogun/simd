@@ -121,6 +121,10 @@ func convertOps() kernel.Convert {
 		F16ToF32: f16ToF32, F32ToF16: f32ToF16,
 		QuantizeI8: quantizeI8, DequantizeI8: dequantizeI8,
 		QuantizeU8: quantizeU8, DequantizeU8: dequantizeU8,
+		ZigzagEncodeI8: ZigzagEncodeI8, ZigzagDecodeI8: ZigzagDecodeI8,
+		ZigzagEncodeI16: ZigzagEncodeI16, ZigzagDecodeI16: ZigzagDecodeI16,
+		ZigzagEncodeI32: ZigzagEncodeI32, ZigzagDecodeI32: ZigzagDecodeI32,
+		ZigzagEncodeI64: ZigzagEncodeI64, ZigzagDecodeI64: ZigzagDecodeI64,
 	}
 }
 
@@ -205,3 +209,36 @@ func DequantizeI8(dst []float32, a []int8, scale float32, zeroPoint int32) {
 func DequantizeU8(dst []float32, a []uint8, scale float32, zeroPoint int32) {
 	dequantizeU8(dst, a, scale, zeroPoint)
 }
+
+// zigzagEncode maps a signed integer onto an unsigned one so that a small
+// magnitude of either sign becomes a small unsigned value. The generic form is
+// written over both the signed and unsigned type because Go, unlike C, has no
+// implicit relationship between them.
+//
+// Go's << and >> on a signed value are defined — left shift wraps and right
+// shift is arithmetic — so this reads as the textbook identity, where the C
+// kernel has to go through the unsigned domain to say the same thing.
+func zigzagEncode[S ~int8 | ~int16 | ~int32 | ~int64, U ~uint8 | ~uint16 | ~uint32 | ~uint64](dst []U, a []S, shift int) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	for i := range dst {
+		dst[i] = U(a[i]<<1) ^ U(a[i]>>shift)
+	}
+}
+
+func zigzagDecode[S ~int8 | ~int16 | ~int32 | ~int64, U ~uint8 | ~uint16 | ~uint32 | ~uint64](dst []S, a []U) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	for i := range dst {
+		dst[i] = S(a[i]>>1) ^ -S(a[i]&1)
+	}
+}
+
+func ZigzagEncodeI8(dst []byte, a []int8)     { zigzagEncode(dst, a, 7) }
+func ZigzagDecodeI8(dst []int8, a []byte)     { zigzagDecode(dst, a) }
+func ZigzagEncodeI16(dst []uint16, a []int16) { zigzagEncode(dst, a, 15) }
+func ZigzagDecodeI16(dst []int16, a []uint16) { zigzagDecode(dst, a) }
+func ZigzagEncodeI32(dst []uint32, a []int32) { zigzagEncode(dst, a, 31) }
+func ZigzagDecodeI32(dst []int32, a []uint32) { zigzagDecode(dst, a) }
+func ZigzagEncodeI64(dst []uint64, a []int64) { zigzagEncode(dst, a, 63) }
+func ZigzagDecodeI64(dst []int64, a []uint64) { zigzagDecode(dst, a) }
