@@ -215,6 +215,14 @@ jobs:
         with: { go-version: "1.26" }
       - name: install qemu
         run: sudo apt-get update && sudo apt-get install -y qemu-user
+      # The binary path appears ONCE here and twice in the Makefile's lanes,
+      # and both are correct: the distribution's qemu-user passes argv through
+      # unchanged, while the binfmt images' builds consume the first argument
+      # as the guest's argv[0]. Under the second convention a flag written here
+      # would be discarded in silence, the test binary would run its default
+      # suite, and -test.v would print nothing while the job stayed green. If
+      # this ever stops using apt's qemu, pad the path and keep the probe in
+      # `make qemu-run-probe` as the thing that decides which is which.
       - name: build and run the suite at a fixed vector length
         run: |
           GOOS=linux GOARCH=arm64 go test -c -o /tmp/simd.test ./

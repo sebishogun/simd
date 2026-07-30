@@ -122,6 +122,25 @@ QEMU_LOONG   ?= qemu-loongarch64
 QEMU_RISCV   ?= qemu-riscv64
 QEMU_PKGS    ?= . ./internal/conformance ./internal/ref ./internal/cpu
 
+# Every qemu invocation below passes the binary path TWICE, and that is not a
+# typo.
+#
+# These emulators are extracted from the binfmt images, so they follow the
+# binfmt_misc "preserve argv[0]" calling convention: the kernel invokes the
+# interpreter as `qemu-ARCH <path> <argv0> <args...>`, and the binary therefore
+# consumes its first argument as the guest's argv[0]. Run by hand as
+# `qemu-ARCH ./x.test -test.short`, the guest sees argv[0]="-test.short" and an
+# empty argument list. Flags do not fail — they vanish. A Go test binary with no
+# flags runs its full default suite and prints PASS, so the lane stays green
+# while testing something other than what was asked for.
+#
+# That cost the -require-accelerated assertion, which is the guard against a
+# vacuously green lane and had itself never once been evaluated. Repeating the
+# path puts a throwaway in the argv[0] slot and every real flag lands where the
+# guest expects it. qemu-run-probe proves it still does before any lane trusts
+# a PASS; without that, a future emulator built the other way would silently
+# restore the same blindness.
+
 .PHONY: test-loong64
 test-loong64:
 	@$(MAKE) --no-print-directory qemu-run \
@@ -157,18 +176,37 @@ test-gates:
 .PHONY: qemu-run-plain
 qemu-run-plain:
 	@command -v $(QEMU) >/dev/null || { echo "$(QEMU) not found"; exit 1; }
+	@$(MAKE) --no-print-directory qemu-run-probe ARCH=$(ARCH) QEMU=$(QEMU) CPU=$(CPU)
 	@bin=$$(mktemp); \
 	GOARCH=$(ARCH) GOOS=linux $(GO) build -o $$bin ./cmd/simdinfo || exit 1; \
 	printf "%-9s tier: " $(ARCH); \
-	QEMU_CPU=$(CPU) $(QEMU) $$bin || exit 1; \
+	QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin || exit 1; \
 	rm -f $$bin
 	@for p in $(QEMU_PKGS); do \
 		bin=$$(mktemp); \
 		GOARCH=$(ARCH) GOOS=linux $(GO) test -c -o $$bin $$p || exit 1; \
 		printf "%-9s %-28s " $(ARCH) $$p; \
-		QEMU_CPU=$(CPU) $(QEMU) $$bin -test.short | tail -1 || exit 1; \
+		QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short | tail -1 || exit 1; \
 		rm -f $$bin; \
 	done
+
+# qemu-run-probe asserts that a flag passed to a guest binary is actually seen
+# by it. -argv0-probe exits 7 and does nothing else, so a 0 here means the flag
+# was swallowed and every assertion in the lanes below is decoration.
+.PHONY: qemu-run-probe
+qemu-run-probe:
+	@bin=$$(mktemp); \
+	GOARCH=$(ARCH) GOOS=linux $(GO) build -o $$bin ./cmd/simdinfo || exit 1; \
+	QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -argv0-probe >/dev/null 2>&1; \
+	rc=$$?; rm -f $$bin; \
+	[ $$rc -eq 7 ] || { \
+		echo "$(QEMU): flags are not reaching the guest (probe exited $$rc, want 7)."; \
+		echo "This emulator handles argv[0] differently from the binfmt builds"; \
+		echo "these lanes assume. Every -test.run, -test.short and"; \
+		echo "-require-accelerated below would be silently discarded, and the"; \
+		echo "lane would pass having tested something else. Fix the invocation"; \
+		echo "in the Makefile before trusting any result from it."; \
+		exit 1; }
 
 # qemu-run is the shared body. It asserts an accelerated tier was selected
 # before it trusts a single PASS.
@@ -180,15 +218,16 @@ qemu-run:
 		echo "  docker cp \$$cid:/usr/bin/$(QEMU) ~/.local/bin/"; \
 		echo "  docker rm \$$cid"; \
 		exit 1; }
+	@$(MAKE) --no-print-directory qemu-run-probe ARCH=$(ARCH) QEMU=$(QEMU) CPU=$(CPU)
 	@bin=$$(mktemp); \
 	GOARCH=$(ARCH) GOOS=linux $(GO) build -o $$bin ./cmd/simdinfo || exit 1; \
-	QEMU_CPU=$(CPU) $(QEMU) $$bin -require-accelerated || exit 1; \
+	QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -require-accelerated || exit 1; \
 	rm -f $$bin
 	@for p in $(QEMU_PKGS); do \
 		bin=$$(mktemp); \
 		GOARCH=$(ARCH) GOOS=linux $(GO) test -c -o $$bin $$p || exit 1; \
 		printf "%-9s %-28s " $(ARCH) $$p; \
-		QEMU_CPU=$(CPU) $(QEMU) $$bin -test.short | tail -1 || exit 1; \
+		QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short | tail -1 || exit 1; \
 		rm -f $$bin; \
 	done
 

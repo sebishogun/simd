@@ -1125,3 +1125,80 @@ written specifically to avoid it, because the third bucket was named
 PASS, FAIL, signal — and anything unmatched is printed in full, not tallied.
 A counter that can absorb an outcome it does not understand will absorb the
 one that matters.
+
+## 41. Every emulated lane was passing. None of them read its flags.
+
+**Wrong**, for the entire life of the qemu lanes, and it invalidates a large
+part of what this file records about the non-amd64 backends.
+
+The rule from entry 40 — no default bucket — was applied to a fresh ppc64le
+crash hunt, and both arms came back clean: 12 of 12 PASS ungated, 12 of 12
+under `GOSIMD=scalar`. The classifier was correct this time. The input was
+not. `-test.v` on the same binary printed no `=== RUN` lines at all, and
+`-test.list '.*'` listed nothing while still taking twenty-eight seconds.
+
+A two-test toy package reproduced it, and a plain Go program named the cause:
+
+```
+$ qemu-ppc64le ./argv                      argc=1 argv=["./argv"]
+$ qemu-ppc64le ./argv ONE TWO              argc=2 argv=["ONE" "TWO"]
+```
+
+The program path is gone. These emulators come from the binfmt images, and
+they follow the `binfmt_misc` *preserve-argv[0]* calling convention, in which
+the kernel invokes the interpreter as `qemu-ARCH <path> <argv0> <args...>`.
+Run by hand, the first real argument is eaten as the guest's `argv[0]` and
+everything after it shifts one place left. `flag.Parse` then sees a list whose
+first element is not a flag, stops there, and reports nothing wrong: Go's flag
+package treats the first non-flag as the start of positional arguments. All
+five emulators here behave this way — aarch64, riscv64, s390x, ppc64le,
+loongarch64 — while the distribution's `qemu-user` does not, which is why the
+one hosted lane that uses apt's build was fine.
+
+**A Go test binary with no flags runs its full default suite and prints
+`PASS`.** That is the whole trap. The flags did not error, they evaporated,
+and the lane stayed green while testing something other than what it said.
+Every `-test.run` selected nothing, every `-test.count` ran once, every
+`-test.short` ran long. The "seed replay ×20" reproducer in the ppc64le
+dossier was a single full-suite run, which is why its crash rate never
+responded to anything done to the seeds.
+
+The worst casualty is the guard against precisely this class of bug. The
+Makefile asserted an accelerated tier before trusting a PASS:
+
+```
+QEMU_CPU=$(CPU) $(QEMU) $$bin -require-accelerated || exit 1
+```
+
+That flag had never once been evaluated. Verified directly — `rv64` with no
+vector extension, which must fail:
+
+```
+$ QEMU_CPU=rv64 qemu-riscv64 ./simdinfo -require-accelerated
+riscv64 tier=scalar available=[scalar]
+exit=0                                      # wrong
+$ QEMU_CPU=rv64 qemu-riscv64 ./simdinfo ./simdinfo -require-accelerated
+riscv64 tier=scalar available=[scalar]
+simdinfo: the portable path was selected, ...
+exit=1                                      # correct
+```
+
+`simdinfo`'s own doc comment says a suite that skips every accelerated tier
+"passes, and looks exactly like one that tested them". The check written to
+prevent that was in that exact state itself, for the same reason, and could
+not have reported it.
+
+**Fix**: pass the binary path twice, so the throwaway lands in the `argv[0]`
+slot. And because a silent convention change is what caused this, the padding
+is no longer trusted on faith — `simdinfo -argv0-probe` exits 7 and does
+nothing else, `make qemu-run-probe` asserts that 7 before any lane runs, and
+an emulator that handles argv differently now fails loudly instead of
+quietly testing the wrong thing.
+
+The general lesson is narrower than "verify your harness" and worth stating
+exactly: **a flag that is dropped is indistinguishable from a flag that had
+nothing to say.** Nothing about a green run can tell the two apart, so a
+harness must contain at least one flag whose effect is visible in the exit
+code — an assertion that fails when it is *not* delivered. Everything else in
+this repo asserts on the result of a test; this asserts that the test was the
+one asked for.

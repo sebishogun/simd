@@ -20,6 +20,17 @@
 // because the emulator in the image predated the vector extension and reported
 // a CPU that had none. A suite that skips every accelerated tier passes, and
 // looks exactly like one that tested them.
+//
+// `simdinfo -argv0-probe` exits 7 and prints nothing. It exists because the
+// paragraph above turned out to describe -require-accelerated itself: the
+// qemu-user binaries this repo uses follow the binfmt_misc "preserve argv[0]"
+// calling convention, `qemu <path> <argv0> <args...>`, so they consume the
+// first argument as argv[0] and every flag after it shifts one place left.
+// Under that convention `qemu simdinfo -require-accelerated` passes the guest
+// an empty argument list, the assertion is never evaluated, and the lane exits
+// 0 whatever the tier. A flag that must change the exit code is the only way
+// to notice, since dropped flags are otherwise indistinguishable from flags
+// that had nothing to say.
 package main
 
 import (
@@ -30,11 +41,22 @@ import (
 	"github.com/sebishogun/simd"
 )
 
+// argv0ProbeExit is the exit code of -argv0-probe. Any value works as long as
+// it is neither 0 nor 1, so that it cannot be confused with either a normal
+// run or a failed assertion.
+const argv0ProbeExit = 7
+
 func main() {
 	tiers := flag.Bool("tiers", false, "print every available tier, one per line, instead of the summary")
 	require := flag.Bool("require-accelerated", false,
 		"exit non-zero if the selected tier is the portable path")
+	probe := flag.Bool("argv0-probe", false,
+		"exit 7 immediately, to prove flags survived the emulator's argv handling")
 	flag.Parse()
+
+	if *probe {
+		os.Exit(argv0ProbeExit)
+	}
 
 	if *tiers {
 		for _, t := range simd.AvailableTiers() {
