@@ -64,7 +64,7 @@ here.
 
 ### ~~ppc64le: repoint the TOC prologue at an appended pool~~ — done
 
-**Shipped.** 281 kernels became 468, and 568 as the kernel set grew. The
+**Shipped.** 281 kernels became 468, and 592 as the kernel set grew. The
 approach is the one sketched here before it was written: emit the pool as a Go
 `DATA`/`GLOBL` symbol, put `MOVD $pool<>(SB), R2` in the generator's prologue,
 overwrite clang's two global-entry instructions with NOPs — length-preserving,
@@ -85,7 +85,7 @@ is the `RET`. That decision is recorded at `target.go`.
 
 ### s390x
 
-410 kernels, and the missing ones are missing because clang uses `r13`,
+413 kernels, and the missing ones are missing because clang uses `r13`,
 which is where Go keeps the current goroutine. There is no `-ffixed-r13` for
 SystemZ; the global register variable is accepted and silently ignored. Four
 routes were probed and all four are dead, so this is upstream — recorded here
@@ -94,22 +94,21 @@ so that its absence is not mistaken for an oversight.
 An earlier version of this file said 614 and the README said 650. Both were
 wrong: 614 was the count before the r13 rule was enforced, and 650 double-
 counted registrations and their wrappers. The number has in fact risen
-monotonically, 325 to 395, and never fell.
+monotonically, 325 to 413, and never fell.
 
-### amd64 sse2: 170 kernels behind an alignment problem, not an ABI one
+### amd64 sse2: closed — 673 kernels became 789
 
-The baseline x86-64 tier declines around 170 kernels because a legacy SSE
-instruction with a memory operand requires a 16-byte-aligned address and has no
-unaligned form of the same length. It is the largest addressable bucket in the
-repository, and the reason on file for not attempting it turns out to answer a
-different question.
+**Shipped.** The baseline x86-64 tier used to decline around 170 kernels
+because a legacy SSE instruction with a memory operand requires a
+16-byte-aligned address and has no unaligned form of the same length. It was
+the largest addressable bucket in the repository. There are now no alignment
+refusals on any tier.
 
-That reason — in the comment on `checkPatchable` — rejects padding the appended
-pool to a 16-byte offset, because it would rely on the linker aligning text
-symbols and `-ldflags=-funcalign=8` would then SIGSEGV. Correct, and it is
-about appending the pool *inside the TEXT symbol*, which is what the amd64 path
-does. It does not apply to a separate `DATA`/`GLOBL` symbol, which the ppc64le
-path already emits and which the linker aligns **by size**. Measured:
+The reason on file for not attempting it — the comment on `checkPatchable` —
+rejected padding the appended pool to a 16-byte offset, since that relies on the
+linker aligning text symbols and `-ldflags=-funcalign=8` would then SIGSEGV.
+Correct, and about appending the pool *inside* the TEXT symbol. It does not
+apply to a separate `DATA`/`GLOBL` symbol, which the linker aligns by size:
 
 ```
 GLOBL simdpool<>(SB), RODATA|NOPTR, $32
@@ -117,23 +116,27 @@ GLOBL simdpool<>(SB), RODATA|NOPTR, $32
   -funcalign=8   0x4ca880   %16 = 0
 ```
 
-Still aligned under the exact flag the objection is about, because `-funcalign`
-aligns text and not data.
+So the pool moved to RODATA and the reading instruction became a Plan 9
+mnemonic — `MULPS simdpool<>+0x20(SB), X3` — which works only because Go's
+assembler emits byte-for-byte what clang does, at the same length, so every
+branch displacement in the body stays correct. That equivalence is now
+`TestRespelledEncodingsMatchClang`, run for all forty mnemonics against both
+register ranges rather than assumed.
 
-So the route is open, and the work is not the alignment. It is that a raw
-instruction encoding cannot carry a relocation, so each pool-referencing
-instruction would have to be emitted as a Plan 9 mnemonic —
-`MULPS simdpool<>+0x20(SB), X3` — and **the assembler's encoding must be
-byte-for-byte the same length as clang's RIP-relative form**, per mnemonic,
-across the dozen that occur. The body is raw encodings with branch
-displacements already computed, so a one-byte difference silently breaks every
-branch after it. [`docs/wrong.md`](docs/wrong.md) entry 61.
+[`docs/wrong.md`](docs/wrong.md) entry 61 has the reasoning and entry 67 the
+outcome, including the three ways the first version was wrong and which
+mechanism caught each.
 
-### The wall four remaining items share
+### The wall the remaining item shares
 
-Varint (Stream VByte), sorted-set intersection, the RVV transcendentals and the
-sse2 emission above all stop at the same place: **they need per-target shuffle
-tables or hand-written intrinsics rather than one portable C source.**
+Three of the four items that used to sit behind this wall are through it.
+Sorted-set intersection and difference shipped, because the tile turned out to
+need only constant shuffles; the varint widths shipped, with the emission
+itself recorded as serial rather than pending; and the sse2 emission is done.
+
+What is left is **the RVV and NEON transcendentals**, and it stops where the
+others did: **it needs hand-written intrinsics rather than one portable C
+source.**
 
 That is not a difficulty ranking, it is a different kind of work. Everything in
 this repository gets its cross-architecture identity for free by compiling one

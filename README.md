@@ -57,7 +57,12 @@ The families today:
   stated ULP bound, and a `Fast*` twin where you would rather have the speed.
 - **Text and bytes**: index, count, trim, UTF-8 validation, case folding, hex,
   base64 — taking `string` or `[]byte` without copying.
-- **Linear algebra**: dot, `Gemv`, a register-blocked `MatMul`.
+- **Linear algebra**: dot, `Gemv`, a register-blocked `MatMul`, and CSR
+  sparse matrix-vector.
+- **Search and set operations**: batched binary search, sorted-set intersection
+  and difference, rank/select over a bit vector, longest common prefix.
+- **Encodings**: quantization to int8 and fp8, zigzag, bit packing, run-length,
+  and the varint widths an encoder needs before it writes a byte.
 
 **What this is not.** Not a BLAS, not a tensor library, not an autodiff
 framework. It has no opinion about how your data is laid out beyond "it is a
@@ -134,6 +139,13 @@ called. Every one of these has a runnable example in
 | **quantize a tensor to int8** | `QuantizeInt8`, or `QuantizePerChannelInt8` for weights |
 | **multiply int8 tensors** | `QMatMulInt8Into` → int32, then `RequantizeInt8Into` |
 | normalize a transformer layer | `LayerNorm`, or `LayerNormInto` with gamma and beta |
+| **look up many keys in a sorted table** | `LowerBoundInto` — one binary search per query, batched |
+| how much two byte slices share | `CommonPrefixLen` — the LCP step of a suffix array |
+| rolling minimum or maximum | `RollingMinInto` `RollingMaxInto` — see the window note in its doc |
+| **intersect or subtract sorted sets** | `IntersectInto` `DifferenceInto` — posting lists |
+| rank/select over a bit vector | `RankTableInto`, then `Rank` and `Select` |
+| size a varint stream before writing it | `VarintSize` `VarintLenInto` `AppendVarints` |
+| **multiply a sparse matrix by a vector** | `SpMVInto`, or `SparseDot` for one CSR row |
 | convert to/from fp8 | `Float32ToFloat8E4M3Into` and the e5m2 pair |
 | make negative deltas small | `ZigzagEncodeInt32Into`, before varint |
 | pack a column densely | `DiffInto` → `ZigzagEncodeInt32Into` → `BitPackInto` |
@@ -148,9 +160,9 @@ called. Every one of these has a runnable example in
 **v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and
 is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 
-- **437 exported functions** over ten element types, plus complex, bytes, text
+- **452 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
-- **6,256 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
+- **6,603 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
   arm64 neon/sve2, riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx.
 - Every architecture is **executed**, under emulation, on every change.
 - The portable Go implementation is always there. A kernel that could not be
@@ -340,20 +352,28 @@ each column.
 
 | | kernels | skipped | |
 |---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2277 | 199 | essentially complete |
-| arm64 (neon/sve2) | 1526 | 126 | essentially complete |
-| riscv64 (rvv) | 766 | 62 | essentially complete |
-| loong64 (lasx) | 689 | 135 | see the `.L0` note below |
-| ppc64le (vsx) | 588 | 236 | was 281 before the TOC rewrite |
-| s390x (vx) | 410 | 414 | **partial**, and the reason is an ABI wall |
+| amd64 (sse2/avx2/avx512) | 2493 | 88 | essentially complete |
+| arm64 (neon/sve2) | 1594 | 128 | essentially complete |
+| riscv64 (rvv) | 801 | 62 | essentially complete |
+| loong64 (lasx) | 710 | 149 | see the `.L0` note below |
+| ppc64le (vsx) | 592 | 267 | was 281 before the TOC rewrite |
+| s390x (vx) | 413 | 446 | **partial**, and the reason is an ABI wall |
 
-6,256 kernels in total. Almost all of the skips are the `Fast*` tier: it is the
-newest and the least portable, and where a target declines one the accurate
-kernel stands in, which satisfies the bound because the bound is an upper
-bound. The skips are also concentrated rather than spread — the large majority
-of amd64's are sse2 and the legacy-SSE alignment problem described below, which
-[`docs/wrong.md`](docs/wrong.md) entry 61 shows is addressable and not an ABI
-wall.
+6,603 kernels in total. Almost all of the remaining skips are the `Fast*` tier:
+it is the newest and the least portable, and where a target declines one the
+accurate kernel stands in, which satisfies the bound because the bound is an
+upper bound.
+
+amd64's column used to be the interesting one and no longer is. It read 2277
+kernels and 199 skips, and the large majority of those skips were sse2 refusing
+a legacy SSE instruction that reads a constant pool: such an instruction needs
+its operand 16-byte aligned, and nothing promises the alignment of bytes inside
+a TEXT symbol. [`docs/wrong.md`](docs/wrong.md) entry 61 argued the reason on
+file for not fixing it was answering the wrong question, and entry 67 fixed it
+— the pool moves to a separate RODATA symbol, which the linker does align, and
+the one instruction that reads it is emitted as a Plan 9 mnemonic of exactly
+the same length. sse2 went from 673 kernels to 789 and there are no alignment
+refusals left on any tier.
 
 Two earlier versions of this table were wrong in opposite directions, and both
 are worth stating rather than quietly restating. One gave s390x as 650: it
