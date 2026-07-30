@@ -16,6 +16,12 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 //go:noescape
+func qMatMulI8SVE2(dst []int32, a []int8, b []int8, m int, k int, n int)
+
+//go:noescape
+func requantizeI8SVE2(dst []int8, a []int32, scale float32, zeroPoint int32)
+
+//go:noescape
 func matMulFloat32SVE2(dst []float32, a []float32, b []float32, m int, k int, n int)
 
 //go:noescape

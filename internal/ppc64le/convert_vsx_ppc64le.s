@@ -113,13 +113,13 @@ TEXT ·quantizeI8VSX(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0x7ca903a6
 	WORD $0x3ca20000
 	WORD $0x3863ffff
-	WORD $0xc0460198
+	WORD $0xc0460228
 	WORD $0x3cc20000
-	WORD $0xc08501a0
+	WORD $0xc0850230
 	WORD $0x3ca20000
 	WORD $0x3884fffc
-	WORD $0xc066019c
-	WORD $0xc0a501a4
+	WORD $0xc066022c
+	WORD $0xc0a50234
 	WORD $0x38a00001
 	WORD $0x48000018
 	WORD $0x60000000
@@ -261,11 +261,11 @@ TEXT ·quantizeU8VSX(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0x7c862214
 	WORD $0x3cc20000
 	WORD $0x3863ffff
-	WORD $0xc06501ac
+	WORD $0xc065023c
 	WORD $0x3ca20000
-	WORD $0xc04601a8
+	WORD $0xc0460238
 	WORD $0x3884fffc
-	WORD $0xc08501b0
+	WORD $0xc0850240
 	WORD $0x38a00001
 	WORD $0x4800001c
 	WORD $0x60000000
@@ -1547,7 +1547,7 @@ TEXT ·f16ToF32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x3ca20000
 	WORD $0x7c671a14
 	WORD $0x3884fffe
-	WORD $0xc0050190
+	WORD $0xc0050220
 	WORD $0x3863fffc
 	WORD $0x60000000
 	WORD $0x60000000
@@ -1675,7 +1675,7 @@ TEXT ·f32ToF16VSX(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x3ca20000
 	WORD $0x7c671a14
 	WORD $0x38e07e00
-	WORD $0xc0050194
+	WORD $0xc0050224
 	WORD $0x3884fffc
 	WORD $0x3863fffe
 	WORD $0x38a07c00
@@ -1766,12 +1766,33 @@ DATA simdconst_quantizeI8VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
 DATA simdconst_quantizeI8VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
 DATA simdconst_quantizeI8VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
 DATA simdconst_quantizeI8VSX_pool<>+0x188(SB)/8, $0x0001021404050615
-DATA simdconst_quantizeI8VSX_pool<>+0x190(SB)/8, $0x3f000000b8800000
-DATA simdconst_quantizeI8VSX_pool<>+0x198(SB)/8, $0xcb0000004b000000
-DATA simdconst_quantizeI8VSX_pool<>+0x1a0(SB)/8, $0x42fe0000c3000000
-DATA simdconst_quantizeI8VSX_pool<>+0x1a8(SB)/8, $0xcb0000004b000000
-DATA simdconst_quantizeI8VSX_pool<>+0x1b0(SB)/4, $0x437f0000
-GLOBL simdconst_quantizeI8VSX_pool<>(SB), RODATA|NOPTR, $436
+DATA simdconst_quantizeI8VSX_pool<>+0x190(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x198(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1a0(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1a8(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1b0(SB)/8, $0xc3000000c3000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1b8(SB)/8, $0xc3000000c3000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1c0(SB)/8, $0x42fe000042fe0000
+DATA simdconst_quantizeI8VSX_pool<>+0x1c8(SB)/8, $0x42fe000042fe0000
+DATA simdconst_quantizeI8VSX_pool<>+0x1d0(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1d8(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1e0(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1e8(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1f0(SB)/8, $0x437f0000437f0000
+DATA simdconst_quantizeI8VSX_pool<>+0x1f8(SB)/8, $0x437f0000437f0000
+DATA simdconst_quantizeI8VSX_pool<>+0x200(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_quantizeI8VSX_pool<>+0x208(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_quantizeI8VSX_pool<>+0x210(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_quantizeI8VSX_pool<>+0x218(SB)/8, $0x0001021404050615
+DATA simdconst_quantizeI8VSX_pool<>+0x220(SB)/8, $0x3f000000b8800000
+DATA simdconst_quantizeI8VSX_pool<>+0x228(SB)/8, $0xcb0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x230(SB)/8, $0x42fe0000c3000000
+DATA simdconst_quantizeI8VSX_pool<>+0x238(SB)/8, $0xcb0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x240(SB)/8, $0x4b000000437f0000
+DATA simdconst_quantizeI8VSX_pool<>+0x248(SB)/8, $0xc3000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x250(SB)/8, $0x4b00000042fe0000
+DATA simdconst_quantizeI8VSX_pool<>+0x258(SB)/8, $0x437f0000cb000000
+GLOBL simdconst_quantizeI8VSX_pool<>(SB), RODATA|NOPTR, $608
 
 DATA simdconst_quantizeU8VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
 DATA simdconst_quantizeU8VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
@@ -1823,12 +1844,33 @@ DATA simdconst_quantizeU8VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
 DATA simdconst_quantizeU8VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
 DATA simdconst_quantizeU8VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
 DATA simdconst_quantizeU8VSX_pool<>+0x188(SB)/8, $0x0001021404050615
-DATA simdconst_quantizeU8VSX_pool<>+0x190(SB)/8, $0x3f000000b8800000
-DATA simdconst_quantizeU8VSX_pool<>+0x198(SB)/8, $0xcb0000004b000000
-DATA simdconst_quantizeU8VSX_pool<>+0x1a0(SB)/8, $0x42fe0000c3000000
-DATA simdconst_quantizeU8VSX_pool<>+0x1a8(SB)/8, $0xcb0000004b000000
-DATA simdconst_quantizeU8VSX_pool<>+0x1b0(SB)/4, $0x437f0000
-GLOBL simdconst_quantizeU8VSX_pool<>(SB), RODATA|NOPTR, $436
+DATA simdconst_quantizeU8VSX_pool<>+0x190(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x198(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1a0(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1a8(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1b0(SB)/8, $0xc3000000c3000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1b8(SB)/8, $0xc3000000c3000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1c0(SB)/8, $0x42fe000042fe0000
+DATA simdconst_quantizeU8VSX_pool<>+0x1c8(SB)/8, $0x42fe000042fe0000
+DATA simdconst_quantizeU8VSX_pool<>+0x1d0(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1d8(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1e0(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1e8(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1f0(SB)/8, $0x437f0000437f0000
+DATA simdconst_quantizeU8VSX_pool<>+0x1f8(SB)/8, $0x437f0000437f0000
+DATA simdconst_quantizeU8VSX_pool<>+0x200(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_quantizeU8VSX_pool<>+0x208(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_quantizeU8VSX_pool<>+0x210(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_quantizeU8VSX_pool<>+0x218(SB)/8, $0x0001021404050615
+DATA simdconst_quantizeU8VSX_pool<>+0x220(SB)/8, $0x3f000000b8800000
+DATA simdconst_quantizeU8VSX_pool<>+0x228(SB)/8, $0xcb0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x230(SB)/8, $0x42fe0000c3000000
+DATA simdconst_quantizeU8VSX_pool<>+0x238(SB)/8, $0xcb0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x240(SB)/8, $0x4b000000437f0000
+DATA simdconst_quantizeU8VSX_pool<>+0x248(SB)/8, $0xc3000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x250(SB)/8, $0x4b00000042fe0000
+DATA simdconst_quantizeU8VSX_pool<>+0x258(SB)/8, $0x437f0000cb000000
+GLOBL simdconst_quantizeU8VSX_pool<>(SB), RODATA|NOPTR, $608
 
 DATA simdconst_f32ToBF16VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
 DATA simdconst_f32ToBF16VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
@@ -1880,7 +1922,25 @@ DATA simdconst_f32ToBF16VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
 DATA simdconst_f32ToBF16VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
 DATA simdconst_f32ToBF16VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
 DATA simdconst_f32ToBF16VSX_pool<>+0x188(SB)/8, $0x0001021404050615
-GLOBL simdconst_f32ToBF16VSX_pool<>(SB), RODATA|NOPTR, $400
+DATA simdconst_f32ToBF16VSX_pool<>+0x190(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x198(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1a0(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1a8(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1b0(SB)/8, $0xc3000000c3000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1b8(SB)/8, $0xc3000000c3000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1c0(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1c8(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1d0(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1d8(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1e0(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1e8(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1f0(SB)/8, $0x437f0000437f0000
+DATA simdconst_f32ToBF16VSX_pool<>+0x1f8(SB)/8, $0x437f0000437f0000
+DATA simdconst_f32ToBF16VSX_pool<>+0x200(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_f32ToBF16VSX_pool<>+0x208(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_f32ToBF16VSX_pool<>+0x210(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_f32ToBF16VSX_pool<>+0x218(SB)/8, $0x0001021404050615
+GLOBL simdconst_f32ToBF16VSX_pool<>(SB), RODATA|NOPTR, $544
 
 DATA simdconst_f16ToF32VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
 DATA simdconst_f16ToF32VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
@@ -1932,12 +1992,33 @@ DATA simdconst_f16ToF32VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
 DATA simdconst_f16ToF32VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
 DATA simdconst_f16ToF32VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
 DATA simdconst_f16ToF32VSX_pool<>+0x188(SB)/8, $0x0001021404050615
-DATA simdconst_f16ToF32VSX_pool<>+0x190(SB)/8, $0x3f000000b8800000
-DATA simdconst_f16ToF32VSX_pool<>+0x198(SB)/8, $0xcb0000004b000000
-DATA simdconst_f16ToF32VSX_pool<>+0x1a0(SB)/8, $0x42fe0000c3000000
-DATA simdconst_f16ToF32VSX_pool<>+0x1a8(SB)/8, $0xcb0000004b000000
-DATA simdconst_f16ToF32VSX_pool<>+0x1b0(SB)/4, $0x437f0000
-GLOBL simdconst_f16ToF32VSX_pool<>(SB), RODATA|NOPTR, $436
+DATA simdconst_f16ToF32VSX_pool<>+0x190(SB)/8, $0x4b0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x198(SB)/8, $0x4b0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1a0(SB)/8, $0xcb000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1a8(SB)/8, $0xcb000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1b0(SB)/8, $0xc3000000c3000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1b8(SB)/8, $0xc3000000c3000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1c0(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f16ToF32VSX_pool<>+0x1c8(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f16ToF32VSX_pool<>+0x1d0(SB)/8, $0x4b0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1d8(SB)/8, $0x4b0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1e0(SB)/8, $0xcb000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1e8(SB)/8, $0xcb000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1f0(SB)/8, $0x437f0000437f0000
+DATA simdconst_f16ToF32VSX_pool<>+0x1f8(SB)/8, $0x437f0000437f0000
+DATA simdconst_f16ToF32VSX_pool<>+0x200(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_f16ToF32VSX_pool<>+0x208(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_f16ToF32VSX_pool<>+0x210(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_f16ToF32VSX_pool<>+0x218(SB)/8, $0x0001021404050615
+DATA simdconst_f16ToF32VSX_pool<>+0x220(SB)/8, $0x3f000000b8800000
+DATA simdconst_f16ToF32VSX_pool<>+0x228(SB)/8, $0xcb0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x230(SB)/8, $0x42fe0000c3000000
+DATA simdconst_f16ToF32VSX_pool<>+0x238(SB)/8, $0xcb0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x240(SB)/8, $0x4b000000437f0000
+DATA simdconst_f16ToF32VSX_pool<>+0x248(SB)/8, $0xc3000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x250(SB)/8, $0x4b00000042fe0000
+DATA simdconst_f16ToF32VSX_pool<>+0x258(SB)/8, $0x437f0000cb000000
+GLOBL simdconst_f16ToF32VSX_pool<>(SB), RODATA|NOPTR, $608
 
 DATA simdconst_f32ToF16VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
 DATA simdconst_f32ToF16VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
@@ -1989,10 +2070,31 @@ DATA simdconst_f32ToF16VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
 DATA simdconst_f32ToF16VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
 DATA simdconst_f32ToF16VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
 DATA simdconst_f32ToF16VSX_pool<>+0x188(SB)/8, $0x0001021404050615
-DATA simdconst_f32ToF16VSX_pool<>+0x190(SB)/8, $0x3f000000b8800000
-DATA simdconst_f32ToF16VSX_pool<>+0x198(SB)/8, $0xcb0000004b000000
-DATA simdconst_f32ToF16VSX_pool<>+0x1a0(SB)/8, $0x42fe0000c3000000
-DATA simdconst_f32ToF16VSX_pool<>+0x1a8(SB)/8, $0xcb0000004b000000
-DATA simdconst_f32ToF16VSX_pool<>+0x1b0(SB)/4, $0x437f0000
-GLOBL simdconst_f32ToF16VSX_pool<>(SB), RODATA|NOPTR, $436
+DATA simdconst_f32ToF16VSX_pool<>+0x190(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x198(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1a0(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1a8(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1b0(SB)/8, $0xc3000000c3000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1b8(SB)/8, $0xc3000000c3000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1c0(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f32ToF16VSX_pool<>+0x1c8(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f32ToF16VSX_pool<>+0x1d0(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1d8(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1e0(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1e8(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1f0(SB)/8, $0x437f0000437f0000
+DATA simdconst_f32ToF16VSX_pool<>+0x1f8(SB)/8, $0x437f0000437f0000
+DATA simdconst_f32ToF16VSX_pool<>+0x200(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_f32ToF16VSX_pool<>+0x208(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_f32ToF16VSX_pool<>+0x210(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_f32ToF16VSX_pool<>+0x218(SB)/8, $0x0001021404050615
+DATA simdconst_f32ToF16VSX_pool<>+0x220(SB)/8, $0x3f000000b8800000
+DATA simdconst_f32ToF16VSX_pool<>+0x228(SB)/8, $0xcb0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x230(SB)/8, $0x42fe0000c3000000
+DATA simdconst_f32ToF16VSX_pool<>+0x238(SB)/8, $0xcb0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x240(SB)/8, $0x4b000000437f0000
+DATA simdconst_f32ToF16VSX_pool<>+0x248(SB)/8, $0xc3000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x250(SB)/8, $0x4b00000042fe0000
+DATA simdconst_f32ToF16VSX_pool<>+0x258(SB)/8, $0x437f0000cb000000
+GLOBL simdconst_f32ToF16VSX_pool<>(SB), RODATA|NOPTR, $608
 

@@ -121,6 +121,9 @@ func convertOps() kernel.Convert {
 		F16ToF32: f16ToF32, F32ToF16: f32ToF16,
 		QuantizeI8: quantizeI8, DequantizeI8: dequantizeI8,
 		QuantizeU8: quantizeU8, DequantizeU8: dequantizeU8,
+		QMatMulI8: qMatMulI8, RequantizeI8: requantizeI8,
+		QuantizePerChannelI8: QuantizePerChannelI8, QuantizePerChannelU8: QuantizePerChannelU8,
+		DequantizePerChannelI8: DequantizePerChannelI8, DequantizePerChannelU8: DequantizePerChannelU8,
 		ZigzagEncodeI8: ZigzagEncodeI8, ZigzagDecodeI8: ZigzagDecodeI8,
 		ZigzagEncodeI16: ZigzagEncodeI16, ZigzagDecodeI16: ZigzagDecodeI16,
 		ZigzagEncodeI32: ZigzagEncodeI32, ZigzagDecodeI32: ZigzagDecodeI32,
@@ -242,3 +245,120 @@ func ZigzagEncodeI32(dst []uint32, a []int32) { zigzagEncode(dst, a, 31) }
 func ZigzagDecodeI32(dst []int32, a []uint32) { zigzagDecode(dst, a) }
 func ZigzagEncodeI64(dst []uint64, a []int64) { zigzagEncode(dst, a, 63) }
 func ZigzagDecodeI64(dst []int64, a []uint64) { zigzagDecode(dst, a) }
+
+// ---------- quantized matrix multiply ----------
+
+// qMatMulI8 is the specification the kernel is checked against: int8 inputs,
+// int32 accumulator, row-major, in the same p-ascending order the tile uses so
+// the two agree exactly.
+//
+// Integer addition is associative, so unlike the float matmul this needs no
+// fixed accumulation shape to be reproducible — every tier reaches the same
+// total whatever order its lanes reduce in.
+func qMatMulI8(dst []int32, a, b []int8, m, k, n int) {
+	if m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		return
+	}
+	for i := range dst[:m*n] {
+		dst[i] = 0
+	}
+	for i := 0; i < m; i++ {
+		for p := 0; p < k; p++ {
+			s := int32(a[i*k+p])
+			br := b[p*n : p*n+n]
+			dr := dst[i*n : i*n+n]
+			for j := range dr {
+				dr[j] += s * int32(br[j])
+			}
+		}
+	}
+}
+
+// requantizeI8 takes an int32 accumulator back down to int8 with a scale and
+// zero point. Rounding is half to even, matching quantize and the runtimes
+// this interoperates with.
+func requantizeI8(dst []int8, a []int32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	for i := range dst {
+		q := math.RoundToEven(float64(float32(a[i])*scale)) + float64(zeroPoint)
+		switch {
+		case q < -128:
+			dst[i] = -128
+		case q > 127:
+			dst[i] = 127
+		default:
+			dst[i] = int8(q)
+		}
+	}
+}
+
+func QMatMulI8(dst []int32, a, b []int8, m, k, n int) { qMatMulI8(dst, a, b, m, k, n) }
+
+func RequantizeI8(dst []int8, a []int32, scale float32, zeroPoint int32) {
+	requantizeI8(dst, a, scale, zeroPoint)
+}
+
+// ---------- per-channel quantization ----------
+//
+// The specification for the per-channel kernels: identical arithmetic to the
+// per-tensor form, with the scale and zero point looked up per channel.
+
+func quantizePerChannel[T int8 | uint8](dst []T, a []float32, scale []float32,
+	zeroPoint []int32, channels, inner int, lo, hi float64) {
+
+	if channels <= 0 || inner <= 0 || len(scale) < channels ||
+		len(zeroPoint) < channels || len(dst) < channels*inner ||
+		len(a) < channels*inner {
+		return
+	}
+	for c := 0; c < channels; c++ {
+		s, z := scale[c], zeroPoint[c]
+		ac := a[c*inner : (c+1)*inner]
+		dc := dst[c*inner : (c+1)*inner]
+		for i := range dc {
+			q := math.RoundToEven(float64(ac[i]/s)) + float64(z)
+			if q < lo {
+				q = lo
+			}
+			if q > hi {
+				q = hi
+			}
+			dc[i] = T(q)
+		}
+	}
+}
+
+func dequantizePerChannel[T int8 | uint8](dst []float32, a []T, scale []float32,
+	zeroPoint []int32, channels, inner int) {
+
+	if channels <= 0 || inner <= 0 || len(scale) < channels ||
+		len(zeroPoint) < channels || len(dst) < channels*inner ||
+		len(a) < channels*inner {
+		return
+	}
+	for c := 0; c < channels; c++ {
+		s, z := scale[c], zeroPoint[c]
+		ac := a[c*inner : (c+1)*inner]
+		dc := dst[c*inner : (c+1)*inner]
+		for i := range dc {
+			dc[i] = float32(int32(ac[i])-z) * s
+		}
+	}
+}
+
+func QuantizePerChannelI8(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels, inner int) {
+	quantizePerChannel(dst, a, scale, zeroPoint, channels, inner, -128, 127)
+}
+
+func QuantizePerChannelU8(dst []uint8, a []float32, scale []float32, zeroPoint []int32, channels, inner int) {
+	quantizePerChannel(dst, a, scale, zeroPoint, channels, inner, 0, 255)
+}
+
+func DequantizePerChannelI8(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels, inner int) {
+	dequantizePerChannel(dst, a, scale, zeroPoint, channels, inner)
+}
+
+func DequantizePerChannelU8(dst []float32, a []uint8, scale []float32, zeroPoint []int32, channels, inner int) {
+	dequantizePerChannel(dst, a, scale, zeroPoint, channels, inner)
+}

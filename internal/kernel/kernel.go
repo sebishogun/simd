@@ -523,6 +523,38 @@ type Convert struct {
 	// Exact and total in both directions under rule 1: these are shifts and
 	// exclusive ors, so every tier gives the same bits, and every value round
 	// trips including the most negative one.
+	// Per-channel quantization: one scale and zero point per output channel
+	// rather than one per tensor, which is what real inference uses for
+	// weights.
+	//
+	// Output channels are trained independently and their ranges differ by an
+	// order of magnitude or more, so a single tensor-wide scale is set by the
+	// widest channel and wastes most of the int8 range on every other one.
+	//
+	// The layout is channels groups of inner consecutive elements, which is
+	// how a weight tensor [out][in*kh*kw] already sits in memory. Same
+	// rounding as the per-tensor form: half to even, saturating.
+	QuantizePerChannelI8   func(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels, inner int)
+	QuantizePerChannelU8   func(dst []uint8, a []float32, scale []float32, zeroPoint []int32, channels, inner int)
+	DequantizePerChannelI8 func(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels, inner int)
+	DequantizePerChannelU8 func(dst []float32, a []uint8, scale []float32, zeroPoint []int32, channels, inner int)
+
+	// The quantized matrix multiply, and the requantize that follows it.
+	//
+	// QMatMulI8 accumulates in int32 because int8 cannot hold a dot product:
+	// two full-scale int8 values already multiply to 16129, and the sum over k
+	// needs 32 bits. Instantiating MatMul at int8 would overflow after two or
+	// three terms, which is why this is a separate kernel rather than another
+	// element type.
+	//
+	// Exact and bit-identical on every tier under rule 2 — integer addition is
+	// associative, so the accumulation order is not observable. The multiply
+	// is a plain int32 one rather than a widening multiply-add such as
+	// VPMADDUBSW: that instruction pairs adjacent products and saturates its
+	// intermediate, which would change the answer for inputs a caller may pass.
+	QMatMulI8    func(dst []int32, a, b []int8, m, k, n int)
+	RequantizeI8 func(dst []int8, a []int32, scale float32, zeroPoint int32)
+
 	ZigzagEncodeI8  func(dst []byte, a []int8)
 	ZigzagDecodeI8  func(dst []int8, a []byte)
 	ZigzagEncodeI16 func(dst []uint16, a []int16)

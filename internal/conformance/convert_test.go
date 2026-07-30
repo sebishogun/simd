@@ -17,6 +17,7 @@ package conformance
 
 import (
 	"math"
+	"math/rand/v2"
 	"testing"
 
 	"github.com/sebishogun/simd/internal/ref"
@@ -168,5 +169,120 @@ func zigzag[S, U comparable](t *testing.T, tier, name string, in []S,
 		if back[i] != backWant[i] {
 			t.Fatalf("%s/Convert.ZigzagDecode%s(%v): got %v want %v", tier, name, g[i], back[i], backWant[i])
 		}
+	}
+}
+
+// TestQMatMulKernels drives the quantized matrix multiply against ref across
+// every tier, at sizes either side of the register tile in both dimensions so
+// the edge paths run rather than only the tile.
+//
+// Exact, not bounded: integer addition is associative, so unlike the float
+// matmul there is no accumulation order to preserve and the two must agree bit
+// for bit.
+func TestQMatMulKernels(t *testing.T) {
+	want := ref.Set()
+	r := rand.New(rand.NewPCG(211, 223))
+
+	for tier, got := range tiers(t) {
+		t.Run(tier, func(t *testing.T) {
+			if got.Convert.QMatMulI8 == nil {
+				return
+			}
+			for _, d := range []struct{ m, k, n int }{
+				{1, 1, 1}, {3, 5, 7}, {8, 8, 8}, {8, 16, 16},
+				{9, 17, 33}, {6, 6, 6}, {13, 29, 31},
+			} {
+				a := make([]int8, d.m*d.k)
+				b := make([]int8, d.k*d.n)
+				for i := range a {
+					a[i] = int8(r.Uint32())
+				}
+				for i := range b {
+					b[i] = int8(r.Uint32())
+				}
+				g := make([]int32, d.m*d.n)
+				w := make([]int32, d.m*d.n)
+				got.Convert.QMatMulI8(g, a, b, d.m, d.k, d.n)
+				want.Convert.QMatMulI8(w, a, b, d.m, d.k, d.n)
+				if i, ok := same(g, w); !ok {
+					t.Fatalf("%s/Convert.QMatMulI8 m=%d k=%d n=%d at %d: got %d want %d",
+						tier, d.m, d.k, d.n, i, g[i], w[i])
+				}
+			}
+
+			if got.Convert.RequantizeI8 == nil {
+				return
+			}
+			for _, n := range []int{0, 1, 15, 16, 17, 100} {
+				acc := make([]int32, n)
+				for i := range acc {
+					acc[i] = int32(r.Uint32()) / 512
+				}
+				g := make([]int8, n)
+				w := make([]int8, n)
+				got.Convert.RequantizeI8(g, acc, 0.0625, -7)
+				want.Convert.RequantizeI8(w, acc, 0.0625, -7)
+				if i, ok := same(g, w); !ok {
+					t.Fatalf("%s/Convert.RequantizeI8 n=%d at %d: got %d want %d",
+						tier, n, i, g[i], w[i])
+				}
+			}
+		})
+	}
+}
+
+// TestPerChannelQuantKernels drives the per-channel quantizers against ref at
+// shapes either side of a vector width in the inner dimension, which is the
+// one the vectorizer sees.
+func TestPerChannelQuantKernels(t *testing.T) {
+	want := ref.Set()
+	r := rand.New(rand.NewPCG(401, 409))
+
+	for tier, got := range tiers(t) {
+		t.Run(tier, func(t *testing.T) {
+			if got.Convert.QuantizePerChannelI8 == nil {
+				return
+			}
+			for _, d := range []struct{ channels, inner int }{
+				{1, 1}, {1, 15}, {1, 16}, {1, 17}, {3, 15}, {4, 16}, {5, 33}, {8, 64},
+			} {
+				n := d.channels * d.inner
+				a := make([]float32, n)
+				scale := make([]float32, d.channels)
+				zp := make([]int32, d.channels)
+				for i := range a {
+					a[i] = float32(r.NormFloat64()) * 30
+				}
+				for c := range scale {
+					scale[c] = float32(r.Float64())*0.5 + 0.05
+					zp[c] = int32(r.IntN(41) - 20)
+				}
+
+				g8, w8 := make([]int8, n), make([]int8, n)
+				got.Convert.QuantizePerChannelI8(g8, a, scale, zp, d.channels, d.inner)
+				want.Convert.QuantizePerChannelI8(w8, a, scale, zp, d.channels, d.inner)
+				if i, ok := same(g8, w8); !ok {
+					t.Fatalf("%s/QuantizePerChannelI8 c=%d inner=%d at %d: got %d want %d",
+						tier, d.channels, d.inner, i, g8[i], w8[i])
+				}
+
+				gf, wf := make([]float32, n), make([]float32, n)
+				got.Convert.DequantizePerChannelI8(gf, w8, scale, zp, d.channels, d.inner)
+				want.Convert.DequantizePerChannelI8(wf, w8, scale, zp, d.channels, d.inner)
+				for i := range gf {
+					if !sameF32Bits(gf[i], wf[i]) {
+						t.Fatalf("%s/DequantizePerChannelI8 at %d: got %v want %v",
+							tier, i, gf[i], wf[i])
+					}
+				}
+
+				gu, wu := make([]uint8, n), make([]uint8, n)
+				got.Convert.QuantizePerChannelU8(gu, a, scale, zp, d.channels, d.inner)
+				want.Convert.QuantizePerChannelU8(wu, a, scale, zp, d.channels, d.inner)
+				if i, ok := same(gu, wu); !ok {
+					t.Fatalf("%s/QuantizePerChannelU8 at %d: got %d want %d", tier, i, gu[i], wu[i])
+				}
+			}
+		})
 	}
 }

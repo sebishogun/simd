@@ -20,6 +20,23 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
+func qMatMulI8NEONGuarded(dst []int32, a []int8, b []int8, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.QMatMulI8(dst, a, b, m, k, n)
+		return
+	}
+	qMatMulI8NEON(dst, a, b, m, k, n)
+}
+
+func requantizeI8NEONGuarded(dst []int8, a []int32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.RequantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	requantizeI8NEON(dst[:n:n], a, scale, zeroPoint)
+}
+
 func matMulFloat32NEONGuarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
@@ -88,6 +105,8 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("neon")
+	s.Convert.QMatMulI8 = qMatMulI8NEONGuarded
+	s.Convert.RequantizeI8 = requantizeI8NEONGuarded
 	s.F32.MatMul = matMulFloat32NEONGuarded
 	s.F32.Gemv = gemvFloat32NEONGuarded
 	s.F64.MatMul = matMulFloat64NEONGuarded

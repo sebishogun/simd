@@ -1262,6 +1262,30 @@ func FastMath() []spec.Kernel {
 // A float16 or bfloat16 crosses as a uint16, because Go has neither type. The
 // C side takes an unsigned short, which is the same sixteen bits, so nothing
 // is reinterpreted anywhere — the pointer is the pointer.
+// perChannel is affine quantization with one scale and zero point per output
+// channel rather than one per tensor. The scale and zero point are slices
+// indexed by channel; channels*inner elements are processed.
+//
+// The sizes are checked in RefWhen rather than in the kernel, which keeps the
+// signature to six arguments — one at the SysV amd64 limit — and sends a
+// badly sized call to the portable path, where returning without writing is
+// the right answer for a caller error.
+func perChannel(cname, goName, field string, dst, src spec.Type) spec.Kernel {
+	return spec.Kernel{
+		CName: cname, GoName: goName,
+		Group: "Convert", Field: field, RefFunc: field,
+		Params: []spec.Param{sl("dst", dst), sl("a", src),
+			sl("scale", spec.SliceF32), sl("zeroPoint", spec.SliceI32),
+			{Name: "channels", Type: spec.Int}, {Name: "inner", Type: spec.Int}},
+		CArgs: []spec.CArg{base("dst"), base("a"), base("scale"),
+			base("zeroPoint"), val("channels"), val("inner")},
+		RefWhen: "channels <= 0 || inner <= 0 || len(scale) < channels || " +
+			"len(zeroPoint) < channels || len(dst) < channels*inner || " +
+			"len(a) < channels*inner",
+		Threshold: thElementwise,
+	}
+}
+
 func Convert() []spec.Kernel {
 	conv := func(cname, goName, field, refFunc string, dst, src spec.Type) spec.Kernel {
 		return spec.Kernel{
@@ -1295,6 +1319,15 @@ func Convert() []spec.Kernel {
 			spec.SliceU8, spec.SliceF32),
 		quant("simd_dequantize_u8", "dequantizeU8", "DequantizeU8", "DequantizeU8",
 			spec.SliceF32, spec.SliceU8),
+
+		perChannel("simd_quantize_per_channel_i8", "quantizePerChannelI8",
+			"QuantizePerChannelI8", spec.SliceI8, spec.SliceF32),
+		perChannel("simd_quantize_per_channel_u8", "quantizePerChannelU8",
+			"QuantizePerChannelU8", spec.SliceU8, spec.SliceF32),
+		perChannel("simd_dequantize_per_channel_i8", "dequantizePerChannelI8",
+			"DequantizePerChannelI8", spec.SliceF32, spec.SliceI8),
+		perChannel("simd_dequantize_per_channel_u8", "dequantizePerChannelU8",
+			"DequantizePerChannelU8", spec.SliceF32, spec.SliceU8),
 
 		conv("simd_zigzag_encode_i8", "zigzagEncodeI8", "ZigzagEncodeI8",
 			"ZigzagEncodeI8", spec.SliceU8, spec.SliceI8),
@@ -1489,7 +1522,37 @@ func transposeK(e elem) spec.Kernel {
 }
 
 func Gemm() []spec.Kernel {
-	var ks []spec.Kernel
+	// Quantized matrix multiply and its requantize step. The Group is
+	// Convert rather than a per-type one because the input and output types
+	// differ, which is what that group is for — but the C lives in
+	// csrc/gemm.c beside the tile it is built from, and the generator looks
+	// for a kernel in the source its Source entry names, not in the one its
+	// Group suggests.
+	qgemm := []spec.Kernel{
+		{
+			CName: "simd_qmatmul_i8", GoName: "qMatMulI8",
+			Group: "Convert", Field: "QMatMulI8", RefFunc: "QMatMulI8",
+			Params: []spec.Param{sl("dst", spec.SliceI32), sl("a", spec.SliceI8),
+				sl("b", spec.SliceI8), {Name: "m", Type: spec.Int},
+				{Name: "k", Type: spec.Int}, {Name: "n", Type: spec.Int}},
+			CArgs: []spec.CArg{base("dst"), base("a"), base("b"),
+				val("m"), val("k"), val("n")},
+			RefWhen: "m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || " +
+				"len(a) < m*k || len(b) < k*n",
+			Threshold: 0,
+		},
+		{
+			CName: "simd_requantize_i8", GoName: "requantizeI8",
+			Group: "Convert", Field: "RequantizeI8", RefFunc: "RequantizeI8",
+			Params: []spec.Param{sl("dst", spec.SliceI8), sl("a", spec.SliceI32),
+				{Name: "scale", Type: spec.F32},
+				{Name: "zeroPoint", Type: spec.I32}},
+			CArgs: []spec.CArg{base("dst"), base("a"), val("scale"),
+				val("zeroPoint"), lenOf("dst")},
+			Threshold: thElementwise,
+		},
+	}
+	ks := append([]spec.Kernel(nil), qgemm...)
 	for _, e := range floats() {
 		ks = append(ks, matMulK(e), gemvK(e))
 	}

@@ -136,3 +136,125 @@ func ExampleQuantizeInt8() {
 	fmt.Println(q)
 	// Output: [-127 -64 -32 0 32 64 127]
 }
+
+// ---------- per-channel ----------
+
+// The property per-channel exists for: channels with very different ranges.
+// A tensor-wide scale is set by the widest and destroys the narrow ones; a
+// per-channel scale keeps both.
+func TestQuantizePerChannelBeatsPerTensor(t *testing.T) {
+	const channels, inner = 2, 64
+	a := make([]float32, channels*inner)
+	// Channel 0 spans ±100, channel 1 spans ±0.1 — a thousand to one.
+	for i := 0; i < inner; i++ {
+		a[i] = float32(i-inner/2) * (100.0 / float32(inner/2))
+		a[inner+i] = float32(i-inner/2) * (0.1 / float32(inner/2))
+	}
+
+	perChan := make([]int8, len(a))
+	scale := []float32{100.0 / 127, 0.1 / 127}
+	zp := []int32{0, 0}
+	simd.QuantizePerChannelInt8(perChan, a, scale, zp, channels, inner)
+
+	back := make([]float32, len(a))
+	simd.DequantizePerChannelInt8(back, perChan, scale, zp, channels, inner)
+
+	// The narrow channel must survive. With one tensor-wide scale of 100/127
+	// every value in it would quantize to zero.
+	var narrowErr float32
+	for i := inner; i < len(a); i++ {
+		d := back[i] - a[i]
+		if d < 0 {
+			d = -d
+		}
+		if d > narrowErr {
+			narrowErr = d
+		}
+	}
+	if narrowErr > 0.1/127 {
+		t.Errorf("narrow channel error %v exceeds half a step of its own scale", narrowErr)
+	}
+
+	// And for contrast: the tensor-wide scale flattens it.
+	perTensor := make([]int8, len(a))
+	simd.QuantizeInt8(perTensor, a, 100.0/127, 0)
+	nonZero := 0
+	for i := inner; i < len(a); i++ {
+		if perTensor[i] != 0 {
+			nonZero++
+		}
+	}
+	if nonZero > 1 {
+		t.Logf("per-tensor kept %d of %d narrow-channel values non-zero", nonZero, inner)
+	}
+}
+
+func TestQuantizePerChannelMatchesPerTensor(t *testing.T) {
+	// With the same scale in every channel, per-channel must agree with the
+	// per-tensor kernel exactly.
+	const channels, inner = 5, 37
+	r := rand.New(rand.NewPCG(311, 313))
+	a := make([]float32, channels*inner)
+	for i := range a {
+		a[i] = float32(r.NormFloat64()) * 10
+	}
+	scale := make([]float32, channels)
+	zp := make([]int32, channels)
+	for c := range scale {
+		scale[c], zp[c] = 0.25, 4
+	}
+
+	got := make([]int8, len(a))
+	want := make([]int8, len(a))
+	simd.QuantizePerChannelInt8(got, a, scale, zp, channels, inner)
+	simd.QuantizeInt8(want, a, 0.25, 4)
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("i=%d: per-channel %d, per-tensor %d", i, got[i], want[i])
+		}
+	}
+}
+
+func TestQuantizePerChannelRoundTrip(t *testing.T) {
+	r := rand.New(rand.NewPCG(317, 331))
+	for _, d := range []struct{ channels, inner int }{
+		{1, 1}, {1, 16}, {3, 15}, {4, 16}, {5, 17}, {8, 64}, {2, 1000},
+	} {
+		n := d.channels * d.inner
+		a := make([]float32, n)
+		scale := make([]float32, d.channels)
+		zp := make([]int32, d.channels)
+		for i := range a {
+			a[i] = float32(r.Float64()*2 - 1)
+		}
+		for c := range scale {
+			scale[c] = 1.0 / 127
+			zp[c] = 0
+		}
+		q := make([]int8, n)
+		back := make([]float32, n)
+		simd.QuantizePerChannelInt8(q, a, scale, zp, d.channels, d.inner)
+		simd.DequantizePerChannelInt8(back, q, scale, zp, d.channels, d.inner)
+		for i := range a {
+			if e := back[i] - a[i]; e > 1.0/254 || e < -1.0/254 {
+				t.Fatalf("channels=%d inner=%d i=%d: %v -> %d -> %v",
+					d.channels, d.inner, i, a[i], q[i], back[i])
+			}
+		}
+	}
+}
+
+func TestQuantizePerChannelRejectsBadShape(t *testing.T) {
+	dst := make([]int8, 4)
+	for i := range dst {
+		dst[i] = 99
+	}
+	a := make([]float32, 4)
+	// Only one scale for two channels: must do nothing.
+	simd.QuantizePerChannelInt8(dst, a, []float32{1}, []int32{0}, 2, 2)
+	for i := range dst {
+		if dst[i] != 99 {
+			t.Fatalf("a badly shaped call wrote to dst[%d]", i)
+		}
+	}
+}

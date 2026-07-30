@@ -125,3 +125,83 @@ func ZigzagEncodeInt8Into(dst []byte, a []int8) { active.Convert.ZigzagEncodeI8(
 
 // ZigzagDecodeInt8Into is the inverse of [ZigzagEncodeInt8Into].
 func ZigzagDecodeInt8Into(dst []int8, a []byte) { active.Convert.ZigzagDecodeI8(dst, a) }
+
+// ---------- quantized matrix multiply ----------
+
+// QMatMulInt8Into multiplies two row-major int8 matrices into an int32
+// destination: an m*k matrix by a k*n matrix, giving m*n.
+//
+// The accumulator is int32 and that is the point of a separate function.
+// [MatMulInto] is generic over one element type, so instantiating it at int8
+// would accumulate in int8 and overflow after two or three terms — two
+// full-scale int8 values already multiply to 16129. Here the worst case is
+// k*127*128, which stays inside int32 up to k = 132097, past any layer anyone
+// runs.
+//
+// This is what [QuantizeInt8] produces tensors for. Follow it with
+// [RequantizeInt8Into] to get back to int8, or keep the int32 result if a bias
+// or a residual connection is added next.
+//
+// The result is exact and identical on every instruction set: integer addition
+// is associative, so unlike the float matmul there is no accumulation order to
+// preserve. It does nothing if the slices are too short for the stated
+// dimensions, and it allocates nothing.
+func QMatMulInt8Into(dst []int32, a, b []int8, m, k, n int) {
+	active.Convert.QMatMulI8(dst, a, b, m, k, n)
+}
+
+// RequantizeInt8Into takes an int32 accumulator back down to int8 with a scale
+// and zero point:
+//
+//	q = clamp(round(acc*scale) + zeroPoint, -128, 127)
+//
+// Rounding is half to even, matching [QuantizeInt8] and the runtimes this
+// interoperates with. Values outside the range saturate rather than wrapping.
+//
+// It is separate from [QMatMulInt8Into] rather than fused because a real layer
+// adds a bias to the int32 accumulator first, and because the scale is usually
+// per output channel — see the per-channel note on [QuantizeInt8].
+//
+// It writes min(len(dst), len(a)) elements and allocates nothing.
+func RequantizeInt8Into(dst []int8, a []int32, scale float32, zeroPoint int32) {
+	active.Convert.RequantizeI8(dst, a, scale, zeroPoint)
+}
+
+// ---------- per-channel quantization ----------
+
+// QuantizePerChannelInt8 is [QuantizeInt8] with one scale and zero point per
+// output channel rather than one for the whole tensor.
+//
+// This is what inference actually uses for weights. Output channels are
+// trained independently and their ranges differ by an order of magnitude or
+// more, so a single tensor-wide scale is set by the widest channel and wastes
+// most of the int8 range on every other one — typically one to two bits of
+// effective precision, for no cost beyond storing a scale per channel.
+//
+// The layout is channels groups of inner consecutive elements: element
+// c*inner+i belongs to channel c. That is how a weight tensor shaped
+// [outChannels][inChannels*kh*kw] already sits in memory, so no rearrangement
+// is needed.
+//
+// Rounding, saturation and the zero point behave exactly as in [QuantizeInt8].
+// It does nothing if the slices are too short for the stated shape, and it
+// allocates nothing.
+func QuantizePerChannelInt8(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels, inner int) {
+	active.Convert.QuantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
+}
+
+// QuantizePerChannelUint8 is [QuantizePerChannelInt8] into the unsigned range,
+// clamping to [0, 255].
+func QuantizePerChannelUint8(dst []uint8, a []float32, scale []float32, zeroPoint []int32, channels, inner int) {
+	active.Convert.QuantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
+}
+
+// DequantizePerChannelInt8 is the inverse of [QuantizePerChannelInt8].
+func DequantizePerChannelInt8(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels, inner int) {
+	active.Convert.DequantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
+}
+
+// DequantizePerChannelUint8 is the inverse of [QuantizePerChannelUint8].
+func DequantizePerChannelUint8(dst []float32, a []uint8, scale []float32, zeroPoint []int32, channels, inner int) {
+	active.Convert.DequantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
+}

@@ -20,6 +20,23 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func qMatMulI8AVX512Guarded(dst []int32, a []int8, b []int8, m int, k int, n int) {
+	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
+		ref.QMatMulI8(dst, a, b, m, k, n)
+		return
+	}
+	qMatMulI8AVX512(dst, a, b, m, k, n)
+}
+
+func requantizeI8AVX512Guarded(dst []int8, a []int32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.RequantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	requantizeI8AVX512(dst[:n:n], a, scale, zeroPoint)
+}
+
 func matMulFloat32AVX512Guarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
@@ -120,6 +137,8 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("avx512")
+	s.Convert.QMatMulI8 = qMatMulI8AVX512Guarded
+	s.Convert.RequantizeI8 = requantizeI8AVX512Guarded
 	s.F32.MatMul = matMulFloat32AVX512Guarded
 	s.F32.Gemv = gemvFloat32AVX512Guarded
 	s.F64.MatMul = matMulFloat64AVX512Guarded

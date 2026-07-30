@@ -286,3 +286,66 @@ ZIGZAG(signed char, unsigned char, i8)
 ZIGZAG(short, unsigned short, i16)
 ZIGZAG(int, unsigned int, i32)
 ZIGZAG(long long, unsigned long long, i64)
+
+// ---------- per-channel quantization ----------
+//
+// One scale and zero point per output channel rather than one per tensor.
+//
+// This is what real inference uses for weights, and the reason is distribution
+// rather than precision: a convolution's output channels are trained
+// independently and their weight ranges differ by an order of magnitude or
+// more, so a single tensor-wide scale is set by the widest channel and wastes
+// most of the int8 range on every other one. Per-channel typically recovers
+// one to two bits of effective precision on the narrow channels for no extra
+// storage beyond the scale vector.
+//
+// The layout is the one every runtime uses: elements grouped by channel, with
+// `inner` consecutive elements sharing a channel. For a weight tensor laid out
+// [out_channels][in_channels * kh * kw] that makes inner the size of one
+// filter, which is exactly how the data already sits.
+//
+// The vectorization is the same elementwise pass as the per-tensor form. What
+// changes is that the scale is loop-invariant within a channel rather than
+// across the whole call, so the loop is nested and the inner one is what the
+// vectorizer sees — unchanged from the tensor-wide kernel, which is the point
+// of splitting it this way rather than gathering a scale per element.
+#define QUANT_PER_CHANNEL(T, SUF, LO, HI)                                 \
+  void simd_quantize_per_channel_##SUF(                                   \
+      T *__restrict d, const float *__restrict a,                         \
+      const float *__restrict scale, const int *__restrict zero_point,    \
+      isize channels, isize inner) {                                      \
+    for (isize c = 0; c < channels; c++) {                                \
+      float s = scale[c];                                                 \
+      float z = (float)zero_point[c];                                     \
+      const float *ac = a + c * inner;                                    \
+      T *dc = d + c * inner;                                              \
+      for (isize i = 0; i < inner; i++) {                                 \
+        float r = round_half_even_f32(ac[i] / s);                         \
+        float q = r + z;                                                  \
+        q = q < (LO) ? (LO) : q;                                          \
+        q = q > (HI) ? (HI) : q;                                          \
+        dc[i] = (T)q;                                                     \
+      }                                                                   \
+    }                                                                     \
+  }
+
+QUANT_PER_CHANNEL(signed char, i8, -128.0f, 127.0f)
+QUANT_PER_CHANNEL(unsigned char, u8, 0.0f, 255.0f)
+
+// The inverse, same layout.
+#define DEQUANT_PER_CHANNEL(T, SUF)                                       \
+  void simd_dequantize_per_channel_##SUF(                                 \
+      float *__restrict d, const T *__restrict a,                         \
+      const float *__restrict scale, const int *__restrict zero_point,    \
+      isize channels, isize inner) {                                      \
+    for (isize c = 0; c < channels; c++) {                                \
+      float s = scale[c];                                                 \
+      int z = zero_point[c];                                              \
+      const T *ac = a + c * inner;                                        \
+      float *dc = d + c * inner;                                          \
+      for (isize i = 0; i < inner; i++) dc[i] = (float)((int)ac[i] - z) * s; \
+    }                                                                     \
+  }
+
+DEQUANT_PER_CHANNEL(signed char, i8)
+DEQUANT_PER_CHANNEL(unsigned char, u8)

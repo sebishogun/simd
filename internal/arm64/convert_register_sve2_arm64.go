@@ -56,6 +56,38 @@ func dequantizeU8SVE2Guarded(dst []float32, a []byte, scale float32, zeroPoint i
 	dequantizeU8SVE2(dst[:n:n], a, scale, zeroPoint)
 }
 
+func quantizePerChannelI8SVE2Guarded(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
+	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
+		ref.QuantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
+		return
+	}
+	quantizePerChannelI8SVE2(dst, a, scale, zeroPoint, channels, inner)
+}
+
+func quantizePerChannelU8SVE2Guarded(dst []byte, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
+	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
+		ref.QuantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
+		return
+	}
+	quantizePerChannelU8SVE2(dst, a, scale, zeroPoint, channels, inner)
+}
+
+func dequantizePerChannelI8SVE2Guarded(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels int, inner int) {
+	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
+		ref.DequantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
+		return
+	}
+	dequantizePerChannelI8SVE2(dst, a, scale, zeroPoint, channels, inner)
+}
+
+func dequantizePerChannelU8SVE2Guarded(dst []float32, a []byte, scale []float32, zeroPoint []int32, channels int, inner int) {
+	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
+		ref.DequantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
+		return
+	}
+	dequantizePerChannelU8SVE2(dst, a, scale, zeroPoint, channels, inner)
+}
+
 func zigzagEncodeI8SVE2Guarded(dst []byte, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -172,6 +204,10 @@ func init() {
 	s.Convert.DequantizeI8 = dequantizeI8SVE2Guarded
 	s.Convert.QuantizeU8 = quantizeU8SVE2Guarded
 	s.Convert.DequantizeU8 = dequantizeU8SVE2Guarded
+	s.Convert.QuantizePerChannelI8 = quantizePerChannelI8SVE2Guarded
+	s.Convert.QuantizePerChannelU8 = quantizePerChannelU8SVE2Guarded
+	s.Convert.DequantizePerChannelI8 = dequantizePerChannelI8SVE2Guarded
+	s.Convert.DequantizePerChannelU8 = dequantizePerChannelU8SVE2Guarded
 	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8SVE2Guarded
 	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8SVE2Guarded
 	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16SVE2Guarded

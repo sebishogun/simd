@@ -336,3 +336,101 @@ void simd_matmul_pk_f64(double *__restrict d, const double *__restrict a,
 
 GEMM_PACKB(f32, float, GEMM_PKW_F32)
 GEMM_PACKB(f64, double, GEMM_PKW_F64)
+
+// ---------- quantized matrix multiply ----------
+//
+// int8 inputs, int32 accumulator. This is the operation quantization exists
+// for: QuantizeInt8 produces int8 tensors and, without this, there is nothing
+// to multiply them with.
+//
+// The accumulator has to be wider than the inputs, and that is not a detail.
+// simd_matmul is generic over one type, so instantiating it at int8 would
+// accumulate in int8 and overflow after the second or third product — two
+// full-scale int8 values already multiply to 16129. The sum over a k of any
+// realistic size needs 32 bits: the worst case is k * 127 * 128, which stays
+// inside int32 up to k = 132097, far past any layer anyone runs.
+//
+// The tile is the same shape as GEMM_TILE and for the same reasons — MR rows
+// held in registers across the whole of k, B loaded as one vector, A
+// broadcast — with one addition: B is loaded as int8 and widened to int32
+// before the multiply. __builtin_convertvector lowers that to one instruction
+// where the target has it (pmovsxbd on x86, sshll+sxtl on AArch64) rather than
+// to a lane-by-lane extract.
+//
+// The multiply is int32 rather than a widening int8 multiply-add such as
+// VPMADDUBSW. That instruction pairs adjacent products and would give a
+// different summation order, and it saturates its intermediate, which changes
+// the answer for inputs a caller is entitled to pass. Rule 2 says integer
+// reductions are bit-identical across tiers; getting there by doing the
+// arithmetic in the width the result is defined in costs some throughput and
+// keeps the promise.
+#define GEMM_VL_I32 GEMM_VL_F32
+
+typedef int i32xG __attribute__((ext_vector_type(GEMM_VL_I32), aligned(1)));
+typedef signed char i8xG __attribute__((ext_vector_type(GEMM_VL_I32), aligned(1)));
+
+#define QGEMM_TILE                                                        \
+  {                                                                       \
+    i32xG acc[GEMM_MR];                                                   \
+    _Pragma("clang loop unroll(full)") for (int r = 0; r < GEMM_MR; r++)   \
+        acc[r] = (i32xG)0;                                                \
+    for (isize p = 0; p < k; p++) {                                       \
+      i8xG b8 = *(const i8xG *)(b + p * n + j0);                          \
+      i32xG bv = __builtin_convertvector(b8, i32xG);                      \
+      _Pragma("clang loop unroll(full)") for (int r = 0; r < GEMM_MR; r++) \
+          acc[r] += (int)a[(i0 + r) * k + p] * bv;                        \
+    }                                                                     \
+    _Pragma("clang loop unroll(full)") for (int r = 0; r < GEMM_MR; r++)   \
+        *(i32xG *)(d + (i0 + r) * n + j0) = acc[r];                       \
+  }
+
+// The edge case, in the same p order as the tile so the two agree exactly.
+#define QGEMM_EDGE(ROW, JLO, JHI)                                         \
+  for (isize p = 0; p < k; p++) {                                         \
+    int s = a[(ROW) * k + p];                                             \
+    const signed char *br = b + p * n;                                    \
+    int *dr = d + (ROW) * n;                                              \
+    for (isize j = (JLO); j < (JHI); j++) dr[j] += s * (int)br[j];        \
+  }
+
+void simd_qmatmul_i8(int *__restrict d, const signed char *__restrict a,
+                     const signed char *__restrict b, isize m, isize k,
+                     isize n) {
+  for (isize i = 0; i < m * n; i++) d[i] = 0;
+  isize i0 = 0;
+  for (; i0 + GEMM_MR <= m; i0 += GEMM_MR) {
+    isize j0 = 0;
+    for (; j0 + GEMM_VL_I32 <= n; j0 += GEMM_VL_I32) QGEMM_TILE
+    for (isize r = 0; r < GEMM_MR; r++) QGEMM_EDGE(i0 + r, j0, n)
+  }
+  for (; i0 < m; i0++) QGEMM_EDGE(i0, 0, n)
+}
+
+// Requantize is the other half of an inference layer: take the int32
+// accumulator back down to int8 with a scale and zero point.
+//
+// It is separate from the multiply rather than fused into it because the scale
+// is per output channel in real use — one per column of the result — and
+// folding a gather into the tile's inner loop would cost more than the extra
+// pass. Keeping them apart also means a caller who wants the int32 result, for
+// bias addition or a residual connection, does not pay for a conversion it
+// then has to undo.
+//
+// Rounding is half to even, matching QuantizeInt8 and every runtime this
+// interoperates with, and it is done in float because the int32 range does not
+// allow the (|x| + 2^23) trick the float path uses.
+void simd_requantize_i8(signed char *__restrict d, const int *__restrict a,
+                        float scale, int zero_point, isize n) {
+  for (isize i = 0; i < n; i++) {
+    float x = (float)a[i] * scale;
+    float t = x < 0.0f ? -x : x;
+    const float m = 8388608.0f; /* 2^23 */
+    float r = (t + m) - m;
+    r = __builtin_copysignf(r, x);
+    r = t >= m ? x : r;
+    float z = r + (float)zero_point;
+    z = z < -128.0f ? -128.0f : z;
+    z = z > 127.0f ? 127.0f : z;
+    d[i] = (signed char)z;
+  }
+}

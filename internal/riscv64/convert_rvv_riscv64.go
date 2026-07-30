@@ -28,6 +28,18 @@ func quantizeU8RVV(dst []byte, a []float32, scale float32, zeroPoint int32)
 func dequantizeU8RVV(dst []float32, a []byte, scale float32, zeroPoint int32)
 
 //go:noescape
+func quantizePerChannelI8RVV(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels int, inner int)
+
+//go:noescape
+func quantizePerChannelU8RVV(dst []byte, a []float32, scale []float32, zeroPoint []int32, channels int, inner int)
+
+//go:noescape
+func dequantizePerChannelI8RVV(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels int, inner int)
+
+//go:noescape
+func dequantizePerChannelU8RVV(dst []float32, a []byte, scale []float32, zeroPoint []int32, channels int, inner int)
+
+//go:noescape
 func zigzagEncodeI8RVV(dst []byte, a []int8)
 
 //go:noescape
