@@ -40,6 +40,23 @@ func Equal[S, T Text](a S, b T) bool { return active.Bytes.Equal(textBytes(a), t
 // It matches bytes.Compare.
 func Compare[S, T Text](a S, b T) int { return active.Bytes.Compare(textBytes(a), textBytes(b)) }
 
+// CommonPrefixLen returns how many leading bytes a and b share, at most the
+// length of the shorter.
+//
+// This is Compare without the ordering, and it is the operation suffix-array
+// construction, trie descent and the LCP array spend their time in. A
+// byte-at-a-time loop pays a compare and a branch for every byte the two share;
+// this reduces sixty-four at a time to a single "did anything differ", which is
+// the case worth vectorizing precisely because a long shared prefix is what
+// these callers usually have.
+//
+// Bytes, not runes: the answer may land in the middle of a UTF-8 sequence. A
+// caller that needs a rune boundary should back up to one, which is a
+// constant-time step from any byte index.
+func CommonPrefixLen[S, T Text](a S, b T) int {
+	return active.Bytes.CommonPrefix(textBytes(a), textBytes(b))
+}
+
 // PopCount returns the total number of set bits across every byte of b.
 func PopCount[S Text](s S) int { return active.Bytes.PopCount(textBytes(s)) }
 

@@ -457,6 +457,34 @@ TEXT ·quantizeU8NEON(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0xffffff0d
 	WORD $0xffffff0e
 	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420
@@ -617,6 +645,34 @@ TEXT ·dequantizeU8NEON(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0xffffff0d
 	WORD $0xffffff0e
 	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420
@@ -863,7 +919,7 @@ TEXT ·quantizePerChannelU8NEON(SB), NOSPLIT|NOFRAME, $0-112
 	WORD $0xd37ef4aa
 	WORD $0x4e040d86
 	WORD $0x1e270190
-	WORD $0x3dc01567
+	WORD $0x3dc03167
 	WORD $0xaa1f03e8
 	WORD $0x927e04a9
 	WORD $0x927ce8ab
@@ -1023,6 +1079,34 @@ TEXT ·quantizePerChannelU8NEON(SB), NOSPLIT|NOFRAME, $0-112
 	WORD $0xffffff0d
 	WORD $0xffffff0e
 	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420
@@ -1187,12 +1271,12 @@ TEXT ·dequantizePerChannelU8NEON(SB), NOSPLIT|NOFRAME, $0-112
 	WORD $0x10000b0a
 	WORD $0x10000aeb
 	WORD $0x10000acc
-	WORD $0x3dc01940
+	WORD $0x3dc03540
 	WORD $0x10000a8a
 	WORD $0xd37ef4a9
-	WORD $0x3dc01d61
-	WORD $0x3dc02182
-	WORD $0x3dc02543
+	WORD $0x3dc03961
+	WORD $0x3dc03d82
+	WORD $0x3dc04143
 	WORD $0xaa1f03e8
 	WORD $0x927e04aa
 	WORD $0x927ce8ab
@@ -1292,6 +1376,34 @@ TEXT ·dequantizePerChannelU8NEON(SB), NOSPLIT|NOFRAME, $0-112
 	WORD $0xffffff0d
 	WORD $0xffffff0e
 	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420
@@ -1779,6 +1891,956 @@ TEXT ·zigzagDecodeI64NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0xd65f03c0
 	RET
 
+// func varintLenU32NEON(dst []int32, a []uint32)
+TEXT ·varintLenU32NEON(SB), NOSPLIT|NOFRAME, $0-48
+	MOVD dst_base+0(FP), R0
+	MOVD a_base+24(FP), R1
+	MOVD dst_len+8(FP), R2
+	WORD $0xf100045f
+	WORD $0x5400076b
+	WORD $0xf100205f
+	WORD $0x54000062
+	WORD $0xaa1f03e8
+	WORD $0x14000026
+	WORD $0x4f0307e0
+	WORD $0x4f000441
+	WORD $0x927dec48
+	WORD $0x4f01c7e2
+	WORD $0x4f00d7e3
+	WORD $0x91004009
+	WORD $0x6f076604
+	WORD $0x9100402a
+	WORD $0x927dec4b
+	WORD $0xad7f9945
+	WORD $0xf100216b
+	WORD $0x9100814a
+	WORD $0x6ea034a7
+	WORD $0x6ea034d0
+	WORD $0x4e211cf1
+	WORD $0x6e2058e7
+	WORD $0x4e211e12
+	WORD $0x6e205a10
+	WORD $0x6ea78627
+	WORD $0x6ea234b1
+	WORD $0x6eb08650
+	WORD $0x6ea234d2
+	WORD $0x6eb184e7
+	WORD $0x6ea334b1
+	WORD $0x6ea434a5
+	WORD $0x6eb28610
+	WORD $0x6ea334d2
+	WORD $0x6ea434c6
+	WORD $0x6eb184e7
+	WORD $0x6eb28610
+	WORD $0x6ea584e5
+	WORD $0x6ea68606
+	WORD $0xad3f9925
+	WORD $0x91008129
+	WORD $0x54fffce1
+	WORD $0xeb08005f
+	WORD $0x54000240
+	WORD $0xd37ef50a
+	WORD $0xcb080048
+	WORD $0x5280002b
+	WORD $0x8b0a0009
+	WORD $0x8b0a002a
+	WORD $0xb840454c
+	WORD $0x7101fd9f
+	WORD $0x1a8b956d
+	WORD $0x7212459f
+	WORD $0x1a8d05ad
+	WORD $0x720b299f
+	WORD $0x1a8d05ad
+	WORD $0x72040d9f
+	WORD $0x1a8d05ac
+	WORD $0xf1000508
+	WORD $0xb800452c
+	WORD $0x54fffea1
+	WORD $0xd65f03c0
+	RET
+
+// func varintLenU64NEON(dst []int32, a []uint64)
+TEXT ·varintLenU64NEON(SB), NOSPLIT|NOFRAME, $0-48
+	MOVD dst_base+0(FP), R0
+	MOVD a_base+24(FP), R1
+	MOVD dst_len+8(FP), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xf100045f
+	WORD $0x54000c2b
+	WORD $0xf100105f
+	WORD $0x54000062
+	WORD $0xaa1f03e8
+	WORD $0x1400003f
+	WORD $0x52800fe8
+	WORD $0x5287ffe9
+	WORD $0x12bffc0a
+	WORD $0x4e080d01
+	WORD $0x12be0008
+	WORD $0x4f000440
+	WORD $0x4e080d22
+	WORD $0x4e080d43
+	WORD $0x4e080d04
+	WORD $0xb2408be8
+	WORD $0xb240a7e9
+	WORD $0x92ffffca
+	WORD $0x6f03e7e5
+	WORD $0x4e080d06
+	WORD $0x4e080d27
+	WORD $0x4e080d50
+	WORD $0x927ef048
+	WORD $0xaa0103e9
+	WORD $0xaa0003ea
+	WORD $0x927ef04b
+	WORD $0xacc14931
+	WORD $0xf100116b
+	WORD $0x6ee13653
+	WORD $0x6ee13634
+	WORD $0x6ee23635
+	WORD $0x6ee33637
+	WORD $0x4e931a93
+	WORD $0x6ee23654
+	WORD $0x4e941ab4
+	WORD $0x6ee33655
+	WORD $0x4e201e76
+	WORD $0x6e205a73
+	WORD $0x4e951af5
+	WORD $0x6ee43637
+	WORD $0x6eb386d3
+	WORD $0x6ee43656
+	WORD $0x6eb48673
+	WORD $0x4e961af4
+	WORD $0x6ee63656
+	WORD $0x6ee63637
+	WORD $0x6eb58673
+	WORD $0x4e961af5
+	WORD $0x6ee73656
+	WORD $0x6ee73637
+	WORD $0x6eb48673
+	WORD $0x4e961af4
+	WORD $0x6ef03656
+	WORD $0x6ef03637
+	WORD $0x6eb58673
+	WORD $0x4e961af5
+	WORD $0x6ee53656
+	WORD $0x6ee53637
+	WORD $0x4e925a31
+	WORD $0x6eb48673
+	WORD $0x4e961af4
+	WORD $0x6eb58673
+	WORD $0x6eb48672
+	WORD $0x6f211632
+	WORD $0x3c810552
+	WORD $0x54fffb21
+	WORD $0xeb08005f
+	WORD $0x540003e0
+	WORD $0x1000040b
+	WORD $0x100003ec
+	WORD $0x8b080809
+	WORD $0x8b080c2a
+	WORD $0x3dc01560
+	WORD $0x3dc01981
+	WORD $0xcb080048
+	WORD $0x5280002b
+	WORD $0xf840854c
+	WORD $0x4e080d82
+	WORD $0xf101fd9f
+	WORD $0x1a8b956d
+	WORD $0xf256559f
+	WORD $0x1a9f07ee
+	WORD $0xf2481d9f
+	WORD $0x6ee13443
+	WORD $0x6ee03442
+	WORD $0x1a9f07ef
+	WORD $0xf24f399f
+	WORD $0x8b4cfdac
+	WORD $0x1a8f05ef
+	WORD $0xf1000508
+	WORD $0x4e831842
+	WORD $0x0b0c01ec
+	WORD $0x4eb1b842
+	WORD $0x1e26004d
+	WORD $0x4b0d01cd
+	WORD $0x0b0c01ac
+	WORD $0xb800452c
+	WORD $0x54fffd61
+	WORD $0xd65f03c0
+	WORD $0x00000000
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	RET
+
+// func varintSizeU32NEON(a []uint32) int
+TEXT ·varintSizeU32NEON(SB), NOSPLIT|NOFRAME, $0-32
+	MOVD $ret+24(FP), R0
+	MOVD a_base+0(FP), R1
+	MOVD a_len+8(FP), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x6dbf23e9
+	WORD $0xf100205f
+	WORD $0x540000ca
+	WORD $0xaa1f03ea
+	WORD $0xaa1f03e9
+	WORD $0xeb1f004b
+	WORD $0x5400072c
+	WORD $0x140000a7
+	WORD $0x6f00e400
+	WORD $0x4f0307e1
+	WORD $0x10001548
+	WORD $0x0f00e442
+	WORD $0x4f01c7e3
+	WORD $0x100014e9
+	WORD $0x4f00d7e4
+	WORD $0x6f00e405
+	WORD $0x3dc01d11
+	WORD $0x6f00e406
+	WORD $0x6f00e407
+	WORD $0x3dc02132
+	WORD $0x6f076610
+	WORD $0x52800108
+	WORD $0xaa0103e9
+	WORD $0xacc15133
+	WORD $0x91002108
+	WORD $0xeb02011f
+	WORD $0x6ea13695
+	WORD $0x6ea13676
+	WORD $0x6ea33677
+	WORD $0x6ea43698
+	WORD $0x6ea43679
+	WORD $0x6eb03673
+	WORD $0x4e551ad5
+	WORD $0x6ea33696
+	WORD $0x6eb03694
+	WORD $0x4e581b38
+	WORD $0x4e561af6
+	WORD $0x4e541a73
+	WORD $0x0e212ab5
+	WORD $0x0e212b14
+	WORD $0x0e212ad6
+	WORD $0x0e212a73
+	WORD $0x0e221eb7
+	WORD $0x2e205ab5
+	WORD $0x2e3586f5
+	WORD $0x2e3686b5
+	WORD $0x2e3486b4
+	WORD $0x2e338693
+	WORD $0x4e110274
+	WORD $0x4e120273
+	WORD $0x6eb410e7
+	WORD $0x6eb31000
+	WORD $0x2eb410c6
+	WORD $0x2eb310a5
+	WORD $0x54fffc2d
+	WORD $0x4ee684a1
+	WORD $0x4ee78400
+	WORD $0x927dec49
+	WORD $0x4ee08420
+	WORD $0x5ef1b800
+	WORD $0x9e66000a
+	WORD $0xeb09004b
+	WORD $0x54000e0d
+	WORD $0xf100217f
+	WORD $0x54000be3
+	WORD $0x6f00e402
+	WORD $0x5280004c
+	WORD $0x6f00e405
+	WORD $0x4f0307e0
+	WORD $0x4e080d81
+	WORD $0x5280002c
+	WORD $0x4f01c7e3
+	WORD $0x4f00d7e4
+	WORD $0x92400848
+	WORD $0x6f00e410
+	WORD $0x6f00e411
+	WORD $0xcb08016b
+	WORD $0x4e081d42
+	WORD $0x8b09082a
+	WORD $0x4e080d86
+	WORD $0x6f076607
+	WORD $0x8b08012c
+	WORD $0x8b0b0129
+	WORD $0x9100414a
+	WORD $0xcb02018b
+	WORD $0xad7fc953
+	WORD $0xb100216b
+	WORD $0x9100814a
+	WORD $0x6ea03674
+	WORD $0x6ea03655
+	WORD $0x6ea33678
+	WORD $0x6ea33659
+	WORD $0x6ea4367e
+	WORD $0x6ea4365f
+	WORD $0x6ea73673
+	WORD $0x6ea73652
+	WORD $0x0f20a696
+	WORD $0x4f20a694
+	WORD $0x0f20a6b7
+	WORD $0x4f20a6b5
+	WORD $0x6f20a708
+	WORD $0x2f20a718
+	WORD $0x2f20a649
+	WORD $0x6f20a652
+	WORD $0x4e211eda
+	WORD $0x6e205ad6
+	WORD $0x4e211e9b
+	WORD $0x6e205a94
+	WORD $0x4e211efc
+	WORD $0x6e205af7
+	WORD $0x4e211ebd
+	WORD $0x6e205ab5
+	WORD $0x4e261f18
+	WORD $0x6ef68756
+	WORD $0x6f20a73a
+	WORD $0x2f20a739
+	WORD $0x6ef48774
+	WORD $0x6ef78797
+	WORD $0x4e261d1b
+	WORD $0x6ef587b5
+	WORD $0x6f20a7dc
+	WORD $0x2f20a7dd
+	WORD $0x6f20a7fe
+	WORD $0x4e261f5a
+	WORD $0x4e261f39
+	WORD $0x2f20a7ff
+	WORD $0x6f20a668
+	WORD $0x2f20a673
+	WORD $0x4e261f9c
+	WORD $0x4e261fbd
+	WORD $0x4ef88442
+	WORD $0x4e261fde
+	WORD $0x4efb8610
+	WORD $0x4ef984a5
+	WORD $0x4e261fff
+	WORD $0x4e261d18
+	WORD $0x4efa8631
+	WORD $0x4e261e73
+	WORD $0x4e261d39
+	WORD $0x4e261e52
+	WORD $0x4ef48610
+	WORD $0x4ef68442
+	WORD $0x4ef784a5
+	WORD $0x4ef58631
+	WORD $0x4ef88794
+	WORD $0x4ef387b3
+	WORD $0x4ef287d2
+	WORD $0x4ef987f5
+	WORD $0x4ef48610
+	WORD $0x4ef38442
+	WORD $0x4ef28631
+	WORD $0x4ef584a5
+	WORD $0x54fff7a1
+	WORD $0x4ee284a0
+	WORD $0x4ef08621
+	WORD $0x4ee18400
+	WORD $0x5ef1b800
+	WORD $0x9e66000a
+	WORD $0xb4000208
+	WORD $0x8b090828
+	WORD $0xcb090049
+	WORD $0x5280002b
+	WORD $0xb840450c
+	WORD $0x7101fd9f
+	WORD $0x9a8b956d
+	WORD $0x7212459f
+	WORD $0x9a8a054a
+	WORD $0x720b299f
+	WORD $0x8b0d014a
+	WORD $0x9a8a054a
+	WORD $0x72040d9f
+	WORD $0x9a8a054a
+	WORD $0xf1000529
+	WORD $0x54fffea1
+	WORD $0xf900000a
+	WORD $0x6cc123e9
+	WORD $0xd65f03c0
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	RET
+
+// func varintSizeU64NEON(a []uint64) int
+TEXT ·varintSizeU64NEON(SB), NOSPLIT|NOFRAME, $0-32
+	MOVD $ret+24(FP), R0
+	MOVD a_base+0(FP), R1
+	MOVD a_len+8(FP), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x6dbc3bef
+	WORD $0xf100205f
+	WORD $0x6d0133ed
+	WORD $0x6d022beb
+	WORD $0x6d0323e9
+	WORD $0x540000ca
+	WORD $0xaa1f03e8
+	WORD $0xaa1f03e9
+	WORD $0xeb1f004b
+	WORD $0x5400124c
+	WORD $0x140000fd
+	WORD $0x52800fe8
+	WORD $0x52800049
+	WORD $0x6f00e400
+	WORD $0x4e080d01
+	WORD $0x12bffc08
+	WORD $0x4e080d22
+	WORD $0x12be0009
+	WORD $0x4e080d04
+	WORD $0xb2408be8
+	WORD $0x5287ffea
+	WORD $0x4e080d25
+	WORD $0x4e080d06
+	WORD $0xb240a7e8
+	WORD $0x92ffffc9
+	WORD $0x6f03e7f1
+	WORD $0x6f00e412
+	WORD $0x6f00e413
+	WORD $0x6f00e414
+	WORD $0x4e080d43
+	WORD $0x4e080d07
+	WORD $0x4e080d30
+	WORD $0x10001e08
+	WORD $0x10001de9
+	WORD $0x10001dca
+	WORD $0x3dc02515
+	WORD $0x3dc02936
+	WORD $0x3dc02d57
+	WORD $0x9100e028
+	WORD $0x52800109
+	WORD $0x5280002a
+	WORD $0x3cdc8118
+	WORD $0x3cdd8119
+	WORD $0x91002129
+	WORD $0x3cde811a
+	WORD $0xa97fb10b
+	WORD $0x6ee1371b
+	WORD $0x6ee1373c
+	WORD $0x6ee3371d
+	WORD $0x6f41071f
+	WORD $0x6ee3373e
+	WORD $0x6f410729
+	WORD $0x6ee1374a
+	WORD $0x4e080d6c
+	WORD $0x6ee3374b
+	WORD $0x4e221f68
+	WORD $0x6e205b7b
+	WORD $0x4e221f8d
+	WORD $0x6e205b9c
+	WORD $0x6efd87fd
+	WORD $0xf101fd7f
+	WORD $0x4e080d9f
+	WORD $0x6f41074e
+	WORD $0x9a8a954f
+	WORD $0x6efb851b
+	WORD $0x6efe853e
+	WORD $0xf2481d7f
+	WORD $0x4e221d48
+	WORD $0x6e205949
+	WORD $0x8b4bfdeb
+	WORD $0x6efc85bc
+	WORD $0x6ef7358a
+	WORD $0x91010108
+	WORD $0x6ef6358d
+	WORD $0x4efb87bb
+	WORD $0x6ef5359d
+	WORD $0x6ef737ec
+	WORD $0x6ef637ef
+	WORD $0x6ef537ff
+	WORD $0x4efc87dc
+	WORD $0x6ee9851e
+	WORD $0x6eeb85c8
+	WORD $0x4e8a19a9
+	WORD $0x0ea12bbd
+	WORD $0x6ee4372a
+	WORD $0x4e8c19eb
+	WORD $0x0ea12bff
+	WORD $0x6ee4370c
+	WORD $0x4efe851e
+	WORD $0x6ee43748
+	WORD $0x6eea879c
+	WORD $0x6ee5372a
+	WORD $0x6eec877b
+	WORD $0x4ebd853d
+	WORD $0x6ee53709
+	WORD $0x6ee887de
+	WORD $0x4ebf857f
+	WORD $0x6ee53748
+	WORD $0x6eea879c
+	WORD $0x6ee6372a
+	WORD $0x6ee9877b
+	WORD $0x6ee63709
+	WORD $0x4eb1bbbd
+	WORD $0x6ee887de
+	WORD $0x6ee63748
+	WORD $0x4eb1bbff
+	WORD $0x6eea879c
+	WORD $0x6ee7372a
+	WORD $0x1e2603ad
+	WORD $0x6ee9877b
+	WORD $0x6ee7371d
+	WORD $0x1e2603ee
+	WORD $0x6ee887de
+	WORD $0x6ee7375f
+	WORD $0x6eea879c
+	WORD $0x6ef03728
+	WORD $0x6ef13739
+	WORD $0x4b0d03ed
+	WORD $0x6efd877b
+	WORD $0x9a8d05ad
+	WORD $0xf101fd9f
+	WORD $0x4b0e03ee
+	WORD $0x9a8a954f
+	WORD $0x8b0b01ab
+	WORD $0xf2481d9f
+	WORD $0x8b4cfdec
+	WORD $0x9a8e05cd
+	WORD $0xeb02013f
+	WORD $0x6eff87dd
+	WORD $0x6ef0375e
+	WORD $0x6ee8879c
+	WORD $0x8b0c01ac
+	WORD $0x6ef1375a
+	WORD $0x6efe87bd
+	WORD $0x6ef0371e
+	WORD $0x6ef13718
+	WORD $0x6ef98799
+	WORD $0x6efe877b
+	WORD $0x9e67017e
+	WORD $0x6efa87ba
+	WORD $0x4ee08720
+	WORD $0x4e181d9e
+	WORD $0x6ef88778
+	WORD $0x4ef38753
+	WORD $0x4ef28712
+	WORD $0x4ef487d4
+	WORD $0x54fff2ed
+	WORD $0x4ef38641
+	WORD $0x4ef48400
+	WORD $0x927dec49
+	WORD $0x4ee08420
+	WORD $0x5ef1b800
+	WORD $0x9e660008
+	WORD $0xeb09004b
+	WORD $0x54000dad
+	WORD $0xf100117f
+	WORD $0x540009c3
+	WORD $0x6f00e400
+	WORD $0x5280004c
+	WORD $0x52800fea
+	WORD $0x4e080d82
+	WORD $0x12bffc0c
+	WORD $0x4e080d41
+	WORD $0x4e080d84
+	WORD $0x12be000c
+	WORD $0x5287ffea
+	WORD $0x4e080d85
+	WORD $0xb2408bec
+	WORD $0x6f00e406
+	WORD $0x4e081d00
+	WORD $0x4e080d87
+	WORD $0xb240a7e8
+	WORD $0x92ffffcc
+	WORD $0x6f03e7f0
+	WORD $0x4e080d43
+	WORD $0x9240044a
+	WORD $0x4e080d11
+	WORD $0x8b090c28
+	WORD $0x4e080d92
+	WORD $0xcb0a016b
+	WORD $0x8b0a012c
+	WORD $0x8b0b0129
+	WORD $0x91004108
+	WORD $0xcb02018b
+	WORD $0xad7fd113
+	WORD $0xb100116b
+	WORD $0x91008108
+	WORD $0x6ee13675
+	WORD $0x6ee13696
+	WORD $0x6ee33677
+	WORD $0x6ee33698
+	WORD $0x6f410679
+	WORD $0x6f41069b
+	WORD $0x4e221eba
+	WORD $0x6e205ab5
+	WORD $0x4e221edc
+	WORD $0x6e205ad6
+	WORD $0x6ef78737
+	WORD $0x6ef88778
+	WORD $0x6ee43679
+	WORD $0x6ef58755
+	WORD $0x6ee4369a
+	WORD $0x6ef68796
+	WORD $0x4ef586f5
+	WORD $0x6ee53677
+	WORD $0x4ef68716
+	WORD $0x6ee53698
+	WORD $0x6ef986b5
+	WORD $0x6ee73679
+	WORD $0x6efa86d6
+	WORD $0x6ee7369a
+	WORD $0x6ef786b5
+	WORD $0x6ef13677
+	WORD $0x6ef886d6
+	WORD $0x6ef13698
+	WORD $0x6ef986b5
+	WORD $0x6ef23679
+	WORD $0x6ef03673
+	WORD $0x6efa86d6
+	WORD $0x6ef2369a
+	WORD $0x6ef03694
+	WORD $0x6ef786b5
+	WORD $0x6ef886d6
+	WORD $0x6ef986b5
+	WORD $0x6efa86d6
+	WORD $0x6ef386b3
+	WORD $0x6ef486d4
+	WORD $0x4ee08660
+	WORD $0x4ee68686
+	WORD $0x54fffa61
+	WORD $0x4ee084c0
+	WORD $0x5ef1b800
+	WORD $0x9e660008
+	WORD $0xb40003ca
+	WORD $0x100004cb
+	WORD $0x100004ac
+	WORD $0x1000048d
+	WORD $0x8b090c2a
+	WORD $0x3dc02560
+	WORD $0x3dc02981
+	WORD $0x3dc02da2
+	WORD $0xcb090049
+	WORD $0x5280002b
+	WORD $0xf840854c
+	WORD $0x4e080d83
+	WORD $0xf101fd9f
+	WORD $0x9a8b956e
+	WORD $0xf2481d9f
+	WORD $0x8b0e0108
+	WORD $0x6ee23464
+	WORD $0x6ee13465
+	WORD $0x6ee03463
+	WORD $0x4e8418a4
+	WORD $0x0ea12863
+	WORD $0x4ea38483
+	WORD $0x4eb1b863
+	WORD $0x1e26006d
+	WORD $0x4b0d03ed
+	WORD $0x9a8d05ad
+	WORD $0xf1000529
+	WORD $0x8b0801a8
+	WORD $0x8b4cfd08
+	WORD $0x54fffda1
+	WORD $0x6d4323e9
+	WORD $0xf9000008
+	WORD $0x6d422beb
+	WORD $0x6d4133ed
+	WORD $0x6cc43bef
+	WORD $0xd65f03c0
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	RET
+
 // func f8e4m3ToF32NEON(dst []float32, a []byte)
 TEXT ·f8e4m3ToF32NEON(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_base+0(FP), R0
@@ -1814,11 +2876,11 @@ TEXT ·f8e4m3ToF32NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x927dec48
 	WORD $0x4f000445
 	WORD $0x4f034406
-	WORD $0x3dc02d31
+	WORD $0x3dc04931
 	WORD $0x6ea0f8e7
 	WORD $0x4e040d70
 	WORD $0x8b0c080b
-	WORD $0x3dc02952
+	WORD $0x3dc04552
 	WORD $0xcb080189
 	WORD $0x8b0c002a
 	WORD $0xfc408553
@@ -1913,11 +2975,11 @@ TEXT ·f8e4m3ToF32NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x1000182c
 	WORD $0x1000180d
 	WORD $0x4e040d71
-	WORD $0x3dc02940
+	WORD $0x3dc04540
 	WORD $0x6ea0fa10
-	WORD $0x3dc02d32
-	WORD $0x3dc03193
-	WORD $0x3dc035b4
+	WORD $0x3dc04932
+	WORD $0x3dc04d93
+	WORD $0x3dc051b4
 	WORD $0x927ce848
 	WORD $0xaa0103eb
 	WORD $0xaa0003ec
@@ -2123,6 +3185,34 @@ TEXT ·f8e4m3ToF32NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0xffffff0d
 	WORD $0xffffff0e
 	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420
@@ -2212,8 +3302,8 @@ TEXT ·f8e5m2ToF32NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x8b0c080b
 	WORD $0x6ea0f8a5
 	WORD $0x4f016706
-	WORD $0x3dc04527
-	WORD $0x3dc04150
+	WORD $0x3dc06127
+	WORD $0x3dc05d50
 	WORD $0xcb080189
 	WORD $0x8b0c002a
 	WORD $0xfc408554
@@ -2293,7 +3383,7 @@ TEXT ·f8e5m2ToF32NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x6f03d7e7
 	WORD $0x10001a4b
 	WORD $0x4f0007e5
-	WORD $0x3dc03960
+	WORD $0x3dc05560
 	WORD $0x4f000426
 	WORD $0x4f024411
 	WORD $0x4f016712
@@ -2301,9 +3391,9 @@ TEXT ·f8e5m2ToF32NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x1000196b
 	WORD $0x6ea0f8e7
 	WORD $0x3d8007e0
-	WORD $0x3dc03d60
-	WORD $0x3dc04153
-	WORD $0x3dc04534
+	WORD $0x3dc05960
+	WORD $0x3dc05d53
+	WORD $0x3dc06134
 	WORD $0x927ce848
 	WORD $0xaa0103eb
 	WORD $0xaa0003ec
@@ -2521,6 +3611,34 @@ TEXT ·f8e5m2ToF32NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0xffffff0d
 	WORD $0xffffff0e
 	WORD $0xffffff0f
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffffff
+	WORD $0x000003ff
+	WORD $0xffffffff
+	WORD $0x0001ffff
+	WORD $0x00003fff
+	WORD $0x00000000
+	WORD $0x001fffff
+	WORD $0x00000000
+	WORD $0x0fffffff
+	WORD $0x00000000
+	WORD $0xffffffff
+	WORD $0x00000007
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420

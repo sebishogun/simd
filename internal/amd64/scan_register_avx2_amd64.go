@@ -20,6 +20,22 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func rollingMinFloat32AVX2Guarded(dst []float32, a []float32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinFloat(dst, a, window)
+		return
+	}
+	rollingMinFloat32AVX2(dst, a, window)
+}
+
+func rollingMaxFloat32AVX2Guarded(dst []float32, a []float32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxFloat(dst, a, window)
+		return
+	}
+	rollingMaxFloat32AVX2(dst, a, window)
+}
+
 func fastCumProdFloat32AVX2Guarded(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -38,6 +54,22 @@ func fastCumSumFloat32AVX2Guarded(dst []float32, a []float32) {
 	fastCumSumFloat32AVX2(dst[:n:n], a)
 }
 
+func rollingMinFloat64AVX2Guarded(dst []float64, a []float64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinFloat(dst, a, window)
+		return
+	}
+	rollingMinFloat64AVX2(dst, a, window)
+}
+
+func rollingMaxFloat64AVX2Guarded(dst []float64, a []float64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxFloat(dst, a, window)
+		return
+	}
+	rollingMaxFloat64AVX2(dst, a, window)
+}
+
 func fastCumProdFloat64AVX2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -45,6 +77,22 @@ func fastCumProdFloat64AVX2Guarded(dst []float64, a []float64) {
 		return
 	}
 	fastCumProdFloat64AVX2(dst[:n:n], a)
+}
+
+func rollingMinInt32AVX2Guarded(dst []int32, a []int32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinInt(dst, a, window)
+		return
+	}
+	rollingMinInt32AVX2(dst, a, window)
+}
+
+func rollingMaxInt32AVX2Guarded(dst []int32, a []int32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxInt(dst, a, window)
+		return
+	}
+	rollingMaxInt32AVX2(dst, a, window)
 }
 
 func cumMinInt32AVX2Guarded(dst []int32, a []int32) {
@@ -74,6 +122,22 @@ func cumProdInt32AVX2Guarded(dst []int32, a []int32) {
 	cumProdInt32AVX2(dst[:n:n], a)
 }
 
+func rollingMinInt64AVX2Guarded(dst []int64, a []int64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinInt(dst, a, window)
+		return
+	}
+	rollingMinInt64AVX2(dst, a, window)
+}
+
+func rollingMaxInt64AVX2Guarded(dst []int64, a []int64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxInt(dst, a, window)
+		return
+	}
+	rollingMaxInt64AVX2(dst, a, window)
+}
+
 func cumMinInt64AVX2Guarded(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -96,12 +160,20 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("avx2")
+	s.F32.RollingMin = rollingMinFloat32AVX2Guarded
+	s.F32.RollingMax = rollingMaxFloat32AVX2Guarded
 	s.F32.FastCumProd = fastCumProdFloat32AVX2Guarded
 	s.F32.FastCumSum = fastCumSumFloat32AVX2Guarded
+	s.F64.RollingMin = rollingMinFloat64AVX2Guarded
+	s.F64.RollingMax = rollingMaxFloat64AVX2Guarded
 	s.F64.FastCumProd = fastCumProdFloat64AVX2Guarded
+	s.I32.RollingMin = rollingMinInt32AVX2Guarded
+	s.I32.RollingMax = rollingMaxInt32AVX2Guarded
 	s.I32.CumMin = cumMinInt32AVX2Guarded
 	s.I32.CumMax = cumMaxInt32AVX2Guarded
 	s.I32.CumProd = cumProdInt32AVX2Guarded
+	s.I64.RollingMin = rollingMinInt64AVX2Guarded
+	s.I64.RollingMax = rollingMaxInt64AVX2Guarded
 	s.I64.CumMin = cumMinInt64AVX2Guarded
 	s.I64.CumMax = cumMaxInt64AVX2Guarded
 }

@@ -88,6 +88,9 @@ func fillBytesRVV(dst []byte, v byte)
 func compareBytesRVV(a []byte, b []byte) int
 
 //go:noescape
+func commonPrefixRVV(a []byte, b []byte) int
+
+//go:noescape
 func equalFoldASCIIRVV(a []byte, b []byte) bool
 
 //go:noescape

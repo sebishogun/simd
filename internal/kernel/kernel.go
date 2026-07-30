@@ -211,6 +211,17 @@ type Ops[T any] struct {
 	// len(a) worth of useful output.
 	CumSum, CumProd, CumMin, CumMax, Diff func(dst, a []T)
 
+	// Sliding window. dst[i] is the extreme of a[i : i+window], so there are
+	// len(a)-window+1 outputs — a third length, neither len(dst) nor len(a),
+	// which is why the kernel declares two and the guard clamps neither.
+	//
+	// The window extremes use the same IEEE 754-2019 minimum and maximum as
+	// Minimum and Maximum: NaN propagates and -0 orders below +0. That rules
+	// out the monotonic-deque formulation, which is O(n) instead of O(n·w) but
+	// has no defined behaviour when neither operand orders. See the note on
+	// rollingMinFloat in internal/ref.
+	RollingMin, RollingMax func(dst, a []T, window int)
+
 	// FastCumSum and FastCumProd are the log-shift prefix scans, and they are
 	// governed by rule 5 with one refinement worth stating: what they drop is
 	// agreement with a naive serial loop, not accuracy. Measured against a
@@ -401,6 +412,11 @@ type Bytes struct {
 	Equal                    func(a, b []byte) bool
 	Compare                  func(a, b []byte) int
 	PopCount                 func(b []byte) int
+
+	// CommonPrefix is how many leading bytes the two share, bounded by the
+	// shorter. It is Compare's blocked scan without the ordering, and it is
+	// the inner loop of suffix-array construction and trie descent.
+	CommonPrefix func(a, b []byte) int
 
 	// Hamming is the number of differing bits: sum of popcount(a^b) over the
 	// shorter of the two. Exact and bit-identical under rule 1 without the
@@ -643,6 +659,20 @@ type Convert struct {
 	ZigzagDecodeI32 func(dst []int32, a []uint32)
 	ZigzagEncodeI64 func(dst []uint64, a []int64)
 	ZigzagDecodeI64 func(dst []int64, a []uint64)
+
+	// VarintLen is the LEB128 width of each value, 1 to 5 for uint32 and 1 to
+	// 10 for uint64. VarintSize is their total.
+	//
+	// Only the widths. Emitting the bytes is serial — where value i lands
+	// depends on the width of every value before it, which is the loop-carried
+	// address dependency compress.c describes and no rewriting removes. What
+	// these buy an encoder is the exact output size before it writes anything,
+	// so it allocates once, and the per-value widths whose prefix sum gives
+	// every value its offset.
+	VarintLenU32  func(dst []int32, a []uint32)
+	VarintLenU64  func(dst []int32, a []uint64)
+	VarintSizeU32 func(a []uint32) int
+	VarintSizeU64 func(a []uint64) int
 }
 
 // Complex is the kernel group for complex numbers, parameterised by the

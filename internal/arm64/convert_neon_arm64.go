@@ -64,6 +64,18 @@ func zigzagEncodeI64NEON(dst []uint64, a []int64)
 func zigzagDecodeI64NEON(dst []int64, a []uint64)
 
 //go:noescape
+func varintLenU32NEON(dst []int32, a []uint32)
+
+//go:noescape
+func varintLenU64NEON(dst []int32, a []uint64)
+
+//go:noescape
+func varintSizeU32NEON(a []uint32) int
+
+//go:noescape
+func varintSizeU64NEON(a []uint64) int
+
+//go:noescape
 func f8e4m3ToF32NEON(dst []float32, a []byte)
 
 //go:noescape

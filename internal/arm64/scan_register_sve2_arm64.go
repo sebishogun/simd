@@ -20,6 +20,22 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
+func rollingMinFloat32SVE2Guarded(dst []float32, a []float32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinFloat(dst, a, window)
+		return
+	}
+	rollingMinFloat32SVE2(dst, a, window)
+}
+
+func rollingMaxFloat32SVE2Guarded(dst []float32, a []float32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxFloat(dst, a, window)
+		return
+	}
+	rollingMaxFloat32SVE2(dst, a, window)
+}
+
 func fastCumProdFloat32SVE2Guarded(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -38,6 +54,22 @@ func fastCumSumFloat32SVE2Guarded(dst []float32, a []float32) {
 	fastCumSumFloat32SVE2(dst[:n:n], a)
 }
 
+func rollingMinFloat64SVE2Guarded(dst []float64, a []float64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinFloat(dst, a, window)
+		return
+	}
+	rollingMinFloat64SVE2(dst, a, window)
+}
+
+func rollingMaxFloat64SVE2Guarded(dst []float64, a []float64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxFloat(dst, a, window)
+		return
+	}
+	rollingMaxFloat64SVE2(dst, a, window)
+}
+
 func fastCumProdFloat64SVE2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -45,6 +77,22 @@ func fastCumProdFloat64SVE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	fastCumProdFloat64SVE2(dst[:n:n], a)
+}
+
+func rollingMinInt32SVE2Guarded(dst []int32, a []int32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinInt(dst, a, window)
+		return
+	}
+	rollingMinInt32SVE2(dst, a, window)
+}
+
+func rollingMaxInt32SVE2Guarded(dst []int32, a []int32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxInt(dst, a, window)
+		return
+	}
+	rollingMaxInt32SVE2(dst, a, window)
 }
 
 func cumMinInt32SVE2Guarded(dst []int32, a []int32) {
@@ -74,6 +122,22 @@ func cumProdInt32SVE2Guarded(dst []int32, a []int32) {
 	cumProdInt32SVE2(dst[:n:n], a)
 }
 
+func rollingMinInt64SVE2Guarded(dst []int64, a []int64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinInt(dst, a, window)
+		return
+	}
+	rollingMinInt64SVE2(dst, a, window)
+}
+
+func rollingMaxInt64SVE2Guarded(dst []int64, a []int64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxInt(dst, a, window)
+		return
+	}
+	rollingMaxInt64SVE2(dst, a, window)
+}
+
 func cumMinInt64SVE2Guarded(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -96,12 +160,20 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sve2")
+	s.F32.RollingMin = rollingMinFloat32SVE2Guarded
+	s.F32.RollingMax = rollingMaxFloat32SVE2Guarded
 	s.F32.FastCumProd = fastCumProdFloat32SVE2Guarded
 	s.F32.FastCumSum = fastCumSumFloat32SVE2Guarded
+	s.F64.RollingMin = rollingMinFloat64SVE2Guarded
+	s.F64.RollingMax = rollingMaxFloat64SVE2Guarded
 	s.F64.FastCumProd = fastCumProdFloat64SVE2Guarded
+	s.I32.RollingMin = rollingMinInt32SVE2Guarded
+	s.I32.RollingMax = rollingMaxInt32SVE2Guarded
 	s.I32.CumMin = cumMinInt32SVE2Guarded
 	s.I32.CumMax = cumMaxInt32SVE2Guarded
 	s.I32.CumProd = cumProdInt32SVE2Guarded
+	s.I64.RollingMin = rollingMinInt64SVE2Guarded
+	s.I64.RollingMax = rollingMaxInt64SVE2Guarded
 	s.I64.CumMin = cumMinInt64SVE2Guarded
 	s.I64.CumMax = cumMaxInt64SVE2Guarded
 }

@@ -110,6 +110,31 @@ func zigzagDecodeI64VSXGuarded(dst []int64, a []uint64) {
 	zigzagDecodeI64VSX(dst[:n:n], a)
 }
 
+func varintLenU32VSXGuarded(dst []int32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.VarintLenU32(dst, a)
+		return
+	}
+	varintLenU32VSX(dst[:n:n], a)
+}
+
+func varintLenU64VSXGuarded(dst []int32, a []uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.VarintLenU64(dst, a)
+		return
+	}
+	varintLenU64VSX(dst[:n:n], a)
+}
+
+func varintSizeU32VSXGuarded(a []uint32) int {
+	if len(a) < 16 {
+		return ref.VarintSizeU32(a)
+	}
+	return varintSizeU32VSX(a)
+}
+
 func bf16ToF32VSXGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -160,6 +185,9 @@ func init() {
 	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32VSXGuarded
 	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64VSXGuarded
 	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64VSXGuarded
+	s.Convert.VarintLenU32 = varintLenU32VSXGuarded
+	s.Convert.VarintLenU64 = varintLenU64VSXGuarded
+	s.Convert.VarintSizeU32 = varintSizeU32VSXGuarded
 	s.Convert.BF16ToF32 = bf16ToF32VSXGuarded
 	s.Convert.F32ToBF16 = f32ToBF16VSXGuarded
 	s.Convert.F16ToF32 = f16ToF32VSXGuarded

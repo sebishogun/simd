@@ -214,6 +214,13 @@ func compareBytesSSE2Guarded(a []byte, b []byte) int {
 	return compareBytesSSE2(a, b)
 }
 
+func commonPrefixSSE2Guarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CommonPrefix(a, b)
+	}
+	return commonPrefixSSE2(a, b)
+}
+
 func equalFoldASCIISSE2Guarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -363,6 +370,7 @@ func init() {
 	s.Bytes.Not = bitNotSSE2Guarded
 	s.Bytes.Fill = fillBytesSSE2Guarded
 	s.Bytes.Compare = compareBytesSSE2Guarded
+	s.Bytes.CommonPrefix = commonPrefixSSE2Guarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIISSE2Guarded
 	s.Bytes.IndexAny = indexAnySSE2Guarded
 	s.Bytes.IndexNotAny = indexNotAnySSE2Guarded

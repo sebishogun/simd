@@ -214,6 +214,13 @@ func compareBytesRVVGuarded(a []byte, b []byte) int {
 	return compareBytesRVV(a, b)
 }
 
+func commonPrefixRVVGuarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CommonPrefix(a, b)
+	}
+	return commonPrefixRVV(a, b)
+}
+
 func equalFoldASCIIRVVGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -377,6 +384,7 @@ func init() {
 	s.Bytes.Not = bitNotRVVGuarded
 	s.Bytes.Fill = fillBytesRVVGuarded
 	s.Bytes.Compare = compareBytesRVVGuarded
+	s.Bytes.CommonPrefix = commonPrefixRVVGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIIRVVGuarded
 	s.Bytes.IndexAny = indexAnyRVVGuarded
 	s.Bytes.IndexNotAny = indexNotAnyRVVGuarded

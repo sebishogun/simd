@@ -20,6 +20,22 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
+func rollingMinFloat32NEONGuarded(dst []float32, a []float32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinFloat(dst, a, window)
+		return
+	}
+	rollingMinFloat32NEON(dst, a, window)
+}
+
+func rollingMaxFloat32NEONGuarded(dst []float32, a []float32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxFloat(dst, a, window)
+		return
+	}
+	rollingMaxFloat32NEON(dst, a, window)
+}
+
 func fastCumProdFloat32NEONGuarded(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -45,6 +61,22 @@ func fastCumProdFloat64NEONGuarded(dst []float64, a []float64) {
 		return
 	}
 	fastCumProdFloat64NEON(dst[:n:n], a)
+}
+
+func rollingMinInt32NEONGuarded(dst []int32, a []int32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinInt(dst, a, window)
+		return
+	}
+	rollingMinInt32NEON(dst, a, window)
+}
+
+func rollingMaxInt32NEONGuarded(dst []int32, a []int32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxInt(dst, a, window)
+		return
+	}
+	rollingMaxInt32NEON(dst, a, window)
 }
 
 func cumMinInt32NEONGuarded(dst []int32, a []int32) {
@@ -74,6 +106,22 @@ func cumProdInt32NEONGuarded(dst []int32, a []int32) {
 	cumProdInt32NEON(dst[:n:n], a)
 }
 
+func rollingMinInt64NEONGuarded(dst []int64, a []int64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinInt(dst, a, window)
+		return
+	}
+	rollingMinInt64NEON(dst, a, window)
+}
+
+func rollingMaxInt64NEONGuarded(dst []int64, a []int64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxInt(dst, a, window)
+		return
+	}
+	rollingMaxInt64NEON(dst, a, window)
+}
+
 func cumMinInt64NEONGuarded(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -96,12 +144,18 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("neon")
+	s.F32.RollingMin = rollingMinFloat32NEONGuarded
+	s.F32.RollingMax = rollingMaxFloat32NEONGuarded
 	s.F32.FastCumProd = fastCumProdFloat32NEONGuarded
 	s.F32.FastCumSum = fastCumSumFloat32NEONGuarded
 	s.F64.FastCumProd = fastCumProdFloat64NEONGuarded
+	s.I32.RollingMin = rollingMinInt32NEONGuarded
+	s.I32.RollingMax = rollingMaxInt32NEONGuarded
 	s.I32.CumMin = cumMinInt32NEONGuarded
 	s.I32.CumMax = cumMaxInt32NEONGuarded
 	s.I32.CumProd = cumProdInt32NEONGuarded
+	s.I64.RollingMin = rollingMinInt64NEONGuarded
+	s.I64.RollingMax = rollingMaxInt64NEONGuarded
 	s.I64.CumMin = cumMinInt64NEONGuarded
 	s.I64.CumMax = cumMaxInt64NEONGuarded
 }

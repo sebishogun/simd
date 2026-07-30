@@ -182,6 +182,33 @@ void simd_compare_bytes(isize *__restrict out, const u8 *__restrict a,
   *out = na < nb ? -1 : na > nb ? 1 : 0;
 }
 
+// simd_common_prefix returns how many leading bytes a and b share.
+//
+// The same blocked scan simd_compare_bytes uses, without the ordering: a whole
+// block is reduced to one "did anything differ" before any byte is examined,
+// so a long shared prefix — which is the case this is called for, since that
+// is what makes it worth vectorizing — stays entirely in vector code.
+//
+// This is the inner loop of suffix-array construction, trie descent and the
+// LCP array, where the strings compared are usually near-identical and the
+// answer is usually large. A byte-at-a-time loop pays a compare and a branch
+// per shared byte; this pays one vector compare per sixty-four.
+void simd_common_prefix(isize *__restrict out, const u8 *__restrict a,
+                        const u8 *__restrict b, isize na, isize nb) {
+  isize n = na < nb ? na : nb;
+  const isize block = 64;
+  isize i = 0;
+  for (; i + block <= n; i += block) {
+    unsigned char diff = 0;
+    for (isize j = 0; j < block; j++)
+      diff |= (unsigned char)(a[i + j] ^ b[i + j]);
+    if (diff) break;
+  }
+  for (; i < n; i++)
+    if (a[i] != b[i]) break;
+  *out = i;
+}
+
 // simd_equal_fold_ascii compares with the ASCII letters folded to one case.
 //
 // Folding both sides and reducing the difference keeps this branchless, which

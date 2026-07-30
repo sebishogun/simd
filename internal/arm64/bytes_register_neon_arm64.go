@@ -214,6 +214,13 @@ func compareBytesNEONGuarded(a []byte, b []byte) int {
 	return compareBytesNEON(a, b)
 }
 
+func commonPrefixNEONGuarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CommonPrefix(a, b)
+	}
+	return commonPrefixNEON(a, b)
+}
+
 func equalFoldASCIINEONGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -377,6 +384,7 @@ func init() {
 	s.Bytes.Not = bitNotNEONGuarded
 	s.Bytes.Fill = fillBytesNEONGuarded
 	s.Bytes.Compare = compareBytesNEONGuarded
+	s.Bytes.CommonPrefix = commonPrefixNEONGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIINEONGuarded
 	s.Bytes.IndexAny = indexAnyNEONGuarded
 	s.Bytes.IndexNotAny = indexNotAnyNEONGuarded

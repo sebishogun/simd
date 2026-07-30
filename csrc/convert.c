@@ -287,6 +287,81 @@ ZIGZAG(short, unsigned short, i16)
 ZIGZAG(int, unsigned int, i32)
 ZIGZAG(long long, unsigned long long, i64)
 
+// ---------- varint widths ----------
+//
+// How many LEB128 bytes each value needs, and how many the whole slice needs.
+//
+// The *emission* of a varint stream is a serial problem — where value i lands
+// depends on the width of every value before it — and no rewriting fixes that;
+// it is the same loop-carried address dependency compress.c describes. What
+// vectorizes is the question asked first: how wide is each one.
+//
+// That is worth having on its own. Knowing the exact encoded size before
+// writing a byte is what lets an encoder allocate once instead of growing, and
+// the per-element widths prefix-summed give every value's offset, which is
+// what turns the serial emit into an independent per-value write.
+//
+// The width is written as a sum of comparisons rather than from a
+// leading-zero count. Both are correct; only this one vectorizes everywhere.
+// __builtin_clz lowers to llvm.ctlz, which has a vector form on AVX-512 and
+// on NEON but not on SSE2 or AVX2, where LLVM scalarizes it lane by lane and
+// gives back a kernel slower than the loop it replaced. Four unsigned
+// comparisons and three adds are the same on every target here.
+static inline unsigned varint_len_u32(u32 x) {
+  return 1u + (x >= 0x80u) + (x >= 0x4000u) + (x >= 0x200000u) +
+         (x >= 0x10000000u);
+}
+
+static inline unsigned varint_len_u64(unsigned long long x) {
+  return 1u + (x >= 0x80ull) + (x >= 0x4000ull) + (x >= 0x200000ull) +
+         (x >= 0x10000000ull) + (x >= 0x800000000ull) +
+         (x >= 0x40000000000ull) + (x >= 0x2000000000000ull) +
+         (x >= 0x100000000000000ull) + (x >= 0x8000000000000000ull);
+}
+
+#define VARINT_LEN(UT, SUF)                                                \
+  void simd_varint_len_##SUF(int *__restrict d, const UT *__restrict a,    \
+                             isize n) {                                    \
+    for (isize i = 0; i < n; i++) d[i] = (int)varint_len_##SUF(a[i]);      \
+  }
+
+VARINT_LEN(u32, u32)
+VARINT_LEN(unsigned long long, u64)
+
+// The total is folded through sixty-four-bit lanes rather than the
+// thirty-two-bit ones the byte counters in fold.h use, because this
+// accumulator holds up to ten times the element count rather than at most one
+// per element: a slice large enough to be worth calling this on is already
+// within a factor of four of overflowing a u32.
+//
+// The 8 -> 4 -> 2 -> 1 fold is the library's fixed combine tree, so the answer
+// does not depend on the vector length of the machine. Integer addition is
+// associative, so the portable reference's plain loop gives the same value —
+// unlike the float reductions, where the tree is the contract.
+typedef unsigned long long u64x8 __attribute__((ext_vector_type(8), aligned(1)));
+
+#define VARINT_SIZE(UT, SUF)                                               \
+  void simd_varint_size_##SUF(isize *__restrict out,                       \
+                              const UT *__restrict a, isize n) {           \
+    u64x8 acc = 0;                                                         \
+    isize i = 0;                                                           \
+    for (; i + 8 <= n; i += 8) {                                           \
+      u64x8 v;                                                             \
+      for (int j = 0; j < 8; j++) v[j] = varint_len_##SUF(a[i + j]);       \
+      acc += v;                                                            \
+    }                                                                      \
+    unsigned long long r[8];                                               \
+    *(u64x8 *)r = acc;                                                     \
+    for (int w = 4; w >= 1; w /= 2)                                        \
+      for (int j = 0; j < w; j++) r[j] += r[j + w];                        \
+    isize s = (isize)r[0];                                                 \
+    for (; i < n; i++) s += (isize)varint_len_##SUF(a[i]);                 \
+    *out = s;                                                              \
+  }
+
+VARINT_SIZE(u32, u32)
+VARINT_SIZE(unsigned long long, u64)
+
 // ---------- per-channel quantization ----------
 //
 // One scale and zero point per output channel rather than one per tensor.

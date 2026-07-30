@@ -160,6 +160,29 @@ func zigzagDecodeI64SSE2Guarded(dst []int64, a []uint64) {
 	zigzagDecodeI64SSE2(dst[:n:n], a)
 }
 
+func varintLenU32SSE2Guarded(dst []int32, a []uint32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.VarintLenU32(dst, a)
+		return
+	}
+	varintLenU32SSE2(dst[:n:n], a)
+}
+
+func varintSizeU32SSE2Guarded(a []uint32) int {
+	if len(a) < 16 {
+		return ref.VarintSizeU32(a)
+	}
+	return varintSizeU32SSE2(a)
+}
+
+func varintSizeU64SSE2Guarded(a []uint64) int {
+	if len(a) < 16 {
+		return ref.VarintSizeU64(a)
+	}
+	return varintSizeU64SSE2(a)
+}
+
 func bf16ToF32SSE2Guarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -207,6 +230,9 @@ func init() {
 	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32SSE2Guarded
 	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64SSE2Guarded
 	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64SSE2Guarded
+	s.Convert.VarintLenU32 = varintLenU32SSE2Guarded
+	s.Convert.VarintSizeU32 = varintSizeU32SSE2Guarded
+	s.Convert.VarintSizeU64 = varintSizeU64SSE2Guarded
 	s.Convert.BF16ToF32 = bf16ToF32SSE2Guarded
 	s.Convert.F32ToBF16 = f32ToBF16SSE2Guarded
 	s.Convert.F16ToF32 = f16ToF32SSE2Guarded

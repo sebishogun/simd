@@ -121,12 +121,19 @@ fuzz: ## Fuzz the public API and the tier-vs-reference differential
 # riscv64 is absent deliberately. It has an official image, but the qemu inside
 # it emulates a CPU with no vector extension, so the lane can only ever report
 # scalar and would verify nothing. It is covered by test-riscv64 instead.
+#
+# CGO_ENABLED=0 is also load-bearing. The image defaults it on, and the first
+# package to pull in net/http — cmd/site — made the container's gcc die with
+# "internal compiler error: Segmentation fault" compiling net's resolver under
+# emulation. Turning cgo off is not a workaround for that: this library
+# promises to need no C toolchain, so the cross lane testing it without one is
+# the stronger check, and the lane should never have had cgo available.
 .PHONY: test-cross
 test-cross: cross-setup ## Every architecture with a backend, under docker + qemu
 	@for p in linux/arm64 linux/s390x linux/ppc64le; do \
 		echo "--- $$p"; \
 		$(DOCKER) run --rm --platform $$p -v "$(PWD)":/src -w /src \
-			-e GOFLAGS=-buildvcs=false golang:1.26 \
+			-e GOFLAGS=-buildvcs=false -e CGO_ENABLED=0 golang:1.26 \
 			sh -c 'go run ./cmd/simdinfo -require-accelerated && \
 			       go test -short -vet=off ./...' \
 			|| exit 1; \

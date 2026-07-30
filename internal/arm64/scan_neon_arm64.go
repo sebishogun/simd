@@ -16,6 +16,12 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 //go:noescape
+func rollingMinFloat32NEON(dst []float32, a []float32, window int)
+
+//go:noescape
+func rollingMaxFloat32NEON(dst []float32, a []float32, window int)
+
+//go:noescape
 func fastCumProdFloat32NEON(dst []float32, a []float32)
 
 //go:noescape
@@ -25,6 +31,12 @@ func fastCumSumFloat32NEON(dst []float32, a []float32)
 func fastCumProdFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
+func rollingMinInt32NEON(dst []int32, a []int32, window int)
+
+//go:noescape
+func rollingMaxInt32NEON(dst []int32, a []int32, window int)
+
+//go:noescape
 func cumMinInt32NEON(dst []int32, a []int32)
 
 //go:noescape
@@ -32,6 +44,12 @@ func cumMaxInt32NEON(dst []int32, a []int32)
 
 //go:noescape
 func cumProdInt32NEON(dst []int32, a []int32)
+
+//go:noescape
+func rollingMinInt64NEON(dst []int64, a []int64, window int)
+
+//go:noescape
+func rollingMaxInt64NEON(dst []int64, a []int64, window int)
 
 //go:noescape
 func cumMinInt64NEON(dst []int64, a []int64)

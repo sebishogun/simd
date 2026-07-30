@@ -64,6 +64,18 @@ func zigzagEncodeI64RVV(dst []uint64, a []int64)
 func zigzagDecodeI64RVV(dst []int64, a []uint64)
 
 //go:noescape
+func varintLenU32RVV(dst []int32, a []uint32)
+
+//go:noescape
+func varintLenU64RVV(dst []int32, a []uint64)
+
+//go:noescape
+func varintSizeU32RVV(a []uint32) int
+
+//go:noescape
+func varintSizeU64RVV(a []uint64) int
+
+//go:noescape
 func bitUnpackU32RVV(dst []uint32, a []uint32, bits int32)
 
 //go:noescape

@@ -131,6 +131,8 @@ func convertOps() kernel.Convert {
 		ZigzagEncodeI16: ZigzagEncodeI16, ZigzagDecodeI16: ZigzagDecodeI16,
 		ZigzagEncodeI32: ZigzagEncodeI32, ZigzagDecodeI32: ZigzagDecodeI32,
 		ZigzagEncodeI64: ZigzagEncodeI64, ZigzagDecodeI64: ZigzagDecodeI64,
+		VarintLenU32: VarintLenU32, VarintLenU64: VarintLenU64,
+		VarintSizeU32: VarintSizeU32, VarintSizeU64: VarintSizeU64,
 	}
 }
 
@@ -248,6 +250,56 @@ func ZigzagEncodeI32(dst []uint32, a []int32) { zigzagEncode(dst, a, 31) }
 func ZigzagDecodeI32(dst []int32, a []uint32) { zigzagDecode(dst, a) }
 func ZigzagEncodeI64(dst []uint64, a []int64) { zigzagEncode(dst, a, 63) }
 func ZigzagDecodeI64(dst []int64, a []uint64) { zigzagDecode(dst, a) }
+
+// ---------- varint widths ----------
+
+// varintLen is the LEB128 width of x: seven payload bits per byte, so
+// ceil(bits(x)/7), and 1 for zero.
+//
+// The kernel spells this as a sum of comparisons because bits.Len does not
+// vectorize on SSE2 or AVX2. Here the clear form is used, and the differential
+// test is what says the two agree.
+func varintLen(x uint64) int {
+	n := 1
+	for x >= 0x80 {
+		x >>= 7
+		n++
+	}
+	return n
+}
+
+func VarintLenU32(dst []int32, a []uint32) {
+	n := min(len(dst), len(a))
+	for i, v := range a[:n] {
+		dst[i] = int32(varintLen(uint64(v)))
+	}
+}
+
+func VarintLenU64(dst []int32, a []uint64) {
+	n := min(len(dst), len(a))
+	for i, v := range a[:n] {
+		dst[i] = int32(varintLen(v))
+	}
+}
+
+// The totals need no fixed accumulator tree: integer addition is associative,
+// so the kernel's eight-lane fold and this running sum agree exactly.
+
+func VarintSizeU32(a []uint32) int {
+	t := 0
+	for _, v := range a {
+		t += varintLen(uint64(v))
+	}
+	return t
+}
+
+func VarintSizeU64(a []uint64) int {
+	t := 0
+	for _, v := range a {
+		t += varintLen(v)
+	}
+	return t
+}
 
 // ---------- quantized matrix multiply ----------
 

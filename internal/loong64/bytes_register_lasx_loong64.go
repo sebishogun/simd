@@ -123,6 +123,13 @@ func compareBytesLASXGuarded(a []byte, b []byte) int {
 	return compareBytesLASX(a, b)
 }
 
+func commonPrefixLASXGuarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CommonPrefix(a, b)
+	}
+	return commonPrefixLASX(a, b)
+}
+
 func equalFoldASCIILASXGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -196,6 +203,7 @@ func init() {
 	s.Bytes.Not = bitNotLASXGuarded
 	s.Bytes.Fill = fillBytesLASXGuarded
 	s.Bytes.Compare = compareBytesLASXGuarded
+	s.Bytes.CommonPrefix = commonPrefixLASXGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIILASXGuarded
 	s.Bytes.IndexAny = indexAnyLASXGuarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyLASXGuarded

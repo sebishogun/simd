@@ -140,6 +140,72 @@ func TestZigzagKernels(t *testing.T) {
 	}
 }
 
+// TestVarintWidthKernels drives the LEB128 width kernels against ref.
+//
+// The inputs are every width boundary rather than random values: the kernel
+// computes the width as a sum of unsigned comparisons against 2^7, 2^14 and so
+// on, and an off-by-one in any threshold is wrong for exactly one value on
+// each side of it and right everywhere else. Random inputs would almost never
+// land there.
+func TestVarintWidthKernels(t *testing.T) {
+	want := ref.Set()
+
+	var in64 []uint64
+	for shift := 0; shift < 64; shift += 7 {
+		b := uint64(1) << shift
+		in64 = append(in64, b-1, b, b+1)
+	}
+	in64 = append(in64, 0, 1, ^uint64(0), ^uint64(0)-1, 1<<63, 1<<63-1)
+	in32 := make([]uint32, len(in64))
+	for i, v := range in64 {
+		in32[i] = uint32(v)
+	}
+
+	for tier, got := range tiers(t) {
+		t.Run(tier, func(t *testing.T) {
+			if f := got.Convert.VarintLenU32; f != nil {
+				g, w := make([]int32, len(in32)), make([]int32, len(in32))
+				f(g, in32)
+				want.Convert.VarintLenU32(w, in32)
+				for i := range g {
+					if g[i] != w[i] {
+						t.Fatalf("%s/Convert.VarintLenU32(%#x): got %d want %d",
+							tier, in32[i], g[i], w[i])
+					}
+				}
+			}
+			if f := got.Convert.VarintLenU64; f != nil {
+				g, w := make([]int32, len(in64)), make([]int32, len(in64))
+				f(g, in64)
+				want.Convert.VarintLenU64(w, in64)
+				for i := range g {
+					if g[i] != w[i] {
+						t.Fatalf("%s/Convert.VarintLenU64(%#x): got %d want %d",
+							tier, in64[i], g[i], w[i])
+					}
+				}
+			}
+			// The totals are checked at lengths around the kernel's eight-lane
+			// fold, since a fold that dropped its tail would agree on a length
+			// that happens to be a multiple of eight and nowhere else.
+			for n := range len(in64) {
+				if f := got.Convert.VarintSizeU32; f != nil {
+					if g, w := f(in32[:n]), want.Convert.VarintSizeU32(in32[:n]); g != w {
+						t.Fatalf("%s/Convert.VarintSizeU32 n=%d: got %d want %d",
+							tier, n, g, w)
+					}
+				}
+				if f := got.Convert.VarintSizeU64; f != nil {
+					if g, w := f(in64[:n]), want.Convert.VarintSizeU64(in64[:n]); g != w {
+						t.Fatalf("%s/Convert.VarintSizeU64 n=%d: got %d want %d",
+							tier, n, g, w)
+					}
+				}
+			}
+		})
+	}
+}
+
 // zigzag checks one width: the kernel agrees with ref on the encoding, and the
 // kernel's own decode inverts the kernel's own encode. The round trip is
 // checked against the input rather than against ref's decode, which makes it a

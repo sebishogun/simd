@@ -394,9 +394,37 @@ func fastScanK(op, field string, e elem) spec.Kernel {
 // dependency worth breaking. int64 product loses because there is no 64-bit
 // vector multiply below AVX-512DQ. int32 product wins and is EXACT, since
 // two's-complement multiplication is associative.
+// rollingK is the sliding-window extreme.
+//
+// Two lengths, deliberately: dst holds one entry per *window* — len(a)-w+1 —
+// which the guard must not clamp against len(a). The kernel reconciles them by
+// taking the smaller. This is the same rule bitpack and compress follow, and
+// forgetting it is how sumLanes shipped with a guard that silently truncated
+// its output.
+func rollingK(op, field string, e elem) spec.Kernel {
+	return spec.Kernel{
+		CName:  "simd_rolling_" + op + "_" + e.c,
+		GoName: "rolling" + field + e.goName,
+		Group:  e.group, Field: "Rolling" + field, RefFunc: e.ref("Rolling" + field),
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			{Name: "window", Type: spec.Int}},
+		CArgs: []spec.CArg{base("dst"), base("a"), val("window"),
+			lenOf("dst"), lenOf("a")},
+		// Not thElementwise: the kernel does w passes, so the work per output
+		// is w times an elementwise operation and the call overhead is
+		// amortized w times faster. Measured crossover is well below this;
+		// the elementwise threshold is kept as the conservative choice.
+		Threshold: thElementwise,
+	}
+}
+
 func Scan() []spec.Kernel {
 	var ks []spec.Kernel
 	for _, e := range elems {
+		switch e.group {
+		case "F32", "F64", "I32", "I64":
+			ks = append(ks, rollingK("min", "Min", e), rollingK("max", "Max", e))
+		}
 		switch e.group {
 		case "I32", "I64":
 			ks = append(ks, scanK("min", "Min", e), scanK("max", "Max", e))
@@ -979,6 +1007,17 @@ func Bytes() []spec.Kernel {
 			ThresholdOn: onStdlibAsm(2048),
 		},
 		{
+			// Two lengths for the same reason Compare has them: the answer is
+			// bounded by the shorter slice, which is not something the guard
+			// can clamp for.
+			CName: "simd_common_prefix", GoName: "commonPrefix",
+			Group: "Bytes", Field: "CommonPrefix", RefFunc: "CommonPrefix",
+			Params:    []spec.Param{sl("a", spec.SliceU8), sl("b", spec.SliceU8)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a"), lenOf("b")},
+			Threshold: thScan,
+		},
+		{
 			CName: "simd_equal_fold_ascii", GoName: "equalFoldASCII",
 			Group: "Bytes", Field: "EqualFoldASCII", RefFunc: "EqualFoldASCII",
 			Params:    []spec.Param{sl("a", spec.SliceU8), sl("b", spec.SliceU8)},
@@ -1374,6 +1413,31 @@ func Convert() []spec.Kernel {
 			"ZigzagEncodeI64", spec.SliceU64, spec.SliceI64),
 		conv("simd_zigzag_decode_i64", "zigzagDecodeI64", "ZigzagDecodeI64",
 			"ZigzagDecodeI64", spec.SliceI64, spec.SliceU64),
+
+		// The widths a varint encoder needs before it writes anything. The
+		// emission itself is serial — see the note in csrc/convert.c — so
+		// these are the part that vectorizes, and they are the part that lets
+		// the encoder allocate exactly once.
+		conv("simd_varint_len_u32", "varintLenU32", "VarintLenU32",
+			"VarintLenU32", spec.SliceI32, spec.SliceU32),
+		conv("simd_varint_len_u64", "varintLenU64", "VarintLenU64",
+			"VarintLenU64", spec.SliceI32, spec.SliceU64),
+		{
+			CName: "simd_varint_size_u32", GoName: "varintSizeU32",
+			Group: "Convert", Field: "VarintSizeU32", RefFunc: "VarintSizeU32",
+			Params:    []spec.Param{sl("a", spec.SliceU32)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("a"), lenOf("a")},
+			Threshold: thElementwise,
+		},
+		{
+			CName: "simd_varint_size_u64", GoName: "varintSizeU64",
+			Group: "Convert", Field: "VarintSizeU64", RefFunc: "VarintSizeU64",
+			Params:    []spec.Param{sl("a", spec.SliceU64)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("a"), lenOf("a")},
+			Threshold: thElementwise,
+		},
 
 		{
 			CName: "simd_bitpack_u32", GoName: "bitPackU32",

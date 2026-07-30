@@ -206,6 +206,77 @@ func cumMaxInt[T integer](dst, a []T) {
 	}
 }
 
+// rolling* is the sliding-window extreme: dst[i] is the minimum or maximum of
+// a[i : i+window], so there are len(a)-window+1 outputs.
+//
+// The obvious reference is a monotonic deque, which is O(n) rather than the
+// O(n·window) written here. It is not used, and the reason is NaN: IEEE
+// minimum propagates it, and "pop the back while it is worse than the new
+// element" has no defined behaviour when neither operand orders. The deque and
+// the kernel would then disagree on any window containing a NaN, and a
+// reference that disagrees with the kernel is worse than a slow one.
+//
+// This does the same window-1 combines in the same order with the same
+// minimum, so the two agree bit for bit on every input.
+func rollingMinFloat[T float](dst, a []T, window int) {
+	rollingFloat(dst, a, window, min2Float[T])
+}
+
+func rollingMaxFloat[T float](dst, a []T, window int) {
+	rollingFloat(dst, a, window, max2Float[T])
+}
+
+func rollingFloat[T float](dst, a []T, window int, comb func(T, T) T) {
+	for i, out := range rollingWindows(dst, a, window) {
+		v := a[i]
+		for _, x := range a[i+1 : i+window] {
+			v = comb(v, x)
+		}
+		out[0] = v
+	}
+}
+
+func rollingMinInt[T integer](dst, a []T, window int) {
+	for i, out := range rollingWindows(dst, a, window) {
+		v := a[i]
+		for _, x := range a[i+1 : i+window] {
+			v = min(v, x)
+		}
+		out[0] = v
+	}
+}
+
+func rollingMaxInt[T integer](dst, a []T, window int) {
+	for i, out := range rollingWindows(dst, a, window) {
+		v := a[i]
+		for _, x := range a[i+1 : i+window] {
+			v = max(v, x)
+		}
+		out[0] = v
+	}
+}
+
+// rollingWindows iterates the valid output positions, yielding each index and a
+// one-element view of dst to write through.
+//
+// It exists so the four bodies above cannot disagree about the bound. The
+// output count is len(a)-window+1, which is not len(dst) and not len(a) — the
+// mistake the generated guard's usual min(len(dst), len(a)) would make, and the
+// reason the kernel declares two lengths.
+func rollingWindows[T any](dst, a []T, window int) func(func(int, []T) bool) {
+	return func(yield func(int, []T) bool) {
+		if window <= 0 || window > len(a) {
+			return
+		}
+		n := min(len(dst), len(a)-window+1)
+		for i := range n {
+			if !yield(i, dst[i:i+1]) {
+				return
+			}
+		}
+	}
+}
+
 // diff writes successive differences: dst[i] = a[i+1] - a[i], producing one
 // fewer element than a has. Writing forwards keeps it safe in place.
 func diff[T number](dst, a []T) {
@@ -284,6 +355,8 @@ func floatMathOps[T float](o *kernel.Ops[T]) {
 	o.CumProd = cumProd[T]
 	o.CumMin = cumMinFloat[T]
 	o.CumMax = cumMaxFloat[T]
+	o.RollingMin = rollingMinFloat[T]
+	o.RollingMax = rollingMaxFloat[T]
 	o.Diff = diff[T]
 	o.Prod = prod[T]
 }
@@ -337,6 +410,8 @@ func intMathOps[T integer](o *kernel.Ops[T]) {
 	o.CumProd = cumProd[T]
 	o.CumMin = cumMinInt[T]
 	o.CumMax = cumMaxInt[T]
+	o.RollingMin = rollingMinInt[T]
+	o.RollingMax = rollingMaxInt[T]
 	o.Diff = diff[T]
 	o.Prod = prod[T]
 }

@@ -88,6 +88,9 @@ func fillBytesSSE2(dst []byte, v byte)
 func compareBytesSSE2(a []byte, b []byte) int
 
 //go:noescape
+func commonPrefixSSE2(a []byte, b []byte) int
+
+//go:noescape
 func equalFoldASCIISSE2(a []byte, b []byte) bool
 
 //go:noescape

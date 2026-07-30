@@ -64,6 +64,18 @@ func zigzagEncodeI64SVE2(dst []uint64, a []int64)
 func zigzagDecodeI64SVE2(dst []int64, a []uint64)
 
 //go:noescape
+func varintLenU32SVE2(dst []int32, a []uint32)
+
+//go:noescape
+func varintLenU64SVE2(dst []int32, a []uint64)
+
+//go:noescape
+func varintSizeU32SVE2(a []uint32) int
+
+//go:noescape
+func varintSizeU64SVE2(a []uint64) int
+
+//go:noescape
 func f8e4m3ToF32SVE2(dst []float32, a []byte)
 
 //go:noescape

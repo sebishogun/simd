@@ -55,6 +55,9 @@ func fillBytesLASX(dst []byte, v byte)
 func compareBytesLASX(a []byte, b []byte) int
 
 //go:noescape
+func commonPrefixLASX(a []byte, b []byte) int
+
+//go:noescape
 func equalFoldASCIILASX(a []byte, b []byte) bool
 
 //go:noescape

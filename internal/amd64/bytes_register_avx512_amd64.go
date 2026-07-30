@@ -214,6 +214,13 @@ func compareBytesAVX512Guarded(a []byte, b []byte) int {
 	return compareBytesAVX512(a, b)
 }
 
+func commonPrefixAVX512Guarded(a []byte, b []byte) int {
+	if len(a) < 64 {
+		return ref.CommonPrefix(a, b)
+	}
+	return commonPrefixAVX512(a, b)
+}
+
 func equalFoldASCIIAVX512Guarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -377,6 +384,7 @@ func init() {
 	s.Bytes.Not = bitNotAVX512Guarded
 	s.Bytes.Fill = fillBytesAVX512Guarded
 	s.Bytes.Compare = compareBytesAVX512Guarded
+	s.Bytes.CommonPrefix = commonPrefixAVX512Guarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIIAVX512Guarded
 	s.Bytes.IndexAny = indexAnyAVX512Guarded
 	s.Bytes.IndexNotAny = indexNotAnyAVX512Guarded

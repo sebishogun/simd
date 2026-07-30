@@ -16,13 +16,31 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
 //go:noescape
+func rollingMinFloat32RVV(dst []float32, a []float32, window int)
+
+//go:noescape
+func rollingMaxFloat32RVV(dst []float32, a []float32, window int)
+
+//go:noescape
 func fastCumProdFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
 func fastCumSumFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
+func rollingMinFloat64RVV(dst []float64, a []float64, window int)
+
+//go:noescape
+func rollingMaxFloat64RVV(dst []float64, a []float64, window int)
+
+//go:noescape
 func fastCumProdFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func rollingMinInt32RVV(dst []int32, a []int32, window int)
+
+//go:noescape
+func rollingMaxInt32RVV(dst []int32, a []int32, window int)
 
 //go:noescape
 func cumMinInt32RVV(dst []int32, a []int32)
@@ -32,6 +50,12 @@ func cumMaxInt32RVV(dst []int32, a []int32)
 
 //go:noescape
 func cumProdInt32RVV(dst []int32, a []int32)
+
+//go:noescape
+func rollingMinInt64RVV(dst []int64, a []int64, window int)
+
+//go:noescape
+func rollingMaxInt64RVV(dst []int64, a []int64, window int)
 
 //go:noescape
 func cumMinInt64RVV(dst []int64, a []int64)

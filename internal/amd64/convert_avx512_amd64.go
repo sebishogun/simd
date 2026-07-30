@@ -64,6 +64,18 @@ func zigzagEncodeI64AVX512(dst []uint64, a []int64)
 func zigzagDecodeI64AVX512(dst []int64, a []uint64)
 
 //go:noescape
+func varintLenU32AVX512(dst []int32, a []uint32)
+
+//go:noescape
+func varintLenU64AVX512(dst []int32, a []uint64)
+
+//go:noescape
+func varintSizeU32AVX512(a []uint32) int
+
+//go:noescape
+func varintSizeU64AVX512(a []uint64) int
+
+//go:noescape
 func bitUnpackU32AVX512(dst []uint32, a []uint32, bits int32)
 
 //go:noescape

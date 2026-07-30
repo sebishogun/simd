@@ -883,6 +883,22 @@ func countByte(b []byte, c byte) int     { return bytes.Count(b, []byte{c}) }
 func equalBytes(a, b []byte) bool        { return bytes.Equal(a, b) }
 func compareBytes(a, b []byte) int       { return bytes.Compare(a, b) }
 
+// commonPrefix is how many leading bytes the two share.
+//
+// Not bytes.Compare's business: Compare stops at the first difference and
+// reports which way it went, and this reports where it was. The standard
+// library has no equivalent, which is why the loop is here rather than
+// delegated the way every other byte reference in this file is.
+func commonPrefix(a, b []byte) int {
+	n := min(len(a), len(b))
+	for i := range n {
+		if a[i] != b[i] {
+			return i
+		}
+	}
+	return n
+}
+
 func popCount(b []byte) int {
 	n := 0
 	for _, v := range b {
@@ -1156,7 +1172,8 @@ func Set() kernel.Set {
 		Bytes: kernel.Bytes{
 			IndexByte: indexByte, LastIndexByte: lastIndexByte, Count: countByte,
 			Equal: equalBytes, Compare: compareBytes, PopCount: popCount,
-			Hamming: hamming, HammingWords: hammingWords,
+			CommonPrefix: commonPrefix,
+			Hamming:      hamming, HammingWords: hammingWords,
 			WidenU8U32: widenU8U32, NarrowU32U8: narrowU32U8,
 			RunStartsI32: RunStartsI32, RunStartsI64: RunStartsI64,
 			RunStartsU8: RunStartsU8,
@@ -1315,6 +1332,7 @@ func Diff[T Number](dst, a []T)    { diff(dst, a) }
 func L1NormInt[T Integer](a []T) T               { return l1NormInt(a) }
 func L1DiffInt[T Integer](a, b []T) T            { return l1DiffInt(a, b) }
 func CompareBytes(a, b []byte) int               { return compareBytes(a, b) }
+func CommonPrefix(a, b []byte) int               { return commonPrefix(a, b) }
 func EqualFoldASCII(a, b []byte) bool            { return equalFoldASCII(a, b) }
 func IndexAny(b, chars []byte) int               { return indexAny(b, chars) }
 func CountAny(b, chars []byte) int               { return countAny(b, chars) }
@@ -1331,6 +1349,11 @@ func CumMinFloat[T Float](dst, a []T) { cumMinFloat(dst, a) }
 func CumMaxFloat[T Float](dst, a []T) { cumMaxFloat(dst, a) }
 func CumMinInt[T Integer](dst, a []T) { cumMinInt(dst, a) }
 func CumMaxInt[T Integer](dst, a []T) { cumMaxInt(dst, a) }
+
+func RollingMinFloat[T Float](dst, a []T, window int) { rollingMinFloat(dst, a, window) }
+func RollingMaxFloat[T Float](dst, a []T, window int) { rollingMaxFloat(dst, a, window) }
+func RollingMinInt[T Integer](dst, a []T, window int) { rollingMinInt(dst, a, window) }
+func RollingMaxInt[T Integer](dst, a []T, window int) { rollingMaxInt(dst, a, window) }
 
 func ArgMinFloat[T Float](a []T) int { return argMinFloat(a) }
 func ArgMaxFloat[T Float](a []T) int { return argMaxFloat(a) }

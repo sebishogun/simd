@@ -246,6 +246,51 @@ func checkUnary[T comparable](t *testing.T, tier, op string,
 	}
 }
 
+// checkRolling compares a sliding-window operation across window sizes.
+//
+// The output length is len(a)-window+1, which is neither of the two lengths
+// the generated guard knows about, so this is the shape where a clamping
+// mistake shows up as a silently short answer rather than a crash. The
+// destination is deliberately allocated to exactly that length: anything
+// written past it corrupts the heap and the race detector or the allocator
+// will say so.
+func checkRolling[T comparable](t *testing.T, tier, op string,
+	got, want func(dst, a []T, window int), gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(17, 18))
+	for n := range maxLen + 1 {
+		a := gen(n, r)
+		// Window sizes spanning one, a vector width, and the whole slice,
+		// plus the two degenerate cases that must write nothing.
+		for _, w := range []int{0, 1, 2, 3, 8, 16, 17, n, n + 1} {
+			if w <= 0 || w > n {
+				// Still call both: writing nothing is part of the contract,
+				// and a kernel that scribbled here would be caught by the
+				// comparison below.
+				g, wv := make([]T, max(n, 1)), make([]T, max(n, 1))
+				got(g, a, w)
+				want(wv, a, w)
+				if i, ok := same(g, wv); !ok {
+					t.Fatalf("%s/%s n=%d window=%d i=%d: got %v want %v",
+						tier, op, n, w, i, g[i], wv[i])
+				}
+				continue
+			}
+			m := n - w + 1
+			g, wv := make([]T, m), make([]T, m)
+			got(g, a, w)
+			want(wv, a, w)
+			if i, ok := same(g, wv); !ok {
+				t.Fatalf("%s/%s n=%d window=%d i=%d: got %v want %v",
+					tier, op, n, w, i, g[i], wv[i])
+			}
+		}
+	}
+}
+
 // checkScalar compares an operation taking one scalar operand.
 //
 // nonZero excludes a zero scalar, which is only needed for integer division:
@@ -411,6 +456,9 @@ func checkOps[T comparable](t *testing.T, tier, typeName string,
 	checkUnary(t, tier, p("CumProd"), got.CumProd, want.CumProd, gen)
 	checkUnary(t, tier, p("CumMin"), got.CumMin, want.CumMin, gen)
 	checkUnary(t, tier, p("CumMax"), got.CumMax, want.CumMax, gen)
+
+	checkRolling(t, tier, p("RollingMin"), got.RollingMin, want.RollingMin, gen)
+	checkRolling(t, tier, p("RollingMax"), got.RollingMax, want.RollingMax, gen)
 
 	// The Fast scans belong here for exactly the reason their name might
 	// suggest they do not. What Fast relaxes is agreement with a naive serial

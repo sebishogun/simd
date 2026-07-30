@@ -20,6 +20,22 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
+func rollingMinFloat32RVVGuarded(dst []float32, a []float32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinFloat(dst, a, window)
+		return
+	}
+	rollingMinFloat32RVV(dst, a, window)
+}
+
+func rollingMaxFloat32RVVGuarded(dst []float32, a []float32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxFloat(dst, a, window)
+		return
+	}
+	rollingMaxFloat32RVV(dst, a, window)
+}
+
 func fastCumProdFloat32RVVGuarded(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -38,6 +54,22 @@ func fastCumSumFloat32RVVGuarded(dst []float32, a []float32) {
 	fastCumSumFloat32RVV(dst[:n:n], a)
 }
 
+func rollingMinFloat64RVVGuarded(dst []float64, a []float64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinFloat(dst, a, window)
+		return
+	}
+	rollingMinFloat64RVV(dst, a, window)
+}
+
+func rollingMaxFloat64RVVGuarded(dst []float64, a []float64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxFloat(dst, a, window)
+		return
+	}
+	rollingMaxFloat64RVV(dst, a, window)
+}
+
 func fastCumProdFloat64RVVGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -45,6 +77,22 @@ func fastCumProdFloat64RVVGuarded(dst []float64, a []float64) {
 		return
 	}
 	fastCumProdFloat64RVV(dst[:n:n], a)
+}
+
+func rollingMinInt32RVVGuarded(dst []int32, a []int32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinInt(dst, a, window)
+		return
+	}
+	rollingMinInt32RVV(dst, a, window)
+}
+
+func rollingMaxInt32RVVGuarded(dst []int32, a []int32, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxInt(dst, a, window)
+		return
+	}
+	rollingMaxInt32RVV(dst, a, window)
 }
 
 func cumMinInt32RVVGuarded(dst []int32, a []int32) {
@@ -74,6 +122,22 @@ func cumProdInt32RVVGuarded(dst []int32, a []int32) {
 	cumProdInt32RVV(dst[:n:n], a)
 }
 
+func rollingMinInt64RVVGuarded(dst []int64, a []int64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMinInt(dst, a, window)
+		return
+	}
+	rollingMinInt64RVV(dst, a, window)
+}
+
+func rollingMaxInt64RVVGuarded(dst []int64, a []int64, window int) {
+	if len(dst) < 16 {
+		ref.RollingMaxInt(dst, a, window)
+		return
+	}
+	rollingMaxInt64RVV(dst, a, window)
+}
+
 func cumMinInt64RVVGuarded(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -96,12 +160,20 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("rvv")
+	s.F32.RollingMin = rollingMinFloat32RVVGuarded
+	s.F32.RollingMax = rollingMaxFloat32RVVGuarded
 	s.F32.FastCumProd = fastCumProdFloat32RVVGuarded
 	s.F32.FastCumSum = fastCumSumFloat32RVVGuarded
+	s.F64.RollingMin = rollingMinFloat64RVVGuarded
+	s.F64.RollingMax = rollingMaxFloat64RVVGuarded
 	s.F64.FastCumProd = fastCumProdFloat64RVVGuarded
+	s.I32.RollingMin = rollingMinInt32RVVGuarded
+	s.I32.RollingMax = rollingMaxInt32RVVGuarded
 	s.I32.CumMin = cumMinInt32RVVGuarded
 	s.I32.CumMax = cumMaxInt32RVVGuarded
 	s.I32.CumProd = cumProdInt32RVVGuarded
+	s.I64.RollingMin = rollingMinInt64RVVGuarded
+	s.I64.RollingMax = rollingMaxInt64RVVGuarded
 	s.I64.CumMin = cumMinInt64RVVGuarded
 	s.I64.CumMax = cumMaxInt64RVVGuarded
 }

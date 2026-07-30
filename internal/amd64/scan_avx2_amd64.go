@@ -16,13 +16,31 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 //go:noescape
+func rollingMinFloat32AVX2(dst []float32, a []float32, window int)
+
+//go:noescape
+func rollingMaxFloat32AVX2(dst []float32, a []float32, window int)
+
+//go:noescape
 func fastCumProdFloat32AVX2(dst []float32, a []float32)
 
 //go:noescape
 func fastCumSumFloat32AVX2(dst []float32, a []float32)
 
 //go:noescape
+func rollingMinFloat64AVX2(dst []float64, a []float64, window int)
+
+//go:noescape
+func rollingMaxFloat64AVX2(dst []float64, a []float64, window int)
+
+//go:noescape
 func fastCumProdFloat64AVX2(dst []float64, a []float64)
+
+//go:noescape
+func rollingMinInt32AVX2(dst []int32, a []int32, window int)
+
+//go:noescape
+func rollingMaxInt32AVX2(dst []int32, a []int32, window int)
 
 //go:noescape
 func cumMinInt32AVX2(dst []int32, a []int32)
@@ -32,6 +50,12 @@ func cumMaxInt32AVX2(dst []int32, a []int32)
 
 //go:noescape
 func cumProdInt32AVX2(dst []int32, a []int32)
+
+//go:noescape
+func rollingMinInt64AVX2(dst []int64, a []int64, window int)
+
+//go:noescape
+func rollingMaxInt64AVX2(dst []int64, a []int64, window int)
 
 //go:noescape
 func cumMinInt64AVX2(dst []int64, a []int64)

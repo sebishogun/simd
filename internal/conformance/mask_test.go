@@ -389,6 +389,31 @@ func checkBytes(t *testing.T, tier string, got, want kernel.Bytes) {
 		}
 	}
 
+	if got.CommonPrefix != nil && want.CommonPrefix != nil {
+		for _, n := range byteLens {
+			a := genBytes(n, r)
+			// The same cases Compare uses, for the same reason: the answer
+			// turns on where the first difference is, including the case where
+			// there is none and one slice simply ends.
+			cases := [][2][]byte{{a, append([]byte(nil), a...)}}
+			if n > 0 {
+				for _, at := range []int{0, n / 2, n - 1} {
+					c := append([]byte(nil), a...)
+					c[at] ^= 0xff
+					cases = append(cases, [2][]byte{a, c})
+				}
+				cases = append(cases, [2][]byte{a, a[:n-1]}, [2][]byte{a[:n-1], a})
+			}
+			for _, c := range cases {
+				g, w := got.CommonPrefix(c[0], c[1]), want.CommonPrefix(c[0], c[1])
+				if g != w {
+					t.Fatalf("%s/Bytes.CommonPrefix len=%d,%d: got %d want %d",
+						tier, len(c[0]), len(c[1]), g, w)
+				}
+			}
+		}
+	}
+
 	if got.EqualFoldASCII != nil && want.EqualFoldASCII != nil {
 		for _, n := range byteLens {
 			a := make([]byte, n)

@@ -88,6 +88,9 @@ func fillBytesAVX512(dst []byte, v byte)
 func compareBytesAVX512(a []byte, b []byte) int
 
 //go:noescape
+func commonPrefixAVX512(a []byte, b []byte) int
+
+//go:noescape
 func equalFoldASCIIAVX512(a []byte, b []byte) bool
 
 //go:noescape

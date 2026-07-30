@@ -2308,3 +2308,66 @@ cross-tier identity for free by compiling one source everywhere.
 
 Not attempted. Recorded so the next person does not spend the afternoon on the
 pragma first.
+
+## 64. A vectorized sliding window loses to a deque, and the crossover is on the window
+
+**The belief.** `RollingMin` over a window of *w* is w-1 elementwise minima,
+and elementwise minima are what this library is fastest at, so the vectorized
+version wins the way every other elementwise family does.
+
+**Half true, and the half that is false is the half people ask for.**
+
+The textbook sliding-window minimum is a monotonic deque: two amortized
+comparisons per element, *independent of w*. The kernel here does w-1 passes
+over the output — asymptotically worse — but each pass is contiguous and
+vectorized, and they are tiled so the block being accumulated stays in L1
+across all of them. So the kernel does sixteen windows per instruction where
+the deque does one, and which wins is a race between a constant factor of the
+vector width and a linear factor of w.
+
+Measured, one million float64, minimum of three runs:
+
+| window | kernel | deque | |
+|---|---|---|---|
+| 4 | 0.65 ms | 8.35 ms | **12.8x** |
+| 8 | 1.35 | 8.90 | 6.6x |
+| 16 | 2.79 | 8.62 | 3.1x |
+| 32 | 5.65 | 8.44 | 1.5x |
+| 64 | 11.2 | 8.33 | **0.75x** |
+| 256 | 44.7 | 8.21 | **0.18x** |
+
+The deque's column barely moves, which is the whole point: it does not care
+about w. The crossover is just above 32 — four times the eight float64 lanes an
+AVX-512 register holds — and past it the kernel loses without limit.
+
+**Why the library ships the kernel anyway and does not switch.** Three reasons,
+in the order they were considered and the order they matter.
+
+The O(n log w) sparse-table formulation removes the problem entirely: doubling
+the window each pass needs `ceil(log2 w) + 1` passes instead of w-1, nine
+rather than 255 at w=256. It was not taken because the doubling table needs
+`n - 2^j + 1` entries at step j, which is longer than the `n - w + 1` outputs
+`dst` holds. It needs scratch the size of the input, and this library allocates
+nothing. Requiring the caller to pass a scratch slice was rejected as a worse
+API than a documented limit.
+
+The deque itself was written and deleted. It needs an index ring proportional
+to the window, which would have made this the only allocating operation in the
+library. And it is subtle in a way that testing does not catch: IEEE minimum
+propagates NaN, and "pop the back while it is worse than the new element" does
+nothing when neither operand orders — a plain deque holds the NaN, never
+reports it, and returns a neighbouring value instead. Correcting that needs a
+separate scan tracking the *leftmost* NaN in the window, because a chain of
+IEEE minima yields that NaN's payload rather than any NaN's. That is a third
+implementation of the same semantics, in a library whose central promise is
+that every implementation of an operation agrees bit for bit.
+
+So the limit is documented on `RollingMinInto` with the table above, and the
+answer to "what if my window is 256" is: write the deque, it is fifteen lines.
+A library that shipped only this path and called itself SIMD would be five
+times slower than a hand-written loop while implying otherwise, which is what
+`testdata/bench/README.md` exists to prevent.
+
+**What is on record.** The vector formulation, measured, with the window where
+it stops paying. Not "rolling minimum is not vectorizable" — it is, and below a
+window of 48 it is twelve times faster.

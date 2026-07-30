@@ -40,6 +40,9 @@ func zigzagEncodeI64VX(dst []uint64, a []int64)
 func zigzagDecodeI64VX(dst []int64, a []uint64)
 
 //go:noescape
+func varintLenU32VX(dst []int32, a []uint32)
+
+//go:noescape
 func bf16ToF32VX(dst []float32, a []uint16)
 
 //go:noescape

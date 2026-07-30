@@ -570,3 +570,66 @@ func TestSelectAcceleratedMatchesReference(t *testing.T) {
 		}
 	})
 }
+
+// CommonPrefixLen is checked against the definition rather than against
+// bytes.Compare, which cannot express it: Compare says which way the first
+// difference went, and this says where it was.
+func TestCommonPrefixLen(t *testing.T) {
+	naive := func(a, b []byte) int {
+		n := min(len(a), len(b))
+		for i := range n {
+			if a[i] != b[i] {
+				return i
+			}
+		}
+		return n
+	}
+
+	r := rand.New(rand.NewPCG(31, 32))
+	// Shared prefixes on both sides of the 64-byte block and of the dispatch
+	// threshold: the blocked scan, the block containing the difference and the
+	// byte-wise tail all have to be exercised.
+	for _, shared := range []int{0, 1, 63, 64, 65, 127, 128, 129, 1000, 5000} {
+		for _, extra := range []int{0, 1, 7, 64, 500} {
+			a := make([]byte, shared+extra)
+			for i := range a {
+				a[i] = byte(r.UintN(256))
+			}
+			b := append([]byte(nil), a...)
+			if extra > 0 {
+				b[shared] ^= 0xff // first difference exactly at `shared`
+			}
+			if got, want := simd.CommonPrefixLen(a, b), naive(a, b); got != want {
+				t.Fatalf("shared=%d extra=%d: got %d want %d",
+					shared, extra, got, want)
+			}
+			// And with one side truncated, so the answer is bounded by the
+			// shorter rather than by a difference.
+			for _, cut := range []int{0, 1, shared / 2} {
+				if cut > len(b) {
+					continue
+				}
+				sb := b[:cut]
+				if got, want := simd.CommonPrefixLen(a, sb), naive(a, sb); got != want {
+					t.Fatalf("shared=%d cut=%d: got %d want %d", shared, cut, got, want)
+				}
+			}
+		}
+	}
+
+	// Strings and byte slices are interchangeable, as everywhere else here.
+	if got := simd.CommonPrefixLen("prefixAAA", "prefixBBB"); got != 6 {
+		t.Errorf("CommonPrefixLen on strings = %d, want 6", got)
+	}
+	if got := simd.CommonPrefixLen[[]byte, []byte](nil, nil); got != 0 {
+		t.Errorf("CommonPrefixLen(nil, nil) = %d, want 0", got)
+	}
+}
+
+func TestCommonPrefixLenNoAlloc(t *testing.T) {
+	a := make([]byte, 8192)
+	b := make([]byte, 8192)
+	if n := testing.AllocsPerRun(50, func() { _ = simd.CommonPrefixLen(a, b) }); n != 0 {
+		t.Errorf("CommonPrefixLen allocated %v times per run", n)
+	}
+}

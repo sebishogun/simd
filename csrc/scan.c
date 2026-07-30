@@ -275,3 +275,60 @@ SCAN_ID(double, f64xS, simd_fast_cumprod_f64, SCAN_LANES64, VMUL, 1.0, SCAN_BODY
 // reason the float min and max scans lose, recorded at the top of this file:
 // not associativity, which they have, but the price of the combine.
 SCAN_ID(int, i32xS, simd_cumprod_i32, SCAN_LANES, VMUL, 1, SCAN_BODY16_ID)
+
+// ---------- the sliding window ----------
+//
+// RollingMin over a window of w is not a scan, but it belongs beside them: it
+// is the other operation whose output depends on a *range* of the input rather
+// than one element of it, and the two get confused.
+//
+// # Why the O(n·w) form rather than the O(n) one
+//
+// The textbook answer is a monotonic deque: push each element, pop everything
+// behind it that it beats, and the front is the window minimum. Two amortized
+// comparisons per element, independent of w — asymptotically unbeatable.
+//
+// It is also entirely serial, entirely branchy, and does not vectorize on any
+// target. What is written here does w-1 elementwise passes, which is more
+// *work*, but each pass is a plain elementwise minimum over a contiguous run:
+// the shape this library is fastest at. At sixteen lanes it is doing sixteen
+// windows at once, so the crossover against the deque is around w = lanes,
+// not around w = 2.
+//
+// The passes are tiled so the output block being accumulated stays in L1
+// across all w of them. Without the tile the kernel reads and writes the whole
+// output array w times over and becomes bandwidth-bound at large n, which is
+// the difference between winning and losing at w = 8.
+//
+// # Why the reference is the same algorithm
+//
+// Not laziness — NaN. IEEE minimum propagates NaN, and a deque's "pop while
+// the back is worse" has no defined behaviour when neither operand orders. The
+// reference does the same w-1 combines in the same order with the same
+// minimum, so the two agree bit for bit on every input including NaN and
+// signed zero, which is the contract. A faster reference that disagreed about
+// NaN would be a bug in the library, not an optimization.
+#define ROLLING_TILE 4096
+
+#define ROLLING(T, NAME, SCOMB)                                             \
+  void simd_rolling_##NAME(T *__restrict d, const T *__restrict a, isize w, \
+                           isize nd, isize n) {                            \
+    if (w <= 0) return;                                                    \
+    isize m = n - w + 1;                                                   \
+    if (m > nd) m = nd;                                                    \
+    for (isize t = 0; t < m; t += ROLLING_TILE) {                          \
+      isize hi = t + ROLLING_TILE < m ? t + ROLLING_TILE : m;              \
+      for (isize i = t; i < hi; i++) d[i] = a[i];                          \
+      for (isize j = 1; j < w; j++)                                        \
+        for (isize i = t; i < hi; i++) d[i] = SCOMB(d[i], a[i + j]);       \
+    }                                                                      \
+  }
+
+ROLLING(float, min_f32, min_f32)
+ROLLING(float, max_f32, max_f32)
+ROLLING(double, min_f64, min_f64)
+ROLLING(double, max_f64, max_f64)
+ROLLING(int, min_i32, min_i32)
+ROLLING(int, max_i32, max_i32)
+ROLLING(long long, min_i64, min_i64)
+ROLLING(long long, max_i64, max_i64)

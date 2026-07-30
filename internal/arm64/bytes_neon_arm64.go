@@ -88,6 +88,9 @@ func fillBytesNEON(dst []byte, v byte)
 func compareBytesNEON(a []byte, b []byte) int
 
 //go:noescape
+func commonPrefixNEON(a []byte, b []byte) int
+
+//go:noescape
 func equalFoldASCIINEON(a []byte, b []byte) bool
 
 //go:noescape

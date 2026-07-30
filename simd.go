@@ -397,6 +397,52 @@ func CumMax[T Number](a []T) { ops[T]().CumMax(a, a) }
 // CumMaxInto writes the running maximum of a into dst. dst may alias a.
 func CumMaxInto[T Number](dst, a []T) { ops[T]().CumMax(dst, a) }
 
+// RollingMinInto writes the minimum of every window of the given size into
+// dst: dst[i] is the smallest element of a[i : i+window].
+//
+// There are len(a)-window+1 outputs, so dst must have room for that many. A
+// window that is not positive, or is longer than a, writes nothing.
+//
+// The extreme is IEEE 754-2019 minimum, the same one Min and Minimum use: a
+// window containing a NaN yields NaN, and -0 is smaller than +0.
+//
+// dst must not overlap a.
+//
+// # Use this below a window of about 48, and a deque above it
+//
+// The textbook sliding-window minimum is a monotonic deque: two amortized
+// comparisons per element, whatever the window. This does window-1 elementwise
+// passes, which is more arithmetic — but each pass is a plain contiguous
+// minimum, the shape a vector unit is fastest at, and they are tiled so the
+// block being accumulated stays in L1 across all of them. So it does sixteen
+// windows at a time where the deque does one, and the comparison turns on the
+// *window*, not on n. Measured on a Zen 5 at one million float64:
+//
+//	window     this     hand-written deque
+//	     4     0.65 ms   8.35 ms   12.8x
+//	     8     1.35      8.90       6.6x
+//	    16     2.79      8.62       3.1x
+//	    32     5.65      8.44       1.5x
+//	    64    11.2       8.33       0.75x
+//	   256    44.7       8.21       0.18x
+//
+// The crossover is just above 32, which is four times the eight float64 lanes
+// an AVX-512 register holds. Above roughly 48, write the deque.
+//
+// This function does not switch to a deque itself, and that is a decision
+// rather than an omission. A deque needs an index ring proportional to the
+// window, which would be the only allocating operation in this library; and
+// getting IEEE minimum out of one is subtle in a way that would not show up in
+// testing — "pop the back while it is worse" does nothing when neither operand
+// orders, so a plain deque holds a NaN without ever reporting it. A third
+// implementation of these semantics is a liability, and the honest thing is to
+// say where this one stops paying. See docs/wrong.md entry 64.
+func RollingMinInto[T Number](dst, a []T, window int) { ops[T]().RollingMin(dst, a, window) }
+
+// RollingMaxInto writes the maximum of every window of the given size into dst.
+// See [RollingMinInto], whose contract it shares.
+func RollingMaxInto[T Number](dst, a []T, window int) { ops[T]().RollingMax(dst, a, window) }
+
 // DiffInto writes the successive differences of a into dst:
 // dst[i] = a[i+1] - a[i].
 //

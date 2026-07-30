@@ -3560,6 +3560,56 @@ TEXT ·compareBytesNEON(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0xd65f03c0
 	RET
 
+// func commonPrefixNEON(a []byte, b []byte) int
+TEXT ·commonPrefixNEON(SB), NOSPLIT|NOFRAME, $0-56
+	MOVD $ret+48(FP), R0
+	MOVD a_base+0(FP), R1
+	MOVD b_base+24(FP), R2
+	MOVD a_len+8(FP), R3
+	MOVD b_len+32(FP), R4
+	WORD $0xeb04007f
+	WORD $0xaa1f03ea
+	WORD $0x9a84b069
+	WORD $0xaa0a03e8
+	WORD $0x9101014a
+	WORD $0xeb09015f
+	WORD $0x540002ec
+	WORD $0x8b08002b
+	WORD $0x8b08004c
+	WORD $0xad400560
+	WORD $0xad400d82
+	WORD $0xad411564
+	WORD $0xad411d86
+	WORD $0x6e201c40
+	WORD $0x6e211c61
+	WORD $0x6e241cc2
+	WORD $0x6e251ce3
+	WORD $0x4ea01c40
+	WORD $0x4ea11c61
+	WORD $0x4ea01c20
+	WORD $0x6e004001
+	WORD $0x0ea11c00
+	WORD $0x9e66000b
+	WORD $0xaa4b816b
+	WORD $0xd350fd6c
+	WORD $0x2a0c016b
+	WORD $0x2a4b216b
+	WORD $0x72001d7f
+	WORD $0x54fffce0
+	WORD $0xeb09011f
+	WORD $0x5400012a
+	WORD $0x3868682a
+	WORD $0x3868684b
+	WORD $0x6b0b015f
+	WORD $0x540000a1
+	WORD $0x91000508
+	WORD $0xeb08013f
+	WORD $0x54ffff41
+	WORD $0xaa0903e8
+	WORD $0xf9000008
+	WORD $0xd65f03c0
+	RET
+
 // func equalFoldASCIINEON(a []byte, b []byte) bool
 TEXT ·equalFoldASCIINEON(SB), NOSPLIT|NOFRAME, $0-49
 	MOVD $ret+48(FP), R0
