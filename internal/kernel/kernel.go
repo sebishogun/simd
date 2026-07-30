@@ -538,6 +538,18 @@ type Convert struct {
 	// Exact and total in both directions under rule 1: these are shifts and
 	// exclusive ors, so every tier gives the same bits, and every value round
 	// trips including the most negative one.
+	// Bit packing: uint32 values into a dense bitstream of `bits` bits each.
+	// This is what a column store does after delta encoding, once the values
+	// are small enough that 32 bits each is mostly zeroes.
+	//
+	// Exact and bit-identical under rule 1 — shifts and ors.
+	//
+	// BitUnpackU32 reads one word past the last full word when the final
+	// value straddles a boundary, so its input must have that word. The
+	// guard enforces it rather than the kernel branching per element.
+	BitPackU32   func(dst, a []uint32, bits int32)
+	BitUnpackU32 func(dst, a []uint32, bits int32)
+
 	// fp8, both OCP OFP8 formats.
 	//
 	//	e4m3  4 exponent, 3 mantissa, bias 7.  Weights and activations.

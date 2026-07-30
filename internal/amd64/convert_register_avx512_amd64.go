@@ -160,6 +160,14 @@ func zigzagDecodeI64AVX512Guarded(dst []int64, a []uint64) {
 	zigzagDecodeI64AVX512(dst[:n:n], a)
 }
 
+func bitUnpackU32AVX512Guarded(dst []uint32, a []uint32, bits int32) {
+	if len(dst) < 16 || bits <= 0 || bits > 32 || len(a) < (len(dst)*int(bits)+31)/32+1 {
+		ref.BitUnpackU32(dst, a, bits)
+		return
+	}
+	bitUnpackU32AVX512(dst, a, bits)
+}
+
 func f8e4m3ToF32AVX512Guarded(dst []float32, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -252,6 +260,7 @@ func init() {
 	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32AVX512Guarded
 	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64AVX512Guarded
 	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64AVX512Guarded
+	s.Convert.BitUnpackU32 = bitUnpackU32AVX512Guarded
 	s.Convert.F8E4M3ToF32 = f8e4m3ToF32AVX512Guarded
 	s.Convert.F32ToF8E4M3 = f32ToF8E4M3AVX512Guarded
 	s.Convert.F8E5M2ToF32 = f8e5m2ToF32AVX512Guarded

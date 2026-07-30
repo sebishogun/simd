@@ -160,6 +160,14 @@ func zigzagDecodeI64RVVGuarded(dst []int64, a []uint64) {
 	zigzagDecodeI64RVV(dst[:n:n], a)
 }
 
+func bitUnpackU32RVVGuarded(dst []uint32, a []uint32, bits int32) {
+	if len(dst) < 16 || bits <= 0 || bits > 32 || len(a) < (len(dst)*int(bits)+31)/32+1 {
+		ref.BitUnpackU32(dst, a, bits)
+		return
+	}
+	bitUnpackU32RVV(dst, a, bits)
+}
+
 func bf16ToF32RVVGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -216,6 +224,7 @@ func init() {
 	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32RVVGuarded
 	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64RVVGuarded
 	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64RVVGuarded
+	s.Convert.BitUnpackU32 = bitUnpackU32RVVGuarded
 	s.Convert.BF16ToF32 = bf16ToF32RVVGuarded
 	s.Convert.F32ToBF16 = f32ToBF16RVVGuarded
 	s.Convert.F16ToF32 = f16ToF32RVVGuarded

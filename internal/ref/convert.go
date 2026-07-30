@@ -118,6 +118,7 @@ func f32ToF16(dst []uint16, a []float32) {
 func convertOps() kernel.Convert {
 	return kernel.Convert{
 		BF16ToF32: bf16ToF32, F32ToBF16: f32ToBF16,
+		BitPackU32: bitPackU32, BitUnpackU32: bitUnpackU32,
 		F8E4M3ToF32: F8E4M3ToF32, F32ToF8E4M3: F32ToF8E4M3,
 		F8E5M2ToF32: F8E5M2ToF32, F32ToF8E5M2: F32ToF8E5M2,
 		F16ToF32: f16ToF32, F32ToF16: f32ToF16,
@@ -516,3 +517,58 @@ func F8E4M3ToF32(dst []float32, a []byte) { f8ToF32(dst, a, e4m3) }
 func F32ToF8E4M3(dst []byte, a []float32) { f32ToF8(dst, a, e4m3) }
 func F8E5M2ToF32(dst []float32, a []byte) { f8ToF32(dst, a, e5m2) }
 func F32ToF8E5M2(dst []byte, a []float32) { f32ToF8(dst, a, e5m2) }
+
+// ---------- bit packing ----------
+//
+// The specification: values are packed little-endian, least significant bit
+// first, with no padding between them and no alignment to word boundaries.
+// That is the layout Parquet and Arrow use.
+
+func bitPackU32(dst, a []uint32, bits int32) {
+	if bits <= 0 || bits > 32 || len(dst) < (len(a)*int(bits)+31)/32 {
+		return
+	}
+	mask := uint32(0xffffffff)
+	if bits < 32 {
+		mask = 1<<uint(bits) - 1
+	}
+	words := (len(a)*int(bits) + 31) / 32
+	// Written as a bit cursor, which is the readable form and the one that
+	// does not vectorize. The kernel inverts the loop; the two agreeing is
+	// what makes the differential worth running.
+	for w := range dst[:words] {
+		dst[w] = 0
+	}
+	pos := 0
+	for _, v := range a {
+		v &= mask
+		w, sh := pos/32, uint(pos%32)
+		dst[w] |= v << sh
+		if sh+uint(bits) > 32 {
+			dst[w+1] |= v >> (32 - sh)
+		}
+		pos += int(bits)
+	}
+}
+
+func bitUnpackU32(dst, a []uint32, bits int32) {
+	if bits <= 0 || bits > 32 || len(a) < (len(dst)*int(bits)+31)/32+1 {
+		return
+	}
+	mask := uint32(0xffffffff)
+	if bits < 32 {
+		mask = 1<<uint(bits) - 1
+	}
+	for i := range dst {
+		pos := i * int(bits)
+		w, sh := pos/32, uint(pos%32)
+		v := a[w] >> sh
+		if sh+uint(bits) > 32 {
+			v |= a[w+1] << (32 - sh)
+		}
+		dst[i] = v & mask
+	}
+}
+
+func BitPackU32(dst, a []uint32, bits int32)   { bitPackU32(dst, a, bits) }
+func BitUnpackU32(dst, a []uint32, bits int32) { bitUnpackU32(dst, a, bits) }

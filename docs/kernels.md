@@ -126,6 +126,30 @@ inlined, so below the threshold the call is the whole runtime. Use the existing
 `thElementwise`, `thBytes`, `thScan` or `thReduction` unless you have measured
 something else.
 
+**A kernel whose output is not the same length as its input must declare two
+lengths.** The guard's default is `n := min(len(dst), len(a), ...)` over every
+slice, which is right for elementwise work and wrong for anything else — and it
+is wrong *silently*, by processing the wrong number of elements rather than by
+failing.
+
+Two kernels hit this in one week, from opposite directions. `sum_lanes` writes
+sixteen accumulators from an arbitrarily long input, so the input was clamped
+to sixteen and a 4096-element chunk summed its first sixteen. `bitpack` writes
+*fewer* words than it reads, which is the entire point of packing, so the input
+was clamped to the output and everything past `len(dst)` was dropped. Adding a
+second `lenOf` to `CArgs` turns the clamping off, and the kernel checks the
+sizes itself:
+
+```go
+CArgs: []spec.CArg{base("dst"), base("a"), val("bits"),
+	lenOf("a"), lenOf("dst")},
+```
+
+`Diff` — whose output is one element shorter than its input — has done this
+since it was written, and the comment on `countLens` in the emitter explains
+why. If your output length is a function of anything other than the input
+length, you are in this case.
+
 **Watch the argument count.** SysV amd64 passes six integer arguments in
 registers, and the generator declines anything longer:
 

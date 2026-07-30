@@ -242,3 +242,31 @@ func Float8E5M2ToFloat32Into(dst []float32, a []byte) { active.Convert.F8E5M2ToF
 // Values above 57344 in magnitude become infinities, as in float16. Denormals
 // are produced rather than flushed.
 func Float32ToFloat8E5M2Into(dst []byte, a []float32) { active.Convert.F32ToF8E5M2(dst, a) }
+
+// ---------- bit packing ----------
+
+// BitPackInto packs the low `bits` bits of each value in a into a dense
+// bitstream in dst, least significant bit first and with no padding.
+//
+// This is the representation Parquet, Arrow and Lucene use for an integer
+// column after delta encoding: once the deltas are small, storing each in a
+// full 32 bits is mostly zeroes. Pair it with [DiffInto] to produce the deltas
+// and [ZigzagEncodeInt32Into] if they can be negative.
+//
+// dst must have room for ceil(len(a)*bits/32) words. bits must be 1 to 32.
+// It does nothing if either is not so, and it allocates nothing.
+func BitPackInto(dst, a []uint32, bits int32) { active.Convert.BitPackU32(dst, a, bits) }
+
+// BitUnpackInto is the inverse: it reads len(dst) values of `bits` bits each
+// from the bitstream in a.
+//
+// The number of values is taken from len(dst), because a bitstream does not
+// record how many values it holds — the caller knows, and a packed block in
+// any real format carries the count beside it.
+//
+// a must hold ceil(len(dst)*bits/32)+1 words. The extra word is not slack: a
+// value whose bits straddle a word boundary reads the next word, and the last
+// value straddles whenever len(dst)*bits is not a multiple of 32. Requiring it
+// in the guard is what lets the kernel read unconditionally rather than
+// branching on every element.
+func BitUnpackInto(dst, a []uint32, bits int32) { active.Convert.BitUnpackU32(dst, a, bits) }

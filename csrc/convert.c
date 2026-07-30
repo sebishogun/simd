@@ -508,3 +508,81 @@ void simd_f32_to_f8e5m2(unsigned char *__restrict d,
     }
   }
 }
+
+// ---------- bit packing ----------
+//
+// Pack uint32 values into a dense bitstream of `bits` bits each, and unpack
+// them again. This is the representation Parquet, Arrow, Lucene and every
+// column store use after delta encoding: once the deltas are small, storing
+// them in 32 bits each wastes most of the file.
+//
+// The width is a run-time parameter rather than a template, because a column
+// store picks it per block from the actual maximum. That costs a variable
+// shift per element, which every target has.
+//
+// THE SHAPE THAT MAKES THIS VECTORIZE. The obvious loop walks a bit cursor and
+// writes across word boundaries, which is a serial dependence through the
+// cursor and does not vectorize at all. This one is written the other way
+// round: for each OUTPUT word, work out which inputs contribute to it. Every
+// output word is then independent, and the loop over them is a plain
+// elementwise pass.
+//
+// The cost is that each output word re-reads up to two inputs, which is
+// cheaper than it sounds because they are adjacent and in cache.
+//
+// bits must be 1..32. Zero would be a degenerate encoding with no output and
+// is rejected by the caller rather than special-cased here.
+// It takes both lengths. The output is SHORTER than the input — that is the
+// entire point of packing — and the generated guard's default is to clamp
+// every slice to the shortest, which silently truncated the input to the
+// number of output words. Two lengths turn the clamping off; see the note on
+// countLens in the emitter, and simd_sum_lanes, which has the same shape for
+// the same reason.
+void simd_bitpack_u32(unsigned int *__restrict d, const unsigned int *__restrict a,
+                      int bits, isize n, isize ndst) {
+  // Number of output words: ceil(n*bits / 32).
+  isize words = (n * (isize)bits + 31) / 32;
+  if (ndst < words) return;
+  for (isize w = 0; w < words; w++) {
+    // The bit position this output word starts at, and the first input that
+    // contributes to it.
+    isize startBit = w * 32;
+    isize first = startBit / bits;
+    unsigned int acc = 0;
+    // At most 33 inputs can touch one output word (bits == 1), so the loop is
+    // bounded and clang can unroll the common widths.
+    for (isize i = first; i < n; i++) {
+      isize lo = i * (isize)bits;
+      if (lo >= startBit + 32) break;
+      isize hi = lo + bits;
+      if (hi <= startBit) continue;
+      unsigned int v = a[i] & (bits == 32 ? 0xffffffffu : ((1u << bits) - 1u));
+      if (lo >= startBit) {
+        acc |= v << (unsigned)(lo - startBit);
+      } else {
+        acc |= v >> (unsigned)(startBit - lo);
+      }
+    }
+    d[w] = acc;
+  }
+}
+
+// The inverse. Each output element is independent — it reads the one or two
+// words its bits straddle — so this is a plain elementwise pass and vectorizes
+// where the packing direction does not.
+void simd_bitunpack_u32(unsigned int *__restrict d, const unsigned int *__restrict a,
+                        int bits, isize n, isize nsrc) {
+  if (nsrc < (n * (isize)bits + 31) / 32 + 1) return;
+  unsigned int mask = bits == 32 ? 0xffffffffu : ((1u << bits) - 1u);
+  for (isize i = 0; i < n; i++) {
+    isize lo = i * (isize)bits;
+    isize w = lo / 32;
+    unsigned shift = (unsigned)(lo % 32);
+    unsigned int v = a[w] >> shift;
+    // The second word contributes only when the value straddles a boundary.
+    // Reading it unconditionally would be simpler and would run off the end of
+    // the buffer on the last element.
+    if (shift + (unsigned)bits > 32) v |= a[w + 1] << (32u - shift);
+    d[i] = v & mask;
+  }
+}

@@ -95,6 +95,8 @@ var Inventory = []Declared{
 	{"C64Parts", "Real", "CReal64", "simd_creal_c64"},
 	{"C64Parts", "Scale", "CScale64", "simd_cscale_c64"},
 	{"Convert", "BF16ToF32", "BF16ToF32", "simd_bf16_to_f32"},
+	{"Convert", "BitPackU32", "BitPackU32", "simd_bitpack_u32"},
+	{"Convert", "BitUnpackU32", "BitUnpackU32", "simd_bitunpack_u32"},
 	{"Convert", "DequantizeI8", "DequantizeI8", "simd_dequantize_i8"},
 	{"Convert", "DequantizePerChannelI8", "DequantizePerChannelI8", "simd_dequantize_per_channel_i8"},
 	{"Convert", "DequantizePerChannelU8", "DequantizePerChannelU8", "simd_dequantize_per_channel_u8"},

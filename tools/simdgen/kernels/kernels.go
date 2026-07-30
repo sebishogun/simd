@@ -1361,6 +1361,29 @@ func Convert() []spec.Kernel {
 		conv("simd_zigzag_decode_i64", "zigzagDecodeI64", "ZigzagDecodeI64",
 			"ZigzagDecodeI64", spec.SliceI64, spec.SliceU64),
 
+		{
+			CName: "simd_bitpack_u32", GoName: "bitPackU32",
+			Group: "Convert", Field: "BitPackU32", RefFunc: "BitPackU32",
+			Params: []spec.Param{sl("dst", spec.SliceU32), sl("a", spec.SliceU32),
+				{Name: "bits", Type: spec.I32}},
+			CArgs: []spec.CArg{base("dst"), base("a"), val("bits"),
+				lenOf("a"), lenOf("dst")},
+			RefWhen: "bits <= 0 || bits > 32 || " +
+				"len(dst) < (len(a)*int(bits)+31)/32",
+			Threshold: thElementwise,
+		},
+		{
+			CName: "simd_bitunpack_u32", GoName: "bitUnpackU32",
+			Group: "Convert", Field: "BitUnpackU32", RefFunc: "BitUnpackU32",
+			Params: []spec.Param{sl("dst", spec.SliceU32), sl("a", spec.SliceU32),
+				{Name: "bits", Type: spec.I32}},
+			CArgs: []spec.CArg{base("dst"), base("a"), val("bits"),
+				lenOf("dst"), lenOf("a")},
+			RefWhen: "bits <= 0 || bits > 32 || " +
+				"len(a) < (len(dst)*int(bits)+31)/32+1",
+			Threshold: thElementwise,
+		},
+
 		conv("simd_f8e4m3_to_f32", "f8e4m3ToF32", "F8E4M3ToF32", "F8E4M3ToF32",
 			spec.SliceF32, spec.SliceU8),
 		conv("simd_f32_to_f8e4m3", "f32ToF8E4M3", "F32ToF8E4M3", "F32ToF8E4M3",
