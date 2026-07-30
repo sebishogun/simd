@@ -27,6 +27,31 @@ func isASCIIVSXGuarded(b []byte) bool {
 	return isASCIIVSX(b)
 }
 
+func indexNonASCII16VSXGuarded(b []uint16) int {
+	if len(b) < 64 {
+		return ref.IndexNonASCII16(b)
+	}
+	return indexNonASCII16VSX(b)
+}
+
+func widenU8U16VSXGuarded(dst []uint16, s []byte) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.WidenU8U16(dst, s)
+		return
+	}
+	widenU8U16VSX(dst[:n:n], s)
+}
+
+func narrowU16U8VSXGuarded(dst []byte, s []uint16) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU16U8(dst, s)
+		return
+	}
+	narrowU16U8VSX(dst[:n:n], s)
+}
+
 func bitAndVSXGuarded(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
@@ -119,6 +144,9 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
 	s.Bytes.IsASCII = isASCIIVSXGuarded
+	s.Bytes.IndexNonASCII16 = indexNonASCII16VSXGuarded
+	s.Bytes.WidenU8U16 = widenU8U16VSXGuarded
+	s.Bytes.NarrowU16U8 = narrowU16U8VSXGuarded
 	s.Bytes.And = bitAndVSXGuarded
 	s.Bytes.Or = bitOrVSXGuarded
 	s.Bytes.Xor = bitXorVSXGuarded

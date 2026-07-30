@@ -371,6 +371,18 @@ type Bytes struct {
 	// IsASCII reports whether every byte is below 0x80; ValidUTF8 reports
 	// whether the whole slice is well-formed UTF-8.
 	IsASCII, ValidUTF8 func(b []byte) bool
+	// IndexNonASCII is IsASCII with a position: the offset of the first byte
+	// at or above 0x80, or len(b) if there is none. IndexNonASCII16 is the
+	// same over UTF-16 units. Both return a length rather than -1 because
+	// every caller uses the answer as the size of a run to convert.
+	IndexNonASCII   func(b []byte) int
+	IndexNonASCII16 func(b []uint16) int
+	// WidenU8U16 zero-extends bytes to UTF-16 units and NarrowU16U8
+	// truncates back. They are the ASCII fast path of the UTF-16 conversion,
+	// and are only ever called on a run already proven to be ASCII, which is
+	// what makes the truncation exact.
+	WidenU8U16  func(dst []uint16, s []byte)
+	NarrowU16U8 func(dst []byte, s []uint16)
 	// ASCII case folding, which unlike the Unicode kind is a branch-free
 	// range compare and maps one byte to one byte.
 	ToUpperASCII, ToLowerASCII func(dst, b []byte)

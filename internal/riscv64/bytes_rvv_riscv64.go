@@ -34,6 +34,18 @@ func isASCIIRVV(b []byte) bool
 func validUTF8RVV(b []byte) bool
 
 //go:noescape
+func indexNonASCIIRVV(b []byte) int
+
+//go:noescape
+func indexNonASCII16RVV(b []uint16) int
+
+//go:noescape
+func widenU8U16RVV(dst []uint16, s []byte)
+
+//go:noescape
+func narrowU16U8RVV(dst []byte, s []uint16)
+
+//go:noescape
 func equalBytesRVV(a []byte, b []byte) bool
 
 //go:noescape

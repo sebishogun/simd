@@ -1049,6 +1049,8 @@ func Set() kernel.Set {
 			IndexAll: indexAll, IndexAny: indexAny, CountAny: countAny, Index: index,
 			IndexNotAny: indexNotAny, LastIndexNotAny: lastIndexNotAny, LastIndex: lastIndex, CountSeq: countSeq,
 			IsASCII: isASCII, ValidUTF8: validUTF8,
+			IndexNonASCII: IndexNonASCII, IndexNonASCII16: IndexNonASCII16,
+			WidenU8U16: WidenU8U16, NarrowU16U8: NarrowU16U8,
 			ToUpperASCII: toUpperASCII, ToLowerASCII: toLowerASCII,
 			EqualFoldASCII: equalFoldASCII, ReplaceByte: replaceByte,
 			HexEncode: hexEncode, HexDecode: hexDecode,

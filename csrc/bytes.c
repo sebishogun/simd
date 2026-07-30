@@ -16,6 +16,7 @@
 #include "fold.h"
 
 typedef unsigned char u8;
+typedef unsigned short u16;
 
 void simd_count_byte(isize *__restrict out, const u8 *__restrict b, u8 c,
                      isize n) {
@@ -1033,4 +1034,86 @@ void simd_format_ints(isize *__restrict out, u8 *__restrict d,
     if (i != nv - 1) d[w++] = (u8)sep;
   }
   *out = w;
+}
+
+// ---------- UTF-16 ----------
+//
+// The conversion between UTF-8 and UTF-16 is a dependent scan in general: a
+// rune's length decides where the next one starts, so nothing about the second
+// rune can be computed before the first is decoded. That is the worst possible
+// shape for a vector unit, and it is why unicode/utf16 measures 617 MB/s on a
+// []byte caller against a 4.8 GB/s validation floor.
+//
+// What IS vectorizable is the ASCII run, which in real text is nearly all of
+// it: below 0x80 a byte is a whole rune and a whole UTF-16 unit, so the
+// conversion collapses to a widen (or a narrow), with no dependence between
+// lanes at all. These three kernels are that fast path; the Go side finds the
+// runs and decodes the handful of non-ASCII runes between them scalar.
+//
+// Splitting it this way rather than writing one clever kernel also keeps the
+// output length independent of the data within a call, which is what lets
+// these stay plain one-result kernels.
+
+// simd_index_nonascii returns the offset of the first byte >= 0x80, or n if
+// there is none. Blocked exactly like simd_index_byte: a block is tested
+// branchlessly and only a block holding a hit is walked.
+void simd_index_nonascii(isize *__restrict out, const u8 *__restrict b,
+                         isize n) {
+  const isize block = 64;
+  isize i = 0;
+  for (; i + block <= n; i += block) {
+    unsigned char hit = 0;
+    for (isize j = 0; j < block; j++) hit |= (unsigned char)(b[i + j] >> 7);
+    if (hit) {
+      for (isize j = 0; j < block; j++)
+        if (b[i + j] & 0x80) {
+          *out = i + j;
+          return;
+        }
+    }
+  }
+  for (; i < n; i++)
+    if (b[i] & 0x80) {
+      *out = i;
+      return;
+    }
+  *out = n;
+}
+
+// simd_index_nonascii16 is the same scan over UTF-16 units, for the decode
+// direction. A unit below 0x80 encodes as one UTF-8 byte; anything else,
+// including every surrogate, is handled scalar.
+void simd_index_nonascii16(isize *__restrict out, const u16 *__restrict b,
+                           isize n) {
+  const isize block = 32;
+  isize i = 0;
+  for (; i + block <= n; i += block) {
+    unsigned char hit = 0;
+    for (isize j = 0; j < block; j++) hit |= (b[i + j] >= 0x80);
+    if (hit) {
+      for (isize j = 0; j < block; j++)
+        if (b[i + j] >= 0x80) {
+          *out = i + j;
+          return;
+        }
+    }
+  }
+  for (; i < n; i++)
+    if (b[i] >= 0x80) {
+      *out = i;
+      return;
+    }
+  *out = n;
+}
+
+// simd_widen_u8_u16 zero-extends n bytes into n units, and
+// simd_narrow_u16_u8 truncates back. Both are only ever called on a run the
+// scan above has already proven is ASCII, so the narrow's truncation cannot
+// lose information.
+void simd_widen_u8_u16(u16 *__restrict d, const u8 *__restrict s, isize n) {
+  for (isize i = 0; i < n; i++) d[i] = (u16)s[i];
+}
+
+void simd_narrow_u16_u8(u8 *__restrict d, const u16 *__restrict s, isize n) {
+  for (isize i = 0; i < n; i++) d[i] = (u8)s[i];
 }

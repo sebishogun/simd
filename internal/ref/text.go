@@ -272,6 +272,41 @@ func Index(haystack, needle []byte) int { return index(haystack, needle) }
 
 func ValidUTF8(b []byte) bool { return validUTF8(b) }
 
+// The UTF-16 fast path. These three define the semantics the kernels must
+// match: an offset that is len(b) when nothing matched — not -1, because the
+// caller uses it as a run length — and a widen and narrow that are only ever
+// asked to move ASCII, so the narrow's truncation is exact by precondition.
+
+func IndexNonASCII(b []byte) int {
+	for i, c := range b {
+		if c >= 0x80 {
+			return i
+		}
+	}
+	return len(b)
+}
+
+func IndexNonASCII16(b []uint16) int {
+	for i, c := range b {
+		if c >= 0x80 {
+			return i
+		}
+	}
+	return len(b)
+}
+
+func WidenU8U16(dst []uint16, s []byte) {
+	for i := range dst {
+		dst[i] = uint16(s[i])
+	}
+}
+
+func NarrowU16U8(dst []byte, s []uint16) {
+	for i := range dst {
+		dst[i] = byte(s[i])
+	}
+}
+
 func IndexNotAny(b, chars []byte) int       { return indexNotAny(b, chars) }
 func LastIndex(haystack, needle []byte) int { return lastIndex(haystack, needle) }
 func CountSeq(haystack, needle []byte) int  { return countSeq(haystack, needle) }

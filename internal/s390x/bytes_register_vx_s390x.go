@@ -41,6 +41,31 @@ func isASCIIVXGuarded(b []byte) bool {
 	return isASCIIVX(b)
 }
 
+func indexNonASCII16VXGuarded(b []uint16) int {
+	if len(b) < 64 {
+		return ref.IndexNonASCII16(b)
+	}
+	return indexNonASCII16VX(b)
+}
+
+func widenU8U16VXGuarded(dst []uint16, s []byte) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.WidenU8U16(dst, s)
+		return
+	}
+	widenU8U16VX(dst[:n:n], s)
+}
+
+func narrowU16U8VXGuarded(dst []byte, s []uint16) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU16U8(dst, s)
+		return
+	}
+	narrowU16U8VX(dst[:n:n], s)
+}
+
 func equalBytesVXGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
@@ -143,6 +168,9 @@ func init() {
 	s.Bytes.LastIndexByte = lastIndexByteVXGuarded
 	s.Bytes.PopCount = popCountVXGuarded
 	s.Bytes.IsASCII = isASCIIVXGuarded
+	s.Bytes.IndexNonASCII16 = indexNonASCII16VXGuarded
+	s.Bytes.WidenU8U16 = widenU8U16VXGuarded
+	s.Bytes.NarrowU16U8 = narrowU16U8VXGuarded
 	s.Bytes.Equal = equalBytesVXGuarded
 	s.Bytes.And = bitAndVXGuarded
 	s.Bytes.Or = bitOrVXGuarded

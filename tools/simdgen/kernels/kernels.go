@@ -752,6 +752,34 @@ func Bytes() []spec.Kernel {
 		byteScan("simd_popcount", "popCount", "PopCount", "PopCount", spec.Int, false),
 		byteScan("simd_is_ascii", "isASCII", "IsASCII", "IsASCII", spec.B, false),
 		byteScan("simd_valid_utf8", "validUTF8", "ValidUTF8", "ValidUTF8", spec.B, false),
+
+		// The UTF-16 fast path. IsASCII already answers "is all of it ASCII",
+		// but the conversion needs "how much of it is", since it has to stop at
+		// the first byte it cannot widen and resume after decoding that rune.
+		byteScan("simd_index_nonascii", "indexNonASCII", "IndexNonASCII",
+			"IndexNonASCII", spec.Int, false),
+		{
+			CName: "simd_index_nonascii16", GoName: "indexNonASCII16",
+			Group: "Bytes", Field: "IndexNonASCII16", RefFunc: "IndexNonASCII16",
+			Params:    []spec.Param{sl("b", spec.SliceU16)},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("b"), lenOf("b")},
+			Threshold: thScan,
+		},
+		{
+			CName: "simd_widen_u8_u16", GoName: "widenU8U16",
+			Group: "Bytes", Field: "WidenU8U16", RefFunc: "WidenU8U16",
+			Params:    []spec.Param{sl("dst", spec.SliceU16), sl("s", spec.SliceU8)},
+			CArgs:     []spec.CArg{base("dst"), base("s"), lenOf("dst")},
+			Threshold: thBytes,
+		},
+		{
+			CName: "simd_narrow_u16_u8", GoName: "narrowU16U8",
+			Group: "Bytes", Field: "NarrowU16U8", RefFunc: "NarrowU16U8",
+			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("s", spec.SliceU16)},
+			CArgs:     []spec.CArg{base("dst"), base("s"), lenOf("dst")},
+			Threshold: thBytes,
+		},
 		{
 			// Equal is length-sensitive in a way the kernel is not: it reports
 			// whether the two slices hold the same bytes *and* are the same

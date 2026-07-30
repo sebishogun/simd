@@ -62,6 +62,38 @@ func validUTF8NEONGuarded(b []byte) bool {
 	return validUTF8NEON(b)
 }
 
+func indexNonASCIINEONGuarded(b []byte) int {
+	if len(b) < 64 {
+		return ref.IndexNonASCII(b)
+	}
+	return indexNonASCIINEON(b)
+}
+
+func indexNonASCII16NEONGuarded(b []uint16) int {
+	if len(b) < 64 {
+		return ref.IndexNonASCII16(b)
+	}
+	return indexNonASCII16NEON(b)
+}
+
+func widenU8U16NEONGuarded(dst []uint16, s []byte) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.WidenU8U16(dst, s)
+		return
+	}
+	widenU8U16NEON(dst[:n:n], s)
+}
+
+func narrowU16U8NEONGuarded(dst []byte, s []uint16) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU16U8(dst, s)
+		return
+	}
+	narrowU16U8NEON(dst[:n:n], s)
+}
+
 func equalBytesNEONGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
@@ -267,6 +299,10 @@ func init() {
 	s.Bytes.PopCount = popCountNEONGuarded
 	s.Bytes.IsASCII = isASCIINEONGuarded
 	s.Bytes.ValidUTF8 = validUTF8NEONGuarded
+	s.Bytes.IndexNonASCII = indexNonASCIINEONGuarded
+	s.Bytes.IndexNonASCII16 = indexNonASCII16NEONGuarded
+	s.Bytes.WidenU8U16 = widenU8U16NEONGuarded
+	s.Bytes.NarrowU16U8 = narrowU16U8NEONGuarded
 	s.Bytes.Equal = equalBytesNEONGuarded
 	s.Bytes.And = bitAndNEONGuarded
 	s.Bytes.Or = bitOrNEONGuarded

@@ -62,6 +62,38 @@ func validUTF8AVX512Guarded(b []byte) bool {
 	return validUTF8AVX512(b)
 }
 
+func indexNonASCIIAVX512Guarded(b []byte) int {
+	if len(b) < 64 {
+		return ref.IndexNonASCII(b)
+	}
+	return indexNonASCIIAVX512(b)
+}
+
+func indexNonASCII16AVX512Guarded(b []uint16) int {
+	if len(b) < 64 {
+		return ref.IndexNonASCII16(b)
+	}
+	return indexNonASCII16AVX512(b)
+}
+
+func widenU8U16AVX512Guarded(dst []uint16, s []byte) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.WidenU8U16(dst, s)
+		return
+	}
+	widenU8U16AVX512(dst[:n:n], s)
+}
+
+func narrowU16U8AVX512Guarded(dst []byte, s []uint16) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU16U8(dst, s)
+		return
+	}
+	narrowU16U8AVX512(dst[:n:n], s)
+}
+
 func equalBytesAVX512Guarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
@@ -267,6 +299,10 @@ func init() {
 	s.Bytes.PopCount = popCountAVX512Guarded
 	s.Bytes.IsASCII = isASCIIAVX512Guarded
 	s.Bytes.ValidUTF8 = validUTF8AVX512Guarded
+	s.Bytes.IndexNonASCII = indexNonASCIIAVX512Guarded
+	s.Bytes.IndexNonASCII16 = indexNonASCII16AVX512Guarded
+	s.Bytes.WidenU8U16 = widenU8U16AVX512Guarded
+	s.Bytes.NarrowU16U8 = narrowU16U8AVX512Guarded
 	s.Bytes.Equal = equalBytesAVX512Guarded
 	s.Bytes.And = bitAndAVX512Guarded
 	s.Bytes.Or = bitOrAVX512Guarded

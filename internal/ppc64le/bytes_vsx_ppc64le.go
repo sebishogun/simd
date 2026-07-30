@@ -19,6 +19,15 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 func isASCIIVSX(b []byte) bool
 
 //go:noescape
+func indexNonASCII16VSX(b []uint16) int
+
+//go:noescape
+func widenU8U16VSX(dst []uint16, s []byte)
+
+//go:noescape
+func narrowU16U8VSX(dst []byte, s []uint16)
+
+//go:noescape
 func bitAndVSX(dst []byte, a []byte, b []byte)
 
 //go:noescape

@@ -34,6 +34,18 @@ func isASCIISSE2(b []byte) bool
 func validUTF8SSE2(b []byte) bool
 
 //go:noescape
+func indexNonASCIISSE2(b []byte) int
+
+//go:noescape
+func indexNonASCII16SSE2(b []uint16) int
+
+//go:noescape
+func widenU8U16SSE2(dst []uint16, s []byte)
+
+//go:noescape
+func narrowU16U8SSE2(dst []byte, s []uint16)
+
+//go:noescape
 func equalBytesSSE2(a []byte, b []byte) bool
 
 //go:noescape

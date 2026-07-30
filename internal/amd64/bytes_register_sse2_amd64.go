@@ -62,6 +62,38 @@ func validUTF8SSE2Guarded(b []byte) bool {
 	return validUTF8SSE2(b)
 }
 
+func indexNonASCIISSE2Guarded(b []byte) int {
+	if len(b) < 64 {
+		return ref.IndexNonASCII(b)
+	}
+	return indexNonASCIISSE2(b)
+}
+
+func indexNonASCII16SSE2Guarded(b []uint16) int {
+	if len(b) < 64 {
+		return ref.IndexNonASCII16(b)
+	}
+	return indexNonASCII16SSE2(b)
+}
+
+func widenU8U16SSE2Guarded(dst []uint16, s []byte) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.WidenU8U16(dst, s)
+		return
+	}
+	widenU8U16SSE2(dst[:n:n], s)
+}
+
+func narrowU16U8SSE2Guarded(dst []byte, s []uint16) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU16U8(dst, s)
+		return
+	}
+	narrowU16U8SSE2(dst[:n:n], s)
+}
+
 func equalBytesSSE2Guarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
@@ -253,6 +285,10 @@ func init() {
 	s.Bytes.PopCount = popCountSSE2Guarded
 	s.Bytes.IsASCII = isASCIISSE2Guarded
 	s.Bytes.ValidUTF8 = validUTF8SSE2Guarded
+	s.Bytes.IndexNonASCII = indexNonASCIISSE2Guarded
+	s.Bytes.IndexNonASCII16 = indexNonASCII16SSE2Guarded
+	s.Bytes.WidenU8U16 = widenU8U16SSE2Guarded
+	s.Bytes.NarrowU16U8 = narrowU16U8SSE2Guarded
 	s.Bytes.Equal = equalBytesSSE2Guarded
 	s.Bytes.And = bitAndSSE2Guarded
 	s.Bytes.Or = bitOrSSE2Guarded

@@ -34,6 +34,18 @@ func isASCIISVE2(b []byte) bool
 func validUTF8SVE2(b []byte) bool
 
 //go:noescape
+func indexNonASCIISVE2(b []byte) int
+
+//go:noescape
+func indexNonASCII16SVE2(b []uint16) int
+
+//go:noescape
+func widenU8U16SVE2(dst []uint16, s []byte)
+
+//go:noescape
+func narrowU16U8SVE2(dst []byte, s []uint16)
+
+//go:noescape
 func equalBytesSVE2(a []byte, b []byte) bool
 
 //go:noescape

@@ -25,6 +25,15 @@ func popCountVX(b []byte) int
 func isASCIIVX(b []byte) bool
 
 //go:noescape
+func indexNonASCII16VX(b []uint16) int
+
+//go:noescape
+func widenU8U16VX(dst []uint16, s []byte)
+
+//go:noescape
+func narrowU16U8VX(dst []byte, s []uint16)
+
+//go:noescape
 func equalBytesVX(a []byte, b []byte) bool
 
 //go:noescape
