@@ -20,6 +20,42 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
+func quantizeI8LASXGuarded(dst []int8, a []float32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.QuantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	quantizeI8LASX(dst[:n:n], a, scale, zeroPoint)
+}
+
+func dequantizeI8LASXGuarded(dst []float32, a []int8, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.DequantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	dequantizeI8LASX(dst[:n:n], a, scale, zeroPoint)
+}
+
+func quantizeU8LASXGuarded(dst []byte, a []float32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.QuantizeU8(dst, a, scale, zeroPoint)
+		return
+	}
+	quantizeU8LASX(dst[:n:n], a, scale, zeroPoint)
+}
+
+func dequantizeU8LASXGuarded(dst []float32, a []byte, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.DequantizeU8(dst, a, scale, zeroPoint)
+		return
+	}
+	dequantizeU8LASX(dst[:n:n], a, scale, zeroPoint)
+}
+
 func bf16ToF32LASXGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -51,6 +87,10 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("lasx")
+	s.Convert.QuantizeI8 = quantizeI8LASXGuarded
+	s.Convert.DequantizeI8 = dequantizeI8LASXGuarded
+	s.Convert.QuantizeU8 = quantizeU8LASXGuarded
+	s.Convert.DequantizeU8 = dequantizeU8LASXGuarded
 	s.Convert.BF16ToF32 = bf16ToF32LASXGuarded
 	s.Convert.F32ToBF16 = f32ToBF16LASXGuarded
 	s.Convert.F32ToF16 = f32ToF16LASXGuarded

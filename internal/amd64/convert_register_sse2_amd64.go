@@ -20,6 +20,42 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func quantizeI8SSE2Guarded(dst []int8, a []float32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.QuantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	quantizeI8SSE2(dst[:n:n], a, scale, zeroPoint)
+}
+
+func dequantizeI8SSE2Guarded(dst []float32, a []int8, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.DequantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	dequantizeI8SSE2(dst[:n:n], a, scale, zeroPoint)
+}
+
+func quantizeU8SSE2Guarded(dst []byte, a []float32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.QuantizeU8(dst, a, scale, zeroPoint)
+		return
+	}
+	quantizeU8SSE2(dst[:n:n], a, scale, zeroPoint)
+}
+
+func dequantizeU8SSE2Guarded(dst []float32, a []byte, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.DequantizeU8(dst, a, scale, zeroPoint)
+		return
+	}
+	dequantizeU8SSE2(dst[:n:n], a, scale, zeroPoint)
+}
+
 func bf16ToF32SSE2Guarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -51,6 +87,10 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sse2")
+	s.Convert.QuantizeI8 = quantizeI8SSE2Guarded
+	s.Convert.DequantizeI8 = dequantizeI8SSE2Guarded
+	s.Convert.QuantizeU8 = quantizeU8SSE2Guarded
+	s.Convert.DequantizeU8 = dequantizeU8SSE2Guarded
 	s.Convert.BF16ToF32 = bf16ToF32SSE2Guarded
 	s.Convert.F32ToBF16 = f32ToBF16SSE2Guarded
 	s.Convert.F16ToF32 = f16ToF32SSE2Guarded

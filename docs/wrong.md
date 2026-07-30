@@ -1682,3 +1682,106 @@ built from one macro disagree, the difference between them is the evidence,
 and the *cheapest* experiment that splits the hypotheses should come first. I
 spent far longer on a constant-pool theory that a two-minute test of the cast
 would have killed.
+
+---
+
+## 53. A `GLOBL` that declares more bytes than the `DATA` directives write
+
+**Assumed.** If the constant pool emitter has a bug, the build will say so.
+Plan 9 assembly is picky about almost everything else, and a pool that does not
+add up sounds like the kind of thing an assembler refuses.
+
+**True.** `GLOBL sym<>(SB), RODATA|NOPTR, $436` reserves 436 bytes and the
+assembler zero-fills whatever no `DATA` directive covers. The emitter wrote
+eight-byte directives in a loop bounded by `i+8 <= len(d)`, so a pool whose
+length was not a multiple of eight silently lost its last four bytes. Nothing
+failed to build. The constant that lived there simply read as `0.0f`.
+
+46 of 223 ppc64le pools were truncated — every one whose length ended in a
+`.rodata.cst4` section with an odd number of 4-byte constants. That number is
+alarming and the honest one is smaller: only **two** kernels actually loaded
+from the missing four bytes. The rest of the tails were constants LLVM had
+emitted into a shared pool for a kernel that this target rejects for unrelated
+ABI reasons, so they were dead. Both live ones were wrong:
+
+| kernel | missing constant | what it did |
+|---|---|---|
+| `simd_quantize_u8` | `255.0f`, the upper clamp | read `0.0f`, so `min(z, 0)` clamped the whole scalar tail to zero |
+| `simd_fast_hypot_f32` | `NaN` | returned `0` where it owed NaN |
+
+**How it surfaced.** `TestQuantizeUint8` on ppc64le: `n=17 ... i=16 ... got 0
+want 27`. One wrong element in seventeen, on one architecture.
+
+What made this one quick, after entry 52 made the opposite mistake, was
+splitting the hypothesis before theorising. Link clang's own object with `lld`,
+run it under qemu, no generator involved: **zero wrong lanes**. That is the
+inverse of the FastCumProd result and it says the generator is at fault rather
+than the C. From there the diff is mechanical — clang emits 129 instructions,
+the generator emits 129 `WORD`s, so look for a *changed* instruction rather
+than a missing one. There were six changes, all constant-pool displacements,
+all correct; and one of them pointed at `0x1b0` in a pool whose last `DATA`
+line was `+0x1a8`.
+
+**The generalisation is the check, not the fix.** The fix is four lines: step
+down through the directive widths Plan 9 has instead of assuming eight divides
+the length. The check is `TestPoolRenderCoversEveryByte`, which reads the
+rendered directives back and reconstructs the pool the way the assembler
+would, for every length from 1 to 40 and for the four sizes that occur here.
+Verified by reverting the emitter and watching it fail — a test for a silent
+bug is worth exactly nothing until you have seen it go red.
+
+---
+
+## 54. Two special-value tests, neither of which checked what the other did
+
+**Assumed.** `simd_fast_hypot_f32` returning 0 instead of NaN would be caught,
+because there is a test whose entire purpose is that a NaN comes back a NaN.
+
+**True.** There were two such tests and between them they had three holes.
+`TestFastSpecialValues` checked NaN, the infinities *and* the sign of a zero —
+against `set.F64` only, reading its list of functions from `unaryCases()`.
+`TestTranscendentalSpecialValues` covered the accurate tier and checked NaN and
+the infinities but **not the sign of a zero at all**. So:
+
+- no float32 kernel was ever checked, by either;
+- `Pow`, `Atan2` and `Hypot` were checked by neither, being binary;
+- `Asinh`, `Acosh`, `Atanh`, `Erf` and `Erfc` were checked by neither, not
+  being in `unaryCases()`.
+
+`fast_hypot_f32` was outside on both axes at once, which is why a constant that
+read `0.0` instead of `NaN` shipped.
+
+**What was actually broken.** Widening the sweep found four defects in
+`csrc/math.c` on the first run, on every tier and both architectures, none of
+them related to the pool bug and all of them in source that *both* tiers
+compile — so the accurate kernels were wrong too:
+
+```
+Asinh(-0)   = +0     want -0
+Erf(-0)     = +0     want -0
+Erf(0)      = 1e-9   want 0
+Pow(-0, 1)  = +0     want -0
+Pow(-0, -1) = +Inf   want -Inf
+```
+
+Three of the five are one mistake: `x < 0 ? -v : v` to put the sign back on a
+function computed from `|x|`. `-0.0 < 0.0` is false, so a negative zero comes
+out positive. **This was already known and already written down** — the comment
+on `cbrt_f64` explains the trap, names it, and even reasons about which other
+functions are safe from it — but the reasoning was never applied to `asinh` and
+`erf`, which have exactly the shape it describes. A comment is not a check.
+
+`Erf(0) = 1e-9` is a different mistake: the Abramowitz and Stegun coefficients
+sum to `0.999999999` rather than to 1, so `1 - tail` is not zero at the origin.
+That is well inside the 1.5e-7 absolute bound the form promises, and still the
+wrong answer for a value C99 F.10.5.1 specifies exactly. `pow(-0, y)` is the
+third: the `x == 0.0` branch is selected by both zeros and never looked at the
+sign bit.
+
+**The fix that matters is structural.** The two tests are now one file,
+`internal/conformance/special_test.go`, driven by a table keyed on the accurate
+slot name with the Fast slot derived from it, run over both widths and both
+arities. Alongside it `TestSpecialValueTable` walks `kernel.Ops` by reflection
+and fails if any `Fast*` field is absent from that table or from a
+`notPointwise` set that has to state where it is covered instead. Coverage is
+enumerated rather than chosen, because choosing is what produced the holes.

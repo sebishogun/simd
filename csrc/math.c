@@ -97,6 +97,32 @@ AI unsigned int f32_to_bits(float f) {
   return v.u;
 }
 
+// withsignof gives a magnitude the sign of x, taken from the sign *bit*.
+//
+// Every odd function here computes its answer from |x| and then puts the sign
+// back, and the obvious way to write that step — `x < 0 ? -v : v` — is wrong
+// for a negative zero, because -0.0 < 0.0 is false. The result is that the
+// function returns +0 where it owes -0, silently, on every tier at once.
+//
+// v must be non-negative, which it is at every call site: the sign is ORed in
+// rather than copied, so this is a bitwise operation that vectorizes rather
+// than a branch.
+//
+// The functions that do *not* need this are the ones computing x*P(x*x), where
+// the sign of a negative zero rides through the multiply untouched: atan, asin
+// and tanh use the comparison form and are correct. The ones that take |x| up
+// front have to put the sign back explicitly, and cbrt, asinh and erf all do.
+// cbrt was fixed when a special-value test caught cbrt(-0) = +0; asinh and erf
+// had the same bug for as long, and were missed because the test that would
+// have caught them ran float64 unary kernels only. See docs/wrong.md entry 53.
+AI double withsignof_f64(double v, double x) {
+  return bits_to_f64(f64_to_bits(v) | (f64_to_bits(x) & 0x8000000000000000ull));
+}
+
+AI float withsignof_f32(float v, float x) {
+  return bits_to_f32(f32_to_bits(v) | (f32_to_bits(x) & 0x80000000u));
+}
+
 // pow2_f64 builds 2^k for |k| <= 1023 by writing the exponent field directly.
 // Nothing rounds: the result is a power of two, which every binary format
 // holds exactly.
@@ -714,17 +740,10 @@ AI double cbrt_f64(double x) {
   double v = y * pow2_f64(e3) * (sub ? 0x1p-18 : 1.0);
   v = ax == 0.0 ? 0.0 : v;
   v = ax == INF ? INF : v;
-  // The sign comes from the sign *bit*, not from a comparison. -0.0 < 0.0 is
-  // false, so `x < 0.0 ? -v : v` leaves a negative zero positive — and the
-  // zero shortcut above has already replaced v with +0.0, so nothing later
-  // recovers it. cbrt(-0) returned +0 on every tier until a special-value
-  // test on the Fast tier caught it.
-  //
-  // atan, asin and tanh use the comparison form and are correct, because each
-  // computes x*P(x*x) and the sign of a negative zero rides through the
-  // multiply untouched; none of them has a zero shortcut to lose it in. This
-  // one takes |x| up front and therefore has to put the sign back explicitly.
-  v = bits_to_f64(f64_to_bits(v) | (f64_to_bits(x) & 0x8000000000000000ull));
+  // The sign comes from the sign bit, not from a comparison; the zero shortcut
+  // above has already replaced v with +0.0, so nothing later would recover it.
+  // See withsignof_f64.
+  v = withsignof_f64(v, x);
   return x != x ? x : v;
 }
 
@@ -745,7 +764,7 @@ AI float cbrt_f32(float x) {
   v = ax == 0.0f ? 0.0f : v;
   v = ax == INF_F ? INF_F : v;
   // See cbrt_f64: the sign has to come from the sign bit so that -0 survives.
-  v = bits_to_f32(f32_to_bits(v) | (f32_to_bits(x) & 0x80000000u));
+  v = withsignof_f32(v, x);
   return x != x ? x : v;
 }
 
@@ -777,7 +796,14 @@ AI double pow_f64(double x, double y) {
   // The IEEE special cases, in the order the standard gives them.
   v = y == 0.0 ? 1.0 : v;
   v = x == 1.0 ? 1.0 : v;
-  v = (x == 0.0) ? (y < 0.0 ? INF : 0.0) : v;
+  // A zero base keeps its sign when the exponent is an odd integer: C99
+  // F.10.4.4 gives pow(-0, 3) = -0 and pow(-0, -3) = -Inf. The sign has to be
+  // read from the bit, because -0.0 == 0.0 selects this branch for both zeros
+  // and -0.0 < 0.0 would not distinguish them.
+  int negzero_odd = odd && (f64_to_bits(x) >> 63) != 0;
+  v = (x == 0.0) ? (y < 0.0 ? (negzero_odd ? -INF : INF)
+                            : (negzero_odd ? -0.0 : 0.0))
+                 : v;
   v = (ax == INF) ? ((x < 0.0 && yr == y && odd) ? (y > 0.0 ? -INF : -0.0) : (y > 0.0 ? INF : 0.0)) : v;
   v = (y == INF) ? (ax > 1.0 ? INF : ax < 1.0 ? 0.0 : 1.0) : v;
   v = (y == -INF) ? (ax > 1.0 ? 0.0 : ax < 1.0 ? INF : 1.0) : v;
@@ -806,7 +832,11 @@ AI float pow_f32(float x, float y) {
 
   v = y == 0.0f ? 1.0f : v;
   v = x == 1.0f ? 1.0f : v;
-  v = (x == 0.0f) ? (y < 0.0f ? INF_F : 0.0f) : v;
+  // See pow_f64: a zero base keeps its sign for an odd integer exponent.
+  int negzero_odd = odd && (f32_to_bits(x) >> 31) != 0;
+  v = (x == 0.0f) ? (y < 0.0f ? (negzero_odd ? -INF_F : INF_F)
+                              : (negzero_odd ? -0.0f : 0.0f))
+                  : v;
   v = (ax == INF_F) ? ((x < 0.0f && yr == y && odd) ? (y > 0.0f ? -INF_F : -0.0f) : (y > 0.0f ? INF_F : 0.0f)) : v;
   v = (y == INF_F) ? (ax > 1.0f ? INF_F : ax < 1.0f ? 0.0f : 1.0f) : v;
   v = (y == -INF_F) ? (ax > 1.0f ? 0.0f : ax < 1.0f ? INF_F : 1.0f) : v;
@@ -879,12 +909,13 @@ AI float hypot_f32(float x, float y) {
   T small = LOG1P(SUF)(ax + ax * ax / ((T)1 + SQRT(ax * ax + (T)1)));    \
   T large = LOG(SUF)(ax) + (T)LN2;                                       \
   T v = ax > (T)BIG ? large : small;                                     \
-  v = x < (T)0 ? -v : v;                                                 \
+  v = WITHSIGNOF(SUF)(v, x);                                             \
   return x != x ? x : v;
 
 #define LOG1P(SUF) log1p_##SUF
 #define LOG(SUF) log_##SUF
 #define SQRT(x) __builtin_elementwise_sqrt(x)
+#define WITHSIGNOF(SUF) withsignof_##SUF
 
 AI double asinh_f64(double x) {
   ASINH_BODY(double, f64, 1.0, 2.0, 0.5, 0x1.62e42fefa39efp-1, 0x1p511, INF,
@@ -960,16 +991,29 @@ AI float atanh_f32(float x) {
   T e = EXPF(-ax * ax);                                                  \
   T tail = poly * e;
 
+// erf(±0) is ±0 exactly, and neither half of that comes out of the rational
+// form on its own.
+//
+// The magnitude does not: at x = 0 the A&S coefficients sum to 0.999999999
+// rather than to 1, so `1 - tail` is 1e-9 — inside the 1.5e-7 absolute bound
+// this form promises, and still the wrong answer for a value C99 F.10.5.1
+// specifies exactly. The residual error near, but not at, zero is the
+// approximation's and stays; only the exact point is pinned.
+//
+// The sign does not either: -0.0 < 0.0 is false, so the comparison form left
+// erf(-0) positive. See withsignof_f64.
 AI double erf_f64(double x) {
   ERFC_TAIL(double, f64, exp_f64)
   double v = 1.0 - tail;
-  v = x < 0.0 ? -v : v;
+  v = ax == 0.0 ? 0.0 : v;
+  v = withsignof_f64(v, x);
   return x != x ? x : v;
 }
 AI float erf_f32(float x) {
   ERFC_TAIL(float, f32, exp_f32)
   float v = 1.0f - tail;
-  v = x < 0.0f ? -v : v;
+  v = ax == 0.0f ? 0.0f : v;
+  v = withsignof_f32(v, x);
   return x != x ? x : v;
 }
 

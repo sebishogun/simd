@@ -266,36 +266,10 @@ func TestTranscendentalULP(t *testing.T) {
 // the values are not: a NaN must stay a NaN and an infinity must go where the
 // standard library sends it. Getting one of these wrong is a bug rather than a
 // rounding difference, so it is compared exactly.
-func TestTranscendentalSpecialValues(t *testing.T) {
-	special := []float64{
-		math.NaN(), math.Inf(1), math.Inf(-1),
-		0, math.Copysign(0, -1), 1, -1,
-		math.MaxFloat64, -math.MaxFloat64,
-		math.SmallestNonzeroFloat64,
-	}
-	for tier, set := range tiers(t) {
-		t.Run(tier, func(t *testing.T) {
-			for _, c := range unaryCases() {
-				dst := make([]float64, len(special))
-				c.get64(set)(dst, special)
-				for i, x := range special {
-					want := c.ref(x)
-					got := dst[i]
-					switch {
-					case math.IsNaN(want):
-						if !math.IsNaN(got) {
-							t.Errorf("%s(%v) = %v, want NaN", c.name, x, got)
-						}
-					case math.IsInf(want, 1) || math.IsInf(want, -1):
-						if got != want {
-							t.Errorf("%s(%v) = %v, want %v", c.name, x, got, want)
-						}
-					}
-				}
-			}
-		})
-	}
-}
+// The special values for these live in special_test.go, together with the
+// Fast tier's, because keeping them apart is how they came to check different
+// things: this one had no zero-sign check and that one reached float64 unary
+// kernels only.
 
 // TestTranscendentalTiersAgree checks that moving a program to a machine with
 // wider vectors does not meaningfully change a number.

@@ -16,6 +16,12 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func quantizeI8VSX(dst []int8, a []float32, scale float32, zeroPoint int32)
+
+//go:noescape
+func quantizeU8VSX(dst []byte, a []float32, scale float32, zeroPoint int32)
+
+//go:noescape
 func bf16ToF32VSX(dst []float32, a []uint16)
 
 //go:noescape

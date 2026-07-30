@@ -452,6 +452,26 @@ type Convert struct {
 	// denormals rather than flushing them to zero.
 	F16ToF32 func(dst []float32, a []uint16)
 	F32ToF16 func(dst []uint16, a []float32)
+
+	// Affine int8 quantization, as every inference runtime defines it:
+	//
+	//	q = clamp(round(x/scale) + zeroPoint, lo, hi)
+	//	x = (q - zeroPoint) * scale
+	//
+	// Rounding is half-to-EVEN, which is what ONNX, PyTorch and TFLite
+	// specify and what C's rintf does. The naive (int)(x+0.5f) rounds half
+	// away from zero and disagrees on precisely the values a symmetric scale
+	// produces most of — so the difference is not in the tail, it is in the
+	// middle of the distribution.
+	//
+	// The clamp is applied after the zero point is added and while the value
+	// is still floating point: adding first can push an in-range value out,
+	// and converting first would make an out-of-range value undefined rather
+	// than saturated.
+	QuantizeI8   func(dst []int8, a []float32, scale float32, zeroPoint int32)
+	DequantizeI8 func(dst []float32, a []int8, scale float32, zeroPoint int32)
+	QuantizeU8   func(dst []uint8, a []float32, scale float32, zeroPoint int32)
+	DequantizeU8 func(dst []float32, a []uint8, scale float32, zeroPoint int32)
 }
 
 // Complex is the kernel group for complex numbers, parameterised by the

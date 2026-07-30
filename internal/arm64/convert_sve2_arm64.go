@@ -16,6 +16,18 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
 //go:noescape
+func quantizeI8SVE2(dst []int8, a []float32, scale float32, zeroPoint int32)
+
+//go:noescape
+func dequantizeI8SVE2(dst []float32, a []int8, scale float32, zeroPoint int32)
+
+//go:noescape
+func quantizeU8SVE2(dst []byte, a []float32, scale float32, zeroPoint int32)
+
+//go:noescape
+func dequantizeU8SVE2(dst []float32, a []byte, scale float32, zeroPoint int32)
+
+//go:noescape
 func bf16ToF32SVE2(dst []float32, a []uint16)
 
 //go:noescape

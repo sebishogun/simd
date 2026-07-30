@@ -20,6 +20,42 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
+func quantizeI8RVVGuarded(dst []int8, a []float32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.QuantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	quantizeI8RVV(dst[:n:n], a, scale, zeroPoint)
+}
+
+func dequantizeI8RVVGuarded(dst []float32, a []int8, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.DequantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	dequantizeI8RVV(dst[:n:n], a, scale, zeroPoint)
+}
+
+func quantizeU8RVVGuarded(dst []byte, a []float32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.QuantizeU8(dst, a, scale, zeroPoint)
+		return
+	}
+	quantizeU8RVV(dst[:n:n], a, scale, zeroPoint)
+}
+
+func dequantizeU8RVVGuarded(dst []float32, a []byte, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.DequantizeU8(dst, a, scale, zeroPoint)
+		return
+	}
+	dequantizeU8RVV(dst[:n:n], a, scale, zeroPoint)
+}
+
 func bf16ToF32RVVGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -60,6 +96,10 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("rvv")
+	s.Convert.QuantizeI8 = quantizeI8RVVGuarded
+	s.Convert.DequantizeI8 = dequantizeI8RVVGuarded
+	s.Convert.QuantizeU8 = quantizeU8RVVGuarded
+	s.Convert.DequantizeU8 = dequantizeU8RVVGuarded
 	s.Convert.BF16ToF32 = bf16ToF32RVVGuarded
 	s.Convert.F32ToBF16 = f32ToBF16RVVGuarded
 	s.Convert.F16ToF32 = f16ToF32RVVGuarded

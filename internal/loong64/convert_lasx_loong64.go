@@ -16,6 +16,18 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
 //go:noescape
+func quantizeI8LASX(dst []int8, a []float32, scale float32, zeroPoint int32)
+
+//go:noescape
+func dequantizeI8LASX(dst []float32, a []int8, scale float32, zeroPoint int32)
+
+//go:noescape
+func quantizeU8LASX(dst []byte, a []float32, scale float32, zeroPoint int32)
+
+//go:noescape
+func dequantizeU8LASX(dst []float32, a []byte, scale float32, zeroPoint int32)
+
+//go:noescape
 func bf16ToF32LASX(dst []float32, a []uint16)
 
 //go:noescape

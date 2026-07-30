@@ -13,6 +13,304 @@
 
 #include "textflag.h"
 
+// func quantizeI8VSX(dst []int8, a []float32, scale float32, zeroPoint int32)
+TEXT ·quantizeI8VSX(SB), NOSPLIT|NOFRAME, $0-56
+	MOVD dst_base+0(FP), R3
+	MOVD a_base+24(FP), R4
+	FMOVS scale+48(FP), F1
+	MOVW zeroPoint+52(FP), R6
+	MOVD dst_len+8(FP), R7
+	// The constants live in simdconst_quantizeI8VSX_pool<>(SB) and are reached through
+	// R2. clang computed that from r12 and a TOC which does not
+	// exist here, so its two global-entry instructions are nops.
+	MOVD	$simdconst_quantizeI8VSX_pool<>(SB), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x2c270000
+	WORD $0x40810208
+	WORD $0x7c0601a6
+	WORD $0x38a00000
+	WORD $0x28270004
+	WORD $0xf00004e0
+	WORD $0x41800118
+	WORD $0x78e5f082
+	WORD $0xf040042c
+	WORD $0xf0600c2c
+	WORD $0x7c681b78
+	WORD $0xf0401290
+	WORD $0x78a51040
+	WORD $0x38c5fffc
+	WORD $0x78c6f082
+	WORD $0xf0601a90
+	WORD $0x38c60001
+	WORD $0x7cc903a6
+	WORD $0x3cc20000
+	WORD $0x38c60100
+	WORD $0xf4860001
+	WORD $0x3cc20000
+	WORD $0x38c60110
+	WORD $0xf4a60001
+	WORD $0x3cc20000
+	WORD $0x38c60120
+	WORD $0xf4c60001
+	WORD $0x3cc20000
+	WORD $0x38c60130
+	WORD $0xf4e60001
+	WORD $0x7c862378
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0xf5060001
+	WORD $0x38c60010
+	WORD $0xf1081ac0
+	WORD $0xf1204664
+	WORD $0xf1492200
+	WORD $0xf1292298
+	WORD $0xf14a2a00
+	WORD $0xf1485680
+	WORD $0xf10a4270
+	WORD $0xf1081200
+	WORD $0xf1264258
+	WORD $0xf1083270
+	WORD $0xf1283a58
+	WORD $0xf1083a70
+	WORD $0xf1284310
+	WORD $0xf1204d2c
+	WORD $0xf1204960
+	WORD $0x7d2900e6
+	WORD $0xf1284250
+	WORD $0x7c490167
+	WORD $0xf1204d2c
+	WORD $0xf1204960
+	WORD $0x7d2900e6
+	WORD $0xf120452c
+	WORD $0xf1084110
+	WORD $0x7c690167
+	WORD $0xf100452c
+	WORD $0xf1204960
+	WORD $0x1043100c
+	WORD $0xf1004160
+	WORD $0x7d2900e6
+	WORD $0x7c890167
+	WORD $0x7d0900e6
+	WORD $0x7c690167
+	WORD $0x1064180c
+	WORD $0x1043114c
+	WORD $0xf1021216
+	WORD $0x7d0047ae
+	WORD $0x39080004
+	WORD $0x4200ff64
+	WORD $0x7c272840
+	WORD $0x418200e0
+	WORD $0x78a61764
+	WORD $0x7c651a14
+	WORD $0x7ca53850
+	WORD $0x7c862214
+	WORD $0x3cc20000
+	WORD $0x7ca903a6
+	WORD $0x3ca20000
+	WORD $0x3863ffff
+	WORD $0xc0460198
+	WORD $0x3cc20000
+	WORD $0xc08501a0
+	WORD $0x3ca20000
+	WORD $0x3884fffc
+	WORD $0xc066019c
+	WORD $0xc0a501a4
+	WORD $0x38a00001
+	WORD $0x48000018
+	WORD $0x60000000
+	WORD $0xf0c03d60
+	WORD $0x7cc32f1a
+	WORD $0x38630001
+	WORD $0x42400078
+	WORD $0xc4c40004
+	WORD $0xf0c608c0
+	WORD $0xf0e03564
+	WORD $0xfc071000
+	WORD $0x4e830042
+	WORD $0x4094002c
+	WORD $0xf0e60000
+	WORD $0xfcc02090
+	WORD $0xfc072000
+	WORD $0x40800038
+	WORD $0xfc062800
+	WORD $0xfce02890
+	WORD $0x4181ffc0
+	WORD $0x48000038
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0xf0e71000
+	WORD $0xf0e71800
+	WORD $0xfcc63810
+	WORD $0xf0e60000
+	WORD $0xfcc02090
+	WORD $0xfc072000
+	WORD $0x4180ffd0
+	WORD $0xfcc03890
+	WORD $0xfc062800
+	WORD $0xfce02890
+	WORD $0x4181ff88
+	WORD $0xfce03090
+	WORD $0x4bffff80
+	WORD $0x48000010
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
+	RET
+
+// func quantizeU8VSX(dst []byte, a []float32, scale float32, zeroPoint int32)
+TEXT ·quantizeU8VSX(SB), NOSPLIT|NOFRAME, $0-56
+	MOVD dst_base+0(FP), R3
+	MOVD a_base+24(FP), R4
+	FMOVS scale+48(FP), F1
+	MOVW zeroPoint+52(FP), R6
+	MOVD dst_len+8(FP), R7
+	// The constants live in simdconst_quantizeU8VSX_pool<>(SB) and are reached through
+	// R2. clang computed that from r12 and a TOC which does not
+	// exist here, so its two global-entry instructions are nops.
+	MOVD	$simdconst_quantizeU8VSX_pool<>(SB), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x2c270000
+	WORD $0x408101f8
+	WORD $0x7c0601a6
+	WORD $0x38a00000
+	WORD $0x28270004
+	WORD $0xf00004e0
+	WORD $0x4180010c
+	WORD $0x78e5f082
+	WORD $0xf040042c
+	WORD $0xf0600c2c
+	WORD $0xf0c634d0
+	WORD $0x7c681b78
+	WORD $0x78a51040
+	WORD $0x38c5fffc
+	WORD $0x78c6f082
+	WORD $0xf0401290
+	WORD $0xf0601a90
+	WORD $0x38c60001
+	WORD $0x7cc903a6
+	WORD $0x3cc20000
+	WORD $0x38c60150
+	WORD $0xf4860001
+	WORD $0x3cc20000
+	WORD $0x38c60160
+	WORD $0xf4a60001
+	WORD $0x3cc20000
+	WORD $0x38c60170
+	WORD $0xf4e60001
+	WORD $0x7c862378
+	WORD $0x60000000
+	WORD $0xf5060001
+	WORD $0x38c60010
+	WORD $0xf1081ac0
+	WORD $0xf1204664
+	WORD $0xf1492200
+	WORD $0xf1292298
+	WORD $0xf14a2a00
+	WORD $0xf1485680
+	WORD $0xf10a4270
+	WORD $0xf1081200
+	WORD $0xf1264258
+	WORD $0xf1294d10
+	WORD $0xf1094410
+	WORD $0xf1283a58
+	WORD $0xf1083a70
+	WORD $0xf1284310
+	WORD $0xf1204d2c
+	WORD $0xf1204960
+	WORD $0x7d2900e6
+	WORD $0xf1284250
+	WORD $0x7c490167
+	WORD $0xf1204d2c
+	WORD $0xf1204960
+	WORD $0x7d2900e6
+	WORD $0xf120452c
+	WORD $0xf1084110
+	WORD $0x7c690167
+	WORD $0xf100452c
+	WORD $0xf1204960
+	WORD $0x1043100c
+	WORD $0xf1004160
+	WORD $0x7d2900e6
+	WORD $0x7c890167
+	WORD $0x7d0900e6
+	WORD $0x7c690167
+	WORD $0x1064180c
+	WORD $0x1043114c
+	WORD $0xf1021216
+	WORD $0x7d0047ae
+	WORD $0x39080004
+	WORD $0x4200ff60
+	WORD $0x7c272840
+	WORD $0x418200dc
+	WORD $0x78a61764
+	WORD $0x7c651a14
+	WORD $0x7ca53850
+	WORD $0x7ca903a6
+	WORD $0x3ca20000
+	WORD $0x7c862214
+	WORD $0x3cc20000
+	WORD $0x3863ffff
+	WORD $0xc06501ac
+	WORD $0x3ca20000
+	WORD $0xc04601a8
+	WORD $0x3884fffc
+	WORD $0xc08501b0
+	WORD $0x38a00001
+	WORD $0x4800001c
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0xf0a03520
+	WORD $0x7ca32f1a
+	WORD $0x38630001
+	WORD $0x42400078
+	WORD $0xc4a40004
+	WORD $0xf0a508c0
+	WORD $0xf0c02d64
+	WORD $0xfc061000
+	WORD $0x4e830042
+	WORD $0x4094002c
+	WORD $0xf0c50000
+	WORD $0xf0a52cd0
+	WORD $0xfc062800
+	WORD $0x40800038
+	WORD $0xfc052000
+	WORD $0xfcc02090
+	WORD $0x4181ffc0
+	WORD $0x48000038
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0xf0c61000
+	WORD $0xf0c61800
+	WORD $0xfca53010
+	WORD $0xf0c50000
+	WORD $0xf0a52cd0
+	WORD $0xfc062800
+	WORD $0x4180ffd0
+	WORD $0xfca03090
+	WORD $0xfc052000
+	WORD $0xfcc02090
+	WORD $0x4181ff88
+	WORD $0xfcc02890
+	WORD $0x4bffff80
+	WORD $0x48000010
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
+	RET
+
 // func bf16ToF32VSX(dst []float32, a []uint16)
 TEXT ·bf16ToF32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_base+0(FP), R3
@@ -312,7 +610,7 @@ TEXT ·f16ToF32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x3ca20000
 	WORD $0x7c671a14
 	WORD $0x3884fffe
-	WORD $0xc0050100
+	WORD $0xc0050190
 	WORD $0x3863fffc
 	WORD $0x60000000
 	WORD $0x60000000
@@ -440,7 +738,7 @@ TEXT ·f32ToF16VSX(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x3ca20000
 	WORD $0x7c671a14
 	WORD $0x38e07e00
-	WORD $0xc0050104
+	WORD $0xc0050194
 	WORD $0x3884fffc
 	WORD $0x3863fffe
 	WORD $0x38a07c00
@@ -481,6 +779,120 @@ TEXT ·f32ToF16VSX(SB), NOSPLIT|NOFRAME, $0-48
 
 // Constant pools lifted out of the compiled object. RODATA|NOPTR tells the
 // garbage collector these hold no pointers and must not be written.
+DATA simdconst_quantizeI8VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
+DATA simdconst_quantizeI8VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
+DATA simdconst_quantizeI8VSX_pool<>+0x010(SB)/8, $0x007fffff007fffff
+DATA simdconst_quantizeI8VSX_pool<>+0x018(SB)/8, $0x007fffff007fffff
+DATA simdconst_quantizeI8VSX_pool<>+0x020(SB)/8, $0x0fffe0000fffe000
+DATA simdconst_quantizeI8VSX_pool<>+0x028(SB)/8, $0x0fffe0000fffe000
+DATA simdconst_quantizeI8VSX_pool<>+0x030(SB)/8, $0x0f8000000f800000
+DATA simdconst_quantizeI8VSX_pool<>+0x038(SB)/8, $0x0f8000000f800000
+DATA simdconst_quantizeI8VSX_pool<>+0x040(SB)/8, $0x3880000038800000
+DATA simdconst_quantizeI8VSX_pool<>+0x048(SB)/8, $0x3880000038800000
+DATA simdconst_quantizeI8VSX_pool<>+0x050(SB)/8, $0xb8800000b8800000
+DATA simdconst_quantizeI8VSX_pool<>+0x058(SB)/8, $0xb8800000b8800000
+DATA simdconst_quantizeI8VSX_pool<>+0x060(SB)/8, $0x7000000070000000
+DATA simdconst_quantizeI8VSX_pool<>+0x068(SB)/8, $0x7000000070000000
+DATA simdconst_quantizeI8VSX_pool<>+0x070(SB)/8, $0x3800000038000000
+DATA simdconst_quantizeI8VSX_pool<>+0x078(SB)/8, $0x3800000038000000
+DATA simdconst_quantizeI8VSX_pool<>+0x080(SB)/8, $0x0000800000008000
+DATA simdconst_quantizeI8VSX_pool<>+0x088(SB)/8, $0x0000800000008000
+DATA simdconst_quantizeI8VSX_pool<>+0x090(SB)/8, $0x7f8000007f800000
+DATA simdconst_quantizeI8VSX_pool<>+0x098(SB)/8, $0x7f8000007f800000
+DATA simdconst_quantizeI8VSX_pool<>+0x0a0(SB)/8, $0x477fffff477fffff
+DATA simdconst_quantizeI8VSX_pool<>+0x0a8(SB)/8, $0x477fffff477fffff
+DATA simdconst_quantizeI8VSX_pool<>+0x0b0(SB)/8, $0xc8000fffc8000fff
+DATA simdconst_quantizeI8VSX_pool<>+0x0b8(SB)/8, $0xc8000fffc8000fff
+DATA simdconst_quantizeI8VSX_pool<>+0x0c0(SB)/8, $0x3f0000003f000000
+DATA simdconst_quantizeI8VSX_pool<>+0x0c8(SB)/8, $0x3f0000003f000000
+DATA simdconst_quantizeI8VSX_pool<>+0x0d0(SB)/8, $0x3880000038800000
+DATA simdconst_quantizeI8VSX_pool<>+0x0d8(SB)/8, $0x3880000038800000
+DATA simdconst_quantizeI8VSX_pool<>+0x0e0(SB)/8, $0x00007c0000007c00
+DATA simdconst_quantizeI8VSX_pool<>+0x0e8(SB)/8, $0x00007c0000007c00
+DATA simdconst_quantizeI8VSX_pool<>+0x0f0(SB)/8, $0x00007e0000007e00
+DATA simdconst_quantizeI8VSX_pool<>+0x0f8(SB)/8, $0x00007e0000007e00
+DATA simdconst_quantizeI8VSX_pool<>+0x100(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x108(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x110(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x118(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x120(SB)/8, $0xc3000000c3000000
+DATA simdconst_quantizeI8VSX_pool<>+0x128(SB)/8, $0xc3000000c3000000
+DATA simdconst_quantizeI8VSX_pool<>+0x130(SB)/8, $0x42fe000042fe0000
+DATA simdconst_quantizeI8VSX_pool<>+0x138(SB)/8, $0x42fe000042fe0000
+DATA simdconst_quantizeI8VSX_pool<>+0x140(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_quantizeI8VSX_pool<>+0x148(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_quantizeI8VSX_pool<>+0x150(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x158(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x160(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x168(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeI8VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
+DATA simdconst_quantizeI8VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
+DATA simdconst_quantizeI8VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_quantizeI8VSX_pool<>+0x188(SB)/8, $0x0001021404050615
+DATA simdconst_quantizeI8VSX_pool<>+0x190(SB)/8, $0x3f000000b8800000
+DATA simdconst_quantizeI8VSX_pool<>+0x198(SB)/8, $0xcb0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1a0(SB)/8, $0x42fe0000c3000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1a8(SB)/8, $0xcb0000004b000000
+DATA simdconst_quantizeI8VSX_pool<>+0x1b0(SB)/4, $0x437f0000
+GLOBL simdconst_quantizeI8VSX_pool<>(SB), RODATA|NOPTR, $436
+
+DATA simdconst_quantizeU8VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
+DATA simdconst_quantizeU8VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
+DATA simdconst_quantizeU8VSX_pool<>+0x010(SB)/8, $0x007fffff007fffff
+DATA simdconst_quantizeU8VSX_pool<>+0x018(SB)/8, $0x007fffff007fffff
+DATA simdconst_quantizeU8VSX_pool<>+0x020(SB)/8, $0x0fffe0000fffe000
+DATA simdconst_quantizeU8VSX_pool<>+0x028(SB)/8, $0x0fffe0000fffe000
+DATA simdconst_quantizeU8VSX_pool<>+0x030(SB)/8, $0x0f8000000f800000
+DATA simdconst_quantizeU8VSX_pool<>+0x038(SB)/8, $0x0f8000000f800000
+DATA simdconst_quantizeU8VSX_pool<>+0x040(SB)/8, $0x3880000038800000
+DATA simdconst_quantizeU8VSX_pool<>+0x048(SB)/8, $0x3880000038800000
+DATA simdconst_quantizeU8VSX_pool<>+0x050(SB)/8, $0xb8800000b8800000
+DATA simdconst_quantizeU8VSX_pool<>+0x058(SB)/8, $0xb8800000b8800000
+DATA simdconst_quantizeU8VSX_pool<>+0x060(SB)/8, $0x7000000070000000
+DATA simdconst_quantizeU8VSX_pool<>+0x068(SB)/8, $0x7000000070000000
+DATA simdconst_quantizeU8VSX_pool<>+0x070(SB)/8, $0x3800000038000000
+DATA simdconst_quantizeU8VSX_pool<>+0x078(SB)/8, $0x3800000038000000
+DATA simdconst_quantizeU8VSX_pool<>+0x080(SB)/8, $0x0000800000008000
+DATA simdconst_quantizeU8VSX_pool<>+0x088(SB)/8, $0x0000800000008000
+DATA simdconst_quantizeU8VSX_pool<>+0x090(SB)/8, $0x7f8000007f800000
+DATA simdconst_quantizeU8VSX_pool<>+0x098(SB)/8, $0x7f8000007f800000
+DATA simdconst_quantizeU8VSX_pool<>+0x0a0(SB)/8, $0x477fffff477fffff
+DATA simdconst_quantizeU8VSX_pool<>+0x0a8(SB)/8, $0x477fffff477fffff
+DATA simdconst_quantizeU8VSX_pool<>+0x0b0(SB)/8, $0xc8000fffc8000fff
+DATA simdconst_quantizeU8VSX_pool<>+0x0b8(SB)/8, $0xc8000fffc8000fff
+DATA simdconst_quantizeU8VSX_pool<>+0x0c0(SB)/8, $0x3f0000003f000000
+DATA simdconst_quantizeU8VSX_pool<>+0x0c8(SB)/8, $0x3f0000003f000000
+DATA simdconst_quantizeU8VSX_pool<>+0x0d0(SB)/8, $0x3880000038800000
+DATA simdconst_quantizeU8VSX_pool<>+0x0d8(SB)/8, $0x3880000038800000
+DATA simdconst_quantizeU8VSX_pool<>+0x0e0(SB)/8, $0x00007c0000007c00
+DATA simdconst_quantizeU8VSX_pool<>+0x0e8(SB)/8, $0x00007c0000007c00
+DATA simdconst_quantizeU8VSX_pool<>+0x0f0(SB)/8, $0x00007e0000007e00
+DATA simdconst_quantizeU8VSX_pool<>+0x0f8(SB)/8, $0x00007e0000007e00
+DATA simdconst_quantizeU8VSX_pool<>+0x100(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x108(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x110(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x118(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x120(SB)/8, $0xc3000000c3000000
+DATA simdconst_quantizeU8VSX_pool<>+0x128(SB)/8, $0xc3000000c3000000
+DATA simdconst_quantizeU8VSX_pool<>+0x130(SB)/8, $0x42fe000042fe0000
+DATA simdconst_quantizeU8VSX_pool<>+0x138(SB)/8, $0x42fe000042fe0000
+DATA simdconst_quantizeU8VSX_pool<>+0x140(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_quantizeU8VSX_pool<>+0x148(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_quantizeU8VSX_pool<>+0x150(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x158(SB)/8, $0x4b0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x160(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x168(SB)/8, $0xcb000000cb000000
+DATA simdconst_quantizeU8VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
+DATA simdconst_quantizeU8VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
+DATA simdconst_quantizeU8VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_quantizeU8VSX_pool<>+0x188(SB)/8, $0x0001021404050615
+DATA simdconst_quantizeU8VSX_pool<>+0x190(SB)/8, $0x3f000000b8800000
+DATA simdconst_quantizeU8VSX_pool<>+0x198(SB)/8, $0xcb0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1a0(SB)/8, $0x42fe0000c3000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1a8(SB)/8, $0xcb0000004b000000
+DATA simdconst_quantizeU8VSX_pool<>+0x1b0(SB)/4, $0x437f0000
+GLOBL simdconst_quantizeU8VSX_pool<>(SB), RODATA|NOPTR, $436
+
 DATA simdconst_f32ToBF16VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
 DATA simdconst_f32ToBF16VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
 DATA simdconst_f32ToBF16VSX_pool<>+0x010(SB)/8, $0x007fffff007fffff
@@ -513,7 +925,25 @@ DATA simdconst_f32ToBF16VSX_pool<>+0x0e0(SB)/8, $0x00007c0000007c00
 DATA simdconst_f32ToBF16VSX_pool<>+0x0e8(SB)/8, $0x00007c0000007c00
 DATA simdconst_f32ToBF16VSX_pool<>+0x0f0(SB)/8, $0x00007e0000007e00
 DATA simdconst_f32ToBF16VSX_pool<>+0x0f8(SB)/8, $0x00007e0000007e00
-GLOBL simdconst_f32ToBF16VSX_pool<>(SB), RODATA|NOPTR, $256
+DATA simdconst_f32ToBF16VSX_pool<>+0x100(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x108(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x110(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x118(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x120(SB)/8, $0xc3000000c3000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x128(SB)/8, $0xc3000000c3000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x130(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f32ToBF16VSX_pool<>+0x138(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f32ToBF16VSX_pool<>+0x140(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_f32ToBF16VSX_pool<>+0x148(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_f32ToBF16VSX_pool<>+0x150(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x158(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x160(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x168(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToBF16VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
+DATA simdconst_f32ToBF16VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
+DATA simdconst_f32ToBF16VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_f32ToBF16VSX_pool<>+0x188(SB)/8, $0x0001021404050615
+GLOBL simdconst_f32ToBF16VSX_pool<>(SB), RODATA|NOPTR, $400
 
 DATA simdconst_f16ToF32VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
 DATA simdconst_f16ToF32VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
@@ -547,8 +977,30 @@ DATA simdconst_f16ToF32VSX_pool<>+0x0e0(SB)/8, $0x00007c0000007c00
 DATA simdconst_f16ToF32VSX_pool<>+0x0e8(SB)/8, $0x00007c0000007c00
 DATA simdconst_f16ToF32VSX_pool<>+0x0f0(SB)/8, $0x00007e0000007e00
 DATA simdconst_f16ToF32VSX_pool<>+0x0f8(SB)/8, $0x00007e0000007e00
-DATA simdconst_f16ToF32VSX_pool<>+0x100(SB)/8, $0x3f000000b8800000
-GLOBL simdconst_f16ToF32VSX_pool<>(SB), RODATA|NOPTR, $264
+DATA simdconst_f16ToF32VSX_pool<>+0x100(SB)/8, $0x4b0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x108(SB)/8, $0x4b0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x110(SB)/8, $0xcb000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x118(SB)/8, $0xcb000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x120(SB)/8, $0xc3000000c3000000
+DATA simdconst_f16ToF32VSX_pool<>+0x128(SB)/8, $0xc3000000c3000000
+DATA simdconst_f16ToF32VSX_pool<>+0x130(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f16ToF32VSX_pool<>+0x138(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f16ToF32VSX_pool<>+0x140(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_f16ToF32VSX_pool<>+0x148(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_f16ToF32VSX_pool<>+0x150(SB)/8, $0x4b0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x158(SB)/8, $0x4b0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x160(SB)/8, $0xcb000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x168(SB)/8, $0xcb000000cb000000
+DATA simdconst_f16ToF32VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
+DATA simdconst_f16ToF32VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
+DATA simdconst_f16ToF32VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_f16ToF32VSX_pool<>+0x188(SB)/8, $0x0001021404050615
+DATA simdconst_f16ToF32VSX_pool<>+0x190(SB)/8, $0x3f000000b8800000
+DATA simdconst_f16ToF32VSX_pool<>+0x198(SB)/8, $0xcb0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1a0(SB)/8, $0x42fe0000c3000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1a8(SB)/8, $0xcb0000004b000000
+DATA simdconst_f16ToF32VSX_pool<>+0x1b0(SB)/4, $0x437f0000
+GLOBL simdconst_f16ToF32VSX_pool<>(SB), RODATA|NOPTR, $436
 
 DATA simdconst_f32ToF16VSX_pool<>+0x000(SB)/8, $0x7f8000007f800000
 DATA simdconst_f32ToF16VSX_pool<>+0x008(SB)/8, $0x7f8000007f800000
@@ -582,6 +1034,28 @@ DATA simdconst_f32ToF16VSX_pool<>+0x0e0(SB)/8, $0x00007c0000007c00
 DATA simdconst_f32ToF16VSX_pool<>+0x0e8(SB)/8, $0x00007c0000007c00
 DATA simdconst_f32ToF16VSX_pool<>+0x0f0(SB)/8, $0x00007e0000007e00
 DATA simdconst_f32ToF16VSX_pool<>+0x0f8(SB)/8, $0x00007e0000007e00
-DATA simdconst_f32ToF16VSX_pool<>+0x100(SB)/8, $0x3f000000b8800000
-GLOBL simdconst_f32ToF16VSX_pool<>(SB), RODATA|NOPTR, $264
+DATA simdconst_f32ToF16VSX_pool<>+0x100(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x108(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x110(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x118(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x120(SB)/8, $0xc3000000c3000000
+DATA simdconst_f32ToF16VSX_pool<>+0x128(SB)/8, $0xc3000000c3000000
+DATA simdconst_f32ToF16VSX_pool<>+0x130(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f32ToF16VSX_pool<>+0x138(SB)/8, $0x42fe000042fe0000
+DATA simdconst_f32ToF16VSX_pool<>+0x140(SB)/8, $0x1f1f1f161f1f1f17
+DATA simdconst_f32ToF16VSX_pool<>+0x148(SB)/8, $0x1f1f1f141f1f1f15
+DATA simdconst_f32ToF16VSX_pool<>+0x150(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x158(SB)/8, $0x4b0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x160(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x168(SB)/8, $0xcb000000cb000000
+DATA simdconst_f32ToF16VSX_pool<>+0x170(SB)/8, $0x437f0000437f0000
+DATA simdconst_f32ToF16VSX_pool<>+0x178(SB)/8, $0x437f0000437f0000
+DATA simdconst_f32ToF16VSX_pool<>+0x180(SB)/8, $0x08090a160c0d0e17
+DATA simdconst_f32ToF16VSX_pool<>+0x188(SB)/8, $0x0001021404050615
+DATA simdconst_f32ToF16VSX_pool<>+0x190(SB)/8, $0x3f000000b8800000
+DATA simdconst_f32ToF16VSX_pool<>+0x198(SB)/8, $0xcb0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1a0(SB)/8, $0x42fe0000c3000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1a8(SB)/8, $0xcb0000004b000000
+DATA simdconst_f32ToF16VSX_pool<>+0x1b0(SB)/4, $0x437f0000
+GLOBL simdconst_f32ToF16VSX_pool<>(SB), RODATA|NOPTR, $436
 

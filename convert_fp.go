@@ -49,3 +49,38 @@ func Float16ToFloat32Into(dst []float32, a []uint16) { active.Convert.F16ToF32(d
 // smallest float16 denormal become zeros, both with the sign preserved.
 // Denormals are produced rather than flushed.
 func Float32ToFloat16Into(dst []uint16, a []float32) { active.Convert.F32ToF16(dst, a) }
+
+// ---------- affine quantization ----------
+
+// QuantizeInt8 converts float32 to int8 with an affine scale and zero point,
+// which is the quantization every inference runtime uses:
+//
+//	q = clamp(round(x/scale) + zeroPoint, -128, 127)
+//
+// Rounding is half to even, matching ONNX, PyTorch and TFLite. That is worth
+// stating because the naive form, int8(x/scale + 0.5), rounds half away from
+// zero and disagrees on every exact .5 — which a symmetric scale produces in
+// quantity rather than rarely, so the two differ in the middle of a typical
+// distribution and not only at its edges.
+//
+// Values outside the representable range saturate rather than wrapping. It
+// writes min(len(dst), len(a)) elements and allocates nothing.
+func QuantizeInt8(dst []int8, a []float32, scale float32, zeroPoint int32) {
+	active.Convert.QuantizeI8(dst, a, scale, zeroPoint)
+}
+
+// DequantizeInt8 is the inverse: x = (q - zeroPoint) * scale.
+func DequantizeInt8(dst []float32, a []int8, scale float32, zeroPoint int32) {
+	active.Convert.DequantizeI8(dst, a, scale, zeroPoint)
+}
+
+// QuantizeUint8 is [QuantizeInt8] into the unsigned range, clamping to
+// [0, 255]. This is the form TFLite and most mobile runtimes use.
+func QuantizeUint8(dst []uint8, a []float32, scale float32, zeroPoint int32) {
+	active.Convert.QuantizeU8(dst, a, scale, zeroPoint)
+}
+
+// DequantizeUint8 is the inverse of [QuantizeUint8].
+func DequantizeUint8(dst []float32, a []uint8, scale float32, zeroPoint int32) {
+	active.Convert.DequantizeU8(dst, a, scale, zeroPoint)
+}

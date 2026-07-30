@@ -20,6 +20,24 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
+func quantizeI8VSXGuarded(dst []int8, a []float32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.QuantizeI8(dst, a, scale, zeroPoint)
+		return
+	}
+	quantizeI8VSX(dst[:n:n], a, scale, zeroPoint)
+}
+
+func quantizeU8VSXGuarded(dst []byte, a []float32, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.QuantizeU8(dst, a, scale, zeroPoint)
+		return
+	}
+	quantizeU8VSX(dst[:n:n], a, scale, zeroPoint)
+}
+
 func bf16ToF32VSXGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -60,6 +78,8 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
+	s.Convert.QuantizeI8 = quantizeI8VSXGuarded
+	s.Convert.QuantizeU8 = quantizeU8VSXGuarded
 	s.Convert.BF16ToF32 = bf16ToF32VSXGuarded
 	s.Convert.F32ToBF16 = f32ToBF16VSXGuarded
 	s.Convert.F16ToF32 = f16ToF32VSXGuarded

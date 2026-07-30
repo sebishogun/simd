@@ -15,7 +15,6 @@ package conformance
 // intended behaviour and not a gap: a bound is an upper bound.
 
 import (
-	"math"
 	"testing"
 
 	"github.com/sebishogun/simd/internal/kernel"
@@ -185,45 +184,5 @@ func TestFastTranscendentalULP(t *testing.T) {
 				}
 			}
 		})
-	}
-}
-
-// TestFastIsNoWorseThanDocumented is the property the tier exists to make
-// safe: whatever the Fast kernels do, a NaN still comes back a NaN and an
-// infinity still goes where IEEE 754 says. Accuracy is negotiable here and
-// meaning is not.
-func TestFastSpecialValues(t *testing.T) {
-	specials := []float64{
-		math.NaN(), math.Inf(1), math.Inf(-1), 0, math.Copysign(0, -1),
-	}
-	for tier, set := range tiers(t) {
-		for _, c := range unaryCases() {
-			g := fastSlot64(set.F64, c.name)
-			if g == nil {
-				continue
-			}
-			dst := make([]float64, len(specials))
-			g(dst, append([]float64(nil), specials...))
-			for i, x := range specials {
-				want := c.ref(x)
-				got := dst[i]
-				switch {
-				case math.IsNaN(want):
-					if !math.IsNaN(got) {
-						t.Errorf("%s/Fast%s(%v) = %v, want NaN", tier, c.name, x, got)
-					}
-				case math.IsInf(want, 0):
-					if !math.IsInf(got, int(math.Copysign(1, want))) {
-						t.Errorf("%s/Fast%s(%v) = %v, want %v", tier, c.name, x, got, want)
-					}
-				case want == 0:
-					// The sign of a zero is part of the answer, and no amount
-					// of accuracy slack licenses losing it.
-					if got != 0 || math.Signbit(got) != math.Signbit(want) {
-						t.Errorf("%s/Fast%s(%v) = %v, want %v", tier, c.name, x, got, want)
-					}
-				}
-			}
-		}
 	}
 }

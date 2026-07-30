@@ -752,12 +752,29 @@ func (p *poolSet) render() string {
 	var b strings.Builder
 	for _, name := range p.order {
 		d := p.data[name]
-		for i := 0; i+8 <= len(d); i += 8 {
+		// Every byte the GLOBL declares must be covered by a DATA directive.
+		// The assembler zero-fills whatever is left, so a pool whose length is
+		// not a multiple of eight silently loses its tail rather than failing
+		// to build: the last 4-byte constant reads as 0.0f, and only the
+		// kernel that happens to use it is wrong. simd_quantize_u8 read the
+		// upper clamp that way and clamped its whole scalar tail to zero,
+		// which showed up as one wrong element in 17 on ppc64le alone.
+		//
+		// So step down through the directive widths Plan 9 has rather than
+		// assuming eight divides the length. 4 is the remainder that occurs
+		// in practice — a .rodata.cst4 section ending an odd number of
+		// 4-byte constants — but 2 and 1 cost nothing to handle.
+		for i := 0; i < len(d); {
+			w := 8
+			for w > len(d)-i {
+				w /= 2
+			}
 			var q uint64
-			for j := 7; j >= 0; j-- {
+			for j := w - 1; j >= 0; j-- {
 				q = q<<8 | uint64(d[i+j])
 			}
-			fmt.Fprintf(&b, "DATA %s<>+0x%03x(SB)/8, $0x%016x\n", name, i, q)
+			fmt.Fprintf(&b, "DATA %s<>+0x%03x(SB)/%d, $0x%0*x\n", name, i, w, w*2, q)
+			i += w
 		}
 		fmt.Fprintf(&b, "GLOBL %s<>(SB), RODATA|NOPTR, $%d\n\n", name, len(d))
 	}

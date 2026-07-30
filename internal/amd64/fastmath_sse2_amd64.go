@@ -28,9 +28,6 @@ func fastCbrtFloat64SSE2(dst []float64, a []float64)
 func fastAsinFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape
-func fastAsinhFloat64SSE2(dst []float64, a []float64)
-
-//go:noescape
 func fastAcoshFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape

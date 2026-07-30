@@ -119,6 +119,8 @@ func convertOps() kernel.Convert {
 	return kernel.Convert{
 		BF16ToF32: bf16ToF32, F32ToBF16: f32ToBF16,
 		F16ToF32: f16ToF32, F32ToF16: f32ToF16,
+		QuantizeI8: quantizeI8, DequantizeI8: dequantizeI8,
+		QuantizeU8: quantizeU8, DequantizeU8: dequantizeU8,
 	}
 }
 
@@ -128,3 +130,78 @@ func BF16ToF32(dst []float32, a []uint16) { bf16ToF32(dst, a) }
 func F32ToBF16(dst []uint16, a []float32) { f32ToBF16(dst, a) }
 func F16ToF32(dst []float32, a []uint16)  { f16ToF32(dst, a) }
 func F32ToF16(dst []uint16, a []float32)  { f32ToF16(dst, a) }
+
+// ---------- affine quantization ----------
+//
+// These define the semantics the kernels are checked against, so the rounding
+// mode is the specification and not an implementation detail.
+//
+// math.RoundToEven, not math.Round: the runtimes this interoperates with —
+// ONNX, PyTorch, TFLite — all specify round-half-to-even, and C's rintf under
+// the default rounding mode does the same. math.Round is half-away-from-zero
+// and would disagree on every exact .5, which a symmetric scale produces in
+// quantity rather than rarely.
+//
+// The clamp happens in float64 and before the integer conversion, because a
+// Go conversion of an out-of-range float to an integer type is
+// implementation-defined, not saturating.
+
+func quantize[T int8 | uint8](dst []T, a []float32, scale float32, zeroPoint int32, lo, hi float64) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	for i := range dst {
+		// float64 throughout: the division and the rounding are specified on
+		// the float32 value, but the clamp needs a range wider than the
+		// destination type to detect that it was exceeded at all.
+		q := math.RoundToEven(float64(a[i]/scale)) + float64(zeroPoint)
+		if q < lo {
+			q = lo
+		}
+		if q > hi {
+			q = hi
+		}
+		dst[i] = T(q)
+	}
+}
+
+func dequantize[T int8 | uint8](dst []float32, a []T, scale float32, zeroPoint int32) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	for i := range dst {
+		dst[i] = float32(int32(a[i])-zeroPoint) * scale
+	}
+}
+
+func quantizeI8(dst []int8, a []float32, scale float32, zeroPoint int32) {
+	quantize(dst, a, scale, zeroPoint, -128, 127)
+}
+
+func quantizeU8(dst []uint8, a []float32, scale float32, zeroPoint int32) {
+	quantize(dst, a, scale, zeroPoint, 0, 255)
+}
+
+func dequantizeI8(dst []float32, a []int8, scale float32, zeroPoint int32) {
+	dequantize(dst, a, scale, zeroPoint)
+}
+
+func dequantizeU8(dst []float32, a []uint8, scale float32, zeroPoint int32) {
+	dequantize(dst, a, scale, zeroPoint)
+}
+
+// Exported entry points for the generated guards.
+
+func QuantizeI8(dst []int8, a []float32, scale float32, zeroPoint int32) {
+	quantizeI8(dst, a, scale, zeroPoint)
+}
+
+func QuantizeU8(dst []uint8, a []float32, scale float32, zeroPoint int32) {
+	quantizeU8(dst, a, scale, zeroPoint)
+}
+
+func DequantizeI8(dst []float32, a []int8, scale float32, zeroPoint int32) {
+	dequantizeI8(dst, a, scale, zeroPoint)
+}
+
+func DequantizeU8(dst []float32, a []uint8, scale float32, zeroPoint int32) {
+	dequantizeU8(dst, a, scale, zeroPoint)
+}

@@ -1230,7 +1230,30 @@ func Convert() []spec.Kernel {
 			Threshold: thElementwise,
 		}
 	}
+	// quant is the affine int8 quantization pair. It does not use conv above
+	// because it carries the scale and zero point as scalar arguments.
+	quant := func(cname, goName, field, refFunc string, dst, src spec.Type) spec.Kernel {
+		return spec.Kernel{
+			CName: cname, GoName: goName,
+			Group: "Convert", Field: field, RefFunc: refFunc,
+			Params: []spec.Param{sl("dst", dst), sl("a", src),
+				{Name: "scale", Type: spec.F32},
+				{Name: "zeroPoint", Type: spec.I32}},
+			CArgs: []spec.CArg{base("dst"), base("a"), val("scale"),
+				val("zeroPoint"), lenOf("dst")},
+			Threshold: thElementwise,
+		}
+	}
 	return []spec.Kernel{
+		quant("simd_quantize_i8", "quantizeI8", "QuantizeI8", "QuantizeI8",
+			spec.SliceI8, spec.SliceF32),
+		quant("simd_dequantize_i8", "dequantizeI8", "DequantizeI8", "DequantizeI8",
+			spec.SliceF32, spec.SliceI8),
+		quant("simd_quantize_u8", "quantizeU8", "QuantizeU8", "QuantizeU8",
+			spec.SliceU8, spec.SliceF32),
+		quant("simd_dequantize_u8", "dequantizeU8", "DequantizeU8", "DequantizeU8",
+			spec.SliceF32, spec.SliceU8),
+
 		conv("simd_bf16_to_f32", "bf16ToF32", "BF16ToF32", "BF16ToF32",
 			spec.SliceF32, spec.SliceU16),
 		conv("simd_f32_to_bf16", "f32ToBF16", "F32ToBF16", "F32ToBF16",

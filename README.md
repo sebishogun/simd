@@ -37,8 +37,18 @@ run.
 
 ## Scope
 
-**What this is for** — the loops that dominate numeric and parsing code, where
-the same operation runs over a whole slice:
+**What this is for** — anything a vector unit can do faster than a scalar loop.
+If an operation has a known SIMD formulation, it belongs here; the only reasons
+to refuse one are that it was measured and lost, or that nobody has built it
+yet. Both are recorded rather than implied.
+
+That is broader than this section used to claim. It previously listed five
+families and called everything else out of scope, and the effect was that the
+catalogue grew by completing a list rather than by asking what people reach
+for — which is how it reached four hundred operations without `Quantize` in
+it. The scope was the bug, so the scope changed.
+
+The families today:
 
 - **Array math**: elementwise arithmetic, saturating arithmetic, scalar
   operations, rounding, comparisons to masks, prefix scans.
@@ -49,12 +59,24 @@ the same operation runs over a whole slice:
   base64 — taking `string` or `[]byte` without copying.
 - **Linear algebra**: dot, `Gemv`, a register-blocked `MatMul`.
 
-**What this is not.** It is not a BLAS, not a tensor library, not an
-autodiff framework, and not a place to get a `Vector[T]` type. It has no
-opinion about how your data is laid out beyond "it is a slice". Operations are
-one-shot over whole slices, because the alternative — exposing a vector value
-you combine yourself — costs a non-inlinable call per operation in Go and loses
-to a plain loop.
+**What this is not.** Not a BLAS, not a tensor library, not an autodiff
+framework. It has no opinion about how your data is laid out beyond "it is a
+slice", and it does not own your program's control flow.
+
+**Why the default shape is whole-slice, and where that stops.** Most operations
+take and return slices, because exposing a vector value you combine yourself
+costs a non-inlinable call per operation in Go and loses to a plain loop — a
+measured claim, not a stylistic one. But whole-slice is the default shape, not
+the boundary. An algorithm with a known SIMD formulation belongs here whether
+or not it fits that mould: data-dependent output lengths already appear in
+`HexDecode` and `CompressInto`, and a stateful or multi-pass algorithm is a
+design problem rather than a disqualification.
+
+For the two cases the catalogue cannot serve — an operation nobody has built
+yet, or one small enough that the call boundary dominates — see
+[`docs/kernels.md`](docs/kernels.md) to add a kernel that reaches all six
+architectures, and the `goexperiment.simd` vector type for writing one inline
+on amd64.
 
 **Where the win is.** The crossover is around 16–64 elements depending on the
 operation; below it the library runs a plain Go loop, because crossing into
@@ -115,9 +137,9 @@ called. Every one of these has a runnable example in
 **v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and
 is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 
-- **309 exported functions** over ten element types, plus complex, bytes, text
+- **400 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
-- **5,247 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
+- **6,007 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
   arm64 neon/sve2, riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx.
 - Every architecture is **executed**, under emulation, on every change.
 - The portable Go implementation is always there. A kernel that could not be
@@ -287,21 +309,33 @@ effort.
 
 Counts are what the generator emits, from `make check-emission`, and the skip
 column is kernels it declined with a stated reason rather than kernels nobody
-wrote.
+wrote. Both columns sum over an architecture's tiers, so amd64's three each
+contribute — a kernel declined on sse2 and emitted on avx2 counts once in
+each column.
 
 | | kernels | skipped | |
 |---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2170 | 13 | essentially complete |
-| arm64 (neon/sve2) | 1455 | 12 | essentially complete |
-| riscv64 (rvv) | 731 | 4 | essentially complete |
-| loong64 (lasx) | 658 | 9 | see the `.L0` note below |
-| ppc64le (vsx) | 568 | 11 | was 281 before the TOC rewrite |
-| s390x (vx) | 395 | 13 | **partial**, and the reason is an ABI wall |
+| amd64 (sse2/avx2/avx512) | 2180 | 178 | essentially complete |
+| arm64 (neon/sve2) | 1463 | 112 | essentially complete |
+| riscv64 (rvv) | 735 | 57 | essentially complete |
+| loong64 (lasx) | 662 | 121 | see the `.L0` note below |
+| ppc64le (vsx) | 572 | 211 | was 281 before the TOC rewrite |
+| s390x (vx) | 395 | 388 | **partial**, and the reason is an ABI wall |
 
-An earlier version of this table gave s390x as 650. That was wrong — it added
-the registrations and the wrapper functions, which are one per kernel, and so
-reported double. The other five were accurate when written and had simply
-stopped being current. Corrected here rather than quietly restated.
+6,007 kernels in total. Almost all of the skips are the `Fast*` tier: it is the
+newest and the least portable, and where a target declines one the accurate
+kernel stands in, which satisfies the bound because the bound is an upper
+bound. The skips are also concentrated rather than spread — of amd64's 178,
+**170 are sse2** and the legacy-SSE alignment problem described below; avx2
+declines 6 and avx512 declines 2.
+
+Two earlier versions of this table were wrong in opposite directions, and both
+are worth stating rather than quietly restating. One gave s390x as 650: it
+added the registrations and the wrapper functions, which are one per kernel,
+and so reported double. The other gave the skip column as 13/12/4/9/11/13,
+which was accurate before the `Fast*` tier existed and counted none of it
+afterwards — a column that stops moving is easier to trust than one that was
+never right, and harder to notice.
 
 - **s390x** loses kernels because clang uses `r13`, the register Go keeps the
   current goroutine in, and there is no `-ffixed` for SystemZ — the global
@@ -312,7 +346,7 @@ stopped being current. Corrected here rather than quietly restated.
   like the obstacle and was not. Go's own assembler materialises a symbol
   address in two instructions with no TOC involvement, so the pool becomes a
   standalone symbol, `R2` is pointed at it, and clang's global-entry prologue
-  is replaced in place. 281 kernels became 468, and 568 as of this writing.
+  is replaced in place. 281 kernels became 468, and 572 as of this writing.
 - **loong64** declines nine, and the largest group is not an ABI wall but a
   relocation one: clang emits LoongArch branches with a displacement of zero
   and expects the linker to fill them in, so the bodies cannot be copied

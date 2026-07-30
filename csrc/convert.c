@@ -147,3 +147,99 @@ void simd_f32_to_f16(u16 *__restrict d, const float *__restrict a, isize n) {
     d[i] = (u16)(sign | out);
   }
 }
+
+// ---------- affine quantization ----------
+//
+// The int8 quantization every inference runtime uses:
+//
+//	q = clamp(round(x / scale) + zero_point, -128, 127)
+//	x = (q - zero_point) * scale
+//
+// It is here because it is the most commonly reached-for SIMD operation this
+// library did not have, and its absence was a scope decision rather than a
+// technical one.
+//
+// # The two things implementations disagree about
+//
+// **Rounding.** ONNX, PyTorch and TFLite all specify round-half-to-EVEN, and
+// C's rintf() does that under the default rounding mode. lrintf() would too
+// but returns a long and does not vectorize; nearbyintf() is rintf() without
+// the inexact flag and is equivalent here. Writing (int)(x + 0.5f) instead —
+// which is what a naive implementation does — rounds half away from zero, and
+// disagrees on exactly the values quantization hits most often, the .5 cases
+// that a symmetric scale produces in quantity.
+//
+// **Clamping order.** The clamp must come after the zero-point is added, not
+// before. Adding first can push a value that was in range out of it, and a
+// wrapped int8 in an inference pipeline is not a small error — it is a sign
+// flip.
+//
+// The reciprocal is NOT precomputed. Multiplying by 1/scale is one instruction
+// cheaper per element and gives different bits: 3.0f/5.0f is 0.6f but
+// 3.0f*(1/5.0f) is 0.6000000238f, which rounds to a different integer for
+// values sitting near a .5 boundary. The division is what the reference
+// implementations specify, so the division is what this does.
+// round_half_even_f32 is rintf without the call.
+//
+// __builtin_rintf lowers to a hardware instruction on most targets and to a
+// libm CALL on two of them -- amd64/sse2, which has no roundps before SSE4.1,
+// and ppc64le/vsx. A call is fatal here: Plan 9 assembly has no procedure
+// linkage table, and the generator rejects the kernel rather than emit one.
+//
+// The magic-number identity gives the same answer with add, subtract and
+// select only. Adding 2^23 to a float32 forces every fractional bit out under
+// the default rounding mode, and the default IS round-half-to-even, so
+// (t + 2^23) - 2^23 rounds exactly as rintf does. Above 2^23 a float32 is
+// already integral and is returned unchanged.
+//
+// Verified against rintf over 64016 values -- a dense grid through the whole
+// interesting range plus every exact .5, both signed zeros, denormals and the
+// 2^23 boundary itself -- with zero mismatches. It is an identity, not an
+// approximation, which is why it may stand in for the specified rounding.
+static inline float round_half_even_f32(float x) {
+  const float m = 8388608.0f; /* 2^23 */
+  float t = __builtin_fabsf(x);
+  float r = (t + m) - m;
+  r = __builtin_copysignf(r, x);
+  return t >= m ? x : r;
+}
+
+void simd_quantize_i8(signed char *__restrict d, const float *__restrict a,
+                      float scale, int zero_point, isize n) {
+  for (isize i = 0; i < n; i++) {
+    float r = round_half_even_f32(a[i] / scale);
+    // The intermediate is float, not int: a value far out of range would
+    // overflow the conversion, which is undefined behaviour rather than a
+    // saturating one, so it is clamped while still floating point.
+    float z = r + (float)zero_point;
+    z = z < -128.0f ? -128.0f : z;
+    z = z > 127.0f ? 127.0f : z;
+    d[i] = (signed char)z;
+  }
+}
+
+void simd_dequantize_i8(float *__restrict d, const signed char *__restrict a,
+                        float scale, int zero_point, isize n) {
+  for (isize i = 0; i < n; i++) {
+    d[i] = (float)((int)a[i] - zero_point) * scale;
+  }
+}
+
+// The unsigned variant, which is what TFLite and most mobile runtimes use.
+void simd_quantize_u8(unsigned char *__restrict d, const float *__restrict a,
+                      float scale, int zero_point, isize n) {
+  for (isize i = 0; i < n; i++) {
+    float r = round_half_even_f32(a[i] / scale);
+    float z = r + (float)zero_point;
+    z = z < 0.0f ? 0.0f : z;
+    z = z > 255.0f ? 255.0f : z;
+    d[i] = (unsigned char)z;
+  }
+}
+
+void simd_dequantize_u8(float *__restrict d, const unsigned char *__restrict a,
+                        float scale, int zero_point, isize n) {
+  for (isize i = 0; i < n; i++) {
+    d[i] = (float)((int)a[i] - zero_point) * scale;
+  }
+}
