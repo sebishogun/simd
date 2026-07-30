@@ -118,6 +118,8 @@ func f32ToF16(dst []uint16, a []float32) {
 func convertOps() kernel.Convert {
 	return kernel.Convert{
 		BF16ToF32: bf16ToF32, F32ToBF16: f32ToBF16,
+		F8E4M3ToF32: F8E4M3ToF32, F32ToF8E4M3: F32ToF8E4M3,
+		F8E5M2ToF32: F8E5M2ToF32, F32ToF8E5M2: F32ToF8E5M2,
 		F16ToF32: f16ToF32, F32ToF16: f32ToF16,
 		QuantizeI8: quantizeI8, DequantizeI8: dequantizeI8,
 		QuantizeU8: quantizeU8, DequantizeU8: dequantizeU8,
@@ -362,3 +364,155 @@ func DequantizePerChannelI8(dst []float32, a []int8, scale []float32, zeroPoint 
 func DequantizePerChannelU8(dst []float32, a []uint8, scale []float32, zeroPoint []int32, channels, inner int) {
 	dequantizePerChannel(dst, a, scale, zeroPoint, channels, inner)
 }
+
+// ---------- fp8 ----------
+//
+// Both OCP OFP8 formats. e4m3 has no infinity — exponent 1111 with mantissa
+// 111 is the only NaN and everything else at that exponent is finite, which is
+// what gives it a 448 maximum. e5m2 is IEEE-shaped and has infinities where
+// float16 does.
+//
+// These go through float64 and math.Ldexp rather than repeating the kernel's
+// bit arithmetic. That is deliberate: two implementations that share a
+// derivation can share a mistake, and the differential test is only worth
+// running if they arrive at the same answer by different routes.
+
+type f8Format struct {
+	manBits uint // mantissa bits
+	bias    int  // exponent bias
+	maxExp  uint // largest exponent field
+	hasInf  bool // whether the top exponent means infinity
+
+	// overflowAt is the magnitude at or above which the result leaves the
+	// finite range — infinity for e5m2, saturation for e4m3.
+	//
+	// For e5m2 this is NOT the largest finite value. Round to nearest sends
+	// everything below the midpoint between 57344 and the next power of two
+	// back down to 57344, so the threshold is 61440. Using 57344 made 57345
+	// an infinity while the kernel correctly gave 57344, which is what the
+	// conformance differential reported.
+	overflowAt float64
+}
+
+var (
+	e4m3 = f8Format{manBits: 3, bias: 7, maxExp: 15, hasInf: false, overflowAt: 448}
+	e5m2 = f8Format{manBits: 2, bias: 15, maxExp: 31, hasInf: true, overflowAt: 61440}
+)
+
+func f8ToF32(dst []float32, a []byte, f f8Format) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	manMask := uint(1)<<f.manBits - 1
+	for i := range dst {
+		u := uint(a[i])
+		neg := u&0x80 != 0
+		exp := (u >> f.manBits) & f.maxExp
+		man := u & manMask
+
+		var v float64
+		switch {
+		case exp == f.maxExp && f.hasInf:
+			if man != 0 {
+				v = math.NaN()
+			} else {
+				v = math.Inf(1)
+			}
+		case exp == f.maxExp && man == manMask:
+			v = math.NaN() // e4m3's single NaN encoding
+		case exp == 0:
+			// Denormal: no implied leading bit, exponent fixed at 1-bias.
+			v = math.Ldexp(float64(man)/float64(uint(1)<<f.manBits), 1-f.bias)
+		default:
+			frac := 1 + float64(man)/float64(uint(1)<<f.manBits)
+			v = math.Ldexp(frac, int(exp)-f.bias)
+		}
+		if neg {
+			v = -v
+		}
+		dst[i] = float32(v)
+	}
+}
+
+func f32ToF8(dst []byte, a []float32, f f8Format) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	manMask := uint(1)<<f.manBits - 1
+	for i := range dst {
+		x := float64(a[i])
+		var sign byte
+		if math.Signbit(x) {
+			sign = 0x80
+		}
+		mag := math.Abs(x)
+
+		switch {
+		case mag == 0:
+			// math.Frexp(0) returns (0, 0), so without this the code below
+			// synthesises an exponent field of bias-1 and turns zero into 0.5.
+			// The conformance differential caught it: the kernel said 0x00 and
+			// this said 0x30. Zero is the one input every format agrees on and
+			// the one most easily lost in a general path.
+			dst[i] = sign
+			continue
+		case math.IsNaN(x):
+			// All-ones mantissa in both formats. Any non-zero mantissa at the
+			// top exponent is a NaN in e5m2 and rule 1 does not promise a
+			// payload, but the kernel and this have to agree or the
+			// differential fails — and picking the same encoding for both
+			// formats is one fewer thing to remember.
+			dst[i] = sign | byte(f.maxExp<<f.manBits|manMask)
+			continue
+		case math.IsInf(x, 0) || mag >= f.overflowAt:
+			if f.hasInf {
+				dst[i] = sign | byte(f.maxExp<<f.manBits)
+			} else {
+				// No infinity: saturate at the largest finite value.
+				dst[i] = sign | byte(f.maxExp<<f.manBits|manMask-1)
+			}
+			continue
+		}
+
+		// Round the mantissa to nearest even at the target precision, by
+		// scaling so the units digit is the last kept bit.
+		frac, exp := math.Frexp(mag) // mag == frac * 2^exp, frac in [0.5,1)
+		e := exp - 1                 // unbiased exponent of the leading 1
+		var q float64
+		var field uint
+		if e < 1-f.bias {
+			// Denormal in the target: the exponent field is zero and the
+			// mantissa is scaled by the fixed minimum exponent.
+			q = math.RoundToEven(math.Ldexp(mag, int(f.manBits)+f.bias-1))
+			if q >= float64(uint(1)<<f.manBits) {
+				// Rounded up into the smallest normal.
+				dst[i] = sign | byte(1<<f.manBits)
+				continue
+			}
+			dst[i] = sign | byte(uint(q))
+			continue
+		}
+		q = math.RoundToEven(frac * 2 * float64(uint(1)<<f.manBits))
+		if q >= float64(uint(2)<<f.manBits) {
+			q /= 2
+			e++
+		}
+		field = uint(e + f.bias)
+		man := uint(q) & manMask
+		if f.hasInf && field >= f.maxExp {
+			dst[i] = sign | byte(f.maxExp<<f.manBits)
+			continue
+		}
+		if !f.hasInf && field == f.maxExp && man >= manMask {
+			man = manMask - 1 // never produce the NaN encoding by rounding
+		}
+		if field > f.maxExp {
+			field = f.maxExp
+			man = manMask - 1
+		}
+		dst[i] = sign | byte(field<<f.manBits|man)
+	}
+}
+
+func F8E4M3ToF32(dst []float32, a []byte) { f8ToF32(dst, a, e4m3) }
+func F32ToF8E4M3(dst []byte, a []float32) { f32ToF8(dst, a, e4m3) }
+func F8E5M2ToF32(dst []float32, a []byte) { f8ToF32(dst, a, e5m2) }
+func F32ToF8E5M2(dst []byte, a []float32) { f32ToF8(dst, a, e5m2) }

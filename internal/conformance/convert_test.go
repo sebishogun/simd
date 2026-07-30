@@ -286,3 +286,73 @@ func TestPerChannelQuantKernels(t *testing.T) {
 		})
 	}
 }
+
+// TestFP8Kernels drives both fp8 formats against ref over their entire domain
+// in one direction and over the float32 edge cases in the other.
+//
+// Exhaustive is possible here and worth taking: 256 encodings is the whole
+// input space of the widening direction, so this is a proof rather than a
+// sample.
+func TestFP8Kernels(t *testing.T) {
+	want := ref.Set()
+	all := make([]byte, 256)
+	for i := range all {
+		all[i] = byte(i)
+	}
+	// For narrowing: every value the widening produces, plus the boundaries
+	// that decide saturation, denormal and NaN.
+	wideRef := make([]float32, 256)
+	want.Convert.F8E4M3ToF32(wideRef, all)
+	edges := []float32{
+		0, float32(math.Copysign(0, -1)), 448, -448, 449, 500, 57344, 57345,
+		1.0 / 512, 1.0 / 1024, 1.0 / 2048, 0.015625, 0.0078125,
+		float32(math.Inf(1)), float32(math.Inf(-1)), float32(math.NaN()),
+	}
+	narrowIn := append(append([]float32(nil), wideRef...), edges...)
+
+	for tier, got := range tiers(t) {
+		t.Run(tier, func(t *testing.T) {
+			for _, c := range []struct {
+				op        string
+				got, want func(dst []float32, a []byte)
+			}{
+				{"F8E4M3ToF32", got.Convert.F8E4M3ToF32, want.Convert.F8E4M3ToF32},
+				{"F8E5M2ToF32", got.Convert.F8E5M2ToF32, want.Convert.F8E5M2ToF32},
+			} {
+				if c.got == nil {
+					continue
+				}
+				g, w := make([]float32, 256), make([]float32, 256)
+				c.got(g, all)
+				c.want(w, all)
+				for i := range g {
+					if !sameF32Bits(g[i], w[i]) {
+						t.Fatalf("%s/Convert.%s(%#02x): got %v want %v",
+							tier, c.op, i, g[i], w[i])
+					}
+				}
+			}
+			for _, c := range []struct {
+				op        string
+				got, want func(dst []byte, a []float32)
+			}{
+				{"F32ToF8E4M3", got.Convert.F32ToF8E4M3, want.Convert.F32ToF8E4M3},
+				{"F32ToF8E5M2", got.Convert.F32ToF8E5M2, want.Convert.F32ToF8E5M2},
+			} {
+				if c.got == nil {
+					continue
+				}
+				m := len(narrowIn)
+				g, w := make([]byte, m), make([]byte, m)
+				c.got(g, narrowIn)
+				c.want(w, narrowIn)
+				for i := range g {
+					if g[i] != w[i] {
+						t.Fatalf("%s/Convert.%s(%v): got %#02x want %#02x",
+							tier, c.op, narrowIn[i], g[i], w[i])
+					}
+				}
+			}
+		})
+	}
+}

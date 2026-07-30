@@ -160,6 +160,24 @@ func zigzagDecodeI64NEONGuarded(dst []int64, a []uint64) {
 	zigzagDecodeI64NEON(dst[:n:n], a)
 }
 
+func f8e4m3ToF32NEONGuarded(dst []float32, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F8E4M3ToF32(dst, a)
+		return
+	}
+	f8e4m3ToF32NEON(dst[:n:n], a)
+}
+
+func f8e5m2ToF32NEONGuarded(dst []float32, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F8E5M2ToF32(dst, a)
+		return
+	}
+	f8e5m2ToF32NEON(dst[:n:n], a)
+}
+
 func bf16ToF32NEONGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -216,6 +234,8 @@ func init() {
 	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32NEONGuarded
 	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64NEONGuarded
 	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64NEONGuarded
+	s.Convert.F8E4M3ToF32 = f8e4m3ToF32NEONGuarded
+	s.Convert.F8E5M2ToF32 = f8e5m2ToF32NEONGuarded
 	s.Convert.BF16ToF32 = bf16ToF32NEONGuarded
 	s.Convert.F32ToBF16 = f32ToBF16NEONGuarded
 	s.Convert.F16ToF32 = f16ToF32NEONGuarded

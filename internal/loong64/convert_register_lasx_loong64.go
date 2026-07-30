@@ -160,6 +160,24 @@ func zigzagDecodeI64LASXGuarded(dst []int64, a []uint64) {
 	zigzagDecodeI64LASX(dst[:n:n], a)
 }
 
+func f8e4m3ToF32LASXGuarded(dst []float32, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F8E4M3ToF32(dst, a)
+		return
+	}
+	f8e4m3ToF32LASX(dst[:n:n], a)
+}
+
+func f8e5m2ToF32LASXGuarded(dst []float32, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F8E5M2ToF32(dst, a)
+		return
+	}
+	f8e5m2ToF32LASX(dst[:n:n], a)
+}
+
 func bf16ToF32LASXGuarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -207,6 +225,8 @@ func init() {
 	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32LASXGuarded
 	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64LASXGuarded
 	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64LASXGuarded
+	s.Convert.F8E4M3ToF32 = f8e4m3ToF32LASXGuarded
+	s.Convert.F8E5M2ToF32 = f8e5m2ToF32LASXGuarded
 	s.Convert.BF16ToF32 = bf16ToF32LASXGuarded
 	s.Convert.F32ToBF16 = f32ToBF16LASXGuarded
 	s.Convert.F32ToF16 = f32ToF16LASXGuarded

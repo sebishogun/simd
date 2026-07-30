@@ -205,3 +205,40 @@ func DequantizePerChannelInt8(dst []float32, a []int8, scale []float32, zeroPoin
 func DequantizePerChannelUint8(dst []float32, a []uint8, scale []float32, zeroPoint []int32, channels, inner int) {
 	active.Convert.DequantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
 }
+
+// ---------- fp8 ----------
+
+// Float8E4M3ToFloat32Into widens OCP e4m3 to float32: 1 sign bit, 4 exponent
+// bits, 3 mantissa bits, bias 7. This is the format weights and activations
+// use.
+//
+// **e4m3 has no infinity.** Exponent 1111 with mantissa 111 is the only NaN
+// encoding and every other value at that exponent is finite, which is what
+// gives the format its 448 maximum rather than 240. That is the OCP OFP8
+// definition and NVIDIA's e4m3fn — the "fn" is finite-not-nan — and it is what
+// every shipping implementation does. Compare [Float8E5M2ToFloat32Into], which
+// is IEEE-shaped and does have infinities.
+//
+// It writes min(len(dst), len(a)) elements and allocates nothing.
+func Float8E4M3ToFloat32Into(dst []float32, a []byte) { active.Convert.F8E4M3ToF32(dst, a) }
+
+// Float32ToFloat8E4M3Into narrows to OCP e4m3, rounding to nearest even.
+//
+// Because the format has no infinity, values above 448 in magnitude saturate
+// to ±448 rather than becoming one, and an input infinity saturates too. A NaN
+// stays a NaN. Denormals are produced rather than flushed.
+func Float32ToFloat8E4M3Into(dst []byte, a []float32) { active.Convert.F32ToF8E4M3(dst, a) }
+
+// Float8E5M2ToFloat32Into widens e5m2 to float32: 1 sign bit, 5 exponent bits,
+// 2 mantissa bits, bias 15. This is the format gradients use, and it trades
+// e4m3's extra mantissa bit for float16's exponent range.
+//
+// Unlike e4m3 this one is IEEE-shaped: it has infinities and NaNs where a
+// float16 has them.
+func Float8E5M2ToFloat32Into(dst []float32, a []byte) { active.Convert.F8E5M2ToF32(dst, a) }
+
+// Float32ToFloat8E5M2Into narrows to e5m2, rounding to nearest even.
+//
+// Values above 57344 in magnitude become infinities, as in float16. Denormals
+// are produced rather than flushed.
+func Float32ToFloat8E5M2Into(dst []byte, a []float32) { active.Convert.F32ToF8E5M2(dst, a) }

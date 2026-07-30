@@ -523,6 +523,24 @@ type Convert struct {
 	// Exact and total in both directions under rule 1: these are shifts and
 	// exclusive ors, so every tier gives the same bits, and every value round
 	// trips including the most negative one.
+	// fp8, both OCP OFP8 formats.
+	//
+	//	e4m3  4 exponent, 3 mantissa, bias 7.  Weights and activations.
+	//	e5m2  5 exponent, 2 mantissa, bias 15. Gradients.
+	//
+	// e4m3 here has NO INFINITY, which is the OCP and NVIDIA e4m3fn
+	// definition: exponent 1111 with mantissa 111 is the only NaN, every
+	// other 1111 encoding is finite, and that is what buys the 448 maximum.
+	// An input infinity saturates. e5m2 IS IEEE-shaped and has infinities in
+	// the usual place, so the two formats behave differently at the top of
+	// their range by design rather than by oversight.
+	//
+	// Rounding is to nearest even in both directions, as with float16.
+	F8E4M3ToF32 func(dst []float32, a []byte)
+	F32ToF8E4M3 func(dst []byte, a []float32)
+	F8E5M2ToF32 func(dst []float32, a []byte)
+	F32ToF8E5M2 func(dst []byte, a []float32)
+
 	// Per-channel quantization: one scale and zero point per output channel
 	// rather than one per tensor, which is what real inference uses for
 	// weights.

@@ -2108,3 +2108,49 @@ only place worth trying, it is the smallest, and each candidate needs both
 The useful output of this investigation is the categorisation, not a change:
 **150 of the refusals are a missing instruction and will still be refused on
 the day someone tries again**, so the number to quote is not 338.
+
+---
+
+## 60. An exhaustive test of the kernel says nothing about the reference
+
+**Assumed.** fp8 has 256 encodings. A test that widens all 256, narrows them
+back, and checks every one returns its own encoding is not a sample — it is a
+proof. Nothing else is needed.
+
+**True.** That test passed while `internal/ref` had **three** separate defects,
+and it passed *because* it was thorough: 256 elements is well over the
+threshold, so every call went to the generated kernel and the reference was
+never executed. The exhaustive test proved the kernel right and said nothing
+about the thing the kernel is checked against.
+
+The conformance differential found all three in three runs:
+
+| | kernel | ref |
+|---|---|---|
+| `F32ToF8E4M3(0)` | `0x00` | `0x30`, which is 0.5 |
+| `F32ToF8E5M2(NaN)` | `0x7f` | `0x7d` |
+| `F32ToF8E5M2(57345)` | `0x7b` | infinity |
+
+The first is the sharpest. `math.Frexp(0)` returns `(0, 0)`, so zero fell
+through to the general path, which synthesised an exponent field of `bias-1`
+and produced 0.5. Zero is the one value every float format agrees on and the
+easiest to lose in a path written for the general case.
+
+The third is a real specification error rather than a slip. `ref` overflowed to
+infinity above the largest finite value, 57344. Round to nearest does not: the
+threshold is the *midpoint* between 57344 and the next power of two, 61440, so
+57345 rounds back down to 57344. Writing "overflow above the maximum" is the
+obvious thing and it is wrong by 4096.
+
+**And the kernel was right all three times**, which is worth saying because the
+usual assumption runs the other way. The C was written from the bit layout; the
+reference was written through `math.Frexp` and `math.Ldexp` deliberately, so
+that the two could not share a derivation. That is what made the differential
+informative — and it is also why the reference, being the less mechanical of
+the two, is where the mistakes were.
+
+**The lesson is which direction a test points.** A test through the public API
+exercises whatever the dispatcher selected, which on a large input is never the
+reference. To test the reference you have to call it, and the only thing that
+does that systematically is the differential — or a `-tags purego` run, which
+is why that lane exists and why it is not optional.

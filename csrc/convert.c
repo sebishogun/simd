@@ -349,3 +349,162 @@ QUANT_PER_CHANNEL(unsigned char, u8, 0.0f, 255.0f)
 
 DEQUANT_PER_CHANNEL(signed char, i8)
 DEQUANT_PER_CHANNEL(unsigned char, u8)
+
+// ---------- fp8 ----------
+//
+// Two 8-bit float formats, both in the OCP "OFP8" specification and both in
+// current use for inference and increasingly for training:
+//
+//   e4m3  1 sign, 4 exponent, 3 mantissa, bias 7.  Weights and activations.
+//   e5m2  1 sign, 5 exponent, 2 mantissa, bias 15. Gradients.
+//
+// They trade the same eight bits differently: e5m2 has the range of a float16
+// and two mantissa bits, e4m3 has three mantissa bits and a range that stops
+// at 448.
+//
+// THE ONE INTEROPERABILITY DECISION, stated rather than left implicit. e4m3
+// has two incompatible definitions:
+//
+//   OCP e4m3 (this one)  no infinity. Exponent 1111 with mantissa 111 is NaN;
+//                        every other 1111 encoding is a finite number, which
+//                        is what buys the 448 maximum.
+//   NVIDIA e4m3fn        same thing, and the name says so — "fn" is
+//                        finite-not-nan.
+//   A hypothetical IEEE-shaped e4m3 would spend 1111.000 on infinity and cap
+//   at 240. Nothing ships it.
+//
+// So: e4m3 here has NO infinity. An input infinity saturates to +-448 and a
+// NaN maps to 0x7f or 0xff. e5m2 IS IEEE-shaped — it has infinities and NaNs
+// in the usual places — so the two formats genuinely behave differently at the
+// top of their range and that is not a bug in either.
+//
+// Rounding is to nearest even in both directions, matching every other
+// narrowing conversion here and the hardware instructions on the machines that
+// have them.
+#define F8_ROUND(bits, shift)                                             \
+  do {                                                                    \
+    unsigned rest_ = (bits) & ((1u << (shift)) - 1u);                     \
+    unsigned half_ = 1u << ((shift) - 1);                                 \
+    (bits) >>= (shift);                                                   \
+    if (rest_ > half_ || (rest_ == half_ && ((bits) & 1u))) (bits)++;      \
+  } while (0)
+
+void simd_f8e4m3_to_f32(float *__restrict d, const unsigned char *__restrict a,
+                        isize n) {
+  for (isize i = 0; i < n; i++) {
+    unsigned u = a[i];
+    unsigned sign = (u & 0x80u) << 24;
+    unsigned exp = (u >> 3) & 0x0fu;
+    unsigned man = u & 0x07u;
+    if (exp == 0x0fu && man == 0x07u) {
+      d[i] = bits_to_float(sign | 0x7fc00000u); /* the only NaN encoding */
+    } else if (exp == 0) {
+      if (man == 0) {
+        d[i] = bits_to_float(sign);
+      } else {
+        /* Denormal: normalise by hand, as f16_to_f32 does. */
+        int e = -6;
+        while ((man & 0x08u) == 0) {
+          man <<= 1;
+          e--;
+        }
+        man &= 0x07u;
+        d[i] = bits_to_float(sign | (unsigned)(e + 127) << 23 | man << 20);
+      }
+    } else {
+      d[i] = bits_to_float(sign | (exp + 127u - 7u) << 23 | man << 20);
+    }
+  }
+}
+
+void simd_f32_to_f8e4m3(unsigned char *__restrict d,
+                        const float *__restrict a, isize n) {
+  for (isize i = 0; i < n; i++) {
+    unsigned u = float_to_bits(a[i]);
+    unsigned sign = (u >> 24) & 0x80u;
+    unsigned mag = u & 0x7fffffffu;
+    if (mag > 0x7f800000u) {
+      d[i] = (unsigned char)(sign | 0x7fu); /* NaN */
+    } else if (mag >= 0x43e00000u) {
+      /* 448 is the largest finite e4m3; there is no infinity to overflow to. */
+      d[i] = (unsigned char)(sign | 0x7eu);
+    } else if (mag < 0x3a800000u) {
+      d[i] = (unsigned char)sign; /* below half the smallest denormal */
+    } else if (mag < 0x3c800000u) {
+      /* Denormal in e4m3: below 2^-6, the smallest normal. The constant is
+         2^-6 and not 2^-4 — an exhaustive round trip over all 256 encodings
+         caught that immediately, because every value between the two took the
+         denormal path and came back one step too large. */
+      int e = (int)(mag >> 23) - 127;
+      unsigned m = (mag & 0x7fffffu) | 0x800000u;
+      unsigned shift = (unsigned)(-e - 6 + 20);
+      F8_ROUND(m, shift);
+      d[i] = (unsigned char)(sign | m);
+    } else {
+      unsigned e = (mag >> 23) - 127u + 7u;
+      unsigned m = mag & 0x7fffffu;
+      unsigned r = (e << 3) | (m >> 20);
+      unsigned rest = m & 0xfffffu;
+      if (rest > 0x80000u || (rest == 0x80000u && (r & 1u))) r++;
+      /* Rounding can carry into the NaN encoding; saturate instead. */
+      d[i] = (unsigned char)(sign | (r > 0x7eu ? 0x7eu : r));
+    }
+  }
+}
+
+void simd_f8e5m2_to_f32(float *__restrict d, const unsigned char *__restrict a,
+                        isize n) {
+  for (isize i = 0; i < n; i++) {
+    unsigned u = a[i];
+    unsigned sign = (u & 0x80u) << 24;
+    unsigned exp = (u >> 2) & 0x1fu;
+    unsigned man = u & 0x03u;
+    if (exp == 0x1fu) {
+      /* IEEE-shaped: infinity and NaN both live here. */
+      d[i] = bits_to_float(sign | 0x7f800000u | (man ? 0x400000u | man << 21 : 0));
+    } else if (exp == 0) {
+      if (man == 0) {
+        d[i] = bits_to_float(sign);
+      } else {
+        int e = -14;
+        while ((man & 0x04u) == 0) {
+          man <<= 1;
+          e--;
+        }
+        man &= 0x03u;
+        d[i] = bits_to_float(sign | (unsigned)(e + 127) << 23 | man << 21);
+      }
+    } else {
+      d[i] = bits_to_float(sign | (exp + 127u - 15u) << 23 | man << 21);
+    }
+  }
+}
+
+void simd_f32_to_f8e5m2(unsigned char *__restrict d,
+                        const float *__restrict a, isize n) {
+  for (isize i = 0; i < n; i++) {
+    unsigned u = float_to_bits(a[i]);
+    unsigned sign = (u >> 24) & 0x80u;
+    unsigned mag = u & 0x7fffffffu;
+    if (mag > 0x7f800000u) {
+      d[i] = (unsigned char)(sign | 0x7fu); /* NaN, quieted */
+    } else if (mag >= 0x47700000u) {
+      d[i] = (unsigned char)(sign | 0x7cu); /* overflows to infinity */
+    } else if (mag < 0x37000000u) {
+      d[i] = (unsigned char)sign;
+    } else if (mag < 0x38800000u) {
+      int e = (int)(mag >> 23) - 127;
+      unsigned m = (mag & 0x7fffffu) | 0x800000u;
+      unsigned shift = (unsigned)(-e - 14 + 21);
+      F8_ROUND(m, shift);
+      d[i] = (unsigned char)(sign | m);
+    } else {
+      unsigned e = (mag >> 23) - 127u + 15u;
+      unsigned m = mag & 0x7fffffu;
+      unsigned r = (e << 2) | (m >> 21);
+      unsigned rest = m & 0x1fffffu;
+      if (rest > 0x100000u || (rest == 0x100000u && (r & 1u))) r++;
+      d[i] = (unsigned char)(sign | (r > 0x7bu ? 0x7cu : r));
+    }
+  }
+}

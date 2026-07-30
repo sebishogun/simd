@@ -64,6 +64,12 @@ func zigzagEncodeI64LASX(dst []uint64, a []int64)
 func zigzagDecodeI64LASX(dst []int64, a []uint64)
 
 //go:noescape
+func f8e4m3ToF32LASX(dst []float32, a []byte)
+
+//go:noescape
+func f8e5m2ToF32LASX(dst []float32, a []byte)
+
+//go:noescape
 func bf16ToF32LASX(dst []float32, a []uint16)
 
 //go:noescape

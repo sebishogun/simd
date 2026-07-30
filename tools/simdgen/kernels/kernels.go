@@ -1346,6 +1346,15 @@ func Convert() []spec.Kernel {
 		conv("simd_zigzag_decode_i64", "zigzagDecodeI64", "ZigzagDecodeI64",
 			"ZigzagDecodeI64", spec.SliceI64, spec.SliceU64),
 
+		conv("simd_f8e4m3_to_f32", "f8e4m3ToF32", "F8E4M3ToF32", "F8E4M3ToF32",
+			spec.SliceF32, spec.SliceU8),
+		conv("simd_f32_to_f8e4m3", "f32ToF8E4M3", "F32ToF8E4M3", "F32ToF8E4M3",
+			spec.SliceU8, spec.SliceF32),
+		conv("simd_f8e5m2_to_f32", "f8e5m2ToF32", "F8E5M2ToF32", "F8E5M2ToF32",
+			spec.SliceF32, spec.SliceU8),
+		conv("simd_f32_to_f8e5m2", "f32ToF8E5M2", "F32ToF8E5M2", "F32ToF8E5M2",
+			spec.SliceU8, spec.SliceF32),
+
 		conv("simd_bf16_to_f32", "bf16ToF32", "BF16ToF32", "BF16ToF32",
 			spec.SliceF32, spec.SliceU16),
 		conv("simd_f32_to_bf16", "f32ToBF16", "F32ToBF16", "F32ToBF16",

@@ -160,6 +160,24 @@ func zigzagDecodeI64SVE2Guarded(dst []int64, a []uint64) {
 	zigzagDecodeI64SVE2(dst[:n:n], a)
 }
 
+func f8e4m3ToF32SVE2Guarded(dst []float32, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F8E4M3ToF32(dst, a)
+		return
+	}
+	f8e4m3ToF32SVE2(dst[:n:n], a)
+}
+
+func f8e5m2ToF32SVE2Guarded(dst []float32, a []byte) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F8E5M2ToF32(dst, a)
+		return
+	}
+	f8e5m2ToF32SVE2(dst[:n:n], a)
+}
+
 func bf16ToF32SVE2Guarded(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -216,6 +234,8 @@ func init() {
 	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32SVE2Guarded
 	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64SVE2Guarded
 	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64SVE2Guarded
+	s.Convert.F8E4M3ToF32 = f8e4m3ToF32SVE2Guarded
+	s.Convert.F8E5M2ToF32 = f8e5m2ToF32SVE2Guarded
 	s.Convert.BF16ToF32 = bf16ToF32SVE2Guarded
 	s.Convert.F32ToBF16 = f32ToBF16SVE2Guarded
 	s.Convert.F16ToF32 = f16ToF32SVE2Guarded
