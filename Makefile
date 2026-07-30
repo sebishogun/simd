@@ -248,6 +248,25 @@ cross-setup:
 check-emission:
 	cd tools && $(GO) run ./simdgen -n
 
+# perf-model estimates kernel throughput on the architectures this machine
+# cannot time.
+#
+# Every benchmark in this repository runs on amd64, because that is the only
+# architecture here that executes natively. qemu emulates semantics and not
+# timing, so the emulated lanes prove the other five are CORRECT and say
+# nothing about whether they are FAST — which is most of the point of a SIMD
+# library. llvm-mca closes that with LLVM's own scheduling tables.
+#
+# It is a model: L1-resident, one core, no memory system. Read the ratios, not
+# the cycle counts. Validated against measured amd64 to within 5-12% on the
+# avx512-versus-avx2 comparison; see the package comment.
+.PHONY: perf-model
+perf-model:
+	@command -v llvm-mca >/dev/null || { \
+		echo "llvm-mca not found; it ships with clang, which codegen already needs"; \
+		exit 1; }
+	@cd tools && $(GO) run ./perfmodel $(PERFMODEL_ARGS)
+
 .PHONY: codegen
 codegen:
 	cd tools && $(GO) run ./simdgen

@@ -1505,3 +1505,92 @@ answers it outright.
 The failure this avoids is the expensive kind. Three plausible, reproducible,
 double-confirmed "regressions" would have sent someone hunting for a cause
 inside code that had not changed a byte.
+
+## 49. Performance on the other architectures cannot be verified without them
+
+**Wrong**, mostly — and I had already been corrected once for the same shape of
+claim.
+
+Task 64 sat open for a long time saying performance verification "needs real
+hardware", on the reasoning that qemu-user emulates instruction semantics and
+not timing. That reasoning is correct and the conclusion drawn from it was too
+broad. What needs the hardware is *wall-clock throughput on that hardware*.
+What does not:
+
+- **Whether the kernel is vectorized at all.** Already checked, by the
+  generator, on every target.
+- **How many cycles the instruction stream should take.** `llvm-mca` is LLVM's
+  own scheduling model — the same tables the compiler uses to order
+  instructions — and it will model any target LLVM has tables for. It ships
+  with clang, which this repository already requires.
+
+`make perf-model` now reports cycles per element for each kernel against the
+same kernel compiled without vectorization, on amd64, arm64, ppc64le and
+s390x. Nothing measured below 1.2x, and the shape is what it should be:
+speedups track the vector width for the arithmetic kernels and run far ahead
+of it for the byte kernels, where a scalar loop does one byte at a time.
+
+The model is checked rather than assumed. Against measured amd64, comparing
+the avx512 and avx2 tiers — the same C, two widths, which is the comparison it
+is being trusted to make across architectures:
+
+```
+Add float64, n=1024      model 2.00x   measured 1.79x   12% high
+AddInt int32, n=4096     model 1.98x   measured 1.89x    5% high
+```
+
+Consistently optimistic and close, which is what a model with no memory system
+should be. Absolute cycle counts are optimistic by about a factor of two for
+the same reason, so the tool says to read ratios and not cycles.
+
+Two targets stay unmodelled, both for stated reasons rather than for want of
+trying. riscv64's RVV has a boot-time vector length and the kernels are
+written to be length-agnostic, so a number would be a number for a machine
+nobody named. loong64 has no scheduling tables in LLVM at all — it can be
+assembled and not scheduled — which is an upstream gap and not something to
+work around.
+
+**Fix**: the tool, and the narrower claim. What genuinely still needs hardware
+is wall-clock under a real memory system, and macOS and Windows, which have
+zero OS-specific source in this library and now build and vet clean for
+darwin/amd64, darwin/arm64, windows/amd64, windows/arm64 and freebsd/amd64.
+The residual risk there is `x/sys/cpu` feature detection, which is the whole
+of the OS-dependent surface.
+
+The lesson is the one from the last time: "needs hardware" is a conclusion that
+deserves the same scepticism as any other. Ask what *exactly* needs it, and
+then check whether the rest can be had another way. Most of it could.
+
+## 50. That '#' bug is fixed
+
+**Wrong.** I wrote it again, in a new tool, within an hour of writing the entry
+that describes it.
+
+Entry 62's root cause was a disassembly parser that cut each line at the first
+`#` to strip comments, which on AArch64 deletes every immediate — `[x10, #-16]`
+becomes `[x10,` — and silently disabled the frame and stack checks on that
+architecture for months.
+
+`perfmodel` extracts a loop body from clang's assembly output and strips
+comments. It cut at the first `#`. The first arm64 run produced:
+
+```
+ldp  q0, q3, [x10,
+subs x12, x12,
+```
+
+and llvm-mca rejected all seven kernels with "unknown token in expression".
+Twenty minutes after committing a comment that says this exact thing is what
+entry 62 was about.
+
+`#` is a comment on x86, PowerPC, SystemZ and LoongArch, and an immediate
+prefix on AArch64. There is no convention to rely on, which is why the fix is
+a per-target field rather than a smarter regular expression — the second time
+this has been solved, and the first time it has been solved somewhere the next
+person will see it before writing the parser rather than after.
+
+**Fix**: `modelTarget.hashIsComment`, false for exactly one architecture, with
+the reason at the field. The general point is that knowing a bug intimately is
+not protection against writing it: the parser and the extractor were written
+months apart by the same reasoning from the same wrong default, and the second
+one had the first one's post-mortem open in another file.

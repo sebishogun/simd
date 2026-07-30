@@ -236,12 +236,32 @@ otherwise force a breaking change or a correction later:
    the next step.
 4. ~~A threshold meta-test.~~ **Done**, and it found four more uncovered
    kernels on its first run, which now have tests.
-5. **Verified on real hardware** — for *performance only*. The correctness
-   half is done under emulation, including `make test-gates`, which runs the
-   suite on a CPU that lacks the vector extension — the one configuration
-   `-cpu max` can never produce. What still needs metal is throughput: every
-   GB/s figure in this repo is amd64-only, and either the numbers get
-   measured or every figure gets marked amd64-only before the tag.
+5. **Verified on real hardware** — now for *wall-clock only*, and the list has
+   shrunk twice by doing rather than by waiting.
+
+   The correctness half is done under emulation, including `make test-gates`,
+   which runs the suite on a CPU that lacks the vector extension — the one
+   configuration `-cpu max` can never produce.
+
+   The instruction-stream half is done too, by `make perf-model`: llvm-mca
+   over each kernel's inner loop against the same kernel compiled without
+   vectorization, on amd64, arm64, ppc64le and s390x. Nothing modelled below
+   1.2x, and the model is checked against measured amd64 to within 5–12% on
+   the avx512-versus-avx2 comparison. riscv64 is excluded because RVV's vector
+   length is a boot-time property; loong64 because LLVM has no scheduling
+   tables for it. See entry 49 of docs/wrong.md.
+
+   The library also has **zero OS-specific source** and builds and vets clean
+   for darwin/amd64, darwin/arm64, windows/amd64, windows/arm64 and
+   freebsd/amd64. The entire OS-dependent surface is `x/sys/cpu` feature
+   detection.
+
+   What genuinely still needs metal: wall-clock under a real memory system,
+   which is what dominates a whole-slice kernel at large n and is exactly what
+   a model with no memory system cannot tell you. Every GB/s figure in this
+   repo is amd64-only, and either those numbers get measured elsewhere or
+   every figure gets marked amd64-only before the tag. Apple Silicon would
+   cover macOS and arm64 wall-clock at once.
 
 Anything not on that list — FFT, the DSP set, checksums, the rest of the C99
 math tail — is a feature and ships in a minor release. Features do not gate a
