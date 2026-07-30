@@ -131,15 +131,26 @@ called. Every one of these has a runnable example in
 | interpolate a table | `InterpInto` — numpy's interp, clamping |
 | transpose a matrix | `TransposeInto` — blocked, 3.6× the naive loop |
 | parse a CSV of integers | `IndexAll` + `ParseInts` — 5× strconv |
+| **quantize a tensor to int8** | `QuantizeInt8`, or `QuantizePerChannelInt8` for weights |
+| **multiply int8 tensors** | `QMatMulInt8Into` → int32, then `RequantizeInt8Into` |
+| normalize a transformer layer | `LayerNorm`, or `LayerNormInto` with gamma and beta |
+| convert to/from fp8 | `Float32ToFloat8E4M3Into` and the e5m2 pair |
+| make negative deltas small | `ZigzagEncodeInt32Into`, before varint |
+| pack a column densely | `DiffInto` → `ZigzagEncodeInt32Into` → `BitPackInto` |
+| run-length encode a column | `RunLengthEncodeInt32`, or `RunStartsInto` for the mask alone |
+| compare two bit vectors | `HammingDistance` — fused, not `Xor` then `PopCount` |
+| convert planar RGB | `GrayscaleInto`, `RGBToUVInto` |
+| **sum data arriving in chunks** | `Accumulator[T]` — bit-identical to `Sum` of the whole |
+| fill a slice with random values | `RandomInto` — reproducible, splittable, same everywhere |
 
 ## Status
 
 **v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and
 is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 
-- **400 exported functions** over ten element types, plus complex, bytes, text
+- **437 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
-- **6,007 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
+- **6,256 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
   arm64 neon/sve2, riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx.
 - Every architecture is **executed**, under emulation, on every change.
 - The portable Go implementation is always there. A kernel that could not be
@@ -315,19 +326,20 @@ each column.
 
 | | kernels | skipped | |
 |---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2180 | 178 | essentially complete |
-| arm64 (neon/sve2) | 1463 | 112 | essentially complete |
-| riscv64 (rvv) | 735 | 57 | essentially complete |
-| loong64 (lasx) | 662 | 121 | see the `.L0` note below |
-| ppc64le (vsx) | 572 | 211 | was 281 before the TOC rewrite |
-| s390x (vx) | 395 | 388 | **partial**, and the reason is an ABI wall |
+| amd64 (sse2/avx2/avx512) | 2277 | 199 | essentially complete |
+| arm64 (neon/sve2) | 1526 | 126 | essentially complete |
+| riscv64 (rvv) | 766 | 62 | essentially complete |
+| loong64 (lasx) | 689 | 135 | see the `.L0` note below |
+| ppc64le (vsx) | 588 | 236 | was 281 before the TOC rewrite |
+| s390x (vx) | 410 | 414 | **partial**, and the reason is an ABI wall |
 
-6,007 kernels in total. Almost all of the skips are the `Fast*` tier: it is the
+6,256 kernels in total. Almost all of the skips are the `Fast*` tier: it is the
 newest and the least portable, and where a target declines one the accurate
 kernel stands in, which satisfies the bound because the bound is an upper
-bound. The skips are also concentrated rather than spread — of amd64's 178,
-**170 are sse2** and the legacy-SSE alignment problem described below; avx2
-declines 6 and avx512 declines 2.
+bound. The skips are also concentrated rather than spread — the large majority
+of amd64's are sse2 and the legacy-SSE alignment problem described below, which
+[`docs/wrong.md`](docs/wrong.md) entry 61 shows is addressable and not an ABI
+wall.
 
 Two earlier versions of this table were wrong in opposite directions, and both
 are worth stating rather than quietly restating. One gave s390x as 650: it
@@ -346,7 +358,7 @@ never right, and harder to notice.
   like the obstacle and was not. Go's own assembler materialises a symbol
   address in two instructions with no TOC involvement, so the pool becomes a
   standalone symbol, `R2` is pointed at it, and clang's global-entry prologue
-  is replaced in place. 281 kernels became 468, and 572 as of this writing.
+  is replaced in place. 281 kernels became 468, and 588 as of this writing.
 - **loong64** declines nine, and the largest group is not an ABI wall but a
   relocation one: clang emits LoongArch branches with a displacement of zero
   and expects the linker to fill them in, so the bodies cannot be copied
