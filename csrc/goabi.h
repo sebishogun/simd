@@ -46,4 +46,27 @@ register void *simd_reserved_g __asm__("r30");
 register void *simd_reserved_toc __asm__("r2");
 #endif
 
+// SPLAT broadcasts a scalar across every lane of a vector type.
+//
+// It lives here rather than beside its callers because the obvious spelling is
+// wrong and every file needs the right one. A C cast to a vector type does NOT
+// broadcast — it puts the scalar in lane 0 and zeroes the rest:
+//
+//	f32xS id = (f32xS)(1.0f);   // {1, 0, 0, 0, ...}, not {1, 1, 1, 1, ...}
+//
+// Measured on ppc64le, fifteen of sixteen lanes zero, at every optimisation
+// level from -O0 to -O3. It is target-dependent — the same cast broadcasts on
+// amd64 and arm64 — which is what makes it dangerous: it passes every test on
+// the development machine and is wrong where nobody looks.
+//
+// A scalar operand in vector *arithmetic* is broadcast, so subtracting a zero
+// vector does it. Subtraction and not addition: `(VT){0} + x` gives +0 for
+// x = -0, because IEEE says (+0) + (-0) is +0, so an addition-based splat
+// silently loses the sign of a negative zero. `x - (VT){0}` is exact for every
+// input — -0, +0, NaN, both infinities.
+//
+// This cost one shipped bug and had three more latent uses waiting. See
+// entry 52 of docs/wrong.md.
+#define SPLAT(VT, X) ((X) - ((VT){0}))
+
 #endif // SIMD_GOABI_H

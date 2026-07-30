@@ -1629,3 +1629,56 @@ instead because those were the ones I had been debugging. And **an identity
 element is a terrible canary**: a bug that zeroes it is invisible in every
 operation whose identity is already zero, so the sum kernel would have gone on
 passing for as long as anyone cared to look.
+
+## 52. Casting a scalar to a vector type broadcasts it
+
+**Wrong**, and it is the root cause of entry 51 rather than the constant-pool
+theory recorded there.
+
+```c
+f32xS id = (f32xS)(1.0f);   // {1, 0, 0, 0, ...}, NOT {1, 1, 1, 1, ...}
+```
+
+A C cast to a vector type puts the scalar in lane 0 and zeroes the rest.
+Measured on ppc64le: fifteen of sixteen lanes zero, at every optimisation
+level from -O0 to -O3.
+
+What makes it dangerous is that it is **target-dependent**. The same cast
+broadcasts correctly on amd64, arm64, riscv64 and loong64, so it passes every
+test on the development machine and is wrong only where nobody is looking.
+
+Entry 51 blamed the constant pool, on the reasoning that `FastCumSum` passed
+and `FastCumProd` failed while sharing a macro. That reasoning was sound and
+the conclusion was not, because the same evidence fits both explanations: a
+sum's identity is 0.0, so a splat that yields `{0,0,...}` is *correct by
+accident*, and a product's is 1.0, so the same bug is total. What settled it
+was three measurements, each cheap and each one I should have reached for
+sooner:
+
+1. Link clang's own object with `lld` and run it under qemu, with no
+   generator involved: **same eleven wrong lanes**. That exonerated this
+   repository's assembly entirely.
+2. Compile the kernel at `-O0`: **still wrong**. Not an optimiser bug.
+3. Test the primitives alone — the shuffle, then the cast. The shuffle was
+   correct. The cast was not.
+
+**Fix**: `SPLAT(VT, X)` in `csrc/goabi.h`, because a scalar operand in vector
+*arithmetic* is broadcast even though a cast is not.
+
+It has to be **subtraction**, which was the second bug in one macro. The first
+attempt was `((VT){0}) + (X)`, and for `X = -0` that gives `+0`, because IEEE
+says `(+0) + (-0)` is `+0` — so the running carry of a scan silently lost the
+sign of its zero. The conformance suite caught it on amd64 within minutes,
+`got -0 want 0`, which is the whole argument for keeping ±0 in the adversarial
+generator. `(X) - ((VT){0})` is exact for every input.
+
+Three more uses were latent in `bytes.c` — `(u8xB)set[s]` and
+`(u8xB)(u8)0xFF` in the `IndexAny`, `CountAny` and `NotAny` family. None of
+them ships on ppc64le today, for unrelated ABI reasons, so none had failed;
+they were wrong and unreached. All four sites now go through `SPLAT`.
+
+The lesson is not "read the spec more carefully". It is that when two kernels
+built from one macro disagree, the difference between them is the evidence,
+and the *cheapest* experiment that splits the hypotheses should come first. I
+spent far longer on a constant-pool theory that a two-minute test of the cast
+would have killed.

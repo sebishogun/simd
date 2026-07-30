@@ -16,13 +16,22 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func fastCumProdFloat32VSX(dst []float32, a []float32)
+
+//go:noescape
 func fastCumSumFloat32VSX(dst []float32, a []float32)
+
+//go:noescape
+func fastCumProdFloat64VSX(dst []float64, a []float64)
 
 //go:noescape
 func cumMinInt32VSX(dst []int32, a []int32)
 
 //go:noescape
 func cumMaxInt32VSX(dst []int32, a []int32)
+
+//go:noescape
+func cumProdInt32VSX(dst []int32, a []int32)
 
 //go:noescape
 func cumMinInt64VSX(dst []int64, a []int64)

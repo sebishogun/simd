@@ -86,6 +86,7 @@ typedef int i32xS __attribute__((ext_vector_type(SCAN_LANES), aligned(1)));
 typedef double f64xS __attribute__((ext_vector_type(SCAN_LANES64), aligned(1)));
 typedef long long i64xS __attribute__((ext_vector_type(SCAN_LANES64), aligned(1)));
 
+
 // SCAN_ASSOC is the log-shift inclusive scan.
 //
 // The lanes shifted in take the neighbour's own value rather than a sentinel.
@@ -122,7 +123,7 @@ typedef long long i64xS __attribute__((ext_vector_type(SCAN_LANES64), aligned(1)
     for (; i + (L) <= n; i += (L)) {                                      \
       VT v = *(const VT *)(a + i);                                        \
       BODY(VT, VCOMB)                                                     \
-      VT carry = (VT)run;                                                 \
+      VT carry = SPLAT(VT, run);                                                 \
       v = VCOMB(v, carry);                                                \
       *(VT *)(d + i) = v;                                                 \
       run = v[(L) - 1];                                                   \
@@ -200,7 +201,7 @@ SCAN_ASSOC(long long, i64xS, max_i64, SCAN_LANES64, VMAX_INT, max_i64, SCAN_BODY
 
 #define SCAN_BODY16_ID(VT, VCOMB, ID)                                      \
   {                                                                        \
-    VT id_ = (VT)(ID);                                                     \
+    VT id_ = SPLAT(VT, (ID));                                                     \
     v = VCOMB(v, SHIFTID16_1(v, id_));                                     \
     v = VCOMB(v, SHIFTID16_2(v, id_));                                     \
     v = VCOMB(v, SHIFTID16_4(v, id_));                                     \
@@ -209,7 +210,7 @@ SCAN_ASSOC(long long, i64xS, max_i64, SCAN_LANES64, VMAX_INT, max_i64, SCAN_BODY
 
 #define SCAN_BODY8_ID(VT, VCOMB, ID)                                       \
   {                                                                        \
-    VT id_ = (VT)(ID);                                                     \
+    VT id_ = SPLAT(VT, (ID));                                                     \
     v = VCOMB(v, SHIFTID8_1(v, id_));                                      \
     v = VCOMB(v, SHIFTID8_2(v, id_));                                      \
     v = VCOMB(v, SHIFTID8_4(v, id_));                                      \
@@ -229,7 +230,7 @@ SCAN_ASSOC(long long, i64xS, max_i64, SCAN_LANES64, VMAX_INT, max_i64, SCAN_BODY
     for (; i + (L) <= n; i += (L)) {                                      \
       VT v = *(const VT *)(a + i);                                        \
       BODY(VT, VCOMB, ID)                                                 \
-      VT carry = (VT)run;                                                 \
+      VT carry = SPLAT(VT, run);                                                 \
       v = VCOMB(v, carry);                                                \
       *(VT *)(d + i) = v;                                                 \
       run = v[(L) - 1];                                                   \

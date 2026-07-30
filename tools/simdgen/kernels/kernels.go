@@ -359,7 +359,6 @@ func fastScanK(op, field string, e elem) spec.Kernel {
 		// shipped an infinite loop (entry 46), and this one deserves the
 		// investigation rather than a second guess at 1pm. The portable path
 		// stands in and is correct.
-		k.SkipOn = []string{"ppc64le"}
 	}
 	return k
 }
@@ -409,8 +408,6 @@ func Scan() []spec.Kernel {
 				Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
 				CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
 				Threshold: thElementwise,
-				// Same ppc64le fault as the float products; see fastScanK.
-				SkipOn: []string{"ppc64le"},
 			})
 		}
 		if e.float {

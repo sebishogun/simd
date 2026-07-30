@@ -222,7 +222,7 @@ void simd_index_any(isize *__restrict out, const u8 *__restrict b,
     // indexed by lane — see the note there.
     u8xB v = VLOAD(b, i);
     u8xB hit = 0;
-    for (isize s = 0; s < k; s++) hit |= (u8xB)(v == (u8xB)set[s]);
+    for (isize s = 0; s < k; s++) hit |= (u8xB)(v == SPLAT(u8xB, set[s]));
     if (OR_ANY(hit)) break;
   }
   for (; i < n; i++)
@@ -501,10 +501,10 @@ void simd_count_seq(isize *__restrict out, const u8 *__restrict h,
 // block. Measured at 1379ns against 220ns for the scalar version it was meant
 // to replace. The comment on OR_ANY in fold.h is about the same trap.
 #define NOTANY_MASK(OFF)                                                 \
-  u8xB notin = (u8xB)(u8)0xFF;                                           \
+  u8xB notin = SPLAT(u8xB, (u8)0xFF);                                           \
   u8xB v_ = VLOAD(b, (OFF));                                             \
   for (isize s_ = 0; s_ < k; s_++) {                                     \
-    u8xB c_ = (u8xB)set[s_];                                             \
+    u8xB c_ = SPLAT(u8xB, set[s_]);                                             \
     notin &= (u8xB)(v_ != c_);                                           \
   }
 
