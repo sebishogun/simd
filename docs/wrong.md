@@ -2154,3 +2154,59 @@ exercises whatever the dispatcher selected, which on a large input is never the
 reference. To test the reference you have to call it, and the only thing that
 does that systematically is the differential — or a `-tags purego` run, which
 is why that lane exists and why it is not optional.
+
+---
+
+## 61. The sse2 alignment skips: the objection on record is right about the wrong thing
+
+**Assumed** (by the comment on `checkPatchable`). The 170 sse2 kernels that
+refuse because a legacy SSE instruction needs a 16-byte-aligned memory operand
+cannot be recovered, because the tempting fix is to pad the appended pool to a
+16-byte offset and rely on the linker aligning every text symbol to 32 —
+which is not a guarantee, since `cmd/link` takes `-funcalign`, and a consumer
+building with `-ldflags=-funcalign=8` would get a SIGSEGV out of this library
+with no plausible way to trace it.
+
+**That reasoning is correct, and it is about the wrong strategy.** It applies
+to appending the pool *inside the TEXT symbol*, which is what the amd64 path
+does today. It does not apply to a separate `DATA`/`GLOBL` symbol, which is
+what the ppc64le path already emits — and the linker aligns those by size, not
+by `funcAlign`. Measured:
+
+```
+GLOBL simdpool<>(SB), RODATA|NOPTR, $32
+
+  default            pool address 0x4d0880, %16 = 0, %32 = 0
+  -funcalign=8       pool address 0x4ca880, %16 = 0, %32 = 0
+```
+
+Still 16-byte aligned under the exact flag the comment is about, because
+`-funcalign` aligns **text**, not data.
+
+**So the path is open, and it is not short.** Three things have to hold, and
+only the first is established:
+
+1. *The pool is aligned.* Yes, as above.
+2. *The reference can be expressed.* On amd64 the pool is reached RIP-relative,
+   and a raw instruction encoding cannot carry a relocation. The instruction
+   would have to be emitted as a Plan 9 mnemonic — `MULPS simdpool<>+0x20(SB),
+   X3` — so the assembler emits the relocation and the linker fills the
+   displacement. Go's assembler does know these mnemonics, and ppc64le already
+   proves the mixed approach works: it emits `MOVD $simdconst<>(SB), R2` as a
+   mnemonic beside a body of `WORD`s.
+3. *The lengths must match exactly.* This is the risk. The body is raw
+   encodings with branch displacements already computed, so if Go's assembler
+   encodes `MULPS sym(SB), X3` in a different number of bytes than clang's
+   `mulps 0x1234(%rip), %xmm3` — a different REX choice, a different prefix
+   order — every branch after it is wrong, silently. Both *should* be
+   `0F 59` + ModRM(mod=00, rm=101) + disp32, but "should" is what this file
+   exists to disbelieve, and it has to be verified per mnemonic across the
+   dozen or so that occur.
+
+**Not attempted beyond this.** What is recorded is that the reason on file for
+not trying is answering a different question than the one that matters, and
+that step 3 is the actual work: an encoding-equivalence check per mnemonic,
+with the branch displacements re-verified, before a single kernel changes. The
+prize is real — 170 kernels, the largest addressable bucket in the repository
+and the whole reason the baseline x86-64 tier is thin — and so is the failure
+mode, which is a silently wrong branch target rather than a build error.
