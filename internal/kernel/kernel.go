@@ -413,6 +413,14 @@ type Bytes struct {
 	Hamming      func(a, b []byte) int
 	HammingWords func(a, b []uint64) int
 
+	// The UTF-32 half of the widening pair. Below 0x80 a byte is a whole
+	// rune, so widening an ASCII run IS the conversion for that run, and the
+	// Go side decodes the multi-byte runes between runs. Same split as the
+	// UTF-16 pair above and for the same reason: the general conversion is a
+	// dependent scan, and only the ASCII run is vectorizable.
+	WidenU8U32  func(dst []uint32, s []byte)
+	NarrowU32U8 func(dst []byte, s []uint32)
+
 	// RunStarts marks every element that begins a run of equal values: entry
 	// 0 is always true, and entry i is true when a[i] differs from a[i-1].
 	//

@@ -128,6 +128,24 @@ func narrowU16U8RVVGuarded(dst []byte, s []uint16) {
 	narrowU16U8RVV(dst[:n:n], s)
 }
 
+func widenU8U32RVVGuarded(dst []uint32, s []byte) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.WidenU8U32(dst, s)
+		return
+	}
+	widenU8U32RVV(dst[:n:n], s)
+}
+
+func narrowU32U8RVVGuarded(dst []byte, s []uint32) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU32U8(dst, s)
+		return
+	}
+	narrowU32U8RVV(dst[:n:n], s)
+}
+
 func equalBytesRVVGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
@@ -349,6 +367,8 @@ func init() {
 	s.Bytes.IndexNonASCII16 = indexNonASCII16RVVGuarded
 	s.Bytes.WidenU8U16 = widenU8U16RVVGuarded
 	s.Bytes.NarrowU16U8 = narrowU16U8RVVGuarded
+	s.Bytes.WidenU8U32 = widenU8U32RVVGuarded
+	s.Bytes.NarrowU32U8 = narrowU32U8RVVGuarded
 	s.Bytes.Equal = equalBytesRVVGuarded
 	s.Bytes.And = bitAndRVVGuarded
 	s.Bytes.Or = bitOrRVVGuarded

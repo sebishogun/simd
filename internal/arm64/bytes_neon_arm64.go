@@ -58,6 +58,12 @@ func widenU8U16NEON(dst []uint16, s []byte)
 func narrowU16U8NEON(dst []byte, s []uint16)
 
 //go:noescape
+func widenU8U32NEON(dst []uint32, s []byte)
+
+//go:noescape
+func narrowU32U8NEON(dst []byte, s []uint32)
+
+//go:noescape
 func equalBytesNEON(a []byte, b []byte) bool
 
 //go:noescape

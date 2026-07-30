@@ -921,6 +921,20 @@ func Bytes() []spec.Kernel {
 			Threshold: thBytes,
 		},
 		{
+			CName: "simd_widen_u8_u32", GoName: "widenU8U32",
+			Group: "Bytes", Field: "WidenU8U32", RefFunc: "WidenU8U32",
+			Params:    []spec.Param{sl("dst", spec.SliceU32), sl("s", spec.SliceU8)},
+			CArgs:     []spec.CArg{base("dst"), base("s"), lenOf("dst")},
+			Threshold: thBytes,
+		},
+		{
+			CName: "simd_narrow_u32_u8", GoName: "narrowU32U8",
+			Group: "Bytes", Field: "NarrowU32U8", RefFunc: "NarrowU32U8",
+			Params:    []spec.Param{sl("dst", spec.SliceU8), sl("s", spec.SliceU32)},
+			CArgs:     []spec.CArg{base("dst"), base("s"), lenOf("dst")},
+			Threshold: thBytes,
+		},
+		{
 			// Equal is length-sensitive in a way the kernel is not: it reports
 			// whether the two slices hold the same bytes *and* are the same
 			// length, so a mismatch is false without reading anything.

@@ -1182,7 +1182,7 @@ TEXT ·grayscaleU8NEON(SB), NOSPLIT|NOFRAME, $0-96
 	WORD $0x4e020d83
 	WORD $0x10000bea
 	WORD $0x927e0489
-	WORD $0x3dc00944
+	WORD $0x3dc01d44
 	WORD $0x927ce888
 	WORD $0xaa0103ea
 	WORD $0xaa0203eb
@@ -1283,6 +1283,26 @@ TEXT ·grayscaleU8NEON(SB), NOSPLIT|NOFRAME, $0-96
 	WORD $0x67676767
 	WORD $0x19191919
 	WORD $0x19191919
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420
@@ -1337,9 +1357,9 @@ TEXT ·rgbToUVU8NEON(SB), NOSPLIT|NOFRAME, $0-120
 	WORD $0x100019cb
 	WORD $0x100019ac
 	WORD $0x1000198a
-	WORD $0x3dc01161
+	WORD $0x3dc02561
 	WORD $0x529a99ab
-	WORD $0x3dc01582
+	WORD $0x3dc02982
 	WORD $0x5295666c
 	WORD $0x0e020d63
 	WORD $0x52929a2b
@@ -1350,12 +1370,12 @@ TEXT ·rgbToUVU8NEON(SB), NOSPLIT|NOFRAME, $0-120
 	WORD $0x72a0100c
 	WORD $0x6f00e627
 	WORD $0x0e020d66
-	WORD $0x3dc00d40
+	WORD $0x3dc02140
 	WORD $0x100017aa
 	WORD $0x1000178b
 	WORD $0x4e040d91
-	WORD $0x3dc01950
-	WORD $0x3dc01d72
+	WORD $0x3dc02d50
+	WORD $0x3dc03172
 	WORD $0x927e04a9
 	WORD $0x927ce8a8
 	WORD $0xaa0203ea
@@ -1548,6 +1568,26 @@ TEXT ·rgbToUVU8NEON(SB), NOSPLIT|NOFRAME, $0-120
 	WORD $0x67676767
 	WORD $0x19191919
 	WORD $0x19191919
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420
@@ -2451,6 +2491,246 @@ TEXT ·narrowU16U8NEON(SB), NOSPLIT|NOFRAME, $0-48
 	WORD $0x3800150b
 	WORD $0x54ffffa1
 	WORD $0xd65f03c0
+	RET
+
+// func widenU8U32NEON(dst []uint32, s []byte)
+TEXT ·widenU8U32NEON(SB), NOSPLIT|NOFRAME, $0-48
+	MOVD dst_base+0(FP), R0
+	MOVD s_base+24(FP), R1
+	MOVD dst_len+8(FP), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xf100045f
+	WORD $0x540007ab
+	WORD $0xf100105f
+	WORD $0x54000062
+	WORD $0xaa1f03e8
+	WORD $0x14000032
+	WORD $0xf100805f
+	WORD $0x54000062
+	WORD $0xaa1f03e8
+	WORD $0x14000021
+	WORD $0x100006ca
+	WORD $0x100006ab
+	WORD $0x1000068c
+	WORD $0x3dc00940
+	WORD $0x1000064a
+	WORD $0x3dc00d61
+	WORD $0x3dc01182
+	WORD $0x3dc01543
+	WORD $0x927e0849
+	WORD $0x927be448
+	WORD $0x9101000a
+	WORD $0x9100402b
+	WORD $0x927be44c
+	WORD $0xad7f9564
+	WORD $0xf100818c
+	WORD $0x9100816b
+	WORD $0x4e030086
+	WORD $0x4e020087
+	WORD $0x4e010090
+	WORD $0x4e000084
+	WORD $0x4e0300b1
+	WORD $0xad3f1947
+	WORD $0x4e0200a6
+	WORD $0x4e0100a7
+	WORD $0x4e0000a5
+	WORD $0xad3e4144
+	WORD $0xad014546
+	WORD $0xac841d45
+	WORD $0x54fffe21
+	WORD $0xeb08005f
+	WORD $0x540002c0
+	WORD $0xb40001c9
+	WORD $0xaa0803eb
+	WORD $0x927ef048
+	WORD $0x8b0b0809
+	WORD $0xcb08016a
+	WORD $0x8b0b002b
+	WORD $0xbc404560
+	WORD $0xb100114a
+	WORD $0x2f08a400
+	WORD $0x2f10a400
+	WORD $0x3c810520
+	WORD $0x54ffff61
+	WORD $0xeb08005f
+	WORD $0x54000100
+	WORD $0x8b080809
+	WORD $0xcb08004a
+	WORD $0x8b080028
+	WORD $0x3840150b
+	WORD $0xf100054a
+	WORD $0xb800452b
+	WORD $0x54ffffa1
+	WORD $0xd65f03c0
+	WORD $0x00000000
+	WORD $0xcfcfcfcf
+	WORD $0xcfcfcfcf
+	WORD $0x33333333
+	WORD $0x33333333
+	WORD $0x67676767
+	WORD $0x67676767
+	WORD $0x19191919
+	WORD $0x19191919
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	RET
+
+// func narrowU32U8NEON(dst []byte, s []uint32)
+TEXT ·narrowU32U8NEON(SB), NOSPLIT|NOFRAME, $0-48
+	MOVD dst_base+0(FP), R0
+	MOVD s_base+24(FP), R1
+	MOVD dst_len+8(FP), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xf100045f
+	WORD $0x5400064b
+	WORD $0xf100105f
+	WORD $0x54000062
+	WORD $0xaa1f03e8
+	WORD $0x14000027
+	WORD $0xf100805f
+	WORD $0x54000062
+	WORD $0xaa1f03e8
+	WORD $0x14000016
+	WORD $0x1000054a
+	WORD $0x927e0849
+	WORD $0x927be448
+	WORD $0x3dc01940
+	WORD $0x9100400a
+	WORD $0x9101002b
+	WORD $0x927be44c
+	WORD $0xad7e0961
+	WORD $0xf100818c
+	WORD $0xad404570
+	WORD $0xad7f1163
+	WORD $0xad414d72
+	WORD $0x9102016b
+	WORD $0x4e006021
+	WORD $0x4e006202
+	WORD $0xad3f8941
+	WORD $0x9100814a
+	WORD $0x54fffec1
+	WORD $0xeb08005f
+	WORD $0x540002c0
+	WORD $0xb40001c9
+	WORD $0xaa0803eb
+	WORD $0x927ef048
+	WORD $0x8b0b0829
+	WORD $0xcb08016a
+	WORD $0x8b0b000b
+	WORD $0x3cc10520
+	WORD $0xb100114a
+	WORD $0x0e612800
+	WORD $0x0e001800
+	WORD $0x0d9f8160
+	WORD $0x54ffff61
+	WORD $0xeb08005f
+	WORD $0x54000100
+	WORD $0x8b080829
+	WORD $0xcb08004a
+	WORD $0x8b080008
+	WORD $0xb840452b
+	WORD $0xf100054a
+	WORD $0x3800150b
+	WORD $0x54ffffa1
+	WORD $0xd65f03c0
+	WORD $0xcfcfcfcf
+	WORD $0xcfcfcfcf
+	WORD $0x33333333
+	WORD $0x33333333
+	WORD $0x67676767
+	WORD $0x67676767
+	WORD $0x19191919
+	WORD $0x19191919
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
 	RET
 
 // func equalBytesNEON(a []byte, b []byte) bool
@@ -4279,12 +4559,12 @@ TEXT ·b64EncodeNEON(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0x0f0284e1
 	WORD $0x0f078782
 	WORD $0x0f0187c3
-	WORD $0x1000108f
+	WORD $0x1000130f
 	WORD $0x0f0187e4
 	WORD $0x0f018565
 	WORD $0x8b0201ae
 	WORD $0x0f0185e6
-	WORD $0x10000fed
+	WORD $0x1000126d
 	WORD $0xfd4005f0
 	WORD $0xfd4001a7
 	WORD $0x8b0c082d
@@ -4387,6 +4667,26 @@ TEXT ·b64EncodeNEON(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0x67676767
 	WORD $0x19191919
 	WORD $0x19191919
+	WORD $0xffffff00
+	WORD $0xffffff01
+	WORD $0xffffff02
+	WORD $0xffffff03
+	WORD $0xffffff04
+	WORD $0xffffff05
+	WORD $0xffffff06
+	WORD $0xffffff07
+	WORD $0xffffff08
+	WORD $0xffffff09
+	WORD $0xffffff0a
+	WORD $0xffffff0b
+	WORD $0xffffff0c
+	WORD $0xffffff0d
+	WORD $0xffffff0e
+	WORD $0xffffff0f
+	WORD $0x0c080400
+	WORD $0x1c181410
+	WORD $0x2c282420
+	WORD $0x3c383430
 	WORD $0x0c080400
 	WORD $0x1c181410
 	WORD $0x2c282420

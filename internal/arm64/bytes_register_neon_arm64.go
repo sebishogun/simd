@@ -128,6 +128,24 @@ func narrowU16U8NEONGuarded(dst []byte, s []uint16) {
 	narrowU16U8NEON(dst[:n:n], s)
 }
 
+func widenU8U32NEONGuarded(dst []uint32, s []byte) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.WidenU8U32(dst, s)
+		return
+	}
+	widenU8U32NEON(dst[:n:n], s)
+}
+
+func narrowU32U8NEONGuarded(dst []byte, s []uint32) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU32U8(dst, s)
+		return
+	}
+	narrowU32U8NEON(dst[:n:n], s)
+}
+
 func equalBytesNEONGuarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
@@ -349,6 +367,8 @@ func init() {
 	s.Bytes.IndexNonASCII16 = indexNonASCII16NEONGuarded
 	s.Bytes.WidenU8U16 = widenU8U16NEONGuarded
 	s.Bytes.NarrowU16U8 = narrowU16U8NEONGuarded
+	s.Bytes.WidenU8U32 = widenU8U32NEONGuarded
+	s.Bytes.NarrowU32U8 = narrowU32U8NEONGuarded
 	s.Bytes.Equal = equalBytesNEONGuarded
 	s.Bytes.And = bitAndNEONGuarded
 	s.Bytes.Or = bitOrNEONGuarded

@@ -58,6 +58,12 @@ func widenU8U16RVV(dst []uint16, s []byte)
 func narrowU16U8RVV(dst []byte, s []uint16)
 
 //go:noescape
+func widenU8U32RVV(dst []uint32, s []byte)
+
+//go:noescape
+func narrowU32U8RVV(dst []byte, s []uint32)
+
+//go:noescape
 func equalBytesRVV(a []byte, b []byte) bool
 
 //go:noescape

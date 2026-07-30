@@ -128,6 +128,24 @@ func narrowU16U8AVX512Guarded(dst []byte, s []uint16) {
 	narrowU16U8AVX512(dst[:n:n], s)
 }
 
+func widenU8U32AVX512Guarded(dst []uint32, s []byte) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.WidenU8U32(dst, s)
+		return
+	}
+	widenU8U32AVX512(dst[:n:n], s)
+}
+
+func narrowU32U8AVX512Guarded(dst []byte, s []uint32) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU32U8(dst, s)
+		return
+	}
+	narrowU32U8AVX512(dst[:n:n], s)
+}
+
 func equalBytesAVX512Guarded(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
@@ -349,6 +367,8 @@ func init() {
 	s.Bytes.IndexNonASCII16 = indexNonASCII16AVX512Guarded
 	s.Bytes.WidenU8U16 = widenU8U16AVX512Guarded
 	s.Bytes.NarrowU16U8 = narrowU16U8AVX512Guarded
+	s.Bytes.WidenU8U32 = widenU8U32AVX512Guarded
+	s.Bytes.NarrowU32U8 = narrowU32U8AVX512Guarded
 	s.Bytes.Equal = equalBytesAVX512Guarded
 	s.Bytes.And = bitAndAVX512Guarded
 	s.Bytes.Or = bitOrAVX512Guarded

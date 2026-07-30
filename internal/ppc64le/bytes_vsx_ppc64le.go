@@ -31,6 +31,9 @@ func widenU8U16VSX(dst []uint16, s []byte)
 func narrowU16U8VSX(dst []byte, s []uint16)
 
 //go:noescape
+func narrowU32U8VSX(dst []byte, s []uint32)
+
+//go:noescape
 func bitAndVSX(dst []byte, a []byte, b []byte)
 
 //go:noescape

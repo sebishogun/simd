@@ -579,3 +579,22 @@ func runStarts[T comparable](dst []bool, a []T) {
 func RunStartsI32(dst []bool, a []int32) { runStarts(dst, a) }
 func RunStartsI64(dst []bool, a []int64) { runStarts(dst, a) }
 func RunStartsU8(dst []bool, a []byte)   { runStarts(dst, a) }
+
+func widenU8U32(dst []uint32, s []byte) {
+	n := min(len(dst), len(s))
+	dst, s = dst[:n], s[:n]
+	for i := range dst {
+		dst[i] = uint32(s[i])
+	}
+}
+
+func narrowU32U8(dst []byte, s []uint32) {
+	n := min(len(dst), len(s))
+	dst, s = dst[:n], s[:n]
+	for i := range dst {
+		dst[i] = byte(s[i])
+	}
+}
+
+func WidenU8U32(dst []uint32, s []byte)  { widenU8U32(dst, s) }
+func NarrowU32U8(dst []byte, s []uint32) { narrowU32U8(dst, s) }

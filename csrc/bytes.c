@@ -1211,6 +1211,24 @@ void simd_narrow_u16_u8(u8 *__restrict d, const u16 *__restrict s, isize n) {
   for (isize i = 0; i < n; i++) d[i] = (u8)s[i];
 }
 
+// The same pair for UTF-32, which is the rune slice Go already speaks. Widening
+// an ASCII byte to a rune is the whole conversion for that byte — below 0x80 a
+// byte is one rune — so the fast path is identical in shape to the UTF-16 one
+// and the Go side decodes the handful of multi-byte runes between the runs.
+//
+// A separate kernel rather than reusing the u16 one and widening again: two
+// passes over the data to save one line of C is the wrong trade at the sizes
+// this runs on, and the second pass would read what the first just wrote.
+void simd_widen_u8_u32(unsigned int *__restrict d, const u8 *__restrict s,
+                       isize n) {
+  for (isize i = 0; i < n; i++) d[i] = (unsigned int)s[i];
+}
+
+void simd_narrow_u32_u8(u8 *__restrict d, const unsigned int *__restrict s,
+                        isize n) {
+  for (isize i = 0; i < n; i++) d[i] = (u8)s[i];
+}
+
 // ---------- Hamming distance ----------
 //
 // The number of differing bits between two buffers: sum of popcount(a^b).

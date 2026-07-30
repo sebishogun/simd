@@ -4,6 +4,7 @@ import (
 	"slices"
 	"unicode/utf16"
 	"unicode/utf8"
+	"unsafe"
 )
 
 // UTF-16 conversion.
@@ -221,4 +222,90 @@ func asciiRun16(s []uint16) int {
 		return 1
 	}
 	return n
+}
+
+// AppendRunes appends the runes of s to dst and returns the extended slice.
+//
+// It is [AppendUTF16]'s shape for UTF-32, and it exists for the same reason:
+// `[]rune(s)` allocates a fresh slice every call, and a loop over lines or
+// records pays for that once per record. This one appends into a buffer you
+// own, so the same idiom as everywhere else here applies:
+//
+//	runes = simd.AppendRunes(runes[:0], line)
+//
+// The general UTF-8 decode is a dependent scan — a rune's length decides where
+// the next one starts — so only the ASCII runs are accelerated. Below 0x80 a
+// byte is a whole rune, which makes that case a plain widen with no dependence
+// between lanes, and in real text it is nearly all of the input. The runes
+// between runs are decoded one at a time.
+//
+// Invalid UTF-8 becomes utf8.RuneError, one per offending byte, matching
+// `[]rune(s)` and utf8.DecodeRune.
+func AppendRunes[S Text](dst []rune, s S) []rune {
+	b := textBytes(s)
+	for len(b) > 0 {
+		if b[0] < utf8.RuneSelf {
+			n := asciiRun(b)
+			at := len(dst)
+			dst = slices.Grow(dst, n)[:at+n]
+			if n >= asciiRunFloor {
+				// A rune is an int32 and the kernel writes uint32; the two
+				// have the same layout, and the values are all below 0x80 so
+				// the reinterpretation cannot change one.
+				active.Bytes.WidenU8U32(runesAsUint32(dst[at:at+n]), b[:n])
+			} else {
+				for i, c := range b[:n] {
+					dst[at+i] = rune(c)
+				}
+			}
+			b = b[n:]
+			continue
+		}
+		// Stay in this loop rather than rescanning, so dense non-Latin text
+		// never pays for a scan that would return zero every time.
+		for len(b) > 0 && b[0] >= utf8.RuneSelf {
+			r, size := utf8.DecodeRune(b)
+			dst = append(dst, r)
+			b = b[size:]
+		}
+	}
+	return dst
+}
+
+// RuneCount returns the number of runes in s, counting each byte of invalid
+// UTF-8 as one rune.
+//
+// It matches utf8.RuneCountInString and utf8.RuneCount. The ASCII run is
+// counted without decoding, which is where the time goes in ordinary text.
+func RuneCount[S Text](s S) int {
+	b := textBytes(s)
+	n := 0
+	for len(b) > 0 {
+		if b[0] < utf8.RuneSelf {
+			k := asciiRun(b)
+			n += k
+			b = b[k:]
+			continue
+		}
+		for len(b) > 0 && b[0] >= utf8.RuneSelf {
+			_, size := utf8.DecodeRune(b)
+			n++
+			b = b[size:]
+		}
+	}
+	return n
+}
+
+// runesAsUint32 reinterprets a []rune as []uint32 so the widening kernel can
+// write into it directly.
+//
+// rune is an alias for int32, and int32 and uint32 have identical size,
+// alignment and layout, so this is a reinterpretation and not a conversion.
+// The alternative is a second pass copying uint32 into rune, which would read
+// back everything the kernel just wrote for no gain.
+//
+// It is only ever called on a run the caller has already proven is ASCII, so
+// every value is below 0x80 and the signedness cannot be observed.
+func runesAsUint32(r []rune) []uint32 {
+	return unsafe.Slice((*uint32)(unsafe.Pointer(unsafe.SliceData(r))), len(r))
 }

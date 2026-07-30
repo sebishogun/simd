@@ -61,6 +61,15 @@ func narrowU16U8VSXGuarded(dst []byte, s []uint16) {
 	narrowU16U8VSX(dst[:n:n], s)
 }
 
+func narrowU32U8VSXGuarded(dst []byte, s []uint32) {
+	n := min(len(dst), len(s))
+	if n < 32 {
+		ref.NarrowU32U8(dst, s)
+		return
+	}
+	narrowU32U8VSX(dst[:n:n], s)
+}
+
 func bitAndVSXGuarded(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
@@ -157,6 +166,7 @@ func init() {
 	s.Bytes.IndexNonASCII16 = indexNonASCII16VSXGuarded
 	s.Bytes.WidenU8U16 = widenU8U16VSXGuarded
 	s.Bytes.NarrowU16U8 = narrowU16U8VSXGuarded
+	s.Bytes.NarrowU32U8 = narrowU32U8VSXGuarded
 	s.Bytes.And = bitAndVSXGuarded
 	s.Bytes.Or = bitOrVSXGuarded
 	s.Bytes.Xor = bitXorVSXGuarded
