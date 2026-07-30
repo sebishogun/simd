@@ -146,3 +146,12 @@ func shiftDivFloat64AVX512(dst []float64, a []float64, shift float64, denom floa
 
 //go:noescape
 func layerNormFloat64AVX512(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)
+
+//go:noescape
+func randomU64AVX512(dst []uint64, seed uint64)
+
+//go:noescape
+func randomF64AVX512(dst []float64, seed uint64)
+
+//go:noescape
+func randomF32AVX512(dst []float32, seed uint64)

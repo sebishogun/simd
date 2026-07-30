@@ -56,3 +56,9 @@ func shiftDivFloat64NEON(dst []float64, a []float64, shift float64, denom float6
 
 //go:noescape
 func layerNormFloat64NEON(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)
+
+//go:noescape
+func randomF64NEON(dst []float64, seed uint64)
+
+//go:noescape
+func randomF32NEON(dst []float32, seed uint64)

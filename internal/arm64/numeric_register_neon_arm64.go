@@ -134,6 +134,22 @@ func layerNormFloat64NEONGuarded(dst []float64, a []float64, gamma []float64, be
 	layerNormFloat64NEON(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
+func randomF64NEONGuarded(dst []float64, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomF64(dst, seed)
+		return
+	}
+	randomF64NEON(dst, seed)
+}
+
+func randomF32NEONGuarded(dst []float32, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomF32(dst, seed)
+		return
+	}
+	randomF32NEON(dst, seed)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -152,4 +168,6 @@ func init() {
 	s.F64.MovingAverage = movingAverageFloat64NEONGuarded
 	s.F64.ShiftDiv = shiftDivFloat64NEONGuarded
 	s.F64.LayerNorm = layerNormFloat64NEONGuarded
+	s.F64.Random = randomF64NEONGuarded
+	s.F32.Random = randomF32NEONGuarded
 }

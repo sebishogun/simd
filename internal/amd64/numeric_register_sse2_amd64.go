@@ -246,6 +246,30 @@ func layerNormFloat64SSE2Guarded(dst []float64, a []float64, gamma []float64, be
 	layerNormFloat64SSE2(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
+func randomU64SSE2Guarded(dst []uint64, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomU64(dst, seed)
+		return
+	}
+	randomU64SSE2(dst, seed)
+}
+
+func randomF64SSE2Guarded(dst []float64, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomF64(dst, seed)
+		return
+	}
+	randomF64SSE2(dst, seed)
+}
+
+func randomF32SSE2Guarded(dst []float32, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomF32(dst, seed)
+		return
+	}
+	randomF32SSE2(dst, seed)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -278,4 +302,7 @@ func init() {
 	s.F64.MovingAverage = movingAverageFloat64SSE2Guarded
 	s.F64.ShiftDiv = shiftDivFloat64SSE2Guarded
 	s.F64.LayerNorm = layerNormFloat64SSE2Guarded
+	s.U64.Random = randomU64SSE2Guarded
+	s.F64.Random = randomF64SSE2Guarded
+	s.F32.Random = randomF32SSE2Guarded
 }

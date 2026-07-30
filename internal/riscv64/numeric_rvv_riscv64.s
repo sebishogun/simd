@@ -2248,3 +2248,195 @@ TEXT ·layerNormFloat64RVV(SB), NOSPLIT|NOFRAME, $0-112
 	WORD $0x00008067
 	RET
 
+// func randomU64RVV(dst []uint64, seed uint64)
+TEXT ·randomU64RVV(SB), NOSPLIT|NOFRAME, $0-32
+	MOV dst_base+0(FP), X10
+	MOV seed+24(FP), X11
+	MOV dst_len+8(FP), X12
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x06c05a63
+	WORD $0x00000693
+	WORD $0x00000717
+	WORD $0x00000797
+	WORD $0x00000817
+	WORD $0x07873703
+	WORD $0x07c7b783
+	WORD $0x08083803
+	WORD $0x0d9078d7
+	WORD $0x5e05c457
+	WORD $0x5208a557
+	WORD $0x0d9675d7
+	WORD $0x9ea0b657
+	WORD $0x00369893
+	WORD $0xa6876657
+	WORD $0x011508b3
+	WORD $0x00b686b3
+	WORD $0x40b60633
+	WORD $0xa2cf3757
+	WORD $0x2ee60657
+	WORD $0x96c7e657
+	WORD $0xa2cdb757
+	WORD $0x2ee60657
+	WORD $0x96c86657
+	WORD $0xa2cfb757
+	WORD $0x2ee60657
+	WORD $0x0208f627
+	WORD $0x02a5c557
+	WORD $0xfa061ee3
+	WORD $0x00008067
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	RET
+
+// func randomF64RVV(dst []float64, seed uint64)
+TEXT ·randomF64RVV(SB), NOSPLIT|NOFRAME, $0-32
+	MOV dst_base+0(FP), X10
+	MOV seed+24(FP), X11
+	MOV dst_len+8(FP), X12
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x08c05863
+	WORD $0x00000693
+	WORD $0x0d907757
+	WORD $0x5208a457
+	WORD $0x5e05c557
+	WORD $0x00000597
+	WORD $0x00000717
+	WORD $0x00000797
+	WORD $0x0a45b583
+	WORD $0x0a873703
+	WORD $0x0ac7b783
+	WORD $0x1e500813
+	WORD $0x03581813
+	WORD $0xf20807d3
+	WORD $0x02a00813
+	WORD $0x0d9678d7
+	WORD $0x9e80b657
+	WORD $0x00369293
+	WORD $0xa6a5e657
+	WORD $0x005502b3
+	WORD $0x011686b3
+	WORD $0x41160633
+	WORD $0xa2cf3757
+	WORD $0x2ee60657
+	WORD $0x96c76657
+	WORD $0xa2cdb757
+	WORD $0x2ee60657
+	WORD $0x96c7e657
+	WORD $0xa2c84757
+	WORD $0xa2c5b657
+	WORD $0x2ee60657
+	WORD $0x4ac11657
+	WORD $0x92c7d657
+	WORD $0x0202f627
+	WORD $0x0288c457
+	WORD $0xfa0618e3
+	WORD $0x00008067
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	RET
+
+// func randomF32RVV(dst []float32, seed uint64)
+TEXT ·randomF32RVV(SB), NOSPLIT|NOFRAME, $0-32
+	MOV dst_base+0(FP), X10
+	MOV seed+24(FP), X11
+	MOV dst_len+8(FP), X12
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x08c05663
+	WORD $0x00000693
+	WORD $0x0da07757
+	WORD $0x5208a457
+	WORD $0x5e05c657
+	WORD $0x00000597
+	WORD $0x00000717
+	WORD $0x00000797
+	WORD $0x0ac5b583
+	WORD $0x0b073703
+	WORD $0x0b47b783
+	WORD $0x33800837
+	WORD $0xf00807d3
+	WORD $0x02800813
+	WORD $0x0da678d7
+	WORD $0x9e81b857
+	WORD $0x00269293
+	WORD $0xa6c5e857
+	WORD $0x005502b3
+	WORD $0x011686b3
+	WORD $0x41160633
+	WORD $0xa30f3a57
+	WORD $0x2f480857
+	WORD $0x97076857
+	WORD $0xa30dba57
+	WORD $0x2f480857
+	WORD $0x9707e857
+	WORD $0xa3084857
+	WORD $0x0d107057
+	WORD $0x4b091a57
+	WORD $0x9347d857
+	WORD $0x0202e827
+	WORD $0x0da07057
+	WORD $0x0288c457
+	WORD $0xfa0618e3
+	WORD $0x00008067
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	WORD $0x7f4a7c15
+	WORD $0x9e3779b9
+	WORD $0x1ce4e5b9
+	WORD $0xbf58476d
+	WORD $0x133111eb
+	WORD $0x94d049bb
+	RET
+

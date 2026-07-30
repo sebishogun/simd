@@ -1484,7 +1484,27 @@ func Numeric() []spec.Kernel {
 	for _, e := range floats() {
 		ks = append(ks, movAvgK(e), shiftDivK(e), layerNormK(e))
 	}
+	// Counter-based random. The seed is a scalar and the index is the loop
+	// counter, so there is no state to thread and the loop is elementwise.
+	ks = append(ks,
+		randomK("simd_random_u64", "randomU64", "RandomU64", spec.SliceU64, "U64"),
+		randomK("simd_random_f64", "randomF64", "RandomF64", spec.SliceF64, "F64"),
+		randomK("simd_random_f32", "randomF32", "RandomF32", spec.SliceF32, "F32"),
+	)
 	return ks
+}
+
+// randomK fills a slice from a counter-based generator. The Group is the
+// element type's, because the operation is per-type rather than a conversion.
+func randomK(cname, goName, field string, slice spec.Type, group string) spec.Kernel {
+	return spec.Kernel{
+		CName: cname, GoName: goName,
+		Group: group, Field: "Random", RefFunc: "Random" + group,
+		Params: []spec.Param{sl("dst", slice),
+			{Name: "seed", Type: spec.U64}},
+		CArgs:     []spec.CArg{base("dst"), val("seed"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
 }
 
 // shiftDivK is (a + shift) / denom in one pass, which is SubScalar followed by

@@ -479,3 +479,67 @@ SHIFT_DIV(float, f32)
 SHIFT_DIV(double, f64)
 LAYERNORM_AFFINE(float, f32)
 LAYERNORM_AFFINE(double, f64)
+
+// ---------- counter-based random ----------
+//
+// A random stream computed from (seed, index) rather than from a running
+// state. dst[i] depends only on i, so every element is independent and the
+// loop is elementwise — which is what makes it vectorize at all.
+//
+// A conventional generator cannot be vectorized: xorshift, PCG and Mersenne
+// Twister all thread a state through the loop, so element i+1 cannot start
+// until element i has finished. The counter-based construction is the standard
+// answer (Random123, and what every GPU framework uses) and it buys three
+// things beyond speed:
+//
+//   - The same stream on every architecture, because it is integer arithmetic
+//     with no accumulation order to preserve. Rule 2 applies and there is
+//     nothing to negotiate.
+//   - Reproducibility without carrying state. Filling dst[1000:2000] gives the
+//     same bytes whether or not dst[0:1000] was filled first.
+//   - Trivial parallelism. Two goroutines filling disjoint halves produce the
+//     same result as one filling the whole.
+//
+// The mixing function is splitmix64's finalizer applied to seed + i*GOLDEN.
+// It is not cryptographic and does not claim to be — it is the standard choice
+// for simulation and initialisation, passes BigCrush, and is four multiplies
+// and four shifts with no table.
+#define SPLITMIX_GAMMA 0x9E3779B97F4A7C15ull
+#define SPLITMIX_M1 0xBF58476D1CE4E5B9ull
+#define SPLITMIX_M2 0x94D049BB133111EBull
+
+static inline unsigned long long splitmix64(unsigned long long z) {
+  z = (z ^ (z >> 30)) * SPLITMIX_M1;
+  z = (z ^ (z >> 27)) * SPLITMIX_M2;
+  return z ^ (z >> 31);
+}
+
+void simd_random_u64(unsigned long long *__restrict d, unsigned long long seed,
+                     isize n) {
+  for (isize i = 0; i < n; i++)
+    d[i] = splitmix64(seed + (unsigned long long)i * SPLITMIX_GAMMA);
+}
+
+// Uniform in [0, 1). The top 53 bits are used and scaled by 2^-53, which is
+// the standard construction and the one that cannot produce 1.0: the largest
+// representable result is 1 - 2^-53.
+//
+// Taking the TOP bits rather than the bottom matters. The low bits of many
+// mixing functions are weaker than the high ones, and a caller who then takes
+// a modulus inherits that. splitmix64's finalizer is good throughout, but the
+// convention costs nothing and removes the question.
+void simd_random_f64(double *__restrict d, unsigned long long seed, isize n) {
+  for (isize i = 0; i < n; i++) {
+    unsigned long long z =
+        splitmix64(seed + (unsigned long long)i * SPLITMIX_GAMMA);
+    d[i] = (double)(z >> 11) * 0x1p-53;
+  }
+}
+
+void simd_random_f32(float *__restrict d, unsigned long long seed, isize n) {
+  for (isize i = 0; i < n; i++) {
+    unsigned long long z =
+        splitmix64(seed + (unsigned long long)i * SPLITMIX_GAMMA);
+    d[i] = (float)((unsigned int)(z >> 40) * 0x1p-24f);
+  }
+}

@@ -1028,6 +1028,7 @@ func floatOps[T float]() kernel.Ops[T] {
 		Dot:      dotFloat[T],
 		SumSqDev: sumSqDevFloat[T], SumSqDiff: sumSqDiffFloat[T], L1Diff: l1DiffFloat[T],
 		SumLanes: sumLanesFloat[T],
+		Random:   randomFor[T](),
 		ShiftDiv: shiftDiv[T], LayerNorm: layerNorm[T],
 		ArgMin: argMinFloat[T], ArgMax: argMaxFloat[T], MinMax: minMaxFloat[T],
 	}
@@ -1041,7 +1042,13 @@ func floatOps[T float]() kernel.Ops[T] {
 // Reciprocal and Norm stay nil; the exported API constrains those to floats.
 func intOps[T integer]() kernel.Ops[T] {
 	o := kernel.Ops[T]{
-		Add: add[T], Sub: sub[T], Mul: mul[T],
+		// Random is nil for every integer type except uint64, which is the
+		// only one the counter-based generator has a mapping for. randomFor
+		// returns nil for the rest, and the manifest declares kernels only
+		// for the three types that have one — so the inventory meta-test
+		// agrees rather than reporting eight holes.
+		Random: randomFor[T](),
+		Add:    add[T], Sub: sub[T], Mul: mul[T],
 		Minimum: minimumInt[T], Maximum: maximumInt[T],
 		Abs: absInt[T], Neg: negInt[T],
 		Reverse: reverse[T],
@@ -1362,3 +1369,60 @@ func sumLanesFloat[T float](dst, a []T) {
 }
 
 func SumLanesFloat[T float](dst, a []T) { sumLanesFloat(dst, a) }
+
+// ---------- counter-based random ----------
+//
+// The specification for the Random kernels. splitmix64's finalizer over
+// seed + i*GOLDEN, which is the standard counter-based construction: element i
+// depends on i alone, so the stream does not depend on how the fill was
+// chunked or on what order the elements were computed in.
+
+const (
+	splitmixGamma = 0x9E3779B97F4A7C15
+	splitmixM1    = 0xBF58476D1CE4E5B9
+	splitmixM2    = 0x94D049BB133111EB
+)
+
+func splitmix64(z uint64) uint64 {
+	z = (z ^ (z >> 30)) * splitmixM1
+	z = (z ^ (z >> 27)) * splitmixM2
+	return z ^ (z >> 31)
+}
+
+func RandomU64(dst []uint64, seed uint64) {
+	for i := range dst {
+		dst[i] = splitmix64(seed + uint64(i)*splitmixGamma)
+	}
+}
+
+// RandomF64 takes the top 53 bits and scales by 2^-53, the construction that
+// cannot produce 1.0 — the largest result is 1 - 2^-53.
+func RandomF64(dst []float64, seed uint64) {
+	for i := range dst {
+		z := splitmix64(seed + uint64(i)*splitmixGamma)
+		dst[i] = float64(z>>11) * 0x1p-53
+	}
+}
+
+func RandomF32(dst []float32, seed uint64) {
+	for i := range dst {
+		z := splitmix64(seed + uint64(i)*splitmixGamma)
+		dst[i] = float32(uint32(z>>40)) * 0x1p-24
+	}
+}
+
+// randomFor selects the Random implementation for an element type. The three
+// kernels differ in how they map the 64 random bits onto the type, so unlike
+// most of this file they cannot share one generic body.
+func randomFor[T any]() func(dst []T, seed uint64) {
+	var z T
+	switch any(z).(type) {
+	case uint64:
+		return func(dst []T, seed uint64) { RandomU64(any(dst).([]uint64), seed) }
+	case float64:
+		return func(dst []T, seed uint64) { RandomF64(any(dst).([]float64), seed) }
+	case float32:
+		return func(dst []T, seed uint64) { RandomF32(any(dst).([]float32), seed) }
+	}
+	return nil
+}

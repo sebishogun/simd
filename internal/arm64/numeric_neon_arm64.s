@@ -1308,3 +1308,172 @@ TEXT ·layerNormFloat64NEON(SB), NOSPLIT|NOFRAME, $0-112
 	WORD $0xd65f03c0
 	RET
 
+// func randomF64NEON(dst []float64, seed uint64)
+TEXT ·randomF64NEON(SB), NOSPLIT|NOFRAME, $0-32
+	MOVD dst_base+0(FP), R0
+	MOVD seed+24(FP), R1
+	MOVD dst_len+8(FP), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0xf100045f
+	WORD $0x5400090b
+	WORD $0xd29cb728
+	WORD $0xd28f82a9
+	WORD $0xd2823d6a
+	WORD $0xf2a39c88
+	WORD $0xf2afe949
+	WORD $0xf2a2662a
+	WORD $0xf2c8eda8
+	WORD $0xf2cf3729
+	WORD $0xf2c9376a
+	WORD $0xf100045f
+	WORD $0xf2f7eb08
+	WORD $0xf2f3c6e9
+	WORD $0xf2f29a0a
+	WORD $0x54000061
+	WORD $0xaa1f03eb
+	WORD $0x14000026
+	WORD $0xd29f054c
+	WORD $0xd2e7940d
+	WORD $0x1000070e
+	WORD $0xf2bfd28c
+	WORD $0x100006cf
+	WORD $0x4e080da0
+	WORD $0xf2de6e4c
+	WORD $0x3dc001c1
+	WORD $0x3dc005e2
+	WORD $0xf2e78dcc
+	WORD $0x927ff44b
+	WORD $0x8b01012d
+	WORD $0xaa0103ee
+	WORD $0xaa0003ef
+	WORD $0x927ff450
+	WORD $0xca4e79d1
+	WORD $0xca4d79a3
+	WORD $0xf1000a10
+	WORD $0x8b0c01ad
+	WORD $0x8b0c01ce
+	WORD $0x9b087e31
+	WORD $0x9b087c63
+	WORD $0xca516e31
+	WORD $0x9b0a7e31
+	WORD $0xca436c63
+	WORD $0x9b0a7c63
+	WORD $0x9e670223
+	WORD $0x4e181c63
+	WORD $0x6ee14464
+	WORD $0x6ee24463
+	WORD $0x6e231c83
+	WORD $0x6e61d863
+	WORD $0x6e60dc63
+	WORD $0x3c8105e3
+	WORD $0x54fffda1
+	WORD $0xeb0b005f
+	WORD $0x54000260
+	WORD $0xd2907d6c
+	WORD $0x8b0b0c0d
+	WORD $0xf2b016ac
+	WORD $0xf2d0c8cc
+	WORD $0xf2ec390c
+	WORD $0x9b0c856c
+	WORD $0xcb0b004b
+	WORD $0xca4c798e
+	WORD $0xf100056b
+	WORD $0x8b09018c
+	WORD $0x9b087dce
+	WORD $0xca4e6dce
+	WORD $0x9b0a7dce
+	WORD $0xd36afdcf
+	WORD $0xca4e2dee
+	WORD $0x9e432dc0
+	WORD $0xfc0085a0
+	WORD $0x54fffec1
+	WORD $0xd65f03c0
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0xfffffff5
+	WORD $0xffffffff
+	WORD $0xffffffd6
+	WORD $0xffffffff
+	WORD $0xffffffd6
+	WORD $0xffffffff
+	WORD $0xfffffff5
+	WORD $0xffffffff
+	RET
+
+// func randomF32NEON(dst []float32, seed uint64)
+TEXT ·randomF32NEON(SB), NOSPLIT|NOFRAME, $0-32
+	MOVD dst_base+0(FP), R0
+	MOVD seed+24(FP), R1
+	MOVD dst_len+8(FP), R2
+	WORD $0xf100045f
+	WORD $0x5400084b
+	WORD $0xd29cb728
+	WORD $0xd28f82a9
+	WORD $0xd2823d6a
+	WORD $0xf2a39c88
+	WORD $0xf2afe949
+	WORD $0xf2a2662a
+	WORD $0xf2c8eda8
+	WORD $0xf2cf3729
+	WORD $0xf2c9376a
+	WORD $0xf100045f
+	WORD $0xf2f7eb08
+	WORD $0xf2f3c6e9
+	WORD $0xf2f29a0a
+	WORD $0x54000061
+	WORD $0xaa1f03eb
+	WORD $0x14000021
+	WORD $0x52a6700b
+	WORD $0xd29f054c
+	WORD $0x8b01012d
+	WORD $0x0e040d60
+	WORD $0xf2bfd28c
+	WORD $0x927ff44b
+	WORD $0xf2de6e4c
+	WORD $0xaa0103ee
+	WORD $0xaa0003ef
+	WORD $0xf2e78dcc
+	WORD $0x927ff450
+	WORD $0xca4d79b1
+	WORD $0xca4e79c3
+	WORD $0xf1000a10
+	WORD $0x8b0c01ad
+	WORD $0x8b0c01ce
+	WORD $0x9b087e31
+	WORD $0x9b087c63
+	WORD $0xca516e31
+	WORD $0xca436c63
+	WORD $0x9b0a7e31
+	WORD $0x9b0a7c63
+	WORD $0xd368fe31
+	WORD $0xd368fc63
+	WORD $0x9e230221
+	WORD $0x9e230062
+	WORD $0x6e0c0422
+	WORD $0x2e20dc41
+	WORD $0xfc0085e1
+	WORD $0x54fffdc1
+	WORD $0xeb0b005f
+	WORD $0x54000240
+	WORD $0xd2907d6c
+	WORD $0x8b0b080d
+	WORD $0xf2b016ac
+	WORD $0xf2d0c8cc
+	WORD $0xf2ec390c
+	WORD $0x9b0c856c
+	WORD $0xcb0b004b
+	WORD $0xca4c798e
+	WORD $0xf100056b
+	WORD $0x8b09018c
+	WORD $0x9b087dce
+	WORD $0xca4e6dce
+	WORD $0x9b0a7dce
+	WORD $0xd368fdce
+	WORD $0x9e03a1c0
+	WORD $0xbc0045a0
+	WORD $0x54fffee1
+	WORD $0xd65f03c0
+	RET
+

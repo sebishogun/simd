@@ -278,6 +278,30 @@ func layerNormFloat64LASXGuarded(dst []float64, a []float64, gamma []float64, be
 	layerNormFloat64LASX(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
+func randomU64LASXGuarded(dst []uint64, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomU64(dst, seed)
+		return
+	}
+	randomU64LASX(dst, seed)
+}
+
+func randomF64LASXGuarded(dst []float64, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomF64(dst, seed)
+		return
+	}
+	randomF64LASX(dst, seed)
+}
+
+func randomF32LASXGuarded(dst []float32, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomF32(dst, seed)
+		return
+	}
+	randomF32LASX(dst, seed)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -314,4 +338,7 @@ func init() {
 	s.F32.LayerNorm = layerNormFloat32LASXGuarded
 	s.F64.ShiftDiv = shiftDivFloat64LASXGuarded
 	s.F64.LayerNorm = layerNormFloat64LASXGuarded
+	s.U64.Random = randomU64LASXGuarded
+	s.F64.Random = randomF64LASXGuarded
+	s.F32.Random = randomF32LASXGuarded
 }

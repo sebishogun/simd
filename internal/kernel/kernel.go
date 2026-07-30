@@ -292,6 +292,20 @@ type Ops[T any] struct {
 	// need one pass over memory and no scratch buffer.
 	SumSqDev func(a []T, c T) T // sum((a[i]-c)^2), for variance about a mean
 
+	// Random fills dst from a counter-based generator: element i depends on
+	// the seed and on i, and on nothing else.
+	//
+	// That is what makes it vectorizable — a conventional generator threads a
+	// state through the loop, so element i+1 cannot start until i finishes.
+	// It also makes the stream identical on every architecture (rule 2: this
+	// is integer arithmetic with no accumulation order), reproducible without
+	// carrying state, and trivially splittable across goroutines.
+	//
+	// The mixing is splitmix64's finalizer over seed + i*GOLDEN. Not
+	// cryptographic and not claimed to be. Float variants are uniform in
+	// [0, 1) and cannot return 1.
+	Random func(dst []T, seed uint64)
+
 	// SumLanes writes the [SumLanes] partial accumulators instead of combining
 	// them, which is what a resumable sum needs.
 	//

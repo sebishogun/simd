@@ -98,3 +98,12 @@ func shiftDivFloat64SSE2(dst []float64, a []float64, shift float64, denom float6
 
 //go:noescape
 func layerNormFloat64SSE2(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)
+
+//go:noescape
+func randomU64SSE2(dst []uint64, seed uint64)
+
+//go:noescape
+func randomF64SSE2(dst []float64, seed uint64)
+
+//go:noescape
+func randomF32SSE2(dst []float32, seed uint64)

@@ -342,6 +342,30 @@ func layerNormFloat64AVX2Guarded(dst []float64, a []float64, gamma []float64, be
 	layerNormFloat64AVX2(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
+func randomU64AVX2Guarded(dst []uint64, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomU64(dst, seed)
+		return
+	}
+	randomU64AVX2(dst, seed)
+}
+
+func randomF64AVX2Guarded(dst []float64, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomF64(dst, seed)
+		return
+	}
+	randomF64AVX2(dst, seed)
+}
+
+func randomF32AVX2Guarded(dst []float32, seed uint64) {
+	if len(dst) < 16 {
+		ref.RandomF32(dst, seed)
+		return
+	}
+	randomF32AVX2(dst, seed)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -386,4 +410,7 @@ func init() {
 	s.F64.MovingAverage = movingAverageFloat64AVX2Guarded
 	s.F64.ShiftDiv = shiftDivFloat64AVX2Guarded
 	s.F64.LayerNorm = layerNormFloat64AVX2Guarded
+	s.U64.Random = randomU64AVX2Guarded
+	s.F64.Random = randomF64AVX2Guarded
+	s.F32.Random = randomF32AVX2Guarded
 }
