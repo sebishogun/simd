@@ -27,6 +27,33 @@ func indexAllSVE2Guarded(dst []int32, b []byte, c byte) int {
 	return indexAllSVE2(dst, b, c)
 }
 
+func runStartsI32SVE2Guarded(dst []bool, a []int32) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsI32(dst, a)
+		return
+	}
+	runStartsI32SVE2(dst, a[:n:n])
+}
+
+func runStartsI64SVE2Guarded(dst []bool, a []int64) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsI64(dst, a)
+		return
+	}
+	runStartsI64SVE2(dst, a[:n:n])
+}
+
+func runStartsU8SVE2Guarded(dst []bool, a []byte) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsU8(dst, a)
+		return
+	}
+	runStartsU8SVE2(dst, a[:n:n])
+}
+
 func compressFloat32SVE2Guarded(dst []float32, src []float32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
@@ -64,6 +91,9 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sve2")
 	s.Bytes.IndexAll = indexAllSVE2Guarded
+	s.Bytes.RunStartsI32 = runStartsI32SVE2Guarded
+	s.Bytes.RunStartsI64 = runStartsI64SVE2Guarded
+	s.Bytes.RunStartsU8 = runStartsU8SVE2Guarded
 	s.F32.Compress = compressFloat32SVE2Guarded
 	s.F64.Compress = compressFloat64SVE2Guarded
 	s.I32.Compress = compressInt32SVE2Guarded

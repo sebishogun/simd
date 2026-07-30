@@ -1979,6 +1979,19 @@ func compressK(e elem) spec.Kernel {
 }
 
 // Compress is the compress family and the index scan built on it.
+// runStartsK marks every element beginning a run of equal values. Unlike
+// IndexAll next door it needs no second length: the mask has exactly one entry
+// per input element, so the guard's default clamp is right.
+func runStartsK(cname, goName, field string, elem spec.Type) spec.Kernel {
+	return spec.Kernel{
+		CName: cname, GoName: goName,
+		Group: "Bytes", Field: field, RefFunc: field,
+		Params:    []spec.Param{sl("dst", spec.SliceB), sl("a", elem)},
+		CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("a")},
+		Threshold: thScan,
+	}
+}
+
 func Compress() []spec.Kernel {
 	ks := []spec.Kernel{
 		{
@@ -1998,6 +2011,9 @@ func Compress() []spec.Kernel {
 			Threshold: thScan,
 			SkipOn:    noCompress,
 		},
+		runStartsK("simd_run_starts_i32", "runStartsI32", "RunStartsI32", spec.SliceI32),
+		runStartsK("simd_run_starts_i64", "runStartsI64", "RunStartsI64", spec.SliceI64),
+		runStartsK("simd_run_starts_u8", "runStartsU8", "RunStartsU8", spec.SliceU8),
 	}
 	for _, e := range elems {
 		// The four full-width types only. The narrow integers would need a

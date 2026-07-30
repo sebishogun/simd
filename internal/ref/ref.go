@@ -1150,7 +1150,9 @@ func Set() kernel.Set {
 			IndexByte: indexByte, LastIndexByte: lastIndexByte, Count: countByte,
 			Equal: equalBytes, Compare: compareBytes, PopCount: popCount,
 			Hamming: hamming, HammingWords: hammingWords,
-			Grayscale: grayscale, RGBToUV: rgbToUV,
+			RunStartsI32: RunStartsI32, RunStartsI64: RunStartsI64,
+			RunStartsU8: RunStartsU8,
+			Grayscale:   grayscale, RGBToUV: rgbToUV,
 			And: bitAnd, Or: bitOr, Xor: bitXor, AndNot: bitAndNot, Not: bitNot,
 			Fill: fillBytes,
 

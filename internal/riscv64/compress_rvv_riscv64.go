@@ -19,6 +19,15 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 func indexAllRVV(dst []int32, b []byte, c byte) int
 
 //go:noescape
+func runStartsI32RVV(dst []bool, a []int32)
+
+//go:noescape
+func runStartsI64RVV(dst []bool, a []int64)
+
+//go:noescape
+func runStartsU8RVV(dst []bool, a []byte)
+
+//go:noescape
 func compressFloat32RVV(dst []float32, src []float32, keep []bool) int
 
 //go:noescape

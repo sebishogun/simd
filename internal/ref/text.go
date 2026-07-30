@@ -560,3 +560,22 @@ func HammingWords(a, b []uint64) int { return hammingWords(a, b) }
 
 func Grayscale(dst, r, g, b []byte) { grayscale(dst, r, g, b) }
 func RGBToUV(u, v, r, g, b []byte)  { rgbToUV(u, v, r, g, b) }
+
+// runStarts marks every element beginning a run of equal values. It is the
+// specification for the RunStarts kernels: entry 0 is always set, and entry i
+// is set when a[i] differs from a[i-1].
+func runStarts[T comparable](dst []bool, a []T) {
+	n := min(len(dst), len(a))
+	if n == 0 {
+		return
+	}
+	dst, a = dst[:n], a[:n]
+	dst[0] = true
+	for i := 1; i < n; i++ {
+		dst[i] = a[i] != a[i-1]
+	}
+}
+
+func RunStartsI32(dst []bool, a []int32) { runStarts(dst, a) }
+func RunStartsI64(dst []bool, a []int64) { runStarts(dst, a) }
+func RunStartsU8(dst []bool, a []byte)   { runStarts(dst, a) }

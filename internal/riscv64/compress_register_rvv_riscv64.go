@@ -27,6 +27,33 @@ func indexAllRVVGuarded(dst []int32, b []byte, c byte) int {
 	return indexAllRVV(dst, b, c)
 }
 
+func runStartsI32RVVGuarded(dst []bool, a []int32) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsI32(dst, a)
+		return
+	}
+	runStartsI32RVV(dst, a[:n:n])
+}
+
+func runStartsI64RVVGuarded(dst []bool, a []int64) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsI64(dst, a)
+		return
+	}
+	runStartsI64RVV(dst, a[:n:n])
+}
+
+func runStartsU8RVVGuarded(dst []bool, a []byte) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsU8(dst, a)
+		return
+	}
+	runStartsU8RVV(dst, a[:n:n])
+}
+
 func compressFloat32RVVGuarded(dst []float32, src []float32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
@@ -64,6 +91,9 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("rvv")
 	s.Bytes.IndexAll = indexAllRVVGuarded
+	s.Bytes.RunStartsI32 = runStartsI32RVVGuarded
+	s.Bytes.RunStartsI64 = runStartsI64RVVGuarded
+	s.Bytes.RunStartsU8 = runStartsU8RVVGuarded
 	s.F32.Compress = compressFloat32RVVGuarded
 	s.F64.Compress = compressFloat64RVVGuarded
 	s.I32.Compress = compressInt32RVVGuarded

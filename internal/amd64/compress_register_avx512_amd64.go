@@ -27,6 +27,33 @@ func indexAllAVX512Guarded(dst []int32, b []byte, c byte) int {
 	return indexAllAVX512(dst, b, c)
 }
 
+func runStartsI32AVX512Guarded(dst []bool, a []int32) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsI32(dst, a)
+		return
+	}
+	runStartsI32AVX512(dst, a[:n:n])
+}
+
+func runStartsI64AVX512Guarded(dst []bool, a []int64) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsI64(dst, a)
+		return
+	}
+	runStartsI64AVX512(dst, a[:n:n])
+}
+
+func runStartsU8AVX512Guarded(dst []bool, a []byte) {
+	n := min(len(a), len(dst))
+	if n < 64 {
+		ref.RunStartsU8(dst, a)
+		return
+	}
+	runStartsU8AVX512(dst, a[:n:n])
+}
+
 func compressFloat32AVX512Guarded(dst []float32, src []float32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
@@ -64,6 +91,9 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("avx512")
 	s.Bytes.IndexAll = indexAllAVX512Guarded
+	s.Bytes.RunStartsI32 = runStartsI32AVX512Guarded
+	s.Bytes.RunStartsI64 = runStartsI64AVX512Guarded
+	s.Bytes.RunStartsU8 = runStartsU8AVX512Guarded
 	s.F32.Compress = compressFloat32AVX512Guarded
 	s.F64.Compress = compressFloat64AVX512Guarded
 	s.I32.Compress = compressInt32AVX512Guarded

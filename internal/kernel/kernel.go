@@ -399,6 +399,19 @@ type Bytes struct {
 	Hamming      func(a, b []byte) int
 	HammingWords func(a, b []uint64) int
 
+	// RunStarts marks every element that begins a run of equal values: entry
+	// 0 is always true, and entry i is true when a[i] differs from a[i-1].
+	//
+	// This is the vectorizable half of run-length encoding. The emit step —
+	// one (value, length) pair per run — has a data-dependent output position
+	// and is a serial prefix; the compare is elementwise and vectorizes
+	// completely. Feeding this mask to Compress gives the two-phase shape the
+	// tutorial argues for: one vector pass to find the structure, then work
+	// over the far smaller set of positions it found.
+	RunStartsI32 func(dst []bool, a []int32)
+	RunStartsI64 func(dst []bool, a []int64)
+	RunStartsU8  func(dst []bool, a []byte)
+
 	// Colour, over planar channels — one slice per component rather than
 	// interleaved RGBRGB, which is the layout a vector unit can use.
 	//

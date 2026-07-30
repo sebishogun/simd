@@ -184,3 +184,34 @@ void simd_index_all(isize *__restrict out, i32 *__restrict dst,
   }
   *out = k;
 }
+
+// ---------- run detection ----------
+//
+// simd_run_starts marks every element that begins a run of equal values:
+// d[0] is always set, and d[i] is set when a[i] differs from a[i-1].
+//
+// This is the vectorizable half of run-length encoding, and splitting it out
+// is what makes RLE fit this library at all. The emit step — writing one
+// (value, length) pair per run — has a data-dependent output position and is a
+// serial prefix, which no amount of shuffling fixes. The compare is
+// elementwise and vectorizes completely.
+//
+// Together with simd_compress that gives the two-phase shape docs/tutorial.md
+// argues for throughout: one vector pass to find the structure, then work over
+// the far smaller set of positions it found. A run-heavy column touches each
+// element once here and then only once per run.
+//
+// The output is one byte per element rather than a bitmask because that is
+// what simd_compress consumes, and going through a bitmask would mean packing
+// and unpacking it for no gain.
+#define RUN_STARTS(T, SUF)                                                \
+  void simd_run_starts_##SUF(unsigned char *__restrict d,                 \
+                             const T *__restrict a, isize n) {            \
+    if (n <= 0) return;                                                   \
+    d[0] = 1;                                                             \
+    for (isize i = 1; i < n; i++) d[i] = a[i] != a[i - 1];                \
+  }
+
+RUN_STARTS(int, i32)
+RUN_STARTS(long long, i64)
+RUN_STARTS(unsigned char, u8)
