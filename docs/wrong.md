@@ -1202,3 +1202,85 @@ harness must contain at least one flag whose effect is visible in the exit
 code — an assertion that fails when it is *not* delivered. Everything else in
 this repo asserts on the result of a test; this asserts that the test was the
 one asked for.
+
+## 42. The ppc64le crash needed a kernel bisection
+
+**Wrong**. It needed the ABI rule that was already written, and the bisection
+would have found nothing, because the culprit was not one kernel.
+
+The dossier had narrowed the intermittent SIGSEGV to three suspects and
+prescribed three binaries with one registration removed from each. That
+experiment was never run. The r0-by-value rule — reject a ppc64le kernel that
+parks a nonzero value in the register Go's ABI defines as constant zero — was
+added for a different reason, as a verifier rule rather than a fix, and the
+crash stopped.
+
+Which is not evidence by itself, so it was tested directly: two trees, one
+with the rule active and one with it disabled so the fifteen offending kernels
+register again, run interleaved so that drift in machine state cannot favour
+either, classified with no default bucket.
+
+```
+FINAL r0on  (violators registered): pass=15 fail=0 signal=5 /20
+FINAL r0off (rule active):          pass=20 fail=0 signal=0 /20
+```
+
+Five crashes and none, and under the null hypothesis that both arms crash
+alike, five of five landing in the arm named in advance is p ≈ 0.03. The
+mechanism was already written down and matches exactly: a signal arriving
+while r0 holds a nonzero value runs the runtime against an ABI whose zero
+register is not zero, which is how a garbage `g` reaches `sigtrampgo` and
+faults dereferencing `g.m`.
+
+So the answer was not "which kernel" but "which ABI register, by value rather
+than by name". Fifteen kernels were doing it, `validUTF8` among them, which is
+why the earlier bisection over three candidates kept reading coin flips: **any
+one of fifteen could crash a run, so removing any one of three changed
+nothing measurable.** The v0.2.0 bisection that blamed `countAnyVSX` failed
+for the same reason, and entry 36 recorded that it was innocent without
+recognising why the search itself could not work.
+
+**Fix**: none to make — the rule was the fix. What is worth keeping is the
+shape of the error. A bisection assumes one cause. Fifteen independent causes
+with a per-run probability each look exactly like noise under it, and the way
+out was not a better bisection but a rule that named the *class*.
+
+## 43. ParseFloats needed a kernel
+
+**Wrong**, and the generator said so before a single measurement had to be
+argued about. Every target refused it:
+
+```
+simd_parse_floats (LLVM did not vectorize it for neon)
+simd_parse_floats (LLVM did not vectorize it for sve2)
+simd_parse_floats (LLVM did not vectorize it for rvv)
+simd_parse_floats (LLVM did not vectorize it for vsx)
+simd_parse_floats (LLVM did not vectorize it for vx)
+simd_parse_floats (LLVM did not vectorize it for lasx)
+simd_parse_floats (needs more argument registers than amd64 has)
+```
+
+Both refusals are right. Parsing a float is a dependent scan that has to find
+a decimal point and an exponent before it knows what any digit is worth, and
+the eligibility branch is the algorithm rather than an aside. The seventh
+argument — the resume offset, needed because field offsets are absolute — is
+one past what amd64 passes in registers.
+
+The useful part is that the speedup never depended on any of it. It comes from
+Clinger's fast path, which is scalar: a mantissa under 2^53 and an exponent
+within [-22, 22] make both operands exactly representable, so `mant * 10^exp`
+is a single rounding and therefore *the correctly rounded result*. Not close
+to strconv — identical to it, which is why this needs no `Fast*` name and no
+tolerance in its test.
+
+Shipped as plain Go: 2.3x on two-decimal CSV, 2.0x on scientific, and 0.77x on
+17-significant-digit round-trip values, which are 10% eligible and pay for
+being scanned twice. That last row is in the doc comment, because a function
+whose speed depends on data the caller chose has to say which data.
+
+**Fix**: none. The lesson is that "this library accelerates X" and "X wants a
+kernel" are different claims, and the generator refusing to emit one is
+evidence about the second, not a problem to route around. Three things have
+now been faster without a kernel — the histogram private tables, the checksum
+family, and this — and each was found by measuring rather than by assuming the
+vector unit was the point.
