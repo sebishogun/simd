@@ -914,6 +914,49 @@ func hammingWords(a, b []uint64) int {
 	return c
 }
 
+// Colour conversion over planar channels, ITU-R BT.601 in Q16 fixed point.
+// These define the semantics the kernels are checked against, so the
+// coefficients and the rounding term are the specification. They are libjpeg's
+// constants; see csrc/bytes.c for why Q16 rather than Q8, and why the chroma
+// bias is folded in before the shift rather than added after it.
+const (
+	y601R = 19595
+	y601G = 38470
+	y601B = 7471
+)
+
+func grayscale(dst, r, g, b []byte) {
+	n := min(len(dst), len(r), len(g), len(b))
+	dst, r, g, b = dst[:n], r[:n], g[:n], b[:n]
+	for i := range dst {
+		y := y601R*uint32(r[i]) + y601G*uint32(g[i]) + y601B*uint32(b[i])
+		dst[i] = byte((y + 32768) >> 16)
+	}
+}
+
+func clamp255(x int32) byte {
+	switch {
+	case x < 0:
+		return 0
+	case x > 255:
+		return 255
+	}
+	return byte(x)
+}
+
+func rgbToUV(u, v, r, g, b []byte) {
+	n := min(len(u), len(v), len(r), len(g), len(b))
+	u, v = u[:n], v[:n]
+	r, g, b = r[:n], g[:n], b[:n]
+	for i := range u {
+		rr, gg, bb := int32(r[i]), int32(g[i]), int32(b[i])
+		uu := (-11059*rr - 21709*gg + 32768*bb + 32768 + (128 << 16)) >> 16
+		vv := (32768*rr - 27439*gg - 5329*bb + 32768 + (128 << 16)) >> 16
+		u[i] = clamp255(uu)
+		v[i] = clamp255(vv)
+	}
+}
+
 func bitAnd(dst, a, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	dst, a, b = dst[:n], a[:n], b[:n]
@@ -1106,6 +1149,7 @@ func Set() kernel.Set {
 			IndexByte: indexByte, LastIndexByte: lastIndexByte, Count: countByte,
 			Equal: equalBytes, Compare: compareBytes, PopCount: popCount,
 			Hamming: hamming, HammingWords: hammingWords,
+			Grayscale: grayscale, RGBToUV: rgbToUV,
 			And: bitAnd, Or: bitOr, Xor: bitXor, AndNot: bitAndNot, Not: bitNot,
 			Fill: fillBytes,
 

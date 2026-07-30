@@ -34,6 +34,12 @@ func hammingU8SVE2(a []byte, b []byte) int
 func hammingU64SVE2(a []uint64, b []uint64) int
 
 //go:noescape
+func grayscaleU8SVE2(dst []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
+func rgbToUVU8SVE2(u []byte, v []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
 func isASCIISVE2(b []byte) bool
 
 //go:noescape

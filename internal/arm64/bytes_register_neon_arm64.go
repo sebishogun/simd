@@ -64,6 +64,24 @@ func hammingU64NEONGuarded(a []uint64, b []uint64) int {
 	return hammingU64NEON(a[:n:n], b)
 }
 
+func grayscaleU8NEONGuarded(dst []byte, r []byte, g []byte, b []byte) {
+	n := min(len(dst), len(r), len(g), len(b))
+	if n < 32 {
+		ref.Grayscale(dst, r, g, b)
+		return
+	}
+	grayscaleU8NEON(dst[:n:n], r, g, b)
+}
+
+func rgbToUVU8NEONGuarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
+	n := min(len(u), len(v), len(r), len(g), len(b))
+	if n < 32 {
+		ref.RGBToUV(u, v, r, g, b)
+		return
+	}
+	rgbToUVU8NEON(u[:n:n], v, r, g, b)
+}
+
 func isASCIINEONGuarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
@@ -323,6 +341,8 @@ func init() {
 	s.Bytes.PopCount = popCountNEONGuarded
 	s.Bytes.Hamming = hammingU8NEONGuarded
 	s.Bytes.HammingWords = hammingU64NEONGuarded
+	s.Bytes.Grayscale = grayscaleU8NEONGuarded
+	s.Bytes.RGBToUV = rgbToUVU8NEONGuarded
 	s.Bytes.IsASCII = isASCIINEONGuarded
 	s.Bytes.ValidUTF8 = validUTF8NEONGuarded
 	s.Bytes.IndexNonASCII = indexNonASCIINEONGuarded

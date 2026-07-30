@@ -64,6 +64,24 @@ func hammingU64AVX512Guarded(a []uint64, b []uint64) int {
 	return hammingU64AVX512(a[:n:n], b)
 }
 
+func grayscaleU8AVX512Guarded(dst []byte, r []byte, g []byte, b []byte) {
+	n := min(len(dst), len(r), len(g), len(b))
+	if n < 32 {
+		ref.Grayscale(dst, r, g, b)
+		return
+	}
+	grayscaleU8AVX512(dst[:n:n], r, g, b)
+}
+
+func rgbToUVU8AVX512Guarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
+	n := min(len(u), len(v), len(r), len(g), len(b))
+	if n < 32 {
+		ref.RGBToUV(u, v, r, g, b)
+		return
+	}
+	rgbToUVU8AVX512(u[:n:n], v, r, g, b)
+}
+
 func isASCIIAVX512Guarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
@@ -323,6 +341,8 @@ func init() {
 	s.Bytes.PopCount = popCountAVX512Guarded
 	s.Bytes.Hamming = hammingU8AVX512Guarded
 	s.Bytes.HammingWords = hammingU64AVX512Guarded
+	s.Bytes.Grayscale = grayscaleU8AVX512Guarded
+	s.Bytes.RGBToUV = rgbToUVU8AVX512Guarded
 	s.Bytes.IsASCII = isASCIIAVX512Guarded
 	s.Bytes.ValidUTF8 = validUTF8AVX512Guarded
 	s.Bytes.IndexNonASCII = indexNonASCIIAVX512Guarded

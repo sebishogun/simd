@@ -1252,3 +1252,88 @@ void simd_hamming_u64(isize *__restrict out,
                       const unsigned long long *__restrict b, isize n) {
   COUNT_FOLD(__builtin_popcountll(a[p] ^ b[p]))
 }
+
+// ---------- colour ----------
+//
+// Grayscale and RGB-to-chroma over planar (struct-of-arrays) input: one slice
+// per channel rather than interleaved RGBRGB. That is the layout a vector unit
+// can use, and converting to it is the advice docs/tutorial.md already gives
+// for every other operation here. Interleaved input would need a three-way
+// deinterleave per block, which is a different kernel and a different argument.
+//
+// The weights are ITU-R BT.601 in Q16 fixed point, and they are libjpeg's
+// exact constants:
+//
+//   Y = 0.299 R + 0.587 G + 0.114 B
+//     = (19595 R + 38470 G + 7471 B + 32768) >> 16
+//
+// Fixed point rather than float because that is what makes this reproducible:
+// integer multiply-add is exact, so every tier and every architecture gives
+// the same byte, and the operation stays under rule 1 instead of needing a ULP
+// bound for a result that is going to be eight bits anyway.
+//
+// Q16 rather than the more obvious Q8. Q8 was written first, with weights
+// 77/150/29 summing to 256, and it preserves grey exactly — but it puts full
+// green at 149 where the true value is 0.587*255 = 149.7, which rounds to 150.
+// One level off at a primary is the kind of thing that shows up as a diff
+// against every reference implementation. The Q16 weights sum to exactly 65536,
+// so grey is still preserved, and they are accurate to well under half a level
+// everywhere else. The intermediate reaches 38470*255, about 9.8 million, so a
+// 32-bit lane holds it with three bits to spare.
+//
+// The rounding term is half the scale, which rounds to nearest; truncating
+// would bias every image dark by half a level.
+#define Y601_R 19595
+#define Y601_G 38470
+#define Y601_B 7471
+
+void simd_grayscale_u8(u8 *__restrict d, const u8 *__restrict r,
+                       const u8 *__restrict g, const u8 *__restrict b,
+                       isize n) {
+  for (isize i = 0; i < n; i++) {
+    unsigned y = (unsigned)Y601_R * r[i] + (unsigned)Y601_G * g[i] +
+                 (unsigned)Y601_B * b[i];
+    d[i] = (u8)((y + 32768u) >> 16);
+  }
+}
+
+// RGB to chroma, full-range (JFIF). Both chroma planes in one pass.
+//
+// The luma plane is simd_grayscale_u8 above — the same Y, unchanged — so a
+// full YUV conversion is these two kernels and a caller that wants luma alone
+// pays for one. Splitting them is not only tidiness: as a single kernel this
+// took three output pointers, three input pointers and a length, and seven
+// arguments is one more than the SysV amd64 ABI passes in registers, so the
+// generator declined it on every amd64 tier. Six fits everywhere.
+//
+// libjpeg's Q16 constants again, and each row sums to exactly zero:
+//
+//   U = -0.16874 R - 0.33126 G + 0.5 B + 128
+//     = (-11059 R - 21709 G + 32768 B) >> 16 + 128
+//   V =  0.5 R - 0.41869 G - 0.08131 B + 128
+//     = (32768 R - 27439 G - 5329 B) >> 16 + 128
+//
+// Summing to zero is what makes a grey input give exactly 128 in both planes
+// rather than drifting, which is the property that stops a round trip through
+// this from tinting a greyscale image.
+//
+// The +128 bias is folded into the shifted term as (128 << 16) rather than
+// added afterwards, which is not a micro-optimisation: it makes the operand
+// non-negative before the shift. A right shift of a negative value is
+// implementation-defined in C, and the chroma sums genuinely go negative. With
+// the bias folded in the operand ranges over [65536, 16777216], so the shift is
+// unsigned in effect and the source no longer leans on a guarantee the
+// standard does not give.
+//
+// The top of that range is 256, one past a byte, so the clamp stays.
+void simd_rgb_to_uv_u8(u8 *__restrict u, u8 *__restrict v,
+                       const u8 *__restrict r, const u8 *__restrict g,
+                       const u8 *__restrict b, isize n) {
+  for (isize i = 0; i < n; i++) {
+    int rr = r[i], gg = g[i], bb = b[i];
+    int uu = (-11059 * rr - 21709 * gg + 32768 * bb + 32768 + (128 << 16)) >> 16;
+    int vv = (32768 * rr - 27439 * gg - 5329 * bb + 32768 + (128 << 16)) >> 16;
+    u[i] = (u8)(uu < 0 ? 0 : uu > 255 ? 255 : uu);
+    v[i] = (u8)(vv < 0 ? 0 : vv > 255 ? 255 : vv);
+  }
+}

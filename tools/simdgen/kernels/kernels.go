@@ -854,6 +854,27 @@ func Bytes() []spec.Kernel {
 		hamming("simd_hamming_u8", "hammingU8", "Hamming", "Hamming", spec.SliceU8),
 		hamming("simd_hamming_u64", "hammingU64", "HammingWords", "HammingWords",
 			spec.SliceU64),
+		// Colour, over planar channels. Three inputs for grayscale, three in
+		// and three out for YUV, all byte slices.
+		{
+			CName: "simd_grayscale_u8", GoName: "grayscaleU8",
+			Group: "Bytes", Field: "Grayscale", RefFunc: "Grayscale",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("r", spec.SliceU8),
+				sl("g", spec.SliceU8), sl("b", spec.SliceU8)},
+			CArgs: []spec.CArg{base("dst"), base("r"), base("g"), base("b"),
+				lenOf("dst")},
+			Threshold: thBytes,
+		},
+		{
+			CName: "simd_rgb_to_uv_u8", GoName: "rgbToUVU8",
+			Group: "Bytes", Field: "RGBToUV", RefFunc: "RGBToUV",
+			Params: []spec.Param{sl("u", spec.SliceU8), sl("v", spec.SliceU8),
+				sl("r", spec.SliceU8), sl("g", spec.SliceU8),
+				sl("b", spec.SliceU8)},
+			CArgs: []spec.CArg{base("u"), base("v"), base("r"), base("g"),
+				base("b"), lenOf("u")},
+			Threshold: thBytes,
+		},
 		byteScan("simd_is_ascii", "isASCII", "IsASCII", "IsASCII", spec.B, false),
 		byteScan("simd_valid_utf8", "validUTF8", "ValidUTF8", "ValidUTF8", spec.B, false),
 

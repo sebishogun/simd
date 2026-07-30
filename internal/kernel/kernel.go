@@ -384,6 +384,21 @@ type Bytes struct {
 	Hamming      func(a, b []byte) int
 	HammingWords func(a, b []uint64) int
 
+	// Colour, over planar channels — one slice per component rather than
+	// interleaved RGBRGB, which is the layout a vector unit can use.
+	//
+	// The weights are ITU-R BT.601 in Q8 fixed point, so the result is exact
+	// and bit-identical on every tier under rule 1. A float formulation would
+	// be more accurate and would put this under rule 6, for an answer that is
+	// rounded to eight bits regardless.
+	// Grayscale is the luma plane and RGBToUV the two chroma planes, so a
+	// full YUV conversion is both and a caller wanting luma alone pays for
+	// one. They are split rather than fused because seven arguments is one
+	// more than the SysV amd64 ABI passes in registers, and the generator
+	// declined the fused form on every amd64 tier.
+	Grayscale func(dst, r, g, b []byte)
+	RGBToUV   func(u, v, r, g, b []byte)
+
 	And, Or, Xor, AndNot func(dst, a, b []byte)
 	Not                  func(dst, a []byte)
 	Fill                 func(dst []byte, v byte)

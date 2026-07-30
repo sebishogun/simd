@@ -557,3 +557,6 @@ func B64Decode(dst, src []byte) int { return b64Decode(dst, src) }
 
 func Hamming(a, b []byte) int        { return hamming(a, b) }
 func HammingWords(a, b []uint64) int { return hammingWords(a, b) }
+
+func Grayscale(dst, r, g, b []byte) { grayscale(dst, r, g, b) }
+func RGBToUV(u, v, r, g, b []byte)  { rgbToUV(u, v, r, g, b) }

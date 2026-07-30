@@ -354,6 +354,33 @@ func fuzzBytes(t *testing.T, tier string, got, want kernel.Bytes, a, b []byte) {
 			t.Fatalf("%s/Bytes.PopCount = %d, want %d", tier, g, w)
 		}
 	}
+	if got.Grayscale != nil && want.Grayscale != nil {
+		// Three planes from one corpus: b as red, a as green, and a reversed
+		// as blue, so the three channels differ rather than being equal, which
+		// a grey-only input would not distinguish.
+		blue := make([]byte, len(a))
+		for i := range a {
+			blue[i] = a[len(a)-1-i]
+		}
+		gg, ww := make([]byte, len(a)), make([]byte, len(a))
+		got.Grayscale(gg, b, a, blue)
+		want.Grayscale(ww, b, a, blue)
+		if i, ok := same(gg, ww); !ok {
+			t.Fatalf("%s/Bytes.Grayscale at %d: got %d want %d", tier, i, gg[i], ww[i])
+		}
+		if got.RGBToUV != nil && want.RGBToUV != nil {
+			gu, gv := make([]byte, len(a)), make([]byte, len(a))
+			wu, wv := make([]byte, len(a)), make([]byte, len(a))
+			got.RGBToUV(gu, gv, b, a, blue)
+			want.RGBToUV(wu, wv, b, a, blue)
+			if i, ok := same(gu, wu); !ok {
+				t.Fatalf("%s/Bytes.RGBToUV U at %d: got %d want %d", tier, i, gu[i], wu[i])
+			}
+			if i, ok := same(gv, wv); !ok {
+				t.Fatalf("%s/Bytes.RGBToUV V at %d: got %d want %d", tier, i, gv[i], wv[i])
+			}
+		}
+	}
 	if got.Hamming != nil {
 		if g, w := got.Hamming(a, b), want.Hamming(a, b); g != w {
 			t.Fatalf("%s/Bytes.Hamming = %d, want %d", tier, g, w)

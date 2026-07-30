@@ -20,6 +20,15 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
+func grayscaleU8VSXGuarded(dst []byte, r []byte, g []byte, b []byte) {
+	n := min(len(dst), len(r), len(g), len(b))
+	if n < 32 {
+		ref.Grayscale(dst, r, g, b)
+		return
+	}
+	grayscaleU8VSX(dst[:n:n], r, g, b)
+}
+
 func isASCIIVSXGuarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
@@ -143,6 +152,7 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
+	s.Bytes.Grayscale = grayscaleU8VSXGuarded
 	s.Bytes.IsASCII = isASCIIVSXGuarded
 	s.Bytes.IndexNonASCII16 = indexNonASCII16VSXGuarded
 	s.Bytes.WidenU8U16 = widenU8U16VSXGuarded

@@ -34,6 +34,12 @@ func hammingU8AVX2(a []byte, b []byte) int
 func hammingU64AVX2(a []uint64, b []uint64) int
 
 //go:noescape
+func grayscaleU8AVX2(dst []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
+func rgbToUVU8AVX2(u []byte, v []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
 func isASCIIAVX2(b []byte) bool
 
 //go:noescape

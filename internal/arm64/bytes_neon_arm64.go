@@ -34,6 +34,12 @@ func hammingU8NEON(a []byte, b []byte) int
 func hammingU64NEON(a []uint64, b []uint64) int
 
 //go:noescape
+func grayscaleU8NEON(dst []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
+func rgbToUVU8NEON(u []byte, v []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
 func isASCIINEON(b []byte) bool
 
 //go:noescape

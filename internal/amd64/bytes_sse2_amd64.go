@@ -34,6 +34,12 @@ func hammingU8SSE2(a []byte, b []byte) int
 func hammingU64SSE2(a []uint64, b []uint64) int
 
 //go:noescape
+func grayscaleU8SSE2(dst []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
+func rgbToUVU8SSE2(u []byte, v []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
 func isASCIISSE2(b []byte) bool
 
 //go:noescape

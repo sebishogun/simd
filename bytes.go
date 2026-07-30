@@ -116,3 +116,37 @@ func XorInto(dst, a, b []byte) { active.Bytes.Xor(dst, a, b) }
 //
 // It processes min(len(dst), len(a), len(b)) bytes. dst may alias a or b.
 func AndNotInto(dst, a, b []byte) { active.Bytes.AndNot(dst, a, b) }
+
+// ---------- colour ----------
+
+// GrayscaleInto writes the BT.601 luma of three planar colour channels:
+//
+//	Y = 0.299 R + 0.587 G + 0.114 B
+//
+// The channels are separate slices — one per component — rather than
+// interleaved RGBRGB. That is the layout a vector unit can use, and it is the
+// same struct-of-arrays advice the tutorial gives for everything else here.
+//
+// The arithmetic is Q8 fixed point, so the result is exact and identical on
+// every instruction set rather than carrying a floating-point error bound. It
+// rounds to nearest; truncating would bias an image dark by half a level.
+//
+// It writes min of every argument's length and allocates nothing.
+func GrayscaleInto(dst, r, g, b []byte) { active.Bytes.Grayscale(dst, r, g, b) }
+
+// RGBToUVInto writes the two full-range (JFIF) chroma planes of three planar
+// colour channels. The luma plane is [GrayscaleInto], which computes the same
+// Y — so a full Y'CbCr conversion is the two calls, and a caller who wants
+// luma alone makes one.
+//
+// They are separate rather than one call because seven arguments is one more
+// than the SysV amd64 ABI passes in registers, and the fused form was declined
+// by the generator on every amd64 tier.
+//
+// U and V are biased by 128 so they fit a byte, which is what every 8-bit
+// full-range format does. Each chroma row of the matrix sums to zero, so a
+// grey input gives exactly 128 in both planes — which is why a round trip does
+// not tint a greyscale image.
+//
+// Like [GrayscaleInto] it is Q8 fixed point, exact, and allocation-free.
+func RGBToUVInto(u, v, r, g, b []byte) { active.Bytes.RGBToUV(u, v, r, g, b) }

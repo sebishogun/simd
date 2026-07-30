@@ -16,6 +16,9 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
 //go:noescape
+func grayscaleU8VSX(dst []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
 func isASCIIVSX(b []byte) bool
 
 //go:noescape

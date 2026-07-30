@@ -34,6 +34,12 @@ func hammingU8RVV(a []byte, b []byte) int
 func hammingU64RVV(a []uint64, b []uint64) int
 
 //go:noescape
+func grayscaleU8RVV(dst []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
+func rgbToUVU8RVV(u []byte, v []byte, r []byte, g []byte, b []byte)
+
+//go:noescape
 func isASCIIRVV(b []byte) bool
 
 //go:noescape
