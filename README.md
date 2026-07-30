@@ -286,6 +286,20 @@ Where the standard library is *already* assembly doing the same work —
 `bytes.Equal` is `memequal`, `bytealg.Count` popcounts a compare mask — there
 is no margin, and this library defers to it rather than pretending otherwise.
 
+### Measure it here instead
+
+Every number above is about someone else's CPU. To get one about yours:
+
+```
+go run ./cmd/site      # http://localhost:8080
+```
+
+It runs the `docs/tutorial.md` comparisons live, shows both implementations
+side by side, and reports the minimum of several samples with the detected tier
+and the load average printed beside it — warning you off the result when the
+machine is busy, because a number measured under load looks exactly like a real
+one. Datastar is vendored in `cmd/site/assets/`; nothing contacts a CDN.
+
 ---
 
 ## The accuracy contract
