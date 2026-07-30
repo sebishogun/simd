@@ -55,6 +55,9 @@ func geScalarFloat32MaskSSE2(dst []bool, a []float32, v float32)
 func selectFloat32SSE2(dst []float32, mask []bool, yes []float32, no []float32)
 
 //go:noescape
+func lowerBoundFloat32SSE2(dst []int32, a []float32, q []float32)
+
+//go:noescape
 func eqFloat64MaskSSE2(dst []bool, a []float64, b []float64)
 
 //go:noescape
@@ -92,6 +95,9 @@ func geScalarFloat64MaskSSE2(dst []bool, a []float64, v float64)
 
 //go:noescape
 func selectFloat64SSE2(dst []float64, mask []bool, yes []float64, no []float64)
+
+//go:noescape
+func lowerBoundFloat64SSE2(dst []int32, a []float64, q []float64)
 
 //go:noescape
 func eqInt32MaskSSE2(dst []bool, a []int32, b []int32)
@@ -133,6 +139,9 @@ func geScalarInt32MaskSSE2(dst []bool, a []int32, v int32)
 func selectInt32SSE2(dst []int32, mask []bool, yes []int32, no []int32)
 
 //go:noescape
+func lowerBoundInt32SSE2(dst []int32, a []int32, q []int32)
+
+//go:noescape
 func eqInt64MaskSSE2(dst []bool, a []int64, b []int64)
 
 //go:noescape
@@ -161,6 +170,9 @@ func geInt64MaskSSE2(dst []bool, a []int64, b []int64)
 
 //go:noescape
 func selectInt64SSE2(dst []int64, mask []bool, yes []int64, no []int64)
+
+//go:noescape
+func lowerBoundInt64SSE2(dst []int32, a []int64, q []int64)
 
 //go:noescape
 func eqInt8MaskSSE2(dst []bool, a []int8, b []int8)
@@ -197,6 +209,9 @@ func geInt8MaskSSE2(dst []bool, a []int8, b []int8)
 
 //go:noescape
 func geScalarInt8MaskSSE2(dst []bool, a []int8, v int8)
+
+//go:noescape
+func lowerBoundInt8SSE2(dst []int32, a []int8, q []int8)
 
 //go:noescape
 func eqInt16MaskSSE2(dst []bool, a []int16, b []int16)
@@ -238,6 +253,9 @@ func geScalarInt16MaskSSE2(dst []bool, a []int16, v int16)
 func selectInt16SSE2(dst []int16, mask []bool, yes []int16, no []int16)
 
 //go:noescape
+func lowerBoundInt16SSE2(dst []int32, a []int16, q []int16)
+
+//go:noescape
 func eqUint8MaskSSE2(dst []bool, a []byte, b []byte)
 
 //go:noescape
@@ -272,6 +290,9 @@ func geUint8MaskSSE2(dst []bool, a []byte, b []byte)
 
 //go:noescape
 func geScalarUint8MaskSSE2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func lowerBoundUint8SSE2(dst []int32, a []byte, q []byte)
 
 //go:noescape
 func eqUint16MaskSSE2(dst []bool, a []uint16, b []uint16)
@@ -313,6 +334,9 @@ func geScalarUint16MaskSSE2(dst []bool, a []uint16, v uint16)
 func selectUint16SSE2(dst []uint16, mask []bool, yes []uint16, no []uint16)
 
 //go:noescape
+func lowerBoundUint16SSE2(dst []int32, a []uint16, q []uint16)
+
+//go:noescape
 func eqUint32MaskSSE2(dst []bool, a []uint32, b []uint32)
 
 //go:noescape
@@ -352,6 +376,9 @@ func geScalarUint32MaskSSE2(dst []bool, a []uint32, v uint32)
 func selectUint32SSE2(dst []uint32, mask []bool, yes []uint32, no []uint32)
 
 //go:noescape
+func lowerBoundUint32SSE2(dst []int32, a []uint32, q []uint32)
+
+//go:noescape
 func eqUint64MaskSSE2(dst []bool, a []uint64, b []uint64)
 
 //go:noescape
@@ -362,6 +389,9 @@ func neUint64MaskSSE2(dst []bool, a []uint64, b []uint64)
 
 //go:noescape
 func selectUint64SSE2(dst []uint64, mask []bool, yes []uint64, no []uint64)
+
+//go:noescape
+func lowerBoundUint64SSE2(dst []int32, a []uint64, q []uint64)
 
 //go:noescape
 func maskAllSSE2(m []bool) bool

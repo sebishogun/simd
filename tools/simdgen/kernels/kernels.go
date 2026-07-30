@@ -799,6 +799,20 @@ func Compare() []spec.Kernel {
 				cmpScalarK(c.op, c.field+"ScalarMask", e))
 		}
 		ks = append(ks, selectK(e))
+		// The batch lower bound. Six C arguments exactly, which is the SysV
+		// amd64 limit: the destination's length is the sixth, so the kernel
+		// can clamp it itself rather than trusting the wrapper. Two lengths
+		// already stop the guard clamping — the table's length has nothing to
+		// do with the batch's.
+		ks = append(ks, spec.Kernel{
+			CName: "simd_lower_bound_" + e.c, GoName: "lowerBound" + e.goName,
+			Group: e.group, Field: "LowerBound", RefFunc: e.ref("LowerBound"),
+			Params: []spec.Param{sl("dst", spec.SliceI32), sl("a", e.slice),
+				sl("q", e.slice)},
+			CArgs: []spec.CArg{base("dst"), base("a"), lenOf("a"), base("q"),
+				lenOf("q"), lenOf("dst")},
+			Threshold: thElementwise,
+		})
 	}
 	ks = append(ks,
 		maskReduce("all", "All", spec.B),

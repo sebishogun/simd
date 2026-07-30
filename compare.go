@@ -295,3 +295,34 @@ func QuantileInto[T Number](a, scratch []T, q float64) T {
 	y := minNaNLast(a[lo+1:])
 	return x + T(frac*float64(y-x))
 }
+
+// LowerBoundInto fills dst with, for each element of q, the number of elements
+// of a strictly less than it — the index std::lower_bound and sort.SearchInts
+// return, and the position at which the query would be inserted to keep a
+// sorted.
+//
+// a must be sorted ascending. dst and q must be the same length; the shorter
+// bounds the work. Nothing is allocated.
+//
+// # Why the batch form and not a single search
+//
+// One binary search is log2(n) probes and every probe's address comes from the
+// previous comparison, which is a dependency no vector unit helps with — a
+// branchless scalar search is already close to optimal for one query.
+//
+// Many queries are a different problem. They all walk the same number of steps
+// over the same table, so the loop nest turns inside out: step on the outside,
+// query on the inside. The inner loop is then elementwise over the batch, and
+// the only thing it needs beyond arithmetic is a gather, because each lane
+// probes a different element.
+//
+// That gather is also the limit. Where the instruction exists — AVX2, AVX-512,
+// SVE2, RVV — this is genuinely vectorized; where it does not, LLVM declines
+// and the portable bisection runs instead. Same wall as the scatter family,
+// recorded in docs/wrong.md entry 59.
+//
+// Duplicates in a are fine and behave as lower_bound does: the index of the
+// first equal element. For the index after the last, subtract from the count of
+// elements less than or equal, which is LowerBound of the next representable
+// value.
+func LowerBoundInto[T Number](dst []int32, a, q []T) { ops[T]().LowerBound(dst, a, q) }

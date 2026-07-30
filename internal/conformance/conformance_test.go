@@ -248,6 +248,45 @@ func checkUnary[T comparable](t *testing.T, tier, op string,
 	}
 }
 
+// checkLowerBound compares the batch binary search.
+//
+// The table has to be sorted, which the generic generator does not produce, so
+// it is sorted here. The queries are deliberately NOT sorted and are drawn from
+// the same distribution as the table, so a good share of them land exactly on a
+// table entry — which is the case lower_bound is defined by and the one an
+// off-by-one in the descent gets wrong while still looking plausible.
+//
+// Table lengths run past the dispatch threshold and sit on both sides of a
+// power of two, because the kernel steps down through powers of two and the top
+// step is the one a length of exactly 2^k would hide.
+func checkLowerBound[T comparable](t *testing.T, tier, op string,
+	got, want func(dst []int32, a, q []T), gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(23, 24))
+	for _, n := range []int{0, 1, 2, 3, 7, 8, 9, 15, 16, 17, 31, 32, 33, 64, 65, 200} {
+		a := gen(n, r)
+		slices.SortFunc(a, compareElem[T])
+		for _, m := range []int{0, 1, 17, 64, 100} {
+			q := gen(m, r)
+			// Half the queries replaced by table entries, so exact hits are
+			// common rather than accidental.
+			for i := 0; i < len(q) && n > 0; i += 2 {
+				q[i] = a[r.IntN(n)]
+			}
+			g, w := make([]int32, m), make([]int32, m)
+			got(g, a, q)
+			want(w, a, q)
+			if i, ok := same(g, w); !ok {
+				t.Fatalf("%s/%s ntab=%d nq=%d i=%d: got %d want %d",
+					tier, op, n, m, i, g[i], w[i])
+			}
+		}
+	}
+}
+
 // checkSet compares a sorted-set operation.
 //
 // Two things about the inputs are load-bearing, and getting either wrong makes
@@ -550,6 +589,8 @@ func checkOps[T comparable](t *testing.T, tier, typeName string,
 
 	checkRolling(t, tier, p("RollingMin"), got.RollingMin, want.RollingMin, gen)
 	checkRolling(t, tier, p("RollingMax"), got.RollingMax, want.RollingMax, gen)
+
+	checkLowerBound(t, tier, p("LowerBound"), got.LowerBound, want.LowerBound, gen)
 
 	checkSet(t, tier, p("Intersect"), got.Intersect, want.Intersect, gen)
 	checkSet(t, tier, p("Difference"), got.Difference, want.Difference, gen)

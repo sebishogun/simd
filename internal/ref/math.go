@@ -256,6 +256,29 @@ func rollingMaxInt[T integer](dst, a []T, window int) {
 	}
 }
 
+// lowerBound is the specification the batch kernel is checked against: for each
+// query, how many elements of a are strictly less than it.
+//
+// Written as the ordinary bisection rather than as the kernel's power-of-two
+// descent. The two agree on every input — both compute the same predicate — and
+// having the reference take a different route is what makes the differential
+// test worth running.
+func lowerBound[T number](dst []int32, a, q []T) {
+	n := min(len(dst), len(q))
+	for i, v := range q[:n] {
+		lo, hi := 0, len(a)
+		for lo < hi {
+			mid := int(uint(lo+hi) >> 1)
+			if a[mid] < v {
+				lo = mid + 1
+			} else {
+				hi = mid
+			}
+		}
+		dst[i] = int32(lo)
+	}
+}
+
 // intersectSorted and differenceSorted are the two-cursor merge, which is the
 // specification the blocked kernel is checked against.
 //
@@ -398,6 +421,7 @@ func floatMathOps[T float](o *kernel.Ops[T]) {
 	o.CumProd = cumProd[T]
 	o.CumMin = cumMinFloat[T]
 	o.CumMax = cumMaxFloat[T]
+	o.LowerBound = lowerBound[T]
 	o.RollingMin = rollingMinFloat[T]
 	o.RollingMax = rollingMaxFloat[T]
 	o.Diff = diff[T]
@@ -453,6 +477,7 @@ func intMathOps[T integer](o *kernel.Ops[T]) {
 	o.CumProd = cumProd[T]
 	o.CumMin = cumMinInt[T]
 	o.CumMax = cumMaxInt[T]
+	o.LowerBound = lowerBound[T]
 	o.RollingMin = rollingMinInt[T]
 	o.RollingMax = rollingMaxInt[T]
 	o.Intersect = intersectSorted[T]

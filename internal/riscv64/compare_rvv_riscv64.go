@@ -55,6 +55,9 @@ func geScalarFloat32MaskRVV(dst []bool, a []float32, v float32)
 func selectFloat32RVV(dst []float32, mask []bool, yes []float32, no []float32)
 
 //go:noescape
+func lowerBoundFloat32RVV(dst []int32, a []float32, q []float32)
+
+//go:noescape
 func eqFloat64MaskRVV(dst []bool, a []float64, b []float64)
 
 //go:noescape
@@ -92,6 +95,9 @@ func geScalarFloat64MaskRVV(dst []bool, a []float64, v float64)
 
 //go:noescape
 func selectFloat64RVV(dst []float64, mask []bool, yes []float64, no []float64)
+
+//go:noescape
+func lowerBoundFloat64RVV(dst []int32, a []float64, q []float64)
 
 //go:noescape
 func eqInt32MaskRVV(dst []bool, a []int32, b []int32)
@@ -133,6 +139,9 @@ func geScalarInt32MaskRVV(dst []bool, a []int32, v int32)
 func selectInt32RVV(dst []int32, mask []bool, yes []int32, no []int32)
 
 //go:noescape
+func lowerBoundInt32RVV(dst []int32, a []int32, q []int32)
+
+//go:noescape
 func eqInt64MaskRVV(dst []bool, a []int64, b []int64)
 
 //go:noescape
@@ -170,6 +179,9 @@ func geScalarInt64MaskRVV(dst []bool, a []int64, v int64)
 
 //go:noescape
 func selectInt64RVV(dst []int64, mask []bool, yes []int64, no []int64)
+
+//go:noescape
+func lowerBoundInt64RVV(dst []int32, a []int64, q []int64)
 
 //go:noescape
 func eqInt8MaskRVV(dst []bool, a []int8, b []int8)
@@ -211,6 +223,9 @@ func geScalarInt8MaskRVV(dst []bool, a []int8, v int8)
 func selectInt8RVV(dst []int8, mask []bool, yes []int8, no []int8)
 
 //go:noescape
+func lowerBoundInt8RVV(dst []int32, a []int8, q []int8)
+
+//go:noescape
 func eqInt16MaskRVV(dst []bool, a []int16, b []int16)
 
 //go:noescape
@@ -248,6 +263,9 @@ func geScalarInt16MaskRVV(dst []bool, a []int16, v int16)
 
 //go:noescape
 func selectInt16RVV(dst []int16, mask []bool, yes []int16, no []int16)
+
+//go:noescape
+func lowerBoundInt16RVV(dst []int32, a []int16, q []int16)
 
 //go:noescape
 func eqUint8MaskRVV(dst []bool, a []byte, b []byte)
@@ -289,6 +307,9 @@ func geScalarUint8MaskRVV(dst []bool, a []byte, v byte)
 func selectUint8RVV(dst []byte, mask []bool, yes []byte, no []byte)
 
 //go:noescape
+func lowerBoundUint8RVV(dst []int32, a []byte, q []byte)
+
+//go:noescape
 func eqUint16MaskRVV(dst []bool, a []uint16, b []uint16)
 
 //go:noescape
@@ -326,6 +347,9 @@ func geScalarUint16MaskRVV(dst []bool, a []uint16, v uint16)
 
 //go:noescape
 func selectUint16RVV(dst []uint16, mask []bool, yes []uint16, no []uint16)
+
+//go:noescape
+func lowerBoundUint16RVV(dst []int32, a []uint16, q []uint16)
 
 //go:noescape
 func eqUint32MaskRVV(dst []bool, a []uint32, b []uint32)
@@ -367,6 +391,9 @@ func geScalarUint32MaskRVV(dst []bool, a []uint32, v uint32)
 func selectUint32RVV(dst []uint32, mask []bool, yes []uint32, no []uint32)
 
 //go:noescape
+func lowerBoundUint32RVV(dst []int32, a []uint32, q []uint32)
+
+//go:noescape
 func eqUint64MaskRVV(dst []bool, a []uint64, b []uint64)
 
 //go:noescape
@@ -404,6 +431,9 @@ func geScalarUint64MaskRVV(dst []bool, a []uint64, v uint64)
 
 //go:noescape
 func selectUint64RVV(dst []uint64, mask []bool, yes []uint64, no []uint64)
+
+//go:noescape
+func lowerBoundUint64RVV(dst []int32, a []uint64, q []uint64)
 
 //go:noescape
 func maskAllRVV(m []bool) bool

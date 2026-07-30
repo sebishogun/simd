@@ -633,3 +633,79 @@ func TestCommonPrefixLenNoAlloc(t *testing.T) {
 		t.Errorf("CommonPrefixLen allocated %v times per run", n)
 	}
 }
+
+// LowerBoundInto against sort.SearchInts, which is what callers would
+// otherwise reach for and is the definition it has to match.
+func TestLowerBound(t *testing.T) {
+	r := rand.New(rand.NewPCG(61, 62))
+	// Table lengths spanning powers of two, since the kernel steps down through
+	// them and an off-by-one at the top step would only show up when the length
+	// is not one itself.
+	for _, ntab := range []int{0, 1, 2, 3, 7, 8, 9, 15, 16, 17, 31, 32, 33, 100, 1000} {
+		table := make([]int32, ntab)
+		for i := range table {
+			table[i] = int32(i) * 2 // even values, so odd queries fall between
+		}
+		// Every table value, every gap, and both ends past the range.
+		var q []int32
+		for i := range ntab {
+			q = append(q, table[i], table[i]-1, table[i]+1)
+		}
+		q = append(q, -1000, 1000000, 0)
+		for range 50 {
+			q = append(q, int32(r.IntN(2*max(ntab, 1)+4))-2)
+		}
+
+		dst := make([]int32, len(q))
+		simd.LowerBoundInto(dst, table, q)
+		for i, v := range q {
+			w := 0
+			for w < len(table) && table[w] < v {
+				w++
+			}
+			if int(dst[i]) != w {
+				t.Fatalf("ntab=%d q=%d: got %d want %d", ntab, v, dst[i], w)
+			}
+		}
+	}
+}
+
+// Duplicates are the case lower_bound is defined by: the answer is the index
+// of the FIRST equal element, not any of them.
+func TestLowerBoundDuplicates(t *testing.T) {
+	table := []int32{1, 1, 1, 2, 2, 5, 5, 5, 5, 9}
+	q := []int32{0, 1, 2, 3, 5, 9, 10}
+	want := []int32{0, 0, 3, 5, 5, 9, 10}
+	dst := make([]int32, len(q))
+	simd.LowerBoundInto(dst, table, q)
+	for i := range q {
+		if dst[i] != want[i] {
+			t.Errorf("q=%d: got %d want %d", q[i], dst[i], want[i])
+		}
+	}
+}
+
+func TestLowerBoundFloats(t *testing.T) {
+	table := []float64{-3.5, -1, 0, 0.25, 2, 7.75}
+	q := []float64{-4, -3.5, -2, 0, 0.1, 8}
+	want := []int32{0, 0, 1, 2, 3, 6}
+	dst := make([]int32, len(q))
+	simd.LowerBoundInto(dst, table, q)
+	for i := range q {
+		if dst[i] != want[i] {
+			t.Errorf("q=%v: got %d want %d", q[i], dst[i], want[i])
+		}
+	}
+}
+
+func TestLowerBoundNoAlloc(t *testing.T) {
+	table := make([]int32, 4096)
+	for i := range table {
+		table[i] = int32(i)
+	}
+	q := make([]int32, 1024)
+	dst := make([]int32, len(q))
+	if n := testing.AllocsPerRun(20, func() { simd.LowerBoundInto(dst, table, q) }); n != 0 {
+		t.Errorf("LowerBoundInto allocated %v times per run", n)
+	}
+}

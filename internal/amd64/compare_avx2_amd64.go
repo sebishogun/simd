@@ -55,6 +55,9 @@ func geScalarFloat32MaskAVX2(dst []bool, a []float32, v float32)
 func selectFloat32AVX2(dst []float32, mask []bool, yes []float32, no []float32)
 
 //go:noescape
+func lowerBoundFloat32AVX2(dst []int32, a []float32, q []float32)
+
+//go:noescape
 func eqFloat64MaskAVX2(dst []bool, a []float64, b []float64)
 
 //go:noescape
@@ -92,6 +95,9 @@ func geScalarFloat64MaskAVX2(dst []bool, a []float64, v float64)
 
 //go:noescape
 func selectFloat64AVX2(dst []float64, mask []bool, yes []float64, no []float64)
+
+//go:noescape
+func lowerBoundFloat64AVX2(dst []int32, a []float64, q []float64)
 
 //go:noescape
 func eqInt32MaskAVX2(dst []bool, a []int32, b []int32)
@@ -133,6 +139,9 @@ func geScalarInt32MaskAVX2(dst []bool, a []int32, v int32)
 func selectInt32AVX2(dst []int32, mask []bool, yes []int32, no []int32)
 
 //go:noescape
+func lowerBoundInt32AVX2(dst []int32, a []int32, q []int32)
+
+//go:noescape
 func eqInt64MaskAVX2(dst []bool, a []int64, b []int64)
 
 //go:noescape
@@ -170,6 +179,9 @@ func geScalarInt64MaskAVX2(dst []bool, a []int64, v int64)
 
 //go:noescape
 func selectInt64AVX2(dst []int64, mask []bool, yes []int64, no []int64)
+
+//go:noescape
+func lowerBoundInt64AVX2(dst []int32, a []int64, q []int64)
 
 //go:noescape
 func eqInt8MaskAVX2(dst []bool, a []int8, b []int8)
@@ -211,6 +223,9 @@ func geScalarInt8MaskAVX2(dst []bool, a []int8, v int8)
 func selectInt8AVX2(dst []int8, mask []bool, yes []int8, no []int8)
 
 //go:noescape
+func lowerBoundInt8AVX2(dst []int32, a []int8, q []int8)
+
+//go:noescape
 func eqInt16MaskAVX2(dst []bool, a []int16, b []int16)
 
 //go:noescape
@@ -248,6 +263,9 @@ func geScalarInt16MaskAVX2(dst []bool, a []int16, v int16)
 
 //go:noescape
 func selectInt16AVX2(dst []int16, mask []bool, yes []int16, no []int16)
+
+//go:noescape
+func lowerBoundInt16AVX2(dst []int32, a []int16, q []int16)
 
 //go:noescape
 func eqUint8MaskAVX2(dst []bool, a []byte, b []byte)
@@ -289,6 +307,9 @@ func geScalarUint8MaskAVX2(dst []bool, a []byte, v byte)
 func selectUint8AVX2(dst []byte, mask []bool, yes []byte, no []byte)
 
 //go:noescape
+func lowerBoundUint8AVX2(dst []int32, a []byte, q []byte)
+
+//go:noescape
 func eqUint16MaskAVX2(dst []bool, a []uint16, b []uint16)
 
 //go:noescape
@@ -326,6 +347,9 @@ func geScalarUint16MaskAVX2(dst []bool, a []uint16, v uint16)
 
 //go:noescape
 func selectUint16AVX2(dst []uint16, mask []bool, yes []uint16, no []uint16)
+
+//go:noescape
+func lowerBoundUint16AVX2(dst []int32, a []uint16, q []uint16)
 
 //go:noescape
 func eqUint32MaskAVX2(dst []bool, a []uint32, b []uint32)
@@ -367,6 +391,9 @@ func geScalarUint32MaskAVX2(dst []bool, a []uint32, v uint32)
 func selectUint32AVX2(dst []uint32, mask []bool, yes []uint32, no []uint32)
 
 //go:noescape
+func lowerBoundUint32AVX2(dst []int32, a []uint32, q []uint32)
+
+//go:noescape
 func eqUint64MaskAVX2(dst []bool, a []uint64, b []uint64)
 
 //go:noescape
@@ -404,6 +431,9 @@ func geScalarUint64MaskAVX2(dst []bool, a []uint64, v uint64)
 
 //go:noescape
 func selectUint64AVX2(dst []uint64, mask []bool, yes []uint64, no []uint64)
+
+//go:noescape
+func lowerBoundUint64AVX2(dst []int32, a []uint64, q []uint64)
 
 //go:noescape
 func maskAllAVX2(m []bool) bool

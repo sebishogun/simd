@@ -109,3 +109,67 @@ MASK_BIN(xor, x ^ y)
 void simd_mask_not(_Bool *__restrict d, const _Bool *__restrict a, isize n) {
   for (isize i = 0; i < n; i++) d[i] = (_Bool)(1u - (unsigned char)a[i]);
 }
+
+// ---------- batch lower bound ----------
+//
+// The first index at or after which a sorted slice is >= the query, for many
+// queries at once. std::lower_bound, sort.SearchInts, the bucket lookup in a
+// histogram or a quantile table.
+//
+// # One query does not vectorize; many do
+//
+// A single binary search is log2(n) dependent steps: each probe's address comes
+// from the previous comparison. Nothing in a vector unit helps with that, and a
+// branchless scalar search is already close to optimal for one query.
+//
+// A *batch* is a different problem. Every query walks the same number of steps
+// over the same array, so the loop nest can be turned inside out: step on the
+// outside, query on the inside. The inner loop is then elementwise over the
+// batch — one probe index per lane, one comparison, one masked update — and the
+// only thing it needs that plain arithmetic does not is a gather, because each
+// lane reads a different element of the table.
+//
+// That is the whole cost and the whole limit. Where a gather instruction exists
+// this is a real vectorization; where it does not, LLVM declines and the kernel
+// is dropped for that target, which is the same wall the scatter family hit and
+// is recorded in docs/wrong.md entry 59.
+//
+// # Shar's algorithm, so every query takes the same steps
+//
+// The textbook lo/hi bisection has a trip count that depends on where the
+// answer is, which would make the lanes disagree about when to stop. Stepping
+// down through the powers of two instead takes exactly floor(log2(n))+1 steps
+// for every query regardless of the answer, so the outer loop is uniform and
+// the inner one has nothing to diverge on.
+//
+// The running position is kept in dst as "one less than the answer", starting
+// at -1, which is what makes the update a single conditional add rather than a
+// pair of bounds. It is corrected in a final elementwise pass.
+#define LOWER_BOUND(T, SUF)                                                \
+  void simd_lower_bound_##SUF(int *__restrict d, const T *__restrict s,    \
+                              isize ns, const T *__restrict q, isize nq,   \
+                              isize ndst) {                                \
+    if (nq > ndst) nq = ndst;                                              \
+    for (isize i = 0; i < nq; i++) d[i] = -1;                              \
+    isize step = 1;                                                        \
+    while (step * 2 <= ns) step *= 2;                                      \
+    for (; step > 0; step >>= 1) {                                         \
+      for (isize i = 0; i < nq; i++) {                                     \
+        isize probe = (isize)d[i] + step;                                  \
+        int take = probe < ns && s[probe] < q[i];                          \
+        d[i] = take ? (int)probe : d[i];                                   \
+      }                                                                    \
+    }                                                                      \
+    for (isize i = 0; i < nq; i++) d[i] += 1;                              \
+  }
+
+LOWER_BOUND(float, f32)
+LOWER_BOUND(double, f64)
+LOWER_BOUND(signed char, i8)
+LOWER_BOUND(short, i16)
+LOWER_BOUND(int, i32)
+LOWER_BOUND(long long, i64)
+LOWER_BOUND(unsigned char, u8)
+LOWER_BOUND(unsigned short, u16)
+LOWER_BOUND(unsigned int, u32)
+LOWER_BOUND(unsigned long long, u64)

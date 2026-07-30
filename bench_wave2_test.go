@@ -208,3 +208,49 @@ func BenchmarkIntersect(b *testing.B) {
 		})
 	}
 }
+
+// The batch lower bound against the scalar bisection, per tier.
+//
+// Measured per tier on purpose. The inner loop needs a gather, and a target
+// without one can still have LLVM "vectorize" the loop by scalarizing the
+// gather into a load and an insert per lane — vector-shaped code that is
+// slower than the scalar bisection it replaced, which the repository's
+// has-vector-instructions gate cannot tell apart from a real win. That is
+// docs/wrong.md entry 59, and this benchmark is how the SSE2 case gets an
+// answer rather than an assumption.
+func BenchmarkLowerBound(b *testing.B) {
+	const ntab = 1 << 16
+	const nq = 1 << 14
+	table := make([]int32, ntab)
+	for i := range table {
+		table[i] = int32(i) * 3
+	}
+	r := rand.New(rand.NewPCG(13, 14))
+	q := make([]int32, nq)
+	for i := range q {
+		q[i] = int32(r.IntN(ntab * 3))
+	}
+	dst := make([]int32, nq)
+
+	b.Run("bisect", func(b *testing.B) {
+		for b.Loop() {
+			for i, v := range q {
+				lo, hi := 0, len(table)
+				for lo < hi {
+					mid := int(uint(lo+hi) >> 1)
+					if table[mid] < v {
+						lo = mid + 1
+					} else {
+						hi = mid
+					}
+				}
+				dst[i] = int32(lo)
+			}
+		}
+	})
+	b.Run("simd", func(b *testing.B) {
+		for b.Loop() {
+			simd.LowerBoundInto(dst, table, q)
+		}
+	})
+}

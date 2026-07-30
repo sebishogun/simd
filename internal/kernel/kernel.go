@@ -211,6 +211,17 @@ type Ops[T any] struct {
 	// len(a) worth of useful output.
 	CumSum, CumProd, CumMin, CumMax, Diff func(dst, a []T)
 
+	// LowerBound is the batch binary search: dst[i] is the number of elements
+	// of a that are strictly less than q[i], which is the index std::lower_bound
+	// and sort.SearchInts return. a must be sorted ascending.
+	//
+	// One binary search is log2(n) dependent probes and vectorizes on nothing.
+	// A batch turns the loop nest inside out — step outside, query inside — so
+	// the inner loop is elementwise over the batch and needs only a gather,
+	// because each lane probes a different element. Targets without a gather
+	// instruction keep the portable path; see docs/wrong.md entry 59.
+	LowerBound func(dst []int32, a, q []T)
+
 	// Sorted sets. Both inputs must be sorted and free of duplicates, which is
 	// the caller's contract and is not checked: verifying it would cost a pass
 	// over both slices, which is what the operation itself costs.

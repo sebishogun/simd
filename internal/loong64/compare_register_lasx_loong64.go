@@ -137,6 +137,14 @@ func selectFloat32LASXGuarded(dst []float32, mask []bool, yes []float32, no []fl
 	selectFloat32LASX(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundFloat32LASXGuarded(dst []int32, a []float32, q []float32) {
+	if len(a) < 16 {
+		ref.LowerBoundFloat(dst, a, q)
+		return
+	}
+	lowerBoundFloat32LASX(dst, a, q)
+}
+
 func eqFloat64MaskLASXGuarded(dst []bool, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -252,6 +260,14 @@ func selectFloat64LASXGuarded(dst []float64, mask []bool, yes []float64, no []fl
 		return
 	}
 	selectFloat64LASX(dst[:n:n], mask, yes, no)
+}
+
+func lowerBoundFloat64LASXGuarded(dst []int32, a []float64, q []float64) {
+	if len(a) < 16 {
+		ref.LowerBoundFloat(dst, a, q)
+		return
+	}
+	lowerBoundFloat64LASX(dst, a, q)
 }
 
 func eqInt32MaskLASXGuarded(dst []bool, a []int32, b []int32) {
@@ -371,6 +387,14 @@ func selectInt32LASXGuarded(dst []int32, mask []bool, yes []int32, no []int32) {
 	selectInt32LASX(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundInt32LASXGuarded(dst []int32, a []int32, q []int32) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundInt32LASX(dst, a, q)
+}
+
 func eqInt64MaskLASXGuarded(dst []bool, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -486,6 +510,14 @@ func selectInt64LASXGuarded(dst []int64, mask []bool, yes []int64, no []int64) {
 		return
 	}
 	selectInt64LASX(dst[:n:n], mask, yes, no)
+}
+
+func lowerBoundInt64LASXGuarded(dst []int32, a []int64, q []int64) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundInt64LASX(dst, a, q)
 }
 
 func eqInt8MaskLASXGuarded(dst []bool, a []int8, b []int8) {
@@ -605,6 +637,14 @@ func selectInt8LASXGuarded(dst []int8, mask []bool, yes []int8, no []int8) {
 	selectInt8LASX(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundInt8LASXGuarded(dst []int32, a []int8, q []int8) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundInt8LASX(dst, a, q)
+}
+
 func eqInt16MaskLASXGuarded(dst []bool, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -720,6 +760,14 @@ func selectInt16LASXGuarded(dst []int16, mask []bool, yes []int16, no []int16) {
 		return
 	}
 	selectInt16LASX(dst[:n:n], mask, yes, no)
+}
+
+func lowerBoundInt16LASXGuarded(dst []int32, a []int16, q []int16) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundInt16LASX(dst, a, q)
 }
 
 func eqUint8MaskLASXGuarded(dst []bool, a []byte, b []byte) {
@@ -839,6 +887,14 @@ func selectUint8LASXGuarded(dst []byte, mask []bool, yes []byte, no []byte) {
 	selectUint8LASX(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundUint8LASXGuarded(dst []int32, a []byte, q []byte) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundUint8LASX(dst, a, q)
+}
+
 func eqUint16MaskLASXGuarded(dst []bool, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -954,6 +1010,14 @@ func selectUint16LASXGuarded(dst []uint16, mask []bool, yes []uint16, no []uint1
 		return
 	}
 	selectUint16LASX(dst[:n:n], mask, yes, no)
+}
+
+func lowerBoundUint16LASXGuarded(dst []int32, a []uint16, q []uint16) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundUint16LASX(dst, a, q)
 }
 
 func eqUint32MaskLASXGuarded(dst []bool, a []uint32, b []uint32) {
@@ -1073,6 +1137,14 @@ func selectUint32LASXGuarded(dst []uint32, mask []bool, yes []uint32, no []uint3
 	selectUint32LASX(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundUint32LASXGuarded(dst []int32, a []uint32, q []uint32) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundUint32LASX(dst, a, q)
+}
+
 func eqUint64MaskLASXGuarded(dst []bool, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1190,6 +1262,14 @@ func selectUint64LASXGuarded(dst []uint64, mask []bool, yes []uint64, no []uint6
 	selectUint64LASX(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundUint64LASXGuarded(dst []int32, a []uint64, q []uint64) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundUint64LASX(dst, a, q)
+}
+
 func maskAllLASXGuarded(m []bool) bool {
 	if len(m) < 32 {
 		return ref.MaskAll(m)
@@ -1264,6 +1344,7 @@ func init() {
 	s.F32.GreaterEqualMask = geFloat32MaskLASXGuarded
 	s.F32.GreaterEqualScalarMask = geScalarFloat32MaskLASXGuarded
 	s.F32.Select = selectFloat32LASXGuarded
+	s.F32.LowerBound = lowerBoundFloat32LASXGuarded
 	s.F64.EqualMask = eqFloat64MaskLASXGuarded
 	s.F64.EqualScalarMask = eqScalarFloat64MaskLASXGuarded
 	s.F64.NotEqualMask = neFloat64MaskLASXGuarded
@@ -1277,6 +1358,7 @@ func init() {
 	s.F64.GreaterEqualMask = geFloat64MaskLASXGuarded
 	s.F64.GreaterEqualScalarMask = geScalarFloat64MaskLASXGuarded
 	s.F64.Select = selectFloat64LASXGuarded
+	s.F64.LowerBound = lowerBoundFloat64LASXGuarded
 	s.I32.EqualMask = eqInt32MaskLASXGuarded
 	s.I32.EqualScalarMask = eqScalarInt32MaskLASXGuarded
 	s.I32.NotEqualMask = neInt32MaskLASXGuarded
@@ -1290,6 +1372,7 @@ func init() {
 	s.I32.GreaterEqualMask = geInt32MaskLASXGuarded
 	s.I32.GreaterEqualScalarMask = geScalarInt32MaskLASXGuarded
 	s.I32.Select = selectInt32LASXGuarded
+	s.I32.LowerBound = lowerBoundInt32LASXGuarded
 	s.I64.EqualMask = eqInt64MaskLASXGuarded
 	s.I64.EqualScalarMask = eqScalarInt64MaskLASXGuarded
 	s.I64.NotEqualMask = neInt64MaskLASXGuarded
@@ -1303,6 +1386,7 @@ func init() {
 	s.I64.GreaterEqualMask = geInt64MaskLASXGuarded
 	s.I64.GreaterEqualScalarMask = geScalarInt64MaskLASXGuarded
 	s.I64.Select = selectInt64LASXGuarded
+	s.I64.LowerBound = lowerBoundInt64LASXGuarded
 	s.I8.EqualMask = eqInt8MaskLASXGuarded
 	s.I8.EqualScalarMask = eqScalarInt8MaskLASXGuarded
 	s.I8.NotEqualMask = neInt8MaskLASXGuarded
@@ -1316,6 +1400,7 @@ func init() {
 	s.I8.GreaterEqualMask = geInt8MaskLASXGuarded
 	s.I8.GreaterEqualScalarMask = geScalarInt8MaskLASXGuarded
 	s.I8.Select = selectInt8LASXGuarded
+	s.I8.LowerBound = lowerBoundInt8LASXGuarded
 	s.I16.EqualMask = eqInt16MaskLASXGuarded
 	s.I16.EqualScalarMask = eqScalarInt16MaskLASXGuarded
 	s.I16.NotEqualMask = neInt16MaskLASXGuarded
@@ -1329,6 +1414,7 @@ func init() {
 	s.I16.GreaterEqualMask = geInt16MaskLASXGuarded
 	s.I16.GreaterEqualScalarMask = geScalarInt16MaskLASXGuarded
 	s.I16.Select = selectInt16LASXGuarded
+	s.I16.LowerBound = lowerBoundInt16LASXGuarded
 	s.U8.EqualMask = eqUint8MaskLASXGuarded
 	s.U8.EqualScalarMask = eqScalarUint8MaskLASXGuarded
 	s.U8.NotEqualMask = neUint8MaskLASXGuarded
@@ -1342,6 +1428,7 @@ func init() {
 	s.U8.GreaterEqualMask = geUint8MaskLASXGuarded
 	s.U8.GreaterEqualScalarMask = geScalarUint8MaskLASXGuarded
 	s.U8.Select = selectUint8LASXGuarded
+	s.U8.LowerBound = lowerBoundUint8LASXGuarded
 	s.U16.EqualMask = eqUint16MaskLASXGuarded
 	s.U16.EqualScalarMask = eqScalarUint16MaskLASXGuarded
 	s.U16.NotEqualMask = neUint16MaskLASXGuarded
@@ -1355,6 +1442,7 @@ func init() {
 	s.U16.GreaterEqualMask = geUint16MaskLASXGuarded
 	s.U16.GreaterEqualScalarMask = geScalarUint16MaskLASXGuarded
 	s.U16.Select = selectUint16LASXGuarded
+	s.U16.LowerBound = lowerBoundUint16LASXGuarded
 	s.U32.EqualMask = eqUint32MaskLASXGuarded
 	s.U32.EqualScalarMask = eqScalarUint32MaskLASXGuarded
 	s.U32.NotEqualMask = neUint32MaskLASXGuarded
@@ -1368,6 +1456,7 @@ func init() {
 	s.U32.GreaterEqualMask = geUint32MaskLASXGuarded
 	s.U32.GreaterEqualScalarMask = geScalarUint32MaskLASXGuarded
 	s.U32.Select = selectUint32LASXGuarded
+	s.U32.LowerBound = lowerBoundUint32LASXGuarded
 	s.U64.EqualMask = eqUint64MaskLASXGuarded
 	s.U64.EqualScalarMask = eqScalarUint64MaskLASXGuarded
 	s.U64.NotEqualMask = neUint64MaskLASXGuarded
@@ -1381,6 +1470,7 @@ func init() {
 	s.U64.GreaterEqualMask = geUint64MaskLASXGuarded
 	s.U64.GreaterEqualScalarMask = geScalarUint64MaskLASXGuarded
 	s.U64.Select = selectUint64LASXGuarded
+	s.U64.LowerBound = lowerBoundUint64LASXGuarded
 	s.Mask.All = maskAllLASXGuarded
 	s.Mask.Any = maskAnyLASXGuarded
 	s.Mask.Count = maskCountLASXGuarded

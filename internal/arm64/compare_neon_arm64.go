@@ -55,6 +55,9 @@ func geScalarFloat32MaskNEON(dst []bool, a []float32, v float32)
 func selectFloat32NEON(dst []float32, mask []bool, yes []float32, no []float32)
 
 //go:noescape
+func lowerBoundFloat32NEON(dst []int32, a []float32, q []float32)
+
+//go:noescape
 func eqFloat64MaskNEON(dst []bool, a []float64, b []float64)
 
 //go:noescape
@@ -92,6 +95,9 @@ func geScalarFloat64MaskNEON(dst []bool, a []float64, v float64)
 
 //go:noescape
 func selectFloat64NEON(dst []float64, mask []bool, yes []float64, no []float64)
+
+//go:noescape
+func lowerBoundFloat64NEON(dst []int32, a []float64, q []float64)
 
 //go:noescape
 func eqInt32MaskNEON(dst []bool, a []int32, b []int32)
@@ -133,6 +139,9 @@ func geScalarInt32MaskNEON(dst []bool, a []int32, v int32)
 func selectInt32NEON(dst []int32, mask []bool, yes []int32, no []int32)
 
 //go:noescape
+func lowerBoundInt32NEON(dst []int32, a []int32, q []int32)
+
+//go:noescape
 func eqInt64MaskNEON(dst []bool, a []int64, b []int64)
 
 //go:noescape
@@ -170,6 +179,9 @@ func geScalarInt64MaskNEON(dst []bool, a []int64, v int64)
 
 //go:noescape
 func selectInt64NEON(dst []int64, mask []bool, yes []int64, no []int64)
+
+//go:noescape
+func lowerBoundInt64NEON(dst []int32, a []int64, q []int64)
 
 //go:noescape
 func eqInt8MaskNEON(dst []bool, a []int8, b []int8)
@@ -211,6 +223,9 @@ func geScalarInt8MaskNEON(dst []bool, a []int8, v int8)
 func selectInt8NEON(dst []int8, mask []bool, yes []int8, no []int8)
 
 //go:noescape
+func lowerBoundInt8NEON(dst []int32, a []int8, q []int8)
+
+//go:noescape
 func eqInt16MaskNEON(dst []bool, a []int16, b []int16)
 
 //go:noescape
@@ -248,6 +263,9 @@ func geScalarInt16MaskNEON(dst []bool, a []int16, v int16)
 
 //go:noescape
 func selectInt16NEON(dst []int16, mask []bool, yes []int16, no []int16)
+
+//go:noescape
+func lowerBoundInt16NEON(dst []int32, a []int16, q []int16)
 
 //go:noescape
 func eqUint8MaskNEON(dst []bool, a []byte, b []byte)
@@ -289,6 +307,9 @@ func geScalarUint8MaskNEON(dst []bool, a []byte, v byte)
 func selectUint8NEON(dst []byte, mask []bool, yes []byte, no []byte)
 
 //go:noescape
+func lowerBoundUint8NEON(dst []int32, a []byte, q []byte)
+
+//go:noescape
 func eqUint16MaskNEON(dst []bool, a []uint16, b []uint16)
 
 //go:noescape
@@ -326,6 +347,9 @@ func geScalarUint16MaskNEON(dst []bool, a []uint16, v uint16)
 
 //go:noescape
 func selectUint16NEON(dst []uint16, mask []bool, yes []uint16, no []uint16)
+
+//go:noescape
+func lowerBoundUint16NEON(dst []int32, a []uint16, q []uint16)
 
 //go:noescape
 func eqUint32MaskNEON(dst []bool, a []uint32, b []uint32)
@@ -367,6 +391,9 @@ func geScalarUint32MaskNEON(dst []bool, a []uint32, v uint32)
 func selectUint32NEON(dst []uint32, mask []bool, yes []uint32, no []uint32)
 
 //go:noescape
+func lowerBoundUint32NEON(dst []int32, a []uint32, q []uint32)
+
+//go:noescape
 func eqUint64MaskNEON(dst []bool, a []uint64, b []uint64)
 
 //go:noescape
@@ -404,6 +431,9 @@ func geScalarUint64MaskNEON(dst []bool, a []uint64, v uint64)
 
 //go:noescape
 func selectUint64NEON(dst []uint64, mask []bool, yes []uint64, no []uint64)
+
+//go:noescape
+func lowerBoundUint64NEON(dst []int32, a []uint64, q []uint64)
 
 //go:noescape
 func maskAllNEON(m []bool) bool

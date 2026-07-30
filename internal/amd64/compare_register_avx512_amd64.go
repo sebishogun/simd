@@ -137,6 +137,14 @@ func selectFloat32AVX512Guarded(dst []float32, mask []bool, yes []float32, no []
 	selectFloat32AVX512(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundFloat32AVX512Guarded(dst []int32, a []float32, q []float32) {
+	if len(a) < 16 {
+		ref.LowerBoundFloat(dst, a, q)
+		return
+	}
+	lowerBoundFloat32AVX512(dst, a, q)
+}
+
 func eqFloat64MaskAVX512Guarded(dst []bool, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -252,6 +260,14 @@ func selectFloat64AVX512Guarded(dst []float64, mask []bool, yes []float64, no []
 		return
 	}
 	selectFloat64AVX512(dst[:n:n], mask, yes, no)
+}
+
+func lowerBoundFloat64AVX512Guarded(dst []int32, a []float64, q []float64) {
+	if len(a) < 16 {
+		ref.LowerBoundFloat(dst, a, q)
+		return
+	}
+	lowerBoundFloat64AVX512(dst, a, q)
 }
 
 func eqInt32MaskAVX512Guarded(dst []bool, a []int32, b []int32) {
@@ -371,6 +387,14 @@ func selectInt32AVX512Guarded(dst []int32, mask []bool, yes []int32, no []int32)
 	selectInt32AVX512(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundInt32AVX512Guarded(dst []int32, a []int32, q []int32) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundInt32AVX512(dst, a, q)
+}
+
 func eqInt64MaskAVX512Guarded(dst []bool, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -486,6 +510,14 @@ func selectInt64AVX512Guarded(dst []int64, mask []bool, yes []int64, no []int64)
 		return
 	}
 	selectInt64AVX512(dst[:n:n], mask, yes, no)
+}
+
+func lowerBoundInt64AVX512Guarded(dst []int32, a []int64, q []int64) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundInt64AVX512(dst, a, q)
 }
 
 func eqInt8MaskAVX512Guarded(dst []bool, a []int8, b []int8) {
@@ -605,6 +637,14 @@ func selectInt8AVX512Guarded(dst []int8, mask []bool, yes []int8, no []int8) {
 	selectInt8AVX512(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundInt8AVX512Guarded(dst []int32, a []int8, q []int8) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundInt8AVX512(dst, a, q)
+}
+
 func eqInt16MaskAVX512Guarded(dst []bool, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -720,6 +760,14 @@ func selectInt16AVX512Guarded(dst []int16, mask []bool, yes []int16, no []int16)
 		return
 	}
 	selectInt16AVX512(dst[:n:n], mask, yes, no)
+}
+
+func lowerBoundInt16AVX512Guarded(dst []int32, a []int16, q []int16) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundInt16AVX512(dst, a, q)
 }
 
 func eqUint8MaskAVX512Guarded(dst []bool, a []byte, b []byte) {
@@ -839,6 +887,14 @@ func selectUint8AVX512Guarded(dst []byte, mask []bool, yes []byte, no []byte) {
 	selectUint8AVX512(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundUint8AVX512Guarded(dst []int32, a []byte, q []byte) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundUint8AVX512(dst, a, q)
+}
+
 func eqUint16MaskAVX512Guarded(dst []bool, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -954,6 +1010,14 @@ func selectUint16AVX512Guarded(dst []uint16, mask []bool, yes []uint16, no []uin
 		return
 	}
 	selectUint16AVX512(dst[:n:n], mask, yes, no)
+}
+
+func lowerBoundUint16AVX512Guarded(dst []int32, a []uint16, q []uint16) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundUint16AVX512(dst, a, q)
 }
 
 func eqUint32MaskAVX512Guarded(dst []bool, a []uint32, b []uint32) {
@@ -1073,6 +1137,14 @@ func selectUint32AVX512Guarded(dst []uint32, mask []bool, yes []uint32, no []uin
 	selectUint32AVX512(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundUint32AVX512Guarded(dst []int32, a []uint32, q []uint32) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundUint32AVX512(dst, a, q)
+}
+
 func eqUint64MaskAVX512Guarded(dst []bool, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1190,6 +1262,14 @@ func selectUint64AVX512Guarded(dst []uint64, mask []bool, yes []uint64, no []uin
 	selectUint64AVX512(dst[:n:n], mask, yes, no)
 }
 
+func lowerBoundUint64AVX512Guarded(dst []int32, a []uint64, q []uint64) {
+	if len(a) < 16 {
+		ref.LowerBoundInt(dst, a, q)
+		return
+	}
+	lowerBoundUint64AVX512(dst, a, q)
+}
+
 func maskAllAVX512Guarded(m []bool) bool {
 	if len(m) < 32 {
 		return ref.MaskAll(m)
@@ -1264,6 +1344,7 @@ func init() {
 	s.F32.GreaterEqualMask = geFloat32MaskAVX512Guarded
 	s.F32.GreaterEqualScalarMask = geScalarFloat32MaskAVX512Guarded
 	s.F32.Select = selectFloat32AVX512Guarded
+	s.F32.LowerBound = lowerBoundFloat32AVX512Guarded
 	s.F64.EqualMask = eqFloat64MaskAVX512Guarded
 	s.F64.EqualScalarMask = eqScalarFloat64MaskAVX512Guarded
 	s.F64.NotEqualMask = neFloat64MaskAVX512Guarded
@@ -1277,6 +1358,7 @@ func init() {
 	s.F64.GreaterEqualMask = geFloat64MaskAVX512Guarded
 	s.F64.GreaterEqualScalarMask = geScalarFloat64MaskAVX512Guarded
 	s.F64.Select = selectFloat64AVX512Guarded
+	s.F64.LowerBound = lowerBoundFloat64AVX512Guarded
 	s.I32.EqualMask = eqInt32MaskAVX512Guarded
 	s.I32.EqualScalarMask = eqScalarInt32MaskAVX512Guarded
 	s.I32.NotEqualMask = neInt32MaskAVX512Guarded
@@ -1290,6 +1372,7 @@ func init() {
 	s.I32.GreaterEqualMask = geInt32MaskAVX512Guarded
 	s.I32.GreaterEqualScalarMask = geScalarInt32MaskAVX512Guarded
 	s.I32.Select = selectInt32AVX512Guarded
+	s.I32.LowerBound = lowerBoundInt32AVX512Guarded
 	s.I64.EqualMask = eqInt64MaskAVX512Guarded
 	s.I64.EqualScalarMask = eqScalarInt64MaskAVX512Guarded
 	s.I64.NotEqualMask = neInt64MaskAVX512Guarded
@@ -1303,6 +1386,7 @@ func init() {
 	s.I64.GreaterEqualMask = geInt64MaskAVX512Guarded
 	s.I64.GreaterEqualScalarMask = geScalarInt64MaskAVX512Guarded
 	s.I64.Select = selectInt64AVX512Guarded
+	s.I64.LowerBound = lowerBoundInt64AVX512Guarded
 	s.I8.EqualMask = eqInt8MaskAVX512Guarded
 	s.I8.EqualScalarMask = eqScalarInt8MaskAVX512Guarded
 	s.I8.NotEqualMask = neInt8MaskAVX512Guarded
@@ -1316,6 +1400,7 @@ func init() {
 	s.I8.GreaterEqualMask = geInt8MaskAVX512Guarded
 	s.I8.GreaterEqualScalarMask = geScalarInt8MaskAVX512Guarded
 	s.I8.Select = selectInt8AVX512Guarded
+	s.I8.LowerBound = lowerBoundInt8AVX512Guarded
 	s.I16.EqualMask = eqInt16MaskAVX512Guarded
 	s.I16.EqualScalarMask = eqScalarInt16MaskAVX512Guarded
 	s.I16.NotEqualMask = neInt16MaskAVX512Guarded
@@ -1329,6 +1414,7 @@ func init() {
 	s.I16.GreaterEqualMask = geInt16MaskAVX512Guarded
 	s.I16.GreaterEqualScalarMask = geScalarInt16MaskAVX512Guarded
 	s.I16.Select = selectInt16AVX512Guarded
+	s.I16.LowerBound = lowerBoundInt16AVX512Guarded
 	s.U8.EqualMask = eqUint8MaskAVX512Guarded
 	s.U8.EqualScalarMask = eqScalarUint8MaskAVX512Guarded
 	s.U8.NotEqualMask = neUint8MaskAVX512Guarded
@@ -1342,6 +1428,7 @@ func init() {
 	s.U8.GreaterEqualMask = geUint8MaskAVX512Guarded
 	s.U8.GreaterEqualScalarMask = geScalarUint8MaskAVX512Guarded
 	s.U8.Select = selectUint8AVX512Guarded
+	s.U8.LowerBound = lowerBoundUint8AVX512Guarded
 	s.U16.EqualMask = eqUint16MaskAVX512Guarded
 	s.U16.EqualScalarMask = eqScalarUint16MaskAVX512Guarded
 	s.U16.NotEqualMask = neUint16MaskAVX512Guarded
@@ -1355,6 +1442,7 @@ func init() {
 	s.U16.GreaterEqualMask = geUint16MaskAVX512Guarded
 	s.U16.GreaterEqualScalarMask = geScalarUint16MaskAVX512Guarded
 	s.U16.Select = selectUint16AVX512Guarded
+	s.U16.LowerBound = lowerBoundUint16AVX512Guarded
 	s.U32.EqualMask = eqUint32MaskAVX512Guarded
 	s.U32.EqualScalarMask = eqScalarUint32MaskAVX512Guarded
 	s.U32.NotEqualMask = neUint32MaskAVX512Guarded
@@ -1368,6 +1456,7 @@ func init() {
 	s.U32.GreaterEqualMask = geUint32MaskAVX512Guarded
 	s.U32.GreaterEqualScalarMask = geScalarUint32MaskAVX512Guarded
 	s.U32.Select = selectUint32AVX512Guarded
+	s.U32.LowerBound = lowerBoundUint32AVX512Guarded
 	s.U64.EqualMask = eqUint64MaskAVX512Guarded
 	s.U64.EqualScalarMask = eqScalarUint64MaskAVX512Guarded
 	s.U64.NotEqualMask = neUint64MaskAVX512Guarded
@@ -1381,6 +1470,7 @@ func init() {
 	s.U64.GreaterEqualMask = geUint64MaskAVX512Guarded
 	s.U64.GreaterEqualScalarMask = geScalarUint64MaskAVX512Guarded
 	s.U64.Select = selectUint64AVX512Guarded
+	s.U64.LowerBound = lowerBoundUint64AVX512Guarded
 	s.Mask.All = maskAllAVX512Guarded
 	s.Mask.Any = maskAnyAVX512Guarded
 	s.Mask.Count = maskCountAVX512Guarded
