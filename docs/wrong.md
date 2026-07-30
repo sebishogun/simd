@@ -2210,3 +2210,53 @@ with the branch displacements re-verified, before a single kernel changes. The
 prize is real — 170 kernels, the largest addressable bucket in the repository
 and the whole reason the baseline x86-64 tier is thin — and so is the failure
 mode, which is a silently wrong branch target rather than a build error.
+
+---
+
+## 62. A streaming sum that overwrites its accumulators is wrong by one bit
+
+**Assumed.** A resumable sum needs to carry the sixteen lane accumulators
+across a chunk boundary, because element i must land in lane i%16 whatever the
+chunking. Get the lane bookkeeping right — a head to finish the partly-filled
+block, whole blocks through a kernel, a tail — and the answer must match the
+whole-slice reduction.
+
+**True, and one step short.** The lane bookkeeping was right and the answer
+still differed in the last bit. The kernel wrote its partial sums into `dst`
+rather than adding to them, so the streaming form computed
+
+	(chunk1 lane j) + (chunk2 lane j)
+
+where the whole-slice reduction computes one running sum per lane. That is
+`(a+b)+(c+d)` against `((a+b)+c)+d`, floating-point addition is not
+associative, and the difference is exactly the thing the API promises does not
+happen: an answer that depends on where the chunks fell.
+
+The fix is one line — seed the accumulator from `dst` instead of from zero —
+and it has to be in the kernel *and* the reference, or the differential catches
+it instead of the caller.
+
+**What caught it is the part worth keeping.** Every uniform chunking passed:
+1, 2, 3, 5, 7, 8, 15, 16, 17, 31, 32, 63, 100, 4096. So did every size of
+input. The failure needed *ragged* chunks — sizes drawn from 1 to 40, none a
+multiple of sixteen, so that the per-chunk partials landed on lanes in a
+pattern that never repeated. One test, and without it this ships.
+
+And it had to be a **bit-equality** test. The discrepancy was one ULP on a
+sum of five thousand terms. Any tolerance anyone would write passes it, and the
+library would have had a streaming API whose result changed with the reader's
+buffer size — silently, and only for some inputs.
+
+**Two smaller things on the way**, both from the generated guard rather than
+the arithmetic:
+
+The guard clamped the input to the output. `dst` here is a fixed sixteen-lane
+window, not an array parallel to `a`, and the emitter's default is
+`n := min(len(dst), len(a))` — so a 4096-element chunk summed its first
+sixteen elements. Declaring two lengths in `CArgs` turns the clamping off; the
+mechanism already existed for `Diff`, whose output is one element shorter than
+its input.
+
+And a local `[16]T` handed to a kernel through a function pointer escapes, so
+`Add` allocated once per call. Accumulating straight into the struct's array
+removes both the allocation and the extra add.

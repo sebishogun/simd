@@ -603,6 +603,20 @@ func minMaxK(op, field, refFunc string, e elem) spec.Kernel {
 }
 
 // Reduce is everything in csrc/reduce.c.
+// sumLanesK writes the SumLanes partial accumulators rather than combining
+// them, which is what a resumable sum needs to carry across a chunk boundary.
+// n must be a multiple of SumLanes; the caller handles head and tail.
+func sumLanesK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_sum_lanes_" + e.c, GoName: "sumLanes" + e.goName,
+		Group: e.group, Field: "SumLanes", RefFunc: "SumLanesFloat",
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
+		CArgs: []spec.CArg{base("dst"), base("a"), lenOf("a"),
+			lenOf("dst")},
+		Threshold: thReduction,
+	}
+}
+
 func Reduce() []spec.Kernel {
 	var ks []spec.Kernel
 	for _, e := range elems {
@@ -621,6 +635,7 @@ func Reduce() []spec.Kernel {
 			reduce2("dot", "Dot", "DotFloat", e),
 			reduce1("l1norm", "L1Norm", "L1NormFloat", e),
 			reduce2("l1diff", "L1Diff", "L1DiffFloat", e),
+			sumLanesK(e),
 		)
 	}
 	// Integer sums and products need no lane discipline, because integer

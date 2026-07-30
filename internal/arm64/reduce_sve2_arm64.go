@@ -208,6 +208,9 @@ func l1normFloat32SVE2(a []float32) float32
 func l1diffFloat32SVE2(a []float32, b []float32) float32
 
 //go:noescape
+func sumLanesFloat32SVE2(dst []float32, a []float32)
+
+//go:noescape
 func sumFloat64SVE2(a []float64) float64
 
 //go:noescape
@@ -218,6 +221,9 @@ func l1normFloat64SVE2(a []float64) float64
 
 //go:noescape
 func l1diffFloat64SVE2(a []float64, b []float64) float64
+
+//go:noescape
+func sumLanesFloat64SVE2(dst []float64, a []float64)
 
 //go:noescape
 func sumInt32SVE2(a []int32) int32

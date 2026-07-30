@@ -94,10 +94,16 @@ func sumFloat32VX(a []float32) float32
 func l1normFloat32VX(a []float32) float32
 
 //go:noescape
+func sumLanesFloat32VX(dst []float32, a []float32)
+
+//go:noescape
 func sumFloat64VX(a []float64) float64
 
 //go:noescape
 func l1normFloat64VX(a []float64) float64
+
+//go:noescape
+func sumLanesFloat64VX(dst []float64, a []float64)
 
 //go:noescape
 func sumInt32VX(a []int32) int32

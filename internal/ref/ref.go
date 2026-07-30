@@ -1027,6 +1027,7 @@ func floatOps[T float]() kernel.Ops[T] {
 		SumSquares: sumSquaresFloat[T], L1Norm: l1NormFloat[T], Norm: normFloat[T],
 		Dot:      dotFloat[T],
 		SumSqDev: sumSqDevFloat[T], SumSqDiff: sumSqDiffFloat[T], L1Diff: l1DiffFloat[T],
+		SumLanes: sumLanesFloat[T],
 		ShiftDiv: shiftDiv[T], LayerNorm: layerNorm[T],
 		ArgMin: argMinFloat[T], ArgMax: argMaxFloat[T], MinMax: minMaxFloat[T],
 	}
@@ -1335,3 +1336,27 @@ func ShiftDiv[T float](dst, a []T, shift, denom T) { shiftDiv(dst, a, shift, den
 func LayerNorm[T float](dst, a, gamma, beta []T, shift, denom T) {
 	layerNorm(dst, a, gamma, beta, shift, denom)
 }
+
+// sumLanesFloat is the specification for the streaming partial sum: the same
+// lane assignment sumFloat uses, without the final CombineTree, and
+// ACCUMULATING INTO dst rather than overwriting it.
+//
+// Seeded from dst and not from zero, for the reason the kernel gives at
+// length: overwriting makes a chunked sum group its terms per chunk, float
+// addition is not associative, and the answer would then depend on where the
+// chunks fell.
+func sumLanesFloat[T float](dst, a []T) {
+	if len(dst) < kernel.SumLanes {
+		return
+	}
+	acc := [kernel.SumLanes]T(dst[:kernel.SumLanes])
+	for i := 0; i+kernel.SumLanes <= len(a); i += kernel.SumLanes {
+		blk := a[i : i+kernel.SumLanes : i+kernel.SumLanes]
+		for j := range kernel.SumLanes {
+			acc[j] += blk[j]
+		}
+	}
+	copy(dst[:kernel.SumLanes], acc[:])
+}
+
+func SumLanesFloat[T float](dst, a []T) { sumLanesFloat(dst, a) }

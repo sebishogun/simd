@@ -386,3 +386,43 @@ DIFF(unsigned char, u8)
 DIFF(unsigned short, u16)
 DIFF(unsigned int, u32)
 DIFF(unsigned long long, u64)
+
+// ---------- streaming ----------
+//
+// simd_sum_lanes ACCUMULATES INTO the SUM_LANES partial accumulators instead
+// of combining them, which is what a resumable sum needs.
+//
+// Every other reduction here folds the lanes with CombineTree and returns one
+// value. That is right for a whole-slice call and useless for a streaming one:
+// a caller folding over chunks has to carry the lanes across the boundary, or
+// the answer depends on where the chunks happened to fall. Element i must land
+// in lane i%SUM_LANES whatever the chunking, and only the uncombined
+// accumulators preserve that.
+//
+// n is required to be a multiple of SUM_LANES. The caller handles the head and
+// tail, because they are the part where the lane index does not start at zero
+// and the arithmetic has to be done in the same order the whole-slice kernel
+// would have used.
+// It takes both lengths, which is what stops the generated guard clamping the
+// input to the output: dst is a fixed SUM_LANES-element window, not an array
+// parallel to a, and clamping them together silently summed only the first
+// sixteen elements. See the note on countLens in the emitter, and Diff, which
+// takes two lengths for the same reason.
+#define SUM_LANES_KERNEL(T, V, SUF)                                       \
+  void simd_sum_lanes_##SUF(T *__restrict out, const T *__restrict a,     \
+                            isize n, isize ndst) {                        \
+    if (ndst < SUM_LANES) return;                                         \
+    /* Seeded from out, not from zero. Overwriting would make a chunked    \
+       sum group its terms per chunk — (a+b)+(c+d) where the whole-slice   \
+       reduction does ((a+b)+c)+d — and float addition is not associative, \
+       so the answer would depend on where the chunks fell. That is the    \
+       one thing the streaming API promises it does not do, and it cost a  \
+       one-ULP failure on ragged chunks to notice. */                      \
+    V acc = *(const V *)out;                                              \
+    for (isize i = 0; i + SUM_LANES <= n; i += SUM_LANES)                 \
+      acc += *(const V *)(a + i);                                         \
+    *(V *)out = acc;                                                      \
+  }
+
+SUM_LANES_KERNEL(float, f32xL, f32)
+SUM_LANES_KERNEL(double, f64xL, f64)

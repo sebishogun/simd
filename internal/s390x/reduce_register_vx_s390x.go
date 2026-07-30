@@ -206,6 +206,14 @@ func l1normFloat32VXGuarded(a []float32) float32 {
 	return l1normFloat32VX(a)
 }
 
+func sumLanesFloat32VXGuarded(dst []float32, a []float32) {
+	if len(a) < 0 {
+		ref.SumLanesFloat(dst, a)
+		return
+	}
+	sumLanesFloat32VX(dst, a)
+}
+
 func sumFloat64VXGuarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -218,6 +226,14 @@ func l1normFloat64VXGuarded(a []float64) float64 {
 		return ref.L1NormFloat(a)
 	}
 	return l1normFloat64VX(a)
+}
+
+func sumLanesFloat64VXGuarded(dst []float64, a []float64) {
+	if len(a) < 0 {
+		ref.SumLanesFloat(dst, a)
+		return
+	}
+	sumLanesFloat64VX(dst, a)
 }
 
 func sumInt32VXGuarded(a []int32) int32 {
@@ -484,8 +500,10 @@ func init() {
 	s.U32.SumSqDiff = sumsqdiffUint32VXGuarded
 	s.F32.Sum = sumFloat32VXGuarded
 	s.F32.L1Norm = l1normFloat32VXGuarded
+	s.F32.SumLanes = sumLanesFloat32VXGuarded
 	s.F64.Sum = sumFloat64VXGuarded
 	s.F64.L1Norm = l1normFloat64VXGuarded
+	s.F64.SumLanes = sumLanesFloat64VXGuarded
 	s.I32.Sum = sumInt32VXGuarded
 	s.I32.Prod = prodInt32VXGuarded
 	s.I32.Dot = dotInt32VXGuarded

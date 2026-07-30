@@ -292,6 +292,21 @@ type Ops[T any] struct {
 	// need one pass over memory and no scratch buffer.
 	SumSqDev func(a []T, c T) T // sum((a[i]-c)^2), for variance about a mean
 
+	// SumLanes writes the [SumLanes] partial accumulators instead of combining
+	// them, which is what a resumable sum needs.
+	//
+	// Every other reduction folds with [CombineTree] and returns one value.
+	// That is right for a whole-slice call and useless for a streaming one: a
+	// caller folding over chunks has to carry the lanes across the boundary,
+	// or the answer depends on where the chunks happened to fall. Element i
+	// must land in lane i%SumLanes whatever the chunking, and only the
+	// uncombined accumulators preserve that.
+	//
+	// dst must have room for SumLanes values. Only the whole blocks of a are
+	// consumed; the caller handles the head and tail, where the lane index
+	// does not start at zero.
+	SumLanes func(dst, a []T)
+
 	// ShiftDiv is (a[i] + shift) / denom, which is SubScalar followed by
 	// DivScalar in one pass rather than two.
 	//
