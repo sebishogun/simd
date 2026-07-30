@@ -1976,3 +1976,70 @@ the *rest* of the generated code does. Both times the argument was locally
 correct and the conclusion was wrong, and both times ten minutes with a
 benchmark that compared against the real alternative would have said so
 immediately.
+
+---
+
+## 58. internal/fastpath: measured, and rejected
+
+**Assumed.** Every generated kernel is guarded — below a per-operation element
+count the guard calls the portable scalar loop, because a Go-to-assembly call
+costs a fixed ~1.4 ns and cannot be inlined. Go 1.26's intrinsics have no call
+at all, so routing that fallback through `simd/archsimd` instead of
+`internal/ref` should win the whole band for free. The plan estimated 3.74 ns
+against 5.61 at n = 16.
+
+**True.** The package was built, made bit-identical to `ref` over an
+adversarial corpus, benchmarked against `ref`, and was **faster**:
+
+| n | `ref` | `fastpath` |
+|---|---|---|
+| 4 | 2.96 | 2.74 |
+| 8 | 5.56 | 4.98 |
+| 16 | 10.82 | 6.42 |
+| 32 | 19.42 | 9.39 |
+
+Then it was wired into the guards and A/B'd against the previous tree through
+the **public API**, which is the only path that exists in a real program:
+
+| n | before | after |
+|---|---|---|
+| 4 | 4.50 | 5.49 |
+| 8 | 5.50 | **8.04** |
+| 16 | 5.49 | 5.44 |
+| 256 | 9.05 | 9.47 |
+
+A 46% regression at n = 8, in the band the package existed to speed up.
+
+**Why the package's own benchmark was wrong.** It called
+`fastpath.AddFloat32(dst, x, y)` with a concrete `[]float32`, which the
+compiler inlines and specialises. The generated guard cannot: `ref.Add` is a
+generic wrapper around a simple loop that inlines *into* the guard, while any
+fastpath function is a real call — a length check, a block loop and a method
+expression — that does not. At n = 8 the total is about 5 ns, so one
+non-inlined call is most of it.
+
+The first version was worse still. It mirrored `ref`'s generic signatures with
+a type switch on `any(dst)`, which boxes the slice header on every call: 8.73
+ns at n = 8. Making the functions concrete and per-type recovered 0.7 ns of
+that and left the rest.
+
+**And the band does not exist anyway.** The fallback runs only below the
+threshold, which is 16 for elementwise operations. At 16 and above the
+*generated kernel* runs, and it beats archsimd there — 5.44 against 6.42 —
+because clang unrolls and schedules across iterations. So the interval where an
+archsimd fallback could help is n < 16, and that is exactly where a
+non-inlined call costs more than the vector work saves. The two windows do not
+overlap.
+
+**Rejected**, on the same footing as CRC32 and Adler32 in task #57: measured,
+lost, recorded rather than implied. The package is deleted rather than left
+unwired, because dead code rots and the knowledge belongs here.
+
+**The lesson is about which benchmark to believe**, and it is the third time in
+this file. Entry 55: counted memory passes, did not ask what the accumulator
+did. Entry 57: reasoned about call overhead, did not ask what the rest of the
+generated code did. Here: benchmarked the component in isolation, did not ask
+what the *call site* looks like. Each time the local argument was correct and
+the conclusion was wrong, and each time the fix was to measure the thing a
+caller actually runs — which for a library means through the exported function,
+against the tree as it was before.
