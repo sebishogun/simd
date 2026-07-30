@@ -211,6 +211,21 @@ type Ops[T any] struct {
 	// len(a) worth of useful output.
 	CumSum, CumProd, CumMin, CumMax, Diff func(dst, a []T)
 
+	// Sorted sets. Both inputs must be sorted and free of duplicates, which is
+	// the caller's contract and is not checked: verifying it would cost a pass
+	// over both slices, which is what the operation itself costs.
+	//
+	// Both return the number of elements written. Intersect writes at most
+	// min(len(a), len(b)) and Difference at most len(a); the destination's
+	// length is not passed to the kernel, because six C arguments is the SysV
+	// amd64 register limit and these already use all six. The public wrapper
+	// checks it.
+	//
+	// Only the four full-width integer types. A sorted set of int8 has at most
+	// 256 members, and the tile's quadratic comparison count is only worth it
+	// when the sets are long enough that block skipping retires most of them.
+	Intersect, Difference func(dst, a, b []T) int
+
 	// Sliding window. dst[i] is the extreme of a[i : i+window], so there are
 	// len(a)-window+1 outputs — a third length, neither len(dst) nor len(a),
 	// which is why the kernel declares two and the guard clamps neither.

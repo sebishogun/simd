@@ -155,3 +155,56 @@ func itoa(n int) string {
 	}
 	return string(d[i:])
 }
+
+// The set operations against the two-cursor merge they replace.
+//
+// Selectivity is the axis that matters. Block skipping retires a whole block of
+// eight per tile when the sets are sparse relative to each other, and neither
+// side when they interleave densely, so a single-density benchmark misreports
+// this in either direction — the same reason CompressInto is benchmarked across
+// match densities rather than at one.
+func BenchmarkIntersect(b *testing.B) {
+	const n = 1 << 18
+	r := rand.New(rand.NewPCG(9, 10))
+	a := make([]int32, n)
+	for i := range a {
+		a[i] = int32(i) * 2 // sorted, distinct, no duplicates
+	}
+
+	for _, share := range []int{1, 10, 50, 100} {
+		other := make([]int32, n)
+		for i := range other {
+			if r.IntN(100) < share {
+				other[i] = a[i] // a match
+			} else {
+				other[i] = a[i] + 1 // a miss, still sorted and distinct
+			}
+		}
+		dst := make([]int32, n)
+
+		b.Run("merge/"+itoa(share)+"pct", func(b *testing.B) {
+			for b.Loop() {
+				k := 0
+				for i, j := 0, 0; i < len(a) && j < len(other); {
+					switch {
+					case a[i] < other[j]:
+						i++
+					case other[j] < a[i]:
+						j++
+					default:
+						dst[k] = a[i]
+						k++
+						i++
+						j++
+					}
+				}
+				_ = k
+			}
+		})
+		b.Run("simd/"+itoa(share)+"pct", func(b *testing.B) {
+			for b.Loop() {
+				_ = simd.IntersectInto(dst, a, other)
+			}
+		})
+	}
+}

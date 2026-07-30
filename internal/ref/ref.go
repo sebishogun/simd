@@ -1350,6 +1350,9 @@ func CumMaxFloat[T Float](dst, a []T) { cumMaxFloat(dst, a) }
 func CumMinInt[T Integer](dst, a []T) { cumMinInt(dst, a) }
 func CumMaxInt[T Integer](dst, a []T) { cumMaxInt(dst, a) }
 
+func IntersectInt[T Integer](dst, a, b []T) int  { return intersectSorted(dst, a, b) }
+func DifferenceInt[T Integer](dst, a, b []T) int { return differenceSorted(dst, a, b) }
+
 func RollingMinFloat[T Float](dst, a []T, window int) { rollingMinFloat(dst, a, window) }
 func RollingMaxFloat[T Float](dst, a []T, window int) { rollingMaxFloat(dst, a, window) }
 func RollingMinInt[T Integer](dst, a []T, window int) { rollingMinInt(dst, a, window) }

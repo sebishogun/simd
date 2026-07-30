@@ -25,9 +25,11 @@
 package conformance
 
 import (
+	"cmp"
 	"fmt"
 	"math"
 	"math/rand/v2"
+	"slices"
 	"testing"
 	"unsafe"
 
@@ -246,6 +248,95 @@ func checkUnary[T comparable](t *testing.T, tier, op string,
 	}
 }
 
+// checkSet compares a sorted-set operation.
+//
+// Two things about the inputs are load-bearing, and getting either wrong makes
+// this test pass while checking nothing.
+//
+// They have to overlap. Two independently generated sets of int32 essentially
+// never intersect, so a first version of this compared two empty answers on
+// every iteration and would have accepted any implementation at all. Here b is
+// built from a — every third element, plus fresh values to give a elements that
+// b lacks — so both the match and the no-match path run on every case.
+//
+// They have to be long enough to reach the kernel. The dispatch threshold for
+// these is 64 elements, so lengths stop at maxLen would test the portable
+// reference against itself. The lengths below run to several tiles past it.
+//
+// The destination is allocated to the full length the public wrapper requires,
+// because the kernel is at its ABI's six-argument limit and is not told the
+// destination's length; a short one would be testing an overrun.
+func checkSet[T comparable](t *testing.T, tier, op string,
+	got, want func(dst, a, b []T) int, gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(19, 20))
+	for _, n := range []int{0, 1, 7, 8, 9, 63, 64, 65, 71, 128, 129, 500} {
+		a := sortedDistinct(gen(n, r))
+		// Every third element of a, so a keeps elements b does not have, plus
+		// as many fresh values so b keeps elements a does not have. Both are
+		// needed: intersection differs from difference only on those.
+		for _, extra := range []int{0, 1, n / 2, n} {
+			b := make([]T, 0, len(a)/3+extra)
+			for i := 0; i < len(a); i += 3 {
+				b = append(b, a[i])
+			}
+			b = sortedDistinct(append(b, gen(extra, r)...))
+
+			g, w := make([]T, len(a)), make([]T, len(a))
+			gn, wn := got(g, a, b), want(w, a, b)
+			if gn != wn {
+				t.Fatalf("%s/%s na=%d nb=%d: wrote %d, want %d",
+					tier, op, len(a), len(b), gn, wn)
+			}
+			if i, ok := same(g[:gn], w[:wn]); !ok {
+				t.Fatalf("%s/%s na=%d nb=%d i=%d: got %v want %v",
+					tier, op, len(a), len(b), i, g[i], w[i])
+			}
+		}
+	}
+}
+
+// sortedDistinct sorts in place and drops duplicates, which is the input
+// contract the set operations are allowed to assume.
+//
+// The ordering goes through a type switch because checkOps is generic over
+// `comparable`, which has no <. That is the right constraint for the rest of
+// the suite — same() compares for equality and nothing else needs an order —
+// so the switch lives here rather than being pushed up into every caller.
+func sortedDistinct[T comparable](a []T) []T {
+	slices.SortFunc(a, compareElem[T])
+	return slices.Compact(a)
+}
+
+func compareElem[T comparable](x, y T) int {
+	switch xv := any(x).(type) {
+	case int8:
+		return cmp.Compare(xv, any(y).(int8))
+	case int16:
+		return cmp.Compare(xv, any(y).(int16))
+	case int32:
+		return cmp.Compare(xv, any(y).(int32))
+	case int64:
+		return cmp.Compare(xv, any(y).(int64))
+	case uint8:
+		return cmp.Compare(xv, any(y).(uint8))
+	case uint16:
+		return cmp.Compare(xv, any(y).(uint16))
+	case uint32:
+		return cmp.Compare(xv, any(y).(uint32))
+	case uint64:
+		return cmp.Compare(xv, any(y).(uint64))
+	case float32:
+		return cmp.Compare(xv, any(y).(float32))
+	case float64:
+		return cmp.Compare(xv, any(y).(float64))
+	}
+	return 0
+}
+
 // checkRolling compares a sliding-window operation across window sizes.
 //
 // The output length is len(a)-window+1, which is neither of the two lengths
@@ -459,6 +550,9 @@ func checkOps[T comparable](t *testing.T, tier, typeName string,
 
 	checkRolling(t, tier, p("RollingMin"), got.RollingMin, want.RollingMin, gen)
 	checkRolling(t, tier, p("RollingMax"), got.RollingMax, want.RollingMax, gen)
+
+	checkSet(t, tier, p("Intersect"), got.Intersect, want.Intersect, gen)
+	checkSet(t, tier, p("Difference"), got.Difference, want.Difference, gen)
 
 	// The Fast scans belong here for exactly the reason their name might
 	// suggest they do not. What Fast relaxes is agreement with a naive serial

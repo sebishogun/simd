@@ -2126,9 +2126,49 @@ func Compress() []spec.Kernel {
 	return ks
 }
 
+// Sets is the sorted-set family: intersection and difference.
+//
+// Six C arguments exactly, which is the SysV amd64 integer-register limit, so
+// there is no room for the destination's length. The Go wrapper checks it
+// instead: an intersection is at most min(len(a), len(b)) long and a difference
+// at most len(a), both knowable before the call, so the check costs nothing and
+// the kernel never has to reconcile a third length.
+//
+// Union is absent. It emits everything rather than a subset, which makes it a
+// merge rather than a mask-and-compact, and merging two sorted vectors needs
+// the bitonic network csrc/sort.c already declines to build.
+func Sets() []spec.Kernel {
+	setK := func(op, field string, e elem) spec.Kernel {
+		return spec.Kernel{
+			CName:  "simd_" + op + "_" + e.c,
+			GoName: op + e.goName,
+			Group:  e.group, Field: field, RefFunc: e.ref(field),
+			Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+				sl("b", e.slice)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("dst"), base("a"), lenOf("a"),
+				base("b"), lenOf("b")},
+			// Two lengths already, and neither is dst's: the guard must not
+			// clamp anything here.
+			Threshold: thScan,
+		}
+	}
+	var ks []spec.Kernel
+	for _, e := range elems {
+		switch e.group {
+		case "I32", "I64", "U32", "U64":
+			ks = append(ks,
+				setK("intersect", "Intersect", e),
+				setK("difference", "Difference", e))
+		}
+	}
+	return ks
+}
+
 // All is every source file the generator processes.
 var All = []Source{
 	{Path: "csrc/compress.c", Kernels: Compress()},
+	{Path: "csrc/sets.c", Kernels: Sets()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},
 	{Path: "csrc/sort.c", Kernels: Sort()},

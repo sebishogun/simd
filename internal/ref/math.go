@@ -256,6 +256,49 @@ func rollingMaxInt[T integer](dst, a []T, window int) {
 	}
 }
 
+// intersectSorted and differenceSorted are the two-cursor merge, which is the
+// specification the blocked kernel is checked against.
+//
+// Both assume a and b are sorted and duplicate-free. That is the caller's
+// contract rather than something checked here: verifying it costs a pass over
+// both slices, which is what the operation itself costs.
+func intersectSorted[T number](dst, a, b []T) int {
+	k := 0
+	for i, j := 0, 0; i < len(a) && j < len(b) && k < len(dst); {
+		switch {
+		case a[i] < b[j]:
+			i++
+		case b[j] < a[i]:
+			j++
+		default:
+			dst[k] = a[i]
+			k++
+			i++
+			j++
+		}
+	}
+	return k
+}
+
+func differenceSorted[T number](dst, a, b []T) int {
+	k := 0
+	i, j := 0, 0
+	for i < len(a) && k < len(dst) {
+		for j < len(b) && b[j] < a[i] {
+			j++
+		}
+		if j < len(b) && b[j] == a[i] {
+			i++
+			j++
+			continue
+		}
+		dst[k] = a[i]
+		k++
+		i++
+	}
+	return k
+}
+
 // rollingWindows iterates the valid output positions, yielding each index and a
 // one-element view of dst to write through.
 //
@@ -412,6 +455,8 @@ func intMathOps[T integer](o *kernel.Ops[T]) {
 	o.CumMax = cumMaxInt[T]
 	o.RollingMin = rollingMinInt[T]
 	o.RollingMax = rollingMaxInt[T]
+	o.Intersect = intersectSorted[T]
+	o.Difference = differenceSorted[T]
 	o.Diff = diff[T]
 	o.Prod = prod[T]
 }
