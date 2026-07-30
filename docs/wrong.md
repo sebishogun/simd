@@ -1914,3 +1914,65 @@ run on. Only a cross-architecture *comparison of results*, or a test with an
 independently-derived expected value, sees it. Every emulated lane in this
 repository is currently the former kind of check. That is worth knowing about
 the verification, not just about this bug.
+
+---
+
+## 57. The vector type is slower than the slice API it was meant to beat
+
+**Assumed.** The one place this library loses is small inputs: below the
+dispatch threshold a call into assembly costs about 1.4 ns and cannot be
+inlined, so a plain Go loop wins. Go 1.26's `simd/archsimd` compiles to the
+instruction with *no call at all*, so a vector type built on it should win that
+band outright — and, being inline, should be at least competitive everywhere
+else.
+
+**True.** It wins one point of one curve. float32 addition, ns per call:
+
+| n | plain Go | slice API | `MapFloat32x8` |
+|---|---|---|---|
+| 4 | **3.07** | 4.82 | 4.95 |
+| 8 | 5.48 | 5.57 | **4.11** |
+| 16 | 11.07 | **5.89** | 6.15 |
+| 32 | 19.41 | **6.13** | 8.89 |
+| 64 | 33.44 | **6.11** | 15.73 |
+| 256 | 162.9 | **9.22** | 54.99 |
+
+At n = 8 it is 1.3× the slice API. By n = 256 it is **six times slower**, and
+the slice API has been winning since n = 16.
+
+**Why**, separated by measurement rather than guessed:
+
+| n = 256 | ns |
+|---|---|
+| `MapFloat32x8` (closure, 8 wide) | 55.0 |
+| hand-written, no closure, 8 wide | 31.7 |
+| hand-written, no closure, 16 wide | 26.4 |
+| this library's generated kernel | 9.2 |
+
+The closure is the larger cost — 23 of the 55 ns. **Go does not inline through
+a function-value parameter**, so every block pays a call, which is precisely
+the overhead the vector type was supposed to remove. Widening the block from 8
+to 16 lanes buys another 5 ns.
+
+And the residue is the interesting part: even the best hand-written `archsimd`
+loop, no closure and full width, is **2.9× slower than the generated kernel**.
+Intrinsics are not automatically as good as a compiled kernel. Clang unrolls,
+schedules across iterations and hoists the bounds checks; a Go loop over
+`archsimd` does one block per iteration with a slice expression each time.
+
+**What this changes.** Nothing about the code — the helpers are correct and
+they stay — but everything about what they claim. The doc comment now leads
+with the table and says the niche exactly: *an expression the catalogue does
+not have*, at any size, or *eight to sixteen elements*. For anything the
+catalogue has, the slice API is faster and shorter. A doc comment claiming the
+closure "is inlined by the compiler when it is a simple expression" was written
+before the measurement and was simply wrong; it now says the opposite, with the
+number.
+
+**The lesson is the same one as entry 55, arriving from the other direction.**
+There the mistake was counting memory passes and not asking what the
+accumulator did. Here it was reasoning about call overhead and not asking what
+the *rest* of the generated code does. Both times the argument was locally
+correct and the conclusion was wrong, and both times ten minutes with a
+benchmark that compared against the real alternative would have said so
+immediately.

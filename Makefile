@@ -38,7 +38,7 @@ targets: ## One line per target, for grep and for scripts
 # ---------------------------------------------------------------- correctness
 
 .PHONY: verify
-verify: fmt-check vet test test-purego test-tiers ## fmt-check, vet, test, test-purego, test-tiers
+verify: fmt-check vet test test-purego test-vec test-tiers ## fmt-check, vet, test, test-purego, test-vec, test-tiers
 	@echo "OK"
 
 .PHONY: test
@@ -49,6 +49,21 @@ test: ## Run the test suite on the host
 .PHONY: test-purego
 test-purego: ## Run the suite against the portable reference (-tags purego)
 	$(GO) test -tags purego $(PKG)
+
+# The vector type in vec.go is behind GOEXPERIMENT=simd, so the default build
+# never compiles it. A build tag nothing exercises is the vacuously-green lane
+# docs/wrong.md entry 41 is about: it looks covered and is not.
+#
+# simd/archsimd is amd64-only in Go 1.26, so everywhere else this compiles
+# vec_stub.go instead — which is still worth running, because the stub is what
+# five of the six architectures get and it has to keep building.
+.PHONY: test-vec
+test-vec: ## Run the suite with GOEXPERIMENT=simd, which compiles vec.go
+	@if GOEXPERIMENT=simd $(GO) list ./... >/dev/null 2>&1; then \
+		GOEXPERIMENT=simd $(GO) test $(PKG); \
+	else \
+		echo "  skipping: this toolchain has no simd experiment"; \
+	fi
 
 # Run the whole suite once per instruction-set tier this CPU supports. This is
 # what catches a kernel that is correct on AVX-512 and wrong on SSE2.
