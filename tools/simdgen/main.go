@@ -174,6 +174,18 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 			}
 		}
 	}
+	// The inventory is a property of the manifest rather than of any target,
+	// so it is written once, after every target has had its chance to fail.
+	// It is what lets the main module assert that a declared kernel is wired
+	// into both the dispatch table and the reference set; see emit.Inventory.
+	if !dryRun {
+		inv := emit.Inventory(allKernels(), emit.Provenance{Command: "go run ./tools/simdgen"})
+		path := filepath.Join(outDir, "backend", "inventory.go")
+		if err := os.WriteFile(path, []byte(inv), 0o644); err != nil {
+			return err
+		}
+	}
+
 	if len(failures) > 0 {
 		var b strings.Builder
 		fmt.Fprintf(&b, "%d target(s) failed:\n", len(failures))
@@ -353,3 +365,15 @@ func selectTargets(archFlag, tierFlag string) []target.Target {
 // tierSuffix turns a tier name into a Go identifier suffix: sse2 becomes SSE2,
 // sve2 becomes SVE2, avx512 becomes AVX512.
 func tierSuffix(tier string) string { return strings.ToUpper(tier) }
+
+// allKernels flattens the manifest. It reads `sources` rather than
+// kernels.All so that a -source filter narrows the inventory the same way it
+// narrows the build, which keeps a partial regeneration from silently
+// dropping declarations.
+func allKernels() []spec.Kernel {
+	var out []spec.Kernel
+	for _, src := range sources {
+		out = append(out, src.Kernels...)
+	}
+	return out
+}
