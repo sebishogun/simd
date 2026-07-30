@@ -27,6 +27,14 @@ to initialize, no build tag, and nothing that allocates. It compiles and runs
 correctly on any machine Go supports, and goes fast on the ones with a vector
 unit.
 
+**New here?** [`docs/tutorial.md`](docs/tutorial.md) is the one to read. This
+library cannot vectorize your program — it can only vectorize the loops you
+hand it — and how you shape your data decides whether there is anything to
+hand over. The tutorial covers struct-of-arrays, buffer reuse, fusing instead
+of chaining, and the operations that will never vectorize no matter what you
+do. Every snippet in it compiles, and the worked example is a program you can
+run.
+
 ## Scope
 
 **What this is for** — the loops that dominate numeric and parsing code, where
