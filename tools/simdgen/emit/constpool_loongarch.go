@@ -130,6 +130,11 @@ func canLiftLoong64(fn *objfile.Func) (bool, string) {
 		if isSelfRelative(r.TypeName) {
 			continue
 		}
+		// A branch relocation reaches here rather than being skipped above,
+		// because on LoongArch the displacement is not in the instruction yet
+		// — see isSelfRelative. It falls into the len(r.Target) == 0 case
+		// below and is reported as ".L0, which is not a constant pool", which
+		// names the symbol accurately even if the phrasing is about pools.
 		if len(r.Target) == 0 {
 			return false, "references " + r.Sym + ", which is not a constant pool"
 		}

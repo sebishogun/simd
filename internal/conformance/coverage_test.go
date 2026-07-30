@@ -76,12 +76,11 @@ func TestGeneratedKernelCoverage(t *testing.T) {
 				{"U16", got.U16, want.U16},
 				{"U32", got.U32, want.U32},
 				{"U64", got.U64, want.U64},
-				{"I8", got.I8, want.I8},
-				{"I16", got.I16, want.I16},
-				{"U8", got.U8, want.U8},
-				{"U16", got.U16, want.U16},
-				{"U32", got.U32, want.U32},
-				{"U64", got.U64, want.U64},
+				// I8, I16, U8, U16, U32 and U64 were listed twice here. It
+				// changed no verdict — the same comparison ran twice and the
+				// total was inflated by the six duplicates — but a coverage
+				// report that double-counts is the wrong thing to read a
+				// coverage number off.
 				{"Bytes", got.Bytes, want.Bytes},
 				{"Mask", got.Mask, want.Mask},
 				{"C64", got.C64, want.C64},

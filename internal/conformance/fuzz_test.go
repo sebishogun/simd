@@ -125,8 +125,11 @@ func fuzzOps[T comparable](t *testing.T, tier, name string,
 		{"Abs", got.Abs, want.Abs},
 		{"Neg", got.Neg, want.Neg},
 		{"CumSum", got.CumSum, want.CumSum},
+		{"CumProd", got.CumProd, want.CumProd},
 		{"CumMin", got.CumMin, want.CumMin},
 		{"CumMax", got.CumMax, want.CumMax},
+		{"FastCumSum", got.FastCumSum, want.FastCumSum},
+		{"FastCumProd", got.FastCumProd, want.FastCumProd},
 	}
 	for _, c := range unary {
 		if c.got == nil || c.want == nil {

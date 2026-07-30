@@ -1284,3 +1284,133 @@ evidence about the second, not a problem to route around. Three things have
 now been faster without a kernel — the histogram private tables, the checksum
 family, and this — and each was found by measuring rather than by assuming the
 vector unit was the point.
+
+## 44. Fast* means less accurate
+
+**Wrong** for the scans, and the assumption was mine, carried over from the
+transcendentals where it is true — `FastExp` really does trade 1.0 ULP for 3.5.
+
+Task 68 proposed relaxing the promise that a prefix scan matches a naive
+serial loop, on the reasoning that the promise is what blocks the vectorized
+form. That reasoning is right. What it left implicit is that relaxing it costs
+accuracy, and measured against a long-double scan of a million values, it does
+the opposite:
+
+```
+corpus              serial mean|err|   blocked mean|err|   closer to truth
+all ones            0                  0                   tie
+mixed sign          4.088e-10          4.034e-10           blocked
+uniform positive    2.436e-09          1.891e-09           blocked, 680k/1M
+1e16 then ones      5.000e+05          1.000e+00           blocked, 999998/1M
+```
+
+The last row is the mechanism in one line. A running accumulator at 1e16
+cannot represent a `+1` increment at all — the spacing of doubles there is 2 —
+so every one of a million increments is lost. The blocked scan sums sixteen
+small values among themselves before merging the large carry once, so they
+survive. Blocked summation has O(log n) error growth against a serial
+accumulator's O(n); this is textbook and it was simply not applied to the
+question.
+
+So the honest statement of what `FastCumSum` trades is **agreement, not
+accuracy**. It does not match the loop a caller would write; it is closer to
+the answer that loop was approximating. Both halves belong in the doc comment,
+because a caller told only the first half will reasonably assume the second.
+
+**Fix**: the doc comment states it and a test asserts it — `moreAccurateThanSerial`
+fails if the total error ever stops being lower, which also catches the scan
+silently degrading into the serial loop.
+
+## 45. The integer scans would benefit too
+
+**Wrong**, and this is the same measurement cutting the other way.
+
+Two's-complement addition and multiplication are associative, so the log-shift
+scan is *exactly* the serial loop for integers — no Fast prefix needed, no
+contract touched. That looked like the free half of the task. Measured against
+the Go loop actually shipped, at four million elements:
+
+```
+int32 product   2509 us -> 1230 us   2.04x   shipped
+int64 product   2596 us -> 3884 us   0.67x   not shipped
+int32 sum        980 us -> 1082 us   0.91x   not shipped
+int64 sum       1441 us -> 2165 us   0.67x   not shipped
+```
+
+Three of the four lose. The rule that explains all of them, and the float min
+and max scans this file already recorded as 46% slower, is not associativity —
+every one of these has it — but **the latency of the serial combine**. A scan
+replaces n dependent combines with log2(L) per block of L, so it wins only
+where the serial chain is latency-bound. Integer addition has one-cycle
+latency: the serial loop already issues an element per cycle, there is no
+stall to fill, and the scan's shuffle chain plus the lane extract that carries
+the running value between blocks is pure added cost. int64 product loses for a
+different reason — there is no 64-bit vector multiply below AVX-512DQ, so the
+"vector" form is emulated.
+
+Only int32 product wins, because a 32-bit multiply has three-cycle latency and
+a real vector instruction.
+
+**Fix**: ship the one that wins. The general lesson is that "this operation is
+associative" answers whether a scan is *correct* and says nothing about
+whether it is *faster*, and the second question has to be asked per operation
+and per type — four types of one operation gave three different answers here.
+
+## 46. LoongArch branches are already resolved, like RISC-V's
+
+**Wrong**, and this one shipped an infinite loop into 23 kernels before a test
+lane hung on it.
+
+The generator refused 23 loong64 kernels with "references .L0, which is not a
+constant pool". `.L0` turned out to be a local branch label in `.text`, reached
+by `R_LARCH_B16` and `R_LARCH_B26` relocations, not a pool at all — and RISC-V
+and AArch64 branches were already on the self-relative list two lines above:
+
+```go
+case "R_RISCV_BRANCH", "R_RISCV_JAL", ...:
+case "R_AARCH64_JUMP26", "R_AARCH64_CONDBR19", ...:
+```
+
+so adding the LoongArch spellings looked like completing an obvious omission.
+It recovered 23 kernels and every check stayed green.
+
+Then the emulated lane, which had finished in minutes an hour earlier, sat at
+42 minutes of CPU on one package. Bisecting the tests found exactly one
+hanging — `TestAppendUTF16`, whose only accelerated loong64 dependency was
+`simd_widen_u8_u16`, one of the 23. Disassembling it says the rest:
+
+```
+73fc: blez $a2, 0 <simd_widen_u8_u16>
+7404: bgeu $a2, $a3, 12 <simd_widen_u8_u16+0x14>
+740c: b    0 <simd_widen_u8_u16+0x10>       <- displacement 0: branches to itself
+```
+
+On RISC-V and AArch64 the assembler resolves an internal branch and leaves the
+relocation for the linker's relaxation pass, so the displacement in the
+instruction is already right and copying the bytes is safe. **On LoongArch it
+does not.** clang emits the branch with a displacement of zero and expects the
+linker to supply it. Copied verbatim, `b 0` is a branch to itself.
+
+The premise was "these relocations mean the same thing on every target because
+they have the same shape". They do not. A relocation type says what the linker
+should compute; it says nothing about whether the assembler already did.
+
+**Fix**: reverted. Those kernels keep the portable path and the rejection
+stands — it was never a gap to route around, it was the generator correctly
+declining to copy code it cannot relocate. `R_LARCH_ALIGN` and `R_LARCH_RELAX`
+stay skipped, because those genuinely are markers and patch nothing; they
+account for five of the 23, which is why the count settled at 659 rather than
+back at 654.
+
+Two things made this cheap instead of expensive, and both were built earlier
+the same night. The emulated lane runs the real suite rather than a smoke
+test, so an infinite loop showed up as a hang instead of as a kernel nobody
+exercised; and entry 41's argv fix is what made that lane execute the tests it
+claimed to. A verification lane that had been silently passing empty runs
+would have shipped this.
+
+**And the code was fragile independently of the bug.** `AppendUTF16` advances
+by whatever the ASCII-run scan returns, so a kernel returning zero makes no
+progress and spins. The kernel was wrong here, but a loop whose termination
+depends on a kernel returning a positive number should not be written that
+way; see the guard added with this entry.

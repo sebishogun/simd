@@ -20,6 +20,33 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func fastCumProdFloat32AVX2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumProdFloat(dst, a)
+		return
+	}
+	fastCumProdFloat32AVX2(dst[:n:n], a)
+}
+
+func fastCumSumFloat32AVX2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumSumFloat(dst, a)
+		return
+	}
+	fastCumSumFloat32AVX2(dst[:n:n], a)
+}
+
+func fastCumProdFloat64AVX2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumProdFloat(dst, a)
+		return
+	}
+	fastCumProdFloat64AVX2(dst[:n:n], a)
+}
+
 func cumMinInt32AVX2Guarded(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -36,6 +63,15 @@ func cumMaxInt32AVX2Guarded(dst []int32, a []int32) {
 		return
 	}
 	cumMaxInt32AVX2(dst[:n:n], a)
+}
+
+func cumProdInt32AVX2Guarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.CumProdInt(dst, a)
+		return
+	}
+	cumProdInt32AVX2(dst[:n:n], a)
 }
 
 func cumMinInt64AVX2Guarded(dst []int64, a []int64) {
@@ -60,8 +96,12 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("avx2")
+	s.F32.FastCumProd = fastCumProdFloat32AVX2Guarded
+	s.F32.FastCumSum = fastCumSumFloat32AVX2Guarded
+	s.F64.FastCumProd = fastCumProdFloat64AVX2Guarded
 	s.I32.CumMin = cumMinInt32AVX2Guarded
 	s.I32.CumMax = cumMaxInt32AVX2Guarded
+	s.I32.CumProd = cumProdInt32AVX2Guarded
 	s.I64.CumMin = cumMinInt64AVX2Guarded
 	s.I64.CumMax = cumMaxInt64AVX2Guarded
 }

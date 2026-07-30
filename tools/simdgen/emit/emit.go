@@ -504,9 +504,40 @@ func isSelfRelative(typeName string) bool {
 		return true
 	case "R_AARCH64_JUMP26", "R_AARCH64_CONDBR19", "R_AARCH64_TSTBR14":
 		return true
+	// NOT R_LARCH_B16, B21 or B26, and the reason is worth stating because
+	// the RISC-V and AArch64 entries above make the opposite look obvious.
+	//
+	// On those targets the assembler resolves an internal branch and the
+	// relocation is informational, left for the linker's relaxation pass. On
+	// LoongArch it does not: clang emits the branch with a displacement of
+	// ZERO and expects the linker to fill it in.
+	//
+	//	73fc: blez $a2, 0 <simd_widen_u8_u16>
+	//	740c: b    0 <simd_widen_u8_u16+0x10>      <- branches to itself
+	//
+	// Copying those bytes verbatim produces a branch to itself. Treating them
+	// as self-relative, as this function briefly did, put 23 loong64 kernels
+	// back in the build and hung the emulated lane in an infinite loop inside
+	// simd_widen_u8_u16. The "references .L0, which is not a constant pool"
+	// rejection those kernels get instead is not a gap to route around — it is
+	// this generator correctly declining to copy code it cannot relocate.
+	//
+	// Making them work needs the displacement computed and patched into the
+	// instruction, per branch format, the way the constant-pool code already
+	// patches PCALA pairs. Until then they keep the portable path.
 	case "R_RISCV_RELAX":
 		// Not a fixup: a marker telling the linker a sequence could be
 		// shortened. Nothing links this object, so it changes no bytes.
+		return true
+	case "R_LARCH_RELAX", "R_LARCH_ALIGN":
+		// The same, for LoongArch. ALIGN marks padding the linker is allowed
+		// to shrink when relaxation moves code; leaving it alone keeps exactly
+		// what the assembler emitted, which is already correct.
+		//
+		// These carry no symbol at all, so they were reported as "references
+		// , which is not a constant pool" — a message with an empty name in
+		// the middle of it, which is what a relocation that names nothing
+		// looks like when it is assumed to name something.
 		return true
 	}
 	return false

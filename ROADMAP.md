@@ -210,9 +210,16 @@ numerical contract is one you can build on, so the bar is the things that would
 otherwise force a breaking change or a correction later:
 
 1. **Every operation accelerated on amd64, arm64 and riscv64**, or documented at
-   its declaration as permanently portable with the reason. Three qualify today
-   — `EMA`, `CumSum` and `CumProd`, all serial through their own output — and
-   that list should only shrink by explanation, never by omission.
+   its declaration as permanently portable with the reason. The list is now
+   `EMA` and the float `CumSum` and `CumProd`, all serial through their own
+   output, and it should only shrink by explanation, never by omission. It has
+   shrunk twice by explanation: integer `CumProd` is accelerated and exact,
+   because two's-complement multiplication is associative and the log-shift
+   grouping is therefore not observable; and the float scans gained opt-in
+   `FastCumSum` and `FastCumProd`, which drop agreement with a naive loop
+   while keeping bit-identity across tiers. See entries 44 and 45 of
+   docs/wrong.md — including the measurement that says the integer *sums*
+   should stay portable, since a one-cycle add leaves no latency to hide.
    *Nearly there:* the riscv64 transcendental gap is closed as upstream (an
    LLVM cost-model entry for `llvm.is.fpclass`; five source spellings ruled
    out, entry 35 of docs/wrong.md) and re-opens itself when the LLVM version

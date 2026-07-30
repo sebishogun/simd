@@ -16,10 +16,22 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
 //go:noescape
+func fastCumProdFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastCumSumFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastCumProdFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
 func cumMinInt32RVV(dst []int32, a []int32)
 
 //go:noescape
 func cumMaxInt32RVV(dst []int32, a []int32)
+
+//go:noescape
+func cumProdInt32RVV(dst []int32, a []int32)
 
 //go:noescape
 func cumMinInt64RVV(dst []int64, a []int64)

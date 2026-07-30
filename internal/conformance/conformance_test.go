@@ -412,6 +412,15 @@ func checkOps[T comparable](t *testing.T, tier, typeName string,
 	checkUnary(t, tier, p("CumMin"), got.CumMin, want.CumMin, gen)
 	checkUnary(t, tier, p("CumMax"), got.CumMax, want.CumMax, gen)
 
+	// The Fast scans belong here for exactly the reason their name might
+	// suggest they do not. What Fast relaxes is agreement with a naive serial
+	// loop; agreement with the REFERENCE — which runs the same blocked
+	// grouping — is not relaxed at all, so these are bit-identity checks like
+	// every other line above. If they ever needed a tolerance, the tiers would
+	// have diverged and the promise would be gone.
+	checkUnary(t, tier, p("FastCumSum"), got.FastCumSum, want.FastCumSum, gen)
+	checkUnary(t, tier, p("FastCumProd"), got.FastCumProd, want.FastCumProd, gen)
+
 	checkReduce1(t, tier, p("Sum"), got.Sum, want.Sum, gen, false)
 	checkReduce1(t, tier, p("Prod"), got.Prod, want.Prod, gen, false)
 	checkReduce1(t, tier, p("SumSquares"), got.SumSquares, want.SumSquares, gen, false)

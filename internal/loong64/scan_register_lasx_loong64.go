@@ -20,6 +20,33 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
+func fastCumProdFloat32LASXGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumProdFloat(dst, a)
+		return
+	}
+	fastCumProdFloat32LASX(dst[:n:n], a)
+}
+
+func fastCumSumFloat32LASXGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumSumFloat(dst, a)
+		return
+	}
+	fastCumSumFloat32LASX(dst[:n:n], a)
+}
+
+func fastCumProdFloat64LASXGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumProdFloat(dst, a)
+		return
+	}
+	fastCumProdFloat64LASX(dst[:n:n], a)
+}
+
 func cumMinInt32LASXGuarded(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -36,6 +63,15 @@ func cumMaxInt32LASXGuarded(dst []int32, a []int32) {
 		return
 	}
 	cumMaxInt32LASX(dst[:n:n], a)
+}
+
+func cumProdInt32LASXGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.CumProdInt(dst, a)
+		return
+	}
+	cumProdInt32LASX(dst[:n:n], a)
 }
 
 func cumMinInt64LASXGuarded(dst []int64, a []int64) {
@@ -60,8 +96,12 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("lasx")
+	s.F32.FastCumProd = fastCumProdFloat32LASXGuarded
+	s.F32.FastCumSum = fastCumSumFloat32LASXGuarded
+	s.F64.FastCumProd = fastCumProdFloat64LASXGuarded
 	s.I32.CumMin = cumMinInt32LASXGuarded
 	s.I32.CumMax = cumMaxInt32LASXGuarded
+	s.I32.CumProd = cumProdInt32LASXGuarded
 	s.I64.CumMin = cumMinInt64LASXGuarded
 	s.I64.CumMax = cumMaxInt64LASXGuarded
 }

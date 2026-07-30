@@ -20,6 +20,33 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
+func fastCumProdFloat32NEONGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumProdFloat(dst, a)
+		return
+	}
+	fastCumProdFloat32NEON(dst[:n:n], a)
+}
+
+func fastCumSumFloat32NEONGuarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumSumFloat(dst, a)
+		return
+	}
+	fastCumSumFloat32NEON(dst[:n:n], a)
+}
+
+func fastCumProdFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.FastCumProdFloat(dst, a)
+		return
+	}
+	fastCumProdFloat64NEON(dst[:n:n], a)
+}
+
 func cumMinInt32NEONGuarded(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -36,6 +63,15 @@ func cumMaxInt32NEONGuarded(dst []int32, a []int32) {
 		return
 	}
 	cumMaxInt32NEON(dst[:n:n], a)
+}
+
+func cumProdInt32NEONGuarded(dst []int32, a []int32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.CumProdInt(dst, a)
+		return
+	}
+	cumProdInt32NEON(dst[:n:n], a)
 }
 
 func cumMinInt64NEONGuarded(dst []int64, a []int64) {
@@ -60,8 +96,12 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("neon")
+	s.F32.FastCumProd = fastCumProdFloat32NEONGuarded
+	s.F32.FastCumSum = fastCumSumFloat32NEONGuarded
+	s.F64.FastCumProd = fastCumProdFloat64NEONGuarded
 	s.I32.CumMin = cumMinInt32NEONGuarded
 	s.I32.CumMax = cumMaxInt32NEONGuarded
+	s.I32.CumProd = cumProdInt32NEONGuarded
 	s.I64.CumMin = cumMinInt64NEONGuarded
 	s.I64.CumMax = cumMaxInt64NEONGuarded
 }

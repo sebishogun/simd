@@ -13,6 +13,449 @@
 
 #include "textflag.h"
 
+// func fastCumProdFloat32VSX(dst []float32, a []float32)
+TEXT ·fastCumProdFloat32VSX(SB), NOSPLIT|NOFRAME, $0-48
+	MOVD dst_base+0(FP), R3
+	MOVD a_base+24(FP), R4
+	MOVD dst_len+8(FP), R5
+	// The constants live in simdconst_fastCumProdFloat32VSX_pool<>(SB) and are reached through
+	// R2. clang computed that from r12 and a TOC which does not
+	// exist here, so its two global-entry instructions are nops.
+	MOVD	$simdconst_fastCumProdFloat32VSX_pool<>(SB), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x2c250000
+	WORD $0x40810228
+	WORD $0x28250010
+	WORD $0x40800014
+	WORD $0x1041038c
+	WORD $0x38c00000
+	WORD $0xf00013e2
+	WORD $0x48000110
+	WORD $0x1041038c
+	WORD $0x3ce20000
+	WORD $0x2c25001f
+	WORD $0x38c0001f
+	WORD $0x38e70050
+	WORD $0x7cc5305e
+	WORD $0xf0a52cd0
+	WORD $0xf00013e2
+	WORD $0xf4270001
+	WORD $0x3ce20000
+	WORD $0x38c6fff0
+	WORD $0x38e70060
+	WORD $0x78c6e102
+	WORD $0xf4670001
+	WORD $0x3ce20000
+	WORD $0x38c60001
+	WORD $0xf040042c
+	WORD $0x38e70070
+	WORD $0x7cc903a6
+	WORD $0x38c00000
+	WORD $0xf4870001
+	WORD $0x38e00000
+	WORD $0x7d043a14
+	WORD $0x7d043a18
+	WORD $0xf1a21490
+	WORD $0xf000042c
+	WORD $0xf4c80031
+	WORD $0xf4e80021
+	WORD $0xf5280011
+	WORD $0x7d033a14
+	WORD $0x38c60010
+	WORD $0xf1a808d0
+	WORD $0xf1494110
+	WORD $0xf1674910
+	WORD $0xf1863910
+	WORD $0xf0000290
+	WORD $0xf1086a80
+	WORD $0xf0c66280
+	WORD $0xf0e75a80
+	WORD $0xf1295280
+	WORD $0xf0481b51
+	WORD $0xf1494210
+	WORD $0xf1674a10
+	WORD $0xf1863a10
+	WORD $0xf1081282
+	WORD $0xf0c66280
+	WORD $0xf0e75a80
+	WORD $0xf1295280
+	WORD $0xf1474a80
+	WORD $0xf0c63a80
+	WORD $0xf0e94280
+	WORD $0xf1082280
+	WORD $0xf0c63a80
+	WORD $0xf12a4280
+	WORD $0xf0e72a80
+	WORD $0xf1082280
+	WORD $0xf0c03280
+	WORD $0xf0e03a80
+	WORD $0xf1004280
+	WORD $0xf0004a80
+	WORD $0xf4080025
+	WORD $0xf000352c
+	WORD $0x7d033b18
+	WORD $0x38e70040
+	WORD $0xf4c80035
+	WORD $0xf4e80015
+	WORD $0x4200ff50
+	WORD $0x7c262840
+	WORD $0x408000fc
+	WORD $0x70a70007
+	WORD $0x41820044
+	WORD $0x78c91764
+	WORD $0x7ce903a6
+	WORD $0x7d063a14
+	WORD $0x3949fffc
+	WORD $0x7d245214
+	WORD $0x7d435214
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0xc4290004
+	WORD $0xf0000880
+	WORD $0xd40a0004
+	WORD $0x4200fff4
+	WORD $0x48000008
+	WORD $0x7cc83378
+	WORD $0x7d253050
+	WORD $0x3940fff8
+	WORD $0x7c295040
+	WORD $0x418100a0
+	WORD $0x7ca62850
+	WORD $0x79081764
+	WORD $0x7ca72850
+	WORD $0x3908ffe0
+	WORD $0x38a5fff8
+	WORD $0x7c844214
+	WORD $0x7c634214
+	WORD $0x78a5e8c2
+	WORD $0x38a50001
+	WORD $0x7ca903a6
+	WORD $0xc4240020
+	WORD $0xf0000880
+	WORD $0xc0240004
+	WORD $0xd4030020
+	WORD $0xf0000880
+	WORD $0xc0240008
+	WORD $0xd0030004
+	WORD $0xf0000880
+	WORD $0xc024000c
+	WORD $0xd0030008
+	WORD $0xf0000880
+	WORD $0xc0240010
+	WORD $0xd003000c
+	WORD $0xf0000880
+	WORD $0xc0240014
+	WORD $0xd0030010
+	WORD $0xf0000880
+	WORD $0xc0240018
+	WORD $0xd0030014
+	WORD $0xf0000880
+	WORD $0xc024001c
+	WORD $0xd0030018
+	WORD $0xf0000880
+	WORD $0xd003001c
+	WORD $0x4200ffa0
+	WORD $0x48000010
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
+	RET
+
+// func fastCumSumFloat32VSX(dst []float32, a []float32)
+TEXT ·fastCumSumFloat32VSX(SB), NOSPLIT|NOFRAME, $0-48
+	MOVD dst_base+0(FP), R3
+	MOVD a_base+24(FP), R4
+	MOVD dst_len+8(FP), R5
+	// The constants live in simdconst_fastCumSumFloat32VSX_pool<>(SB) and are reached through
+	// R2. clang computed that from r12 and a TOC which does not
+	// exist here, so its two global-entry instructions are nops.
+	MOVD	$simdconst_fastCumSumFloat32VSX_pool<>(SB), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x2c250000
+	WORD $0x408101f8
+	WORD $0x28250010
+	WORD $0x40800010
+	WORD $0xf00004d0
+	WORD $0x38c00000
+	WORD $0x480000f0
+	WORD $0x2c25001f
+	WORD $0x38c0001f
+	WORD $0x3ce20000
+	WORD $0xf00004d0
+	WORD $0x7cc5305e
+	WORD $0x38e70040
+	WORD $0x38c6fff0
+	WORD $0xf4470009
+	WORD $0xf0631cd7
+	WORD $0x38e00000
+	WORD $0x78c6e102
+	WORD $0x38c60001
+	WORD $0x7cc903a6
+	WORD $0x38c00000
+	WORD $0x60000000
+	WORD $0x7d043a14
+	WORD $0x7c843a19
+	WORD $0xf000042c
+	WORD $0x38c60010
+	WORD $0xf4280031
+	WORD $0xf4480011
+	WORD $0xf4680021
+	WORD $0x7d033a14
+	WORD $0x10a418ab
+	WORD $0xf0831110
+	WORD $0xf0a22112
+	WORD $0xf0c11910
+	WORD $0xf0000290
+	WORD $0xf0213200
+	WORD $0xf0c42a06
+	WORD $0xf0422a00
+	WORD $0xf0632200
+	WORD $0xf0831210
+	WORD $0xf0a23210
+	WORD $0xf0e11a10
+	WORD $0xf0861b53
+	WORD $0xf0c62202
+	WORD $0xf0213a00
+	WORD $0xf0422a00
+	WORD $0xf0632200
+	WORD $0xf0831200
+	WORD $0xf0211a00
+	WORD $0xf0423200
+	WORD $0xf0661a02
+	WORD $0xf0211200
+	WORD $0xf0841a00
+	WORD $0xf0421a02
+	WORD $0xf0631a02
+	WORD $0xf0200a00
+	WORD $0xf0401200
+	WORD $0xf0601a00
+	WORD $0xf0002200
+	WORD $0xf4080025
+	WORD $0xf0000d2c
+	WORD $0x7c633b18
+	WORD $0x38e70040
+	WORD $0xf4280035
+	WORD $0xf4480015
+	WORD $0x4200ff54
+	WORD $0x7c262840
+	WORD $0x408000f0
+	WORD $0x70a70007
+	WORD $0x41820038
+	WORD $0x78c91764
+	WORD $0x7ce903a6
+	WORD $0x7d063a14
+	WORD $0x3949fffc
+	WORD $0x7d245214
+	WORD $0x7d435214
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0xc4290004
+	WORD $0xf0000800
+	WORD $0xd40a0004
+	WORD $0x4200fff4
+	WORD $0x48000008
+	WORD $0x7cc83378
+	WORD $0x7d253050
+	WORD $0x3940fff8
+	WORD $0x7c295040
+	WORD $0x418100a0
+	WORD $0x7ca62850
+	WORD $0x79081764
+	WORD $0x7ca72850
+	WORD $0x3908ffe0
+	WORD $0x38a5fff8
+	WORD $0x7c844214
+	WORD $0x7c634214
+	WORD $0x78a5e8c2
+	WORD $0x38a50001
+	WORD $0x7ca903a6
+	WORD $0xc4240020
+	WORD $0xf0000800
+	WORD $0xc0240004
+	WORD $0xd4030020
+	WORD $0xf0000800
+	WORD $0xc0240008
+	WORD $0xd0030004
+	WORD $0xf0000800
+	WORD $0xc024000c
+	WORD $0xd0030008
+	WORD $0xf0000800
+	WORD $0xc0240010
+	WORD $0xd003000c
+	WORD $0xf0000800
+	WORD $0xc0240014
+	WORD $0xd0030010
+	WORD $0xf0000800
+	WORD $0xc0240018
+	WORD $0xd0030014
+	WORD $0xf0000800
+	WORD $0xc024001c
+	WORD $0xd0030018
+	WORD $0xf0000800
+	WORD $0xd003001c
+	WORD $0x4200ffa0
+	WORD $0x48000010
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
+	RET
+
+// func fastCumProdFloat64VSX(dst []float64, a []float64)
+TEXT ·fastCumProdFloat64VSX(SB), NOSPLIT|NOFRAME, $0-48
+	MOVD dst_base+0(FP), R3
+	MOVD a_base+24(FP), R4
+	MOVD dst_len+8(FP), R5
+	// The constants live in simdconst_fastCumProdFloat64VSX_pool<>(SB) and are reached through
+	// R2. clang computed that from r12 and a TOC which does not
+	// exist here, so its two global-entry instructions are nops.
+	MOVD	$simdconst_fastCumProdFloat64VSX_pool<>(SB), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x2c250000
+	WORD $0x408101e8
+	WORD $0x28250008
+	WORD $0x40800014
+	WORD $0x1041038c
+	WORD $0x38c00000
+	WORD $0xf00013e2
+	WORD $0x480000d4
+	WORD $0x2c25000f
+	WORD $0x38c0000f
+	WORD $0x1041038c
+	WORD $0x3ce20000
+	WORD $0x7cc5305e
+	WORD $0x38e70080
+	WORD $0xf0631cd0
+	WORD $0xf00013e2
+	WORD $0x38c6fff8
+	WORD $0xf4470001
+	WORD $0x38e00000
+	WORD $0x78c6e8c2
+	WORD $0x38c60001
+	WORD $0x7cc903a6
+	WORD $0x38c00000
+	WORD $0xfc200090
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x7d043a14
+	WORD $0x7ca43a18
+	WORD $0x38c60008
+	WORD $0xf4c80011
+	WORD $0xf4e80021
+	WORD $0xf4880031
+	WORD $0x7d033a14
+	WORD $0xf1650a50
+	WORD $0xf1073250
+	WORD $0xf1262a50
+	WORD $0xf1443a50
+	WORD $0xf0a55b80
+	WORD $0xf0c64b80
+	WORD $0xf0e74380
+	WORD $0xf0845380
+	WORD $0xf1073380
+	WORD $0xf0c62b80
+	WORD $0xf0a51380
+	WORD $0xf0843b80
+	WORD $0xf0e82b80
+	WORD $0xf0a51380
+	WORD $0xf0843380
+	WORD $0xf0c61b80
+	WORD $0xf1000050
+	WORD $0xf0a82b80
+	WORD $0x7ca33b18
+	WORD $0xf0082380
+	WORD $0xf0883380
+	WORD $0xf0c83b80
+	WORD $0x38e70040
+	WORD $0xf4080035
+	WORD $0xf4c80025
+	WORD $0xf4880015
+	WORD $0x4200ff7c
+	WORD $0x7c262840
+	WORD $0x408000f8
+	WORD $0x70a70007
+	WORD $0x41820040
+	WORD $0x78c91f24
+	WORD $0x7ce903a6
+	WORD $0x7d063a14
+	WORD $0x3949fff8
+	WORD $0x7d245214
+	WORD $0x7d435214
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0xcc290008
+	WORD $0xf0000980
+	WORD $0xdc0a0008
+	WORD $0x4200fff4
+	WORD $0x48000008
+	WORD $0x7cc83378
+	WORD $0x7d253050
+	WORD $0x3940fff8
+	WORD $0x7c295040
+	WORD $0x418100a0
+	WORD $0x7ca62850
+	WORD $0x79081f24
+	WORD $0x7ca72850
+	WORD $0x3908ffc0
+	WORD $0x38a5fff8
+	WORD $0x7c844214
+	WORD $0x7c634214
+	WORD $0x78a5e8c2
+	WORD $0x38a50001
+	WORD $0x7ca903a6
+	WORD $0xcc240040
+	WORD $0xf0000980
+	WORD $0xc8240008
+	WORD $0xdc030040
+	WORD $0xf0000980
+	WORD $0xc8240010
+	WORD $0xd8030008
+	WORD $0xf0000980
+	WORD $0xc8240018
+	WORD $0xd8030010
+	WORD $0xf0000980
+	WORD $0xc8240020
+	WORD $0xd8030018
+	WORD $0xf0000980
+	WORD $0xc8240028
+	WORD $0xd8030020
+	WORD $0xf0000980
+	WORD $0xc8240030
+	WORD $0xd8030028
+	WORD $0xf0000980
+	WORD $0xc8240038
+	WORD $0xd8030030
+	WORD $0xf0000980
+	WORD $0xd8030038
+	WORD $0x4200ffa0
+	WORD $0x48000010
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
+	RET
+
 // func cumMinInt32VSX(dst []int32, a []int32)
 TEXT ·cumMinInt32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_base+0(FP), R3
@@ -315,6 +758,155 @@ TEXT ·cumMaxInt32VSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD $0, R0
 	RET
 
+// func cumProdInt32VSX(dst []int32, a []int32)
+TEXT ·cumProdInt32VSX(SB), NOSPLIT|NOFRAME, $0-48
+	MOVD dst_base+0(FP), R3
+	MOVD a_base+24(FP), R4
+	MOVD dst_len+8(FP), R5
+	// The constants live in simdconst_cumProdInt32VSX_pool<>(SB) and are reached through
+	// R2. clang computed that from r12 and a TOC which does not
+	// exist here, so its two global-entry instructions are nops.
+	MOVD	$simdconst_cumProdInt32VSX_pool<>(SB), R2
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x2c250000
+	WORD $0x40810208
+	WORD $0x28250010
+	WORD $0x40800010
+	WORD $0x38c00001
+	WORD $0x38e00000
+	WORD $0x48000108
+	WORD $0x2c25001f
+	WORD $0x38c0001f
+	WORD $0x3d020000
+	WORD $0x1041038c
+	WORD $0x38e00000
+	WORD $0x39200000
+	WORD $0x7cc5305e
+	WORD $0x39080090
+	WORD $0xf04214d0
+	WORD $0x106016ce
+	WORD $0x38c6fff0
+	WORD $0xf4080001
+	WORD $0x3d020000
+	WORD $0x78c6e102
+	WORD $0x390800a0
+	WORD $0x38c60001
+	WORD $0xf4280001
+	WORD $0x3900000c
+	WORD $0x7cc903a6
+	WORD $0x38c00001
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x60000000
+	WORD $0x7d444a14
+	WORD $0x7ca44a19
+	WORD $0x11221484
+	WORD $0x38e70010
+	WORD $0xf48a0039
+	WORD $0xf40a0029
+	WORD $0xf42a0019
+	WORD $0x7d434a14
+	WORD $0xf44a0015
+	WORD $0xf12500d5
+	WORD $0xf0c12917
+	WORD $0xf0e00917
+	WORD $0xf1040117
+	WORD $0x10a92889
+	WORD $0x10882089
+	WORD $0x10070089
+	WORD $0x10260889
+	WORD $0xf0e00a17
+	WORD $0xf1040217
+	WORD $0xf0c12a17
+	WORD $0x10882089
+	WORD $0x10070089
+	WORD $0x10260889
+	WORD $0xf0c51b57
+	WORD $0x10a62889
+	WORD $0x7cc60327
+	WORD $0x10802089
+	WORD $0x10010089
+	WORD $0x10250889
+	WORD $0xf0a50c15
+	WORD $0x10843089
+	WORD $0x10003089
+	WORD $0x10c53089
+	WORD $0x10840889
+	WORD $0x10a02889
+	WORD $0xf0660c14
+	WORD $0x7c634b18
+	WORD $0x39290040
+	WORD $0x10c8278d
+	WORD $0xf48a003d
+	WORD $0xf4aa002d
+	WORD $0x4200ff5c
+	WORD $0x7c272840
+	WORD $0x408000e8
+	WORD $0x70a80007
+	WORD $0x41820030
+	WORD $0x78ea1764
+	WORD $0x7d0903a6
+	WORD $0x7d274214
+	WORD $0x396afffc
+	WORD $0x7d445a14
+	WORD $0x7d635a14
+	WORD $0x858a0004
+	WORD $0x7ccc31d6
+	WORD $0x94cb0004
+	WORD $0x4200fff4
+	WORD $0x48000008
+	WORD $0x7ce93b78
+	WORD $0x7d453850
+	WORD $0x3960fff8
+	WORD $0x7c2a5840
+	WORD $0x418100a0
+	WORD $0x7ca72850
+	WORD $0x79291764
+	WORD $0x7ca82850
+	WORD $0x3929ffe0
+	WORD $0x38a5fff8
+	WORD $0x7c844a14
+	WORD $0x7c634a14
+	WORD $0x78a5e8c2
+	WORD $0x38a50001
+	WORD $0x7ca903a6
+	WORD $0x84a40020
+	WORD $0x7ca531d6
+	WORD $0x80c40004
+	WORD $0x94a30020
+	WORD $0x7ca629d6
+	WORD $0x80c40008
+	WORD $0x90a30004
+	WORD $0x7ca629d6
+	WORD $0x80c4000c
+	WORD $0x90a30008
+	WORD $0x7ca629d6
+	WORD $0x80c40010
+	WORD $0x90a3000c
+	WORD $0x7ca629d6
+	WORD $0x80c40014
+	WORD $0x90a30010
+	WORD $0x7ca629d6
+	WORD $0x80c40018
+	WORD $0x90a30014
+	WORD $0x7ca629d6
+	WORD $0x80c4001c
+	WORD $0x7cc629d6
+	WORD $0x90a30018
+	WORD $0x90c3001c
+	WORD $0x4200ffa0
+	WORD $0x48000010
+	WORD $0x00000000
+	WORD $0x00000000
+	WORD $0x00000000
+	// Every return in the body above was rewritten to branch here.
+	MOVD $0, R0
+	RET
+
 // func cumMinInt64VSX(dst []int64, a []int64)
 TEXT ·cumMinInt64VSX(SB), NOSPLIT|NOFRAME, $0-48
 	MOVD dst_base+0(FP), R3
@@ -570,6 +1162,78 @@ TEXT ·cumMaxInt64VSX(SB), NOSPLIT|NOFRAME, $0-48
 
 // Constant pools lifted out of the compiled object. RODATA|NOPTR tells the
 // garbage collector these hold no pointers and must not be written.
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x000(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x008(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x010(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x018(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x020(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x028(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x030(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x038(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x040(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x048(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x050(SB)/8, $0x0c0d0e0f14151617
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x058(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x060(SB)/8, $0x000000003f800000
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x068(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x070(SB)/8, $0x000000003f800000
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x078(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x080(SB)/8, $0x3ff0000000000000
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x088(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x090(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x098(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x0a0(SB)/8, $0x00000000ffffffff
+DATA simdconst_fastCumProdFloat32VSX_pool<>+0x0a8(SB)/8, $0x0000000000000000
+GLOBL simdconst_fastCumProdFloat32VSX_pool<>(SB), RODATA|NOPTR, $176
+
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x000(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x008(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x010(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x018(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x020(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x028(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x030(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x038(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x040(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x048(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x050(SB)/8, $0x0c0d0e0f14151617
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x058(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x060(SB)/8, $0x000000003f800000
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x068(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x070(SB)/8, $0x000000003f800000
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x078(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x080(SB)/8, $0x3ff0000000000000
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x088(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x090(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x098(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x0a0(SB)/8, $0x00000000ffffffff
+DATA simdconst_fastCumSumFloat32VSX_pool<>+0x0a8(SB)/8, $0x0000000000000000
+GLOBL simdconst_fastCumSumFloat32VSX_pool<>(SB), RODATA|NOPTR, $176
+
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x000(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x008(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x010(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x018(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x020(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x028(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x030(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x038(SB)/8, $0x1415161718191a1b
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x040(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x048(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x050(SB)/8, $0x0c0d0e0f14151617
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x058(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x060(SB)/8, $0x000000003f800000
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x068(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x070(SB)/8, $0x000000003f800000
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x078(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x080(SB)/8, $0x3ff0000000000000
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x088(SB)/8, $0x0000000000000000
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x090(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x098(SB)/8, $0x0405060708090a0b
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x0a0(SB)/8, $0x00000000ffffffff
+DATA simdconst_fastCumProdFloat64VSX_pool<>+0x0a8(SB)/8, $0x0000000000000000
+GLOBL simdconst_fastCumProdFloat64VSX_pool<>(SB), RODATA|NOPTR, $176
+
 DATA simdconst_cumMinInt32VSX_pool<>+0x000(SB)/8, $0x1c1d1e1f1c1d1e1f
 DATA simdconst_cumMinInt32VSX_pool<>+0x008(SB)/8, $0x1415161718191a1b
 DATA simdconst_cumMinInt32VSX_pool<>+0x010(SB)/8, $0x1c1d1e1f1c1d1e1f
@@ -578,7 +1242,21 @@ DATA simdconst_cumMinInt32VSX_pool<>+0x020(SB)/8, $0x1c1d1e1f1c1d1e1f
 DATA simdconst_cumMinInt32VSX_pool<>+0x028(SB)/8, $0x1415161718191a1b
 DATA simdconst_cumMinInt32VSX_pool<>+0x030(SB)/8, $0x1c1d1e1f1c1d1e1f
 DATA simdconst_cumMinInt32VSX_pool<>+0x038(SB)/8, $0x1415161718191a1b
-GLOBL simdconst_cumMinInt32VSX_pool<>(SB), RODATA|NOPTR, $64
+DATA simdconst_cumMinInt32VSX_pool<>+0x040(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_cumMinInt32VSX_pool<>+0x048(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumMinInt32VSX_pool<>+0x050(SB)/8, $0x0c0d0e0f14151617
+DATA simdconst_cumMinInt32VSX_pool<>+0x058(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumMinInt32VSX_pool<>+0x060(SB)/8, $0x000000003f800000
+DATA simdconst_cumMinInt32VSX_pool<>+0x068(SB)/8, $0x0000000000000000
+DATA simdconst_cumMinInt32VSX_pool<>+0x070(SB)/8, $0x000000003f800000
+DATA simdconst_cumMinInt32VSX_pool<>+0x078(SB)/8, $0x0000000000000000
+DATA simdconst_cumMinInt32VSX_pool<>+0x080(SB)/8, $0x3ff0000000000000
+DATA simdconst_cumMinInt32VSX_pool<>+0x088(SB)/8, $0x0000000000000000
+DATA simdconst_cumMinInt32VSX_pool<>+0x090(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_cumMinInt32VSX_pool<>+0x098(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumMinInt32VSX_pool<>+0x0a0(SB)/8, $0x00000000ffffffff
+DATA simdconst_cumMinInt32VSX_pool<>+0x0a8(SB)/8, $0x0000000000000000
+GLOBL simdconst_cumMinInt32VSX_pool<>(SB), RODATA|NOPTR, $176
 
 DATA simdconst_cumMaxInt32VSX_pool<>+0x000(SB)/8, $0x1c1d1e1f1c1d1e1f
 DATA simdconst_cumMaxInt32VSX_pool<>+0x008(SB)/8, $0x1415161718191a1b
@@ -588,5 +1266,43 @@ DATA simdconst_cumMaxInt32VSX_pool<>+0x020(SB)/8, $0x1c1d1e1f1c1d1e1f
 DATA simdconst_cumMaxInt32VSX_pool<>+0x028(SB)/8, $0x1415161718191a1b
 DATA simdconst_cumMaxInt32VSX_pool<>+0x030(SB)/8, $0x1c1d1e1f1c1d1e1f
 DATA simdconst_cumMaxInt32VSX_pool<>+0x038(SB)/8, $0x1415161718191a1b
-GLOBL simdconst_cumMaxInt32VSX_pool<>(SB), RODATA|NOPTR, $64
+DATA simdconst_cumMaxInt32VSX_pool<>+0x040(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_cumMaxInt32VSX_pool<>+0x048(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumMaxInt32VSX_pool<>+0x050(SB)/8, $0x0c0d0e0f14151617
+DATA simdconst_cumMaxInt32VSX_pool<>+0x058(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumMaxInt32VSX_pool<>+0x060(SB)/8, $0x000000003f800000
+DATA simdconst_cumMaxInt32VSX_pool<>+0x068(SB)/8, $0x0000000000000000
+DATA simdconst_cumMaxInt32VSX_pool<>+0x070(SB)/8, $0x000000003f800000
+DATA simdconst_cumMaxInt32VSX_pool<>+0x078(SB)/8, $0x0000000000000000
+DATA simdconst_cumMaxInt32VSX_pool<>+0x080(SB)/8, $0x3ff0000000000000
+DATA simdconst_cumMaxInt32VSX_pool<>+0x088(SB)/8, $0x0000000000000000
+DATA simdconst_cumMaxInt32VSX_pool<>+0x090(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_cumMaxInt32VSX_pool<>+0x098(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumMaxInt32VSX_pool<>+0x0a0(SB)/8, $0x00000000ffffffff
+DATA simdconst_cumMaxInt32VSX_pool<>+0x0a8(SB)/8, $0x0000000000000000
+GLOBL simdconst_cumMaxInt32VSX_pool<>(SB), RODATA|NOPTR, $176
+
+DATA simdconst_cumProdInt32VSX_pool<>+0x000(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_cumProdInt32VSX_pool<>+0x008(SB)/8, $0x1415161718191a1b
+DATA simdconst_cumProdInt32VSX_pool<>+0x010(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_cumProdInt32VSX_pool<>+0x018(SB)/8, $0x1415161718191a1b
+DATA simdconst_cumProdInt32VSX_pool<>+0x020(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_cumProdInt32VSX_pool<>+0x028(SB)/8, $0x1415161718191a1b
+DATA simdconst_cumProdInt32VSX_pool<>+0x030(SB)/8, $0x1c1d1e1f1c1d1e1f
+DATA simdconst_cumProdInt32VSX_pool<>+0x038(SB)/8, $0x1415161718191a1b
+DATA simdconst_cumProdInt32VSX_pool<>+0x040(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_cumProdInt32VSX_pool<>+0x048(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumProdInt32VSX_pool<>+0x050(SB)/8, $0x0c0d0e0f14151617
+DATA simdconst_cumProdInt32VSX_pool<>+0x058(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumProdInt32VSX_pool<>+0x060(SB)/8, $0x000000003f800000
+DATA simdconst_cumProdInt32VSX_pool<>+0x068(SB)/8, $0x0000000000000000
+DATA simdconst_cumProdInt32VSX_pool<>+0x070(SB)/8, $0x000000003f800000
+DATA simdconst_cumProdInt32VSX_pool<>+0x078(SB)/8, $0x0000000000000000
+DATA simdconst_cumProdInt32VSX_pool<>+0x080(SB)/8, $0x3ff0000000000000
+DATA simdconst_cumProdInt32VSX_pool<>+0x088(SB)/8, $0x0000000000000000
+DATA simdconst_cumProdInt32VSX_pool<>+0x090(SB)/8, $0x0c0d0e0f1c1d1e1f
+DATA simdconst_cumProdInt32VSX_pool<>+0x098(SB)/8, $0x0405060708090a0b
+DATA simdconst_cumProdInt32VSX_pool<>+0x0a0(SB)/8, $0x00000000ffffffff
+DATA simdconst_cumProdInt32VSX_pool<>+0x0a8(SB)/8, $0x0000000000000000
+GLOBL simdconst_cumProdInt32VSX_pool<>(SB), RODATA|NOPTR, $176
 

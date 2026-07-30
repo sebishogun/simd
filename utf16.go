@@ -182,6 +182,15 @@ func UTF8Len(s []uint16) int {
 // asciiRun and asciiRun16 return the length of the leading run below 0x80.
 // Short inputs skip the dispatcher: the answer is usually one or two bytes in
 // the mixed case and a call would dominate.
+//
+// The callers advance by whatever these return, so a zero on input whose first
+// element IS ASCII would make no progress and spin forever. That is not a
+// hypothetical: a generator bug once shipped a loong64 widen kernel whose
+// internal branches all had a displacement of zero, and the emulated lane hung
+// for 42 minutes inside exactly this loop (entry 46 of docs/wrong.md). The
+// kernel was at fault, but a loop that cannot terminate unless a kernel
+// returns a positive number is the wrong shape regardless, so the floor is
+// enforced here rather than assumed.
 func asciiRun(b []byte) int {
 	if len(b) < asciiRunFloor {
 		for i, c := range b {
@@ -191,7 +200,11 @@ func asciiRun(b []byte) int {
 		}
 		return len(b)
 	}
-	return active.Bytes.IndexNonASCII(b)
+	n := active.Bytes.IndexNonASCII(b)
+	if n <= 0 && b[0] < utf8.RuneSelf {
+		return 1 // guaranteed progress; correctness is unaffected
+	}
+	return n
 }
 
 func asciiRun16(s []uint16) int {
@@ -203,5 +216,9 @@ func asciiRun16(s []uint16) int {
 		}
 		return len(s)
 	}
-	return active.Bytes.IndexNonASCII16(s)
+	n := active.Bytes.IndexNonASCII16(s)
+	if n <= 0 && s[0] < utf8.RuneSelf {
+		return 1
+	}
+	return n
 }

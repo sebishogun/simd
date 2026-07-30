@@ -347,8 +347,10 @@ var All = []Target{
 		ProtectedZone:       288,
 		Epilogue:            []string{"MOVD $0, R0"},
 		FloatArgsUseIntSlot: true,
-		// No SaveArea, deliberately, even though seven of 246 kernels do save
-		// the link register at 16(r1) — the caller's frame under ELFv2.
+		// No SaveArea, deliberately, even though seventeen of 581 kernels
+		// write above r1 — fourteen at r1+8, which is the link-register slot
+		// in the caller's frame under ELFv2, and three at r1+200 and beyond,
+		// which are ordinary spills that simply do not fit below.
 		//
 		// The trampoline that fixes this on s390x is not safe here. ELFv2
 		// convention is that a bl to a global symbol is followed by a slot the
@@ -356,10 +358,12 @@ var All = []Target{
 		// bl in a trampoline is the RET. Losing that RET is exactly the
 		// "returns to address 1" this target was failing with.
 		//
-		// So those seven kernels are rejected by the writes-above-the-stack-
-		// pointer check in package verify and keep the portable path. Seven
-		// out of 246 is a far better trade than a call convention that is
-		// almost right.
+		// So those kernels are rejected by the writes-above-the-stack-pointer
+		// check in package verify and keep the portable path. Seventeen out of
+		// 581 is a far better trade than a call convention that is almost
+		// right. (The count was seven of 246 when this was written; it is
+		// restated here because a stale number in a comment about a deliberate
+		// tradeoff is what makes the tradeoff look smaller than it is.)
 		// The one target with a non-trivial relocation model: constants are
 		// reached through the TOC, which needs its own handling. Scheduled
 		// last for that reason.

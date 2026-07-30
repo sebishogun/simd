@@ -1,6 +1,6 @@
-// Prefix scans: CumMin and CumMax.
+// Prefix scans.
 //
-// # Why CumSum and CumProd are not here
+// # Why the exact CumSum is not here, and FastCumSum is
 //
 // A scan is the awkward member of this library. A reduction may reassociate as
 // long as every tier does it identically, because only the final value is
@@ -24,10 +24,32 @@
 // count fixes it — the disagreement is with the naive loop a caller expects,
 // not between tiers.
 //
-// CumSum and CumProd therefore stay portable, permanently, for the same reason
-// EMA does: the operation is serial through its own output and the contract
-// forbids the reassociation that would break the dependency. That is documented
-// at their declarations rather than left looking like an oversight.
+// The float CumSum and CumProd therefore stay portable, and always will: the
+// operation is serial through its own output and the contract forbids the
+// reassociation that would break the dependency.
+//
+// What that argument does NOT justify is leaving the speed on the floor, and
+// this file used to say "permanently" without qualification. Two things it
+// missed:
+//
+//   - FastCumSum and FastCumProd. Dropping agreement with the naive loop is
+//     exactly what the Fast prefix already means for the transcendentals, and
+//     it buys 2.6x on float32 sums and 4.0x on float32 products. Agreement
+//     BETWEEN TIERS is kept, because SCAN_LANES is fixed regardless of
+//     hardware width.
+//
+//   - The integer product scan, which needs no prefix at all. Two's-complement
+//     multiplication is associative, so the regrouping is not observable and
+//     the result is bit-identical to the serial loop.
+//
+// And "Fast" here does not mean less accurate. Measured against a long-double
+// scan of a million values, the log-shift order is CLOSER to the truth than
+// the serial loop on every corpus tried: 680k of a million elements closer on
+// uniform positive input, and on the classic hard case — 1e16 followed by a
+// million ones, where a serial accumulator cannot represent the increment —
+// mean absolute error 5.0e+05 serial against 1.0 for the scan. Blocked
+// summation has O(log n) error growth where the serial loop has O(n). What
+// Fast drops is agreement, not accuracy.
 //
 // # And the float min/max scans are built here but not shipped
 //
@@ -136,3 +158,119 @@ SCAN_ASSOC(int, i32xS, min_i32, SCAN_LANES, VMIN_INT, min_i32, SCAN_BODY16)
 SCAN_ASSOC(int, i32xS, max_i32, SCAN_LANES, VMAX_INT, max_i32, SCAN_BODY16)
 SCAN_ASSOC(long long, i64xS, min_i64, SCAN_LANES64, VMIN_INT, min_i64, SCAN_BODY8)
 SCAN_ASSOC(long long, i64xS, max_i64, SCAN_LANES64, VMAX_INT, max_i64, SCAN_BODY8)
+
+// ---------- the Fast tier: sum and product scans ----------
+//
+// These are the same log-shift scan with addition and multiplication, and they
+// are exactly what the header of this file says a scan may not do: the result
+// differs from the serial loop in the last bit, because the grouping differs
+// and every partial result is written out. That is why they carry the Fast
+// prefix and are never the default.
+//
+// What they do keep is agreement between tiers. SCAN_LANES is fixed at sixteen
+// and eight regardless of hardware width, exactly as the reduction
+// accumulators are, so FastCumSum on a Graviton and on an AVX-512 box produce
+// identical bits. Only the promise to match a naive scalar loop is dropped.
+//
+// The shift here cannot be the one above. That one duplicates the neighbour's
+// own value into the lanes with nothing to their left, which is right for an
+// idempotent combine — min(x, x) is x — and wrong for addition, where lane 0
+// would get a[0] + a[0]. So these shift in a real identity element from a
+// second vector operand: indices at or above the lane count select from it.
+// Zero for a sum, one for a product, neither of which has the NaN interaction
+// that ruled an identity out for minimum.
+
+#define SHIFTID16_1(v, z)                                                 \
+  __builtin_shufflevector(v, z, 16, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, \
+                          12, 13, 14)
+#define SHIFTID16_2(v, z)                                                  \
+  __builtin_shufflevector(v, z, 16, 17, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,  \
+                          11, 12, 13)
+#define SHIFTID16_4(v, z)                                                  \
+  __builtin_shufflevector(v, z, 16, 17, 18, 19, 0, 1, 2, 3, 4, 5, 6, 7, 8, \
+                          9, 10, 11)
+#define SHIFTID16_8(v, z)                                                    \
+  __builtin_shufflevector(v, z, 16, 17, 18, 19, 20, 21, 22, 23, 0, 1, 2, 3,  \
+                          4, 5, 6, 7)
+
+#define SHIFTID8_1(v, z) __builtin_shufflevector(v, z, 8, 0, 1, 2, 3, 4, 5, 6)
+#define SHIFTID8_2(v, z) __builtin_shufflevector(v, z, 8, 9, 0, 1, 2, 3, 4, 5)
+#define SHIFTID8_4(v, z) \
+  __builtin_shufflevector(v, z, 8, 9, 10, 11, 0, 1, 2, 3)
+
+#define SCAN_BODY16_ID(VT, VCOMB, ID)                                      \
+  {                                                                        \
+    VT id_ = (VT)(ID);                                                     \
+    v = VCOMB(v, SHIFTID16_1(v, id_));                                     \
+    v = VCOMB(v, SHIFTID16_2(v, id_));                                     \
+    v = VCOMB(v, SHIFTID16_4(v, id_));                                     \
+    v = VCOMB(v, SHIFTID16_8(v, id_));                                     \
+  }
+
+#define SCAN_BODY8_ID(VT, VCOMB, ID)                                       \
+  {                                                                        \
+    VT id_ = (VT)(ID);                                                     \
+    v = VCOMB(v, SHIFTID8_1(v, id_));                                      \
+    v = VCOMB(v, SHIFTID8_2(v, id_));                                      \
+    v = VCOMB(v, SHIFTID8_4(v, id_));                                      \
+  }
+
+#define VADD(x, y) ((x) + (y))
+#define VMUL(x, y) ((x) * (y))
+
+// SCAN_ID takes the whole symbol name rather than building it from a prefix,
+// because these are not all Fast: the integer product scan below is exact and
+// must not be called anything that suggests otherwise.
+#define SCAN_ID(T, VT, SYM, L, VCOMB, ID, BODY)                           \
+  void SYM(T *__restrict d, const T *__restrict a, isize n) {             \
+    if (n <= 0) return;                                                   \
+    T run = (T)(ID);                                                      \
+    isize i = 0;                                                          \
+    for (; i + (L) <= n; i += (L)) {                                      \
+      VT v = *(const VT *)(a + i);                                        \
+      BODY(VT, VCOMB, ID)                                                 \
+      VT carry = (VT)run;                                                 \
+      v = VCOMB(v, carry);                                                \
+      *(VT *)(d + i) = v;                                                 \
+      run = v[(L) - 1];                                                   \
+    }                                                                     \
+    for (; i < n; i++) {                                                  \
+      run = VCOMB(run, a[i]);                                             \
+      d[i] = run;                                                         \
+    }                                                                     \
+  }
+
+SCAN_ID(float, f32xS, simd_fast_cumsum_f32, SCAN_LANES, VADD, 0.0f, SCAN_BODY16_ID)
+SCAN_ID(double, f64xS, simd_fast_cumsum_f64, SCAN_LANES64, VADD, 0.0, SCAN_BODY8_ID)
+SCAN_ID(float, f32xS, simd_fast_cumprod_f32, SCAN_LANES, VMUL, 1.0f, SCAN_BODY16_ID)
+SCAN_ID(double, f64xS, simd_fast_cumprod_f64, SCAN_LANES64, VMUL, 1.0, SCAN_BODY8_ID)
+
+// ---------- and the one integer scan that needs no Fast prefix ----------
+//
+// Two's-complement multiplication is associative — wrapping does not change
+// that, since the arithmetic is exact in the ring Z/2^32 — so the log-shift
+// scan computes bit for bit what the serial loop computes, for every input
+// including ones that overflow. Verified over four million deliberately
+// overflowing values: zero mismatches. So this is the ordinary CumProd,
+// accelerated, with the contract untouched.
+//
+// # Why only this one of the four integer scans
+//
+// A scan replaces a chain of n dependent combines with log2(L) per block of L,
+// so it wins exactly when the serial chain is latency-bound and loses when the
+// serial chain already issues one element per cycle. Measured against the Go
+// loop this library ships, at four million elements:
+//
+//	int32  product    2509 us -> 1230 us   2.04x    multiply latency ~3 cycles
+//	int64  product    2596 us -> 3884 us   0.67x    no 64-bit vector multiply
+//	                                                below AVX-512DQ
+//	int32  sum         980 us -> 1082 us   0.91x    add latency 1 cycle: the
+//	int64  sum        1441 us -> 2165 us   0.67x    serial loop is already at
+//	                                                the store limit
+//
+// The two sums lose because a one-cycle dependency is not a dependency worth
+// breaking, and the scan's shuffle chain plus the lane extract that carries
+// the running value between blocks costs more than it saves. That is the same
+// reason the float min and max scans lose, recorded at the top of this file:
+// not associativity, which they have, but the price of the combine.
+SCAN_ID(int, i32xS, simd_cumprod_i32, SCAN_LANES, VMUL, 1, SCAN_BODY16_ID)

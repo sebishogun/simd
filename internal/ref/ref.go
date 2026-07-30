@@ -919,6 +919,7 @@ func floatOps[T float]() kernel.Ops[T] {
 		Clamp: clampFloat[T], Fill: fill[T],
 		AddScaled: addScaled[T],
 		CumSum:    cumSum[T],
+		FastCumSum: FastCumSumFloat[T], FastCumProd: FastCumProdFloat[T],
 		Compress:  compress[T],
 		Add3:      add3[T], Add4: add4[T], Mul3: mul3[T], Mul4: mul4[T],
 		Partition: partitionOut[T],
@@ -948,7 +949,13 @@ func intOps[T integer]() kernel.Ops[T] {
 		Scale:   scale[T], AddScalar: addScalar[T], SubScalar: subScalar[T], DivScalar: divScalar[T],
 		Clamp: clampInt[T], Fill: fill[T],
 		AddScaled: addScaled[T],
-		CumSum:    cumSum[T],
+		CumSum: cumSum[T],
+		// No FastCumSum or FastCumProd here. They exist to trade agreement
+		// with a serial loop for speed, and integer arithmetic gives that
+		// agreement for free — CumProd below is the log-shift scan and is
+		// exact. A Fast integer scan would be a slower way to compute the
+		// same bits.
+		CumProd:   CumProdInt[T],
 		Compress:  compress[T],
 		Add3:      add3[T], Add4: add4[T], Mul3: mul3[T], Mul4: mul4[T],
 		Partition: partitionOut[T],

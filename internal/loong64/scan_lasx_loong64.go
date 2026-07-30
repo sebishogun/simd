@@ -16,10 +16,22 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
 //go:noescape
+func fastCumProdFloat32LASX(dst []float32, a []float32)
+
+//go:noescape
+func fastCumSumFloat32LASX(dst []float32, a []float32)
+
+//go:noescape
+func fastCumProdFloat64LASX(dst []float64, a []float64)
+
+//go:noescape
 func cumMinInt32LASX(dst []int32, a []int32)
 
 //go:noescape
 func cumMaxInt32LASX(dst []int32, a []int32)
+
+//go:noescape
+func cumProdInt32LASX(dst []int32, a []int32)
 
 //go:noescape
 func cumMinInt64LASX(dst []int64, a []int64)

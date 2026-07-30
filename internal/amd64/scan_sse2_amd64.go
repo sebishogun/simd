@@ -16,10 +16,22 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 //go:noescape
+func fastCumProdFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastCumSumFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastCumProdFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
 func cumMinInt32SSE2(dst []int32, a []int32)
 
 //go:noescape
 func cumMaxInt32SSE2(dst []int32, a []int32)
+
+//go:noescape
+func cumProdInt32SSE2(dst []int32, a []int32)
 
 //go:noescape
 func cumMinInt64SSE2(dst []int64, a []int64)

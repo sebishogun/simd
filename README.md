@@ -148,7 +148,7 @@ riscv64 RVV numeric kernels.
 
 **Reductions** `Sum` `Prod` `Dot` `Min` `Max` `MinMax` `ArgMin` `ArgMax` `Norm`
 `L1Norm` `SumSquares` `Mean` `Variance` `StdDev` `CosineSimilarity` ·
-**Scans** `CumSum` `CumProd` `CumMin` `CumMax` `Diff`
+**Scans** `CumSum` `CumProd` `CumMin` `CumMax` `Diff` `FastCumSum` `FastCumProd`
 
 **Transcendental** `Exp` `Exp2` `Expm1` `Log` `Log2` `Log10` `Log1p` `Cbrt`
 `Pow` `Hypot` `Sin` `Cos` `Tan` `Asin` `Acos` `Atan` `Atan2` `Sinh` `Cosh`
