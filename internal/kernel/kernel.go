@@ -357,6 +357,17 @@ type Bytes struct {
 	Compare                  func(a, b []byte) int
 	PopCount                 func(b []byte) int
 
+	// Hamming is the number of differing bits: sum of popcount(a^b) over the
+	// shorter of the two. Exact and bit-identical under rule 1 without the
+	// fixed-accumulator tree the float reductions need, because integer
+	// addition is associative and the lane grouping is therefore not
+	// observable.
+	//
+	// HammingWords is the same answer for a caller whose bit vector is already
+	// []uint64, which saves it an allocating conversion to []byte.
+	Hamming      func(a, b []byte) int
+	HammingWords func(a, b []uint64) int
+
 	And, Or, Xor, AndNot func(dst, a, b []byte)
 	Not                  func(dst, a []byte)
 	Fill                 func(dst []byte, v byte)

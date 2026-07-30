@@ -48,6 +48,22 @@ func popCountNEONGuarded(b []byte) int {
 	return popCountNEON(b)
 }
 
+func hammingU8NEONGuarded(a []byte, b []byte) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.Hamming(a, b)
+	}
+	return hammingU8NEON(a[:n:n], b)
+}
+
+func hammingU64NEONGuarded(a []uint64, b []uint64) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.HammingWords(a, b)
+	}
+	return hammingU64NEON(a[:n:n], b)
+}
+
 func isASCIINEONGuarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
@@ -305,6 +321,8 @@ func init() {
 	s.Bytes.IndexByte = indexByteNEONGuarded
 	s.Bytes.LastIndexByte = lastIndexByteNEONGuarded
 	s.Bytes.PopCount = popCountNEONGuarded
+	s.Bytes.Hamming = hammingU8NEONGuarded
+	s.Bytes.HammingWords = hammingU64NEONGuarded
 	s.Bytes.IsASCII = isASCIINEONGuarded
 	s.Bytes.ValidUTF8 = validUTF8NEONGuarded
 	s.Bytes.IndexNonASCII = indexNonASCIINEONGuarded

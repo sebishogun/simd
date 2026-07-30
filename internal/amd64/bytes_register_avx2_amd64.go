@@ -48,6 +48,22 @@ func popCountAVX2Guarded(b []byte) int {
 	return popCountAVX2(b)
 }
 
+func hammingU8AVX2Guarded(a []byte, b []byte) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.Hamming(a, b)
+	}
+	return hammingU8AVX2(a[:n:n], b)
+}
+
+func hammingU64AVX2Guarded(a []uint64, b []uint64) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.HammingWords(a, b)
+	}
+	return hammingU64AVX2(a[:n:n], b)
+}
+
 func isASCIIAVX2Guarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
@@ -305,6 +321,8 @@ func init() {
 	s.Bytes.IndexByte = indexByteAVX2Guarded
 	s.Bytes.LastIndexByte = lastIndexByteAVX2Guarded
 	s.Bytes.PopCount = popCountAVX2Guarded
+	s.Bytes.Hamming = hammingU8AVX2Guarded
+	s.Bytes.HammingWords = hammingU64AVX2Guarded
 	s.Bytes.IsASCII = isASCIIAVX2Guarded
 	s.Bytes.ValidUTF8 = validUTF8AVX2Guarded
 	s.Bytes.IndexNonASCII = indexNonASCIIAVX2Guarded

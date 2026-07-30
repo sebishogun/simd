@@ -1210,3 +1210,45 @@ void simd_widen_u8_u16(u16 *__restrict d, const u8 *__restrict s, isize n) {
 void simd_narrow_u16_u8(u8 *__restrict d, const u16 *__restrict s, isize n) {
   for (isize i = 0; i < n; i++) d[i] = (u8)s[i];
 }
+
+// ---------- Hamming distance ----------
+//
+// The number of differing bits between two buffers: sum of popcount(a^b).
+//
+// Both halves already exist here as kernels — Xor and Popcount — and this is
+// the fused single-pass form, which is the entire reason to have it. Chaining
+// them needs a full intermediate buffer and three passes over memory where
+// this makes one, and at the sizes Hamming distance is used at — binary
+// embedding search, LSH buckets, SimHash near-duplicate detection — the
+// intermediate is most of the cost.
+//
+// It goes through COUNT_FOLD rather than a hand-written loop, and that is not
+// a stylistic choice. The obvious `s += popcount(a[i]^b[i])` with an isize
+// accumulator was written first and measured 1.76x SLOWER than chaining Xor
+// and PopCount — the thing this kernel exists to beat — because a 64-bit
+// running total forces a widening and a horizontal add per element. COUNT_FOLD
+// keeps sixteen 32-bit lane accumulators and folds once at the end, which is
+// exactly what simd_popcount already does.
+//
+// COUNT_FOLD and not COUNT_BYTES: popcount of a byte is 0..8, not a predicate,
+// so a byte lane would wrap after 32 blocks rather than the 255 that macro
+// assumes.
+//
+// The count is exact and identical on every tier without the fixed
+// sixteen-accumulator tree the float reductions need, because integer addition
+// is associative and the lane grouping is therefore not observable.
+void simd_hamming_u8(isize *__restrict out, const u8 *__restrict a,
+                     const u8 *__restrict b, isize n) {
+  COUNT_FOLD(__builtin_popcount((unsigned)(a[p] ^ b[p])))
+}
+
+// The 64-bit form, for callers whose bit vectors are already words. Over the
+// same bytes it gives the same answer as the byte form on every target here,
+// all of which are little-endian, but it is a separate kernel because a
+// popcount of a 64-bit lane is one instruction where the byte form needs the
+// compiler to widen first.
+void simd_hamming_u64(isize *__restrict out,
+                      const unsigned long long *__restrict a,
+                      const unsigned long long *__restrict b, isize n) {
+  COUNT_FOLD(__builtin_popcountll(a[p] ^ b[p]))
+}

@@ -43,6 +43,32 @@ func Compare[S, T Text](a S, b T) int { return active.Bytes.Compare(textBytes(a)
 // PopCount returns the total number of set bits across every byte of b.
 func PopCount[S Text](s S) int { return active.Bytes.PopCount(textBytes(s)) }
 
+// HammingDistance returns the number of bit positions at which a and b
+// differ, over the shorter of the two.
+//
+// The name is spelled out because [Hamming] is already the Hamming *window*,
+// a different thing from the same person: that one shapes a signal before an
+// FFT, this one compares two bit vectors.
+//
+// This is the fused popcount(a^b). Both halves are separately available here
+// as [XorInto] and [PopCount], and chaining them is the wrong way to do it:
+// that needs a destination buffer the size of the input and three passes over
+// memory where this makes one. At the sizes Hamming distance is used at —
+// binary embedding search, LSH buckets, SimHash near-duplicate detection —
+// the intermediate is most of the cost.
+//
+// The result is exact and identical on every instruction set. It allocates
+// nothing.
+func HammingDistance[S, T Text](a S, b T) int {
+	return active.Bytes.Hamming(textBytes(a), textBytes(b))
+}
+
+// HammingDistanceWords is [HammingDistance] for a bit vector already stored
+// as []uint64, which is the layout most binary-embedding indexes use. It
+// gives the same answer as [HammingDistance] over the same bytes and saves
+// the caller an allocating conversion.
+func HammingDistanceWords(a, b []uint64) int { return active.Bytes.HammingWords(a, b) }
+
 // ---------- in place ----------
 
 // And clears in a every bit not set in b: a[i] &= b[i].

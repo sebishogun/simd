@@ -48,6 +48,22 @@ func popCountSSE2Guarded(b []byte) int {
 	return popCountSSE2(b)
 }
 
+func hammingU8SSE2Guarded(a []byte, b []byte) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.Hamming(a, b)
+	}
+	return hammingU8SSE2(a[:n:n], b)
+}
+
+func hammingU64SSE2Guarded(a []uint64, b []uint64) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.HammingWords(a, b)
+	}
+	return hammingU64SSE2(a[:n:n], b)
+}
+
 func isASCIISSE2Guarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
@@ -291,6 +307,8 @@ func init() {
 	s.Bytes.IndexByte = indexByteSSE2Guarded
 	s.Bytes.LastIndexByte = lastIndexByteSSE2Guarded
 	s.Bytes.PopCount = popCountSSE2Guarded
+	s.Bytes.Hamming = hammingU8SSE2Guarded
+	s.Bytes.HammingWords = hammingU64SSE2Guarded
 	s.Bytes.IsASCII = isASCIISSE2Guarded
 	s.Bytes.ValidUTF8 = validUTF8SSE2Guarded
 	s.Bytes.IndexNonASCII = indexNonASCIISSE2Guarded

@@ -804,6 +804,21 @@ func byteBinary(op, field string) spec.Kernel {
 	}
 }
 
+// hamming is a two-input reduction over a bit vector: it takes two slices and
+// returns a count, so the result type is Int rather than the element type.
+// The width parameter is the element slice — bytes for the common case, words
+// for a caller whose bit vector is already uint64.
+func hamming(cname, goName, field, refFunc string, elem spec.Type) spec.Kernel {
+	return spec.Kernel{
+		CName: cname, GoName: goName,
+		Group: "Bytes", Field: field, RefFunc: refFunc,
+		Params:    []spec.Param{sl("a", elem), sl("b", elem)},
+		Result:    &spec.Param{Name: "ret", Type: spec.Int},
+		CArgs:     []spec.CArg{out(), base("a"), base("b"), lenOf("a")},
+		Threshold: thScan,
+	}
+}
+
 func byteMap(cname, goName, field, refFunc string) spec.Kernel {
 	return spec.Kernel{
 		CName: cname, GoName: goName,
@@ -833,6 +848,12 @@ func Bytes() []spec.Kernel {
 		byteScan("simd_last_index_byte", "lastIndexByte", "LastIndexByte",
 			"LastIndexByte", spec.Int, true),
 		byteScan("simd_popcount", "popCount", "PopCount", "PopCount", spec.Int, false),
+		// Hamming distance, the fused popcount(a^b). Both halves already
+		// exist as Xor and PopCount; this is here because chaining them costs
+		// an intermediate buffer and three passes where one will do.
+		hamming("simd_hamming_u8", "hammingU8", "Hamming", "Hamming", spec.SliceU8),
+		hamming("simd_hamming_u64", "hammingU64", "HammingWords", "HammingWords",
+			spec.SliceU64),
 		byteScan("simd_is_ascii", "isASCII", "IsASCII", "IsASCII", spec.B, false),
 		byteScan("simd_valid_utf8", "validUTF8", "ValidUTF8", "ValidUTF8", spec.B, false),
 

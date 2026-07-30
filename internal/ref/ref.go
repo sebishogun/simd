@@ -860,6 +860,29 @@ func popCount(b []byte) int {
 	return n
 }
 
+// hamming counts the differing bits between two bit vectors. It is the fused
+// popcount(a^b), and it defines the semantics the kernels are checked against:
+// the length is the shorter of the two, and the count is exact.
+func hamming(a, b []byte) int {
+	n := min(len(a), len(b))
+	a, b = a[:n], b[:n]
+	c := 0
+	for i := range a {
+		c += bits.OnesCount8(a[i] ^ b[i])
+	}
+	return c
+}
+
+func hammingWords(a, b []uint64) int {
+	n := min(len(a), len(b))
+	a, b = a[:n], b[:n]
+	c := 0
+	for i := range a {
+		c += bits.OnesCount64(a[i] ^ b[i])
+	}
+	return c
+}
+
 func bitAnd(dst, a, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	dst, a, b = dst[:n], a[:n], b[:n]
@@ -1050,6 +1073,7 @@ func Set() kernel.Set {
 		Bytes: kernel.Bytes{
 			IndexByte: indexByte, LastIndexByte: lastIndexByte, Count: countByte,
 			Equal: equalBytes, Compare: compareBytes, PopCount: popCount,
+			Hamming: hamming, HammingWords: hammingWords,
 			And: bitAnd, Or: bitOr, Xor: bitXor, AndNot: bitAndNot, Not: bitNot,
 			Fill: fillBytes,
 

@@ -48,6 +48,22 @@ func popCountSVE2Guarded(b []byte) int {
 	return popCountSVE2(b)
 }
 
+func hammingU8SVE2Guarded(a []byte, b []byte) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.Hamming(a, b)
+	}
+	return hammingU8SVE2(a[:n:n], b)
+}
+
+func hammingU64SVE2Guarded(a []uint64, b []uint64) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.HammingWords(a, b)
+	}
+	return hammingU64SVE2(a[:n:n], b)
+}
+
 func isASCIISVE2Guarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
@@ -305,6 +321,8 @@ func init() {
 	s.Bytes.IndexByte = indexByteSVE2Guarded
 	s.Bytes.LastIndexByte = lastIndexByteSVE2Guarded
 	s.Bytes.PopCount = popCountSVE2Guarded
+	s.Bytes.Hamming = hammingU8SVE2Guarded
+	s.Bytes.HammingWords = hammingU64SVE2Guarded
 	s.Bytes.IsASCII = isASCIISVE2Guarded
 	s.Bytes.ValidUTF8 = validUTF8SVE2Guarded
 	s.Bytes.IndexNonASCII = indexNonASCIISVE2Guarded

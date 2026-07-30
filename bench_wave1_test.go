@@ -1,6 +1,7 @@
 package simd_test
 
-// Zigzag and affine quantization, against the plain Go loop each replaces.
+// Zigzag, affine quantization and Hamming distance, against the plain Go loop
+// each replaces.
 //
 // Both are the shape this library is best at — one pass, no branches, no
 // dependence between elements — so the interesting number is not that the
@@ -110,6 +111,38 @@ func BenchmarkQuantizeInt8(b *testing.B) {
 				simd.QuantizeInt8(dst, a, 0.5, 0)
 			}
 			sinkQuant = dst
+		})
+	}
+}
+
+var sinkHamming int
+
+// The comparison that matters for Hamming is not against a scalar loop but
+// against the chain it replaces — Xor into a buffer, then PopCount — because
+// that is what a caller would write with the operations already in the
+// catalogue. The fused kernel should win on the memory traffic alone.
+func BenchmarkHammingDistance(b *testing.B) {
+	r := rand.New(rand.NewPCG(67, 71))
+	for _, n := range []int{64, 1024, 65536} {
+		x := make([]byte, n)
+		y := make([]byte, n)
+		for i := range x {
+			x[i] = byte(r.Uint32())
+			y[i] = byte(r.Uint32())
+		}
+		scratch := make([]byte, n)
+		b.Run(fmt.Sprintf("n=%d/impl=xor+popcount", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				simd.XorInto(scratch, x, y)
+				sinkHamming = simd.PopCount(scratch)
+			}
+		})
+		b.Run(fmt.Sprintf("n=%d/impl=fused", n), func(b *testing.B) {
+			b.SetBytes(int64(n))
+			for b.Loop() {
+				sinkHamming = simd.HammingDistance(x, y)
+			}
 		})
 	}
 }

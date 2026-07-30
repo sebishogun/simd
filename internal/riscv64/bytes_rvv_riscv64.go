@@ -28,6 +28,12 @@ func lastIndexByteRVV(b []byte, c byte) int
 func popCountRVV(b []byte) int
 
 //go:noescape
+func hammingU8RVV(a []byte, b []byte) int
+
+//go:noescape
+func hammingU64RVV(a []uint64, b []uint64) int
+
+//go:noescape
 func isASCIIRVV(b []byte) bool
 
 //go:noescape

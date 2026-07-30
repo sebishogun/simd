@@ -335,6 +335,19 @@ func fuzzBytes(t *testing.T, tier string, got, want kernel.Bytes, a, b []byte) {
 			t.Fatalf("%s/Bytes.PopCount = %d, want %d", tier, g, w)
 		}
 	}
+	if got.Hamming != nil {
+		if g, w := got.Hamming(a, b), want.Hamming(a, b); g != w {
+			t.Fatalf("%s/Bytes.Hamming = %d, want %d", tier, g, w)
+		}
+	}
+	if got.HammingWords != nil {
+		// The fuzz corpus is bytes; reinterpret it as words rather than
+		// inventing a second corpus, so the two kernels see the same bits.
+		wa, wb := bytesAsWords(a), bytesAsWords(b)
+		if g, w := got.HammingWords(wa, wb), want.HammingWords(wa, wb); g != w {
+			t.Fatalf("%s/Bytes.HammingWords = %d, want %d", tier, g, w)
+		}
+	}
 	if got.Index != nil && len(b) >= 3 {
 		for _, ndl := range [][]byte{b[:1], b[:2], b[:3], a[:1]} {
 			if g, w := got.Index(a, ndl), want.Index(a, ndl); g != w {
@@ -358,4 +371,20 @@ func fuzzBytes(t *testing.T, tier string, got, want kernel.Bytes, a, b []byte) {
 			t.Fatalf("%s/Bytes.ToUpperASCII at %d: got %#02x want %#02x", tier, i, g[i], w[i])
 		}
 	}
+}
+
+// bytesAsWords packs bytes into uint64 words, little-endian, dropping any
+// tail that does not fill a word. It builds a new slice rather than casting
+// through unsafe: the corpus has no alignment guarantee, and the point is to
+// feed the word kernel the same bits as the byte kernel, not to avoid a copy.
+func bytesAsWords(b []byte) []uint64 {
+	w := make([]uint64, len(b)/8)
+	for i := range w {
+		var v uint64
+		for j := 7; j >= 0; j-- {
+			v = v<<8 | uint64(b[i*8+j])
+		}
+		w[i] = v
+	}
+	return w
 }

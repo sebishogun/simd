@@ -28,6 +28,12 @@ func lastIndexByteAVX512(b []byte, c byte) int
 func popCountAVX512(b []byte) int
 
 //go:noescape
+func hammingU8AVX512(a []byte, b []byte) int
+
+//go:noescape
+func hammingU64AVX512(a []uint64, b []uint64) int
+
+//go:noescape
 func isASCIIAVX512(b []byte) bool
 
 //go:noescape

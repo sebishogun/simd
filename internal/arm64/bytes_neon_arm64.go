@@ -28,6 +28,12 @@ func lastIndexByteNEON(b []byte, c byte) int
 func popCountNEON(b []byte) int
 
 //go:noescape
+func hammingU8NEON(a []byte, b []byte) int
+
+//go:noescape
+func hammingU64NEON(a []uint64, b []uint64) int
+
+//go:noescape
 func isASCIINEON(b []byte) bool
 
 //go:noescape

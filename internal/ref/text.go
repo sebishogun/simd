@@ -554,3 +554,6 @@ func FormatInts(dst []byte, vals []int64, sep byte) int {
 
 func B64Encode(dst, src []byte) int { return b64Encode(dst, src) }
 func B64Decode(dst, src []byte) int { return b64Decode(dst, src) }
+
+func Hamming(a, b []byte) int        { return hamming(a, b) }
+func HammingWords(a, b []uint64) int { return hammingWords(a, b) }

@@ -1785,3 +1785,69 @@ arities. Alongside it `TestSpecialValueTable` walks `kernel.Ops` by reflection
 and fails if any `Fast*` field is absent from that table or from a
 `notPointwise` set that has to state where it is covered instead. Coverage is
 enumerated rather than chosen, because choosing is what produced the holes.
+
+---
+
+## 55. Fusing two kernels made it slower
+
+**Assumed.** Hamming distance is `popcount(a ^ b)`, both halves already exist
+here as kernels, and fusing them into one pass has to win. Chaining costs a
+destination buffer the size of the input and three passes over memory —
+write the xor, read it back, read it again — where the fused form makes one.
+The memory traffic argument is sound and it is the reason the operation was
+put in the catalogue at all.
+
+**True.** The first version was *slower than the chain it replaced*, and not
+marginally:
+
+| n | Xor + PopCount | fused, hand-written | fused, `COUNT_FOLD` |
+|---|---|---|---|
+| 64 | 8.9 ns | 8.5 | **6.5** |
+| 1024 | 36.7 | 68.2 | **34.2** |
+| 65536 | 2718 | 4292 | **2084** |
+
+At n = 1024 the obvious fused loop was **1.76x slower** than not fusing.
+
+**Why.** The loop was written the way the operation reads:
+
+```c
+isize s = 0;
+for (isize i = 0; i < n; i++) s += __builtin_popcount((unsigned)(a[i] ^ b[i]));
+```
+
+A single 64-bit running total is a serial dependence with a widening on every
+element. The vectorizer can only serve it by widening each byte to 64 bits and
+doing a horizontal add per iteration, which is four times the vector work per
+input byte and a reduction that cannot pipeline.
+
+`simd_popcount` next door does not do that, and had not for a long time:
+`COUNT_FOLD` keeps sixteen 32-bit lane accumulators and folds them once at the
+end. The chain was beating the fused version because *half of the chain was
+already using the better reduction* and the fused version had thrown it away.
+Rewriting the same expression through `COUNT_FOLD` turned a 1.76x loss into a
+1.07x-1.36x win, and the C is now shorter than what it replaced:
+
+```c
+void simd_hamming_u8(isize *out, const u8 *a, const u8 *b, isize n) {
+  COUNT_FOLD(__builtin_popcount((unsigned)(a[p] ^ b[p])))
+}
+```
+
+`COUNT_FOLD` and not `COUNT_BYTES`, incidentally: popcount of a byte is 0..8
+rather than a predicate, so a byte-lane accumulator would wrap after 32 blocks
+where that macro assumes 255.
+
+**The lesson is about where the reasoning stopped.** Counting memory passes was
+correct and it was not sufficient: it compared the two shapes and never asked
+what the *accumulator* did in either. A fused kernel is not automatically
+faster than an unfused one — it is faster only if it keeps everything the
+unfused path was already doing right. The existing kernel beside it was the
+specification for that, and reading it first would have skipped the whole
+detour.
+
+There is a gate here that did not fire, which is worth stating: nothing in this
+repository fails a build for a kernel that is *correct but slower than the
+composition it replaces*. `make perf-model` models one kernel, not two against
+each other. The only thing that caught this was writing the benchmark against
+the chain rather than against a scalar loop, which is the comparison a caller
+would actually face.

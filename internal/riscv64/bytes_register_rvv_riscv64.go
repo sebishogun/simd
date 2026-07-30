@@ -48,6 +48,22 @@ func popCountRVVGuarded(b []byte) int {
 	return popCountRVV(b)
 }
 
+func hammingU8RVVGuarded(a []byte, b []byte) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.Hamming(a, b)
+	}
+	return hammingU8RVV(a[:n:n], b)
+}
+
+func hammingU64RVVGuarded(a []uint64, b []uint64) int {
+	n := min(len(a), len(b))
+	if n < 64 {
+		return ref.HammingWords(a, b)
+	}
+	return hammingU64RVV(a[:n:n], b)
+}
+
 func isASCIIRVVGuarded(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
@@ -305,6 +321,8 @@ func init() {
 	s.Bytes.IndexByte = indexByteRVVGuarded
 	s.Bytes.LastIndexByte = lastIndexByteRVVGuarded
 	s.Bytes.PopCount = popCountRVVGuarded
+	s.Bytes.Hamming = hammingU8RVVGuarded
+	s.Bytes.HammingWords = hammingU64RVVGuarded
 	s.Bytes.IsASCII = isASCIIRVVGuarded
 	s.Bytes.ValidUTF8 = validUTF8RVVGuarded
 	s.Bytes.IndexNonASCII = indexNonASCIIRVVGuarded
