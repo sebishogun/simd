@@ -1457,3 +1457,51 @@ The narrower lesson is about which assumption to test. That a closure costs
 something was never in doubt; the claim actually load-bearing was that saving
 a memory pass would outweigh it. That is the one that needed a number, and it
 was off by more than an order of magnitude at small n.
+
+## 48. A bench-check regression means the code got slower
+
+**Wrong**, and every one of the flagged regressions after a night of work
+turned out to be something else.
+
+`make bench-check` compares against a recorded baseline. After the work in
+entries 41–47 it reported 21 regressions, several above +70%. Two things were
+already suspicious: some were in arms this work cannot touch — `impl=go`,
+`impl=naive`, `impl=std` are pure Go and standard library — and a second run
+flagged 25, of which only 4 were in the first list. Sixteen and twenty-one
+respectively were noise, which is what the "run it twice, trust the
+intersection" rule in `testdata/bench/README.md` exists for.
+
+Re-measuring the 4 survivors with ten samples and the minimum estimator
+dropped another: `Compress/n=65536/p=0.50/impl=simd` came back at 12058
+against a baseline of 11953, +0.9%.
+
+The remaining three looked real, persisted across every re-run, and included a
+**pure Go** arm. So the next check was whether the code had changed at all —
+and `indexByteAVX512`, `countByteAVX512` and `countSeqAVX512` are byte-for-byte
+identical to their pre-work versions, at the same line of the same file.
+
+The decisive test is the one that should have been first: **build the old tree
+and run it now.**
+
+```
+                                        baseline   old tree, now   new tree, now
+Compress/n=65536/p=0.90/impl=go            19648           27674           25147
+TextCount/needle=zebra/n=1048576/simd      11744           16775           16826
+TextIndexByte/n=4096/impl=simd             22.23           30.49           30.35
+```
+
+The old tree is as slow or slower. There is no regression: the machine is
+about 35% slower for these than when the baseline was taken — a machine that
+has been under load for eleven hours, whose boost behaviour is not what it was
+at hour one, even with the governor pinned to `performance`.
+
+**Fix**: none needed, and the baseline is deliberately NOT updated — recording
+today's numbers would bake a degraded machine state into the reference. What
+is added is the protocol: a baseline diff nominates *candidates*, and the only
+thing that convicts is an A/B against the actual old code at the same moment
+on the same machine. A worktree at the previous commit costs a minute and
+answers it outright.
+
+The failure this avoids is the expensive kind. Three plausible, reproducible,
+double-confirmed "regressions" would have sent someone hunting for a cause
+inside code that had not changed a byte.
