@@ -2043,3 +2043,68 @@ what the *call site* looks like. Each time the local argument was correct and
 the conclusion was wrong, and each time the fix was to measure the thing a
 caller actually runs — which for a library means through the exported function,
 against the tree as it was before.
+
+---
+
+## 59. The 338 vectorization refusals are not one problem, and forcing them is a trap
+
+**Assumed.** There are zero `#pragma clang loop` directives in this repository
+and several hundred kernels that LLVM declines to vectorize. Some fraction of
+those must be the cost model being conservative, and `vectorize(enable)` would
+recover them.
+
+**True.** The refusals sort into four kinds, and only the last is even a
+candidate. Counted by kernel rather than estimated:
+
+| kernels refusing | why |
+|---|---|
+| `scatter` 65, `gather` 31, `reverse` 30, `transpose` 8, `tile` 10 | the instruction does not exist on that target |
+| `dot`, `mul3`, `mul4`, `prod` — the `i64`/`u64` instantiations | no 64×64 vector multiply on NEON, VSX or z/Arch |
+| `abs_u8`, `abs_u16`, `abs_u32`, `abs_u64` | absolute value of an *unsigned* type is the identity; there is nothing to vectorize |
+| the rest | `the cost-model indicates that vectorization is not beneficial` |
+
+The plan for this work guessed "~60 scatter, ~30 reverse, 114 float/fast_* as
+the plausible wins". The first two were right and the third was not: the large
+groups are all missing-instruction cases, and `gather` — 31 kernels, the second
+largest — was not in the estimate at all.
+
+**The trap, demonstrated rather than predicted.** `simd_dot_i64` on NEON, which
+refuses because ARMv8-A has no 64-bit vector multiply. Compiled twice, once
+with `#pragma clang loop vectorize(enable)`:
+
+| | vector instructions | total instructions |
+|---|---|---|
+| without | 0 | 36 |
+| with | 6 | **47** |
+
+Forcing worked, in the sense that vector instructions appeared. Here is what
+they are:
+
+```asm
+mul   x14, x15, x14      ; scalar 64-bit multiply
+mul   x13, x13, x15      ; scalar
+fmov  d2, x14            ; move the scalar result into a vector lane
+mov   v2.d[1], x12       ; insert the other lane
+add   v0.2d, v2.2d, v0.2d
+```
+
+The multiplies are still scalar. The `fmov` and `mov v.d[1]` exist only to
+reassemble the scalar results into a vector register so that the *add* can be
+one. Eleven extra instructions to make a loop look vectorized.
+
+**And this repository's gate would pass it.** `package verify` checks that a
+kernel contains vector instructions, which this does — `add v0.2d` is as vector
+as anything. The check exists to catch a kernel that failed to vectorize at
+all, and it cannot tell that apart from one that vectorized into scalar work
+plus packing.
+
+**Not applied.** Nothing is gained on the three categories where the
+instruction is missing, and on those the pragma actively produces something
+slower that the existing gate would wave through. The cost-model group is the
+only place worth trying, it is the smallest, and each candidate needs both
+`make perf-model` and a real benchmark before it ships — which is the same bar
+`internal/fastpath` failed in entry 58.
+
+The useful output of this investigation is the categorisation, not a change:
+**150 of the refusals are a missing instruction and will still be refused on
+the day someone tries again**, so the number to quote is not 338.
