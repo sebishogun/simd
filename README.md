@@ -76,7 +76,7 @@ For the two cases the catalogue cannot serve — an operation nobody has built
 yet, or one small enough that the call boundary dominates — see
 [`docs/kernels.md`](docs/kernels.md) to add a kernel that reaches all six
 architectures, and the `goexperiment.simd` vector type for writing one inline
-on amd64.
+on amd64. [`CONTRIBUTING.md`](CONTRIBUTING.md) covers how to verify one.
 
 **Where the win is.** The crossover is around 16–64 elements depending on the
 operation; below it the library runs a plain Go loop, because crossing into
