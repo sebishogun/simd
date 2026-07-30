@@ -277,14 +277,23 @@ Two documented exceptions, both opt-in by name:
 Kernel counts are not uniform, and the reasons are ABI walls rather than
 effort.
 
-| | kernels | |
-|---|---|---|
-| amd64 (3 tiers) | 1784 | essentially complete |
-| arm64 (2 tiers) | 1201 | essentially complete |
-| s390x | 650 | **partial** |
-| riscv64 | 598 | essentially complete |
-| loong64 | 546 | ~88% |
-| ppc64le | 468 | was 281; see below |
+Counts are what the generator emits, from `make check-emission`, and the skip
+column is kernels it declined with a stated reason rather than kernels nobody
+wrote.
+
+| | kernels | skipped | |
+|---|---|---|---|
+| amd64 (sse2/avx2/avx512) | 2170 | 13 | essentially complete |
+| arm64 (neon/sve2) | 1455 | 12 | essentially complete |
+| riscv64 (rvv) | 731 | 4 | essentially complete |
+| loong64 (lasx) | 658 | 9 | see the `.L0` note below |
+| ppc64le (vsx) | 568 | 11 | was 281 before the TOC rewrite |
+| s390x (vx) | 395 | 13 | **partial**, and the reason is an ABI wall |
+
+An earlier version of this table gave s390x as 650. That was wrong — it added
+the registrations and the wrapper functions, which are one per kernel, and so
+reported double. The other five were accurate when written and had simply
+stopped being current. Corrected here rather than quietly restated.
 
 - **s390x** loses kernels because clang uses `r13`, the register Go keeps the
   current goroutine in, and there is no `-ffixed` for SystemZ — the global
@@ -295,10 +304,26 @@ effort.
   like the obstacle and was not. Go's own assembler materialises a symbol
   address in two instructions with no TOC involvement, so the pool becomes a
   standalone symbol, `R2` is pointed at it, and clang's global-entry prologue
-  is replaced in place. 281 kernels became 468.
+  is replaced in place. 281 kernels became 468, and 568 as of this writing.
+- **loong64** declines nine, and the largest group is not an ABI wall but a
+  relocation one: clang emits LoongArch branches with a displacement of zero
+  and expects the linker to fill them in, so the bodies cannot be copied
+  verbatim the way AArch64's and RISC-V's can. Making them work needs the
+  generator to compute and patch each branch, which is bounded work nobody has
+  done. Treating them as already-resolved, which is true elsewhere, produces
+  branches to themselves — entry 46.
 
-Neither is a correctness hole. A kernel that cannot be generated is not
-registered, and the portable implementation stands in.
+None of this is a correctness hole. A kernel that cannot be generated is not
+registered, and the portable implementation stands in. The differential suite
+compares whatever a tier actually ended up with against that reference, so a
+skipped kernel is slower and never wrong.
+
+**Throughput off amd64 is modelled, not measured.** `make perf-model` runs
+llvm-mca over each kernel's inner loop for arm64, ppc64le and s390x; nothing
+models below 1.2x, and the model agrees with measured amd64 to within 5–12%
+on the avx512-versus-avx2 comparison. What no model can give is wall-clock
+under a real memory system, which is what dominates a whole-slice kernel at
+large n — so every GB/s figure in this file is amd64 and says so.
 
 ---
 

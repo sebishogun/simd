@@ -331,7 +331,7 @@ func scanK(op, field string, e elem) spec.Kernel {
 // whatever the hardware width, and internal/ref reproduces the same grouping,
 // so `-tags purego` and AVX-512 give identical bits.
 func fastScanK(op, field string, e elem) spec.Kernel {
-	return spec.Kernel{
+	k := spec.Kernel{
 		CName:  "simd_fast_cum" + op + "_" + e.c,
 		GoName: "fastCum" + field + e.goName,
 		Group:  e.group, Field: "FastCum" + field,
@@ -340,6 +340,28 @@ func fastScanK(op, field string, e elem) spec.Kernel {
 		CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
 		Threshold: thElementwise,
 	}
+	if op == "prod" {
+		// ppc64le returns zero for every element after the first. The cause is
+		// the scan's IDENTITY vector reading as all-zeros, and the evidence is
+		// that every scan built from SCAN_ID with a nonzero identity fails —
+		// both float products and the integer one — while FastCumSum, built
+		// from the same macro with an identity of 0.0, passes.
+		//
+		// So FastCumSum on ppc64le is currently right for the wrong reason:
+		// it reads zeros and zero is what it wanted. Anyone repairing the pool
+		// handling should expect that kernel's generated code to change even
+		// though its behaviour does not.
+		//
+		// The shuffle masks in the same pool are read correctly, or the sum
+		// would fail too, which is what makes this a specific offset fault
+		// rather than the pool being generally broken. It is a skip and not a
+		// fix because the last generator change made on this kind of reasoning
+		// shipped an infinite loop (entry 46), and this one deserves the
+		// investigation rather than a second guess at 1pm. The portable path
+		// stands in and is correct.
+		k.SkipOn = []string{"ppc64le"}
+	}
+	return k
 }
 
 // Scan is the associative prefix-scan family, and it is integers only.
@@ -387,6 +409,8 @@ func Scan() []spec.Kernel {
 				Params:    []spec.Param{sl("dst", e.slice), sl("a", e.slice)},
 				CArgs:     []spec.CArg{base("dst"), base("a"), lenOf("dst")},
 				Threshold: thElementwise,
+				// Same ppc64le fault as the float products; see fastScanK.
+				SkipOn: []string{"ppc64le"},
 			})
 		}
 		if e.float {

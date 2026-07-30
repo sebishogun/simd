@@ -41,8 +41,8 @@ func TestMultiSearcher(t *testing.T) {
 			{"", nil},
 			{"", []string{"a"}},
 			{"abc", nil},
-			{"abc", []string{""}},          // empty needle matches at 0
-			{"abc", []string{"zzz", ""}},   // and wins even listed second
+			{"abc", []string{""}},        // empty needle matches at 0
+			{"abc", []string{"zzz", ""}}, // and wins even listed second
 			{"hello world", []string{"world", "hello"}}, // earliest, not first-listed
 			{"hello world", []string{"lo w", "o w"}},
 			{"aaaa", []string{"aa", "aaa"}}, // same position, earlier needle wins
@@ -67,7 +67,7 @@ func TestMultiSearcher(t *testing.T) {
 	// and the alphabet across the anchor heuristic's best and worst cases.
 	r := rand.New(rand.NewPCG(241, 251))
 	alphabets := map[string]string{
-		"narrow":   "abcdefgh",  // every needle byte is common here
+		"narrow":   "abcdefgh", // every needle byte is common here
 		"wide":     "abcdefghijklmnopqrstuvwxyz0123456789 .,",
 		"binary":   "\x00\x01\xfe\xff\x7f",
 		"repeated": "aab", // heavy repetition, many false candidates

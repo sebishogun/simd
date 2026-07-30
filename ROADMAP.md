@@ -62,60 +62,39 @@ here.
 
 ## Backends
 
-### ppc64le: repoint the TOC prologue at an appended pool
+### ~~ppc64le: repoint the TOC prologue at an appended pool~~ — done
 
-**The design is settled and the mechanism is verified on hardware. What remains
-is the generator change.**
+**Shipped.** 281 kernels became 468, and 568 as the kernel set grew. The
+approach is the one sketched here before it was written: emit the pool as a Go
+`DATA`/`GLOBL` symbol, put `MOVD $pool<>(SB), R2` in the generator's prologue,
+overwrite clang's two global-entry instructions with NOPs — length-preserving,
+which is not optional — and recompute each `R_PPC64_TOC16_HA/LO` immediate as
+an offset from the pool base, minding the HA/LO sign adjustment.
 
-157 kernels are not generated for ppc64le because clang reaches its constants
-through `r2`, the TOC pointer, which Go does not maintain for these objects.
-This is the largest single coverage gap in the library: ppc64le has 281 kernels
-where amd64 has 1664.
+What the sketch had wrong is worth keeping. It assumed the obstacle was
+Power9's lack of PC-relative data addressing. It was not: Go's own assembler
+materialises a symbol address in two instructions with no TOC involvement, so
+the pool never needed to be reached PC-relatively at all.
 
-The shape is uniform and that is what makes it tractable. Every one of those
-kernels opens with clang's ELFv2 global-entry prologue —
-
-    addis r2, r12, .TOC.@ha     R_PPC64_REL16_HA
-    addi  r2, r2,  .TOC.@l      R_PPC64_REL16_LO
-
-— and only 10 of 541 functions surveyed write `r2` after it.
-
-Power9 has no PC-relative data addressing, which for a long time looked like
-the obstacle. It is not, because none is needed. **Go's own assembler
-materialises a RODATA address in two instructions with no TOC at all:**
-
-    MOVD $pool<>(SB), R12   ->   lis  r12, 15
-                                 addi r12, r12, -560
-
-Go builds non-PIE, so the address is a link-time constant. A probe doing this
-was built and *run* under emulated ppc64le and read back the right value. So
-there is no need to clobber the link register with `bcl`/`mflr`, no need for a
-protected-zone slot to save it in, and no dependency on whatever `r2` held on
-entry.
-
-The rewrite is therefore:
-
-1. Emit the pool as a Go `DATA`/`GLOBL` symbol, as the amd64 path already does.
-2. Put `MOVD $pool<>(SB), R2` in the generator's prologue. Its length is free —
-   the prologue precedes the body, and the body's branches are all relative to
-   the body.
-3. Overwrite the two global-entry instructions with NOPs. Length-preserving,
-   which `constpool.go` explains is not optional.
-4. Recompute each `R_PPC64_TOC16_HA/LO` immediate as an offset from the pool
-   base instead of from `.TOC.`, minding the HA/LO sign adjustment — the same
-   arithmetic `resolvePool` already does for four other architectures.
-
-A further 64 kernels use `r30`, which Go's linker owns; that is separate.
+The eleven kernels ppc64le still declines are a different wall each: `r30` and
+`r2` are registers Go owns, and seventeen more write above `r1` into the
+caller's frame, which would need a SaveArea and a trampoline — and the ELFv2
+trampoline is unsafe here, because a `bl` to a global symbol is followed by a
+slot the linker may rewrite into a TOC reload, and in a trampoline that slot
+is the `RET`. That decision is recorded at `target.go`.
 
 ### s390x
 
-614 kernels, and the missing ones are missing because clang uses `r13`, which
-is where Go keeps the current goroutine. There is no `-ffixed-r13` for SystemZ;
-the global register variable is accepted and silently ignored. No fix is known,
-which is why this has no entry above — it is recorded here so that its absence
-is not mistaken for an oversight.
+395 kernels, and the missing thirteen are missing because clang uses `r13`,
+which is where Go keeps the current goroutine. There is no `-ffixed-r13` for
+SystemZ; the global register variable is accepted and silently ignored. Four
+routes were probed and all four are dead, so this is upstream — recorded here
+so that its absence is not mistaken for an oversight.
 
----
+An earlier version of this file said 614 and the README said 650. Both were
+wrong: 614 was the count before the r13 rule was enforced, and 650 double-
+counted registrations and their wrappers. The number has in fact risen
+monotonically, 325 to 395, and never fell.
 
 ## Tiers
 

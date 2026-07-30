@@ -2,6 +2,92 @@
 
 ## Unreleased
 
+### The qemu lanes were never reading their flags
+
+The emulators here follow the binfmt_misc preserve-argv[0] convention, so run
+by hand they consume the first argument as the guest's `argv[0]`. Every
+`-test.run`, `-test.count` and `-test.short` was silently discarded, and a Go
+test binary with no flags runs its full default suite and prints `PASS` — so
+the lanes were green while testing something other than what they said.
+
+The casualty that matters is `-require-accelerated`, the guard against a
+vacuously green lane, which **had never once been evaluated**. Fixed by
+passing the binary path twice; `simdinfo -argv0-probe` now asserts flags
+arrive before any lane is trusted. Entry 41.
+
+### New operations
+
+- **UTF-16.** `AppendUTF16`, `AppendUTF8`, `UTF16Len`, `UTF8Len`. The
+  conversion is a dependent scan, so the design finds ASCII *runs* and widens
+  those. Against what a `[]byte` caller writes today at 64 KiB: 83x encode and
+  108x decode on ASCII, 5.4x and 12.5x at 10% non-ASCII, 2.0x and 2.4x on
+  all-non-ASCII, which is the honest floor.
+- **Multi-pattern search.** `MultiSearcher`, anchored on each needle's *rarest*
+  byte rather than its first. The obvious first-byte filter is 252x **slower**
+  when those bytes are common; this is 32x faster than the k-loop at k=64 in
+  both the rare and common cases, and still 3.3–12.5x ahead on an alphabet
+  where no byte is rare.
+- **Case-insensitive search.** `IndexFoldASCII`, `ContainsFoldASCII`,
+  `CountFoldASCII`, composed from `ToLowerASCII` and `Index`.
+- **JSON escaping.** `AppendEscapeJSON`, `NeedsEscapeJSON`.
+- **`ParseUints`**, 4.5x `strconv` across 64 to 200,000 fields. Not a wrapper
+  around `ParseInts`: the signed limit of 2^63 would reject half the domain.
+- **`ParseFloats`**, 2.3x on two-decimal CSV and 2.0x on scientific, and
+  **bit-identical to `strconv`** because Clinger's fast path is exactly
+  rounded. Deliberately **no kernel** — every target refused it and both
+  refusals were right.
+- **`FastCumSum` / `FastCumProd`**, and an exact accelerated integer
+  `CumProd`. See below.
+- **Packed-B GEMM.** `MatMulIntoPacked`, `PackBInto`, `MatMulIntoScratch`.
+
+### Prefix scans: what Fast means, and what it does not
+
+`FastCumProd` is 3.65x on float32 and 1.76x on float64; integer `CumProd` is
+2.17x and needs **no** `Fast` prefix, because two's-complement multiplication
+is associative and the grouping is not observable.
+
+Four variants were measured and **not** shipped: float64 `FastCumSum` (0.91x,
+slower than the plain one on the tier most machines select), both integer
+sums, and int64 product. The rule is the latency of the serial combine, not
+associativity — every one of these is associative.
+
+`Fast` here drops **agreement with a naive loop, not accuracy**. Blocked
+summation has O(log n) error growth against a serial accumulator's O(n), so it
+is *closer* to the truth: 7143x lower total error on the case that breaks
+serial accumulation, asserted by a test. Entries 44 and 45.
+
+### ppc64le: the intermittent crash is solved
+
+Not one kernel — the r0-by-value violation, and **fifteen** kernels were doing
+it, which is why two bisections over three candidates read coin flips.
+Confirmed by interleaved experiment: violators registered crashed 5 of 20,
+rule active 0 of 20. Entry 42.
+
+### perf-model: throughput where this machine cannot measure
+
+`make perf-model` runs llvm-mca over each kernel's inner loop against the same
+kernel compiled without vectorization, for amd64, arm64, ppc64le and s390x.
+Nothing models below 1.2x. Validated against measured amd64 to within 5–12% on
+the avx512-versus-avx2 comparison. riscv64 and loong64 are excluded with
+stated reasons. Entry 49.
+
+### make menu
+
+An interactive picker over every make target, marked for the machine it is
+shown on — a third of them cannot run on any given machine. Uses fzf when
+present, falls back to a numbered list. Fixed three things that were broken
+off Linux: `BENCH_PIN` defaulted to `taskset`, the qemu hint recommended an
+install that cannot help on macOS, and `benchcheck` died with a bare
+file-not-found on any architecture without a baseline.
+
+### Corrected: the coverage table
+
+The README gave s390x as 650 kernels. That double-counted registrations and
+their wrappers; the real figure was 325 then and is 395 now, and it has risen
+monotonically throughout. The other five entries were accurate when written
+and had merely stopped being current. Current counts, from the generator:
+amd64 2170, arm64 1455, riscv64 731, loong64 658, ppc64le 568, s390x 395.
+
 ### New operations
 
 - **FFT.** Radix-2 Cooley-Tukey with a reusable plan, plus a real-input

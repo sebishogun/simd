@@ -20,15 +20,6 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func fastCumProdFloat32VSXGuarded(dst []float32, a []float32) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.FastCumProdFloat(dst, a)
-		return
-	}
-	fastCumProdFloat32VSX(dst[:n:n], a)
-}
-
 func fastCumSumFloat32VSXGuarded(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -36,15 +27,6 @@ func fastCumSumFloat32VSXGuarded(dst []float32, a []float32) {
 		return
 	}
 	fastCumSumFloat32VSX(dst[:n:n], a)
-}
-
-func fastCumProdFloat64VSXGuarded(dst []float64, a []float64) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.FastCumProdFloat(dst, a)
-		return
-	}
-	fastCumProdFloat64VSX(dst[:n:n], a)
 }
 
 func cumMinInt32VSXGuarded(dst []int32, a []int32) {
@@ -63,15 +45,6 @@ func cumMaxInt32VSXGuarded(dst []int32, a []int32) {
 		return
 	}
 	cumMaxInt32VSX(dst[:n:n], a)
-}
-
-func cumProdInt32VSXGuarded(dst []int32, a []int32) {
-	n := min(len(dst), len(a))
-	if n < 16 {
-		ref.CumProdInt(dst, a)
-		return
-	}
-	cumProdInt32VSX(dst[:n:n], a)
 }
 
 func cumMinInt64VSXGuarded(dst []int64, a []int64) {
@@ -96,12 +69,9 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vsx")
-	s.F32.FastCumProd = fastCumProdFloat32VSXGuarded
 	s.F32.FastCumSum = fastCumSumFloat32VSXGuarded
-	s.F64.FastCumProd = fastCumProdFloat64VSXGuarded
 	s.I32.CumMin = cumMinInt32VSXGuarded
 	s.I32.CumMax = cumMaxInt32VSXGuarded
-	s.I32.CumProd = cumProdInt32VSXGuarded
 	s.I64.CumMin = cumMinInt64VSXGuarded
 	s.I64.CumMax = cumMaxInt64VSXGuarded
 }

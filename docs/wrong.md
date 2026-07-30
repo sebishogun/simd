@@ -1594,3 +1594,38 @@ the reason at the field. The general point is that knowing a bug intimately is
 not protection against writing it: the parser and the extractor were written
 months apart by the same reasoning from the same wrong default, and the second
 one had the first one's post-mortem open in another file.
+
+## 51. The scan kernels were verified everywhere
+
+**Wrong.** They were verified on amd64, purego, every amd64 tier, riscv64 and
+loong64, and not on the three architectures that only `make test-cross`
+reaches. On ppc64le, `FastCumProd` returned **zero for every element after the
+first**, and it shipped that way.
+
+It was found by the report tool written afterwards, on its first full run, in
+the lane I had not re-run since adding the kernels.
+
+The fault is the scan's identity vector reading as all-zeros, and the evidence
+is clean:
+
+- every scan built with a **nonzero** identity fails — `FastCumProd` on both
+  float types and the exact integer `CumProd`;
+- `FastCumSum`, built from the same macro with an identity of **0.0**, passes.
+
+So `FastCumSum` on ppc64le is currently right for the wrong reason: it reads
+zeros, and zero is what it wanted. The shuffle masks in the same pool are read
+correctly — or the sum would fail too — which makes this a specific offset
+fault rather than the pool being generally broken.
+
+**Fix**: skipped on ppc64le, not repaired. The portable path stands in and is
+correct, and the last generator change made on exactly this kind of reasoning
+shipped an infinite loop the same night (entry 46). A second guess at the
+constant-pool arithmetic, hours later, is not what this deserves.
+
+Two things worth taking from it. **A test lane that is not run is not a test
+lane**: `test-cross` is the only cover for arm64, s390x and ppc64le, it takes
+three minutes, and I ran `test-gates`, `test-riscv64` and `test-loong64`
+instead because those were the ones I had been debugging. And **an identity
+element is a terrible canary**: a bug that zeroes it is invisible in every
+operation whose identity is already zero, so the sum kernel would have gone on
+passing for as long as anyone cared to look.
