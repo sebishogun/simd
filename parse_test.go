@@ -174,3 +174,92 @@ func TestFormatInts(t *testing.T) {
 		}
 	}
 }
+
+func TestParseUints(t *testing.T) {
+	// The extremes are the point again, and the upper one is the whole reason
+	// this is not a wrapper around ParseInts: MaxUint64 is more than twice
+	// MaxInt64, and a 20-digit field is one digit longer than any int64.
+	good := []uint64{0, 1, 7, 42, 1000000, 9223372036854775807,
+		9223372036854775808, 18446744073709551614, math.MaxUint64,
+		999999999999999999, 10000000000000000000}
+	parts := make([]string, len(good))
+	for i, v := range good {
+		parts[i] = strconv.FormatUint(v, 10)
+	}
+	line := []byte(strings.Join(parts, ","))
+	dst := make([]uint64, len(good))
+	n, ok := simd.ParseUints(dst, line, boundaries(line, ','))
+	if !ok || n != len(good) {
+		t.Fatalf("n=%d ok=%v, want %d true", n, ok, len(good))
+	}
+	for i, want := range good {
+		if dst[i] != want {
+			t.Fatalf("field %d = %d, want %d", i, dst[i], want)
+		}
+	}
+
+	// Rejections, each stopping at the field that is wrong. No sign is
+	// accepted at all, which is strconv.ParseUint's rule and not ParseInts'.
+	for _, c := range []struct {
+		in   string
+		stop int
+	}{
+		{"1,2,-3,4", 2},                  // minus rejected
+		{"1,+2", 1},                      // and so is plus
+		{"1,,2", 1},                      // empty field
+		{"1,18446744073709551616,2", 1},  // one past MaxUint64
+		{"1,99999999999999999999,2", 1},  // 20 digits, too large
+		{"1,184467440737095516150,2", 1}, // 21 digits, too long
+		{"1,2a,3", 1},                    // trailing junk
+		{"1,0x10,2", 1},                  // no base prefixes
+		{"1, 2,3", 1},                    // no leading space
+	} {
+		line := []byte(c.in)
+		dst := make([]uint64, 8)
+		n, ok := simd.ParseUints(dst, line, boundaries(line, ','))
+		if ok {
+			t.Errorf("ParseUints(%q) accepted, want rejection at field %d", c.in, c.stop)
+			continue
+		}
+		if n != c.stop {
+			t.Errorf("ParseUints(%q) stopped at %d, want %d", c.in, n, c.stop)
+		}
+	}
+
+	// Against strconv over a long line, which is the only oracle that matters.
+	// Values are spread across the range so both the 19-digit and 20-digit
+	// paths are exercised, the latter being where the kernel holds the leading
+	// digit out of the weighted sum to keep it from wrapping.
+	var sb strings.Builder
+	want := make([]uint64, 0, 5000)
+	for i := range 5000 {
+		v := uint64(i) * 3689348814741910323 // strides the whole range
+		want = append(want, v)
+		if i > 0 {
+			sb.WriteByte(',')
+		}
+		sb.WriteString(strconv.FormatUint(v, 10))
+	}
+	big := []byte(sb.String())
+	got := make([]uint64, len(want))
+	n, ok = simd.ParseUints(got, big, boundaries(big, ','))
+	if !ok || n != len(want) {
+		t.Fatalf("long line: n=%d ok=%v, want %d true", n, ok, len(want))
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("long line field %d = %d, want %d", i, got[i], want[i])
+		}
+	}
+
+	// Round trip through FormatInts is not available for unsigned, but the
+	// zero-length and short cases still have to behave.
+	if n, ok := simd.ParseUints(nil, "", nil); n != 0 || !ok {
+		t.Errorf("empty = (%d,%v), want (0,true)", n, ok)
+	}
+	short := make([]uint64, 2)
+	l := []byte("1,2,3,4")
+	if n, ok := simd.ParseUints(short, l, boundaries(l, ',')); n != 2 || !ok {
+		t.Errorf("short dst = (%d,%v), want (2,true)", n, ok)
+	}
+}

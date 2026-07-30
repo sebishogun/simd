@@ -220,6 +220,14 @@ func parseIntsRVVGuarded(dst []int64, src []byte, idx []int32) (count int, ok bo
 	return parseIntsRVV(dst, src, idx[:n:n])
 }
 
+func parseUintsRVVGuarded(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
+	n := min(len(idx), len(dst), len(src))
+	if n < 32 {
+		return ref.ParseUints(dst, src, idx)
+	}
+	return parseUintsRVV(dst, src, idx[:n:n])
+}
+
 func formatIntsRVVGuarded(dst []byte, vals []int64, sep byte) int {
 	if len(vals) < 0 || len(dst) < 21*len(vals) {
 		return ref.FormatInts(dst, vals, sep)
@@ -319,6 +327,7 @@ func init() {
 	s.Bytes.B64Encode = b64EncodeRVVGuarded
 	s.Bytes.B64Decode = b64DecodeRVVGuarded
 	s.Bytes.ParseInts = parseIntsRVVGuarded
+	s.Bytes.ParseUints = parseUintsRVVGuarded
 	s.Bytes.FormatInts = formatIntsRVVGuarded
 	s.Bytes.HexDecode = hexDecodeRVVGuarded
 	s.Bytes.HexEncode = hexEncodeRVVGuarded

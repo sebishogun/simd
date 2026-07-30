@@ -923,6 +923,20 @@ func Bytes() []spec.Kernel {
 			Threshold: thBytes,
 		},
 		{
+			// ParseInts without the sign and over the full uint64 range. Not
+			// derivable from the signed kernel: its limit is 2^63, so half the
+			// domain would be rejected.
+			CName: "simd_parse_uints", GoName: "parseUints",
+			Group: "Bytes", Field: "ParseUints", RefFunc: "ParseUints",
+			Params: []spec.Param{sl("dst", spec.SliceU64), sl("src", spec.SliceU8),
+				sl("idx", spec.SliceI32)},
+			Result:  &spec.Param{Name: "count", Type: spec.Int},
+			Result2: &spec.Param{Name: "ok", Type: spec.B},
+			CArgs: []spec.CArg{out(), out2(), base("dst"), base("src"),
+				base("idx"), lenOf("idx")},
+			Threshold: thBytes,
+		},
+		{
 			// The inverse of ParseInts: the two-digit-pair table, 3.3x
 			// strconv.AppendInt in the C probe. The guard routes destinations
 			// under the 21-bytes-per-value worst case to the reference, which

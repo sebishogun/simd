@@ -1054,7 +1054,7 @@ func Set() kernel.Set {
 			ToUpperASCII: toUpperASCII, ToLowerASCII: toLowerASCII,
 			EqualFoldASCII: equalFoldASCII, ReplaceByte: replaceByte,
 			HexEncode: hexEncode, HexDecode: hexDecode,
-			ParseInts: ParseInts, FormatInts: FormatInts,
+			ParseInts: ParseInts, ParseUints: ParseUints, FormatInts: FormatInts,
 			B64Encode: b64Encode, B64Decode: b64Decode,
 		},
 		Convert:   convertOps(),

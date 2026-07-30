@@ -94,6 +94,9 @@ func b64DecodeRVV(dst []byte, b []byte) int
 func parseIntsRVV(dst []int64, src []byte, idx []int32) (count int, ok bool)
 
 //go:noescape
+func parseUintsRVV(dst []uint64, src []byte, idx []int32) (count int, ok bool)
+
+//go:noescape
 func formatIntsRVV(dst []byte, vals []int64, sep byte) int
 
 //go:noescape

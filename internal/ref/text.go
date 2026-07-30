@@ -485,6 +485,46 @@ func ParseInts(dst []int64, src []byte, idx []int32) (int, bool) {
 	return n, true
 }
 
+// ParseUints is ParseInts over the full uint64 range and with no sign.
+//
+// A leading '+' is rejected rather than skipped, matching strconv.ParseUint
+// with bitSize 64, which accepts no sign at all.
+func ParseUints(dst []uint64, src []byte, idx []int32) (int, bool) {
+	n := min(len(dst), len(idx))
+	start := 0
+	for k := range n {
+		end := int(idx[k])
+		if end > len(src) || end < start {
+			return k, false
+		}
+		f := src[start:end]
+		start = end + 1
+		if len(f) == 0 || len(f) > 20 {
+			return k, false
+		}
+		var acc uint64
+		for _, c := range f {
+			d := c - '0'
+			if d > 9 {
+				return k, false
+			}
+			// Horner here, unlike the kernel, because the reference is written
+			// for obviousness and the overflow test is easier to see: acc
+			// exceeding maxUint64/10 before the multiply, or the add carrying.
+			if acc > (1<<64-1)/10 {
+				return k, false
+			}
+			next := acc*10 + uint64(d)
+			if next < acc {
+				return k, false
+			}
+			acc = next
+		}
+		dst[k] = acc
+	}
+	return n, true
+}
+
 // FormatInts is the reference formatter: exact-fit, so it succeeds wherever
 // success is possible, which is what makes it the safe fallback for short
 // destinations.

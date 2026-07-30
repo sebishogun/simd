@@ -401,6 +401,17 @@ func ParseInts[S Text](dst []int64, src S, idx []int32) (int, bool) {
 	return active.Bytes.ParseInts(dst, textBytes(src), idx)
 }
 
+// ParseUints is [ParseInts] over the full uint64 range.
+//
+// It is a separate kernel rather than a wrapper because the signed one's limit
+// is 2^63: every value above that — half the domain, and the half a caller
+// reaches for uint64 to get — would be rejected by it.
+//
+// No sign is accepted, not even a leading '+', matching strconv.ParseUint.
+func ParseUints[S Text](dst []uint64, src S, idx []int32) (int, bool) {
+	return active.Bytes.ParseUints(dst, textBytes(src), idx)
+}
+
 // FormatInts writes vals as decimal text separated by sep — the inverse of
 // [ParseInts] — and returns how many bytes it wrote, or -1 if dst cannot hold
 // the result.

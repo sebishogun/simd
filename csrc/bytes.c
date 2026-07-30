@@ -975,6 +975,99 @@ void simd_parse_ints(isize *__restrict n_out, _Bool *__restrict ok_out,
 
 // ---------- integer formatting ----------
 //
+// simd_parse_uints is simd_parse_ints without the sign, over the full uint64
+// range.
+//
+// Not a wrapper around it: the signed version's limit is 2^63, so every value
+// above that would be rejected, and a sign character must be rejected here
+// rather than accepted. The weighted-sum accumulate is the same and for the
+// same reason — a Horner chain compiles to zero vector instructions.
+//
+// Twenty digits fit a uint64 where nineteen fit an int64, and 20 digits can
+// overflow, so the accumulator has to detect that itself. It cannot do it by
+// comparing against a limit the way the signed version does, because a 20-digit
+// weighted sum can wrap before the comparison happens. It checks the leading
+// digit and the remainder against the 19-digit maximum instead, which is exact
+// and needs no wider arithmetic.
+void simd_parse_uints(isize *__restrict n_out, _Bool *__restrict ok_out,
+                      unsigned long long *__restrict dst,
+                      const u8 *__restrict src, const int *__restrict idx,
+                      isize nidx) {
+  static const unsigned long long pow10u[20] = {1ULL,
+                                                10ULL,
+                                                100ULL,
+                                                1000ULL,
+                                                10000ULL,
+                                                100000ULL,
+                                                1000000ULL,
+                                                10000000ULL,
+                                                100000000ULL,
+                                                1000000000ULL,
+                                                10000000000ULL,
+                                                100000000000ULL,
+                                                1000000000000ULL,
+                                                10000000000000ULL,
+                                                100000000000000ULL,
+                                                1000000000000000ULL,
+                                                10000000000000000ULL,
+                                                100000000000000000ULL,
+                                                1000000000000000000ULL,
+                                                10000000000000000000ULL};
+
+  isize start = 0;
+  for (isize k = 0; k < nidx; k++) {
+    isize end = idx[k];
+    isize p = start;
+    start = end + 1;
+
+    isize len = end - p;
+    if (len <= 0 || len > 20) {
+      *n_out = k;
+      *ok_out = 0;
+      return;
+    }
+    // A 20-digit field is split: the leading digit is held out of the sum, so
+    // the remaining 19 digits cannot overflow (their maximum is under 10^19)
+    // and the combination is checked exactly.
+    isize lead = 0;
+    unsigned long long leadd = 0;
+    if (len == 20) {
+      leadd = (unsigned long long)(u8)(src[p] - (u8)'0');
+      if (leadd > 9) {
+        *n_out = k;
+        *ok_out = 0;
+        return;
+      }
+      lead = 1;
+    }
+    unsigned long long acc = 0;
+    unsigned char bad = 0;
+    for (isize j = lead; j < len; j++) {
+      u8 d = (u8)(src[p + j] - (u8)'0');
+      bad |= (unsigned char)(d > 9);
+      acc += (unsigned long long)d * pow10u[len - 1 - j];
+    }
+    if (bad) {
+      *n_out = k;
+      *ok_out = 0;
+      return;
+    }
+    if (lead) {
+      // The value is leadd * 10^19 + acc, and the maximum uint64 is
+      // 18446744073709551615 = 1 * 10^19 + 8446744073709551615.
+      if (leadd > 1 || (leadd == 1 && acc > 8446744073709551615ULL)) {
+        *n_out = k;
+        *ok_out = 0;
+        return;
+      }
+      acc += leadd * 10000000000000000000ULL;
+    }
+    dst[k] = acc;
+  }
+  *n_out = nidx;
+  *ok_out = 1;
+}
+
 // The inverse of simd_parse_ints, and the measurement that shaped it: the
 // two-digits-per-lookup table is what makes fast formatters fast, and the C
 // probe ran at 2.07 GB/s of output against strconv.AppendInt's 0.62 — 3.3x —

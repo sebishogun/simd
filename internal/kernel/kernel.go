@@ -399,6 +399,11 @@ type Bytes struct {
 	// all, stopping at the first field that is not a valid integer.
 	ParseInts func(dst []int64, src []byte, idx []int32) (int, bool)
 
+	// ParseUints is ParseInts over the full uint64 range, with no sign
+	// accepted. Separate because the signed limit of 2^63 would reject half
+	// the domain a uint64 caller is reaching for.
+	ParseUints func(dst []uint64, src []byte, idx []int32) (int, bool)
+
 	// FormatInts writes vals as decimal, sep-separated, returning the bytes
 	// written or -1 when dst cannot hold even the exact rendering.
 	FormatInts func(dst []byte, vals []int64, sep byte) int
