@@ -43,4 +43,16 @@ func correlateFloat64NEON(dst []float64, sig []float64, ker []float64)
 func movingAverageFloat32NEON(dst []float32, a []float32, width int)
 
 //go:noescape
+func shiftDivFloat32NEON(dst []float32, a []float32, shift float32, denom float32)
+
+//go:noescape
+func layerNormFloat32NEON(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+
+//go:noescape
 func movingAverageFloat64NEON(dst []float64, a []float64, width int)
+
+//go:noescape
+func shiftDivFloat64NEON(dst []float64, a []float64, shift float64, denom float64)
+
+//go:noescape
+func layerNormFloat64NEON(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)

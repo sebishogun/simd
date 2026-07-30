@@ -168,6 +168,25 @@ func fuzzOps[T comparable](t *testing.T, tier, name string,
 		}
 	}
 
+	// ShiftDiv and LayerNorm carry scalar operands, so they take their shift
+	// and denominator from the corpus rather than from a constant: whatever
+	// bit pattern the fuzzer produced for a[0] and b[0] is as good a scalar as
+	// any, and includes the ones no arithmetic would generate.
+	if got.ShiftDiv != nil && want.ShiftDiv != nil && n > 0 {
+		got.ShiftDiv(g, a, a[0], b[0])
+		want.ShiftDiv(w, a, a[0], b[0])
+		if i, ok := same(g, w); !ok {
+			t.Fatalf("%s/%s.ShiftDiv at %d: got %v want %v", tier, name, i, g[i], w[i])
+		}
+	}
+	if got.LayerNorm != nil && want.LayerNorm != nil && n > 0 {
+		got.LayerNorm(g, a, b, a, a[0], b[0])
+		want.LayerNorm(w, a, b, a, a[0], b[0])
+		if i, ok := same(g, w); !ok {
+			t.Fatalf("%s/%s.LayerNorm at %d: got %v want %v", tier, name, i, g[i], w[i])
+		}
+	}
+
 	// Comparisons write one bool per element, and the float ones are where
 	// NaN makes NotEqual not the negation of Equal.
 	gm, wm := make([]bool, n), make([]bool, n)

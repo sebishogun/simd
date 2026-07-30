@@ -298,12 +298,48 @@ func movingAverageFloat32AVX2Guarded(dst []float32, a []float32, width int) {
 	movingAverageFloat32AVX2(dst, a, width)
 }
 
+func shiftDivFloat32AVX2Guarded(dst []float32, a []float32, shift float32, denom float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ShiftDiv(dst, a, shift, denom)
+		return
+	}
+	shiftDivFloat32AVX2(dst[:n:n], a, shift, denom)
+}
+
+func layerNormFloat32AVX2Guarded(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
+	n := min(len(dst), len(a), len(gamma), len(beta))
+	if n < 16 {
+		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
+		return
+	}
+	layerNormFloat32AVX2(dst[:n:n], a, gamma, beta, shift, denom)
+}
+
 func movingAverageFloat64AVX2Guarded(dst []float64, a []float64, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
 		return
 	}
 	movingAverageFloat64AVX2(dst, a, width)
+}
+
+func shiftDivFloat64AVX2Guarded(dst []float64, a []float64, shift float64, denom float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ShiftDiv(dst, a, shift, denom)
+		return
+	}
+	shiftDivFloat64AVX2(dst[:n:n], a, shift, denom)
+}
+
+func layerNormFloat64AVX2Guarded(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
+	n := min(len(dst), len(a), len(gamma), len(beta))
+	if n < 16 {
+		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
+		return
+	}
+	layerNormFloat64AVX2(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
 func init() {
@@ -345,5 +381,9 @@ func init() {
 	s.U64.Gather = gatherUint64AVX2Guarded
 	s.U64.Scatter = scatterUint64AVX2Guarded
 	s.F32.MovingAverage = movingAverageFloat32AVX2Guarded
+	s.F32.ShiftDiv = shiftDivFloat32AVX2Guarded
+	s.F32.LayerNorm = layerNormFloat32AVX2Guarded
 	s.F64.MovingAverage = movingAverageFloat64AVX2Guarded
+	s.F64.ShiftDiv = shiftDivFloat64AVX2Guarded
+	s.F64.LayerNorm = layerNormFloat64AVX2Guarded
 }

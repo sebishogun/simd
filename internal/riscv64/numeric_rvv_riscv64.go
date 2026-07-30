@@ -124,4 +124,16 @@ func gatherUint64RVV(dst []uint64, src []uint64, idx []int32)
 func movingAverageFloat32RVV(dst []float32, a []float32, width int)
 
 //go:noescape
+func shiftDivFloat32RVV(dst []float32, a []float32, shift float32, denom float32)
+
+//go:noescape
+func layerNormFloat32RVV(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+
+//go:noescape
 func movingAverageFloat64RVV(dst []float64, a []float64, width int)
+
+//go:noescape
+func shiftDivFloat64RVV(dst []float64, a []float64, shift float64, denom float64)
+
+//go:noescape
+func layerNormFloat64RVV(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)

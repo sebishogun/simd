@@ -1439,6 +1439,60 @@ TEXT ·movingAverageFloat32SSE2(SB), NOSPLIT|NOFRAME, $0-56
 	BYTE $0xc3
 	RET
 
+// func shiftDivFloat32SSE2(dst []float32, a []float32, shift float32, denom float32)
+TEXT ·shiftDivFloat32SSE2(SB), NOSPLIT|NOFRAME, $0-56
+	MOVQ dst_base+0(FP), DI
+	MOVQ a_base+24(FP), SI
+	MOVSS shift+48(FP), X0
+	MOVSS denom+52(FP), X1
+	MOVQ dst_len+8(FP), DX
+	QUAD $0xf8e48348e5894855
+	QUAD $0xfa8348667ed28548
+	QUAD $0x4842ebc031047304
+	QUAD $0xfffffffffffffcb8
+	QUAD $0x0fd0280fd021487f
+	QUAD $0xc60fd9280f00d0c6
+	QUAD $0x2e666666c93100d9
+	QUAD $0x0000000000841f0f
+	QUAD $0x0fe2580f8e24100f
+	QUAD $0x83488f24110fe35e
+	QUAD $0xebe975c8394804c1
+	QUAD $0x0ff38614100ff315
+	QUAD $0x0ff3d15e0ff3d058
+	QUAD $0x3948c0ff48871411
+	QUAD $0xc35dec8948e675c2
+	RET
+
+// func layerNormFloat32SSE2(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+TEXT ·layerNormFloat32SSE2(SB), NOSPLIT|NOFRAME, $0-104
+	MOVQ dst_base+0(FP), DI
+	MOVQ a_base+24(FP), SI
+	MOVQ gamma_base+48(FP), DX
+	MOVQ beta_base+72(FP), CX
+	MOVSS shift+96(FP), X0
+	MOVSS denom+100(FP), X1
+	MOVQ dst_len+8(FP), R8
+	QUAD $0xf8e48348e5894855
+	QUAD $0x00007e8e0fc0854d
+	QUAD $0x31047304f8834900
+	QUAD $0xfffffcb84850ebc0
+	QUAD $0xc0214c7fffffffff
+	QUAD $0x0f00d0c60fd0280f
+	QUAD $0x314500d9c60fd928
+	QUAD $0x00000000801f0fc9
+	QUAD $0xe2580f8e24100f42
+	QUAD $0x8a2c100f42e35e0f
+	QUAD $0x8924100f42ec590f
+	QUAD $0x8f24110f42e5580f
+	QUAD $0x75c8394c04c18349
+	QUAD $0x8614100ff31febd7
+	QUAD $0xd15e0ff3d0580ff3
+	QUAD $0x580ff38214590ff3
+	QUAD $0x488714110ff38114
+	QUAD $0x48dc75c03949c0ff
+	LONG $0xc35dec89
+	RET
+
 // func movingAverageFloat64SSE2(dst []float64, a []float64, width int)
 TEXT ·movingAverageFloat64SSE2(SB), NOSPLIT|NOFRAME, $0-56
 	MOVQ dst_base+0(FP), DI
@@ -1479,5 +1533,61 @@ TEXT ·movingAverageFloat64SSE2(SB), NOSPLIT|NOFRAME, $0-56
 	QUAD $0x5bf8658d48ffffff
 	BYTE $0x5d
 	BYTE $0xc3
+	RET
+
+// func shiftDivFloat64SSE2(dst []float64, a []float64, shift float64, denom float64)
+TEXT ·shiftDivFloat64SSE2(SB), NOSPLIT|NOFRAME, $0-64
+	MOVQ dst_base+0(FP), DI
+	MOVQ a_base+24(FP), SI
+	MOVSD shift+48(FP), X0
+	MOVSD denom+56(FP), X1
+	MOVQ dst_len+8(FP), DX
+	QUAD $0xf8e48348e5894855
+	QUAD $0xfa83486a7ed28548
+	QUAD $0x4846ebc031047501
+	QUAD $0xfffffffffffffeb8
+	QUAD $0xd0280f66d021487f
+	QUAD $0xd9280f66d0140f66
+	QUAD $0x2e66c931d9140f66
+	QUAD $0x0000000000841f0f
+	QUAD $0x580f66ce24100f66
+	QUAD $0x110f66e35e0f66e2
+	QUAD $0x394802c18348cf24
+	QUAD $0x100ff215ebe575c8
+	QUAD $0x0ff2d0580ff2c614
+	QUAD $0x48c714110ff2d15e
+	QUAD $0x48e675c23948c0ff
+	LONG $0xc35dec89
+	RET
+
+// func layerNormFloat64SSE2(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)
+TEXT ·layerNormFloat64SSE2(SB), NOSPLIT|NOFRAME, $0-112
+	MOVQ dst_base+0(FP), DI
+	MOVQ a_base+24(FP), SI
+	MOVQ gamma_base+48(FP), DX
+	MOVQ beta_base+72(FP), CX
+	MOVSD shift+96(FP), X0
+	MOVSD denom+104(FP), X1
+	MOVQ dst_len+8(FP), R8
+	QUAD $0xf8e48348e5894855
+	QUAD $0x0000868e0fc0854d
+	QUAD $0x31047501f8834900
+	QUAD $0xfffffeb84858ebc0
+	QUAD $0xc0214c7fffffffff
+	QUAD $0xd0140f66d0280f66
+	QUAD $0xd9140f66d9280f66
+	QUAD $0x0000441f0fc93145
+	QUAD $0x0f66ce24100f4266
+	QUAD $0x4266e35e0f66e258
+	QUAD $0xec590f66ca2c100f
+	QUAD $0x0f66c924100f4266
+	QUAD $0xcf24110f4266e558
+	QUAD $0x75c8394c02c18349
+	QUAD $0xc614100ff21febcf
+	QUAD $0xd15e0ff2d0580ff2
+	QUAD $0x580ff2c214590ff2
+	QUAD $0x48c714110ff2c114
+	QUAD $0x48dc75c03949c0ff
+	LONG $0xc35dec89
 	RET
 

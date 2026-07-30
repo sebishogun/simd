@@ -242,6 +242,42 @@ func gatherUint64LASXGuarded(dst []uint64, src []uint64, idx []int32) {
 	gatherUint64LASX(dst, src, idx)
 }
 
+func shiftDivFloat32LASXGuarded(dst []float32, a []float32, shift float32, denom float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ShiftDiv(dst, a, shift, denom)
+		return
+	}
+	shiftDivFloat32LASX(dst[:n:n], a, shift, denom)
+}
+
+func layerNormFloat32LASXGuarded(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
+	n := min(len(dst), len(a), len(gamma), len(beta))
+	if n < 16 {
+		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
+		return
+	}
+	layerNormFloat32LASX(dst[:n:n], a, gamma, beta, shift, denom)
+}
+
+func shiftDivFloat64LASXGuarded(dst []float64, a []float64, shift float64, denom float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ShiftDiv(dst, a, shift, denom)
+		return
+	}
+	shiftDivFloat64LASX(dst[:n:n], a, shift, denom)
+}
+
+func layerNormFloat64LASXGuarded(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
+	n := min(len(dst), len(a), len(gamma), len(beta))
+	if n < 16 {
+		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
+		return
+	}
+	layerNormFloat64LASX(dst[:n:n], a, gamma, beta, shift, denom)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -274,4 +310,8 @@ func init() {
 	s.U32.Gather = gatherUint32LASXGuarded
 	s.U64.Tile = tileUint64LASXGuarded
 	s.U64.Gather = gatherUint64LASXGuarded
+	s.F32.ShiftDiv = shiftDivFloat32LASXGuarded
+	s.F32.LayerNorm = layerNormFloat32LASXGuarded
+	s.F64.ShiftDiv = shiftDivFloat64LASXGuarded
+	s.F64.LayerNorm = layerNormFloat64LASXGuarded
 }

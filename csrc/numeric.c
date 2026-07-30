@@ -438,3 +438,44 @@ void simd_matmul_f64(double *__restrict d, const double *__restrict a,
                      const double *__restrict b, isize m, isize k, isize n) {
   MATMUL(double)
 }
+
+// ---------- layer normalization, the elementwise half ----------
+//
+// LayerNorm is mean and variance over the slice, then rescale every element.
+// The reductions are not here: they are simd_sum and simd_sumsqdev, unchanged,
+// because the two-pass mean-then-deviation form is what package simd's
+// Variance already promises and a one-pass sum-of-squares identity would lose
+// most of its significant digits when the variance is small next to the mean.
+// What is here is the rescale, which was two passes — SubScalar then DivScalar
+// — and is one now.
+//
+// It DIVIDES by sd rather than multiplying by a precomputed 1/sd, and that is
+// not an oversight. kernel.Ops says of DivScalar that it really divides
+// because multiplying by the reciprocal loses a bit, and the whole point of
+// fusing these two passes is to get the same answer in fewer of them. A
+// reciprocal here would silently change every result LayerNorm has ever
+// returned.
+#define SHIFT_DIV(T, SUF)                                                 \
+  void simd_shift_div_##SUF(T *__restrict d, const T *__restrict a,       \
+                            T shift, T denom, isize n) {                  \
+    for (isize i = 0; i < n; i++) d[i] = (a[i] + shift) / denom;          \
+  }
+
+// The affine form, which is the one a transformer actually uses: after
+// normalizing, scale by a learned gamma and offset by a learned beta, both
+// per element. Without them LayerNorm is only half the layer.
+//
+// gamma and beta are separate slices rather than folded into shift and denom
+// because they vary per element and the normalization does not.
+#define LAYERNORM_AFFINE(T, SUF)                                          \
+  void simd_layernorm_##SUF(T *__restrict d, const T *__restrict a,       \
+                            const T *__restrict g, const T *__restrict b, \
+                            T shift, T denom, isize n) {                  \
+    for (isize i = 0; i < n; i++)                                         \
+      d[i] = (a[i] + shift) / denom * g[i] + b[i];                        \
+  }
+
+SHIFT_DIV(float, f32)
+SHIFT_DIV(double, f64)
+LAYERNORM_AFFINE(float, f32)
+LAYERNORM_AFFINE(double, f64)

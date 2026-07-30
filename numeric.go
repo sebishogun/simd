@@ -363,8 +363,34 @@ func LayerNorm[T Float](a []T, eps T) {
 	}
 	m := Mean(a)
 	v := ops[T]().SumSqDev(a, m) / T(len(a))
-	SubScalar(a, m)
-	DivScalar(a, T(math.Sqrt(float64(v+eps))))
+	// One pass rather than SubScalar then DivScalar, and bit-identical to
+	// that pair: the kernel divides by sd rather than multiplying by 1/sd,
+	// which is the difference between fusing two passes and changing the
+	// answer. Three passes over memory now instead of four.
+	ops[T]().ShiftDiv(a, a, -m, T(math.Sqrt(float64(v+eps))))
+}
+
+// LayerNormInto is [LayerNorm] with the learned per-element scale and offset a
+// transformer applies after normalizing:
+//
+//	dst[i] = (a[i] - mean) / sqrt(variance + eps) * gamma[i] + beta[i]
+//
+// [LayerNorm] normalizes and stops, which is only half of the layer as it is
+// used in practice: gamma and beta are parameters the model learns, and
+// without them the layer cannot represent the identity.
+//
+// The mean and the variance are the same two-pass ones [Variance] computes, so
+// this agrees with normalizing and then applying the affine transform by hand.
+// It writes min of every argument's length and allocates nothing.
+func LayerNormInto[T Float](dst, a, gamma, beta []T, eps T) {
+	n := min(len(dst), len(a), len(gamma), len(beta))
+	if n == 0 {
+		return
+	}
+	a = a[:n]
+	m := Mean(a)
+	v := ops[T]().SumSqDev(a, m) / T(n)
+	ops[T]().LayerNorm(dst[:n], a, gamma[:n], beta[:n], -m, T(math.Sqrt(float64(v+eps))))
 }
 
 // RMSNorm divides a by the root mean square of its elements, with eps added

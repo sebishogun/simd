@@ -672,6 +672,37 @@ func l1DiffFloat[T float](a, b []T) T {
 	return kernel.CombineTree(&acc)
 }
 
+// shiftDiv is SubScalar followed by DivScalar in one pass. It divides rather
+// than multiplying by a reciprocal, which is what makes it agree with that
+// pair bit for bit rather than merely closely.
+func shiftDiv[T float](dst, a []T, shift, denom T) {
+	n := min(len(dst), len(a))
+	dst, a = dst[:n], a[:n]
+	for i := range dst {
+		dst[i] = (a[i] + shift) / denom
+	}
+}
+
+// layerNorm is shiftDiv followed by the learned per-element affine transform.
+//
+// The T() conversion around the multiply is load-bearing, not decoration. Go
+// permits an implementation to fuse a multiply and an add into a single FMA,
+// and does so on riscv64, loong64, arm64 and ppc64 but not on amd64 — while
+// the kernels compile with -ffp-contract=off and never fuse. Written as one
+// expression this function therefore gave a different answer on half the
+// architectures than the kernel it is the reference for, which is the exact
+// failure rule 1 exists to prevent. An explicit conversion rounds to T and
+// forbids the fusion; see internal/ref/fusion_test.go and dotFloat, which
+// takes the same precaution for the same reason.
+func layerNorm[T float](dst, a, gamma, beta []T, shift, denom T) {
+	n := min(len(dst), len(a), len(gamma), len(beta))
+	dst, a, gamma, beta = dst[:n], a[:n], gamma[:n], beta[:n]
+	for i := range dst {
+		t := (a[i] + shift) / denom
+		dst[i] = T(t*gamma[i]) + beta[i]
+	}
+}
+
 func sumSqDevInt[T integer](a []T, c T) T {
 	var s T
 	for _, v := range a {
@@ -953,6 +984,7 @@ func floatOps[T float]() kernel.Ops[T] {
 		SumSquares: sumSquaresFloat[T], L1Norm: l1NormFloat[T], Norm: normFloat[T],
 		Dot:      dotFloat[T],
 		SumSqDev: sumSqDevFloat[T], SumSqDiff: sumSqDiffFloat[T], L1Diff: l1DiffFloat[T],
+		ShiftDiv: shiftDiv[T], LayerNorm: layerNorm[T],
 		ArgMin: argMinFloat[T], ArgMax: argMaxFloat[T], MinMax: minMaxFloat[T],
 	}
 	floatMathOps(&o)
@@ -1251,3 +1283,11 @@ func ArgMinInt[T Integer](a []T) int { return argMinInt(a) }
 func ArgMaxInt[T Integer](a []T) int { return argMaxInt(a) }
 
 func NormFloat[T Float](a []T) T { return normFloat(a) }
+
+// Exported entry points for the generated guards.
+
+func ShiftDiv[T float](dst, a []T, shift, denom T) { shiftDiv(dst, a, shift, denom) }
+
+func LayerNorm[T float](dst, a, gamma, beta []T, shift, denom T) {
+	layerNorm(dst, a, gamma, beta, shift, denom)
+}

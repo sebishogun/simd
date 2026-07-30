@@ -2100,6 +2100,60 @@ TEXT ·movingAverageFloat32RVV(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0x00008067
 	RET
 
+// func shiftDivFloat32RVV(dst []float32, a []float32, shift float32, denom float32)
+TEXT ·shiftDivFloat32RVV(SB), NOSPLIT|NOFRAME, $0-56
+	MOV dst_base+0(FP), X10
+	MOV a_base+24(FP), X11
+	MOVF shift+48(FP), F10
+	MOVF denom+52(FP), F11
+	MOV dst_len+8(FP), X12
+	WORD $0x02c05a63
+	WORD $0x00000693
+	WORD $0x0d167757
+	WORD $0x00269793
+	WORD $0x00f58833
+	WORD $0x02086407
+	WORD $0x02855457
+	WORD $0x8285d457
+	WORD $0x00f507b3
+	WORD $0x40e60633
+	WORD $0x0207e427
+	WORD $0x00e686b3
+	WORD $0xfc061ce3
+	WORD $0x00008067
+	RET
+
+// func layerNormFloat32RVV(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+TEXT ·layerNormFloat32RVV(SB), NOSPLIT|NOFRAME, $0-104
+	MOV dst_base+0(FP), X10
+	MOV a_base+24(FP), X11
+	MOV gamma_base+48(FP), X12
+	MOV beta_base+72(FP), X13
+	MOVF shift+96(FP), F10
+	MOVF denom+100(FP), F11
+	MOV dst_len+8(FP), X14
+	WORD $0x04e05663
+	WORD $0x00000793
+	WORD $0x0d177857
+	WORD $0x00279893
+	WORD $0x011582b3
+	WORD $0x0202e407
+	WORD $0x02855457
+	WORD $0x8285d457
+	WORD $0x011602b3
+	WORD $0x0202e507
+	WORD $0x011682b3
+	WORD $0x0202e607
+	WORD $0x92a41457
+	WORD $0x011508b3
+	WORD $0x41070733
+	WORD $0x02c41457
+	WORD $0x0208e427
+	WORD $0x010787b3
+	WORD $0xfc0710e3
+	WORD $0x00008067
+	RET
+
 // func movingAverageFloat64RVV(dst []float64, a []float64, width int)
 TEXT ·movingAverageFloat64RVV(SB), NOSPLIT|NOFRAME, $0-56
 	MOV dst_base+0(FP), X10
@@ -2137,6 +2191,60 @@ TEXT ·movingAverageFloat64RVV(SB), NOSPLIT|NOFRAME, $0-56
 	WORD $0x00168693
 	WORD $0x00e7b027
 	WORD $0xfac69ae3
+	WORD $0x00008067
+	RET
+
+// func shiftDivFloat64RVV(dst []float64, a []float64, shift float64, denom float64)
+TEXT ·shiftDivFloat64RVV(SB), NOSPLIT|NOFRAME, $0-64
+	MOV dst_base+0(FP), X10
+	MOV a_base+24(FP), X11
+	MOVD shift+48(FP), F10
+	MOVD denom+56(FP), F11
+	MOV dst_len+8(FP), X12
+	WORD $0x02c05a63
+	WORD $0x00000693
+	WORD $0x0d967757
+	WORD $0x00369793
+	WORD $0x00f58833
+	WORD $0x02087407
+	WORD $0x02855457
+	WORD $0x8285d457
+	WORD $0x00f507b3
+	WORD $0x40e60633
+	WORD $0x0207f427
+	WORD $0x00e686b3
+	WORD $0xfc061ce3
+	WORD $0x00008067
+	RET
+
+// func layerNormFloat64RVV(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)
+TEXT ·layerNormFloat64RVV(SB), NOSPLIT|NOFRAME, $0-112
+	MOV dst_base+0(FP), X10
+	MOV a_base+24(FP), X11
+	MOV gamma_base+48(FP), X12
+	MOV beta_base+72(FP), X13
+	MOVD shift+96(FP), F10
+	MOVD denom+104(FP), F11
+	MOV dst_len+8(FP), X14
+	WORD $0x04e05663
+	WORD $0x00000793
+	WORD $0x0d977857
+	WORD $0x00379893
+	WORD $0x011582b3
+	WORD $0x0202f407
+	WORD $0x02855457
+	WORD $0x8285d457
+	WORD $0x011602b3
+	WORD $0x0202f507
+	WORD $0x011682b3
+	WORD $0x0202f607
+	WORD $0x92a41457
+	WORD $0x011508b3
+	WORD $0x41070733
+	WORD $0x02c41457
+	WORD $0x0208f427
+	WORD $0x010787b3
+	WORD $0xfc0710e3
 	WORD $0x00008067
 	RET
 

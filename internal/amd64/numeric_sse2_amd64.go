@@ -85,4 +85,16 @@ func tileUint64SSE2(dst []uint64, pattern []uint64)
 func movingAverageFloat32SSE2(dst []float32, a []float32, width int)
 
 //go:noescape
+func shiftDivFloat32SSE2(dst []float32, a []float32, shift float32, denom float32)
+
+//go:noescape
+func layerNormFloat32SSE2(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+
+//go:noescape
 func movingAverageFloat64SSE2(dst []float64, a []float64, width int)
+
+//go:noescape
+func shiftDivFloat64SSE2(dst []float64, a []float64, shift float64, denom float64)
+
+//go:noescape
+func layerNormFloat64SSE2(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)

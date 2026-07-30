@@ -290,9 +290,25 @@ type Ops[T any] struct {
 	// Two-input and centred reductions. These exist as kernels rather than
 	// being composed in the caller so that variance, distance and similarity
 	// need one pass over memory and no scratch buffer.
-	SumSqDev  func(a []T, c T) T // sum((a[i]-c)^2), for variance about a mean
-	SumSqDiff func(a, b []T) T   // sum((a[i]-b[i])^2), squared Euclidean distance
-	L1Diff    func(a, b []T) T   // sum(|a[i]-b[i]|), Manhattan distance
+	SumSqDev func(a []T, c T) T // sum((a[i]-c)^2), for variance about a mean
+
+	// ShiftDiv is (a[i] + shift) / denom, which is SubScalar followed by
+	// DivScalar in one pass rather than two.
+	//
+	// It divides rather than multiplying by a precomputed reciprocal, for the
+	// same reason DivScalar does, and that is what makes it bit-identical to
+	// the pair it replaces rather than merely close to it.
+	//
+	// LayerNorm is the same rescale with a learned per-element gamma and beta
+	// applied after it: (a[i] + shift) / denom * gamma[i] + beta[i]. Float
+	// only, and the reductions that produce shift and denom are not part of
+	// it — those stay Sum and SumSqDev, so the mean and variance are the same
+	// two-pass ones package simd's Variance already promises.
+	ShiftDiv  func(dst, a []T, shift, denom T)
+	LayerNorm func(dst, a, gamma, beta []T, shift, denom T)
+
+	SumSqDiff func(a, b []T) T // sum((a[i]-b[i])^2), squared Euclidean distance
+	L1Diff    func(a, b []T) T // sum(|a[i]-b[i]|), Manhattan distance
 
 	// Reductions to an index or a pair.
 	ArgMin, ArgMax func(a []T) int

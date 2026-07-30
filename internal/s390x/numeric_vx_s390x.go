@@ -20,3 +20,15 @@ func normFloat32VX(a []float32) float32
 
 //go:noescape
 func normFloat64VX(a []float64) float64
+
+//go:noescape
+func shiftDivFloat32VX(dst []float32, a []float32, shift float32, denom float32)
+
+//go:noescape
+func layerNormFloat32VX(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+
+//go:noescape
+func shiftDivFloat64VX(dst []float64, a []float64, shift float64, denom float64)
+
+//go:noescape
+func layerNormFloat64VX(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)

@@ -146,3 +146,41 @@ func BenchmarkHammingDistance(b *testing.B) {
 		})
 	}
 }
+
+var sinkLN []float64
+
+// LayerNorm was four passes over memory — Sum, SumSqDev, SubScalar, DivScalar
+// — and is three now, the last two fused. The affine form adds gamma and beta
+// without adding a pass, where doing it by hand after LayerNorm would.
+func BenchmarkLayerNorm(b *testing.B) {
+	r := rand.New(rand.NewPCG(101, 103))
+	for _, n := range []int{256, 4096, 65536} {
+		a := make([]float64, n)
+		for i := range a {
+			a[i] = r.NormFloat64()*30 + 7
+		}
+		work := make([]float64, n)
+		b.Run(fmt.Sprintf("n=%d/impl=inplace", n), func(b *testing.B) {
+			b.SetBytes(int64(n) * 8)
+			for b.Loop() {
+				copy(work, a)
+				simd.LayerNorm(work, 1e-5)
+			}
+			sinkLN = work
+		})
+
+		gamma := make([]float64, n)
+		beta := make([]float64, n)
+		for i := range gamma {
+			gamma[i], beta[i] = r.NormFloat64(), r.NormFloat64()
+		}
+		dst := make([]float64, n)
+		b.Run(fmt.Sprintf("n=%d/impl=affine", n), func(b *testing.B) {
+			b.SetBytes(int64(n) * 8)
+			for b.Loop() {
+				simd.LayerNormInto(dst, a, gamma, beta, 1e-5)
+			}
+			sinkLN = dst
+		})
+	}
+}

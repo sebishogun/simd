@@ -69,6 +69,17 @@ func TestNoFusedMultiplyAdd(t *testing.T) {
 				a, b, c, got[0], want[0])
 		}
 
+		// LayerNorm: dst = (x+shift)/denom * gamma + beta. The multiply and
+		// the add at the end are the fusable pair, and this one shipped
+		// written as a single expression — right on amd64, wrong on riscv64
+		// and loong64, where Go fuses and the kernel does not.
+		LayerNorm(got[:], []float32{a}, []float32{b}, []float32{c}, 0, 1)
+		want[0] = stepwiseMulAdd(c, a, b)
+		if math.Float32bits(got[0]) != math.Float32bits(want[0]) {
+			t.Fatalf("LayerNorm(%v, %v, %v) = %v, want %v — fused multiply-add",
+				a, b, c, got[0], want[0])
+		}
+
 		// Dot over a single element, which is the accumulator's multiply.
 		d := DotFloat([]float32{a}, []float32{b})
 		if math.Float32bits(d) != math.Float32bits(mul32(a, b)) {

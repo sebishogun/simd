@@ -1381,9 +1381,39 @@ func Numeric() []spec.Kernel {
 		ks = append(ks, tileK(e), gatherK(e), scatterK(e))
 	}
 	for _, e := range floats() {
-		ks = append(ks, movAvgK(e))
+		ks = append(ks, movAvgK(e), shiftDivK(e), layerNormK(e))
 	}
 	return ks
+}
+
+// shiftDivK is (a + shift) / denom in one pass, which is SubScalar followed by
+// DivScalar without the intermediate. It divides rather than multiplying by a
+// reciprocal, so it is bit-identical to that pair; see the note in numeric.c.
+func shiftDivK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_shift_div_" + e.c, GoName: "shiftDiv" + e.goName,
+		Group: e.group, Field: "ShiftDiv", RefFunc: "ShiftDiv",
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			{Name: "shift", Type: e.scalar}, {Name: "denom", Type: e.scalar}},
+		CArgs: []spec.CArg{base("dst"), base("a"), val("shift"), val("denom"),
+			lenOf("dst")},
+		Threshold: thElementwise,
+	}
+}
+
+// layerNormK is the affine rescale a transformer's LayerNorm ends with:
+// (a + shift) / denom * gamma + beta, per element, in one pass.
+func layerNormK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_layernorm_" + e.c, GoName: "layerNorm" + e.goName,
+		Group: e.group, Field: "LayerNorm", RefFunc: "LayerNorm",
+		Params: []spec.Param{sl("dst", e.slice), sl("a", e.slice),
+			sl("gamma", e.slice), sl("beta", e.slice),
+			{Name: "shift", Type: e.scalar}, {Name: "denom", Type: e.scalar}},
+		CArgs: []spec.CArg{base("dst"), base("a"), base("gamma"), base("beta"),
+			val("shift"), val("denom"), lenOf("dst")},
+		Threshold: thElementwise,
+	}
 }
 
 // scatterK is the indexed store. RefWhen sends the unequal-length case to the

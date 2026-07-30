@@ -34,10 +34,50 @@ func normFloat64VXGuarded(a []float64) float64 {
 	return normFloat64VX(a)
 }
 
+func shiftDivFloat32VXGuarded(dst []float32, a []float32, shift float32, denom float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ShiftDiv(dst, a, shift, denom)
+		return
+	}
+	shiftDivFloat32VX(dst[:n:n], a, shift, denom)
+}
+
+func layerNormFloat32VXGuarded(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
+	n := min(len(dst), len(a), len(gamma), len(beta))
+	if n < 16 {
+		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
+		return
+	}
+	layerNormFloat32VX(dst[:n:n], a, gamma, beta, shift, denom)
+}
+
+func shiftDivFloat64VXGuarded(dst []float64, a []float64, shift float64, denom float64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.ShiftDiv(dst, a, shift, denom)
+		return
+	}
+	shiftDivFloat64VX(dst[:n:n], a, shift, denom)
+}
+
+func layerNormFloat64VXGuarded(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
+	n := min(len(dst), len(a), len(gamma), len(beta))
+	if n < 16 {
+		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
+		return
+	}
+	layerNormFloat64VX(dst[:n:n], a, gamma, beta, shift, denom)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("vx")
 	s.F32.Norm = normFloat32VXGuarded
 	s.F64.Norm = normFloat64VXGuarded
+	s.F32.ShiftDiv = shiftDivFloat32VXGuarded
+	s.F32.LayerNorm = layerNormFloat32VXGuarded
+	s.F64.ShiftDiv = shiftDivFloat64VXGuarded
+	s.F64.LayerNorm = layerNormFloat64VXGuarded
 }

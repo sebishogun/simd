@@ -121,4 +121,16 @@ func scatterUint64AVX2(dst []uint64, idx []int32, src []uint64)
 func movingAverageFloat32AVX2(dst []float32, a []float32, width int)
 
 //go:noescape
+func shiftDivFloat32AVX2(dst []float32, a []float32, shift float32, denom float32)
+
+//go:noescape
+func layerNormFloat32AVX2(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+
+//go:noescape
 func movingAverageFloat64AVX2(dst []float64, a []float64, width int)
+
+//go:noescape
+func shiftDivFloat64AVX2(dst []float64, a []float64, shift float64, denom float64)
+
+//go:noescape
+func layerNormFloat64AVX2(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)

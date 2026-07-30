@@ -869,3 +869,215 @@ TEXT ·normFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
 	WORD $0xa7f4fed7
 	RET
 
+// func shiftDivFloat32VX(dst []float32, a []float32, shift float32, denom float32)
+TEXT ·shiftDivFloat32VX(SB), NOSPLIT, $160-56
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	FMOVS shift+48(FP), F0
+	FMOVS denom+52(FP), F2
+	MOVD dst_len+8(FP), R4
+	BL ·shiftDivFloat32VXBody(SB)
+	RET
+
+// shiftDivFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·shiftDivFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c003b
+	WORD $0x007ca709
+	WORD $0x0000ec44
+	WORD $0x0025047d
+	WORD $0xec0401bd
+	WORD $0x0059e710
+	WORD $0x0000204d
+	WORD $0xe7320000
+	WORD $0x204da719
+	WORD $0x0000b904
+	WORD $0x0050e741
+	WORD $0x30000006
+	WORD $0xe7414000
+	WORD $0x20e3e744
+	WORD $0x300020e5
+	WORD $0xe7412000
+	WORD $0x000ea75b
+	WORD $0xfffc4110
+	WORD $0x1010a764
+	WORD $0xfff0ec40
+	WORD $0xe00080e4
+	WORD $0xb9090040
+	WORD $0xeb100002
+	WORD $0x000d2810
+	WORD $0xed113000
+	WORD $0x000ab30d
+	WORD $0x00127011
+	WORD $0x20004110
+	WORD $0x1004a747
+	WORD $0xfff607fe
+	RET
+
+// func layerNormFloat32VX(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+TEXT ·layerNormFloat32VX(SB), NOSPLIT, $160-104
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD gamma_base+48(FP), R4
+	MOVD beta_base+72(FP), R5
+	FMOVS shift+96(FP), F0
+	FMOVS denom+100(FP), F2
+	MOVD dst_len+8(FP), R6
+	BL ·layerNormFloat32VXBody(SB)
+	RET
+
+// layerNormFloat32VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·layerNormFloat32VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x004d007c
+	WORD $0xa7090000
+	WORD $0xec640031
+	WORD $0x047dec06
+	WORD $0x01bd0059
+	WORD $0xe7100000
+	WORD $0x204de732
+	WORD $0x0000204d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7413000
+	WORD $0x0006e741
+	WORD $0x400020e3
+	WORD $0xe7443000
+	WORD $0x20e5e751
+	WORD $0x40000006
+	WORD $0xe7454000
+	WORD $0x20e7e751
+	WORD $0x50000006
+	WORD $0xe7454000
+	WORD $0x20e3e741
+	WORD $0x2000000e
+	WORD $0xa7ebfffc
+	WORD $0x41101010
+	WORD $0xa764ffe4
+	WORD $0xec60001a
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0002000d
+	WORD $0x2810ed11
+	WORD $0x3000000a
+	WORD $0xb30d0012
+	WORD $0xed114000
+	WORD $0x0017ed11
+	WORD $0x5000000a
+	WORD $0x70112000
+	WORD $0x41101004
+	WORD $0xa767fff0
+	WORD $0xeb6ff030
+	WORD $0x000407fe
+	RET
+
+// func shiftDivFloat64VX(dst []float64, a []float64, shift float64, denom float64)
+TEXT ·shiftDivFloat64VX(SB), NOSPLIT, $160-64
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	FMOVD shift+48(FP), F0
+	FMOVD denom+56(FP), F2
+	MOVD dst_len+8(FP), R4
+	BL ·shiftDivFloat64VXBody(SB)
+	RET
+
+// shiftDivFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·shiftDivFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xec4c003b
+	WORD $0x007ca709
+	WORD $0x0000ec48
+	WORD $0x0025017c
+	WORD $0xec0401be
+	WORD $0x0059e710
+	WORD $0x0000304d
+	WORD $0xe7320000
+	WORD $0x304da719
+	WORD $0x0000b904
+	WORD $0x0050e741
+	WORD $0x30003006
+	WORD $0xe7414000
+	WORD $0x30e3e744
+	WORD $0x300030e5
+	WORD $0xe7412000
+	WORD $0x300ea75b
+	WORD $0xfffe4110
+	WORD $0x1010a774
+	WORD $0xfff0ec40
+	WORD $0xe00080e4
+	WORD $0xb9090040
+	WORD $0xeb100003
+	WORD $0x000d2810
+	WORD $0xed113000
+	WORD $0x001ab31d
+	WORD $0x00126011
+	WORD $0x20004110
+	WORD $0x1008a747
+	WORD $0xfff607fe
+	RET
+
+// func layerNormFloat64VX(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64)
+TEXT ·layerNormFloat64VX(SB), NOSPLIT, $160-112
+	NO_LOCAL_POINTERS
+	MOVD dst_base+0(FP), R2
+	MOVD a_base+24(FP), R3
+	MOVD gamma_base+48(FP), R4
+	MOVD beta_base+72(FP), R5
+	FMOVD shift+96(FP), F0
+	FMOVD denom+104(FP), F2
+	MOVD dst_len+8(FP), R6
+	BL ·layerNormFloat64VXBody(SB)
+	RET
+
+// layerNormFloat64VXBody is the compiled kernel, called by the trampoline above so that
+// the register save area it writes belongs to the trampoline's frame.
+TEXT ·layerNormFloat64VXBody(SB), NOSPLIT|NOFRAME, $0-0
+	WORD $0xeb6ff030
+	WORD $0x0024ec6c
+	WORD $0x004d007c
+	WORD $0xa7090000
+	WORD $0xec680031
+	WORD $0x017cec06
+	WORD $0x01be0059
+	WORD $0xe7100000
+	WORD $0x304de732
+	WORD $0x0000304d
+	WORD $0xa7190000
+	WORD $0xb90400e0
+	WORD $0xe7413000
+	WORD $0x3006e741
+	WORD $0x400030e3
+	WORD $0xe7443000
+	WORD $0x30e5e751
+	WORD $0x40003006
+	WORD $0xe7454000
+	WORD $0x30e7e751
+	WORD $0x50003006
+	WORD $0xe7454000
+	WORD $0x30e3e741
+	WORD $0x2000300e
+	WORD $0xa7ebfffe
+	WORD $0x41101010
+	WORD $0xa774ffe4
+	WORD $0xec60001a
+	WORD $0x8064b909
+	WORD $0x0060eb10
+	WORD $0x0003000d
+	WORD $0x2810ed11
+	WORD $0x3000001a
+	WORD $0xb31d0012
+	WORD $0xed114000
+	WORD $0x001ced11
+	WORD $0x5000001a
+	WORD $0x60112000
+	WORD $0x41101008
+	WORD $0xa767fff0
+	WORD $0xeb6ff030
+	WORD $0x000407fe
+	RET
+

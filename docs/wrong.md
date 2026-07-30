@@ -1851,3 +1851,66 @@ composition it replaces*. `make perf-model` models one kernel, not two against
 each other. The only thing that caught this was writing the benchmark against
 the chain rather than against a scalar loop, which is the comparison a caller
 would actually face.
+
+---
+
+## 56. The portable path is not portable if you write a multiply-add
+
+**Assumed.** `internal/ref` is plain Go over plain slices. Whatever else varies
+between architectures, *that* is the fixed point — it is the thing every kernel
+is checked against, and the reason a `-tags purego` build is a meaningful
+fallback. A one-line arithmetic expression in it cannot be
+architecture-dependent.
+
+**True.** Go's specification permits an implementation to fuse a floating-point
+multiply and add into a single FMA, with one rounding instead of two. The gc
+compiler does this on **riscv64, loong64, arm64 and ppc64**, and does not on
+amd64. The kernels compile with `-ffp-contract=off` and never fuse anywhere.
+
+So a reference function written the way the operation reads:
+
+```go
+dst[i] = (a[i]+shift)/denom*gamma[i] + beta[i]
+```
+
+agrees with its kernel on amd64 and disagrees on four of the six architectures
+this library targets. Not by a rounding mode or an edge case — by one ULP on
+ordinary inputs, `878.1303` where the kernel says `878.1304`.
+
+**How it surfaced.** `make test-riscv64` and `make test-loong64`, both failing
+`TestLayerNormInto` while amd64, arm64 and s390x passed, and while
+`internal/conformance` passed *on the failing machines* — because that suite
+compares the kernel against `ref` on one machine at a time, and here both sides
+were the same wrong Go expression. What caught it was a test that compared
+against an independently-computed expectation.
+
+**The fix is one conversion**, and it was already in this repository:
+
+```go
+t := (a[i] + shift) / denom
+dst[i] = T(t*gamma[i]) + beta[i]
+```
+
+An explicit conversion to `T` rounds to `T`, and a rounding the fusion would
+have to discard is a fusion the compiler may not perform. `dotFloat` has taken
+this precaution since it was written, `internal/ref/fusion_test.go` exists to
+check it for `AddScaled`, `Lerp` and `Dot`, and the comment on rule 4 explains
+why. None of that helped, because none of it is reached by *new* code.
+
+So `LayerNorm` is now in `fusion_test.go` alongside the other three, and that
+test was confirmed to fail against the unfixed version on riscv64 before being
+kept — a guard nobody has watched go red is not a guard.
+
+**What generalises.** Two things, and the second is the uncomfortable one.
+
+The first: any new arithmetic in `internal/ref` containing a multiply feeding
+an add needs the conversion. That is a rule, it is mechanical, and it now has a
+test.
+
+The second: **the differential suite cannot catch this class of bug at all.**
+It compares kernel against reference on a single machine, so a defect that
+moves both sides together is invisible to it, however many architectures it is
+run on. Only a cross-architecture *comparison of results*, or a test with an
+independently-derived expected value, sees it. Every emulated lane in this
+repository is currently the former kind of check. That is worth knowing about
+the verification, not just about this bug.
