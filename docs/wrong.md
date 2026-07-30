@@ -2260,3 +2260,51 @@ its input.
 And a local `[16]T` handed to a kernel through a function pointer escapes, so
 `Add` allocated once per call. Accumulating straight into the struct's array
 removes both the allocation and the extra add.
+
+---
+
+## 63. RVV refuses the transcendentals on the cost model, and will not be talked out of it
+
+**Assumed.** Entry 59 sorted the vectorization refusals and found that the only
+category worth trying is the cost-model one — where LLVM *can* vectorize and
+decides not to. The accurate transcendentals on RVV are exactly that: 24
+refusals, and asking clang why gives
+
+	the cost-model indicates that vectorization is not beneficial
+
+every time, with no mention of a missing instruction. RVV has every float
+operation these need. So `#pragma clang loop vectorize(enable)` should recover
+them, and 24 kernels is worth a one-line macro change.
+
+**True.** Adding the pragma to `UNARY_MATH` and recompiling for RVV produces
+**22 instances** of
+
+	loop not vectorized: the optimizer was unable to perform the requested
+	transformation; the transformation might be disabled or specified as part
+	of an unsupported transformation ordering
+
+`vectorize(enable)` is a request, not an instruction. Where entry 59's
+`dot_i64` case took the request and produced scalarised vector code — the bad
+outcome — these decline it outright. The cost model is not the only thing
+saying no; something later in the pipeline is, and the pragma has no answer for
+it.
+
+So the two failure modes of forcing are now both on record, and neither is
+"it works":
+
+| | what forcing does |
+|---|---|
+| missing instruction (`dot_i64`, NEON) | emits scalar work plus lane packing, 36 → 47 instructions, and the repo's vector-instruction gate passes it |
+| cost model then a later pass (transcendentals, RVV) | refuses, with a warning |
+
+**What is left is what the task actually asked for: intrinsics.** And the
+constraint that makes it a project rather than an afternoon is not the
+arithmetic, it is rule 6's neighbour — the *accurate* transcendentals promise
+the same bits on every tier. A hand-written RVV version has to reproduce
+clang's exact evaluation order for the polynomial and the reduction, at a
+vector length that is not known until run time. That is achievable and it is a
+different kind of work from everything else in this repository, which gets its
+cross-tier identity for free by compiling one source everywhere.
+
+Not attempted. Recorded so the next person does not spend the afternoon on the
+pragma first.
