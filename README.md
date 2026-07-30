@@ -304,6 +304,27 @@ registered, and the portable implementation stands in.
 
 ## How it is verified
 
+Start with `make menu`, which lists every verification target and marks the
+ones this machine can actually run:
+
+```
+$ make menu
+gosimd  make targets on darwin/arm64
+        arm64 tier=neon available=[scalar neon]
+        go clang llvm-mca llvm-objdump docker benchstat qemu-riscv64 …
+
+● test-tiers      Run the suite once per instruction-set tier this CPU has
+● perf-model      Model kernel throughput on architectures this machine …
+○ test-riscv64    Full suite on riscv64 RVV under qemu
+○ test-loong64    Full suite on loong64 LASX under qemu
+```
+
+A third of these targets cannot run on any given machine — the qemu lanes need
+a Linux host, the cross lane needs docker with binfmt, codegen needs clang and
+llvm-objdump — and the preview says which, why, and what to install, rather
+than leaving you to find out by reading a failure. `make targets` prints the
+same list plainly. Neither needs fzf; it is used when present.
+
 The verification is the part of this project most worth borrowing.
 
 - **Differential testing** of every generated kernel against the portable

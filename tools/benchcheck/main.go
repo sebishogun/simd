@@ -63,6 +63,22 @@ func main() {
 
 	base, err := parse(*baseline)
 	if err != nil {
+		// The first run on a new architecture lands here, because baselines
+		// are per-GOARCH and only the one they were recorded on exists. That
+		// is a thing to do, not a thing that went wrong, so say which.
+		if os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr,
+				"benchcheck: no baseline at %s.\n\n"+
+					"Baselines are per-architecture and this machine has none yet, which is\n"+
+					"expected the first time the benchmarks run on a new GOARCH. Record one\n"+
+					"on an otherwise idle machine:\n\n"+
+					"    make bench-update\n\n"+
+					"Then `make bench-check` compares against it. Read\n"+
+					"testdata/bench/README.md first — a baseline recorded on a busy or\n"+
+					"thermally degraded machine is worse than no baseline, because every\n"+
+					"later comparison inherits it.\n", *baseline)
+			os.Exit(1)
+		}
 		fatal(err)
 	}
 	cur, err := parse(newPath)

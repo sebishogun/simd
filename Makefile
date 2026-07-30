@@ -13,34 +13,54 @@ DOCKER  ?= docker
 TIERS := $(shell $(GO) run ./cmd/simdinfo -tiers 2>/dev/null || echo scalar)
 
 .PHONY: all
-all: verify
+all: verify ## The default: everything that must pass before a commit
+
+# An interactive picker over everything below, which checks each target
+# against the machine it is being shown on.
+#
+# A third of these targets cannot run on any given machine — the qemu lanes
+# need five emulators and a Linux host, the cross lane needs docker with
+# binfmt, codegen needs clang and llvm-objdump, perf-model needs llvm-mca —
+# and there is otherwise no way to tell which is which except by running them
+# and reading the failures. `make menu` marks each one and says what is
+# missing, or that the platform cannot do it at all.
+#
+# It uses fzf when present and falls back to a numbered list when not, because
+# the point is that this works wherever the library does.
+.PHONY: menu
+menu: ## Interactive picker: every target, marked for THIS machine
+	@bash scripts/menu.sh
+
+.PHONY: targets
+targets: ## One line per target, for grep and for scripts
+	@bash scripts/menu.sh --list | column -t -s "$$(printf '\t')"
 
 # ---------------------------------------------------------------- correctness
 
 .PHONY: verify
-verify: fmt-check vet test test-purego test-tiers
+verify: fmt-check vet test test-purego test-tiers ## fmt-check, vet, test, test-purego, test-tiers
 	@echo "OK"
 
 .PHONY: test
-test:
+test: ## Run the test suite on the host
 	$(GO) test $(PKG)
 
 # The reference must be self-consistent before anything is compared against it.
 .PHONY: test-purego
-test-purego:
+test-purego: ## Run the suite against the portable reference (-tags purego)
 	$(GO) test -tags purego $(PKG)
 
 # Run the whole suite once per instruction-set tier this CPU supports. This is
 # what catches a kernel that is correct on AVX-512 and wrong on SSE2.
 .PHONY: test-tiers
-test-tiers:
+test-tiers: ## Run the suite once per instruction-set tier this CPU has
 	@for t in $(TIERS); do \
 		echo "--- GOSIMD=$$t"; \
 		GOSIMD=$$t $(GO) test $(PKG) || exit 1; \
 	done
 
 .PHONY: test-race
-test-race:
+test-race: ## Full suite under the race detector
 	$(GO) test -race $(PKG)
 
 # Two fuzz targets. FuzzDifferential drives the public API; the one under
@@ -50,7 +70,7 @@ test-race:
 # whole point: the inputs that break a kernel are not large or small, they are
 # a signalling NaN or a denormal at the exact exponent boundary.
 .PHONY: fuzz
-fuzz:
+fuzz: ## Fuzz the public API and the tier-vs-reference differential
 	$(GO) test -run '^$$' -fuzz FuzzDifferential -fuzztime $(or $(FUZZTIME),60s) .
 	$(GO) test -run '^$$' -fuzz FuzzKernelsAgainstReference \
 		-fuzztime $(or $(FUZZTIME),60s) ./internal/conformance/
@@ -87,7 +107,7 @@ fuzz:
 # it emulates a CPU with no vector extension, so the lane can only ever report
 # scalar and would verify nothing. It is covered by test-riscv64 instead.
 .PHONY: test-cross
-test-cross: cross-setup
+test-cross: cross-setup ## Every architecture with a backend, under docker + qemu
 	@for p in linux/arm64 linux/s390x linux/ppc64le; do \
 		echo "--- $$p"; \
 		$(DOCKER) run --rm --platform $$p -v "$(PWD)":/src -w /src \
@@ -142,12 +162,12 @@ QEMU_PKGS    ?= . ./internal/conformance ./internal/ref ./internal/cpu
 # restore the same blindness.
 
 .PHONY: test-loong64
-test-loong64:
+test-loong64: ## Full suite on loong64 LASX under qemu
 	@$(MAKE) --no-print-directory qemu-run \
 		ARCH=loong64 QEMU=$(QEMU_LOONG) CPU=la464
 
 .PHONY: test-riscv64
-test-riscv64:
+test-riscv64: ## Full suite on riscv64 RVV under qemu
 	@$(MAKE) --no-print-directory qemu-run \
 		ARCH=riscv64 QEMU=$(QEMU_RISCV) CPU=rv64,v=true,vlen=256,zba=true,zbb=true
 
@@ -166,7 +186,7 @@ test-riscv64:
 # NOT passed here; selecting a scalar tier is the correct outcome and asserting
 # otherwise would invert the test.
 .PHONY: test-gates
-test-gates:
+test-gates: ## riscv64 with NO vector unit: the fallback must still pass
 	@echo "--- riscv64 with no V extension: must fall back and still pass"
 	@$(MAKE) --no-print-directory qemu-run-plain \
 		ARCH=riscv64 QEMU=$(QEMU_RISCV) CPU=rv64
@@ -234,7 +254,7 @@ qemu-run:
 # Register the qemu interpreters, without which docker --platform fails with
 # "exec format error" rather than anything that names the real problem.
 .PHONY: cross-setup
-cross-setup:
+cross-setup: ## Register qemu interpreters so docker --platform works
 	@[ -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ] || \
 		$(DOCKER) run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
@@ -245,7 +265,7 @@ cross-setup:
 # docs/research/05-decisions.md, D7.
 
 .PHONY: check-emission
-check-emission:
+check-emission: ## Dry-run codegen: report what each target would emit or skip
 	cd tools && $(GO) run ./simdgen -n
 
 # perf-model estimates kernel throughput on the architectures this machine
@@ -261,14 +281,14 @@ check-emission:
 # the cycle counts. Validated against measured amd64 to within 5-12% on the
 # avx512-versus-avx2 comparison; see the package comment.
 .PHONY: perf-model
-perf-model:
+perf-model: ## Model kernel throughput on architectures this machine cannot time
 	@command -v llvm-mca >/dev/null || { \
 		echo "llvm-mca not found; it ships with clang, which codegen already needs"; \
 		exit 1; }
 	@cd tools && $(GO) run ./perfmodel $(PERFMODEL_ARGS)
 
 .PHONY: codegen
-codegen:
+codegen: ## Regenerate every kernel from csrc for all six architectures
 	cd tools && $(GO) run ./simdgen
 
 # ---------------------------------------------------------------- performance
@@ -297,31 +317,42 @@ BENCH_OUT     ?= /tmp/simd-bench-$(shell $(GO) env GOARCH).txt
 # core contention, which is most of it.
 #
 # Override with BENCH_PIN= to disable, or BENCH_PIN='taskset -c 0-3' to narrow.
+#
+# taskset is Linux-only. macOS has no supported way to pin a process to a core
+# at all — thread_policy_set's affinity hints are advisory and ignored on
+# Apple Silicon — so there the default is empty and the answer to a noisy
+# measurement is a quiet machine rather than a flag. Leaving `taskset` in the
+# default here would simply make `make bench` fail to start on a Mac, which is
+# a worse first experience than an unpinned run.
+ifeq ($(shell uname -s),Linux)
 BENCH_PIN ?= taskset -c 0-7
+else
+BENCH_PIN ?=
+endif
 
 .PHONY: bench-run
-bench-run:
+bench-run: ## Run the benchmarks and write the raw output
 	$(BENCH_PIN) $(GO) test -run '^$$' -bench . -count $(BENCH_COUNT) $(PKG) > $(BENCH_OUT)
 	@echo "wrote $(BENCH_OUT)"
 
 .PHONY: bench-check
-bench-check: bench-run
+bench-check: bench-run ## Benchmark and compare against the recorded baseline
 	cd tools && $(GO) run ./benchcheck -baseline ../$(BENCH_BASELINE) $(BENCH_OUT)
 
 .PHONY: bench-update
-bench-update: bench-run
+bench-update: bench-run ## Re-record the baseline (read the warning first)
 	cd tools && $(GO) run ./benchcheck -baseline ../$(BENCH_BASELINE) -update $(BENCH_OUT)
 
 
 
 .PHONY: bench
-bench:
+bench: ## Run every benchmark once, with allocation counts
 	$(GO) test -run '^$$' -bench . -benchmem $(PKG)
 
 # Accelerated versus portable Go, same benchmarks, compared properly.
 # Requires: go install golang.org/x/perf/cmd/benchstat@latest
 .PHONY: benchcmp
-benchcmp:
+benchcmp: ## Accelerated vs portable Go, through benchstat
 	$(GO) test -run '^$$' -bench . -count 10 $(PKG) > /tmp/simd-asm.txt
 	$(GO) test -run '^$$' -bench . -count 10 -tags purego $(PKG) > /tmp/simd-pure.txt
 	benchstat /tmp/simd-pure.txt /tmp/simd-asm.txt
@@ -329,23 +360,23 @@ benchcmp:
 # ---------------------------------------------------------------------- hygiene
 
 .PHONY: fmt
-fmt:
+fmt: ## Format all Go source
 	$(GO) fmt $(PKG)
 
 .PHONY: fmt-check
-fmt-check:
+fmt-check: ## Fail if anything is not gofmt-clean
 	@out=$$(gofmt -l . | grep -v '^tools/goat/' || true); \
 	if [ -n "$$out" ]; then echo "not gofmt'd:"; echo "$$out"; exit 1; fi
 
 .PHONY: vet
-vet:
+vet: ## go vet, including asmdecl over every generated .s
 	$(GO) vet $(PKG)
 
 .PHONY: tidy
-tidy:
+tidy: ## go mod tidy in both modules
 	$(GO) mod tidy
 	cd tools && $(GO) mod tidy
 
 .PHONY: clean
-clean:
+clean: ## Remove build artefacts and generated scratch files
 	$(GO) clean -testcache
