@@ -1414,3 +1414,46 @@ by whatever the ASCII-run scan returns, so a kernel returning zero makes no
 progress and spins. The kernel was wrong here, but a loop whose termination
 depends on a kernel returning a positive number should not be written that
 way; see the guard added with this entry.
+
+## 47. A general n-ary closure combinator is worth building
+
+**Wrong.** It is slower than the loop the caller would have written without
+it, at every size, in both of its plausible forms.
+
+The idea was `ZipInto(dst, f, srcs...)`, so a caller could express a fused
+expression this library has never heard of and still make one pass over
+memory. The known objection was that a closure call per element defeats
+vectorization; the assumption worth testing was that one pass with a closure
+still beats two passes without one. Measured on `dst = a*b + c`, nanoseconds:
+
+```
+n           handwritten   composed   zipVariadic   zipFixedArity   fused kernel
+1024              728.7      74.72          2222            1163          52.59
+262144           195722      86528        590483          310461          60707
+4194304         4377370    5133919       8856742         5446108        3597582
+```
+
+`zipVariadic` is the honest general form and is 2.0x to 3.0x slower than a
+plain Go loop. `zipFixedArity` removes the per-element argument slice, which is
+the most generous version anyone would build, and is still 1.24x to 1.6x
+slower than the same plain loop. The one-pass advantage is real at four
+million elements — `composed` does two passes and loses to `handwritten`
+there — and it is not nearly enough to pay for the closure.
+
+Meanwhile the fused kernel is 13.9x faster than the handwritten loop at n=1024
+and 3.2x at 262144, because it is one pass *and* vectorized.
+
+So the combinator would occupy the worst corner of the design: slower than
+doing nothing, and far slower than the thing it sits next to. The value it was
+meant to add — one pass — is available only by not calling a closure.
+
+**Fix**: not shipped. The guidance instead is the one the numbers support:
+reach for the fused catalogue, and where the expression is not in it, write the
+loop. A note at [AddAll] says so with these numbers, because "why is there no
+general Zip" is a reasonable question to have answered in the package rather
+than in a commit message.
+
+The narrower lesson is about which assumption to test. That a closure costs
+something was never in doubt; the claim actually load-bearing was that saving
+a memory pass would outweigh it. That is the one that needed a number, and it
+was off by more than an order of magnitude at small n.

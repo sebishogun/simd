@@ -64,6 +64,27 @@ package simd
 //
 // Sources beyond the fourth are folded in groups, so a sixteen-way sum is four
 // passes rather than fifteen.
+//
+// # Why there is no general ZipInto(dst, f, srcs...)
+//
+// Because it would be slower than the loop you would write without it. A
+// closure cannot be vectorized, so the combinator's only advantage is making
+// one pass instead of several — and that is not nearly enough. Measured on
+// dst = a*b + c, nanoseconds:
+//
+//	n           your own loop   this catalogue   ZipInto with a closure
+//	1024                728.7             52.6                     1163
+//	262144             195722            60707                   310461
+//	4194304           4377370          3597582                  5446108
+//
+// The ZipInto column is the *generous* version, specialized to a fixed arity
+// so there is no per-element argument slice; the honest variadic form is
+// another 1.6x to 2.6x worse again. It loses to a plain Go loop at every size.
+//
+// So the guidance is: use these, and where your expression is not here, write
+// the loop. [AddScaled] covers a*s + b, [MulAll] and [AddAll] cover the n-ary
+// products and sums, and a loop you write yourself will beat any closure this
+// package could call on your behalf. See entry 47 of docs/wrong.md.
 func AddAll[T Number](dst []T, srcs ...[]T) {
 	naryFold(dst, srcs, ops[T]().Add3, ops[T]().Add4, ops[T]().Add, zeroValue[T])
 }
