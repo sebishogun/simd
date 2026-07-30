@@ -372,6 +372,8 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 
 	var code []byte
 	var err error
+	var refs []poolInstr
+	var sym string
 	if tgt.Arch == target.PPC64LE {
 		// ppc64le returns its pool separately rather than appended, because r2
 		// points at the pool symbol and the offsets are from its base; see
@@ -387,6 +389,24 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 			fmt.Fprintf(b, "\t// exist here, so its two global-entry instructions are nops.\n")
 			fmt.Fprintf(b, "\tMOVD\t$%s<>(SB), R2\n", sym)
 		}
+	} else if tgt.Arch == target.AMD64 && needsRespell(fn, instrs) {
+		// At least one pool read is a legacy SSE instruction that cannot be
+		// made to tolerate an unaligned address. Those read a separate RODATA
+		// symbol and are written out as mnemonics; any others in the same
+		// kernel keep the appended-pool treatment, which already works.
+		var pool []byte
+		if refs, pool, err = respellSSE2(fn, instrs, fn.Code, goName+"_pool"); err != nil {
+			return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
+		}
+		if code, err = resolvePoolExcept(fn, instrs, tgt, refs); err != nil {
+			return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
+		}
+		if len(pool) > 0 {
+			sym = pools.add(goName+"_pool", pool)
+			for i := range refs {
+				refs[i].line = strings.Replace(refs[i].line, goName+"_pool<>", sym+"<>", 1)
+			}
+		}
 	} else if code, err = resolvePool(fn, instrs, tgt); err != nil {
 		return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
 	}
@@ -397,6 +417,15 @@ func emitRelocated(b *strings.Builder, fn *objfile.Func, instrs []Instr,
 	// that stays correct if that changes.
 	if code, err = retargetReturns(code, tgt); err != nil {
 		return fmt.Errorf("emit: %s (%s): %w", goName, tgt, err)
+	}
+	if len(refs) > 0 {
+		fmt.Fprintf(b, "\t// %s<>(SB) holds the constants this kernel reads with a legacy\n", sym)
+		fmt.Fprintf(b, "\t// SSE instruction, which requires a 16-byte-aligned operand. A\n")
+		fmt.Fprintf(b, "\t// separate RODATA symbol is aligned by the linker; bytes inside a\n")
+		fmt.Fprintf(b, "\t// TEXT symbol are not. Those reads are the mnemonics below, each\n")
+		fmt.Fprintf(b, "\t// exactly as long as the encoding it replaces so every branch\n")
+		fmt.Fprintf(b, "\t// displacement in the body stays correct.\n")
+		return emitBodyRespelled(b, code, refs, tgt)
 	}
 	fmt.Fprintf(b, "\t// Constant pool appended below the body; the displacements\n")
 	fmt.Fprintf(b, "\t// above were patched to reach it and the aligned loads made\n")
@@ -462,9 +491,19 @@ func CanLift(fn *objfile.Func, instrs []Instr, tgt target.Target) (bool, string)
 		// pool cannot simply be appended to the body. VEX and EVEX encodings
 		// have no such requirement, which is why this only bites the baseline
 		// tier.
+		//
+		// Such a reference is not fatal any more: it can read a separate
+		// RODATA symbol instead, which the linker does align, with the one
+		// instruction written out as a Plan 9 mnemonic of exactly the same
+		// length. constpool_sse2.go does that, and refuses anything whose
+		// encoding it has not verified — so the check here is now "can it be
+		// patched OR re-spelled", and a kernel is still dropped when neither
+		// works.
 		if in, ok := instrAt(instrs, r.Off); ok {
 			if err := checkPatchable(in); err != nil {
-				return false, err.Error()
+				if _, ok := respellable[in.Mnemonic]; !ok {
+					return false, err.Error()
+				}
 			}
 		}
 	}

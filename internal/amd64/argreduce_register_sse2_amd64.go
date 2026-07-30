@@ -20,11 +20,39 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func argMinFloat32SSE2Guarded(a []float32) int {
+	if len(a) < 1 {
+		return ref.ArgMinFloat(a)
+	}
+	return argMinFloat32SSE2(a)
+}
+
+func argMaxFloat32SSE2Guarded(a []float32) int {
+	if len(a) < 1 {
+		return ref.ArgMaxFloat(a)
+	}
+	return argMaxFloat32SSE2(a)
+}
+
 func minMaxFloat32SSE2Guarded(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32SSE2(a)
+}
+
+func argMinFloat64SSE2Guarded(a []float64) int {
+	if len(a) < 1 {
+		return ref.ArgMinFloat(a)
+	}
+	return argMinFloat64SSE2(a)
+}
+
+func argMaxFloat64SSE2Guarded(a []float64) int {
+	if len(a) < 1 {
+		return ref.ArgMaxFloat(a)
+	}
+	return argMaxFloat64SSE2(a)
 }
 
 func minMaxFloat64SSE2Guarded(a []float64) (lo float64, hi float64) {
@@ -34,11 +62,39 @@ func minMaxFloat64SSE2Guarded(a []float64) (lo float64, hi float64) {
 	return minMaxFloat64SSE2(a)
 }
 
+func argMinInt32SSE2Guarded(a []int32) int {
+	if len(a) < 1 {
+		return ref.ArgMinInt(a)
+	}
+	return argMinInt32SSE2(a)
+}
+
+func argMaxInt32SSE2Guarded(a []int32) int {
+	if len(a) < 1 {
+		return ref.ArgMaxInt(a)
+	}
+	return argMaxInt32SSE2(a)
+}
+
 func minMaxInt32SSE2Guarded(a []int32) (lo int32, hi int32) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt32SSE2(a)
+}
+
+func argMinInt64SSE2Guarded(a []int64) int {
+	if len(a) < 1 {
+		return ref.ArgMinInt(a)
+	}
+	return argMinInt64SSE2(a)
+}
+
+func argMaxInt64SSE2Guarded(a []int64) int {
+	if len(a) < 1 {
+		return ref.ArgMaxInt(a)
+	}
+	return argMaxInt64SSE2(a)
 }
 
 func minMaxInt64SSE2Guarded(a []int64) (lo int64, hi int64) {
@@ -52,8 +108,16 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sse2")
+	s.F32.ArgMin = argMinFloat32SSE2Guarded
+	s.F32.ArgMax = argMaxFloat32SSE2Guarded
 	s.F32.MinMax = minMaxFloat32SSE2Guarded
+	s.F64.ArgMin = argMinFloat64SSE2Guarded
+	s.F64.ArgMax = argMaxFloat64SSE2Guarded
 	s.F64.MinMax = minMaxFloat64SSE2Guarded
+	s.I32.ArgMin = argMinInt32SSE2Guarded
+	s.I32.ArgMax = argMaxInt32SSE2Guarded
 	s.I32.MinMax = minMaxInt32SSE2Guarded
+	s.I64.ArgMin = argMinInt64SSE2Guarded
+	s.I64.ArgMax = argMaxInt64SSE2Guarded
 	s.I64.MinMax = minMaxInt64SSE2Guarded
 }

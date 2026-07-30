@@ -106,6 +106,12 @@ func lastIndexNotAnySSE2(b []byte, chars []byte) int
 func countAnySSE2(b []byte, chars []byte) int
 
 //go:noescape
+func b64EncodeSSE2(dst []byte, b []byte) int
+
+//go:noescape
+func b64DecodeSSE2(dst []byte, b []byte) int
+
+//go:noescape
 func parseIntsSSE2(dst []int64, src []byte, idx []int32) (count int, ok bool)
 
 //go:noescape

@@ -668,6 +668,14 @@ func addScaledInt8SSE2Guarded(dst []int8, a []int8, b []int8, s int8) {
 	addScaledInt8SSE2(dst[:n:n], a, b, s)
 }
 
+func rampInt8SSE2Guarded(dst []int8, start int8, step int8) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt8SSE2(dst, start, step)
+}
+
 func addInt16SSE2Guarded(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -791,6 +799,14 @@ func addScaledInt16SSE2Guarded(dst []int16, a []int16, b []int16, s int16) {
 		return
 	}
 	addScaledInt16SSE2(dst[:n:n], a, b, s)
+}
+
+func rampInt16SSE2Guarded(dst []int16, start int16, step int16) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampInt16SSE2(dst, start, step)
 }
 
 func addUint8SSE2Guarded(dst []byte, a []byte, b []byte) {
@@ -918,6 +934,14 @@ func addScaledUint8SSE2Guarded(dst []byte, a []byte, b []byte, s byte) {
 	addScaledUint8SSE2(dst[:n:n], a, b, s)
 }
 
+func rampUint8SSE2Guarded(dst []byte, start byte, step byte) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint8SSE2(dst, start, step)
+}
+
 func addUint16SSE2Guarded(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
@@ -1041,6 +1065,14 @@ func addScaledUint16SSE2Guarded(dst []uint16, a []uint16, b []uint16, s uint16) 
 		return
 	}
 	addScaledUint16SSE2(dst[:n:n], a, b, s)
+}
+
+func rampUint16SSE2Guarded(dst []uint16, start uint16, step uint16) {
+	if len(dst) < 16 {
+		ref.Ramp(dst, start, step)
+		return
+	}
+	rampUint16SSE2(dst, start, step)
 }
 
 func addUint32SSE2Guarded(dst []uint32, a []uint32, b []uint32) {
@@ -1453,6 +1485,24 @@ func shrInt8SSE2Guarded(dst []int8, a []int8, s uint64) {
 	shrInt8SSE2(dst[:n:n], a, s)
 }
 
+func rotlInt8SSE2Guarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt8SSE2(dst[:n:n], a, s)
+}
+
+func rotrInt8SSE2Guarded(dst []int8, a []int8, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt8SSE2(dst[:n:n], a, s)
+}
+
 func onesCountInt8SSE2Guarded(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1505,6 +1555,24 @@ func shrInt16SSE2Guarded(dst []int16, a []int16, s uint64) {
 		return
 	}
 	shrInt16SSE2(dst[:n:n], a, s)
+}
+
+func rotlInt16SSE2Guarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlInt16SSE2(dst[:n:n], a, s)
+}
+
+func rotrInt16SSE2Guarded(dst []int16, a []int16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrInt16SSE2(dst[:n:n], a, s)
 }
 
 func onesCountInt16SSE2Guarded(dst []int16, a []int16) {
@@ -1570,6 +1638,24 @@ func shrUint8SSE2Guarded(dst []byte, a []byte, s uint64) {
 	shrUint8SSE2(dst[:n:n], a, s)
 }
 
+func rotlUint8SSE2Guarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint8SSE2(dst[:n:n], a, s)
+}
+
+func rotrUint8SSE2Guarded(dst []byte, a []byte, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint8SSE2(dst[:n:n], a, s)
+}
+
 func onesCountUint8SSE2Guarded(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -1622,6 +1708,24 @@ func shrUint16SSE2Guarded(dst []uint16, a []uint16, s uint64) {
 		return
 	}
 	shrUint16SSE2(dst[:n:n], a, s)
+}
+
+func rotlUint16SSE2Guarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotl(dst, a, s)
+		return
+	}
+	rotlUint16SSE2(dst[:n:n], a, s)
+}
+
+func rotrUint16SSE2Guarded(dst []uint16, a []uint16, s uint64) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.Rotr(dst, a, s)
+		return
+	}
+	rotrUint16SSE2(dst[:n:n], a, s)
 }
 
 func onesCountUint16SSE2Guarded(dst []uint16, a []uint16) {
@@ -2079,6 +2183,7 @@ func init() {
 	s.I8.Fill = fillInt8SSE2Guarded
 	s.I8.Lerp = lerpInt8SSE2Guarded
 	s.I8.AddScaled = addScaledInt8SSE2Guarded
+	s.I8.Ramp = rampInt8SSE2Guarded
 	s.I16.Add = addInt16SSE2Guarded
 	s.I16.Sub = subInt16SSE2Guarded
 	s.I16.Mul = mulInt16SSE2Guarded
@@ -2093,6 +2198,7 @@ func init() {
 	s.I16.Fill = fillInt16SSE2Guarded
 	s.I16.Lerp = lerpInt16SSE2Guarded
 	s.I16.AddScaled = addScaledInt16SSE2Guarded
+	s.I16.Ramp = rampInt16SSE2Guarded
 	s.U8.Add = addUint8SSE2Guarded
 	s.U8.Sub = subUint8SSE2Guarded
 	s.U8.Mul = mulUint8SSE2Guarded
@@ -2107,6 +2213,7 @@ func init() {
 	s.U8.Fill = fillUint8SSE2Guarded
 	s.U8.Lerp = lerpUint8SSE2Guarded
 	s.U8.AddScaled = addScaledUint8SSE2Guarded
+	s.U8.Ramp = rampUint8SSE2Guarded
 	s.U16.Add = addUint16SSE2Guarded
 	s.U16.Sub = subUint16SSE2Guarded
 	s.U16.Mul = mulUint16SSE2Guarded
@@ -2121,6 +2228,7 @@ func init() {
 	s.U16.Fill = fillUint16SSE2Guarded
 	s.U16.Lerp = lerpUint16SSE2Guarded
 	s.U16.AddScaled = addScaledUint16SSE2Guarded
+	s.U16.Ramp = rampUint16SSE2Guarded
 	s.U32.Add = addUint32SSE2Guarded
 	s.U32.Sub = subUint32SSE2Guarded
 	s.U32.Mul = mulUint32SSE2Guarded
@@ -2167,12 +2275,16 @@ func init() {
 	s.I64.ByteSwap = byteSwapInt64SSE2Guarded
 	s.I8.Shl = shlInt8SSE2Guarded
 	s.I8.Shr = shrInt8SSE2Guarded
+	s.I8.Rotl = rotlInt8SSE2Guarded
+	s.I8.Rotr = rotrInt8SSE2Guarded
 	s.I8.OnesCount = onesCountInt8SSE2Guarded
 	s.I8.LeadingZeros = leadingZerosInt8SSE2Guarded
 	s.I8.TrailingZeros = trailingZerosInt8SSE2Guarded
 	s.I8.ReverseBits = reverseBitsInt8SSE2Guarded
 	s.I16.Shl = shlInt16SSE2Guarded
 	s.I16.Shr = shrInt16SSE2Guarded
+	s.I16.Rotl = rotlInt16SSE2Guarded
+	s.I16.Rotr = rotrInt16SSE2Guarded
 	s.I16.OnesCount = onesCountInt16SSE2Guarded
 	s.I16.LeadingZeros = leadingZerosInt16SSE2Guarded
 	s.I16.TrailingZeros = trailingZerosInt16SSE2Guarded
@@ -2180,12 +2292,16 @@ func init() {
 	s.I16.ByteSwap = byteSwapInt16SSE2Guarded
 	s.U8.Shl = shlUint8SSE2Guarded
 	s.U8.Shr = shrUint8SSE2Guarded
+	s.U8.Rotl = rotlUint8SSE2Guarded
+	s.U8.Rotr = rotrUint8SSE2Guarded
 	s.U8.OnesCount = onesCountUint8SSE2Guarded
 	s.U8.LeadingZeros = leadingZerosUint8SSE2Guarded
 	s.U8.TrailingZeros = trailingZerosUint8SSE2Guarded
 	s.U8.ReverseBits = reverseBitsUint8SSE2Guarded
 	s.U16.Shl = shlUint16SSE2Guarded
 	s.U16.Shr = shrUint16SSE2Guarded
+	s.U16.Rotl = rotlUint16SSE2Guarded
+	s.U16.Rotr = rotrUint16SSE2Guarded
 	s.U16.OnesCount = onesCountUint16SSE2Guarded
 	s.U16.LeadingZeros = leadingZerosUint16SSE2Guarded
 	s.U16.TrailingZeros = trailingZerosUint16SSE2Guarded

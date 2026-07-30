@@ -16,13 +16,37 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 //go:noescape
+func argMinFloat32SSE2(a []float32) int
+
+//go:noescape
+func argMaxFloat32SSE2(a []float32) int
+
+//go:noescape
 func minMaxFloat32SSE2(a []float32) (lo float32, hi float32)
+
+//go:noescape
+func argMinFloat64SSE2(a []float64) int
+
+//go:noescape
+func argMaxFloat64SSE2(a []float64) int
 
 //go:noescape
 func minMaxFloat64SSE2(a []float64) (lo float64, hi float64)
 
 //go:noescape
+func argMinInt32SSE2(a []int32) int
+
+//go:noescape
+func argMaxInt32SSE2(a []int32) int
+
+//go:noescape
 func minMaxInt32SSE2(a []int32) (lo int32, hi int32)
+
+//go:noescape
+func argMinInt64SSE2(a []int64) int
+
+//go:noescape
+func argMaxInt64SSE2(a []int64) int
 
 //go:noescape
 func minMaxInt64SSE2(a []int64) (lo int64, hi int64)

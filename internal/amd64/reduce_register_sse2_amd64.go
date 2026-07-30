@@ -475,6 +475,21 @@ func dotFloat32SSE2Guarded(a []float32, b []float32) float32 {
 	return dotFloat32SSE2(a[:n:n], b)
 }
 
+func l1normFloat32SSE2Guarded(a []float32) float32 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat32SSE2(a)
+}
+
+func l1diffFloat32SSE2Guarded(a []float32, b []float32) float32 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat32SSE2(a[:n:n], b)
+}
+
 func sumLanesFloat32SSE2Guarded(dst []float32, a []float32) {
 	if len(a) < 0 {
 		ref.SumLanesFloat(dst, a)
@@ -503,6 +518,21 @@ func dotFloat64SSE2Guarded(a []float64, b []float64) float64 {
 		return ref.DotFloat(a, b)
 	}
 	return dotFloat64SSE2(a[:n:n], b)
+}
+
+func l1normFloat64SSE2Guarded(a []float64) float64 {
+	if len(a) < 0 {
+		return ref.L1NormFloat(a)
+	}
+	return l1normFloat64SSE2(a)
+}
+
+func l1diffFloat64SSE2Guarded(a []float64, b []float64) float64 {
+	n := min(len(a), len(b))
+	if n < 0 {
+		return ref.L1DiffFloat(a, b)
+	}
+	return l1diffFloat64SSE2(a[:n:n], b)
 }
 
 func sumLanesFloat64SSE2Guarded(dst []float64, a []float64) {
@@ -594,6 +624,13 @@ func sumInt8SSE2Guarded(a []int8) int8 {
 	return sumInt8SSE2(a)
 }
 
+func prodInt8SSE2Guarded(a []int8) int8 {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodInt8SSE2(a)
+}
+
 func dotInt8SSE2Guarded(a []int8, b []int8) int8 {
 	n := min(len(a), len(b))
 	if n < 0 {
@@ -659,6 +696,13 @@ func sumUint8SSE2Guarded(a []byte) byte {
 		return ref.SumInt(a)
 	}
 	return sumUint8SSE2(a)
+}
+
+func prodUint8SSE2Guarded(a []byte) byte {
+	if len(a) < 0 {
+		return ref.ProdInt(a)
+	}
+	return prodUint8SSE2(a)
 }
 
 func dotUint8SSE2Guarded(a []byte, b []byte) byte {
@@ -854,10 +898,14 @@ func init() {
 	s.U64.Diff = diffUint64SSE2Guarded
 	s.F32.Sum = sumFloat32SSE2Guarded
 	s.F32.Dot = dotFloat32SSE2Guarded
+	s.F32.L1Norm = l1normFloat32SSE2Guarded
+	s.F32.L1Diff = l1diffFloat32SSE2Guarded
 	s.F32.SumLanes = sumLanesFloat32SSE2Guarded
 	s.F32.SparseDot = sparseDotFloat32SSE2Guarded
 	s.F64.Sum = sumFloat64SSE2Guarded
 	s.F64.Dot = dotFloat64SSE2Guarded
+	s.F64.L1Norm = l1normFloat64SSE2Guarded
+	s.F64.L1Diff = l1diffFloat64SSE2Guarded
 	s.F64.SumLanes = sumLanesFloat64SSE2Guarded
 	s.F64.SparseDot = sparseDotFloat64SSE2Guarded
 	s.I32.Sum = sumInt32SSE2Guarded
@@ -870,6 +918,7 @@ func init() {
 	s.I64.L1Norm = l1normInt64SSE2Guarded
 	s.I64.L1Diff = l1diffInt64SSE2Guarded
 	s.I8.Sum = sumInt8SSE2Guarded
+	s.I8.Prod = prodInt8SSE2Guarded
 	s.I8.Dot = dotInt8SSE2Guarded
 	s.I8.L1Norm = l1normInt8SSE2Guarded
 	s.I8.L1Diff = l1diffInt8SSE2Guarded
@@ -879,6 +928,7 @@ func init() {
 	s.I16.L1Norm = l1normInt16SSE2Guarded
 	s.I16.L1Diff = l1diffInt16SSE2Guarded
 	s.U8.Sum = sumUint8SSE2Guarded
+	s.U8.Prod = prodUint8SSE2Guarded
 	s.U8.Dot = dotUint8SSE2Guarded
 	s.U8.L1Norm = l1normUint8SSE2Guarded
 	s.U8.L1Diff = l1diffUint8SSE2Guarded

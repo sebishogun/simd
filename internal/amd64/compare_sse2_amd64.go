@@ -211,6 +211,9 @@ func geInt8MaskSSE2(dst []bool, a []int8, b []int8)
 func geScalarInt8MaskSSE2(dst []bool, a []int8, v int8)
 
 //go:noescape
+func selectInt8SSE2(dst []int8, mask []bool, yes []int8, no []int8)
+
+//go:noescape
 func lowerBoundInt8SSE2(dst []int32, a []int8, q []int8)
 
 //go:noescape
@@ -290,6 +293,9 @@ func geUint8MaskSSE2(dst []bool, a []byte, b []byte)
 
 //go:noescape
 func geScalarUint8MaskSSE2(dst []bool, a []byte, v byte)
+
+//go:noescape
+func selectUint8SSE2(dst []byte, mask []bool, yes []byte, no []byte)
 
 //go:noescape
 func lowerBoundUint8SSE2(dst []int32, a []byte, q []byte)
@@ -395,6 +401,9 @@ func lowerBoundUint64SSE2(dst []int32, a []uint64, q []uint64)
 
 //go:noescape
 func maskAllSSE2(m []bool) bool
+
+//go:noescape
+func maskAnySSE2(m []bool) bool
 
 //go:noescape
 func maskCountSSE2(m []bool) int

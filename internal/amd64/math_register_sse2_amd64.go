@@ -20,6 +20,222 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func expFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp(dst, a)
+		return
+	}
+	expFloat32SSE2(dst[:n:n], a)
+}
+
+func exp2Float32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp2(dst, a)
+		return
+	}
+	exp2Float32SSE2(dst[:n:n], a)
+}
+
+func expm1Float32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Expm1(dst, a)
+		return
+	}
+	expm1Float32SSE2(dst[:n:n], a)
+}
+
+func logFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log(dst, a)
+		return
+	}
+	logFloat32SSE2(dst[:n:n], a)
+}
+
+func log2Float32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log2(dst, a)
+		return
+	}
+	log2Float32SSE2(dst[:n:n], a)
+}
+
+func log10Float32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log10(dst, a)
+		return
+	}
+	log10Float32SSE2(dst[:n:n], a)
+}
+
+func log1pFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	log1pFloat32SSE2(dst[:n:n], a)
+}
+
+func cbrtFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	cbrtFloat32SSE2(dst[:n:n], a)
+}
+
+func sigmoidFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sigmoid(dst, a)
+		return
+	}
+	sigmoidFloat32SSE2(dst[:n:n], a)
+}
+
+func sinFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sin(dst, a)
+		return
+	}
+	sinFloat32SSE2(dst[:n:n], a)
+}
+
+func cosFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cos(dst, a)
+		return
+	}
+	cosFloat32SSE2(dst[:n:n], a)
+}
+
+func tanFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tan(dst, a)
+		return
+	}
+	tanFloat32SSE2(dst[:n:n], a)
+}
+
+func asinFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asin(dst, a)
+		return
+	}
+	asinFloat32SSE2(dst[:n:n], a)
+}
+
+func acosFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acos(dst, a)
+		return
+	}
+	acosFloat32SSE2(dst[:n:n], a)
+}
+
+func atanFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atan(dst, a)
+		return
+	}
+	atanFloat32SSE2(dst[:n:n], a)
+}
+
+func sinhFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	sinhFloat32SSE2(dst[:n:n], a)
+}
+
+func coshFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cosh(dst, a)
+		return
+	}
+	coshFloat32SSE2(dst[:n:n], a)
+}
+
+func tanhFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tanh(dst, a)
+		return
+	}
+	tanhFloat32SSE2(dst[:n:n], a)
+}
+
+func asinhFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	asinhFloat32SSE2(dst[:n:n], a)
+}
+
+func acoshFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	acoshFloat32SSE2(dst[:n:n], a)
+}
+
+func atanhFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	atanhFloat32SSE2(dst[:n:n], a)
+}
+
+func erfFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	erfFloat32SSE2(dst[:n:n], a)
+}
+
+func powFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Pow(dst, a, b)
+		return
+	}
+	powFloat32SSE2(dst[:n:n], a, b)
+}
+
+func atan2Float32SSE2Guarded(dst []float32, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Atan2(dst, a, b)
+		return
+	}
+	atan2Float32SSE2(dst[:n:n], a, b)
+}
+
 func hypotFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -27,6 +243,60 @@ func hypotFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
 		return
 	}
 	hypotFloat32SSE2(dst[:n:n], a, b)
+}
+
+func expFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp(dst, a)
+		return
+	}
+	expFloat64SSE2(dst[:n:n], a)
+}
+
+func exp2Float64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp2(dst, a)
+		return
+	}
+	exp2Float64SSE2(dst[:n:n], a)
+}
+
+func expm1Float64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Expm1(dst, a)
+		return
+	}
+	expm1Float64SSE2(dst[:n:n], a)
+}
+
+func logFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log(dst, a)
+		return
+	}
+	logFloat64SSE2(dst[:n:n], a)
+}
+
+func log2Float64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log2(dst, a)
+		return
+	}
+	log2Float64SSE2(dst[:n:n], a)
+}
+
+func log10Float64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log10(dst, a)
+		return
+	}
+	log10Float64SSE2(dst[:n:n], a)
 }
 
 func log1pFloat64SSE2Guarded(dst []float64, a []float64) {
@@ -47,6 +317,42 @@ func cbrtFloat64SSE2Guarded(dst []float64, a []float64) {
 	cbrtFloat64SSE2(dst[:n:n], a)
 }
 
+func sigmoidFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sigmoid(dst, a)
+		return
+	}
+	sigmoidFloat64SSE2(dst[:n:n], a)
+}
+
+func sinFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sin(dst, a)
+		return
+	}
+	sinFloat64SSE2(dst[:n:n], a)
+}
+
+func cosFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cos(dst, a)
+		return
+	}
+	cosFloat64SSE2(dst[:n:n], a)
+}
+
+func tanFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tan(dst, a)
+		return
+	}
+	tanFloat64SSE2(dst[:n:n], a)
+}
+
 func asinFloat64SSE2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -54,6 +360,60 @@ func asinFloat64SSE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	asinFloat64SSE2(dst[:n:n], a)
+}
+
+func acosFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acos(dst, a)
+		return
+	}
+	acosFloat64SSE2(dst[:n:n], a)
+}
+
+func atanFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atan(dst, a)
+		return
+	}
+	atanFloat64SSE2(dst[:n:n], a)
+}
+
+func sinhFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	sinhFloat64SSE2(dst[:n:n], a)
+}
+
+func coshFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cosh(dst, a)
+		return
+	}
+	coshFloat64SSE2(dst[:n:n], a)
+}
+
+func tanhFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tanh(dst, a)
+		return
+	}
+	tanhFloat64SSE2(dst[:n:n], a)
+}
+
+func asinhFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	asinhFloat64SSE2(dst[:n:n], a)
 }
 
 func acoshFloat64SSE2Guarded(dst []float64, a []float64) {
@@ -72,6 +432,24 @@ func atanhFloat64SSE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	atanhFloat64SSE2(dst[:n:n], a)
+}
+
+func erfFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	erfFloat64SSE2(dst[:n:n], a)
+}
+
+func powFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Pow(dst, a, b)
+		return
+	}
+	powFloat64SSE2(dst[:n:n], a, b)
 }
 
 func atan2Float64SSE2Guarded(dst []float64, a []float64, b []float64) {
@@ -96,12 +474,54 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sse2")
+	s.F32.Exp = expFloat32SSE2Guarded
+	s.F32.Exp2 = exp2Float32SSE2Guarded
+	s.F32.Expm1 = expm1Float32SSE2Guarded
+	s.F32.Log = logFloat32SSE2Guarded
+	s.F32.Log2 = log2Float32SSE2Guarded
+	s.F32.Log10 = log10Float32SSE2Guarded
+	s.F32.Log1p = log1pFloat32SSE2Guarded
+	s.F32.Cbrt = cbrtFloat32SSE2Guarded
+	s.F32.Sigmoid = sigmoidFloat32SSE2Guarded
+	s.F32.Sin = sinFloat32SSE2Guarded
+	s.F32.Cos = cosFloat32SSE2Guarded
+	s.F32.Tan = tanFloat32SSE2Guarded
+	s.F32.Asin = asinFloat32SSE2Guarded
+	s.F32.Acos = acosFloat32SSE2Guarded
+	s.F32.Atan = atanFloat32SSE2Guarded
+	s.F32.Sinh = sinhFloat32SSE2Guarded
+	s.F32.Cosh = coshFloat32SSE2Guarded
+	s.F32.Tanh = tanhFloat32SSE2Guarded
+	s.F32.Asinh = asinhFloat32SSE2Guarded
+	s.F32.Acosh = acoshFloat32SSE2Guarded
+	s.F32.Atanh = atanhFloat32SSE2Guarded
+	s.F32.Erf = erfFloat32SSE2Guarded
+	s.F32.Pow = powFloat32SSE2Guarded
+	s.F32.Atan2 = atan2Float32SSE2Guarded
 	s.F32.Hypot = hypotFloat32SSE2Guarded
+	s.F64.Exp = expFloat64SSE2Guarded
+	s.F64.Exp2 = exp2Float64SSE2Guarded
+	s.F64.Expm1 = expm1Float64SSE2Guarded
+	s.F64.Log = logFloat64SSE2Guarded
+	s.F64.Log2 = log2Float64SSE2Guarded
+	s.F64.Log10 = log10Float64SSE2Guarded
 	s.F64.Log1p = log1pFloat64SSE2Guarded
 	s.F64.Cbrt = cbrtFloat64SSE2Guarded
+	s.F64.Sigmoid = sigmoidFloat64SSE2Guarded
+	s.F64.Sin = sinFloat64SSE2Guarded
+	s.F64.Cos = cosFloat64SSE2Guarded
+	s.F64.Tan = tanFloat64SSE2Guarded
 	s.F64.Asin = asinFloat64SSE2Guarded
+	s.F64.Acos = acosFloat64SSE2Guarded
+	s.F64.Atan = atanFloat64SSE2Guarded
+	s.F64.Sinh = sinhFloat64SSE2Guarded
+	s.F64.Cosh = coshFloat64SSE2Guarded
+	s.F64.Tanh = tanhFloat64SSE2Guarded
+	s.F64.Asinh = asinhFloat64SSE2Guarded
 	s.F64.Acosh = acoshFloat64SSE2Guarded
 	s.F64.Atanh = atanhFloat64SSE2Guarded
+	s.F64.Erf = erfFloat64SSE2Guarded
+	s.F64.Pow = powFloat64SSE2Guarded
 	s.F64.Atan2 = atan2Float64SSE2Guarded
 	s.F64.Hypot = hypotFloat64SSE2Guarded
 }

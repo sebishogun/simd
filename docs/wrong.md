@@ -2211,6 +2211,9 @@ prize is real — 170 kernels, the largest addressable bucket in the repository
 and the whole reason the baseline x86-64 tier is thin — and so is the failure
 mode, which is a silently wrong branch target rather than a build error.
 
+**Superseded by entry 67, which did it.** Step 3 held for every mnemonic that
+occurs, and the baseline tier went from 673 kernels to 789.
+
 ---
 
 ## 62. A streaming sum that overwrites its accumulators is wrong by one bit
@@ -2450,3 +2453,71 @@ different task.
 
 **Recorded, not attempted**, and recorded specifically so the next person does
 not vectorize the DP and then discover Myers.
+
+## 67. The sse2 alignment skips, closed: 673 kernels to 789
+
+Entry 61 ended "not attempted beyond this", having established one of three
+things the fix needed. All three now hold, and the baseline x86-64 tier went
+from **673 kernels to 789**, with **no alignment refusals left at all**.
+
+**The three preconditions.**
+
+1. *A separate RODATA symbol is 16-byte aligned.* Measured in entry 61, and it
+   survives `-ldflags=-funcalign=8` because `-funcalign` aligns text, not data.
+
+2. *Go's assembler can express the reference.* It can:
+   `MULPS simdpool<>+0x20(SB), X3` assembles, and the linker fills the
+   displacement.
+
+3. *The replacement is exactly as long as what it replaces.* This was the open
+   one, and it is the whole safety argument — a replacement of a different
+   length moves every PC-relative branch after it, silently. Every mnemonic
+   that occurs was assembled both ways and compared:
+
+   ```
+   Go     MULPS simdpool<>+0x20(SB), X3   ->  0f 59 1d <disp32>
+   clang  mulps 0x1234(%rip), %xmm3       ->  0f 59 1d <disp32>
+   ```
+
+   Byte-identical, including the mandatory `66` prefix and the REX byte that
+   `xmm8`-`xmm15` require, and in the same order.
+   `TestRespelledEncodingsMatchClang` now does this for all forty entries
+   against both register ranges, on every run, so the table cannot rot.
+
+**What it took, and three ways to be wrong that the first version was.**
+
+The mnemonic table is not the interesting part. These were:
+
+*Sections concatenated without padding.* A kernel's pool is often several ELF
+sections, and appending the second straight after the first put a
+16-byte-aligned constant at `pool+0xa9f`. `fastSigmoidFloat64SSE2` segfaulted
+the moment the differential suite ran it. **Caught by the conformance
+differential**, which is what it is for.
+
+*A trailing immediate changes the addend.* A PC-relative displacement is
+measured from the end of the *whole* instruction, so `cmpnltps` — which carries
+a one-byte predicate after the displacement — is emitted with an addend of −5,
+not −4. `objfile` adds back a fixed +4, leaving the target offset one byte
+short. One byte short of a 16-byte boundary is exactly the misalignment these
+instructions fault on, so this looked identical to the first bug and was not.
+**Caught by an assertion added after the first bug** — that the computed pool
+offset is 16-byte aligned — which turned a segfault into a build error naming
+the instruction.
+
+*Not everything that reads a pool needs alignment.* `cmpltss` and `movd` went
+into the re-spelling table because they were being refused, but they read four
+bytes and have no 128-bit alignment requirement at all. They belong in
+`unalignedLoads` with the other scalar forms, and demanding a 16-byte-aligned
+offset from them failed the assertion for two kernels. **Caught by the same
+assertion**, which is the argument for adding assertions that state what you
+believe rather than only what you fear.
+
+**A note on the dead code this replaced.** `emit/respell.go` had implemented
+exactly this idea before, was found to break branch displacements, and was left
+in the tree — unreferenced, with a table of load forms and a doc comment
+describing a mechanism nothing used. It is deleted. The distinction it never
+made is the one that matters: the technique is sound, and what makes it sound
+is the length check, not the mnemonic table.
+
+**What is left on this tier.** Nothing to do with alignment. The remaining sse2
+gaps are the ones every tier has — LLVM declining to vectorize a kernel at all.

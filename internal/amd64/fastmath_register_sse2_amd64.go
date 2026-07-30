@@ -20,6 +20,222 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
+func fastExpFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp(dst, a)
+		return
+	}
+	fastExpFloat32SSE2(dst[:n:n], a)
+}
+
+func fastExp2Float32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp2(dst, a)
+		return
+	}
+	fastExp2Float32SSE2(dst[:n:n], a)
+}
+
+func fastExpm1Float32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Expm1(dst, a)
+		return
+	}
+	fastExpm1Float32SSE2(dst[:n:n], a)
+}
+
+func fastLogFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log(dst, a)
+		return
+	}
+	fastLogFloat32SSE2(dst[:n:n], a)
+}
+
+func fastLog2Float32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log2(dst, a)
+		return
+	}
+	fastLog2Float32SSE2(dst[:n:n], a)
+}
+
+func fastLog10Float32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log10(dst, a)
+		return
+	}
+	fastLog10Float32SSE2(dst[:n:n], a)
+}
+
+func fastLog1pFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	fastLog1pFloat32SSE2(dst[:n:n], a)
+}
+
+func fastCbrtFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	fastCbrtFloat32SSE2(dst[:n:n], a)
+}
+
+func fastSigmoidFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sigmoid(dst, a)
+		return
+	}
+	fastSigmoidFloat32SSE2(dst[:n:n], a)
+}
+
+func fastSinFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sin(dst, a)
+		return
+	}
+	fastSinFloat32SSE2(dst[:n:n], a)
+}
+
+func fastCosFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cos(dst, a)
+		return
+	}
+	fastCosFloat32SSE2(dst[:n:n], a)
+}
+
+func fastTanFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tan(dst, a)
+		return
+	}
+	fastTanFloat32SSE2(dst[:n:n], a)
+}
+
+func fastAsinFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asin(dst, a)
+		return
+	}
+	fastAsinFloat32SSE2(dst[:n:n], a)
+}
+
+func fastAcosFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acos(dst, a)
+		return
+	}
+	fastAcosFloat32SSE2(dst[:n:n], a)
+}
+
+func fastAtanFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atan(dst, a)
+		return
+	}
+	fastAtanFloat32SSE2(dst[:n:n], a)
+}
+
+func fastSinhFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	fastSinhFloat32SSE2(dst[:n:n], a)
+}
+
+func fastCoshFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cosh(dst, a)
+		return
+	}
+	fastCoshFloat32SSE2(dst[:n:n], a)
+}
+
+func fastTanhFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tanh(dst, a)
+		return
+	}
+	fastTanhFloat32SSE2(dst[:n:n], a)
+}
+
+func fastAsinhFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	fastAsinhFloat32SSE2(dst[:n:n], a)
+}
+
+func fastAcoshFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	fastAcoshFloat32SSE2(dst[:n:n], a)
+}
+
+func fastAtanhFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	fastAtanhFloat32SSE2(dst[:n:n], a)
+}
+
+func fastErfFloat32SSE2Guarded(dst []float32, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat32SSE2(dst[:n:n], a)
+}
+
+func fastPowFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Pow(dst, a, b)
+		return
+	}
+	fastPowFloat32SSE2(dst[:n:n], a, b)
+}
+
+func fastAtan2Float32SSE2Guarded(dst []float32, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Atan2(dst, a, b)
+		return
+	}
+	fastAtan2Float32SSE2(dst[:n:n], a, b)
+}
+
 func fastHypotFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -27,6 +243,60 @@ func fastHypotFloat32SSE2Guarded(dst []float32, a []float32, b []float32) {
 		return
 	}
 	fastHypotFloat32SSE2(dst[:n:n], a, b)
+}
+
+func fastExpFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp(dst, a)
+		return
+	}
+	fastExpFloat64SSE2(dst[:n:n], a)
+}
+
+func fastExp2Float64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Exp2(dst, a)
+		return
+	}
+	fastExp2Float64SSE2(dst[:n:n], a)
+}
+
+func fastExpm1Float64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Expm1(dst, a)
+		return
+	}
+	fastExpm1Float64SSE2(dst[:n:n], a)
+}
+
+func fastLogFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log(dst, a)
+		return
+	}
+	fastLogFloat64SSE2(dst[:n:n], a)
+}
+
+func fastLog2Float64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log2(dst, a)
+		return
+	}
+	fastLog2Float64SSE2(dst[:n:n], a)
+}
+
+func fastLog10Float64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log10(dst, a)
+		return
+	}
+	fastLog10Float64SSE2(dst[:n:n], a)
 }
 
 func fastLog1pFloat64SSE2Guarded(dst []float64, a []float64) {
@@ -47,6 +317,42 @@ func fastCbrtFloat64SSE2Guarded(dst []float64, a []float64) {
 	fastCbrtFloat64SSE2(dst[:n:n], a)
 }
 
+func fastSigmoidFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sigmoid(dst, a)
+		return
+	}
+	fastSigmoidFloat64SSE2(dst[:n:n], a)
+}
+
+func fastSinFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sin(dst, a)
+		return
+	}
+	fastSinFloat64SSE2(dst[:n:n], a)
+}
+
+func fastCosFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cos(dst, a)
+		return
+	}
+	fastCosFloat64SSE2(dst[:n:n], a)
+}
+
+func fastTanFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tan(dst, a)
+		return
+	}
+	fastTanFloat64SSE2(dst[:n:n], a)
+}
+
 func fastAsinFloat64SSE2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -54,6 +360,60 @@ func fastAsinFloat64SSE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	fastAsinFloat64SSE2(dst[:n:n], a)
+}
+
+func fastAcosFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acos(dst, a)
+		return
+	}
+	fastAcosFloat64SSE2(dst[:n:n], a)
+}
+
+func fastAtanFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atan(dst, a)
+		return
+	}
+	fastAtanFloat64SSE2(dst[:n:n], a)
+}
+
+func fastSinhFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	fastSinhFloat64SSE2(dst[:n:n], a)
+}
+
+func fastCoshFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cosh(dst, a)
+		return
+	}
+	fastCoshFloat64SSE2(dst[:n:n], a)
+}
+
+func fastTanhFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Tanh(dst, a)
+		return
+	}
+	fastTanhFloat64SSE2(dst[:n:n], a)
+}
+
+func fastAsinhFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Asinh(dst, a)
+		return
+	}
+	fastAsinhFloat64SSE2(dst[:n:n], a)
 }
 
 func fastAcoshFloat64SSE2Guarded(dst []float64, a []float64) {
@@ -72,6 +432,24 @@ func fastAtanhFloat64SSE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	fastAtanhFloat64SSE2(dst[:n:n], a)
+}
+
+func fastErfFloat64SSE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Erf(dst, a)
+		return
+	}
+	fastErfFloat64SSE2(dst[:n:n], a)
+}
+
+func fastPowFloat64SSE2Guarded(dst []float64, a []float64, b []float64) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Pow(dst, a, b)
+		return
+	}
+	fastPowFloat64SSE2(dst[:n:n], a, b)
 }
 
 func fastAtan2Float64SSE2Guarded(dst []float64, a []float64, b []float64) {
@@ -96,12 +474,54 @@ func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sse2")
+	s.F32.FastExp = fastExpFloat32SSE2Guarded
+	s.F32.FastExp2 = fastExp2Float32SSE2Guarded
+	s.F32.FastExpm1 = fastExpm1Float32SSE2Guarded
+	s.F32.FastLog = fastLogFloat32SSE2Guarded
+	s.F32.FastLog2 = fastLog2Float32SSE2Guarded
+	s.F32.FastLog10 = fastLog10Float32SSE2Guarded
+	s.F32.FastLog1p = fastLog1pFloat32SSE2Guarded
+	s.F32.FastCbrt = fastCbrtFloat32SSE2Guarded
+	s.F32.FastSigmoid = fastSigmoidFloat32SSE2Guarded
+	s.F32.FastSin = fastSinFloat32SSE2Guarded
+	s.F32.FastCos = fastCosFloat32SSE2Guarded
+	s.F32.FastTan = fastTanFloat32SSE2Guarded
+	s.F32.FastAsin = fastAsinFloat32SSE2Guarded
+	s.F32.FastAcos = fastAcosFloat32SSE2Guarded
+	s.F32.FastAtan = fastAtanFloat32SSE2Guarded
+	s.F32.FastSinh = fastSinhFloat32SSE2Guarded
+	s.F32.FastCosh = fastCoshFloat32SSE2Guarded
+	s.F32.FastTanh = fastTanhFloat32SSE2Guarded
+	s.F32.FastAsinh = fastAsinhFloat32SSE2Guarded
+	s.F32.FastAcosh = fastAcoshFloat32SSE2Guarded
+	s.F32.FastAtanh = fastAtanhFloat32SSE2Guarded
+	s.F32.FastErf = fastErfFloat32SSE2Guarded
+	s.F32.FastPow = fastPowFloat32SSE2Guarded
+	s.F32.FastAtan2 = fastAtan2Float32SSE2Guarded
 	s.F32.FastHypot = fastHypotFloat32SSE2Guarded
+	s.F64.FastExp = fastExpFloat64SSE2Guarded
+	s.F64.FastExp2 = fastExp2Float64SSE2Guarded
+	s.F64.FastExpm1 = fastExpm1Float64SSE2Guarded
+	s.F64.FastLog = fastLogFloat64SSE2Guarded
+	s.F64.FastLog2 = fastLog2Float64SSE2Guarded
+	s.F64.FastLog10 = fastLog10Float64SSE2Guarded
 	s.F64.FastLog1p = fastLog1pFloat64SSE2Guarded
 	s.F64.FastCbrt = fastCbrtFloat64SSE2Guarded
+	s.F64.FastSigmoid = fastSigmoidFloat64SSE2Guarded
+	s.F64.FastSin = fastSinFloat64SSE2Guarded
+	s.F64.FastCos = fastCosFloat64SSE2Guarded
+	s.F64.FastTan = fastTanFloat64SSE2Guarded
 	s.F64.FastAsin = fastAsinFloat64SSE2Guarded
+	s.F64.FastAcos = fastAcosFloat64SSE2Guarded
+	s.F64.FastAtan = fastAtanFloat64SSE2Guarded
+	s.F64.FastSinh = fastSinhFloat64SSE2Guarded
+	s.F64.FastCosh = fastCoshFloat64SSE2Guarded
+	s.F64.FastTanh = fastTanhFloat64SSE2Guarded
+	s.F64.FastAsinh = fastAsinhFloat64SSE2Guarded
 	s.F64.FastAcosh = fastAcoshFloat64SSE2Guarded
 	s.F64.FastAtanh = fastAtanhFloat64SSE2Guarded
+	s.F64.FastErf = fastErfFloat64SSE2Guarded
+	s.F64.FastPow = fastPowFloat64SSE2Guarded
 	s.F64.FastAtan2 = fastAtan2Float64SSE2Guarded
 	s.F64.FastHypot = fastHypotFloat64SSE2Guarded
 }

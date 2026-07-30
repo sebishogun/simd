@@ -601,6 +601,15 @@ func geScalarInt8MaskSSE2Guarded(dst []bool, a []int8, v int8) {
 	geScalarInt8MaskSSE2(dst[:n:n], a, v)
 }
 
+func selectInt8SSE2Guarded(dst []int8, mask []bool, yes []int8, no []int8) {
+	n := min(len(dst), len(mask), len(yes), len(no))
+	if n < 16 {
+		ref.Select(dst, mask, yes, no)
+		return
+	}
+	selectInt8SSE2(dst[:n:n], mask, yes, no)
+}
+
 func lowerBoundInt8SSE2Guarded(dst []int32, a []int8, q []int8) {
 	if len(a) < 16 {
 		ref.LowerBoundInt(dst, a, q)
@@ -840,6 +849,15 @@ func geScalarUint8MaskSSE2Guarded(dst []bool, a []byte, v byte) {
 		return
 	}
 	geScalarUint8MaskSSE2(dst[:n:n], a, v)
+}
+
+func selectUint8SSE2Guarded(dst []byte, mask []bool, yes []byte, no []byte) {
+	n := min(len(dst), len(mask), len(yes), len(no))
+	if n < 16 {
+		ref.Select(dst, mask, yes, no)
+		return
+	}
+	selectUint8SSE2(dst[:n:n], mask, yes, no)
 }
 
 func lowerBoundUint8SSE2Guarded(dst []int32, a []byte, q []byte) {
@@ -1151,6 +1169,13 @@ func maskAllSSE2Guarded(m []bool) bool {
 	return maskAllSSE2(m)
 }
 
+func maskAnySSE2Guarded(m []bool) bool {
+	if len(m) < 32 {
+		return ref.MaskAny(m)
+	}
+	return maskAnySSE2(m)
+}
+
 func maskCountSSE2Guarded(m []bool) int {
 	if len(m) < 32 {
 		return ref.MaskCount(m)
@@ -1263,6 +1288,7 @@ func init() {
 	s.I8.GreaterScalarMask = gtScalarInt8MaskSSE2Guarded
 	s.I8.GreaterEqualMask = geInt8MaskSSE2Guarded
 	s.I8.GreaterEqualScalarMask = geScalarInt8MaskSSE2Guarded
+	s.I8.Select = selectInt8SSE2Guarded
 	s.I8.LowerBound = lowerBoundInt8SSE2Guarded
 	s.I16.EqualMask = eqInt16MaskSSE2Guarded
 	s.I16.EqualScalarMask = eqScalarInt16MaskSSE2Guarded
@@ -1290,6 +1316,7 @@ func init() {
 	s.U8.GreaterScalarMask = gtScalarUint8MaskSSE2Guarded
 	s.U8.GreaterEqualMask = geUint8MaskSSE2Guarded
 	s.U8.GreaterEqualScalarMask = geScalarUint8MaskSSE2Guarded
+	s.U8.Select = selectUint8SSE2Guarded
 	s.U8.LowerBound = lowerBoundUint8SSE2Guarded
 	s.U16.EqualMask = eqUint16MaskSSE2Guarded
 	s.U16.EqualScalarMask = eqScalarUint16MaskSSE2Guarded
@@ -1325,6 +1352,7 @@ func init() {
 	s.U64.Select = selectUint64SSE2Guarded
 	s.U64.LowerBound = lowerBoundUint64SSE2Guarded
 	s.Mask.All = maskAllSSE2Guarded
+	s.Mask.Any = maskAnySSE2Guarded
 	s.Mask.Count = maskCountSSE2Guarded
 	s.Mask.And = maskAndSSE2Guarded
 	s.Mask.Or = maskOrSSE2Guarded

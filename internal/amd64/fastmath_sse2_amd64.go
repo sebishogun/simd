@@ -16,7 +16,97 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 //go:noescape
+func fastExpFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastExp2Float32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastExpm1Float32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastLogFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastLog2Float32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastLog10Float32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastLog1pFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastCbrtFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastSigmoidFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastSinFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastCosFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastTanFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastAsinFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastAcosFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastAtanFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastSinhFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastCoshFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastTanhFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastAsinhFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastAcoshFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastAtanhFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastErfFloat32SSE2(dst []float32, a []float32)
+
+//go:noescape
+func fastPowFloat32SSE2(dst []float32, a []float32, b []float32)
+
+//go:noescape
+func fastAtan2Float32SSE2(dst []float32, a []float32, b []float32)
+
+//go:noescape
 func fastHypotFloat32SSE2(dst []float32, a []float32, b []float32)
+
+//go:noescape
+func fastExpFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastExp2Float64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastExpm1Float64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastLogFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastLog2Float64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastLog10Float64SSE2(dst []float64, a []float64)
 
 //go:noescape
 func fastLog1pFloat64SSE2(dst []float64, a []float64)
@@ -25,13 +115,49 @@ func fastLog1pFloat64SSE2(dst []float64, a []float64)
 func fastCbrtFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape
+func fastSigmoidFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastSinFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastCosFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastTanFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
 func fastAsinFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastAcosFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastAtanFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastSinhFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastCoshFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastTanhFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastAsinhFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape
 func fastAcoshFloat64SSE2(dst []float64, a []float64)
 
 //go:noescape
 func fastAtanhFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastErfFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func fastPowFloat64SSE2(dst []float64, a []float64, b []float64)
 
 //go:noescape
 func fastAtan2Float64SSE2(dst []float64, a []float64, b []float64)

@@ -76,6 +76,16 @@ var alignedInteger = map[string]bool{
 var unalignedLoads = map[string]bool{
 	"lea": true, "leaq": true, "leal": true,
 	"addsd": true, "addss": true, "subsd": true, "subss": true,
+	// The scalar compares, for the same reason: four or eight bytes touched,
+	// so no 128-bit alignment requirement applies. Each is one instruction
+	// under eight names, the predicate being an immediate.
+	"cmpeqss": true, "cmpltss": true, "cmpless": true, "cmpunordss": true,
+	"cmpneqss": true, "cmpnltss": true, "cmpnless": true, "cmpordss": true,
+	"cmpeqsd": true, "cmpltsd": true, "cmplesd": true, "cmpunordsd": true,
+	"cmpneqsd": true, "cmpnltsd": true, "cmpnlesd": true, "cmpordsd": true,
+	// movd moves four bytes and movq eight, so neither carries the 128-bit
+	// alignment requirement either.
+	"movd":  true,
 	"mulsd": true, "mulss": true, "divsd": true, "divss": true,
 	"minsd": true, "minss": true, "maxsd": true, "maxss": true,
 	"sqrtsd": true, "sqrtss": true,
@@ -94,6 +104,29 @@ var unalignedLoads = map[string]bool{
 // It returns the new body, which is the original code followed by the pools,
 // and reports whether anything needed doing.
 func resolvePool(fn *objfile.Func, instrs []Instr, tgt target.Target) ([]byte, error) {
+	return resolvePoolExcept(fn, instrs, tgt, nil)
+}
+
+// resolvePoolExcept is resolvePool with some references left alone.
+//
+// The skipped ones are being re-spelled as mnemonics reading a separate RODATA
+// symbol (see constpool_sse2.go), so they need neither an appended copy of
+// their pool nor a patched displacement — their bytes are replaced wholesale.
+// Everything else is handled exactly as before, which is what lets the two
+// mechanisms live in the same function.
+func resolvePoolExcept(fn *objfile.Func, instrs []Instr, tgt target.Target,
+	skip []poolInstr) ([]byte, error) {
+
+	skipped := make(map[uint64]bool, len(skip))
+	for _, r := range skip {
+		// The relocation offset is carried rather than derived from the
+		// instruction's length. Deriving it as "four bytes from the end" is
+		// right for most of the family and wrong for the compares, which put
+		// a predicate byte after the displacement — and being wrong meant the
+		// appended-pool path still tried to patch an instruction that was
+		// about to be replaced, which is how this was found.
+		skipped[r.relOff] = true
+	}
 	switch tgt.Arch {
 	case target.AMD64:
 		// Handled below: one RIP-relative displacement per reference.
@@ -118,7 +151,7 @@ func resolvePool(fn *objfile.Func, instrs []Instr, tgt target.Target) ([]byte, e
 	var tail []byte
 
 	for _, rel := range fn.Relocs {
-		if isSelfRelative(rel.TypeName) {
+		if isSelfRelative(rel.TypeName) || skipped[rel.Off] {
 			continue
 		}
 		if len(rel.Target) == 0 {

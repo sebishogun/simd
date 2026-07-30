@@ -210,6 +210,15 @@ func f16ToF32SSE2Guarded(dst []float32, a []uint16) {
 	f16ToF32SSE2(dst[:n:n], a)
 }
 
+func f32ToF16SSE2Guarded(dst []uint16, a []float32) {
+	n := min(len(dst), len(a))
+	if n < 16 {
+		ref.F32ToF16(dst, a)
+		return
+	}
+	f32ToF16SSE2(dst[:n:n], a)
+}
+
 func init() {
 	// Add to the tier's set rather than installing a whole one: other
 	// generated files contribute their own kernels to the same tier.
@@ -236,4 +245,5 @@ func init() {
 	s.Convert.BF16ToF32 = bf16ToF32SSE2Guarded
 	s.Convert.F32ToBF16 = f32ToBF16SSE2Guarded
 	s.Convert.F16ToF32 = f16ToF32SSE2Guarded
+	s.Convert.F32ToF16 = f32ToF16SSE2Guarded
 }

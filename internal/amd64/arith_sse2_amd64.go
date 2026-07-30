@@ -235,6 +235,9 @@ func lerpInt8SSE2(dst []int8, a []int8, b []int8, t int8)
 func addScaledInt8SSE2(dst []int8, a []int8, b []int8, s int8)
 
 //go:noescape
+func rampInt8SSE2(dst []int8, start int8, step int8)
+
+//go:noescape
 func addInt16SSE2(dst []int16, a []int16, b []int16)
 
 //go:noescape
@@ -275,6 +278,9 @@ func lerpInt16SSE2(dst []int16, a []int16, b []int16, t int16)
 
 //go:noescape
 func addScaledInt16SSE2(dst []int16, a []int16, b []int16, s int16)
+
+//go:noescape
+func rampInt16SSE2(dst []int16, start int16, step int16)
 
 //go:noescape
 func addUint8SSE2(dst []byte, a []byte, b []byte)
@@ -319,6 +325,9 @@ func lerpUint8SSE2(dst []byte, a []byte, b []byte, t byte)
 func addScaledUint8SSE2(dst []byte, a []byte, b []byte, s byte)
 
 //go:noescape
+func rampUint8SSE2(dst []byte, start byte, step byte)
+
+//go:noescape
 func addUint16SSE2(dst []uint16, a []uint16, b []uint16)
 
 //go:noescape
@@ -359,6 +368,9 @@ func lerpUint16SSE2(dst []uint16, a []uint16, b []uint16, t uint16)
 
 //go:noescape
 func addScaledUint16SSE2(dst []uint16, a []uint16, b []uint16, s uint16)
+
+//go:noescape
+func rampUint16SSE2(dst []uint16, start uint16, step uint16)
 
 //go:noescape
 func addUint32SSE2(dst []uint32, a []uint32, b []uint32)
@@ -499,6 +511,12 @@ func shlInt8SSE2(dst []int8, a []int8, s uint64)
 func shrInt8SSE2(dst []int8, a []int8, s uint64)
 
 //go:noescape
+func rotlInt8SSE2(dst []int8, a []int8, s uint64)
+
+//go:noescape
+func rotrInt8SSE2(dst []int8, a []int8, s uint64)
+
+//go:noescape
 func onesCountInt8SSE2(dst []int8, a []int8)
 
 //go:noescape
@@ -515,6 +533,12 @@ func shlInt16SSE2(dst []int16, a []int16, s uint64)
 
 //go:noescape
 func shrInt16SSE2(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotlInt16SSE2(dst []int16, a []int16, s uint64)
+
+//go:noescape
+func rotrInt16SSE2(dst []int16, a []int16, s uint64)
 
 //go:noescape
 func onesCountInt16SSE2(dst []int16, a []int16)
@@ -538,6 +562,12 @@ func shlUint8SSE2(dst []byte, a []byte, s uint64)
 func shrUint8SSE2(dst []byte, a []byte, s uint64)
 
 //go:noescape
+func rotlUint8SSE2(dst []byte, a []byte, s uint64)
+
+//go:noescape
+func rotrUint8SSE2(dst []byte, a []byte, s uint64)
+
+//go:noescape
 func onesCountUint8SSE2(dst []byte, a []byte)
 
 //go:noescape
@@ -554,6 +584,12 @@ func shlUint16SSE2(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
 func shrUint16SSE2(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotlUint16SSE2(dst []uint16, a []uint16, s uint64)
+
+//go:noescape
+func rotrUint16SSE2(dst []uint16, a []uint16, s uint64)
 
 //go:noescape
 func onesCountUint16SSE2(dst []uint16, a []uint16)
