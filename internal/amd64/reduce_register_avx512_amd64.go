@@ -498,6 +498,13 @@ func sumLanesFloat32AVX512Guarded(dst []float32, a []float32) {
 	sumLanesFloat32AVX512(dst, a)
 }
 
+func sparseDotFloat32AVX512Guarded(v []float32, idx []int32, x []float32) float32 {
+	if len(x) < 0 {
+		return ref.SparseDotFloat(v, idx, x)
+	}
+	return sparseDotFloat32AVX512(v, idx, x)
+}
+
 func sumFloat64AVX512Guarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -534,6 +541,13 @@ func sumLanesFloat64AVX512Guarded(dst []float64, a []float64) {
 		return
 	}
 	sumLanesFloat64AVX512(dst, a)
+}
+
+func sparseDotFloat64AVX512Guarded(v []float64, idx []int32, x []float64) float64 {
+	if len(x) < 0 {
+		return ref.SparseDotFloat(v, idx, x)
+	}
+	return sparseDotFloat64AVX512(v, idx, x)
 }
 
 func sumInt32AVX512Guarded(a []int32) int32 {
@@ -901,11 +915,13 @@ func init() {
 	s.F32.L1Norm = l1normFloat32AVX512Guarded
 	s.F32.L1Diff = l1diffFloat32AVX512Guarded
 	s.F32.SumLanes = sumLanesFloat32AVX512Guarded
+	s.F32.SparseDot = sparseDotFloat32AVX512Guarded
 	s.F64.Sum = sumFloat64AVX512Guarded
 	s.F64.Dot = dotFloat64AVX512Guarded
 	s.F64.L1Norm = l1normFloat64AVX512Guarded
 	s.F64.L1Diff = l1diffFloat64AVX512Guarded
 	s.F64.SumLanes = sumLanesFloat64AVX512Guarded
+	s.F64.SparseDot = sparseDotFloat64AVX512Guarded
 	s.I32.Sum = sumInt32AVX512Guarded
 	s.I32.Prod = prodInt32AVX512Guarded
 	s.I32.Dot = dotInt32AVX512Guarded

@@ -211,6 +211,20 @@ type Ops[T any] struct {
 	// len(a) worth of useful output.
 	CumSum, CumProd, CumMin, CumMax, Diff func(dst, a []T)
 
+	// SparseDot is one CSR row of a sparse matrix-vector product: the sum of
+	// v[i]*x[idx[i]]. Float only, and governed by rule 3 like every other float
+	// reduction — the gather changes where the operands come from and nothing
+	// about the accumulator tree that adds them.
+	//
+	// An index outside x contributes nothing, the same contract Gather has: a
+	// gather is usually driven by computed indices and a stray one should not
+	// take the process down.
+	//
+	// A row rather than a whole matrix because a whole SpMV needs five pointers
+	// and their lengths, past the six integer registers the amd64 ABI passes
+	// arguments in. The row loop stays in Go.
+	SparseDot func(v []T, idx []int32, x []T) T
+
 	// LowerBound is the batch binary search: dst[i] is the number of elements
 	// of a that are strictly less than q[i], which is the index std::lower_bound
 	// and sort.SearchInts return. a must be sorted ascending.

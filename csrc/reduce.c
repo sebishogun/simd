@@ -426,3 +426,69 @@ DIFF(unsigned long long, u64)
 
 SUM_LANES_KERNEL(float, f32xL, f32)
 SUM_LANES_KERNEL(double, f64xL, f64)
+
+// ---------- the sparse dot product ----------
+//
+// sum of v[i] * x[idx[i]], which is one row of a sparse matrix-vector product
+// in the CSR layout every sparse library stores matrices in.
+//
+// # Why a row at a time and not the whole matrix
+//
+// A full SpMV needs the values, the column indices, the row pointers, the
+// dense vector and the destination — five pointers and their lengths, well
+// past the six integer registers the SysV amd64 ABI passes arguments in, and
+// a kernel that spills to the caller's frame is one this generator declines.
+// So the row loop stays in Go and the kernel is the row.
+//
+// That is also where the arithmetic is. A row is a gather and a dot product,
+// and the row loop around it is bookkeeping.
+//
+// # The accumulator tree is the same one every other float reduction uses
+//
+// Rule 3: exactly SUM_LANES accumulators, combined by the fixed tree, so a
+// 128-bit and a 512-bit machine produce the same bits. The gather changes
+// where the operands come from and nothing about how they are added.
+//
+// # Out-of-range indices contribute nothing
+//
+// The same contract Gather has, for the same reason: these indices are usually
+// computed, and a stray one should not take the process down. Written as a
+// select rather than a branch so the loop still vectorizes — where a masked
+// gather exists this is one instruction, and where it does not LLVM builds the
+// vector lane by lane, which is why the perf model gets consulted per target
+// rather than assumed.
+#define SPARSE_DOT(T, V)                                                \
+  V acc = 0;                                                            \
+  isize i = 0;                                                          \
+  for (; i + SUM_LANES <= n; i += SUM_LANES) {                          \
+    V g;                                                                \
+    for (int j = 0; j < SUM_LANES; j++) {                               \
+      isize k = (isize)idx[i + j];                                      \
+      g[j] = (k >= 0 && k < nx) ? x[k] : (T)0;                          \
+    }                                                                   \
+    acc += *(const V *)(v + i) * g;                                     \
+  }                                                                     \
+  V t = 0;                                                              \
+  for (int j = 0; j < SUM_LANES; j++)                                   \
+    if (i + j < n) {                                                    \
+      isize k = (isize)idx[i + j];                                      \
+      t[j] = v[i + j] * ((k >= 0 && k < nx) ? x[k] : (T)0);             \
+    }                                                                   \
+  acc += t;                                                             \
+  T r[SUM_LANES];                                                       \
+  *(V *)r = acc;                                                        \
+  for (int w = SUM_LANES / 2; w >= 1; w /= 2)                           \
+    for (int j = 0; j < w; j++) r[j] += r[j + w];                       \
+  *out = r[0];
+
+void simd_sparse_dot_f32(float *__restrict out, const float *__restrict v,
+                         const int *__restrict idx, const float *__restrict x,
+                         isize nx, isize n) {
+  SPARSE_DOT(float, f32xL)
+}
+
+void simd_sparse_dot_f64(double *__restrict out, const double *__restrict v,
+                         const int *__restrict idx, const double *__restrict x,
+                         isize nx, isize n) {
+  SPARSE_DOT(double, f64xL)
+}

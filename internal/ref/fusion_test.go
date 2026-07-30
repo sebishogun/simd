@@ -85,6 +85,24 @@ func TestNoFusedMultiplyAdd(t *testing.T) {
 		if math.Float32bits(d) != math.Float32bits(mul32(a, b)) {
 			t.Fatalf("Dot(%v, %v) = %v, want %v", a, b, d, mul32(a, b))
 		}
+
+		// SparseDot is Dot with a gather in front of one operand, so it has
+		// the same fusable multiply and needs the same conversion.
+		//
+		// Seventeen elements, not two. Element i accumulates into lane
+		// i%SumLanes, so two elements land in different lanes and neither ever
+		// reaches an add — the test would pass whether or not the reference
+		// was protected. The seventeenth element is the first one to meet a
+		// non-zero accumulator, which is where the multiply and the add become
+		// a fusable pair.
+		sv := make([]float32, 17)
+		sidx := make([]int32, 17)
+		sv[0], sv[16] = a, b
+		sp := SparseDotFloat(sv, sidx, []float32{c})
+		if w := stepwiseMulAdd(mul32(a, c), b, c); math.Float32bits(sp) != math.Float32bits(w) {
+			t.Fatalf("SparseDot(%v, %v, %v) = %v, want %v — fused multiply-add",
+				a, b, c, sp, w)
+		}
 	}
 }
 

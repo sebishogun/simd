@@ -1350,6 +1350,8 @@ func CumMaxFloat[T Float](dst, a []T) { cumMaxFloat(dst, a) }
 func CumMinInt[T Integer](dst, a []T) { cumMinInt(dst, a) }
 func CumMaxInt[T Integer](dst, a []T) { cumMaxInt(dst, a) }
 
+func SparseDotFloat[T Float](v []T, idx []int32, x []T) T { return sparseDot(v, idx, x) }
+
 func LowerBoundFloat[T Float](dst []int32, a, q []T) { lowerBound(dst, a, q) }
 func LowerBoundInt[T Integer](dst []int32, a, q []T) { lowerBound(dst, a, q) }
 

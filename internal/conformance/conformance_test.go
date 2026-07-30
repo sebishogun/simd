@@ -248,6 +248,47 @@ func checkUnary[T comparable](t *testing.T, tier, op string,
 	}
 }
 
+// checkSparseDot compares one CSR row: a gather and a dot product.
+//
+// Bit equality, not a tolerance. It is a float reduction and rule 3 binds it
+// exactly as it binds Dot, so a tier that reassociated would be caught here —
+// which is the point, since a gather in the middle is precisely where someone
+// might be tempted to reorder the lanes.
+//
+// A third of the indices are deliberately out of range in both directions. The
+// contract is that they contribute nothing, and a kernel that clamped them into
+// range instead would agree with the reference on every in-range case and
+// differ only here.
+func checkSparseDot[T comparable](t *testing.T, tier, op string,
+	got, want func(v []T, idx []int32, x []T) T, gen func(int, *rand.Rand) []T) {
+	t.Helper()
+	if got == nil || want == nil {
+		return
+	}
+	r := rand.New(rand.NewPCG(27, 28))
+	x := gen(256, r)
+	for n := range maxLen + 1 {
+		v := gen(n, r)
+		idx := make([]int32, n)
+		for i := range idx {
+			switch i % 3 {
+			case 0:
+				idx[i] = int32(-1 - r.IntN(100))
+			case 1:
+				idx[i] = int32(len(x) + r.IntN(100))
+			default:
+				idx[i] = int32(r.IntN(len(x)))
+			}
+		}
+		// sameScalar rather than !=, because a NaN never equals itself and
+		// these inputs produce them: a zero value times an out-of-range index
+		// is fine, but the generator also emits infinities.
+		if g, w := got(v, idx, x), want(v, idx, x); !sameScalar(g, w) {
+			t.Fatalf("%s/%s n=%d: got %v want %v", tier, op, n, g, w)
+		}
+	}
+}
+
 // checkLowerBound compares the batch binary search.
 //
 // The table has to be sorted, which the generic generator does not produce, so
@@ -591,6 +632,7 @@ func checkOps[T comparable](t *testing.T, tier, typeName string,
 	checkRolling(t, tier, p("RollingMax"), got.RollingMax, want.RollingMax, gen)
 
 	checkLowerBound(t, tier, p("LowerBound"), got.LowerBound, want.LowerBound, gen)
+	checkSparseDot(t, tier, p("SparseDot"), got.SparseDot, want.SparseDot, gen)
 
 	checkSet(t, tier, p("Intersect"), got.Intersect, want.Intersect, gen)
 	checkSet(t, tier, p("Difference"), got.Difference, want.Difference, gen)

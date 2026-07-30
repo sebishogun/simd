@@ -2371,3 +2371,82 @@ times slower than a hand-written loop while implying otherwise, which is what
 **What is on record.** The vector formulation, measured, with the window where
 it stops paying. Not "rolling minimum is not vectorizable" — it is, and below a
 window of 48 it is twelve times faster.
+
+## 65. XXH64 vectorizes, and on the tier most machines run it is slower
+
+**The belief.** XXH64's bulk loop has four independent accumulators, which is
+exactly the shape a vector unit wants. Four lanes of one register instead of
+four scalar chains.
+
+**LLVM agrees, does it, and it does not help.**
+
+The stripe loop itself cannot vectorize — each stripe's accumulators depend on
+the last, which is a real serial dependence — so the only question is whether
+SLP turns the four independent *lanes* into vector operations. It does, from
+`-march=x86-64-v3` up. What comes out per 32-byte stripe:
+
+| target | multiplies emitted | |
+|---|---|---|
+| `x86-64` | 8 `imulq` | no vectorization, the four chains interleave |
+| `x86-64-v3` | 6 `vpmuludq` | there is no 64-bit vector multiply below AVX-512DQ, so each one costs three |
+| `x86-64-v4` | 2 `vpmullq` | native, plus one `vprolq` for the rotate |
+
+llvm-mca, `-mcpu=znver5`, cycles per stripe:
+
+| target | cycles/stripe | against scalar |
+|---|---|---|
+| `x86-64` | 8.0 | — |
+| `x86-64-v3` | 10.5 | **0.76x** |
+| `x86-64-v4` | 6.0 | 1.33x |
+
+So AVX2 — the tier the overwhelming majority of x86 machines select — is
+**slower than not vectorizing at all**, and for the reason `csrc/scan.c`
+already records for the int64 product: the 64-bit multiply has to be emulated
+from three 32-bit ones. This is entry 59's trap arriving by a different route.
+Nobody wrote a pragma; the vectorizer did it unprompted and the result would
+have passed the has-vector-instructions gate.
+
+And the 1.33x on AVX-512 is not the win it looks like either. 32 bytes per 8
+cycles is 4 bytes per cycle, which at this machine's clock is already past what
+DRAM delivers — the gain exists only while the input is in L1 or L2, and a hash
+is usually called on data that is not.
+
+**What would be worth building instead.** XXH3, not XXH64. It was designed for
+SIMD after the fact that XXH64 was not: eight accumulators rather than four, and
+a mixing step built from 32x32→64 multiplies, which is `vpmuludq` — one
+instruction on SSE2 and everything after it, no emulation. That is a genuine
+project with an exacting specification, and it is not this one.
+
+**Recorded, not attempted.** The measurement is the point: XXH64 is not a
+missing operation, it is a measured loss on the tier that matters.
+
+## 66. Edit distance is not a loop, and the fast version is not SIMD
+
+**The belief.** Levenshtein distance is a dynamic program over a table, and a
+table is a loop nest, so it vectorizes.
+
+**Two things are true and they point away from each other.**
+
+The DP does vectorize, along the anti-diagonal: every cell on a diagonal depends
+only on the two diagonals before it, so a diagonal is independent. That is a
+real formulation. It also needs scratch proportional to the shorter input, and a
+stride that is not one — the diagonal walks the table at a slant, so every load
+is a gather or a shuffle. This library allocates nothing and has spent entry 59
+establishing what gather-dependent kernels cost. It would be a rewrite rather
+than a loop, and the payoff is against a DP that is already O(nm).
+
+The fast implementation of edit distance is not the vectorized DP at all. It is
+Myers' bit-parallel algorithm, which packs the DP's state into machine words and
+computes 64 cells per word operation — O(nm/64), so roughly sixty-four times
+faster than the DP the vector version is trying to speed up by eight. It uses
+addition, and, or, xor and shift, all scalar, and a vector version of it needs a
+carry to propagate between lanes, which is exactly what vector adds do not do.
+
+So the honest position is: the operation people want is Myers, Myers is scalar,
+and a vectorized DP would be a slower answer with more machinery. The place SIMD
+genuinely helps is *many* comparisons at once — one pattern against a batch of
+candidates, one bit-parallel state per lane — which is a different API and a
+different task.
+
+**Recorded, not attempted**, and recorded specifically so the next person does
+not vectorize the DP and then discover Myers.

@@ -645,6 +645,29 @@ func sumLanesK(e elem) spec.Kernel {
 	}
 }
 
+// sparseDotK is one CSR row: a gather and a dot product.
+//
+// Six C arguments exactly — out, values, indices, the dense vector, its length
+// and the row length — which is the SysV amd64 limit. A whole SpMV would need
+// the row pointers and the destination as well and is past it, so the row loop
+// stays in Go; see the note at the top of csrc/reduce.c.
+//
+// Three lengths would be wrong to clamp against each other: the dense vector's
+// length has nothing to do with the row's. Two lenOf entries switch the guard's
+// clamping off, which is what the declaration below relies on.
+func sparseDotK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_sparse_dot_" + e.c, GoName: "sparseDot" + e.goName,
+		Group: e.group, Field: "SparseDot", RefFunc: e.ref("SparseDot"),
+		Params: []spec.Param{sl("v", e.slice), sl("idx", spec.SliceI32),
+			sl("x", e.slice)},
+		Result: &spec.Param{Name: "ret", Type: e.scalar},
+		CArgs: []spec.CArg{out(), base("v"), base("idx"), base("x"),
+			lenOf("x"), lenOf("v")},
+		Threshold: thReduction,
+	}
+}
+
 func Reduce() []spec.Kernel {
 	var ks []spec.Kernel
 	for _, e := range elems {
@@ -664,6 +687,7 @@ func Reduce() []spec.Kernel {
 			reduce1("l1norm", "L1Norm", "L1NormFloat", e),
 			reduce2("l1diff", "L1Diff", "L1DiffFloat", e),
 			sumLanesK(e),
+			sparseDotK(e),
 		)
 	}
 	// Integer sums and products need no lane discipline, because integer

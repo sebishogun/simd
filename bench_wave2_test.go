@@ -254,3 +254,49 @@ func BenchmarkLowerBound(b *testing.B) {
 		}
 	})
 }
+
+// SparseDot per tier, against the scalar loop it replaces.
+//
+// Gather-bound, so this is the shape entry 59 warns about: a target without a
+// gather instruction can still have LLVM build the vector lane by lane, which
+// passes the repository's has-vector-instructions gate while being slower than
+// the loop it replaced. Measuring per tier is the only way to tell, and it is
+// why this benchmark exists rather than an assumption.
+//
+// Row length is the axis. A finite-element or graph-adjacency row is tens to
+// hundreds of nonzeros; below the dispatch threshold the call cost dominates
+// and the portable path is what runs.
+func BenchmarkSparseDot(b *testing.B) {
+	r := rand.New(rand.NewPCG(15, 16))
+	x := make([]float64, 1<<16)
+	for i := range x {
+		x[i] = r.NormFloat64()
+	}
+	for _, nnz := range []int{16, 64, 256, 4096} {
+		v := make([]float64, nnz)
+		idx := make([]int32, nnz)
+		for i := range v {
+			v[i] = r.NormFloat64()
+			idx[i] = int32(r.IntN(len(x)))
+		}
+		b.Run("scalar/nnz="+itoa(nnz), func(b *testing.B) {
+			for b.Loop() {
+				var acc [16]float64
+				for i := range v {
+					acc[i%16] += v[i] * x[idx[i]]
+				}
+				for w := 8; w >= 1; w /= 2 {
+					for j := range w {
+						acc[j] += acc[j+w]
+					}
+				}
+				_ = acc[0]
+			}
+		})
+		b.Run("simd/nnz="+itoa(nnz), func(b *testing.B) {
+			for b.Loop() {
+				_ = simd.SparseDot(v, idx, x)
+			}
+		})
+	}
+}

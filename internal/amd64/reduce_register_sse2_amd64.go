@@ -483,6 +483,13 @@ func sumLanesFloat32SSE2Guarded(dst []float32, a []float32) {
 	sumLanesFloat32SSE2(dst, a)
 }
 
+func sparseDotFloat32SSE2Guarded(v []float32, idx []int32, x []float32) float32 {
+	if len(x) < 0 {
+		return ref.SparseDotFloat(v, idx, x)
+	}
+	return sparseDotFloat32SSE2(v, idx, x)
+}
+
 func sumFloat64SSE2Guarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -504,6 +511,13 @@ func sumLanesFloat64SSE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	sumLanesFloat64SSE2(dst, a)
+}
+
+func sparseDotFloat64SSE2Guarded(v []float64, idx []int32, x []float64) float64 {
+	if len(x) < 0 {
+		return ref.SparseDotFloat(v, idx, x)
+	}
+	return sparseDotFloat64SSE2(v, idx, x)
 }
 
 func sumInt32SSE2Guarded(a []int32) int32 {
@@ -841,9 +855,11 @@ func init() {
 	s.F32.Sum = sumFloat32SSE2Guarded
 	s.F32.Dot = dotFloat32SSE2Guarded
 	s.F32.SumLanes = sumLanesFloat32SSE2Guarded
+	s.F32.SparseDot = sparseDotFloat32SSE2Guarded
 	s.F64.Sum = sumFloat64SSE2Guarded
 	s.F64.Dot = dotFloat64SSE2Guarded
 	s.F64.SumLanes = sumLanesFloat64SSE2Guarded
+	s.F64.SparseDot = sparseDotFloat64SSE2Guarded
 	s.I32.Sum = sumInt32SSE2Guarded
 	s.I32.Prod = prodInt32SSE2Guarded
 	s.I32.Dot = dotInt32SSE2Guarded

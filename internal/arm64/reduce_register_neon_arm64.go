@@ -454,6 +454,13 @@ func sumLanesFloat32NEONGuarded(dst []float32, a []float32) {
 	sumLanesFloat32NEON(dst, a)
 }
 
+func sparseDotFloat32NEONGuarded(v []float32, idx []int32, x []float32) float32 {
+	if len(x) < 0 {
+		return ref.SparseDotFloat(v, idx, x)
+	}
+	return sparseDotFloat32NEON(v, idx, x)
+}
+
 func sumFloat64NEONGuarded(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
@@ -490,6 +497,13 @@ func sumLanesFloat64NEONGuarded(dst []float64, a []float64) {
 		return
 	}
 	sumLanesFloat64NEON(dst, a)
+}
+
+func sparseDotFloat64NEONGuarded(v []float64, idx []int32, x []float64) float64 {
+	if len(x) < 0 {
+		return ref.SparseDotFloat(v, idx, x)
+	}
+	return sparseDotFloat64NEON(v, idx, x)
 }
 
 func sumInt32NEONGuarded(a []int32) int32 {
@@ -821,11 +835,13 @@ func init() {
 	s.F32.L1Norm = l1normFloat32NEONGuarded
 	s.F32.L1Diff = l1diffFloat32NEONGuarded
 	s.F32.SumLanes = sumLanesFloat32NEONGuarded
+	s.F32.SparseDot = sparseDotFloat32NEONGuarded
 	s.F64.Sum = sumFloat64NEONGuarded
 	s.F64.Dot = dotFloat64NEONGuarded
 	s.F64.L1Norm = l1normFloat64NEONGuarded
 	s.F64.L1Diff = l1diffFloat64NEONGuarded
 	s.F64.SumLanes = sumLanesFloat64NEONGuarded
+	s.F64.SparseDot = sparseDotFloat64NEONGuarded
 	s.I32.Sum = sumInt32NEONGuarded
 	s.I32.Prod = prodInt32NEONGuarded
 	s.I32.Dot = dotInt32NEONGuarded

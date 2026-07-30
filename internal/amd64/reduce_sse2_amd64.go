@@ -205,6 +205,9 @@ func dotFloat32SSE2(a []float32, b []float32) float32
 func sumLanesFloat32SSE2(dst []float32, a []float32)
 
 //go:noescape
+func sparseDotFloat32SSE2(v []float32, idx []int32, x []float32) float32
+
+//go:noescape
 func sumFloat64SSE2(a []float64) float64
 
 //go:noescape
@@ -212,6 +215,9 @@ func dotFloat64SSE2(a []float64, b []float64) float64
 
 //go:noescape
 func sumLanesFloat64SSE2(dst []float64, a []float64)
+
+//go:noescape
+func sparseDotFloat64SSE2(v []float64, idx []int32, x []float64) float64
 
 //go:noescape
 func sumInt32SSE2(a []int32) int32

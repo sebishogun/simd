@@ -256,6 +256,31 @@ func rollingMaxInt[T integer](dst, a []T, window int) {
 	}
 }
 
+// sparseDot is one CSR row: the sum of v[i]*x[idx[i]].
+//
+// The accumulator tree is kernel.SumLanes wide with kernel.CombineTree's fixed
+// shape, because this is a float reduction and rule 3 applies to it exactly as
+// it does to Dot. Writing it as a running sum here would make the reference
+// disagree with every accelerated tier by an ulp or two, which is the failure
+// the tree exists to prevent.
+//
+// The multiply is spelled with an explicit conversion so Go cannot fuse it into
+// an FMA. It does that on riscv64, loong64, arm64 and ppc64 but not amd64, and
+// the kernels compile with -ffp-contract=off and never fuse — so a fused
+// reference would be right on one architecture and wrong on four.
+func sparseDot[T float](v []T, idx []int32, x []T) T {
+	var acc [kernel.SumLanes]T
+	n := min(len(v), len(idx))
+	for i := range n {
+		var xv T
+		if k := int(idx[i]); k >= 0 && k < len(x) {
+			xv = x[k]
+		}
+		acc[i%kernel.SumLanes] += T(v[i] * xv)
+	}
+	return kernel.CombineTree(&acc)
+}
+
 // lowerBound is the specification the batch kernel is checked against: for each
 // query, how many elements of a are strictly less than it.
 //
@@ -422,6 +447,7 @@ func floatMathOps[T float](o *kernel.Ops[T]) {
 	o.CumMin = cumMinFloat[T]
 	o.CumMax = cumMaxFloat[T]
 	o.LowerBound = lowerBound[T]
+	o.SparseDot = sparseDot[T]
 	o.RollingMin = rollingMinFloat[T]
 	o.RollingMax = rollingMaxFloat[T]
 	o.Diff = diff[T]
