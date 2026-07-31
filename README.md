@@ -274,7 +274,8 @@ vendored in `cmd/site/assets/`; nothing contacts a CDN.
 | architecture | tiers | correctness | wall-clock |
 |---|---|---|---|
 | amd64 | sse2, avx2, avx512 | **real hardware** | **real hardware** |
-| arm64 | neon, sve2 | emulation | unmeasured |
+| arm64 | neon | **real hardware** | unmeasured |
+| arm64 | sve2 | emulation | unmeasured |
 | riscv64 | rvv | emulation | unmeasured |
 | ppc64le | vsx | emulation | unmeasured |
 | s390x | vx | emulation | unmeasured |
@@ -511,7 +512,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.0.2.** The API is stable: every exported function keeps its name,
+**v1.0.3.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.

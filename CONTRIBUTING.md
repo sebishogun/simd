@@ -113,20 +113,26 @@ because qemu does not model a pipeline. It also cannot catch a chip that
 implements an instruction differently from the emulator, an errata, or a
 scalable vector length nobody configured.
 
-Six tiers have never run on real silicon: **arm64 neon**, **arm64 sve2**,
-**riscv64 rvv**, **ppc64le vsx**, **s390x vx** and **loong64 lasx**. amd64 is
-the only architecture with either column of the README's table earned. If you
-have one of those machines, this is two commands:
+Five tiers have never run on real silicon: **arm64 sve2**, **riscv64 rvv**,
+**ppc64le vsx**, **s390x vx** and **loong64 lasx**. amd64 and arm64 neon are
+verified for correctness; amd64 is the only one with a wall-clock figure. If
+you have one of those machines, this is one command:
 
 ```
-go run ./cmd/simdinfo    # names the tier actually selected
-go test ./...
+make hardware-report
 ```
 
-Copy [`testdata/hardware/TEMPLATE.md`](testdata/hardware/TEMPLATE.md), fill in
-what you got, and open a pull request adding it as
-`testdata/hardware/<goos>-<goarch>-<tier>.md`. Or paste the output into an
-issue and someone else will file it — the point is the data, not the paperwork.
+That runs `simdinfo`, the accelerated suite and the portable suite, and writes
+`testdata/hardware/<goos>-<goarch>-<tier>.md` with everything already filled
+in. It does not abort when the suite fails, because that is the report worth
+having.
+
+Open a pull request adding that file. If you would rather not, or cannot push
+from the machine that ran it, paste the output into
+[an issue](https://github.com/sebishogun/simd/issues/new/choose) and someone
+else will file it — the point is the data, not the paperwork.
+[`TEMPLATE.md`](testdata/hardware/TEMPLATE.md) is the same report written by
+hand, for when running make is not an option.
 
 Three things worth saying plainly:
 
@@ -136,8 +142,9 @@ memory-corruption bugs in this library's history were invisible on amd64; the
 next one is likelier to be found by a stranger's board than by any test here.
 
 **"Tests pass" on its own is a complete report.** It moves a row of the
-verification table in the README from *emulation* to *real hardware*, which is
-a claim this project cannot currently make and will not make without evidence.
+verification table in the README from *emulation* to *real hardware*. Two rows
+have moved that way so far and five have not; none of them will move without
+evidence.
 
 **Benchmarks are optional and have rules.** If you send timing, the machine has
 to be quiet and it has to be `-count 6` or more, because the minimum is what

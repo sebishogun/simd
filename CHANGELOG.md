@@ -1,5 +1,44 @@
 # Changelog
 
+## v1.0.3
+
+**arm64 NEON is verified on real hardware.** An Apple M1 Pro, macOS 25.5.0,
+go1.26.5: the accelerated suite and the portable suite both pass, including the
+69-second differential run in `internal/conformance` that checks every tier
+against the reference and against the other tiers. The report is in
+`testdata/hardware/darwin-arm64-neon.md`.
+
+This is the first time any of these kernels has executed on an arm64 chip
+rather than under qemu, and it moves the second row of the README's
+verification table. M1 has NEON and no SVE2, so `arm64 sve2` stays emulated and
+the arm64 line in that table is now two rows rather than one. Wall-clock is
+still unmeasured everywhere except amd64.
+
+Five tiers remain unverified: arm64 sve2, riscv64 rvv, ppc64le vsx, s390x vx
+and loong64 lasx.
+
+### Everything else in this release is structure
+
+`make hardware-report` runs the suite and writes the report file, so sending
+one is a command rather than a transcription exercise. It does not abort when
+the suite fails, because that is the report worth having. `make hardware-bench`
+adds timing separately, since benchmarks need a quiet machine and correctness
+does not.
+
+The benchmarks moved to `internal/benchmarks`, taking the root from 132 Go
+files to 114. They only ever called the public API. The recorded baseline is
+unaffected — `benchcheck` matches on benchmark name rather than package path,
+and all 674 names still resolve.
+
+Fourteen directories gained a README saying what is in them, and the root
+README gained a layout tree. The C in `csrc/` is the source; the assembly under
+`internal/<arch>/` is the output; `make codegen` turns one into the other.
+
+Also names [kelindar/simd](https://github.com/kelindar/simd) in the comparison
+— the closest relative, since it reaches its two instruction sets the same way
+— with a measured demonstration of the difference the accuracy contract makes,
+reproducible from `docs/comparison`.
+
 ## v1.0.2
 
 Adds the MIT license.
