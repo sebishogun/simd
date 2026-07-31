@@ -143,3 +143,43 @@ func ExampleLayerNormInto() {
 	fmt.Printf("%.3f %.3f\n", dst[0], dst[3])
 	// Output: -1.683 3.683
 }
+
+// MatMulParallelInto is MatMulInto spread across goroutines. It is opt-in
+// because a library that fans out on its own steals cores from a caller that
+// may already be using them — reach for it when the multiply is the whole job,
+// and stay with MatMulInto when you are running a batch of them in parallel
+// yourself.
+//
+// The result is bit-identical to MatMulInto: the work divides by output row, so
+// no element's accumulation order changes. Below a few million
+// multiply-accumulates it runs the serial kernel anyway, which is why this
+// small example prints the same thing either way.
+func ExampleMatMulParallelInto() {
+	//  [1 2]   [5 6]   [19 22]
+	//  [3 4] * [7 8] = [43 50]
+	a := []float64{1, 2, 3, 4} // 2x2, row-major
+	b := []float64{5, 6, 7, 8} // 2x2
+
+	dst := make([]float64, 4)
+	simd.MatMulParallelInto(dst, a, b, 2, 2, 2)
+
+	fmt.Println(dst)
+	// Output: [19 22 43 50]
+}
+
+// GemvParallelInto is GemvInto across goroutines, for when one matrix-vector
+// product is the whole job. Like MatMulParallelInto it divides by output row,
+// so the result is bit-identical to the serial version, and below a few million
+// multiply-accumulates it runs the serial kernel anyway.
+func ExampleGemvParallelInto() {
+	//  [1 2]   [1]   [ 5]
+	//  [3 4] * [2] = [11]
+	a := []float64{1, 2, 3, 4} // 2x2, row-major
+	x := []float64{1, 2}
+
+	dst := make([]float64, 2)
+	simd.GemvParallelInto(dst, a, x, 2, 2)
+
+	fmt.Println(dst)
+	// Output: [5 11]
+}

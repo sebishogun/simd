@@ -1,5 +1,42 @@
 # Changelog
 
+## v1.1.0
+
+**Opt-in parallel matrix routines.** `MatMulParallelInto` and
+`GemvParallelInto` divide the work across goroutines and are otherwise their
+serial counterparts — the result is bit-identical, because the split is by
+output row and no element's summation over k changes order. There is a test
+asserting that rather than a comment claiming it.
+
+Measured on a 32-thread Zen 5, square float64, serial against parallel:
+
+	MatMul   n=128    1.00x   below the threshold, runs serial
+	         n=256    3.86x
+	         n=512   13.18x
+	         n=1024  16.02x
+
+	Gemv     n=512    1.00x   below the threshold
+	         n=1024   2.62x
+	         n=2048   5.79x
+	         n=4096   3.34x
+
+Everything else in the library still runs on one core, and that stays the
+default. A function that spawns goroutines takes them from the caller, and a
+batch of a thousand small multiplies wants one goroutine per multiply rather
+than a thousand fan-outs — so parallelism is opt-in and lives in its own name.
+
+Only the matrix routines are offered, and the reason is the numerical contract.
+Splitting a reduction means combining partial sums, and the number of partials
+would be GOMAXPROCS, so `Sum` would return different bits on a machine with a
+different core count. That is the one thing this library promises never
+happens.
+
+`MatMulParallelIntoScratch` was written, measured and deleted before release: it
+was slower than the unpacked parallel path at every size tried, including well
+past the cache cliff where packing pays in the serial kernel. Entry 71 of
+docs/wrong.md has the numbers and the reason — row-splitting and packing both
+exist to keep the working set in cache, so the second one to run only pays.
+
 ## v1.0.5
 
 Structure only, and the last of it. **No API change.**
