@@ -1,6 +1,38 @@
 # Changelog
 
-## Unreleased
+## v1.0.0
+
+**simd.go 1.0.** The API is stable and the numerical contract is one you can
+build on. The import path is unchanged: `github.com/sebishogun/simd`.
+
+### What 1.0 commits to
+
+Every exported function keeps its name, signature and meaning for the life of
+v1. The numerical contract in package `kernel` — elementwise operations
+bit-identical on every tier, floating-point reductions using a fixed
+sixteen-accumulator tree so a 128-bit and a 512-bit machine agree exactly, `Dot`
+never contracting into FMA, `Fast*` the only operations permitted to trade any
+of that away — is part of the promise, not an implementation detail. A future
+release may make an operation faster. It may not change what it returns.
+
+What is *not* covered: anything under `internal/`, the generated assembly, the
+`tools/` module, and the `goexperiment.simd` vector type in `vec.go`, which
+tracks an experiment Go itself has not settled. `v2.0.0` is reserved for the day
+Go's intrinsics need no build flag.
+
+### What 1.0 does not claim
+
+Speed, on five of the seven tiers. Correctness is verified on real hardware for
+amd64 and arm64 NEON and under emulation everywhere else; wall-clock is
+verified only on those two. The README carries a per-architecture table saying
+so, and where it says *unmeasured*, no speed claim in this repository applies.
+
+Emulation proves semantics and nothing about timing — qemu does not model a
+pipeline. It also cannot catch a chip that implements an instruction
+differently from the emulator, an errata, or a scalable vector length nobody
+configured. `testdata/hardware/` takes a report per machine and CONTRIBUTING
+explains how to send one in two commands; the table moves as they arrive.
+
 
 ### The baseline x86-64 tier: 673 kernels to 789
 

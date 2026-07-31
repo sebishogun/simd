@@ -1,4 +1,4 @@
-# simd
+# simd.go
 
 [![Latest Release](docs/assets/badges/release.svg)](https://github.com/sebishogun/simd/releases/latest)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sebishogun/simd.svg)](https://pkg.go.dev/github.com/sebishogun/simd)
@@ -6,6 +6,9 @@
 
 **Fast slice math and text scanning for Go, using the vector unit your CPU
 already has — without cgo.**
+
+The project is *simd.go*; the import path is `github.com/sebishogun/simd` and
+the package is `simd`.
 
 ```
 go get github.com/sebishogun/simd
@@ -166,8 +169,10 @@ called. Every one of these has a runnable example in
 
 ## Status
 
-**v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and
-is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
+**v1.0.0.** The API is stable: every exported function keeps its name,
+signature and meaning for the life of v1, and so does the numerical contract.
+See [CHANGELOG.md](CHANGELOG.md) for exactly what that covers and what it does
+not, and [ROADMAP.md](ROADMAP.md) for what is still open.
 
 - **461 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
