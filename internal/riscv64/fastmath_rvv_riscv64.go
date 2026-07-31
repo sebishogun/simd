@@ -22,6 +22,24 @@ func fastExpFloat32RVV(dst []float32, a []float32)
 func fastExp2Float32RVV(dst []float32, a []float32)
 
 //go:noescape
+func fastExpm1Float32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastLogFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastLog2Float32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastLog10Float32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastLog1pFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastCbrtFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
 func fastSigmoidFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
@@ -43,10 +61,28 @@ func fastAcosFloat32RVV(dst []float32, a []float32)
 func fastAtanFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
+func fastSinhFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
 func fastCoshFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
+func fastTanhFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastAsinhFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastAcoshFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastAtanhFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
 func fastErfFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func fastPowFloat32RVV(dst []float32, a []float32, b []float32)
 
 //go:noescape
 func fastAtan2Float32RVV(dst []float32, a []float32, b []float32)
@@ -59,6 +95,24 @@ func fastExpFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
 func fastExp2Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastExpm1Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastLogFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastLog2Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastLog10Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastLog1pFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastCbrtFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
 func fastSigmoidFloat64RVV(dst []float64, a []float64)
@@ -82,10 +136,28 @@ func fastAcosFloat64RVV(dst []float64, a []float64)
 func fastAtanFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
+func fastSinhFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
 func fastCoshFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
+func fastTanhFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastAsinhFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastAcoshFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastAtanhFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
 func fastErfFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func fastPowFloat64RVV(dst []float64, a []float64, b []float64)
 
 //go:noescape
 func fastAtan2Float64RVV(dst []float64, a []float64, b []float64)

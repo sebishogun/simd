@@ -2604,3 +2604,69 @@ accurate tier promises. Large, and with nothing in the way.
 
 Not a correctness hole either way; an unbuilt kernel is not registered and the
 portable Go implementation runs.
+
+## 69. The RVV transcendentals were never a cost-model problem. One intrinsic cost them all
+
+Entry 63 concluded these needed hand-written intrinsics. Entry 68 upheld that
+for RVV while correcting its evidence. Both were looking at the wrong thing,
+and the actual cause takes two lines to fix.
+
+**What the vectorizer was really saying.** The remarks visible when compiling
+the whole of `csrc/math.c` are about the cost model, which is what sent two
+entries down that path. Compile **one function** instead — the same file with
+`MATH_SET` reduced to a single `UNARY_MATH(log, ...)` — and the real message
+appears:
+
+	Recipe with invalid costs prevented vectorization at
+	VF=(vscale x 1, vscale x 2, vscale x 4): call to llvm.is.fpclass
+
+Not a cost model declining a bad trade. RVV has **no cost at all** for
+`llvm.is.fpclass`, so the vectorizer cannot price the recipe and abandons the
+loop. No pragma overrules that, which is exactly why entry 68's pragma
+experiment moved nothing on RVV — the right answer for the wrong reason.
+
+**Where the intrinsic came from.** From the denormal test, in `log2_frac_f64`
+and `cbrt_f64` and their float32 twins:
+
+```c
+int sub = x < 0x1p-1022 && x > 0.0;
+```
+
+Clang recognises "positive, nonzero, and below the smallest normal" as a class
+query and emits `llvm.is.fpclass(x, 128)` — class 128 being *positive
+subnormal*. It is a good canonicalisation everywhere except a target that
+cannot cost it.
+
+**The fix.** Ask the same question of the bits, where it is an ordinary
+unsigned comparison:
+
+```c
+unsigned long long ub = f64_to_bits(x);
+int sub = ub > 0ull && ub < 0x0010000000000000ull;
+```
+
+Exactly equivalent, and it can be checked case by case rather than trusted:
+`+0` gives bits 0 and fails the first test; `-0` and every negative gives bits
+at or above the sign bit and fails the second; NaN and infinity sit above
+`0x7ff0...` and fail it too; a positive subnormal is precisely a nonzero
+pattern with a zero exponent field, which is the interval named.
+
+**What it bought.** riscv64 **801 kernels to 849**, and *no accurate
+transcendental refuses on any target any more* — log, log2, log10, log1p,
+expm1, sinh, tanh, pow, asinh, acosh, atanh and cbrt all vectorize on RVV.
+The lane that runs them is `make test-riscv64`, which boots qemu with
+`v=true`; `make test-gates` deliberately runs riscv64 *without* the extension
+and would have reported PASS while executing none of this.
+
+**What it cost.** Two ppc64le kernels, `pow_f32` and `fast_pow_f32`. The new
+integer sequence gave the register allocator a different shape and it chose
+`r0`, which Go's ppc64le ABI defines as constant zero — so the existing check
+dropped them, exactly as it should. 592 kernels to 590. Net across all
+targets: 6,623 to 6,669.
+
+**The lesson worth keeping.** Two entries concluded "this needs intrinsics"
+from remarks emitted while compiling a 1,000-line file, where every kernel
+reports against the same macro line and the interesting message is buried under
+a hundred repetitions of an uninteresting one. Isolating a single function cost
+about two minutes and produced a different answer. A diagnostic that cannot
+name which function it is talking about is not evidence about any of them.

@@ -286,7 +286,18 @@ AI double log2_frac_f64(double x, double *kout) {
   // 2^-1022 is nonsense, and the damage is not confined to log: expm1 divides
   // by log(exp(x)), so a large negative argument, where exp underflows to a
   // denormal, produced -1.0027 for a function whose range stops at -1.
-  int sub = x < 0x1p-1022 && x > 0.0;
+  // The subnormal test is written on the bits rather than as
+  // `x < 0x1p-1022 && x > 0.0`, and that is not a style choice: clang
+  // recognises the float form as "is this a positive subnormal" and emits
+  // llvm.is.fpclass. RVV has no cost for that intrinsic, so the vectorizer
+  // reports "Recipe with invalid costs prevented vectorization: call to
+  // llvm.is.fpclass" and gives up on the whole loop — which cost log, log2,
+  // log10, log1p and every inverse hyperbolic built on them their riscv64
+  // kernels. A positive subnormal is exactly a nonzero bit pattern below the
+  // smallest normal, and an unsigned integer comparison says so without
+  // inviting the canonicalisation. See docs/wrong.md entry 69.
+  unsigned long long ub = f64_to_bits(x);
+  int sub = ub > 0ull && ub < 0x0010000000000000ull;
   double xn = sub ? x * 0x1p54 : x;
   unsigned long long u = f64_to_bits(xn);
   // The exponent is taken one higher when the mantissa has already passed
@@ -307,7 +318,9 @@ AI double log2_frac_f64(double x, double *kout) {
 }
 
 AI float log2_frac_f32(float x, float *kout) {
-  int sub = x < 0x1p-126f && x > 0.0f;
+  // Bits rather than the float comparison, for the reason on log2_frac_f64.
+  unsigned int ub = f32_to_bits(x);
+  int sub = ub > 0u && ub < 0x00800000u;
   float xn = sub ? x * 0x1p30f : x;
   unsigned int u = f32_to_bits(xn);
   int k = (int)((u + 0x004afb0du) >> 23) - 127;
@@ -711,7 +724,11 @@ AI double cbrt_f64(double x) {
   // A denormal has no exponent to read, so scale it into normal range first
   // and take the cube root of the scale back out afterwards. 54 is a multiple
   // of three, so the correction is exact.
-  int sub = ax < 0x1p-1022 && ax > 0.0;
+  // On the bits, not on the value: `ax < 0x1p-1022 && ax > 0.0` is what clang
+  // turns into llvm.is.fpclass, which RVV cannot cost and which therefore
+  // loses the whole loop. Same reason as log2_frac_f64; docs/wrong.md entry 69.
+  unsigned long long ub = f64_to_bits(ax);
+  int sub = ub > 0ull && ub < 0x0010000000000000ull;
   double as = sub ? ax * 0x1p54 : ax;
   unsigned long long u = f64_to_bits(as);
   int e = (int)(u >> 52) - 1023;
@@ -749,7 +766,9 @@ AI double cbrt_f64(double x) {
 
 AI float cbrt_f32(float x) {
   float ax = x < 0.0f ? -x : x;
-  int sub = ax < 0x1p-126f && ax > 0.0f;
+  // Bits, for the reason on cbrt_f64.
+  unsigned int ub = f32_to_bits(ax);
+  int sub = ub > 0u && ub < 0x00800000u;
   float as = sub ? ax * 0x1p30f : ax;
   unsigned int u = f32_to_bits(as);
   int e = (int)(u >> 23) - 127;

@@ -82,9 +82,6 @@ func fastAtanhFloat32VSX(dst []float32, a []float32)
 func fastErfFloat32VSX(dst []float32, a []float32)
 
 //go:noescape
-func fastPowFloat32VSX(dst []float32, a []float32, b []float32)
-
-//go:noescape
 func fastAtan2Float32VSX(dst []float32, a []float32, b []float32)
 
 //go:noescape

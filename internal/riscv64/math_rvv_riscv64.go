@@ -22,6 +22,24 @@ func expFloat32RVV(dst []float32, a []float32)
 func exp2Float32RVV(dst []float32, a []float32)
 
 //go:noescape
+func expm1Float32RVV(dst []float32, a []float32)
+
+//go:noescape
+func logFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func log2Float32RVV(dst []float32, a []float32)
+
+//go:noescape
+func log10Float32RVV(dst []float32, a []float32)
+
+//go:noescape
+func log1pFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func cbrtFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
 func sigmoidFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
@@ -43,10 +61,28 @@ func acosFloat32RVV(dst []float32, a []float32)
 func atanFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
+func sinhFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
 func coshFloat32RVV(dst []float32, a []float32)
 
 //go:noescape
+func tanhFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func asinhFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func acoshFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func atanhFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
 func erfFloat32RVV(dst []float32, a []float32)
+
+//go:noescape
+func powFloat32RVV(dst []float32, a []float32, b []float32)
 
 //go:noescape
 func atan2Float32RVV(dst []float32, a []float32, b []float32)
@@ -59,6 +95,24 @@ func expFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
 func exp2Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func expm1Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func logFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func log2Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func log10Float64RVV(dst []float64, a []float64)
+
+//go:noescape
+func log1pFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func cbrtFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
 func sigmoidFloat64RVV(dst []float64, a []float64)
@@ -82,10 +136,28 @@ func acosFloat64RVV(dst []float64, a []float64)
 func atanFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
+func sinhFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
 func coshFloat64RVV(dst []float64, a []float64)
 
 //go:noescape
+func tanhFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func asinhFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func acoshFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func atanhFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
 func erfFloat64RVV(dst []float64, a []float64)
+
+//go:noescape
+func powFloat64RVV(dst []float64, a []float64, b []float64)
 
 //go:noescape
 func atan2Float64RVV(dst []float64, a []float64, b []float64)
