@@ -128,6 +128,18 @@ fuzz: ## Fuzz the public API and the tier-vs-reference differential
 # emulation. Turning cgo off is not a workaround for that: this library
 # promises to need no C toolchain, so the cross lane testing it without one is
 # the stronger check, and the lane should never have had cgo available.
+#
+# CROSS_PKGS is the library and nothing else, and that is the second half of
+# the same problem. With cgo off, building cmd/site under emulation stopped
+# segfaulting and started *hanging* — the container sits at 0% CPU forever,
+# somewhere in net/http's dependency graph, and `make test-cross` never
+# returns. Naming the packages explicitly is not a way of avoiding a failing
+# test: cmd/site is a benchmark server that runs on the developer's machine,
+# it contains no kernel and no dispatch, and there is nothing about it that
+# an emulated s390x can tell us. The library is . and ./internal/..., and that
+# is what this lane exists to check.
+CROSS_PKGS = . ./internal/...
+
 .PHONY: test-cross
 test-cross: cross-setup ## Every architecture with a backend, under docker + qemu
 	@for p in linux/arm64 linux/s390x linux/ppc64le; do \
@@ -135,7 +147,7 @@ test-cross: cross-setup ## Every architecture with a backend, under docker + qem
 		$(DOCKER) run --rm --platform $$p -v "$(PWD)":/src -w /src \
 			-e GOFLAGS=-buildvcs=false -e CGO_ENABLED=0 golang:1.26 \
 			sh -c 'go run ./cmd/simdinfo -require-accelerated && \
-			       go test -short -vet=off ./...' \
+			       go test -short -vet=off -timeout 600s $(CROSS_PKGS)' \
 			|| exit 1; \
 	done
 

@@ -2,6 +2,60 @@
 
 ## Unreleased
 
+### The baseline x86-64 tier: 673 kernels to 789
+
+A legacy SSE instruction reading a constant pool needs its operand 16-byte
+aligned and has no unaligned form, and nothing promises the alignment of bytes
+inside a TEXT symbol. That cost the sse2 tier 170 kernels — the largest
+addressable gap in the repository.
+
+The pool now goes into a separate RODATA symbol, which the linker does align,
+and the one instruction that reads it is emitted as a Plan 9 mnemonic. It is
+safe because the mnemonic assembles to *exactly* the encoding it replaces, so
+every branch displacement stays correct — and that is now
+`TestRespelledEncodingsMatchClang`, run for all forty mnemonics against both
+register ranges, rather than an argument. **No alignment refusals remain on any
+tier.** Entries 61 and 67.
+
+### The transcendentals now vectorize everywhere
+
+Thirteen accurate transcendentals refused on RVV and five float64 ones on
+NEON. Two earlier investigations concluded this needed hand-written intrinsics.
+It did not.
+
+NEON was a cost model declining a good trade, which a pragma overrules: +20
+kernels. RVV was `llvm.is.fpclass`, which that target cannot price, emitted
+from a denormal test written as a float comparison — asking the same question
+of the bits is an ordinary unsigned comparison. riscv64 went 801 to 849, and
+**no accurate transcendental refuses on any target**. Entries 68, 69 and 70.
+
+### Documentation
+
+`docs/guide/` is five prose pages — arrays, text, search, encodings, signal —
+each explaining the problem, showing the code, and saying where the operation
+stops paying.
+
+The README's function table claimed every entry had a runnable example. It was
+false for 100 of 109 rows. All 109 have one now, and
+`TestReadmeTableHasExamples` fails the build if a row appears without one.
+`TestGuidesNameRealFunctions` does the same for the prose.
+
+Writing them found three documentation bugs that only executing catches: the
+table named three functions that do not exist, a `ParseInts` snippet silently
+dropped its last field, and a `BitPack` snippet produced zeros because
+unpacking needs one word more than packing.
+
+### Fixed
+
+- `make test-cross` hung forever building `cmd/site` under emulation. It now
+  runs the library packages, which is what the lane is for.
+- Five exported functions had no doc comment, three of them sharing one above
+  the group — legal Go that renders as nothing on pkg.go.dev.
+- 90 public wrappers were never called by any test. The conformance suite tests
+  kernels; a wrapper reaching for the wrong kernel field is invisible to it.
+  443 of 461 are now exercised through the public API.
+
+
 ### The qemu lanes were never reading their flags
 
 The emulators here follow the binfmt_misc preserve-argv[0] convention, so run
@@ -39,6 +93,41 @@ arrive before any lane is trusted. Entry 41.
 - **`FastCumSum` / `FastCumProd`**, and an exact accelerated integer
   `CumProd`. See below.
 - **Packed-B GEMM.** `MatMulIntoPacked`, `PackBInto`, `MatMulIntoScratch`.
+
+- **Sorted sets.** `IntersectInto`, `DifferenceInto` over sorted,
+  duplicate-free integer slices — the shape a posting list is already in. The
+  two-cursor merge vectorizes on nothing; this compares a tile of eight against
+  eight with no reduction and no branch, then retires whichever block has the
+  smaller maximum. Ahead at sparse and total overlap, a tie at 50% where no
+  block skips. **No `Union`**: it emits everything in order, which is a merge,
+  and merging two sorted vectors needs a bitonic network this library does not
+  have.
+- **Batched binary search.** `LowerBoundInto`. One search is a chain of
+  dependent probes; a batch turns the loop nest inside out and becomes
+  elementwise over the queries. 6.7x on sse2, 10.4x on avx512 — and the
+  decomposition is worth knowing, because sse2 has no gather at all: most of
+  the win is *branchlessness*, and lanes are the 1.55x on top.
+- **Rank and select.** `RankTableInto`, `Rank`, `Select`. A composition over
+  `OnesCountInto` and `CumSumInto` rather than a kernel, and it says so. What
+  it adds is the exclusive-prefix off-by-one that makes `Rank` a single
+  addition and `Select` its exact inverse.
+- **Sliding-window extremes.** `RollingMinInto`, `RollingMaxInto`, with IEEE
+  754-2019 minimum so NaN propagates. **The doc states where it stops paying**:
+  12.8x against a hand-written deque at a window of 4, 1.5x at 32, and 0.75x at
+  64. Above about 48, write the deque.
+- **Sparse matrix-vector.** `SparseDot` per CSR row and `SpMVInto` for the
+  loop. About **1.1x**, gather-bound, and documented as such — the accumulation
+  contract is the reason to use it, not the speed.
+- **Longest common prefix.** `CommonPrefixLen`, 21x a byte-at-a-time loop.
+- **Varint widths.** `VarintSize`, `VarintLenInto`, `AppendVarints`. The
+  emission is serial and always will be; what vectorizes is asking how wide
+  each value is, which is what lets an encoder allocate once. 27x on the size
+  pass, 1.7x end to end.
+- **UTF-32 encode.** `AppendUTF8FromRunes`, closing a pair that had a decode
+  direction and no encode — and whose kernel had been generated with no caller.
+- **`FastAsinh`, `FastAcosh`, `FastAtanh`, `FastErf`.** These had kernels on
+  every architecture, wired into the dispatch table and conformance-tested,
+  with no public wrapper. The work was done and the door was missing.
 
 ### Prefix scans: what Fast means, and what it does not
 
