@@ -414,3 +414,78 @@ tidy: ## go mod tidy in both modules
 .PHONY: clean
 clean: ## Remove build artefacts and generated scratch files
 	$(GO) clean -testcache
+
+# ------------------------------------------------------------------- hardware
+# Produce a hardware run report, ready to attach to an issue or commit.
+#
+# CONTRIBUTING calls this two commands and then asked people to transcribe the
+# output into a template by hand, which is neither two commands nor something a
+# stranger with a board owes anybody. This does the transcription.
+#
+# It deliberately does NOT fail when the suite fails. A failing run on real
+# silicon is the more valuable of the two outcomes — three memory-corruption
+# bugs in this library's history were invisible on amd64 — and a target that
+# exits non-zero before writing the file would throw away exactly the report
+# worth having.
+.PHONY: hardware-report
+hardware-report: ## Run the suite and write testdata/hardware/<goos>-<goarch>-<tier>.md
+	@set -e; \
+	info=$$($(GO) run ./cmd/simdinfo 2>&1) || { \
+		echo "cmd/simdinfo did not run:"; echo "$$info"; \
+		echo; echo "That is itself worth reporting — open an issue with this output."; \
+		exit 1; }; \
+	goos=$$($(GO) env GOOS); goarch=$$($(GO) env GOARCH); \
+	tier=$$(printf '%s' "$$info" | sed -n 's/.*tier=\([a-z0-9]*\).*/\1/p'); \
+	[ -n "$$tier" ] || tier=unknown; \
+	out=testdata/hardware/$$goos-$$goarch-$$tier.md; \
+	mkdir -p testdata/hardware; \
+	echo "running the suite on $$goos/$$goarch, tier=$$tier — this takes a few minutes"; \
+	acc=$$($(GO) test $(PKG) 2>&1) && accres=Passed || accres=FAILED; \
+	sca=$$(GOSIMD=scalar $(GO) test $(PKG) 2>&1) && scares=Passed || scares=FAILED; \
+	{ \
+	  echo "# $$goos/$$goarch, tier=$$tier"; echo; \
+	  echo "## Machine"; echo; \
+	  echo '```'; \
+	  echo "goos:   $$goos"; \
+	  echo "goarch: $$goarch"; \
+	  echo "go:     $$($(GO) version)"; \
+	  echo "cpu:    $$(sysctl -n machdep.cpu.brand_string 2>/dev/null \
+	                 || awk -F': ' '/model name/{print $$2; exit}' /proc/cpuinfo 2>/dev/null \
+	                 || echo '<fill this in>')"; \
+	  echo "os:     $$(uname -srm)"; \
+	  echo '```'; echo; \
+	  echo "## Tier selected"; echo; \
+	  echo '```'; echo "\$$ go run ./cmd/simdinfo"; echo "$$info"; echo '```'; echo; \
+	  echo "## Correctness"; echo; \
+	  echo "- accelerated (\`go test ./...\`): **$$accres**"; \
+	  echo "- portable (\`GOSIMD=scalar go test ./...\`): **$$scares**"; echo; \
+	  echo '<details><summary>accelerated output</summary>'; echo; \
+	  echo '```'; echo "$$acc" | tail -40; echo '```'; echo; echo '</details>'; echo; \
+	  echo '<details><summary>portable output</summary>'; echo; \
+	  echo '```'; echo "$$sca" | tail -40; echo '```'; echo; echo '</details>'; echo; \
+	  echo "## Wall-clock"; echo; \
+	  echo "Not measured. \`make hardware-bench\` adds it, on a quiet machine."; echo; \
+	  echo "## Anything odd"; echo; \
+	  echo "<Anything that surprised you, including nothing.>"; \
+	} > $$out; \
+	echo; echo "wrote $$out  (accelerated: $$accres, portable: $$scares)"; \
+	echo "Attach it to https://github.com/sebishogun/simd/issues/new/choose,"; \
+	echo "or open a pull request adding it. A FAILED run is the more useful one."
+
+# Benchmarks are a separate target because they have a precondition the
+# correctness run does not: the machine has to be quiet. -count 6 because the
+# minimum is what gets used rather than the mean — benchmark noise is one-sided,
+# so the fastest run is the one least interfered with. See entry 48 of
+# docs/wrong.md, which cost twenty-one phantom regressions to learn.
+.PHONY: hardware-bench
+hardware-bench: ## Append benchmarks to the hardware report (quiet machine only)
+	@set -e; \
+	goos=$$($(GO) env GOOS); goarch=$$($(GO) env GOARCH); \
+	tier=$$($(GO) run ./cmd/simdinfo 2>&1 | sed -n 's/.*tier=\([a-z0-9]*\).*/\1/p'); \
+	out=testdata/hardware/$$goos-$$goarch-$$tier.md; \
+	[ -f $$out ] || { echo "run 'make hardware-report' first"; exit 1; }; \
+	echo "benchmarking — close everything else; this takes a while"; \
+	bench=$$($(GO) test -run '^$$' -bench . -count 6 $(PKG) 2>&1) || true; \
+	{ echo; echo "## Wall-clock"; echo; \
+	  echo '```'; echo "$$bench"; echo '```'; } >> $$out; \
+	echo "appended benchmarks to $$out"

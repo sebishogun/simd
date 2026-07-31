@@ -7,7 +7,7 @@ an assertion.
 Every architecture here is tested under emulation on every change, which proves
 semantics and nothing about timing. qemu does not model a pipeline. So a single
 run on a real chip is worth more than any amount of emulated coverage — and for
-five of the seven tiers, nobody has done one.
+six of the seven tiers, nobody has done one.
 
 ## What is in a report
 

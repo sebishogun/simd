@@ -159,6 +159,20 @@ func TestContributingMatchesVerificationTable(t *testing.T) {
 				"name it among the tiers it asks for runs on.", tier)
 		}
 	}
+
+	// testdata/hardware/README.md states the same fact a third time, for the
+	// person who arrives at the directory rather than at the contributing
+	// guide. It was stale for the same reason and by the same amount.
+	dir, err := os.ReadFile("testdata/hardware/README.md")
+	if err != nil {
+		t.Fatalf("reading testdata/hardware/README.md: %v", err)
+	}
+	stated := strings.ToLower(singleString(t, string(dir),
+		`for\s+(\w+) of the seven tiers, nobody has done one`))
+	if want := numberWord(len(unverified)); stated != want {
+		t.Errorf("testdata/hardware/README.md says %q of the seven tiers have no "+
+			"report; the README's table lists %d.", stated, len(unverified))
+	}
 }
 
 func numberWord(n int) string {
@@ -257,9 +271,9 @@ func singleString(t *testing.T, readme, pattern string) string {
 	t.Helper()
 	m := regexp.MustCompile(pattern).FindAllStringSubmatch(readme, -1)
 	if len(m) != 1 {
-		t.Fatalf("pattern %q matched %d times in the README, want exactly 1; "+
-			"the sentence it checks has been reworded and the check no longer "+
-			"verifies anything", pattern, len(m))
+		t.Fatalf("pattern %q matched %d times, want exactly 1; the sentence it "+
+			"checks has been reworded and the check no longer verifies anything",
+			pattern, len(m))
 	}
 	return m[0][1]
 }
