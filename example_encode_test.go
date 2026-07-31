@@ -179,3 +179,23 @@ func ExampleRequantizeInt8Into() {
 	fmt.Println(dst)
 	// Output: [50 100 127 127]
 }
+
+func ExampleZigzagEncodeInt32Into() {
+	deltas := []int32{0, -1, 1, -2, 2}
+	enc := make([]uint32, len(deltas))
+	simd.ZigzagEncodeInt32Into(enc, deltas)
+	// Small magnitudes of either sign became small unsigned values, which is
+	// what makes the varint of each one a single byte.
+	fmt.Println(enc)
+	// Output: [0 1 2 3 4]
+}
+
+func ExampleQuantizeInt8() {
+	// A symmetric per-tensor scale, the common case for weights.
+	w := []float32{-1.0, -0.5, -0.25, 0, 0.25, 0.5, 1.0}
+	scale := float32(1.0 / 127)
+	q := make([]int8, len(w))
+	simd.QuantizeInt8(q, w, scale, 0)
+	fmt.Println(q)
+	// Output: [-127 -64 -32 0 32 64 127]
+}

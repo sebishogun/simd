@@ -410,6 +410,8 @@ internal/
   conformance/       the differential suite: every tier against ref, and each other
   asmcheck/          static assertions on the committed assembly
   benchmarks/        every benchmark
+  tests/             the public-API test suite, by topic:
+                       arrays reduce text search encode dsp matrix docs
 cmd/simdinfo/        prints the tier actually selected on this machine
 cmd/site/            local benchmark site
 tools/               the code generator — a separate module, never your dependency
@@ -424,6 +426,12 @@ committed under [`internal/`](internal) so that using this library needs no C
 toolchain. Every generated `.s` names the C file it came from and the target it
 was built for, and none of them should be edited by hand — `make codegen`
 regenerates them.
+
+**Tests live next to what they can reach.** Anything that only calls the public
+API is in `internal/tests/<topic>/`; what stays in the root directory is what
+Go requires to be there — tests of unexported behaviour, the `export_test.go`
+hooks and the files using them, and the runnable examples, which have to sit
+beside the package to appear on pkg.go.dev.
 
 Every directory above has a README explaining what is in it.
 

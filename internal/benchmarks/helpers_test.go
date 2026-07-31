@@ -48,3 +48,6 @@ var (
 	sinkTextBool bool
 	sinkTextStr  string
 )
+
+// sinkF is the float counterpart of the sinks above.
+var sinkF float64
