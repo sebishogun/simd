@@ -551,3 +551,14 @@ false, and what each one cost. Among them —
 
 `docs/research/` carries the longer reasoning behind the design decisions;
 `05-decisions.md` is the decision record.
+
+## License
+
+MIT — see [LICENSE](LICENSE). Use it in anything, including commercially; keep
+the copyright notice.
+
+The only dependency is `golang.org/x/sys` (BSD-3-Clause), used for CPU feature
+detection and nothing else. The benchmark site vendors the Datastar browser
+bundle, which is MIT and carries its own notice in
+[`cmd/site/assets/`](cmd/site/assets/) — it is not part of the library and
+nothing you import pulls it in.
