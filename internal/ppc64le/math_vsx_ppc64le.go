@@ -82,6 +82,9 @@ func atanhFloat32VSX(dst []float32, a []float32)
 func erfFloat32VSX(dst []float32, a []float32)
 
 //go:noescape
+func powFloat32VSX(dst []float32, a []float32, b []float32)
+
+//go:noescape
 func atan2Float32VSX(dst []float32, a []float32, b []float32)
 
 //go:noescape

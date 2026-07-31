@@ -162,7 +162,7 @@ is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 
 - **452 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
-- **6,603 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
+- **6,671 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
   arm64 neon/sve2, riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx.
 - Every architecture is **executed**, under emulation, on every change.
 - The portable Go implementation is always there. A kernel that could not be
@@ -353,13 +353,13 @@ each column.
 | | kernels | skipped | |
 |---|---|---|---|
 | amd64 (sse2/avx2/avx512) | 2493 | 88 | essentially complete |
-| arm64 (neon/sve2) | 1594 | 128 | essentially complete |
-| riscv64 (rvv) | 801 | 62 | essentially complete |
+| arm64 (neon/sve2) | 1614 | 108 | essentially complete |
+| riscv64 (rvv) | 849 | 14 | essentially complete |
 | loong64 (lasx) | 710 | 149 | see the `.L0` note below |
 | ppc64le (vsx) | 592 | 267 | was 281 before the TOC rewrite |
 | s390x (vx) | 413 | 446 | **partial**, and the reason is an ABI wall |
 
-6,603 kernels in total. Almost all of the remaining skips are the `Fast*` tier:
+6,671 kernels in total. Almost all of the remaining skips are the `Fast*` tier:
 it is the newest and the least portable, and where a target declines one the
 accurate kernel stands in, which satisfies the bound because the bound is an
 upper bound.

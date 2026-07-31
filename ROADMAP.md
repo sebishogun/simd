@@ -134,9 +134,14 @@ Sorted-set intersection and difference shipped, because the tile turned out to
 need only constant shuffles; the varint widths shipped, with the emission
 itself recorded as serial rather than pending; and the sse2 emission is done.
 
-What is left is **the RVV and NEON transcendentals**, and it stops where the
-others did: **it needs hand-written intrinsics rather than one portable C
-source.**
+And the fourth is through it too, by a route nobody expected. **The RVV and
+NEON transcendentals needed no intrinsics at all.** NEON's five float64
+refusals were a cost model declining a good trade, which a pragma overrules;
+RVV's thirteen were `llvm.is.fpclass`, emitted from a denormal test written as
+a float comparison, which the vectorizer cannot cost on that target and which
+an equivalent test on the bits avoids entirely. No accurate transcendental
+refuses on any target now. See docs/wrong.md entries 68, 69 and 70 — the last
+being the ppc64le segfault that forcing caused on a target nobody had checked.
 
 That is not a difficulty ranking, it is a different kind of work. Everything in
 this repository gets its cross-architecture identity for free by compiling one

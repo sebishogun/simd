@@ -218,6 +218,15 @@ func fastErfFloat32VSXGuarded(dst []float32, a []float32) {
 	fastErfFloat32VSX(dst[:n:n], a)
 }
 
+func fastPowFloat32VSXGuarded(dst []float32, a []float32, b []float32) {
+	n := min(len(dst), len(a), len(b))
+	if n < 4 {
+		ref.Pow(dst, a, b)
+		return
+	}
+	fastPowFloat32VSX(dst[:n:n], a, b)
+}
+
 func fastAtan2Float32VSXGuarded(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
@@ -478,6 +487,7 @@ func init() {
 	s.F32.FastAcosh = fastAcoshFloat32VSXGuarded
 	s.F32.FastAtanh = fastAtanhFloat32VSXGuarded
 	s.F32.FastErf = fastErfFloat32VSXGuarded
+	s.F32.FastPow = fastPowFloat32VSXGuarded
 	s.F32.FastAtan2 = fastAtan2Float32VSXGuarded
 	s.F32.FastHypot = fastHypotFloat32VSXGuarded
 	s.F64.FastExp = fastExpFloat64VSXGuarded

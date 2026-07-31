@@ -279,6 +279,40 @@ AI float exp2_f32(float x) {
 // near 2, whose log2 is near 1, and k + log2(m) is then a difference of two
 // numbers of size 1 producing an answer near 0.
 
+// SUBNORMAL_F64 and SUBNORMAL_F32 ask "is this a positive subnormal", which
+// every path that reads an exponent has to know before it reads one.
+//
+// The obvious spelling, `x < 0x1p-1022 && x > 0.0`, is what clang recognises
+// as a class query and emits as llvm.is.fpclass(x, 128). RVV has no cost for
+// that intrinsic, so its vectorizer cannot price the recipe and abandons the
+// loop — "Recipe with invalid costs prevented vectorization: call to
+// llvm.is.fpclass" — which cost riscv64 every kernel built on log or cbrt.
+//
+// The bit form asks the same question as an unsigned comparison, which every
+// vectorizer can cost. It is exactly equivalent: +0 has bit pattern zero and
+// fails the first test, -0 and every negative sit at or above the sign bit and
+// fail the second, NaN and infinity sit above 0x7ff0... and fail it too, and a
+// positive subnormal is precisely a nonzero pattern with a zero exponent
+// field.
+//
+// # Why this is switched on the target rather than used everywhere
+//
+// Because the point is to work around a gap in one target's cost model, and
+// changing the instruction selection everywhere else buys nothing and is not
+// free. Applied unconditionally it moved ppc64le's register allocation enough
+// that pow_f32 and fast_pow_f32 began writing r0 — which Go's ppc64le ABI
+// defines as constant zero, so the generator correctly dropped them — and left
+// a kernel that corrupted state badly enough to segfault the conformance suite
+// several tests later. That fault is real and is recorded separately; scoping
+// the workaround to the target that needs it is not a way of hiding it.
+#if defined(__riscv_v)
+#define SUBNORMAL_F64(x) (f64_to_bits(x) > 0ull && f64_to_bits(x) < 0x0010000000000000ull)
+#define SUBNORMAL_F32(x) (f32_to_bits(x) > 0u && f32_to_bits(x) < 0x00800000u)
+#else
+#define SUBNORMAL_F64(x) ((x) < 0x1p-1022 && (x) > 0.0)
+#define SUBNORMAL_F32(x) ((x) < 0x1p-126f && (x) > 0.0f)
+#endif
+
 AI double log2_frac_f64(double x, double *kout) {
   // A denormal has no exponent to read — its field is zero and its mantissa is
   // not normalised — so scale it into normal range first and take the scale
@@ -286,18 +320,7 @@ AI double log2_frac_f64(double x, double *kout) {
   // 2^-1022 is nonsense, and the damage is not confined to log: expm1 divides
   // by log(exp(x)), so a large negative argument, where exp underflows to a
   // denormal, produced -1.0027 for a function whose range stops at -1.
-  // The subnormal test is written on the bits rather than as
-  // `x < 0x1p-1022 && x > 0.0`, and that is not a style choice: clang
-  // recognises the float form as "is this a positive subnormal" and emits
-  // llvm.is.fpclass. RVV has no cost for that intrinsic, so the vectorizer
-  // reports "Recipe with invalid costs prevented vectorization: call to
-  // llvm.is.fpclass" and gives up on the whole loop — which cost log, log2,
-  // log10, log1p and every inverse hyperbolic built on them their riscv64
-  // kernels. A positive subnormal is exactly a nonzero bit pattern below the
-  // smallest normal, and an unsigned integer comparison says so without
-  // inviting the canonicalisation. See docs/wrong.md entry 69.
-  unsigned long long ub = f64_to_bits(x);
-  int sub = ub > 0ull && ub < 0x0010000000000000ull;
+  int sub = SUBNORMAL_F64(x);
   double xn = sub ? x * 0x1p54 : x;
   unsigned long long u = f64_to_bits(xn);
   // The exponent is taken one higher when the mantissa has already passed
@@ -318,9 +341,7 @@ AI double log2_frac_f64(double x, double *kout) {
 }
 
 AI float log2_frac_f32(float x, float *kout) {
-  // Bits rather than the float comparison, for the reason on log2_frac_f64.
-  unsigned int ub = f32_to_bits(x);
-  int sub = ub > 0u && ub < 0x00800000u;
+  int sub = SUBNORMAL_F32(x);
   float xn = sub ? x * 0x1p30f : x;
   unsigned int u = f32_to_bits(xn);
   int k = (int)((u + 0x004afb0du) >> 23) - 127;
@@ -724,11 +745,7 @@ AI double cbrt_f64(double x) {
   // A denormal has no exponent to read, so scale it into normal range first
   // and take the cube root of the scale back out afterwards. 54 is a multiple
   // of three, so the correction is exact.
-  // On the bits, not on the value: `ax < 0x1p-1022 && ax > 0.0` is what clang
-  // turns into llvm.is.fpclass, which RVV cannot cost and which therefore
-  // loses the whole loop. Same reason as log2_frac_f64; docs/wrong.md entry 69.
-  unsigned long long ub = f64_to_bits(ax);
-  int sub = ub > 0ull && ub < 0x0010000000000000ull;
+  int sub = SUBNORMAL_F64(ax);
   double as = sub ? ax * 0x1p54 : ax;
   unsigned long long u = f64_to_bits(as);
   int e = (int)(u >> 52) - 1023;
@@ -766,9 +783,7 @@ AI double cbrt_f64(double x) {
 
 AI float cbrt_f32(float x) {
   float ax = x < 0.0f ? -x : x;
-  // Bits, for the reason on cbrt_f64.
-  unsigned int ub = f32_to_bits(ax);
-  int sub = ub > 0u && ub < 0x00800000u;
+  int sub = SUBNORMAL_F32(ax);
   float as = sub ? ax * 0x1p30f : ax;
   unsigned int u = f32_to_bits(as);
   int e = (int)(u >> 23) - 127;
@@ -1049,52 +1064,59 @@ AI float erfc_f32(float x) {
   return x != x ? x : v;
 }
 
-// The pragma overrides a cost model, and only a cost model.
+// FORCE_VECTORIZE overrules a cost model, on the one target where doing so was
+// measured to help and verified not to hurt.
 //
 // These bodies are the inlined polynomial for one transcendental, applied
-// elementwise. There is no dependence between iterations and no operation in
-// them that is not plain floating-point arithmetic, so every target this
-// library builds for has the instructions. What differs is whether the
-// vectorizer thinks the result is worth it, and on RVV it does not: it reports
-// "the cost-model indicates that vectorization is not beneficial" for thirteen
-// functions at both widths, and emits a scalar loop over a hundred-instruction
-// polynomial.
+// elementwise, so there is no dependence between iterations and nothing in them
+// but plain floating-point arithmetic. On NEON and SVE2 the vectorizer declines
+// five float64 functions anyway — acosh, atanh, cbrt, log1p, sinh — and the
+// pragma recovers them and their five Fast twins: 20 kernels, arm64 1594 to
+// 1614. Checked rather than assumed: 43 to 87 vector-lane operations per body
+// with zero per-lane extract or insert, the differential and ULP suites green,
+// and llvm-mca on neoverse-v2 giving 131 cycles per element scalar against 16
+// vectorized for cbrt_f64.
 //
-// That judgement is wrong for this shape, and the pragma says so. With it, RVV
-// vectorizes twenty-six of the twenty-eight loops — thirteen at vscale x 4 and
-// thirteen at vscale x 2 — and NEON and SVE2 pick up the five float64
-// functions they were declining.
+// # Why it is switched on the target, which is the whole lesson
 //
-// # Why this is not the trap docs/wrong.md entry 59 describes
+// docs/wrong.md entry 59 says forcing is a trap: where an instruction is
+// missing, LLVM emits scalarised vector code that passes this repository's
+// has-vector-instructions check while being slower than what it replaced. The
+// answer to that is not to avoid forcing, it is to force per target and verify
+// per target — which is what that entry actually asked for.
 //
-// Entry 59's warning is specific: `vectorize(enable)` makes LLVM *try*, and
-// where the instruction genuinely does not exist it emits scalarised vector
-// code — per-lane extracts and inserts around scalar operations — which passes
-// this repository's has-vector-instructions check while being slower than the
-// portable path. That happens to scatter and to the 64-bit integer multiply,
-// because those instructions are missing.
+// Applied to every target instead, it left ppc64le's conformance suite dying
+// with a segmentation fault several tests after the kernel that caused it, the
+// symptom this repository documents for a kernel that corrupts state and
+// returns. ppc64le's kernel count did not move, so nothing in the emission
+// summary showed it; only running the tests did. That is recorded in
+// docs/wrong.md entry 70.
 //
-// Nothing here is missing. A polynomial is multiplies and adds, and the
-// checks that matter were run rather than assumed: package verify rejects any
-// kernel whose body is not vector instructions, the emitted RVV and NEON
-// bodies were inspected for the extract/insert pattern that marks
-// scalarisation, and the differential suite proves the answers did not move.
-//
-// An earlier attempt at this is recorded in entry 63 as having failed with
-// twenty-two instances of "unable to perform the requested transformation".
-// That does not reproduce on clang 22.1.8 — there are none — which is why the
-// pragma is here now and was not then.
+// riscv64 is included as well, and for a reason worth separating from arm64's.
+// The pragma alone does nothing there — 26 vectorized loops with it and 26
+// without — because the blocker was llvm.is.fpclass rather than the cost model.
+// Once SUBNORMAL_F64 removes that, the cost model *is* what remains for four
+// kernels, and the pragma recovers them: 845 to 849. Verified by
+// `make test-riscv64`, which boots qemu with v=true; `make test-gates` runs
+// riscv64 without the extension and would report PASS while executing none of
+// it.
+#if defined(__aarch64__) || defined(__riscv_v)
+#define FORCE_VECTORIZE _Pragma("clang loop vectorize(enable)")
+#else
+#define FORCE_VECTORIZE
+#endif
+
 #define UNARY_MATH(NAME, T, SUF)                                          \
   void KNAME(NAME, SUF)(T *__restrict d, const T *__restrict a,           \
                         isize n) {                                        \
-    _Pragma("clang loop vectorize(enable)")                               \
+    FORCE_VECTORIZE                                                       \
     for (isize i = 0; i < n; i++) d[i] = NAME##_##SUF(a[i]);              \
   }
 
 #define BINARY_MATH(NAME, T, SUF)                                         \
   void KNAME(NAME, SUF)(T *__restrict d, const T *__restrict a,           \
                         const T *__restrict b, isize n) {                 \
-    _Pragma("clang loop vectorize(enable)")                               \
+    FORCE_VECTORIZE                                                       \
     for (isize i = 0; i < n; i++) d[i] = NAME##_##SUF(a[i], b[i]);        \
   }
 

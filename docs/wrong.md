@@ -2670,3 +2670,53 @@ reports against the same macro line and the interesting message is buried under
 a hundred repetitions of an uninteresting one. Isolating a single function cost
 about two minutes and produced a different answer. A diagnostic that cannot
 name which function it is talking about is not evidence about any of them.
+
+## 70. Forcing vectorization everywhere segfaulted ppc64le, and the kernel count said nothing
+
+Entry 68 applied `#pragma clang loop vectorize(enable)` to the transcendental
+macros and reported +20 arm64 kernels, checked against entry 59's trap. The
+checks it ran were the right ones. It ran them **on arm64 only**, and the
+pragma was applied to every target.
+
+**What happened.** ppc64le's conformance suite died with
+
+	signal: segmentation fault (core dumped)
+
+and it died in `TestFastTranscendentalULP`, which **passes when run on its
+own**. That combination — a fault that only appears after other tests have run,
+in a test that is fine in isolation — is the signature this repository already
+documents for a kernel that corrupts state and returns: the damage lands
+somewhere else entirely, later.
+
+**Why nothing caught it earlier.** Three reasons, and each is worth keeping.
+
+The kernel count did not move. ppc64le reported 592 kernels before the pragma
+and 592 after, so the emission summary — which is the first thing anyone reads
+after a generator change — was identical. Forcing did not add or drop kernels
+there; it changed the code inside them.
+
+The verification that did run was on the target that benefited. arm64 gained
+kernels, so arm64 was where the vector-instruction count, the extract/insert
+check and the ULP suite were pointed. A target that gains nothing from a change
+still receives it.
+
+And the cross lane that would have caught it was killed by a tool timeout
+mid-ppc64le on the run that mattered, then reported green on an earlier tree.
+A lane interrupted is not a lane passed, and the log looked the same either way
+until the platform lines were counted.
+
+**The fix is what entry 59 actually asked for.** Not "do not force" — force per
+target, and verify per target. `FORCE_VECTORIZE` is now defined only for
+`__aarch64__` and `__riscv_v`, the two where the gain was measured and the
+tests were run:
+
+	arm64    +20 kernels, 1594 -> 1614
+	riscv64   +4 kernels, 845 -> 849, but only once entry 69's
+	          is.fpclass fix removed the real blocker
+	ppc64le   no change, and no segfault
+
+**What to take from it.** An emission summary that does not move is not evidence
+that nothing moved. The generator reports how many kernels a target got, not
+what is in them, and forcing changes the second without touching the first. The
+only thing that distinguishes those two states is running the tests on that
+target.
