@@ -102,6 +102,49 @@ the most-read file in the repository for a reason.
 - No new dependencies. The library has none outside the standard library and
   `golang.org/x/sys` for CPU detection, and that is a feature.
 
+## Reporting a hardware run
+
+**This is the contribution the library most needs, and it requires knowing
+nothing about the internals.**
+
+Every architecture is tested under emulation on every change. That proves
+semantics — a wrong answer gets caught — and it proves nothing about timing,
+because qemu does not model a pipeline. It also cannot catch a chip that
+implements an instruction differently from the emulator, an errata, or a
+scalable vector length nobody configured.
+
+Five tiers have never run on real silicon: **arm64 sve2**, **riscv64 rvv**,
+**ppc64le vsx**, **s390x vx** and **loong64 lasx**. If you have one of those
+machines, this is two commands:
+
+```
+go run ./cmd/simdinfo    # names the tier actually selected
+go test ./...
+```
+
+Copy [`testdata/hardware/TEMPLATE.md`](testdata/hardware/TEMPLATE.md), fill in
+what you got, and open a pull request adding it as
+`testdata/hardware/<goos>-<goarch>-<tier>.md`. Or paste the output into an
+issue and someone else will file it — the point is the data, not the paperwork.
+
+Three things worth saying plainly:
+
+**A failing run is the more valuable one.** Do not clean it up, do not try to
+fix it first, and do not decide it is your machine's fault. Three
+memory-corruption bugs in this library's history were invisible on amd64; the
+next one is likelier to be found by a stranger's board than by any test here.
+
+**"Tests pass" on its own is a complete report.** It moves a row of the
+verification table in the README from *emulation* to *real hardware*, which is
+a claim this project cannot currently make and will not make without evidence.
+
+**Benchmarks are optional and have rules.** If you send timing, the machine has
+to be quiet and it has to be `-count 6` or more, because the minimum is what
+gets used — benchmark noise is one-sided, so the fastest run is the one least
+interfered with. A number from a busy laptop is worse than no number, which is
+[entry 48 of `docs/wrong.md`](docs/wrong.md) and cost twenty-one phantom
+regressions to learn.
+
 ## What gets declined
 
 A kernel that cannot be generated for a target is **not** a failure — the

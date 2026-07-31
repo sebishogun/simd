@@ -177,9 +177,33 @@ is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 - The portable Go implementation is always there. A kernel that could not be
   generated for a target is not a hole; it is a slower path.
 
-**The one thing to know before depending on this:** nothing outside amd64 has
-ever run on real hardware. Everything else is qemu, which proves semantics and
-proves nothing about timing.
+### What "verified" means, per architecture
+
+Correctness and speed are verified to different depths, and conflating them is
+the easiest way for a library like this to overstate itself. So:
+
+| architecture | correctness | wall-clock |
+|---|---|---|
+| amd64 (sse2/avx2/avx512) | **real hardware** | **real hardware** |
+| arm64 (neon) | **real hardware** | **real hardware** |
+| arm64 (sve2) | emulation | unmeasured |
+| riscv64 (rvv) | emulation | unmeasured |
+| ppc64le (vsx) | emulation | unmeasured |
+| s390x (vx) | emulation | unmeasured |
+| loong64 (lasx) | emulation | unmeasured |
+
+Emulation proves semantics — every kernel is differential-tested against the
+portable implementation on every architecture, on every change, and that is
+what catches a wrong answer. It proves **nothing** about timing, because qemu
+does not model a pipeline. Where the table says *unmeasured*, no speed claim in
+this repository applies; the numbers under [Numbers](#numbers) are amd64 unless
+they say otherwise.
+
+**Have one of the unverified machines?** A single run is worth more than any
+amount of emulation, and it is two commands —
+see [Reporting a hardware run](CONTRIBUTING.md#reporting-a-hardware-run).
+Reports are welcome from anyone; you do not need to know anything about the
+internals to send one, and the table above moves when they arrive.
 
 ---
 

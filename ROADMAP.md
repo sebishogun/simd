@@ -303,10 +303,23 @@ otherwise force a breaking change or a correction later:
 
    What genuinely still needs metal: wall-clock under a real memory system,
    which is what dominates a whole-slice kernel at large n and is exactly what
-   a model with no memory system cannot tell you. Every GB/s figure in this
-   repo is amd64-only, and either those numbers get measured elsewhere or
-   every figure gets marked amd64-only before the tag. Apple Silicon would
-   cover macOS and arm64 wall-clock at once.
+   a model with no memory system cannot tell you.
+
+   **Resolved by narrowing rather than by waiting.** This criterion offered two
+   ways to satisfy it — measure elsewhere, or mark every figure as amd64-only
+   before the tag — and 1.0 takes the second. The README now carries a
+   per-architecture table separating correctness from wall-clock, and states
+   that where it says *unmeasured*, no speed claim in the repository applies.
+
+   That is not the same as the criterion going away. It is the difference
+   between a library that has not measured something and a library that
+   implies it has. The table is the honest form, and it moves as reports
+   arrive: `testdata/hardware/` takes one file per machine, and CONTRIBUTING
+   asks for them from anyone with a board, in two commands, explicitly
+   including failures.
+
+   Still unmeasured on silicon: arm64 sve2, riscv64 rvv, ppc64le vsx, s390x vx,
+   loong64 lasx. amd64 and arm64 NEON are covered.
 
 Anything not on that list — FFT, the DSP set, checksums, the rest of the C99
 math tail — is a feature and ships in a minor release. Features do not gate a
