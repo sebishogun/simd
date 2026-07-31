@@ -125,12 +125,17 @@ func Atan[T Float](a []T) { ops[T]().Atan(a, a) }
 // Sinh replaces every element with its hyperbolic sine.
 func Sinh[T Float](a []T) { ops[T]().Sinh(a, a) }
 
-// Asinh, Acosh and Atanh are the inverse hyperbolics, in place.
-//
-// Acosh is NaN below 1 and Atanh is NaN outside [-1, 1], with Atanh giving
-// the signed infinity at exactly -1 and 1, as C99 specifies.
+// Asinh replaces every element with its inverse hyperbolic sine. It is defined
+// for every finite input.
 func Asinh[T Float](a []T) { ops[T]().Asinh(a, a) }
+
+// Acosh replaces every element with its inverse hyperbolic cosine. It is NaN
+// below 1, where the function is undefined.
 func Acosh[T Float](a []T) { ops[T]().Acosh(a, a) }
+
+// Atanh replaces every element with its inverse hyperbolic tangent. It is the
+// signed infinity at exactly -1 and 1, and NaN outside [-1, 1], as C99
+// specifies.
 func Atanh[T Float](a []T) { ops[T]().Atanh(a, a) }
 
 // Erf is the error function, in place. It carries an absolute error bound of
@@ -199,8 +204,16 @@ func AtanInto[T Float](dst, a []T) { ops[T]().Atan(dst, a) }
 // SinhInto sets dst[i] to the hyperbolic sine of a[i]. dst may alias a.
 func SinhInto[T Float](dst, a []T) { ops[T]().Sinh(dst, a) }
 
+// AsinhInto sets dst[i] to the inverse hyperbolic sine of a[i]. dst may alias
+// a.
 func AsinhInto[T Float](dst, a []T) { ops[T]().Asinh(dst, a) }
+
+// AcoshInto sets dst[i] to the inverse hyperbolic cosine of a[i], which is NaN
+// below 1. dst may alias a.
 func AcoshInto[T Float](dst, a []T) { ops[T]().Acosh(dst, a) }
+
+// AtanhInto sets dst[i] to the inverse hyperbolic tangent of a[i]: the signed
+// infinity at exactly -1 and 1, NaN outside [-1, 1]. dst may alias a.
 func AtanhInto[T Float](dst, a []T) { ops[T]().Atanh(dst, a) }
 
 // ErfInto writes the error function of each element of a to dst.

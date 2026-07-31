@@ -178,3 +178,40 @@ func FastHypot[T Float](a, b []T) { ops[T]().FastHypot(a, a, b) }
 
 // FastHypotInto writes the result into dst. dst may alias a or b.
 func FastHypotInto[T Float](dst, a, b []T) { ops[T]().FastHypot(dst, a, b) }
+
+// The four below had kernels generated, wired into the dispatch table and
+// tested by the conformance suite, and no way to call them. Nothing failed:
+// an unreachable operation is not a broken one, it is simply absent, and the
+// only thing that notices is somebody looking for it.
+
+// FastAsinh replaces every element with its inverse hyperbolic sine, to within
+// 3.5 ULP. See [Asinh] for the accurate form.
+func FastAsinh[T Float](a []T) { ops[T]().FastAsinh(a, a) }
+
+// FastAsinhInto writes the result into dst. dst may alias a.
+func FastAsinhInto[T Float](dst, a []T) { ops[T]().FastAsinh(dst, a) }
+
+// FastAcosh replaces every element with its inverse hyperbolic cosine, to
+// within 3.5 ULP. It is NaN below 1. See [Acosh] for the accurate form.
+func FastAcosh[T Float](a []T) { ops[T]().FastAcosh(a, a) }
+
+// FastAcoshInto writes the result into dst. dst may alias a.
+func FastAcoshInto[T Float](dst, a []T) { ops[T]().FastAcosh(dst, a) }
+
+// FastAtanh replaces every element with its inverse hyperbolic tangent, to
+// within 3.5 ULP. It is the signed infinity at exactly -1 and 1, and NaN
+// outside [-1, 1]. See [Atanh] for the accurate form.
+func FastAtanh[T Float](a []T) { ops[T]().FastAtanh(a, a) }
+
+// FastAtanhInto writes the result into dst. dst may alias a.
+func FastAtanhInto[T Float](dst, a []T) { ops[T]().FastAtanh(dst, a) }
+
+// FastErf replaces every element with the error function of that element.
+//
+// Unlike the rest of this tier it carries an absolute error bound rather than
+// a ULP one, for the reason [Erf] gives: a rational approximation to erf is
+// accurate in absolute terms and not in relative ones near its zero.
+func FastErf[T Float](a []T) { ops[T]().FastErf(a, a) }
+
+// FastErfInto writes the result into dst. dst may alias a.
+func FastErfInto[T Float](dst, a []T) { ops[T]().FastErf(dst, a) }

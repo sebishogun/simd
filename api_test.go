@@ -34,6 +34,15 @@ func rnd(n int, r *rand.Rand) []float64 {
 	return out
 }
 
+// rndAbove1 stays in Acosh's domain, which starts at 1.
+func rndAbove1(n int, r *rand.Rand) []float64 {
+	out := rnd(n, r)
+	for i := range out {
+		out[i] = math.Abs(out[i]) + 1
+	}
+	return out
+}
+
 func rndPos(n int, r *rand.Rand) []float64 {
 	out := rnd(n, r)
 	for i := range out {
@@ -105,6 +114,46 @@ func TestInPlaceMatchesInto(t *testing.T) {
 		{"CumMin", CumMin[float64], CumMinInto[float64], rnd},
 		{"CumMax", CumMax[float64], CumMaxInto[float64], rnd},
 		{"Reverse", Reverse[float64], ReverseInto[float64], rnd},
+
+		// The inverse hyperbolics. Acosh is undefined below 1 and Atanh
+		// outside [-1, 1], so each gets a generator that stays in its domain —
+		// a NaN on both sides would compare equal and prove nothing.
+		{"Asinh", Asinh[float64], AsinhInto[float64], rnd},
+		{"Acosh", Acosh[float64], AcoshInto[float64], rndAbove1},
+		{"Atanh", Atanh[float64], AtanhInto[float64], rndUnit},
+
+		{"Erf", Erf[float64], ErfInto[float64], rnd},
+		{"Erfc", Erfc[float64], ErfcInto[float64], rnd},
+
+		// The Fast tier. These were the largest group of exported functions
+		// that no test called through the public wrapper at all: the
+		// conformance suite exercises the kernels, but a wrapper pointing at
+		// the wrong one — FastExp reaching for Exp, say — would have gone
+		// unnoticed by everything.
+		{"FastExp", FastExp[float64], FastExpInto[float64], rndUnit},
+		{"FastExp2", FastExp2[float64], FastExp2Into[float64], rndUnit},
+		{"FastExpm1", FastExpm1[float64], FastExpm1Into[float64], rndUnit},
+		{"FastLog", FastLog[float64], FastLogInto[float64], rndPos},
+		{"FastLog2", FastLog2[float64], FastLog2Into[float64], rndPos},
+		{"FastLog10", FastLog10[float64], FastLog10Into[float64], rndPos},
+		{"FastLog1p", FastLog1p[float64], FastLog1pInto[float64], rndPos},
+		{"FastCbrt", FastCbrt[float64], FastCbrtInto[float64], rnd},
+		{"FastSigmoid", FastSigmoid[float64], FastSigmoidInto[float64], rnd},
+		{"FastSin", FastSin[float64], FastSinInto[float64], rnd},
+		{"FastCos", FastCos[float64], FastCosInto[float64], rnd},
+		{"FastTan", FastTan[float64], FastTanInto[float64], rnd},
+		{"FastAsin", FastAsin[float64], FastAsinInto[float64], rndUnit},
+		{"FastAcos", FastAcos[float64], FastAcosInto[float64], rndUnit},
+		{"FastAtan", FastAtan[float64], FastAtanInto[float64], rnd},
+		{"FastSinh", FastSinh[float64], FastSinhInto[float64], rndUnit},
+		{"FastCosh", FastCosh[float64], FastCoshInto[float64], rndUnit},
+		{"FastTanh", FastTanh[float64], FastTanhInto[float64], rndUnit},
+		{"FastAsinh", FastAsinh[float64], FastAsinhInto[float64], rnd},
+		{"FastAcosh", FastAcosh[float64], FastAcoshInto[float64], rndAbove1},
+		{"FastAtanh", FastAtanh[float64], FastAtanhInto[float64], rndUnit},
+		{"FastErf", FastErf[float64], FastErfInto[float64], rnd},
+		{"FastCumSum", FastCumSum[float64], FastCumSumInto[float64], rnd},
+		{"FastCumProd", FastCumProd[float64], FastCumProdInto[float64], rnd},
 	}
 	r := rand.New(rand.NewPCG(41, 42))
 	for _, c := range cases {
@@ -149,6 +198,12 @@ func TestBinaryInPlaceMatchesInto(t *testing.T) {
 		{"Pow", Pow[float64], PowInto[float64], rndPos},
 		{"Atan2", Atan2[float64], Atan2Into[float64], rnd},
 		{"Hypot", Hypot[float64], HypotInto[float64], rnd},
+
+		// The Fast tier's binary members, for the same reason as the unary
+		// ones above: the kernels were tested, the wrappers were not.
+		{"FastPow", FastPow[float64], FastPowInto[float64], rndPos},
+		{"FastAtan2", FastAtan2[float64], FastAtan2Into[float64], rnd},
+		{"FastHypot", FastHypot[float64], FastHypotInto[float64], rnd},
 	}
 	r := rand.New(rand.NewPCG(43, 44))
 	for _, c := range cases {
