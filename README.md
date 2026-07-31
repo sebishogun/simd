@@ -35,6 +35,14 @@ of chaining, and the operations that will never vectorize no matter what you
 do. Every snippet in it compiles, and the worked example is a program you can
 run.
 
+**Looking for how to do a specific thing?** [`docs/guide/`](docs/guide/) is
+task-shaped prose: [arrays and reductions](docs/guide/arrays.md),
+[text and bytes](docs/guide/text.md),
+[search, sets and bit vectors](docs/guide/search.md), and
+[encodings](docs/guide/encoding.md). Each page explains the problem, shows the
+code, and says where the operation stops paying — including the cases where a
+plain loop wins.
+
 ## Scope
 
 **What this is for** — anything a vector unit can do faster than a scalar loop.
@@ -113,7 +121,7 @@ called. Every one of these has a runnable example in
 | smallest and largest in one pass | `MinMax`, or `ArgMin`/`ArgMax` for positions |
 | **keep only the elements that pass a test** | a comparison → `[]bool`, then `CompressInto` |
 | apply an arbitrary Go predicate | `FilterInto` (convenient, not fast — see its doc) |
-| running totals / differences | `CumSum` `Diff` |
+| running totals / differences | `CumSum` `DiffInto` |
 | exp/log/trig over a slice | `Exp` `Log` `Sin` … and the `Fast*` twins |
 | pick between two slices per element | `SelectInto` |
 | **apply a matrix to a vector** | `GemvInto` |
@@ -128,7 +136,7 @@ called. Every one of these has a runnable example in
 | the k largest or smallest | `TopK` `BottomK` — selects, does not sort |
 | histogram / count occurrences | `Histogram` `Bincount` |
 | find the NaNs, sum around them | `IsNaNInto` `CountNaN` `NanSum` `NanMean` |
-| shifts, rotates, popcount per element | `Shl` `Rotl` `OnesCount` `LeadingZeros` `ByteSwapInto` |
+| shifts, rotates, popcount per element | `Shl` `Rotl` `OnesCountInto` `LeadingZerosInto` `ByteSwapInto` |
 | a Fourier transform | `FFTInto` with a reusable plan; `RFFT` for real input |
 | envelope / analytic signal | `HilbertInto`, then `AbsComplexInto` |
 | window a signal | `Hann` `Hamming` `Blackman`, then `ApplyWindowInto` |
