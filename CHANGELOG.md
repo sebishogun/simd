@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.4
+
+Structure only. **No API change** — every exported name, signature and result
+is exactly what v1.0.3 had, so there is nothing to update when you upgrade.
+
+The repository root went from 114 Go files to 68: the 46 that are `package
+simd`, plus the 22 test files Go requires to sit beside them. Everything that
+only calls the public API moved to `internal/tests/`, split by topic — arrays,
+reduce, text, search, encode, dsp, matrix, and a docs package that checks the
+repository's own documentation against the tree.
+
+`internal/tests/README.md` records what could not move and why: tests of
+unexported behaviour, the `export_test.go` hooks and their callers, and the
+runnable examples, which only render on pkg.go.dev while they sit beside the
+package they document.
+
 ## v1.0.3
 
 **arm64 NEON is verified on real hardware.** An Apple M1 Pro, macOS 25.5.0,
