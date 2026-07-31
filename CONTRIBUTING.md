@@ -113,9 +113,10 @@ because qemu does not model a pipeline. It also cannot catch a chip that
 implements an instruction differently from the emulator, an errata, or a
 scalable vector length nobody configured.
 
-Five tiers have never run on real silicon: **arm64 sve2**, **riscv64 rvv**,
-**ppc64le vsx**, **s390x vx** and **loong64 lasx**. If you have one of those
-machines, this is two commands:
+Six tiers have never run on real silicon: **arm64 neon**, **arm64 sve2**,
+**riscv64 rvv**, **ppc64le vsx**, **s390x vx** and **loong64 lasx**. amd64 is
+the only architecture with either column of the README's table earned. If you
+have one of those machines, this is two commands:
 
 ```
 go run ./cmd/simdinfo    # names the tier actually selected

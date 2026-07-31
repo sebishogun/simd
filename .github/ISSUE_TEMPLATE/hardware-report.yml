@@ -1,0 +1,130 @@
+name: Hardware run report
+description: You ran the test suite on a real machine. This is the contribution the project most needs.
+title: "hardware: <goarch> <tier> on <CPU>"
+labels: ["hardware-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you — this is genuinely the most useful thing anyone can send.
+
+        Every architecture is tested under emulation on every change. That
+        catches a wrong answer and proves nothing about timing, because qemu
+        does not model a pipeline. It also cannot catch a chip that implements
+        an instruction differently from the emulator, an errata, or a scalable
+        vector length nobody configured.
+
+        **A failing run is the more valuable one.** Do not clean it up, do not
+        try to fix it first, and do not decide it is your machine's fault.
+        Three memory-corruption bugs in this library's history were invisible
+        on amd64.
+
+        **"Tests pass" on its own is a complete report.** It moves a row of the
+        README's verification table from *emulation* to *real hardware*, which
+        is a claim this project will not make without evidence. Everything
+        below marked optional is genuinely optional.
+
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Architecture and tier
+      description: Whatever `go run ./cmd/simdinfo` reported. amd64 is already verified, but a second machine is still worth having.
+      options:
+        - arm64 neon
+        - arm64 sve2
+        - riscv64 rvv
+        - ppc64le vsx
+        - s390x vx
+        - loong64 lasx
+        - amd64 (sse2 / avx2 / avx512)
+        - something else, or simdinfo would not run
+    validations:
+      required: true
+
+  - type: input
+    id: cpu
+    attributes:
+      label: CPU
+      description: Model name, and the board if it is one.
+      placeholder: Apple M1 / Ampere Altra / SiFive P550 on a HiFive Premier
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: OS, kernel and Go version
+      placeholder: macOS 15.2, darwin 24.2.0, go1.25.3
+    validations:
+      required: true
+
+  - type: textarea
+    id: simdinfo
+    attributes:
+      label: Tier selected
+      description: Output of `go run ./cmd/simdinfo`. This says which code actually ran, and without it a passing suite might have tested nothing — that mistake cost this project two backends.
+      render: shell
+      placeholder: $ go run ./cmd/simdinfo
+    validations:
+      required: true
+
+  - type: dropdown
+    id: result
+    attributes:
+      label: Did `go test ./...` pass?
+      options:
+        - Passed
+        - Failed
+        - It did not get far enough to say
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: Test output
+      description: The last few lines if it passed; the whole failure if it did not. Do not trim a failure to what looks relevant — the useful part is often the test name rather than the assertion.
+      render: shell
+      placeholder: $ go test ./...
+    validations:
+      required: true
+
+  - type: textarea
+    id: scalar
+    attributes:
+      label: Portable path (optional, but it isolates a fault fast)
+      description: "`GOSIMD=scalar go test ./...` runs the reference implementation with no vector code. If the accelerated run failed and this passes, the fault is in a kernel; if both fail, it is not."
+      render: shell
+      placeholder: $ GOSIMD=scalar go test ./...
+    validations:
+      required: false
+
+  - type: textarea
+    id: bench
+    attributes:
+      label: Benchmarks (optional, and they have rules)
+      description: |
+        Only if the machine is quiet — close everything else first — and only with `-count 6` or more, because the minimum is what gets used rather than the mean. Benchmark noise is one-sided, so the fastest run is the one least interfered with. A number from a busy laptop is worse than no number.
+
+        `go test -run '^$' -bench . -count 6 ./...`
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: odd
+    attributes:
+      label: Anything odd
+      description: Anything that surprised you, including nothing.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: followup
+    attributes:
+      label: Filing it
+      options:
+        - label: I am happy for this output to be committed to `testdata/hardware/` and cited in the README's verification table.
+          required: false
+        - label: I would rather open the pull request myself — see [Reporting a hardware run](https://github.com/sebishogun/simd/blob/main/CONTRIBUTING.md#reporting-a-hardware-run) and [TEMPLATE.md](https://github.com/sebishogun/simd/blob/main/testdata/hardware/TEMPLATE.md).
+          required: false

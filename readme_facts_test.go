@@ -99,6 +99,77 @@ func TestReadmeCountsAreCurrent(t *testing.T) {
 	})
 }
 
+// CONTRIBUTING asks strangers for runs on the tiers that have never executed on
+// real silicon, and names them. That list is the README's verification table
+// restated in prose, so it drifts the moment the table moves — and it had:
+// correcting the arm64 NEON row left CONTRIBUTING still saying five tiers and
+// still omitting NEON from the list, which would have told someone with the one
+// machine most likely to be reading that their run was not wanted.
+//
+// A report landing is exactly when both change, so they are tied together here.
+func TestContributingMatchesVerificationTable(t *testing.T) {
+	readme := readReadme(t)
+
+	// Rows of the platform table whose correctness column is not real hardware.
+	// Each row may list several tiers for one architecture.
+	rows := regexp.MustCompile(`(?m)^\| ([a-z0-9]+) \| ([a-z0-9, ]+) \| ([^|]+) \|`)
+	matches := rows.FindAllStringSubmatch(readme, -1)
+	if len(matches) < 6 {
+		t.Fatalf("parsed %d rows out of the platform table, expected one per "+
+			"architecture; the table format has changed and this check no longer "+
+			"verifies anything", len(matches))
+	}
+
+	unverified := map[string]bool{}
+	for _, m := range matches {
+		arch, tiers, correctness := m[1], m[2], strings.TrimSpace(m[3])
+		if arch == "architecture" { // the header row matches the same shape
+			continue
+		}
+		if strings.Contains(correctness, "real hardware") {
+			continue
+		}
+		for _, tier := range strings.Split(tiers, ",") {
+			unverified[arch+" "+strings.TrimSpace(tier)] = true
+		}
+	}
+	if len(unverified) == 0 {
+		t.Fatal("no unverified tiers parsed from the platform table; either every " +
+			"row now claims real hardware, in which case CONTRIBUTING should stop " +
+			"asking, or the parse has broken")
+	}
+
+	src, err := os.ReadFile("CONTRIBUTING.md")
+	if err != nil {
+		t.Fatalf("reading CONTRIBUTING.md: %v", err)
+	}
+	contributing := string(src)
+
+	// The count opens a sentence in CONTRIBUTING, so it is capitalised there.
+	claimed := strings.ToLower(singleString(t, contributing,
+		`(\w+) tiers have never run on real silicon`))
+	if want := numberWord(len(unverified)); claimed != want {
+		t.Errorf("CONTRIBUTING says %q tiers have never run on real silicon; the "+
+			"README's table lists %d.", claimed, len(unverified))
+	}
+
+	for tier := range unverified {
+		if !strings.Contains(contributing, "**"+tier+"**") {
+			t.Errorf("the README lists %q as unverified, but CONTRIBUTING does not "+
+				"name it among the tiers it asks for runs on.", tier)
+		}
+	}
+}
+
+func numberWord(n int) string {
+	words := []string{"zero", "one", "two", "three", "four", "five", "six",
+		"seven", "eight", "nine", "ten"}
+	if n < len(words) {
+		return words[n]
+	}
+	return strconv.Itoa(n)
+}
+
 // Prose in the README backticks things that are not functions: register names,
 // environment variables, and shorthand for a family whose members all carry a
 // suffix. Everything else in backticks is a promise that the reader can call

@@ -1,0 +1,21 @@
+# Blank issues stay enabled. The only form here is the hardware report, and
+# funnelling an ordinary bug through a chooser that offers one irrelevant
+# option is worse than letting someone type.
+blank_issues_enabled: true
+
+contact_links:
+  - name: How to report a hardware run
+    url: https://github.com/sebishogun/simd/blob/main/CONTRIBUTING.md#reporting-a-hardware-run
+    about: What the run needs to include, and why a failing one is the more useful kind.
+
+  - name: Wrong answer or a crash
+    url: https://github.com/sebishogun/simd/blob/main/CONTRIBUTING.md
+    about: Open a blank issue. Include the output of `go run ./cmd/simdinfo`, and whether `GOSIMD=scalar` also reproduces it.
+
+  - name: Measured something slower than a plain Go loop
+    url: https://github.com/sebishogun/simd/blob/main/docs/tutorial.md
+    about: Check the tutorial first — below roughly 16 to 64 elements this library runs a plain loop on purpose, and per-element calls are slower than not using it at all.
+
+  - name: Already tried and rejected
+    url: https://github.com/sebishogun/simd/blob/main/docs/wrong.md
+    about: Things that were measured and did not work, with the numbers. Worth a look before proposing an optimisation. (The count lives in the README, which has a test keeping it honest; it is not repeated here.)
