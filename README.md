@@ -38,8 +38,9 @@ run.
 **Looking for how to do a specific thing?** [`docs/guide/`](docs/guide/) is
 task-shaped prose: [arrays and reductions](docs/guide/arrays.md),
 [text and bytes](docs/guide/text.md),
-[search, sets and bit vectors](docs/guide/search.md), and
-[encodings](docs/guide/encoding.md). Each page explains the problem, shows the
+[search, sets and bit vectors](docs/guide/search.md),
+[encodings](docs/guide/encoding.md), and
+[signal and matrices](docs/guide/signal.md). Each page explains the problem, shows the
 code, and says where the operation stops paying — including the cases where a
 plain loop wins.
 

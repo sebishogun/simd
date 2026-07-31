@@ -26,8 +26,9 @@ output is not one element per input.
 run-length, zigzag, varint widths. What a column store and an inference runtime
 spend their time in.
 
-**[Signal and matrices](signal.md)** — FFT, windows, convolution, Gemv, matrix
-multiply, sparse matrix-vector.
+**[Signal and matrices](signal.md)** — Fourier transforms and plans, windows,
+convolution, the analytic signal, Gemv and a register-blocked matrix multiply.
+Several of these pick an algorithm for you; this says which and why.
 
 ## Two things that apply to every page
 
