@@ -14,6 +14,10 @@ the package is `simd`.
 go get github.com/sebishogun/simd
 ```
 
+Go 1.25 or later. There is nothing else to install — no compiler, no C
+toolchain, no build tag. The kernels are compiled ahead of time and committed
+as assembly, so this is a normal Go dependency.
+
 ```go
 import "github.com/sebishogun/simd"
 

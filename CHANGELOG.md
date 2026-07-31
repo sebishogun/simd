@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.0.1
+
+Lowers the required Go version from 1.26.2 to 1.25.0, and says so in the README,
+which had never stated one.
+
+The `go` directive was pinned to the patch release of whatever toolchain
+happened to run `go mod tidy`. Nothing needed it: the real floor is
+`golang.org/x/sys`, which asks for 1.25.0, and the whole suite passes there —
+`make verify`, the `goexperiment.simd` build, `test-gates`, `test-riscv64`,
+`test-loong64` and `test-cross`. Go would have downloaded the newer toolchain
+automatically for most people, but not for anyone with `GOTOOLCHAIN=local`, a
+distribution-pinned Go, or an air-gapped build, and none of them were getting
+anything for the trouble.
+
 ## v1.0.0
 
 **simd.go 1.0.** The API is stable and the numerical contract is one you can
