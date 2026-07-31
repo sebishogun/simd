@@ -29,6 +29,16 @@ Some tests have to stay in the root directory:
   been written inside ordinary test files and were moved here by accident; the
   check in [`docs/`](docs) failed until they were put back.
 
+## How few files can the root be
+
+Sixty-seven, and it is there. Forty-six of those are the library — 7,236 lines
+across a dozen topics, largest file 483 — and Go requires a package to live in
+one directory, so the only way to fewer is fewer or larger files, not folders.
+
+For scale, in the standard library: `math` is 67 files in one directory,
+`net/http` is 71, `time` is 38. A flat package is the idiomatic Go shape for
+this kind of library, and nobody splits `strings` into `strings/search`.
+
 ## Helpers
 
 Each package carries its own. They are a few lines each — a random-slice
