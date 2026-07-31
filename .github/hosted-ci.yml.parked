@@ -228,8 +228,12 @@ jobs:
           GOOS=linux GOARCH=arm64 go test -c -o /tmp/simd.test ./
           qemu-aarch64 -cpu max,sve${{ matrix.vl }}=on -L /usr/aarch64-linux-gnu /tmp/simd.test -test.v
 
-  fuzz:
-    name: fuzz
+  # Deliberately not a second `fuzz:` job. This file declared one at two
+  # different budgets, and YAML resolves a duplicate mapping key by keeping the
+  # last, so the 300s job above was being discarded silently — the file stayed
+  # valid and the longer run was the only one that would ever have existed.
+  fuzz-long:
+    name: differential fuzzing (long)
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:

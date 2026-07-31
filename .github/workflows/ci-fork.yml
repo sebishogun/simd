@@ -1,0 +1,59 @@
+name: ci (fork)
+
+# Pull requests from forks do not run on the self-hosted runner — see the
+# condition in ci-local.yml. That runner is a development machine, and a public
+# repository means the code in a fork's pull request is written by a stranger.
+#
+# They still need to see their change tested, so the same checks run here on
+# GitHub's disposable machines, where untrusted code is the expected input. A
+# `pull_request` event from a fork gets a read-only token and no secrets, so the
+# worst a hostile pull request achieves is wasting a container.
+#
+# This is deliberately the cheap subset, matching ci-local.yml. The full matrix
+# — cross-architecture, qemu, SVE2 widths, benchmarks — is a maintainer running
+# `make verify` and `make test-cross`, which is what actually gates a merge.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: build, vet and test
+    # The mirror image of ci-local.yml's condition: forks only, so a pull
+    # request from a branch in this repository is not tested twice.
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          # Read the floor out of go.mod rather than pinning a version here.
+          # The two drifted apart once already, and a hardcoded version that is
+          # higher than the floor tests a configuration no user has.
+          go-version-file: go.mod
+
+      - name: formatting
+        run: |
+          out=$(gofmt -l . | grep -v '^tools/goat/' || true)
+          if [ -n "$out" ]; then echo "not gofmt'd:"; echo "$out"; exit 1; fi
+
+      - name: vet
+        run: |
+          go vet ./...
+          cd tools && go vet ./...
+
+      # Static assertions on the committed assembly: it parses text, so it
+      # needs no toolchain and no emulation, and it catches the class of bug
+      # that otherwise only appears at run time on one architecture.
+      - name: assembly invariants
+        run: go test ./internal/asmcheck/
+
+      - name: tests
+        run: go test ./...
+
+      - name: report the selected tier
+        run: go run ./cmd/simdinfo

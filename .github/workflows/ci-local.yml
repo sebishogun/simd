@@ -34,6 +34,20 @@ permissions:
 jobs:
   gate:
     name: build, vet and test
+    # This runner is a development machine, not a disposable container, and the
+    # repository is public. Without this condition any stranger could open a
+    # pull request from a fork and have its code — makefiles, test files, go
+    # generate directives — execute here as the user who owns the box. GitHub's
+    # default only holds *first-time* contributors for approval, so one merged
+    # trivial PR is enough to earn unattended execution afterwards.
+    #
+    # So forks never reach this runner. A pull request from a branch in this
+    # repository still does, which is the case the gate is for; a fork gets the
+    # same coverage from hosted-ci.yml, which runs on GitHub's disposable
+    # machines where untrusted code belongs.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v4
