@@ -70,3 +70,56 @@ func TestAppendRunesNoAlloc(t *testing.T) {
 		t.Errorf("AppendRunes allocated %v times per run into a large enough buffer", n)
 	}
 }
+
+// AppendUTF8FromRunes must agree with string(runes) on everything, including
+// the inputs that are not valid runes at all.
+func TestAppendUTF8FromRunes(t *testing.T) {
+	cases := [][]rune{
+		nil,
+		[]rune(""),
+		[]rune("hello"),
+		[]rune("héllo wörld"),
+		[]rune("日本語テキスト"),
+		[]rune("𝄞 music"),
+		// Long enough to clear asciiRunFloor and use the kernel.
+		[]rune(strings.Repeat("the quick brown fox ", 40)),
+		// ASCII run, then not, then ASCII again — the path that alternates.
+		[]rune(strings.Repeat("a", 200) + "日本" + strings.Repeat("b", 200)),
+		// Not valid runes: a surrogate half and an out-of-range value. Both
+		// must become RuneError, as string(runes) does.
+		{0xD800, 'a', 0x110000, 'b'},
+		{-1, 'x'},
+	}
+	for i, in := range cases {
+		got := simd.AppendUTF8FromRunes(nil, in)
+		want := string(in)
+		if string(got) != want {
+			t.Errorf("case %d: got %q want %q", i, got, want)
+		}
+	}
+
+	// It appends rather than replacing, and round-trips against AppendRunes.
+	prefix := []byte("keep:")
+	got := simd.AppendUTF8FromRunes(append([]byte(nil), prefix...), []rune("héllo"))
+	if string(got) != "keep:héllo" {
+		t.Errorf("append onto a prefix gave %q", got)
+	}
+
+	text := strings.Repeat("mixed ascii and 日本語 ", 30)
+	runes := simd.AppendRunes(nil, text)
+	back := simd.AppendUTF8FromRunes(nil, runes)
+	if string(back) != text {
+		t.Error("AppendRunes then AppendUTF8FromRunes did not round-trip")
+	}
+}
+
+func TestAppendUTF8FromRunesReusesBuffer(t *testing.T) {
+	in := []rune(strings.Repeat("x", 4096))
+	buf := make([]byte, 0, len(in))
+	n := testing.AllocsPerRun(20, func() {
+		buf = simd.AppendUTF8FromRunes(buf[:0], in)
+	})
+	if n != 0 {
+		t.Errorf("appending into a buffer with capacity allocated %v times", n)
+	}
+}

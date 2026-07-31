@@ -272,6 +272,61 @@ func AppendRunes[S Text](dst []rune, s S) []rune {
 	return dst
 }
 
+// AppendUTF8FromRunes encodes the runes of s as UTF-8 and appends them to dst,
+// returning the extended slice.
+//
+// It is the direction [AppendRunes] does not go, and completes the UTF-32 pair
+// the way [AppendUTF8] completes the UTF-16 one. The alternative is
+// `append(dst, string(runes)...)`, which allocates a string per call for no
+// reason other than that Go has no other spelling for it.
+//
+// Only the ASCII runs are accelerated, and unlike the decode direction that is
+// not because of a dependence: encoding is independent per rune, but a rune
+// below 0x80 is one byte and a rune above it is two to four, so the output
+// offset depends on every rune before it. Below 0x80 that question disappears
+// — one rune is one byte — which makes the run a plain narrow.
+//
+// A surrogate half or a value above utf8.MaxRune is encoded as
+// utf8.RuneError, matching utf8.AppendRune and `string(runes)`.
+func AppendUTF8FromRunes(dst []byte, s []rune) []byte {
+	for len(s) > 0 {
+		if s[0] >= 0 && s[0] < utf8.RuneSelf {
+			n := asciiRunRunes(s)
+			at := len(dst)
+			dst = slices.Grow(dst, n)[:at+n]
+			if n >= asciiRunFloor {
+				// Same reinterpretation as AppendRunes, in the other
+				// direction: a rune is an int32 with a uint32's layout, and
+				// every value here is below 0x80 so the sign cannot matter.
+				active.Bytes.NarrowU32U8(dst[at:at+n], runesAsUint32(s[:n]))
+			} else {
+				for i, r := range s[:n] {
+					dst[at+i] = byte(r)
+				}
+			}
+			s = s[n:]
+			continue
+		}
+		// Stay in this loop rather than rescanning, for the reason AppendRunes
+		// gives: dense non-Latin text should never pay for a scan that would
+		// return zero every time.
+		for len(s) > 0 && !(s[0] >= 0 && s[0] < utf8.RuneSelf) {
+			dst = utf8.AppendRune(dst, s[0])
+			s = s[1:]
+		}
+	}
+	return dst
+}
+
+// asciiRunRunes returns how many leading runes of s are below 0x80.
+func asciiRunRunes(s []rune) int {
+	n := 0
+	for n < len(s) && s[n] >= 0 && s[n] < utf8.RuneSelf {
+		n++
+	}
+	return n
+}
+
 // RuneCount returns the number of runes in s, counting each byte of invalid
 // UTF-8 as one rune.
 //

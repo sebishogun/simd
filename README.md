@@ -169,7 +169,7 @@ called. Every one of these has a runnable example in
 **v0.1.0 is the first tag.** See [CHANGELOG.md](CHANGELOG.md) for what is and
 is not covered by compatibility, and [ROADMAP.md](ROADMAP.md) for the gaps.
 
-- **460 exported functions** over ten element types, plus complex, bytes, text
+- **461 exported functions** over ten element types, plus complex, bytes, text
   and the narrow float formats.
 - **6,671 generated kernels** across nine targets — amd64 sse2/avx2/avx512,
   arm64 neon/sve2, riscv64 rvv, s390x vx, loong64 lasx, ppc64le vsx.

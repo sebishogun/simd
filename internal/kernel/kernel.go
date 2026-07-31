@@ -171,6 +171,12 @@ type Ops[T any] struct {
 	FastSinh, FastCosh, FastTanh     func(dst, a []T)
 
 	// The 3.5-ULP forms of the inverse hyperbolics and error functions.
+	// FastErfc is the one member of this tier with no kernel on any target and
+	// no public wrapper, and that is deliberate rather than an omission. Erfc
+	// itself has no kernel either — it runs Go's math.Erfc, which is correctly
+	// rounded — so a Fast variant would be the same function under a name
+	// promising a speed it does not have. The field stays so the fallback
+	// machinery in FillFastFallbacks needs no special case.
 	FastAsinh, FastAcosh, FastAtanh, FastErf, FastErfc func(dst, a []T)
 	FastPow, FastAtan2, FastHypot                      func(dst, a, b []T)
 

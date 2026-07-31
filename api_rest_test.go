@@ -62,8 +62,22 @@ func TestComplexInPlaceMatchesInto(t *testing.T) {
 			func(a, b complex128) complex128 { return a + b }},
 		{"SubComplex", SubComplex[complex128], SubComplexInto[complex128],
 			func(a, b complex128) complex128 { return a - b }},
+		// Not `a * b`. Complex multiply is (ac-bd, ad+bc), and Go fuses each
+		// multiply into the following add or subtract on arm64, riscv64,
+		// loong64 and ppc64 — but not on amd64 — while the kernels compile
+		// -ffp-contract=off and never fuse. The explicit conversions force
+		// each product to round first, which is what the kernel does.
+		//
+		// Written as `a * b` this passed on the development machine and failed
+		// on arm64 by one bit, which is the second time this exact trap has
+		// been walked into; see docs/wrong.md on the LayerNorm and SparseDot
+		// cases.
 		{"MulComplex", MulComplex[complex128], MulComplexInto[complex128],
-			func(a, b complex128) complex128 { return a * b }},
+			func(a, b complex128) complex128 {
+				re := float64(real(a)*real(b)) - float64(imag(a)*imag(b))
+				im := float64(real(a)*imag(b)) + float64(imag(a)*real(b))
+				return complex(re, im)
+			}},
 		{"DivComplex", DivComplex[complex128], DivComplexInto[complex128], nil},
 	}
 	for _, c := range binary {
