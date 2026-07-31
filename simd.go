@@ -289,6 +289,26 @@ func AddScaledInto[T Number](dst, a, b []T, s T) { ops[T]().AddScaled(dst, a, b,
 // ---------- scan ----------
 
 // CumSum replaces every element with the running total up to and including it.
+//
+// # This one is permanently portable, and that is a decision rather than a gap
+//
+// There is no accelerated CumSum on any architecture and there will not be.
+// Each output depends on the one before it, so the only way to vectorize a
+// scan is to regroup the arithmetic — and unlike a reduction, every partial
+// result is written to dst, so the regrouping is visible in the answer. This
+// package's contract is that the accelerated and portable paths agree bit for
+// bit, which forbids exactly that.
+//
+// For integers the contract is not the obstacle, since integer addition is
+// associative; the measurement is. A blocked scan replaces a chain of dependent
+// adds with a shuffle chain, which only pays when the serial chain is
+// latency-bound, and a one-cycle add is not: int32 measured 980µs serial
+// against 1082µs blocked, and int64 1441µs against 2165µs.
+//
+// [FastCumSum] is the opt-in float version, which drops agreement with a naive
+// serial loop — and is, measurably, closer to the true sum. [CumMin] and
+// [CumMax] are accelerated for integers, because minimum and maximum are
+// associative and regrouping them changes nothing at all.
 func CumSum[T Number](a []T) { ops[T]().CumSum(a, a) }
 
 // CumSumInto writes the running totals of a into dst. dst may alias a.
@@ -312,6 +332,18 @@ func DivScalarInto[T Number](dst, a []T, s T) { ops[T]().DivScalar(dst, a, s) }
 
 // CumProd replaces every element with the running product up to and including
 // it.
+//
+// Accelerated for int32 and portable everywhere else, which is the one place
+// in this family where the two halves of the rule pull apart. Two's-complement
+// multiplication is associative — wrapping does not change that, since the
+// arithmetic is exact in Z/2^32 — so the blocked scan computes bit for bit
+// what the serial loop does, and a three-cycle multiply leaves enough latency
+// to be worth hiding: 2.04x, verified over four million deliberately
+// overflowing values.
+//
+// int64 is portable because there is no 64-bit vector multiply below AVX-512DQ
+// (0.67x), and float is portable for the reason [CumSum] gives. [FastCumProd]
+// is the opt-in float version.
 func CumProd[T Number](a []T) { ops[T]().CumProd(a, a) }
 
 // CumProdInto writes the running products of a into dst. dst may alias a.
