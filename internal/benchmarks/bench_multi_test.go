@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // Multi-pattern search: is one pass with a candidate filter actually better
 // than k passes with Index?

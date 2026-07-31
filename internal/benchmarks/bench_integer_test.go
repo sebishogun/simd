@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // Benchmarks for the narrow and unsigned integer types, and for the two
 // saturating operations.

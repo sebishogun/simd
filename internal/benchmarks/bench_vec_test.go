@@ -1,6 +1,6 @@
 //go:build goexperiment.simd && amd64
 
-package simd_test
+package benchmarks
 
 // The band the vector type exists for: below the dispatch threshold, where a
 // non-inlinable call into assembly costs more than the arithmetic saves.

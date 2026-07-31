@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // What the Fast tier is worth, against its own accurate twin.
 //

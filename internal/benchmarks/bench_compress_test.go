@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // What compression is worth, against the loop it replaces.
 //

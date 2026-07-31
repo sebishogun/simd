@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // Benchmarks for the complex reductions, against the portable path they used
 // to be.

@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // This benchmark exists to keep a negative result honest.
 //

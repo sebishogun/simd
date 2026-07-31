@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // The FFT against the definition it replaces. The naive DFT is O(n^2) so it is
 // only run at small sizes; past a few hundred points the comparison stops

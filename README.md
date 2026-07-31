@@ -396,6 +396,36 @@ unexecutable and the suite passed having tested none of it. The first run that
 actually executed them found a segfault in one and wrong answers from every
 constant-reading kernel in the other.
 
+## Repository layout
+
+```
+.                    the simd package — the public API, one file per topic
+csrc/                the kernels, in C. The source of truth for every fast path
+internal/
+  amd64/ arm64/ …    generated Plan 9 assembly, one directory per architecture
+  ref/               the portable Go implementation everything is tested against
+  kernel/            dispatch table and the numerical contract
+  cpu/               feature detection and tier selection
+  conformance/       the differential suite: every tier against ref, and each other
+  asmcheck/          static assertions on the committed assembly
+  benchmarks/        every benchmark
+cmd/simdinfo/        prints the tier actually selected on this machine
+cmd/site/            local benchmark site
+tools/               the code generator — a separate module, never your dependency
+docs/                tutorial, guide, kernels.md, wrong.md, examples
+testdata/bench/      recorded benchmark baseline, per GOARCH
+testdata/hardware/   one report per machine that has run on real silicon
+```
+
+**The C is the source; the assembly is the output.** A kernel is written once
+in [`csrc/`](csrc), compiled per instruction set by [`tools/`](tools), and
+committed under [`internal/`](internal) so that using this library needs no C
+toolchain. Every generated `.s` names the C file it came from and the target it
+was built for, and none of them should be edited by hand — `make codegen`
+regenerates them.
+
+Every directory above has a README explaining what is in it.
+
 ## Development
 
 Consumers need nothing beyond `go get`. Regenerating the assembly needs clang

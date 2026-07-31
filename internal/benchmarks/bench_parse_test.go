@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // Against IndexAll + strconv.Atoi, which is what a caller writes today and is
 // already using this package for the scan. If ParseInts is not clearly ahead

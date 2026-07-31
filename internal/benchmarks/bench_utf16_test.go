@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // The baseline is what a []byte caller writes today: utf16.Encode over a
 // []rune, which means []byte -> []rune -> []uint16, two passes and two

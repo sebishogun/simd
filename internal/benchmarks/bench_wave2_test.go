@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 import (
 	"encoding/binary"

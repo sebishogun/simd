@@ -18,6 +18,11 @@ import (
 	"github.com/sebishogun/simd"
 )
 
+// Sinks, so the compiler cannot delete the calls these tests measure. The
+// benchmarks that used to share these moved to internal/benchmarks and took
+// their own copy; see the note there.
+var sinkMultiPos, sinkMultiWhich int
+
 func multiOracle(hay string, needles []string) (int, int) {
 	best, which := -1, -1
 	for i, nd := range needles {

@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // predicate.go is entirely compositions of already-accelerated primitives, and
 // none of it was measured when it shipped. The question each benchmark answers

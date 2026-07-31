@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // Is a general n-ary closure combinator worth shipping?
 //

@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // The baseline that decides whether a scan kernel is worth building is the Go
 // loop this library actually ships today, not the same loop compiled by clang.

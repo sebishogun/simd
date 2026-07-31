@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // Zigzag, affine quantization and Hamming distance, against the plain Go loop
 // each replaces.

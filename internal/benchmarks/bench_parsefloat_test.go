@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // Task 56 says not to attempt ParseFloats naively, and to measure first what
 // fraction of realistic input takes strconv's fast path. This is that

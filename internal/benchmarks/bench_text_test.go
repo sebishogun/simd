@@ -1,4 +1,4 @@
-package simd_test
+package benchmarks
 
 // Benchmarks for the text scanners, against the standard library rather than
 // against the portable build.
