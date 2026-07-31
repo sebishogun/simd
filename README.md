@@ -415,17 +415,46 @@ make codegen       # regenerate every backend (needs clang)
 
 The existing Go options leave most machines unserved.
 
-| | ISAs covered | arm64 |
-|---|---|---|
-| [gonum](https://github.com/gonum/gonum) `internal/asm` | **SSE2 only** — zero `V*` instructions in the whole repo | **none** |
-| [viterin/vek](https://github.com/viterin/vek) | AVX2 only, disabled entirely on macOS | pure Go, [and never will be](https://github.com/viterin/vek/issues/12) |
+| | instruction sets | operations | same answer on every one |
+|---|---|---|---|
+| [gonum](https://github.com/gonum/gonum) `internal/asm` | **SSE2 only** — zero `V*` instructions in the whole repo | linear algebra | — |
+| [viterin/vek](https://github.com/viterin/vek) | AVX2 only, disabled entirely on macOS, arm64 is pure Go [and never will not be](https://github.com/viterin/vek/issues/12) | broad | [no](https://github.com/viterin/vek/issues/11) |
+| [kelindar/simd](https://github.com/kelindar/simd) | AVX2, NEON | 7 | no |
+| **this** | sse2, avx2, avx512, neon, sve2, rvv, vx, lasx, vsx | 457 | yes |
 
-There is a structural reason nobody covers the rest: **Go's assembler cannot
-spell SVE2 or RVV.** It has no `Z` or `P` registers at all, and upstream has
-deferred scalable vectors with no design. Compiling C per target and lifting
-the encoded bytes into Plan 9 assembly is the only route that reaches them, and
-it is why this is the only Go library with arm64 SVE2 and riscv64 RVV numeric
-kernels.
+[kelindar/simd](https://github.com/kelindar/simd) deserves singling out,
+because it is the closest relative: it reaches its two instruction sets the
+same way this does, by auto-vectorizing C with clang and translating the result
+into Plan 9 assembly, and it dispatches on a runtime CPU check rather than a
+build tag. If AVX2 and NEON are all you need and `Add`, `Sub`, `Mul`, `Div`,
+`Sum`, `Min` and `Max` are all you want, it is a smaller dependency with a
+lower Go floor, and there is nothing wrong with it.
+
+The difference beyond scope is what the answer is allowed to do. Summing a
+float32 slice of one large value and a thousand small ones:
+
+```
+                        accelerated          portable
+kelindar/simd           0x4cbebc9c    ≠      0x4cbebc20
+this library            0x4cbebc98    =      0x4cbebc98
+```
+
+Reproduce it with [`docs/comparison`](docs/comparison), a separate module so
+that nothing you import pulls in a second SIMD library.
+
+That is not a defect in kelindar — it never promises otherwise, and an
+auto-vectorized reduction naturally accumulates in whatever order the vector
+width implies. It does mean a result computed there can change when the binary
+moves to a machine with different SIMD support. This library fixes the
+accumulation order instead, which is what the [accuracy contract](#accuracy)
+above costs throughput to buy.
+
+There is also a structural reason nobody covers the rest: **Go's assembler
+cannot spell SVE2 or RVV.** It has no `Z` or `P` registers at all, and upstream
+has deferred scalable vectors with no design. Compiling C per target and
+lifting the encoded bytes into Plan 9 assembly is the only route that reaches
+them, and it is why this is the only Go library with arm64 SVE2 and riscv64 RVV
+numeric kernels.
 
 ## Where the obvious answer was wrong
 
