@@ -299,6 +299,24 @@ func fastLog10Float64SVE2Guarded(dst []float64, a []float64) {
 	fastLog10Float64SVE2(dst[:n:n], a)
 }
 
+func fastLog1pFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	fastLog1pFloat64SVE2(dst[:n:n], a)
+}
+
+func fastCbrtFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	fastCbrtFloat64SVE2(dst[:n:n], a)
+}
+
 func fastSigmoidFloat64SVE2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -362,6 +380,15 @@ func fastAtanFloat64SVE2Guarded(dst []float64, a []float64) {
 	fastAtanFloat64SVE2(dst[:n:n], a)
 }
 
+func fastSinhFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	fastSinhFloat64SVE2(dst[:n:n], a)
+}
+
 func fastCoshFloat64SVE2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -387,6 +414,24 @@ func fastAsinhFloat64SVE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	fastAsinhFloat64SVE2(dst[:n:n], a)
+}
+
+func fastAcoshFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	fastAcoshFloat64SVE2(dst[:n:n], a)
+}
+
+func fastAtanhFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	fastAtanhFloat64SVE2(dst[:n:n], a)
 }
 
 func fastErfFloat64SVE2Guarded(dst []float64, a []float64) {
@@ -460,6 +505,8 @@ func init() {
 	s.F64.FastLog = fastLogFloat64SVE2Guarded
 	s.F64.FastLog2 = fastLog2Float64SVE2Guarded
 	s.F64.FastLog10 = fastLog10Float64SVE2Guarded
+	s.F64.FastLog1p = fastLog1pFloat64SVE2Guarded
+	s.F64.FastCbrt = fastCbrtFloat64SVE2Guarded
 	s.F64.FastSigmoid = fastSigmoidFloat64SVE2Guarded
 	s.F64.FastSin = fastSinFloat64SVE2Guarded
 	s.F64.FastCos = fastCosFloat64SVE2Guarded
@@ -467,9 +514,12 @@ func init() {
 	s.F64.FastAsin = fastAsinFloat64SVE2Guarded
 	s.F64.FastAcos = fastAcosFloat64SVE2Guarded
 	s.F64.FastAtan = fastAtanFloat64SVE2Guarded
+	s.F64.FastSinh = fastSinhFloat64SVE2Guarded
 	s.F64.FastCosh = fastCoshFloat64SVE2Guarded
 	s.F64.FastTanh = fastTanhFloat64SVE2Guarded
 	s.F64.FastAsinh = fastAsinhFloat64SVE2Guarded
+	s.F64.FastAcosh = fastAcoshFloat64SVE2Guarded
+	s.F64.FastAtanh = fastAtanhFloat64SVE2Guarded
 	s.F64.FastErf = fastErfFloat64SVE2Guarded
 	s.F64.FastPow = fastPowFloat64SVE2Guarded
 	s.F64.FastAtan2 = fastAtan2Float64SVE2Guarded

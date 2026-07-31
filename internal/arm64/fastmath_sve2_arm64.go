@@ -109,6 +109,12 @@ func fastLog2Float64SVE2(dst []float64, a []float64)
 func fastLog10Float64SVE2(dst []float64, a []float64)
 
 //go:noescape
+func fastLog1pFloat64SVE2(dst []float64, a []float64)
+
+//go:noescape
+func fastCbrtFloat64SVE2(dst []float64, a []float64)
+
+//go:noescape
 func fastSigmoidFloat64SVE2(dst []float64, a []float64)
 
 //go:noescape
@@ -130,6 +136,9 @@ func fastAcosFloat64SVE2(dst []float64, a []float64)
 func fastAtanFloat64SVE2(dst []float64, a []float64)
 
 //go:noescape
+func fastSinhFloat64SVE2(dst []float64, a []float64)
+
+//go:noescape
 func fastCoshFloat64SVE2(dst []float64, a []float64)
 
 //go:noescape
@@ -137,6 +146,12 @@ func fastTanhFloat64SVE2(dst []float64, a []float64)
 
 //go:noescape
 func fastAsinhFloat64SVE2(dst []float64, a []float64)
+
+//go:noescape
+func fastAcoshFloat64SVE2(dst []float64, a []float64)
+
+//go:noescape
+func fastAtanhFloat64SVE2(dst []float64, a []float64)
 
 //go:noescape
 func fastErfFloat64SVE2(dst []float64, a []float64)

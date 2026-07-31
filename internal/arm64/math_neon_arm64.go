@@ -109,6 +109,12 @@ func log2Float64NEON(dst []float64, a []float64)
 func log10Float64NEON(dst []float64, a []float64)
 
 //go:noescape
+func log1pFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func cbrtFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
 func sigmoidFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
@@ -130,6 +136,9 @@ func acosFloat64NEON(dst []float64, a []float64)
 func atanFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
+func sinhFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
 func coshFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
@@ -137,6 +146,12 @@ func tanhFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
 func asinhFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func acoshFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func atanhFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
 func erfFloat64NEON(dst []float64, a []float64)

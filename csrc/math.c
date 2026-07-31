@@ -1030,15 +1030,52 @@ AI float erfc_f32(float x) {
   return x != x ? x : v;
 }
 
+// The pragma overrides a cost model, and only a cost model.
+//
+// These bodies are the inlined polynomial for one transcendental, applied
+// elementwise. There is no dependence between iterations and no operation in
+// them that is not plain floating-point arithmetic, so every target this
+// library builds for has the instructions. What differs is whether the
+// vectorizer thinks the result is worth it, and on RVV it does not: it reports
+// "the cost-model indicates that vectorization is not beneficial" for thirteen
+// functions at both widths, and emits a scalar loop over a hundred-instruction
+// polynomial.
+//
+// That judgement is wrong for this shape, and the pragma says so. With it, RVV
+// vectorizes twenty-six of the twenty-eight loops — thirteen at vscale x 4 and
+// thirteen at vscale x 2 — and NEON and SVE2 pick up the five float64
+// functions they were declining.
+//
+// # Why this is not the trap docs/wrong.md entry 59 describes
+//
+// Entry 59's warning is specific: `vectorize(enable)` makes LLVM *try*, and
+// where the instruction genuinely does not exist it emits scalarised vector
+// code — per-lane extracts and inserts around scalar operations — which passes
+// this repository's has-vector-instructions check while being slower than the
+// portable path. That happens to scatter and to the 64-bit integer multiply,
+// because those instructions are missing.
+//
+// Nothing here is missing. A polynomial is multiplies and adds, and the
+// checks that matter were run rather than assumed: package verify rejects any
+// kernel whose body is not vector instructions, the emitted RVV and NEON
+// bodies were inspected for the extract/insert pattern that marks
+// scalarisation, and the differential suite proves the answers did not move.
+//
+// An earlier attempt at this is recorded in entry 63 as having failed with
+// twenty-two instances of "unable to perform the requested transformation".
+// That does not reproduce on clang 22.1.8 — there are none — which is why the
+// pragma is here now and was not then.
 #define UNARY_MATH(NAME, T, SUF)                                          \
   void KNAME(NAME, SUF)(T *__restrict d, const T *__restrict a,           \
                         isize n) {                                        \
+    _Pragma("clang loop vectorize(enable)")                               \
     for (isize i = 0; i < n; i++) d[i] = NAME##_##SUF(a[i]);              \
   }
 
 #define BINARY_MATH(NAME, T, SUF)                                         \
   void KNAME(NAME, SUF)(T *__restrict d, const T *__restrict a,           \
                         const T *__restrict b, isize n) {                 \
+    _Pragma("clang loop vectorize(enable)")                               \
     for (isize i = 0; i < n; i++) d[i] = NAME##_##SUF(a[i], b[i]);        \
   }
 

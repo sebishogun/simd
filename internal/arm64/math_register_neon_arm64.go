@@ -299,6 +299,24 @@ func log10Float64NEONGuarded(dst []float64, a []float64) {
 	log10Float64NEON(dst[:n:n], a)
 }
 
+func log1pFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	log1pFloat64NEON(dst[:n:n], a)
+}
+
+func cbrtFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	cbrtFloat64NEON(dst[:n:n], a)
+}
+
 func sigmoidFloat64NEONGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -362,6 +380,15 @@ func atanFloat64NEONGuarded(dst []float64, a []float64) {
 	atanFloat64NEON(dst[:n:n], a)
 }
 
+func sinhFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	sinhFloat64NEON(dst[:n:n], a)
+}
+
 func coshFloat64NEONGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -387,6 +414,24 @@ func asinhFloat64NEONGuarded(dst []float64, a []float64) {
 		return
 	}
 	asinhFloat64NEON(dst[:n:n], a)
+}
+
+func acoshFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	acoshFloat64NEON(dst[:n:n], a)
+}
+
+func atanhFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	atanhFloat64NEON(dst[:n:n], a)
 }
 
 func erfFloat64NEONGuarded(dst []float64, a []float64) {
@@ -460,6 +505,8 @@ func init() {
 	s.F64.Log = logFloat64NEONGuarded
 	s.F64.Log2 = log2Float64NEONGuarded
 	s.F64.Log10 = log10Float64NEONGuarded
+	s.F64.Log1p = log1pFloat64NEONGuarded
+	s.F64.Cbrt = cbrtFloat64NEONGuarded
 	s.F64.Sigmoid = sigmoidFloat64NEONGuarded
 	s.F64.Sin = sinFloat64NEONGuarded
 	s.F64.Cos = cosFloat64NEONGuarded
@@ -467,9 +514,12 @@ func init() {
 	s.F64.Asin = asinFloat64NEONGuarded
 	s.F64.Acos = acosFloat64NEONGuarded
 	s.F64.Atan = atanFloat64NEONGuarded
+	s.F64.Sinh = sinhFloat64NEONGuarded
 	s.F64.Cosh = coshFloat64NEONGuarded
 	s.F64.Tanh = tanhFloat64NEONGuarded
 	s.F64.Asinh = asinhFloat64NEONGuarded
+	s.F64.Acosh = acoshFloat64NEONGuarded
+	s.F64.Atanh = atanhFloat64NEONGuarded
 	s.F64.Erf = erfFloat64NEONGuarded
 	s.F64.Pow = powFloat64NEONGuarded
 	s.F64.Atan2 = atan2Float64NEONGuarded

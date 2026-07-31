@@ -109,6 +109,12 @@ func fastLog2Float64NEON(dst []float64, a []float64)
 func fastLog10Float64NEON(dst []float64, a []float64)
 
 //go:noescape
+func fastLog1pFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func fastCbrtFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
 func fastSigmoidFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
@@ -130,6 +136,9 @@ func fastAcosFloat64NEON(dst []float64, a []float64)
 func fastAtanFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
+func fastSinhFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
 func fastCoshFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
@@ -137,6 +146,12 @@ func fastTanhFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
 func fastAsinhFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func fastAcoshFloat64NEON(dst []float64, a []float64)
+
+//go:noescape
+func fastAtanhFloat64NEON(dst []float64, a []float64)
 
 //go:noescape
 func fastErfFloat64NEON(dst []float64, a []float64)

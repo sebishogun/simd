@@ -299,6 +299,24 @@ func log10Float64SVE2Guarded(dst []float64, a []float64) {
 	log10Float64SVE2(dst[:n:n], a)
 }
 
+func log1pFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	log1pFloat64SVE2(dst[:n:n], a)
+}
+
+func cbrtFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	cbrtFloat64SVE2(dst[:n:n], a)
+}
+
 func sigmoidFloat64SVE2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -362,6 +380,15 @@ func atanFloat64SVE2Guarded(dst []float64, a []float64) {
 	atanFloat64SVE2(dst[:n:n], a)
 }
 
+func sinhFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	sinhFloat64SVE2(dst[:n:n], a)
+}
+
 func coshFloat64SVE2Guarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -387,6 +414,24 @@ func asinhFloat64SVE2Guarded(dst []float64, a []float64) {
 		return
 	}
 	asinhFloat64SVE2(dst[:n:n], a)
+}
+
+func acoshFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	acoshFloat64SVE2(dst[:n:n], a)
+}
+
+func atanhFloat64SVE2Guarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	atanhFloat64SVE2(dst[:n:n], a)
 }
 
 func erfFloat64SVE2Guarded(dst []float64, a []float64) {
@@ -460,6 +505,8 @@ func init() {
 	s.F64.Log = logFloat64SVE2Guarded
 	s.F64.Log2 = log2Float64SVE2Guarded
 	s.F64.Log10 = log10Float64SVE2Guarded
+	s.F64.Log1p = log1pFloat64SVE2Guarded
+	s.F64.Cbrt = cbrtFloat64SVE2Guarded
 	s.F64.Sigmoid = sigmoidFloat64SVE2Guarded
 	s.F64.Sin = sinFloat64SVE2Guarded
 	s.F64.Cos = cosFloat64SVE2Guarded
@@ -467,9 +514,12 @@ func init() {
 	s.F64.Asin = asinFloat64SVE2Guarded
 	s.F64.Acos = acosFloat64SVE2Guarded
 	s.F64.Atan = atanFloat64SVE2Guarded
+	s.F64.Sinh = sinhFloat64SVE2Guarded
 	s.F64.Cosh = coshFloat64SVE2Guarded
 	s.F64.Tanh = tanhFloat64SVE2Guarded
 	s.F64.Asinh = asinhFloat64SVE2Guarded
+	s.F64.Acosh = acoshFloat64SVE2Guarded
+	s.F64.Atanh = atanhFloat64SVE2Guarded
 	s.F64.Erf = erfFloat64SVE2Guarded
 	s.F64.Pow = powFloat64SVE2Guarded
 	s.F64.Atan2 = atan2Float64SVE2Guarded

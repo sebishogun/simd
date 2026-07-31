@@ -299,6 +299,24 @@ func fastLog10Float64NEONGuarded(dst []float64, a []float64) {
 	fastLog10Float64NEON(dst[:n:n], a)
 }
 
+func fastLog1pFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Log1p(dst, a)
+		return
+	}
+	fastLog1pFloat64NEON(dst[:n:n], a)
+}
+
+func fastCbrtFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Cbrt(dst, a)
+		return
+	}
+	fastCbrtFloat64NEON(dst[:n:n], a)
+}
+
 func fastSigmoidFloat64NEONGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -362,6 +380,15 @@ func fastAtanFloat64NEONGuarded(dst []float64, a []float64) {
 	fastAtanFloat64NEON(dst[:n:n], a)
 }
 
+func fastSinhFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Sinh(dst, a)
+		return
+	}
+	fastSinhFloat64NEON(dst[:n:n], a)
+}
+
 func fastCoshFloat64NEONGuarded(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
@@ -387,6 +414,24 @@ func fastAsinhFloat64NEONGuarded(dst []float64, a []float64) {
 		return
 	}
 	fastAsinhFloat64NEON(dst[:n:n], a)
+}
+
+func fastAcoshFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Acosh(dst, a)
+		return
+	}
+	fastAcoshFloat64NEON(dst[:n:n], a)
+}
+
+func fastAtanhFloat64NEONGuarded(dst []float64, a []float64) {
+	n := min(len(dst), len(a))
+	if n < 4 {
+		ref.Atanh(dst, a)
+		return
+	}
+	fastAtanhFloat64NEON(dst[:n:n], a)
 }
 
 func fastErfFloat64NEONGuarded(dst []float64, a []float64) {
@@ -460,6 +505,8 @@ func init() {
 	s.F64.FastLog = fastLogFloat64NEONGuarded
 	s.F64.FastLog2 = fastLog2Float64NEONGuarded
 	s.F64.FastLog10 = fastLog10Float64NEONGuarded
+	s.F64.FastLog1p = fastLog1pFloat64NEONGuarded
+	s.F64.FastCbrt = fastCbrtFloat64NEONGuarded
 	s.F64.FastSigmoid = fastSigmoidFloat64NEONGuarded
 	s.F64.FastSin = fastSinFloat64NEONGuarded
 	s.F64.FastCos = fastCosFloat64NEONGuarded
@@ -467,9 +514,12 @@ func init() {
 	s.F64.FastAsin = fastAsinFloat64NEONGuarded
 	s.F64.FastAcos = fastAcosFloat64NEONGuarded
 	s.F64.FastAtan = fastAtanFloat64NEONGuarded
+	s.F64.FastSinh = fastSinhFloat64NEONGuarded
 	s.F64.FastCosh = fastCoshFloat64NEONGuarded
 	s.F64.FastTanh = fastTanhFloat64NEONGuarded
 	s.F64.FastAsinh = fastAsinhFloat64NEONGuarded
+	s.F64.FastAcosh = fastAcoshFloat64NEONGuarded
+	s.F64.FastAtanh = fastAtanhFloat64NEONGuarded
 	s.F64.FastErf = fastErfFloat64NEONGuarded
 	s.F64.FastPow = fastPowFloat64NEONGuarded
 	s.F64.FastAtan2 = fastAtan2Float64NEONGuarded

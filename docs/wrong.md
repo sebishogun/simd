@@ -2521,3 +2521,61 @@ is the length check, not the mnemonic table.
 
 **What is left on this tier.** Nothing to do with alignment. The remaining sse2
 gaps are the ones every tier has — LLVM declining to vectorize a kernel at all.
+
+## 68. The pragma does work on NEON, does nothing on RVV, and the control is what said so
+
+Entry 63 recorded that `#pragma clang loop vectorize(enable)` on the
+transcendentals produced **22 instances** of "unable to perform the requested
+transformation", and concluded that intrinsics were the only route left.
+
+**Half of that is now wrong and half of it is still right.**
+
+The error message does not reproduce on clang 22.1.8. There are none. What the
+vectorizer says instead, for thirteen functions at both widths, is:
+
+	remark: the cost-model indicates that vectorization is not beneficial
+
+which is a different claim entirely — not *cannot*, but *will not*. And
+`vectorize(enable)` exists precisely to overrule a cost model.
+
+**On NEON and SVE2 it overrules it, and the result is real.** Five float64
+functions — acosh, atanh, cbrt, log1p, sinh — plus their five `Fast` twins, on
+two tiers: **20 kernels**, arm64 going from 1594 to 1614. Checked against the
+trap entry 59 describes rather than assumed:
+
+| check | result |
+|---|---|
+| genuine vector code, not scalarised | 43-87 vector-lane ops per body, **zero** per-lane extract/insert |
+| results unmoved | the differential and the ULP suite pass on arm64 |
+| worth doing | llvm-mca, neoverse-v2, `cbrt_f64`: **131 cycles/element scalar, 16 vectorized** |
+
+There is nothing for the trap to catch here, and the reason is worth stating:
+these bodies are an inlined polynomial applied elementwise, so every operation
+in them is plain floating-point arithmetic that every target has. Entry 59's
+failure mode needs a *missing* instruction — scatter, or the 64-bit vector
+multiply — and there is not one.
+
+**On RVV it changes nothing at all, and I nearly reported otherwise.**
+
+The first measurement was: compile with the pragma, count the remarks, find 26
+loops vectorized, conclude the pragma had unlocked them. That number is
+correct and the conclusion was not, because there was no control. Compiling the
+*unmodified* source with the identical command gives:
+
+	without the pragma  26 vectorized loops
+	with the pragma     26 vectorized loops
+
+The 26 are the ones that already vectorized. The generator's kernel count for
+riscv64 is unchanged at 801, which is the same fact arriving through a
+different door — and had the count been the only thing looked at, the wrong
+conclusion would have been caught anyway. It was the missing control that made
+a wrong answer *plausible*, which is the more dangerous state.
+
+So entry 63's conclusion survives for RVV in substance while being wrong in its
+evidence: the transcendentals there still need hand-written intrinsics, and the
+reason is not the message that entry recorded.
+
+**What is left.** Thirteen accurate transcendentals at two widths on RVV — 26
+kernels: acosh, asinh, atanh, cbrt, expm1, log, log2, log10, log1p, pow, sinh,
+tanh. Not a correctness hole; an unbuilt kernel is not registered and the
+portable Go implementation runs.
