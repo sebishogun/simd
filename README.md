@@ -190,7 +190,7 @@ the easiest way for a library like this to overstate itself. So:
 | architecture | correctness | wall-clock |
 |---|---|---|
 | amd64 (sse2/avx2/avx512) | **real hardware** | **real hardware** |
-| arm64 (neon) | **real hardware** | **real hardware** |
+| arm64 (neon) | emulation | unmeasured |
 | arm64 (sve2) | emulation | unmeasured |
 | riscv64 (rvv) | emulation | unmeasured |
 | ppc64le (vsx) | emulation | unmeasured |
@@ -201,8 +201,8 @@ Emulation proves semantics — every kernel is differential-tested against the
 portable implementation on every architecture, on every change, and that is
 what catches a wrong answer. It proves **nothing** about timing, because qemu
 does not model a pipeline. Where the table says *unmeasured*, no speed claim in
-this repository applies; the numbers under [Numbers](#numbers) are amd64 unless
-they say otherwise.
+this repository applies; every number under [Numbers](#numbers) is amd64, and
+amd64 is the only architecture any of them describes.
 
 **Have one of the unverified machines?** A single run is worth more than any
 amount of emulation, and it is two commands —

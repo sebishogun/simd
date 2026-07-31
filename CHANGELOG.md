@@ -22,10 +22,11 @@ Go's intrinsics need no build flag.
 
 ### What 1.0 does not claim
 
-Speed, on five of the seven tiers. Correctness is verified on real hardware for
-amd64 and arm64 NEON and under emulation everywhere else; wall-clock is
-verified only on those two. The README carries a per-architecture table saying
-so, and where it says *unmeasured*, no speed claim in this repository applies.
+Speed, on six of the seven tiers. Correctness is verified on real hardware for
+amd64 and under emulation everywhere else; wall-clock is verified only on
+amd64. The README carries a per-architecture table saying so, and where it says
+*unmeasured*, no speed claim in this repository applies — every published number
+is amd64.
 
 Emulation proves semantics and nothing about timing — qemu does not model a
 pipeline. It also cannot catch a chip that implements an instruction
