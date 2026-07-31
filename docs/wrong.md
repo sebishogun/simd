@@ -2720,3 +2720,46 @@ that nothing moved. The generator reports how many kernels a target got, not
 what is in them, and forcing changes the second without touching the first. The
 only thing that distinguishes those two states is running the tests on that
 target.
+
+## 71. Packing B before a parallel matrix multiply, which loses at every size
+
+**Assumed.** Packing and parallelism win in the same regime, so combining them
+should compound. Packing rearranges B into a layout the kernel can stream, and
+`MatMulIntoScratch` already switches to it once B stops fitting in cache
+(entry: `gemmPackCliff`, 1 MiB). Parallelism wins at large sizes for the same
+reason — there is enough work to hide the overhead. B is read by every worker,
+so packing it once and sharing it looked like the obvious shape, and
+`MatMulParallelIntoScratch` was written and tested before it was measured.
+
+**True.** It is slower than the unpacked parallel path at every size tried,
+float64 square, 32-thread Zen 5, microseconds:
+
+	n      parallel   parallel+packed
+	128          40               128
+	256          73               129
+	512         483               594
+	1024       3173              3586
+
+Not marginally, and not only where packing was expected to lose. At n=1024,
+where B is 8 MiB and far past the cliff that makes packing pay in the serial
+kernel, packing still costs 13%.
+
+**Why.** The cliff is about one core's cache. Splitting by output row gives each
+worker its own slice of A and of the destination while B is shared, so the
+working set per core is already smaller than the serial kernel's, and the part
+that was thrashing is the part that got divided. Packing then buys reuse that
+the row split has already bought, and charges a full pass over B plus the
+allocation to hold it.
+
+**What was done.** `MatMulParallelIntoScratch` was deleted rather than shipped
+with a caveat. An exported function that is slower than the one beside it at
+every measured size is a trap with documentation attached, and the next person
+to find it would have to redo this measurement to know not to use it.
+`MatMulParallelInto` is the whole parallel API.
+
+**What to take from it.** Two optimisations that win for the same stated reason
+can be the same optimisation. Packing and row-splitting both exist to keep the
+working set in cache, so applying both does not halve the misses twice — the
+first one to run takes the win and the second one only pays. Worth measuring
+the combination rather than reasoning about it, which is cheaper than it sounds:
+this took one benchmark and would have shipped a slower function otherwise.

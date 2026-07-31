@@ -88,8 +88,8 @@ Organised by task rather than by operation name.
 | running totals / differences | `CumSum` `DiffInto` |
 | exp/log/trig over a slice | `Exp` `Log` `Sin` … and the `Fast*` twins |
 | pick between two slices per element | `SelectInto` |
-| **apply a matrix to a vector** | `GemvInto` |
-| multiply two matrices | `MatMulInto` |
+| **apply a matrix to a vector** | `GemvInto`, or `GemvParallelInto` for a large one |
+| multiply two matrices | `MatMulInto`, or `MatMulParallelInto` when the multiply is the whole job |
 | find a byte or substring | `IndexByte` `Index` `LastIndex` |
 | **find every occurrence at once** | `IndexAll` — the structural-index step of a parser |
 | find any of a set of bytes | `IndexAny` `IndexNotAny` `CountAny` |
@@ -140,8 +140,8 @@ yet; both are recorded rather than implied.
   with a stated ULP bound and a `Fast*` twin.
 - **Text and bytes** — index, count, trim, UTF-8 validation, case folding, hex,
   base64, accepting `string` or `[]byte` without copying.
-- **Linear algebra** — dot, `Gemv`, a register-blocked `MatMul`, CSR sparse
-  matrix-vector.
+- **Linear algebra** — dot, `Gemv`, a register-blocked `MatMul` with an
+  opt-in parallel variant, CSR sparse matrix-vector.
 - **Search and sets** — batched binary search, sorted-set intersection and
   difference, rank/select over a bit vector, longest common prefix.
 - **Encodings** — int8 and fp8 quantization, zigzag, bit packing, run-length,
@@ -305,7 +305,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-457 exported functions and 6,671 generated kernels across nine targets. The
+459 exported functions and 6,671 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over
@@ -497,7 +497,7 @@ numeric kernels.
 
 ## Where the obvious answer was wrong
 
-[**docs/wrong.md**](docs/wrong.md) records 70 things a competent person would
+[**docs/wrong.md**](docs/wrong.md) records 71 things a competent person would
 have assumed that turned out false, and what each cost. Among them:
 
 - A register can be reserved by *value* rather than by name, which makes it
@@ -520,7 +520,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.0.5.** The API is stable: every exported function keeps its name,
+**v1.1.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.
