@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.0.5
+
+Structure only, and the last of it. **No API change.**
+
+`vec_test.go` was the one file left in the repository root that was
+`package simd_test`, was not an example, and did not call an `export_test.go`
+hook. It moved to `internal/tests/arrays`, which puts the root at **67 files**
+— down from 114 two releases ago.
+
+That is the floor without changing what the library is. Forty-six of the 67 are
+`package simd`: 7,236 lines across a dozen topics, largest file 483. Go
+requires a package to occupy one directory, so fewer files would mean larger
+ones rather than folders. The remaining 21 are tests Go pins there — seven
+reading unexported state, eight runnable examples that stop being examples of
+this package if they move, five calling `export_test.go` hooks that do not
+exist outside that directory, and the helpers those five share.
+
+For scale, in the standard library `math` is 67 files in one directory,
+`net/http` is 71 and `time` is 38. A flat package is the idiomatic shape for a
+library like this one; the folder structure belongs in `internal/`, which is
+where it is.
+
 ## v1.0.4
 
 Structure only. **No API change** — every exported name, signature and result
