@@ -2575,7 +2575,32 @@ So entry 63's conclusion survives for RVV in substance while being wrong in its
 evidence: the transcendentals there still need hand-written intrinsics, and the
 reason is not the message that entry recorded.
 
-**What is left.** Thirteen accurate transcendentals at two widths on RVV — 26
-kernels: acosh, asinh, atanh, cbrt, expm1, log, log2, log10, log1p, pow, sinh,
-tanh. Not a correctness hole; an unbuilt kernel is not registered and the
+**What is left, and what it does *not* need.** Thirteen accurate
+transcendentals at two widths on RVV — 26 kernels: acosh, asinh, atanh, cbrt,
+expm1, log, log2, log10, log1p, pow, sinh, tanh.
+
+It was written here first that these need generator plumbing that does not
+exist, on the grounds that the pipeline compiles one portable C source per
+kernel and has no concept of a per-target intrinsic source. **That is wrong**,
+and it is wrong in the direction that makes work look impossible rather than
+merely large. The pipeline already branches per target inside a single file —
+`csrc/compress.c` picks its lane count with `#if defined(__riscv_v)` — and
+intrinsics work the same way. Compiled with the generator's exact command:
+
+```c
+#if defined(__riscv_v)
+#include <riscv_vector.h>
+  size_t vl = __riscv_vsetvl_e32m1(n - i);
+  vfloat32m1_t v = __riscv_vle32_v_f32m1(a + i, vl);
+#endif
+```
+
+assembles to real `vsetvli`, `vle32`, `vfmul` and `vse32`. No plumbing, no new
+flags, no separate source.
+
+So the remaining cost is entirely the numerics: each function is its polynomial
+written against RVV's length-agnostic intrinsics, holding the 1.0 ULP bound the
+accurate tier promises. Large, and with nothing in the way.
+
+Not a correctness hole either way; an unbuilt kernel is not registered and the
 portable Go implementation runs.
