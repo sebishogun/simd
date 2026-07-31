@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.2
+
+Adds the MIT license.
+
+v1.0.0 and v1.0.1 shipped without a `LICENSE` file, which under default
+copyright means all rights reserved: legally unimportable by anyone who checks,
+which is every company with a policy scanner. Those two versions are cached
+immutably by the module proxy and cannot be fixed in place, so **use v1.0.2 or
+later** — it is the first version that is actually licensed. Nothing else
+changed.
+
+Datastar's own copyright notice now sits beside the bundle in
+`cmd/site/assets/`, which MIT requires of anyone redistributing a copy, along
+with a README explaining why the file is committed rather than fetched. Both
+land inside the `embed.FS`, so the running binary serves the attribution too.
+
 ## v1.0.1
 
 Lowers the required Go version from 1.26.2 to 1.25.0, and says so in the README,
