@@ -454,6 +454,23 @@ make bench-check   # benchmarks against the stored baseline for this GOARCH
 make codegen       # regenerate every backend (needs clang)
 ```
 
+## Built on this
+
+Four libraries use these kernels. Each is a case where the vector unit changes
+what the code can do, rather than a wrapper around the API.
+
+| | | |
+|---|---|---|
+| [**simdblas**](https://github.com/sebishogun/simdblas) | A BLAS backend for [gonum](https://github.com/gonum/gonum) | One `blas64.Use` call and `mat`, `stat` and `optimize` run on it. Covariance plus Cholesky 4.4×, QR 2.0×, `mat.Mul` 4.3×. |
+| [**simdjson**](https://github.com/sebishogun/simdjson) | Structural-index JSON parsing | 6.8–8.0× `encoding/json` for field extraction, and 1.4–1.8× [minio/simdjson-go](https://github.com/minio/simdjson-go) — which is amd64-only. |
+| [**simdcsv**](https://github.com/sebishogun/simdcsv) | CSV reading | 1.7–2.1× `encoding/csv` on unquoted data, with fields as subslices rather than copies. |
+| [**simdvec**](https://github.com/sebishogun/simdvec) | Embedding search | 18–38× a hand-written loop; the whole index scan is one matrix-vector product. |
+
+simdjson is the one worth reading if you are deciding whether any of this is
+real. It was 1.3–1.8× *slower* than minio until benchmarking against it named
+the missing primitive — `IndexAll` took a single byte, so six JSON delimiters
+meant six reads of the document. `IndexAllAny` closed it in one release.
+
 ## Why this exists
 
 The existing Go options leave most machines unserved.
