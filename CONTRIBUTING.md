@@ -102,6 +102,39 @@ the most-read file in the repository for a reason.
 - No new dependencies. The library has none outside the standard library and
   `golang.org/x/sys` for CPU detection, and that is a feature.
 
+## Cutting a release
+
+The order matters, and getting it wrong is not recoverable.
+
+```
+make verify && make test-cross          # and the qemu lanes
+git push origin main                    # FIRST
+git fetch origin && git rebase origin/main
+git tag -a vX.Y.Z -F - <<'EOF'
+...
+EOF
+git push origin vX.Y.Z                  # only now
+```
+
+**Tag after main is pushed and rebased, never before.** A tag names a commit. If
+you tag, then rebase — which is what happens when the release-badge bot has
+pushed while you were working — the tag is left pointing at the commit the
+rebase replaced. v1.1.0 and v1.2.0 are both like that: the Go code in them is
+byte-identical to main and they resolve from the proxy perfectly well, but the
+commits they name are not ancestors of any branch, so `git describe` reports the
+wrong version.
+
+**They were not fixed, and should not be.** Moving a published tag changes the
+commit and therefore the module zip, and the Go checksum database has already
+recorded a hash for that version. A caller who has fetched it once gets a
+checksum mismatch, which fails hard and looks like a supply-chain attack. A
+cosmetic history oddity is very much the cheaper of the two.
+
+The same rule covers the badge: the bot commits to main *after* a tag is pushed,
+so the tagged tree always has the previous version's badge in it. That is
+expected and is the only file that differs between a tag and its equivalent
+commit on main.
+
 ## Reporting a hardware run
 
 **This is the contribution the library most needs, and it requires knowing
