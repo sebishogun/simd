@@ -100,3 +100,27 @@ Two benchmarks were also flagged that are not regressions at all. `SatSub` and
 `MulInt` each appeared in one run and not the other, which is the definition of
 noise. That is why the rule is two runs and the intersection, and it is worth
 restating that the rule earned itself here rather than in the abstract.
+
+## Expect one or two false positives per run
+
+Three consecutive full runs flagged three disjoint sets:
+
+	run 1   SatSub/u16 x2
+	run 2   MulInt/u32 x3, SumInt/i16 x1
+	run 3   UTF16Baseline/utf8_scan_only x1
+
+None of them reproduced. `SatSub/u16/n=64` re-measured at 7.30 and 7.32 ns
+against a baseline of 7.20; `UTF16Baseline` at 13096, 13055 and 13228 ns against
+12998, having been reported at 24819. The reproducible regressions in the same
+runs — the seven `Pow` benchmarks — agreed with each other to within 0.3%.
+
+This is arithmetic rather than a defect in the tool. The suite is roughly 765
+benchmarks and the gate is 25% on a minimum-of-six estimator, so a handful of
+tail events per run is the expected outcome, and the smallest benchmarks produce
+them most because a 5 ns absolute swing on a 7 ns measurement is 70%.
+
+**So a single flagged benchmark means nothing. Re-run it.** A real regression
+reproduces with a stable delta; noise picks a different victim each time. That
+is the whole reason the rule is two runs and the intersection, and it is worth
+knowing that following it here turned four alarming-looking failures into one
+real finding.
