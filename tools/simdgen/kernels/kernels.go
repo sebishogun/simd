@@ -2203,8 +2203,78 @@ func Sets() []spec.Kernel {
 	return ks
 }
 
+// Blas is the set of operations a linear algebra library reaches for that the
+// elementwise, reduction and matrix files do not cover. gonum's LU, QR,
+// Cholesky and SVD are built out of rank-1 updates, Givens rotations and row
+// swaps rather than out of gemm, which is why they saw none of the speedup
+// that mat.Mul did until these existed.
+func Blas() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range elems {
+		if !e.float {
+			// Swap is the only one that is meaningful for integers: pivoting
+			// moves index rows too.
+			if e.c == "i32" || e.c == "i64" {
+				ks = append(ks, swapK(e))
+			}
+			continue
+		}
+		ks = append(ks, gerK(e), rotK(e), swapK(e))
+	}
+	return ks
+}
+
+// gerK is the rank-1 update a[i*n+j] += alpha*x[i]*y[j], the inner loop of an
+// LU decomposition.
+//
+// Six C arguments exactly: three pointers, the scalar, and two dimensions. That
+// is the SysV limit for integer arguments, which is why lda is not among them —
+// the caller guarantees rows are n apart and anything else takes the portable
+// path.
+func gerK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_ger_" + e.c, GoName: "ger" + e.goName,
+		Group: e.group, Field: "RankOne", RefFunc: e.ref("RankOne"),
+		Params: []spec.Param{sl("a", e.slice), sl("x", e.slice),
+			sl("y", e.slice), sl("alpha", e.scalar),
+			{Name: "m", Type: spec.Int}, {Name: "n", Type: spec.Int}},
+		CArgs: []spec.CArg{base("a"), base("x"), base("y"), val("alpha"),
+			val("m"), val("n")},
+		// Two dimensions rather than a length, so nothing may be clamped to a
+		// slice: the guard cannot know m*n is the extent of a.
+		Threshold: thScan,
+	}
+}
+
+// rotK applies a Givens rotation to a pair of vectors, which is what QR and the
+// SVD's bidiagonal phase are made of.
+func rotK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_rot_" + e.c, GoName: "rot" + e.goName,
+		Group: e.group, Field: "Rotate", RefFunc: e.ref("Rotate"),
+		Params: []spec.Param{sl("x", e.slice), sl("y", e.slice),
+			sl("c", e.scalar), sl("s", e.scalar)},
+		CArgs: []spec.CArg{base("x"), base("y"), val("c"), val("s"),
+			lenOf("x")},
+		Threshold: thElementwise,
+	}
+}
+
+// swapK exchanges two vectors. Memory-bound and trivial, and the third most
+// called routine in gonum's decompositions, because pivoting swaps rows.
+func swapK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_swap_" + e.c, GoName: "swap" + e.goName,
+		Group: e.group, Field: "Swap", RefFunc: e.ref("Swap"),
+		Params:    []spec.Param{sl("x", e.slice), sl("y", e.slice)},
+		CArgs:     []spec.CArg{base("x"), base("y"), lenOf("x")},
+		Threshold: thElementwise,
+	}
+}
+
 // All is every source file the generator processes.
 var All = []Source{
+	{Path: "csrc/blas.c", Kernels: Blas()},
 	{Path: "csrc/compress.c", Kernels: Compress()},
 	{Path: "csrc/sets.c", Kernels: Sets()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},

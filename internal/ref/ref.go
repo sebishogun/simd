@@ -1047,6 +1047,7 @@ func floatOps[T float]() kernel.Ops[T] {
 		Random:   randomFor[T](),
 		ShiftDiv: shiftDiv[T], LayerNorm: layerNorm[T],
 		ArgMin: argMinFloat[T], ArgMax: argMaxFloat[T], MinMax: minMaxFloat[T],
+		RankOne: RankOneFloat[T], Rotate: RotateFloat[T], Swap: SwapFloat[T],
 	}
 	floatMathOps(&o)
 	signalOps(&o)
@@ -1088,7 +1089,8 @@ func intOps[T integer]() kernel.Ops[T] {
 		Dot:      dotInt[T],
 		SumSqDev: sumSqDevInt[T], SumSqDiff: sumSqDiffInt[T], L1Diff: l1DiffInt[T],
 		ArgMin: argMinInt[T], ArgMax: argMaxInt[T], MinMax: minMaxInt[T],
-		Shl: shl[T], Shr: shr[T], Rotl: rotl[T], Rotr: rotr[T],
+		Swap: SwapInt[T],
+		Shl:  shl[T], Shr: shr[T], Rotl: rotl[T], Rotr: rotr[T],
 		OnesCount: onesCount[T], LeadingZeros: leadingZeros[T],
 		TrailingZeros: trailingZeros[T], ReverseBits: reverseBits[T],
 		ByteSwap: byteSwap[T],

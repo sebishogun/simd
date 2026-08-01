@@ -1,5 +1,46 @@
 # Changelog
 
+## v1.2.0
+
+**Rank-1 update, Givens rotation and swap.** `RankOneInto`, `Rotate` and
+`Swap` — BLAS calls them ger, rot and swap.
+
+These were added expecting them to speed up a matrix decomposition. They do
+not, and entry 72 of docs/wrong.md records why. LAPACK works on submatrix
+windows with a scaling factor throughout — `ger` gets a strided column, and the
+blocked `gemm` gets an alpha of -1 and a leading dimension that is the parent's
+width — so every fast path in simdblas rejects it, `ger` merely being the one
+looked at first. `trsm` is not accelerated at all.
+
+They are worth having on their own terms: a contiguous rank-1 update is 8.2x
+the portable path, a rotation 13.3x and a swap 4.4x. That is what they claim.
+
+Against the portable path, float64, Zen 5:
+
+	RankOneInto   n=64     8.18x
+	              n=512    5.05x
+	              n=2048   2.40x
+	Rotate        n=1000  13.30x
+	              n=100k   6.25x
+	Swap          n=1000   4.36x
+	              n=100k   2.63x
+
+59 new kernels, taking the total to 6,730. `ger` reaches amd64, arm64, riscv64
+and loong64; ppc64le and s390x decline it for the usual ABI reasons. arm64
+declines `swap`, where LLVM will not vectorize the two-store loop; the portable
+path covers it there.
+
+`RankOneInto` has no leading-dimension parameter, so rows must be exactly n
+apart. Six C arguments is the SysV limit and the choice was between dropping
+lda or passing a stride that cannot be bounds-checked.
+
+An abs-max reduction for BLAS `idamax` was written and dropped before release.
+The existing `ArgMax` is hand-vectorized with explicit vector types and a
+NaN-ordering contract, and an autovectorized version of the same shape was
+refused by every target. Reproducing that machinery was not worth it for a
+routine LU calls once per column, against `ger`, which it calls once per column
+over the whole trailing matrix.
+
 ## v1.1.0
 
 **Opt-in parallel matrix routines.** `MatMulParallelInto` and

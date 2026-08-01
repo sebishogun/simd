@@ -90,6 +90,9 @@ Organised by task rather than by operation name.
 | pick between two slices per element | `SelectInto` |
 | **apply a matrix to a vector** | `GemvInto`, or `GemvParallelInto` for a large one |
 | multiply two matrices | `MatMulInto`, or `MatMulParallelInto` when the multiply is the whole job |
+| **add an outer product to a matrix** | `RankOneInto` — BLAS ger, the inner loop of an LU |
+| apply a Givens rotation | `Rotate` — what QR and the SVD are made of |
+| exchange two slices | `Swap` — pivoting a decomposition |
 | find a byte or substring | `IndexByte` `Index` `LastIndex` |
 | **find every occurrence at once** | `IndexAll` — the structural-index step of a parser |
 | find any of a set of bytes | `IndexAny` `IndexNotAny` `CountAny` |
@@ -141,7 +144,8 @@ yet; both are recorded rather than implied.
 - **Text and bytes** — index, count, trim, UTF-8 validation, case folding, hex,
   base64, accepting `string` or `[]byte` without copying.
 - **Linear algebra** — dot, `Gemv`, a register-blocked `MatMul` with an
-  opt-in parallel variant, CSR sparse matrix-vector.
+  opt-in parallel variant, CSR sparse matrix-vector, and the pieces a
+  decomposition is made of: rank-1 update, Givens rotation, swap.
 - **Search and sets** — batched binary search, sorted-set intersection and
   difference, rank/select over a bit vector, longest common prefix.
 - **Encodings** — int8 and fp8 quantization, zigzag, bit packing, run-length,
@@ -305,7 +309,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-459 exported functions and 6,671 generated kernels across nine targets. The
+462 exported functions and 6,730 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over
@@ -314,12 +318,12 @@ counts once in each.
 
 | | kernels | skipped | dominant reason for skips |
 |---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2493 | 88 | LLVM declined to vectorize |
-| arm64 (neon/sve2) | 1614 | 108 | LLVM declined to vectorize |
-| riscv64 (rvv) | 849 | 14 | LLVM declined to vectorize |
-| loong64 (lasx) | 710 | 149 | `$fp`, then `.L0` references |
-| ppc64le (vsx) | 592 | 267 | `r30`, then LLVM refusals |
-| s390x (vx) | 413 | 446 | `r13` — an ABI wall, see below |
+| amd64 (sse2/avx2/avx512) | 2517 | 88 | LLVM declined to vectorize |
+| arm64 (neon/sve2) | 1622 | 116 | LLVM declined to vectorize |
+| riscv64 (rvv) | 857 | 14 | LLVM declined to vectorize |
+| loong64 (lasx) | 717 | 150 | `$fp`, then `.L0` references |
+| ppc64le (vsx) | 598 | 269 | `r30`, then LLVM refusals |
+| s390x (vx) | 419 | 448 | `r13` — an ABI wall, see below |
 
 Most remaining skips are in the `Fast*` tier, which is the newest and least
 portable. Where a target declines a `Fast*` kernel the accurate kernel stands
@@ -497,7 +501,7 @@ numeric kernels.
 
 ## Where the obvious answer was wrong
 
-[**docs/wrong.md**](docs/wrong.md) records 71 things a competent person would
+[**docs/wrong.md**](docs/wrong.md) records 72 things a competent person would
 have assumed that turned out false, and what each cost. Among them:
 
 - A register can be reserved by *value* rather than by name, which makes it
@@ -520,7 +524,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.1.0.** The API is stable: every exported function keeps its name,
+**v1.2.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.

@@ -2763,3 +2763,55 @@ working set in cache, so applying both does not halve the misses twice — the
 first one to run takes the win and the second one only pays. Worth measuring
 the combination rather than reasoning about it, which is cheaper than it sounds:
 this took one benchmark and would have shipped a slower function otherwise.
+
+## 72. Accelerating ger to speed up an LU, which it does not
+
+**Assumed.** gonum's LU was no faster with an accelerated BLAS because the
+routines it spends its time in were not accelerated. Counting BLAS calls across
+`mat` and `lapack/gonum` put `Dger` high on the list, and LAPACK's `Dgetf2` is
+visibly built out of it. So a `ger` kernel should move a factorisation.
+
+A kernel was written, and it works: `RankOneInto` is 8.2x the portable path at
+n=64 and 2.4x at n=2048. LU did not move at all — same wall-clock as stock
+gonum at 256 and 512 square, both directions inside noise across two runs.
+
+**True, and the first answer found was not the whole one.**
+
+`Dgetf2` calls `Dger` with the x operand a *column* of the working matrix, so
+`incX` is `lda`, and with the target a trailing submatrix, so its leading
+dimension is the parent's width rather than n. The kernel takes neither a
+stride nor a leading dimension — six arguments is the SysV limit and those are
+what got dropped — so every call was rejected by the guard and delegated.
+
+Rewriting it as one accelerated axpy per row lifts both restrictions and made
+things *worse*: 12% slower at 256, 7% faster at 512. Row length in a
+factorisation shrinks by one per column, so most calls are short, and a per-row
+dispatch against gonum's own per-row SSE2 axpy only pays once the row covers
+the call. Measured crossover is 256 elements — 0.20x at 16, 0.72x at 64, 0.91x
+at 128, 1.07x at 256, 1.50x at 1024 — and with that threshold in place LU
+returns to parity.
+
+That explained the panel factorisation and should have been checked against the
+rest, because `Dgetrf` is blocked and the panel is not where the time is. The
+blocked path calls
+
+	bi.Dgemm(NoTrans, NoTrans, m-j-jb, n-j-jb, jb, -1, a[...], lda, ...)
+
+with **alpha of -1** and every operand a submatrix window. The gemm fast path
+requires alpha of 1 and natural leading dimensions, so it rejects those too —
+and `Dtrsm`, the other half of the blocked step, is not accelerated at all.
+Every accelerated routine is bypassed inside a decomposition, and `ger` was
+only the one that was looked at first.
+
+**What to take from it.** A call-frequency count says where the calls are, not
+where the time is, and nothing about whether they have a shape the fast path
+can take. LAPACK works almost entirely on submatrix windows with a scaling
+factor, which is precisely the shape a first-cut guard excludes as "not the
+common case" — it is not the common case in application code and it is nearly
+the only case inside a decomposition.
+
+The kernel is worth having for a contiguous rank-1 update, which is what it now
+claims and all it claims. Making decompositions faster is a different piece of
+work: widening the gemm guard to accept a leading dimension and a general
+alpha and beta, and writing `trsm`. Neither is hard; both were assumed
+unnecessary.
