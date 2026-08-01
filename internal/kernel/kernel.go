@@ -440,6 +440,21 @@ type Ops[T any] struct {
 	// MatMul multiplies an m*k matrix by a k*n matrix into an m*n one, all
 	// in row-major order.
 	MatMul func(dst, a, b []T, m, k, n int)
+
+	// The BLAS-shaped operations, for the algorithms that are not built out
+	// of matrix multiplies. A decomposition spends its time here rather than
+	// in MatMul.
+	//
+	// RankOne is ger: a[i*n+j] += alpha*x[i]*y[j], with rows of a exactly n
+	// apart. The row scale is computed once per row, so the association is
+	// (alpha*x[i])*y[j] and the portable path matches it.
+	RankOne func(a, x, y []T, alpha T, m, n int)
+	// Rotate is a Givens rotation over a pair of vectors, using the original
+	// x[i] in both assignments.
+	Rotate func(x, y []T, c, s T)
+	// Swap exchanges two vectors. Defined for the integer groups too, because
+	// pivoting moves index rows as well as value rows.
+	Swap func(x, y []T)
 }
 
 // Mask is the kernel group for boolean vectors, the output of the comparison

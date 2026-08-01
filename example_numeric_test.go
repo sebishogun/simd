@@ -183,3 +183,43 @@ func ExampleGemvParallelInto() {
 	fmt.Println(dst)
 	// Output: [5 11]
 }
+
+// RankOneInto adds the outer product of two vectors to a matrix, which BLAS
+// calls ger. It is the trailing-matrix update inside an LU decomposition, and
+// rows of a must be exactly n apart.
+func ExampleRankOneInto() {
+	a := []float64{0, 0, 0, 0} // 2x2 of zeros
+	x := []float64{1, 2}
+	y := []float64{3, 4}
+
+	// a[i][j] += 1 * x[i] * y[j]
+	simd.RankOneInto(a, x, y, 1, 2, 2)
+
+	fmt.Println(a)
+	// Output: [3 4 6 8]
+}
+
+// Rotate applies a Givens rotation to a pair of vectors, using the original
+// x[i] in both assignments. QR factorisation and the bidiagonal phase of an SVD
+// are built out of it.
+func ExampleRotate() {
+	x := []float64{1, 0}
+	y := []float64{0, 1}
+
+	simd.Rotate(x, y, 0.6, 0.8) // c, s
+
+	fmt.Println(x, y)
+	// Output: [0.6 0.8] [-0.8 0.6]
+}
+
+// Swap exchanges two slices. Pivoting a decomposition swaps rows, which makes
+// it one of the most-called routines in gonum's linear algebra.
+func ExampleSwap() {
+	x := []int32{1, 2, 3}
+	y := []int32{4, 5, 6}
+
+	simd.Swap(x, y)
+
+	fmt.Println(x, y)
+	// Output: [4 5 6] [1 2 3]
+}
