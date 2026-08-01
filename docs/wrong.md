@@ -2815,3 +2815,47 @@ claims and all it claims. Making decompositions faster is a different piece of
 work: widening the gemm guard to accept a leading dimension and a general
 alpha and beta, and writing `trsm`. Neither is hard; both were assumed
 unnecessary.
+
+## 73. A correctness fix that cost 75%, and went two days unnoticed
+
+**Assumed.** Fixing the sign of zero in `pow` was a small change. C99 F.10.4.4
+requires `pow(-0, 3)` to be `-0` and `pow(-0, -3)` to be `-Inf`, the kernel
+returned `+0` and `+Inf`, and the fix is three lines:
+
+	int negzero_odd = odd && (f64_to_bits(x) >> 63) != 0;
+	v = (x == 0.0) ? (y < 0.0 ? (negzero_odd ? -INF : INF)
+	                          : (negzero_odd ? -0.0 : 0.0))
+	               : v;
+
+Correct, tested, committed. Nobody ran the benchmark gate afterwards.
+
+**True.** It costs **75%**. `Pow` at n=4096 went from 12.6 µs to 22.0 µs, and
+the same at 256 and 65536, and for both the accurate and the `Fast` tier —
+seven benchmarks, all between +72% and +75%.
+
+The reason is where the code sits. Those three lines are not on a rare branch;
+they are inside the vectorized loop, so the bit extract and the two nested
+selects execute for every element whether or not any element is a zero. A
+scalar implementation would predict the branch and pay nothing on ordinary
+data. A vector one has no branch to predict.
+
+**How it surfaced.** `make bench-check` against the recorded baseline, run for
+an unrelated reason — the machine happened to be idle. It flagged the seven
+`Pow` benchmarks in two consecutive full runs with the deltas agreeing to
+within 0.3%, which is what separates a regression from noise: the same run also
+flagged `SatSub` once and `MulInt` once, and neither reproduced.
+
+**What was done.** Nothing, to the code. The kernel is right and the cost is
+what being right costs here; the alternative is a `pow` that violates the
+standard on a case the accuracy contract explicitly covers. The baseline was
+re-recorded with this entry as the reason.
+
+**What to take from it.** Two things. A correctness fix is a performance change
+and needs the same gate — the assumption that it was too small to measure is
+the whole of the mistake. And the benchmark gate only works if it is run: this
+sat for two days across a dozen commits, and would have sat indefinitely,
+because nothing fails when a benchmark is merely slower.
+
+Worth noting what the same run said in the other direction: fourteen benchmarks
+were *faster* than the baseline by 25–52%, `Median` and `ParseInts` among them.
+A stale baseline hides improvements exactly as well as it hides regressions.

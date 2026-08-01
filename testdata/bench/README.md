@@ -81,3 +81,22 @@ between fixing a regression and hunting for one in code that has not changed.
 And do not run `make bench-update` to make it go away — that records the
 degraded machine as the reference and hides the next real regression behind
 it. See entry 48 of docs/wrong.md.
+
+## The recorded baseline
+
+Re-recorded on 2026-08-01 at a load average under 2, `-count 6`, pinned to
+cores 0-7 by `BENCH_PIN`. The previous one predated about 415,000 lines of
+change in `internal/amd64` and was stale in both directions: fourteen
+benchmarks had become 25-52% faster than it, and seven had become 75% slower.
+
+The seven are `Pow`, and they are slower on purpose. A fix for the sign of zero
+on an odd integer exponent — C99 F.10.4.4, `pow(-0, 3)` is `-0` — added a bit
+extract and two nested selects inside the vectorized loop, where they run for
+every element rather than on a branch that would predict away. Entry 73 of
+[`docs/wrong.md`](../../docs/wrong.md) has it. The kernel is correct and the
+cost is what correct costs.
+
+Two benchmarks were also flagged that are not regressions at all. `SatSub` and
+`MulInt` each appeared in one run and not the other, which is the definition of
+noise. That is why the rule is two runs and the intersection, and it is worth
+restating that the rule earned itself here rather than in the abstract.

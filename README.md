@@ -234,7 +234,7 @@ right-hand column is the one that matters:
 |---|---|---|---|---|
 | n=64 | 9.51 µs | 2.13 µs | −78% | 246 |
 | n=128 | 51.7 µs | 16.9 µs | −67% | 249 |
-| n=256 | 331 µs | 129 µs | −61% | **260** |
+| n=256 | 331 µs | 127 µs | −62% | **264** |
 | n=512 | 3.25 ms | 1.31 ms | −60% | 204 |
 
 `GemvInto` reaches 172 GB/s while the matrix is cache-resident and 49 GB/s at
@@ -501,7 +501,7 @@ numeric kernels.
 
 ## Where the obvious answer was wrong
 
-[**docs/wrong.md**](docs/wrong.md) records 72 things a competent person would
+[**docs/wrong.md**](docs/wrong.md) records 73 things a competent person would
 have assumed that turned out false, and what each cost. Among them:
 
 - A register can be reserved by *value* rather than by name, which makes it
