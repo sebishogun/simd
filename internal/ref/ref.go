@@ -1183,7 +1183,8 @@ func Set() kernel.Set {
 			And: bitAnd, Or: bitOr, Xor: bitXor, AndNot: bitAndNot, Not: bitNot,
 			Fill: fillBytes,
 
-			IndexAll: indexAll, IndexAny: indexAny, CountAny: countAny, Index: index,
+			IndexAll: indexAll, IndexAllAny: IndexAllAny,
+			IndexAny: indexAny, CountAny: countAny, Index: index,
 			IndexNotAny: indexNotAny, LastIndexNotAny: lastIndexNotAny, LastIndex: lastIndex, CountSeq: countSeq,
 			IsASCII: isASCII, ValidUTF8: validUTF8,
 			IndexNonASCII: IndexNonASCII, IndexNonASCII16: IndexNonASCII16,

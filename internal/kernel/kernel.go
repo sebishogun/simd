@@ -540,6 +540,12 @@ type Bytes struct {
 	// loop over IndexByte is that the vector form classifies 16 to 64 bytes
 	// per instruction and only touches memory once.
 	IndexAll func(dst []int32, b []byte, c byte) int
+	// IndexAllAny is IndexAll for a set: every byte equal to any of the up to
+	// eight values packed into chars, one per byte. The set is packed because
+	// six integer arguments is the SysV limit and the single-byte form already
+	// spends all of them.
+	IndexAllAny func(dst []int32, b []byte, chars uint64) int
+
 	// IndexAny and CountAny match against a set of bytes rather than one.
 	IndexAny, CountAny func(b, chars []byte) int
 	// IndexNotAny is the complement: the first byte that is *not* in the set.

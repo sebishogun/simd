@@ -27,6 +27,13 @@ func indexAllAVX512Guarded(dst []int32, b []byte, c byte) int {
 	return indexAllAVX512(dst, b, c)
 }
 
+func indexAllAnyAVX512Guarded(dst []int32, b []byte, chars uint64) int {
+	if len(dst) < 64 {
+		return ref.IndexAllAny(dst, b, chars)
+	}
+	return indexAllAnyAVX512(dst, b, chars)
+}
+
 func runStartsI32AVX512Guarded(dst []bool, a []int32) {
 	n := min(len(a), len(dst))
 	if n < 64 {
@@ -91,6 +98,7 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("avx512")
 	s.Bytes.IndexAll = indexAllAVX512Guarded
+	s.Bytes.IndexAllAny = indexAllAnyAVX512Guarded
 	s.Bytes.RunStartsI32 = runStartsI32AVX512Guarded
 	s.Bytes.RunStartsI64 = runStartsI64AVX512Guarded
 	s.Bytes.RunStartsU8 = runStartsU8AVX512Guarded

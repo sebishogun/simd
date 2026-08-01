@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.3.0
+
+**`IndexAllAny`** — the positions of every byte matching any of up to eight
+values, in one pass.
+
+`IndexAll` takes a single byte, so a parser wanting several delimiters at once
+had to ask several times and read its input once per delimiter. A JSON
+structural index needs six. Measured against six calls to `IndexAll`:
+
+	n=4096      5811 ns -> 2213 ns   2.63x
+	n=65536    94820 ns -> 32947 ns  2.88x
+	n=1 MiB     1520 us ->  561 us   2.71x
+
+The set arrives packed into a uint64, one byte per slot, because six integer
+arguments is the SysV limit and the single-byte form already spends all of
+them. A caller with fewer than eight repeats one — a duplicate compare is free
+and an extra pass is not. More than eight takes the portable path.
+
+Reaches the tiers with a compress instruction, avx512 and sve2, exactly as
+`IndexAll` does; elsewhere the portable path runs. 6,733 kernels in total.
+
+This came out of measuring simdjson against minio/simdjson-go, which is 1.3-1.8x
+faster on amd64 because it computes structural positions in one fused pass while
+a six-call structural index reads the document six times.
+
 ## v1.2.0
 
 **Rank-1 update, Givens rotation and swap.** `RankOneInto`, `Rotate` and

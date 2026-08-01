@@ -57,3 +57,30 @@ func SwapInt[T Integer](x, y []T) {
 		x[i], y[i] = y[i], x[i]
 	}
 }
+
+// IndexAllAny writes the offset of every byte in b that equals any of the up to
+// eight values packed into chars, one per byte, and returns how many it wrote.
+//
+// It stops when dst fills, matching the kernel: a caller who sizes dst for the
+// expected number of matches and gets more must get a truncated answer rather
+// than an overrun.
+func IndexAllAny(dst []int32, b []byte, chars uint64) int {
+	c := [8]byte{
+		byte(chars), byte(chars >> 8), byte(chars >> 16), byte(chars >> 24),
+		byte(chars >> 32), byte(chars >> 40), byte(chars >> 48), byte(chars >> 56),
+	}
+	k := 0
+	for i := 0; i < len(b); i++ {
+		x := b[i]
+		if x != c[0] && x != c[1] && x != c[2] && x != c[3] &&
+			x != c[4] && x != c[5] && x != c[6] && x != c[7] {
+			continue
+		}
+		if k == len(dst) {
+			break
+		}
+		dst[k] = int32(i)
+		k++
+	}
+	return k
+}

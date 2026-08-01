@@ -19,6 +19,9 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 func indexAllSVE2(dst []int32, b []byte, c byte) int
 
 //go:noescape
+func indexAllAnySVE2(dst []int32, b []byte, chars uint64) int
+
+//go:noescape
 func runStartsI32SVE2(dst []bool, a []int32)
 
 //go:noescape

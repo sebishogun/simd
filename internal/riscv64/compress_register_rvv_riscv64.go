@@ -27,6 +27,13 @@ func indexAllRVVGuarded(dst []int32, b []byte, c byte) int {
 	return indexAllRVV(dst, b, c)
 }
 
+func indexAllAnyRVVGuarded(dst []int32, b []byte, chars uint64) int {
+	if len(dst) < 64 {
+		return ref.IndexAllAny(dst, b, chars)
+	}
+	return indexAllAnyRVV(dst, b, chars)
+}
+
 func runStartsI32RVVGuarded(dst []bool, a []int32) {
 	n := min(len(a), len(dst))
 	if n < 64 {
@@ -91,6 +98,7 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("rvv")
 	s.Bytes.IndexAll = indexAllRVVGuarded
+	s.Bytes.IndexAllAny = indexAllAnyRVVGuarded
 	s.Bytes.RunStartsI32 = runStartsI32RVVGuarded
 	s.Bytes.RunStartsI64 = runStartsI64RVVGuarded
 	s.Bytes.RunStartsU8 = runStartsU8RVVGuarded

@@ -435,3 +435,61 @@ func ParseUints[S Text](dst []uint64, src S, idx []int32) (int, bool) {
 func FormatInts(dst []byte, vals []int64, sep byte) int {
 	return active.Bytes.FormatInts(dst, vals, sep)
 }
+
+// IndexAllAny writes the offset of every byte in s that equals any of the bytes
+// in chars into dst, and returns how many it found.
+//
+// This is [IndexAll] for a set, and it exists because asking for several
+// delimiters one at a time means several passes over the input. A JSON parser
+// wants six at once; doing that as six calls reads the document six times, and
+// this reads it once.
+//
+// At most eight distinct bytes. A longer set falls back to the portable path,
+// which is correct and not faster — the limit is the packed argument the kernel
+// receives, and eight is what fits beside the pointers.
+//
+// Like IndexAll it stops when dst fills, so a short dst bounds the work rather
+// than being an error.
+func IndexAllAny[S Text](dst []int32, s S, chars string) int {
+	if len(chars) == 0 || len(dst) == 0 {
+		return 0
+	}
+	if len(chars) > 8 {
+		return indexAllAnyPortable(dst, textBytes(s), chars)
+	}
+	// Pack the set, repeating the first byte to fill. A duplicate compare costs
+	// nothing; a shorter set would need another argument to say so.
+	var packed uint64
+	for i := 0; i < 8; i++ {
+		c := chars[0]
+		if i < len(chars) {
+			c = chars[i]
+		}
+		packed |= uint64(c) << (8 * i)
+	}
+	return active.Bytes.IndexAllAny(dst, textBytes(s), packed)
+}
+
+func indexAllAnyPortable(dst []int32, b []byte, chars string) int {
+	k := 0
+	for i := 0; i < len(b); i++ {
+		if !containsByte(chars, b[i]) {
+			continue
+		}
+		if k == len(dst) {
+			break
+		}
+		dst[k] = int32(i)
+		k++
+	}
+	return k
+}
+
+func containsByte(s string, c byte) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] == c {
+			return true
+		}
+	}
+	return false
+}

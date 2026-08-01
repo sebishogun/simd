@@ -19,6 +19,9 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 func indexAllAVX512(dst []int32, b []byte, c byte) int
 
 //go:noescape
+func indexAllAnyAVX512(dst []int32, b []byte, chars uint64) int
+
+//go:noescape
 func runStartsI32AVX512(dst []bool, a []int32)
 
 //go:noescape

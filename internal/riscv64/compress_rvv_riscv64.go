@@ -19,6 +19,9 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 func indexAllRVV(dst []int32, b []byte, c byte) int
 
 //go:noescape
+func indexAllAnyRVV(dst []int32, b []byte, chars uint64) int
+
+//go:noescape
 func runStartsI32RVV(dst []bool, a []int32)
 
 //go:noescape

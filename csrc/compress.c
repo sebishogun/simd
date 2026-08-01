@@ -185,6 +185,54 @@ void simd_index_all(isize *__restrict out, i32 *__restrict dst,
   *out = k;
 }
 
+// simd_index_all_any writes the offset of every byte that equals any of up to
+// eight values into dst.
+//
+// The structural-index step of a real JSON parser wants six delimiters at once,
+// and asking for them one at a time means six passes over the document. This is
+// one pass: the mask is an OR of eight compares, and eight compares against
+// registers cost far less than reading the input eight times.
+//
+// The set arrives packed into a u64, one byte per slot, because that is the
+// argument the single-byte form already spends and the SysV limit leaves no
+// room for another. A caller with fewer than eight repeats one of them — a
+// duplicate compare is free, an extra pass is not.
+void simd_index_all_any(isize *__restrict out, i32 *__restrict dst,
+                        const u8 *__restrict b, unsigned long long chars,
+                        isize nd, isize n) {
+  const u8 c0 = (u8)chars, c1 = (u8)(chars >> 8), c2 = (u8)(chars >> 16),
+           c3 = (u8)(chars >> 24), c4 = (u8)(chars >> 32),
+           c5 = (u8)(chars >> 40), c6 = (u8)(chars >> 48),
+           c7 = (u8)(chars >> 56);
+  isize k = 0, i = 0;
+  const i32xC lane = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+
+  for (; i + COMPRESS_LANES <= n && k + COMPRESS_LANES <= nd;
+       i += COMPRESS_LANES) {
+    u8xC v = *(const u8xC *)(b + i);
+    // The comparison yields a signed-char vector rather than u8xC, so the
+    // accumulator takes its type from the expression instead of naming one.
+    __typeof__(v == c0) hit = (v == c0) | (v == c1) | (v == c2) | (v == c3) |
+                              (v == c4) | (v == c5) | (v == c6) | (v == c7);
+    maskxC m = __builtin_convertvector(hit, maskxC);
+    __builtin_masked_compress_store(m, lane + (i32)i, dst + k);
+    for (int j = 0; j < COMPRESS_LANES; j++) {
+      u8 x = b[i + j];
+      k += (x == c0) | (x == c1) | (x == c2) | (x == c3) | (x == c4) |
+           (x == c5) | (x == c6) | (x == c7);
+    }
+  }
+  for (; i < n; i++) {
+    u8 x = b[i];
+    if (!((x == c0) | (x == c1) | (x == c2) | (x == c3) | (x == c4) |
+          (x == c5) | (x == c6) | (x == c7)))
+      continue;
+    if (k == nd) break;
+    dst[k++] = (i32)i;
+  }
+  *out = k;
+}
+
 // ---------- run detection ----------
 //
 // simd_run_starts marks every element that begins a run of equal values:

@@ -2147,6 +2147,23 @@ func Compress() []spec.Kernel {
 			Threshold: thScan,
 			SkipOn:    noCompress,
 		},
+		{
+			// The set-of-bytes form of IndexAll. Same shape, and the single
+			// byte argument becomes a u64 holding up to eight of them, because
+			// six integer arguments is the SysV limit and there is no seventh
+			// to spend.
+			CName: "simd_index_all_any", GoName: "indexAllAny",
+			Group: "Bytes", Field: "IndexAllAny", RefFunc: "IndexAllAny",
+			Params: []spec.Param{
+				sl("dst", spec.SliceI32), sl("b", spec.SliceU8), sl("chars", spec.U64),
+			},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{
+				out(), base("dst"), base("b"), val("chars"), lenOf("dst"), lenOf("b"),
+			},
+			Threshold: thScan,
+			SkipOn:    noCompress,
+		},
 		runStartsK("simd_run_starts_i32", "runStartsI32", "RunStartsI32", spec.SliceI32),
 		runStartsK("simd_run_starts_i64", "runStartsI64", "RunStartsI64", spec.SliceI64),
 		runStartsK("simd_run_starts_u8", "runStartsU8", "RunStartsU8", spec.SliceU8),

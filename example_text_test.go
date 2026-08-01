@@ -107,3 +107,15 @@ func ExampleCommonPrefixLen() {
 	fmt.Println(simd.CommonPrefixLen("/usr/local/bin", "/usr/local/lib"))
 	// Output: 11
 }
+
+// IndexAllAny finds several delimiters in one pass. A parser wanting six of
+// them at once would otherwise read the input six times.
+func ExampleIndexAllAny() {
+	doc := []byte(`{"a":[1,2]}`)
+
+	pos := make([]int32, len(doc))
+	n := simd.IndexAllAny(pos, doc, "{}[]:,")
+
+	fmt.Println(pos[:n])
+	// Output: [0 4 5 7 9 10]
+}

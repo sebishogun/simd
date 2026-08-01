@@ -27,6 +27,13 @@ func indexAllSVE2Guarded(dst []int32, b []byte, c byte) int {
 	return indexAllSVE2(dst, b, c)
 }
 
+func indexAllAnySVE2Guarded(dst []int32, b []byte, chars uint64) int {
+	if len(dst) < 64 {
+		return ref.IndexAllAny(dst, b, chars)
+	}
+	return indexAllAnySVE2(dst, b, chars)
+}
+
 func runStartsI32SVE2Guarded(dst []bool, a []int32) {
 	n := min(len(a), len(dst))
 	if n < 64 {
@@ -91,6 +98,7 @@ func init() {
 	// generated files contribute their own kernels to the same tier.
 	s := backend.For("sve2")
 	s.Bytes.IndexAll = indexAllSVE2Guarded
+	s.Bytes.IndexAllAny = indexAllAnySVE2Guarded
 	s.Bytes.RunStartsI32 = runStartsI32SVE2Guarded
 	s.Bytes.RunStartsI64 = runStartsI64SVE2Guarded
 	s.Bytes.RunStartsU8 = runStartsU8SVE2Guarded
