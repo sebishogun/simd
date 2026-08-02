@@ -48,6 +48,30 @@ func popCountAVX512Guarded(b []byte) int {
 	return popCountAVX512(b)
 }
 
+func maskBitsAVX512Guarded(dst []byte, b []byte, c byte) {
+	if len(b) < 64 {
+		ref.MaskBits(dst, b, c)
+		return
+	}
+	maskBitsAVX512(dst, b, c)
+}
+
+func maskBitsLessAVX512Guarded(dst []byte, b []byte, c byte) {
+	if len(b) < 64 {
+		ref.MaskBitsLess(dst, b, c)
+		return
+	}
+	maskBitsLessAVX512(dst, b, c)
+}
+
+func maskBitsAnyAVX512Guarded(dst []byte, b []byte, chars uint64) {
+	if len(b) < 64 {
+		ref.MaskBitsAny(dst, b, chars)
+		return
+	}
+	maskBitsAnyAVX512(dst, b, chars)
+}
+
 func hammingU8AVX512Guarded(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
@@ -364,6 +388,9 @@ func init() {
 	s.Bytes.IndexByte = indexByteAVX512Guarded
 	s.Bytes.LastIndexByte = lastIndexByteAVX512Guarded
 	s.Bytes.PopCount = popCountAVX512Guarded
+	s.Bytes.MaskBits = maskBitsAVX512Guarded
+	s.Bytes.MaskBitsLess = maskBitsLessAVX512Guarded
+	s.Bytes.MaskBitsAny = maskBitsAnyAVX512Guarded
 	s.Bytes.Hamming = hammingU8AVX512Guarded
 	s.Bytes.HammingWords = hammingU64AVX512Guarded
 	s.Bytes.Grayscale = grayscaleU8AVX512Guarded

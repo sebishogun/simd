@@ -28,6 +28,15 @@ func lastIndexByteRVV(b []byte, c byte) int
 func popCountRVV(b []byte) int
 
 //go:noescape
+func maskBitsRVV(dst []byte, b []byte, c byte)
+
+//go:noescape
+func maskBitsLessRVV(dst []byte, b []byte, c byte)
+
+//go:noescape
+func maskBitsAnyRVV(dst []byte, b []byte, chars uint64)
+
+//go:noescape
 func hammingU8RVV(a []byte, b []byte) int
 
 //go:noescape

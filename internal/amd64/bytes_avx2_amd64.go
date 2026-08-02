@@ -28,6 +28,15 @@ func lastIndexByteAVX2(b []byte, c byte) int
 func popCountAVX2(b []byte) int
 
 //go:noescape
+func maskBitsAVX2(dst []byte, b []byte, c byte)
+
+//go:noescape
+func maskBitsLessAVX2(dst []byte, b []byte, c byte)
+
+//go:noescape
+func maskBitsAnyAVX2(dst []byte, b []byte, chars uint64)
+
+//go:noescape
 func hammingU8AVX2(a []byte, b []byte) int
 
 //go:noescape

@@ -546,6 +546,22 @@ type Bytes struct {
 	// spends all of them.
 	IndexAllAny func(dst []int32, b []byte, chars uint64) int
 
+	// MaskBits writes one bit per byte of b into dst, set where the byte
+	// equals c, least-significant bit first. dst must have room for
+	// (len(b)+7)/8 bytes; trailing bits of the last byte are cleared.
+	//
+	// The bitmask form of IndexAll, for callers whose next question is
+	// bitwise. See the kernel comment in csrc/bytes.c for when it wins.
+	MaskBits func(dst, b []byte, c byte)
+
+	// MaskBitsAny is MaskBits for a set of up to eight bytes packed one per
+	// byte of chars, the same encoding IndexAllAny takes.
+	MaskBitsAny func(dst, b []byte, chars uint64)
+
+	// MaskBitsLess is MaskBits for an inequality: the bit is set where the
+	// byte is below c.
+	MaskBitsLess func(dst, b []byte, c byte)
+
 	// IndexAny and CountAny match against a set of bytes rather than one.
 	IndexAny, CountAny func(b, chars []byte) int
 	// IndexNotAny is the complement: the first byte that is *not* in the set.

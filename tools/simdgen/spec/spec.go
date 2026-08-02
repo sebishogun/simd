@@ -239,6 +239,21 @@ type Kernel struct {
 	// kernel, handed one length, would compare the common prefix and say true.
 	RefWhen string
 
+	// UnclampedDst says the destination is not the same length as the source,
+	// so the threshold guard must not fold len(dst) into its minimum.
+	//
+	// The guard normally clamps every slice operand to the shortest, because
+	// for an elementwise kernel they all hold the same number of elements and
+	// handing the kernel a length longer than the shortest is a read past the
+	// end. A bitmask destination holds one *bit* per source byte, so it is an
+	// eighth the length by construction and clamping to it would silently
+	// process an eighth of the input — which is what it did, and what the
+	// differential test against IndexAllAny caught.
+	//
+	// A kernel setting this checks the destination's size itself, on the Go
+	// side, before the call.
+	UnclampedDst bool
+
 	// Group and Field name the kernel.Ops slot this kernel fills, so the
 	// generator can emit the registration that installs it: Group "F32" and
 	// Field "Add" means the generated function is assigned to

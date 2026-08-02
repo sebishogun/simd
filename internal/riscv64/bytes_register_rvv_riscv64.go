@@ -48,6 +48,30 @@ func popCountRVVGuarded(b []byte) int {
 	return popCountRVV(b)
 }
 
+func maskBitsRVVGuarded(dst []byte, b []byte, c byte) {
+	if len(b) < 64 {
+		ref.MaskBits(dst, b, c)
+		return
+	}
+	maskBitsRVV(dst, b, c)
+}
+
+func maskBitsLessRVVGuarded(dst []byte, b []byte, c byte) {
+	if len(b) < 64 {
+		ref.MaskBitsLess(dst, b, c)
+		return
+	}
+	maskBitsLessRVV(dst, b, c)
+}
+
+func maskBitsAnyRVVGuarded(dst []byte, b []byte, chars uint64) {
+	if len(b) < 64 {
+		ref.MaskBitsAny(dst, b, chars)
+		return
+	}
+	maskBitsAnyRVV(dst, b, chars)
+}
+
 func hammingU8RVVGuarded(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
@@ -364,6 +388,9 @@ func init() {
 	s.Bytes.IndexByte = indexByteRVVGuarded
 	s.Bytes.LastIndexByte = lastIndexByteRVVGuarded
 	s.Bytes.PopCount = popCountRVVGuarded
+	s.Bytes.MaskBits = maskBitsRVVGuarded
+	s.Bytes.MaskBitsLess = maskBitsLessRVVGuarded
+	s.Bytes.MaskBitsAny = maskBitsAnyRVVGuarded
 	s.Bytes.Hamming = hammingU8RVVGuarded
 	s.Bytes.HammingWords = hammingU64RVVGuarded
 	s.Bytes.Grayscale = grayscaleU8RVVGuarded

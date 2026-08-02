@@ -119,3 +119,50 @@ func ExampleIndexAllAny() {
 	fmt.Println(pos[:n])
 	// Output: [0 4 5 7 9 10]
 }
+
+// MaskBits answers the same question as IndexAll in the form a bitwise parser
+// wants: a bit per byte rather than a list of offsets.
+func ExampleMaskBits() {
+	doc := []byte(`{"a":1}`)
+
+	mask := make([]byte, simd.MaskLen(len(doc)))
+	simd.MaskBits(mask, doc, '"')
+
+	// Bit i of mask[i/8] describes doc[i], least-significant bit first.
+	// Quotes at 1 and 3, so bits 1 and 3, printed most-significant first.
+	fmt.Printf("%08b\n", mask[0])
+	// Output: 00001010
+}
+
+// MaskBitsAny is MaskBits for a set of up to eight bytes.
+//
+// The mask is an eighth the size of the input however many bytes match, which
+// is what makes it the cheaper form on input where matches are common — and it
+// is the form to want when the next question is itself bitwise.
+func ExampleMaskBitsAny() {
+	doc := []byte(`{"a":[1,2]}`)
+
+	mask := make([]byte, simd.MaskLen(len(doc)))
+	simd.MaskBitsAny(mask, doc, "{}[]:,")
+
+	var at []int
+	for i := range doc {
+		if mask[i/8]&(1<<(i%8)) != 0 {
+			at = append(at, i)
+		}
+	}
+	fmt.Println(at)
+	// Output: [0 4 5 7 9 10]
+}
+
+// MaskBitsLess covers the range tests a set of eight cannot express.
+func ExampleMaskBitsLess() {
+	// A JSON string may not contain a raw control character.
+	s := []byte("ok\tno")
+
+	mask := make([]byte, simd.MaskLen(len(s)))
+	simd.MaskBitsLess(mask, s, 0x20)
+
+	fmt.Println(mask[0] != 0)
+	// Output: true
+}

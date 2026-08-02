@@ -1,5 +1,53 @@
 # Changelog
 
+## v1.4.0
+
+**`MaskBits`, `MaskBitsAny`, `MaskBitsLess`** — one bit per input byte instead
+of a list of offsets.
+
+`IndexAll` answers "where does this byte occur" with four bytes per match. When
+matches are rare that is the small answer. When they are common it is not: a
+JSON document is around 40% structural characters, so the offset list comes out
+four times the size of the document it describes, and the store is most of the
+kernel's work. These write a bit per byte — an eighth of the input, whatever the
+density.
+
+Measured on 1 MiB of input with ~40% matching, against the same question asked
+as offsets:
+
+	one byte   249987 ns ->   6700 ns   37.3x   156 GB/s
+	a set      570806 ns ->  25573 ns   22.3x    41 GB/s
+	below c            —     6770 ns            155 GB/s
+
+The speed is not cleverness, it is the absence of a store. On a target with mask
+registers the whole loop is `vpcmpeqb` into a predicate and `kmovq` out of it —
+two instructions per sixty-four bytes, no compress, and no count. Without the
+compress the lane count is no longer held down to the width of an int32 index
+vector, so these run sixty-four bytes at a time where `IndexAll` runs sixteen.
+
+The point is what the caller does next. A bitmask is the right form when the
+next question is itself bitwise, and for a parser it usually is: "which quotes
+are escaped" is an add and two shifts over the backslash mask, "which bytes are
+inside a string" is a prefix XOR over the quote mask, and "which structural
+characters survive" is an and-not. All of it sixty-four bytes at a time with no
+per-match work. In simdjson, replacing offset lists with these took stage one
+from 1.76 ms to 370 µs on a 1.17 MB document.
+
+`MaskBitsLess` exists for the range tests a set of eight cannot express —
+finding the control characters a JSON string may not contain is thirty-two
+values as a set and one call as a comparison.
+
+Reaches amd64 (sse2/avx2/avx512), arm64 (neon/sve2) and riscv64 (rvv). ppc64le,
+s390x and loong64 decline them for the usual ABI reasons and run the portable
+path. 6,751 kernels in total.
+
+Also in this release: `spec.Kernel.UnclampedDst`, for kernels whose destination
+is not the same length as their source. The generated threshold guard clamps
+every slice operand to the shortest, which is right for an elementwise kernel
+and silently processes an eighth of the input when the destination holds one bit
+per source byte. It did exactly that until the differential test against
+`IndexAllAny` caught it.
+
 ## v1.3.0
 
 **`IndexAllAny`** — the positions of every byte matching any of up to eight

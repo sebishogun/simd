@@ -929,6 +929,42 @@ func Bytes() []spec.Kernel {
 		byteScan("simd_last_index_byte", "lastIndexByte", "LastIndexByte",
 			"LastIndexByte", spec.Int, true),
 		byteScan("simd_popcount", "popCount", "PopCount", "PopCount", spec.Int, false),
+		{
+			CName: "simd_mask_bits", GoName: "maskBits",
+			Group: "Bytes", Field: "MaskBits", RefFunc: "MaskBits",
+			Params: []spec.Param{
+				sl("dst", spec.SliceU8), sl("b", spec.SliceU8), sl("c", spec.U8),
+			},
+			CArgs: []spec.CArg{
+				base("dst"), base("b"), val("c"), lenOf("b"),
+			},
+			UnclampedDst: true,
+			Threshold:    thScan,
+		},
+		{
+			CName: "simd_mask_bits_lt", GoName: "maskBitsLess",
+			Group: "Bytes", Field: "MaskBitsLess", RefFunc: "MaskBitsLess",
+			Params: []spec.Param{
+				sl("dst", spec.SliceU8), sl("b", spec.SliceU8), sl("c", spec.U8),
+			},
+			CArgs: []spec.CArg{
+				base("dst"), base("b"), val("c"), lenOf("b"),
+			},
+			UnclampedDst: true,
+			Threshold:    thScan,
+		},
+		{
+			CName: "simd_mask_bits_any", GoName: "maskBitsAny",
+			Group: "Bytes", Field: "MaskBitsAny", RefFunc: "MaskBitsAny",
+			Params: []spec.Param{
+				sl("dst", spec.SliceU8), sl("b", spec.SliceU8), sl("chars", spec.U64),
+			},
+			CArgs: []spec.CArg{
+				base("dst"), base("b"), val("chars"), lenOf("b"),
+			},
+			UnclampedDst: true,
+			Threshold:    thScan,
+		},
 		// Hamming distance, the fused popcount(a^b). Both halves already
 		// exist as Xor and PopCount; this is here because chaining them costs
 		// an intermediate buffer and three passes where one will do.

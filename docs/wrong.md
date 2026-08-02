@@ -2859,3 +2859,42 @@ because nothing fails when a benchmark is merely slower.
 Worth noting what the same run said in the other direction: fourteen benchmarks
 were *faster* than the baseline by 25–52%, `Median` and `ParseInts` among them.
 A stale baseline hides improvements exactly as well as it hides regressions.
+
+## 74. The portable spelling of a movemask is not a movemask
+
+**What was believed.** That turning a vector comparison into one bit per lane
+could be written the way everything else in `csrc` is written — as the plain
+loop LLVM is expected to recognise:
+
+```c
+u64 bits = 0;
+for (int j = 0; j < 64; j++) bits |= (u64)(hit[j] != 0) << j;
+```
+
+This is the same reasoning that produced `POPCOUNT_AT` in `compress.c`, and the
+comment there is explicit about why: "the byte sum is what every target
+vectorizes". Extending it to a bit-gather was the obvious next step.
+
+**What happened.** It was compiled and read before being committed to, which is
+the only reason it is an entry here and not a shipped kernel. Against
+`-march=x86-64-v4` the loop version produces a stack frame, a saved base
+pointer, a 288-byte stack allocation, a spill of both halves of the vector to
+memory and a scalar loop over them. The bit-cast version:
+
+```
+vpcmpeqb (%rsi,%r8), %zmm0, %k0
+kmovq    %k0, (%rdi,%r10,8)
+```
+
+Two instructions per sixty-four bytes.
+
+**What was done.** `__builtin_bit_cast(unsigned long long, m)` on a `_Bool`
+ext_vector, wrapped in the `STORE_MASK_BITS` macro so the reason is recorded
+next to the code that depends on it.
+
+**What to take from it.** The "write it plainly and let LLVM see it" rule that
+holds across the rest of this repository has an edge: it holds for arithmetic
+LLVM has a vectorizer for, and a lane-to-bit gather is not that — there is no
+loop shape it reconstructs into a movemask. Where the target has a single
+instruction for the whole operation, the builtin that names it is not premature.
+Compiling both and reading the output took two minutes.

@@ -84,3 +84,52 @@ func IndexAllAny(dst []int32, b []byte, chars uint64) int {
 	}
 	return k
 }
+
+// MaskBits writes one bit per byte of b into dst, set where the byte equals c,
+// least-significant bit first: bit i of dst[i/8] describes b[i].
+//
+// dst must have room for (len(b)+7)/8 bytes. Trailing bits of the last byte
+// are cleared, so the mask of a slice whose length is not a multiple of eight
+// has no set bits past its end.
+func MaskBits(dst, b []byte, c byte) {
+	for i := 0; i < len(b); i++ {
+		if i%8 == 0 {
+			dst[i/8] = 0
+		}
+		if b[i] == c {
+			dst[i/8] |= 1 << (i % 8)
+		}
+	}
+}
+
+// MaskBitsAny is [MaskBits] for a set of up to eight bytes packed one per byte
+// of chars, the same encoding [IndexAllAny] takes.
+func MaskBitsAny(dst, b []byte, chars uint64) {
+	c := [8]byte{
+		byte(chars), byte(chars >> 8), byte(chars >> 16), byte(chars >> 24),
+		byte(chars >> 32), byte(chars >> 40), byte(chars >> 48), byte(chars >> 56),
+	}
+	for i := 0; i < len(b); i++ {
+		if i%8 == 0 {
+			dst[i/8] = 0
+		}
+		x := b[i]
+		if x == c[0] || x == c[1] || x == c[2] || x == c[3] ||
+			x == c[4] || x == c[5] || x == c[6] || x == c[7] {
+			dst[i/8] |= 1 << (i % 8)
+		}
+	}
+}
+
+// MaskBitsLess is [MaskBits] for an inequality: the bit is set where the byte
+// is below c.
+func MaskBitsLess(dst, b []byte, c byte) {
+	for i := 0; i < len(b); i++ {
+		if i%8 == 0 {
+			dst[i/8] = 0
+		}
+		if b[i] < c {
+			dst[i/8] |= 1 << (i % 8)
+		}
+	}
+}

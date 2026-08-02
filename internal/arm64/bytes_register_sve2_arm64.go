@@ -48,6 +48,30 @@ func popCountSVE2Guarded(b []byte) int {
 	return popCountSVE2(b)
 }
 
+func maskBitsSVE2Guarded(dst []byte, b []byte, c byte) {
+	if len(b) < 64 {
+		ref.MaskBits(dst, b, c)
+		return
+	}
+	maskBitsSVE2(dst, b, c)
+}
+
+func maskBitsLessSVE2Guarded(dst []byte, b []byte, c byte) {
+	if len(b) < 64 {
+		ref.MaskBitsLess(dst, b, c)
+		return
+	}
+	maskBitsLessSVE2(dst, b, c)
+}
+
+func maskBitsAnySVE2Guarded(dst []byte, b []byte, chars uint64) {
+	if len(b) < 64 {
+		ref.MaskBitsAny(dst, b, chars)
+		return
+	}
+	maskBitsAnySVE2(dst, b, chars)
+}
+
 func hammingU8SVE2Guarded(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
@@ -364,6 +388,9 @@ func init() {
 	s.Bytes.IndexByte = indexByteSVE2Guarded
 	s.Bytes.LastIndexByte = lastIndexByteSVE2Guarded
 	s.Bytes.PopCount = popCountSVE2Guarded
+	s.Bytes.MaskBits = maskBitsSVE2Guarded
+	s.Bytes.MaskBitsLess = maskBitsLessSVE2Guarded
+	s.Bytes.MaskBitsAny = maskBitsAnySVE2Guarded
 	s.Bytes.Hamming = hammingU8SVE2Guarded
 	s.Bytes.HammingWords = hammingU64SVE2Guarded
 	s.Bytes.Grayscale = grayscaleU8SVE2Guarded

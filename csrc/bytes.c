@@ -1382,3 +1382,99 @@ void simd_rgb_to_uv_u8(u8 *__restrict u, u8 *__restrict v,
     v[i] = (u8)(vv < 0 ? 0 : vv > 255 ? 255 : vv);
   }
 }
+
+// ---------------------------------------------------------------- bit masks
+
+// One bit per input byte, which is the representation a bitwise parser wants.
+//
+// IndexAll answers the same question as a list of offsets, and for a sparse
+// match that is the right answer. For a dense one it is not: a JSON document
+// is around 40% structural characters, so the offset list is four times the
+// size of the document it describes, and every consumer of it pays a scalar
+// step per match. A bitmask is an eighth of the document however dense the
+// match is, and — the reason it exists — the questions a parser asks next are
+// bitwise. "Which quotes are escaped", "which bytes are inside a string" and
+// "which structural characters survive" are all shifts, xors and and-nots over
+// the mask, sixty-four bytes of input at a time, with no per-match work at all.
+//
+// The whole loop is two instructions per sixty-four bytes on a target with
+// mask registers: compare into a predicate, store the predicate. There is no
+// compress, so unlike simd_index_all the lane count is not held down to the
+// index vector's width, and no count, so there is no reduction.
+//
+// out holds one bit per byte of b, least-significant bit first, so bit i of
+// out[i/8] describes b[i]. It must have room for (n+7)/8 bytes. Trailing bits
+// of the last byte are cleared.
+
+#define MASK_BITS_LANES 64
+typedef u8 u8xM __attribute__((ext_vector_type(MASK_BITS_LANES), aligned(1)));
+typedef _Bool maskxM __attribute__((ext_vector_type(MASK_BITS_LANES)));
+
+// STORE_MASK_BITS converts a lane-wise comparison to a bit per lane and writes
+// it. __builtin_bit_cast is what makes this two instructions: the obvious
+// portable spelling — a loop OR-ing `(hit[j] != 0) << j` — is not recognised as
+// a movemask by LLVM, and compiles to a spill of the vector to the stack and
+// sixty-four scalar loads. Measured, not assumed; see docs/wrong.md.
+#define STORE_MASK_BITS(HIT, OUT, I)                                     \
+  do {                                                                   \
+    maskxM m_ = __builtin_convertvector((HIT), maskxM);                  \
+    unsigned long long bits_ = __builtin_bit_cast(unsigned long long, m_); \
+    __builtin_memcpy((OUT) + (I) / 8, &bits_, sizeof bits_);             \
+  } while (0)
+
+void simd_mask_bits(u8 *__restrict out, const u8 *__restrict b, u8 c,
+                    isize n) {
+  isize i = 0;
+  for (; i + MASK_BITS_LANES <= n; i += MASK_BITS_LANES) {
+    u8xM v = *(const u8xM *)(b + i);
+    STORE_MASK_BITS(v == c, out, i);
+  }
+  for (; i < n; i++) {
+    if (i % 8 == 0) out[i / 8] = 0;
+    out[i / 8] |= (u8)((b[i] == c) << (i % 8));
+  }
+}
+
+// simd_mask_bits_lt is simd_mask_bits for an inequality: the bit is set where
+// the byte is below c.
+//
+// It exists for the range tests a set of eight cannot express. Finding the
+// control characters a JSON string may not contain means asking about
+// thirty-two values, which is four calls to the set form and one to this.
+void simd_mask_bits_lt(u8 *__restrict out, const u8 *__restrict b, u8 c,
+                       isize n) {
+  isize i = 0;
+  for (; i + MASK_BITS_LANES <= n; i += MASK_BITS_LANES) {
+    u8xM v = *(const u8xM *)(b + i);
+    STORE_MASK_BITS(v < c, out, i);
+  }
+  for (; i < n; i++) {
+    if (i % 8 == 0) out[i / 8] = 0;
+    out[i / 8] |= (u8)((b[i] < c) << (i % 8));
+  }
+}
+
+// simd_mask_bits_any is simd_mask_bits for a set of up to eight bytes, packed
+// one per byte of chars the way simd_index_all_any takes it. A caller with
+// fewer than eight repeats one: a duplicate compare is free.
+void simd_mask_bits_any(u8 *__restrict out, const u8 *__restrict b,
+                        unsigned long long chars, isize n) {
+  const u8 c0 = (u8)chars, c1 = (u8)(chars >> 8), c2 = (u8)(chars >> 16),
+           c3 = (u8)(chars >> 24), c4 = (u8)(chars >> 32),
+           c5 = (u8)(chars >> 40), c6 = (u8)(chars >> 48),
+           c7 = (u8)(chars >> 56);
+  isize i = 0;
+  for (; i + MASK_BITS_LANES <= n; i += MASK_BITS_LANES) {
+    u8xM v = *(const u8xM *)(b + i);
+    __typeof__(v == c0) hit = (v == c0) | (v == c1) | (v == c2) | (v == c3) |
+                              (v == c4) | (v == c5) | (v == c6) | (v == c7);
+    STORE_MASK_BITS(hit, out, i);
+  }
+  for (; i < n; i++) {
+    u8 x = b[i];
+    unsigned h = (x == c0) | (x == c1) | (x == c2) | (x == c3) | (x == c4) |
+                 (x == c5) | (x == c6) | (x == c7);
+    if (i % 8 == 0) out[i / 8] = 0;
+    out[i / 8] |= (u8)(h << (i % 8));
+  }
+}

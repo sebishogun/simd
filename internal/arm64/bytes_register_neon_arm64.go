@@ -48,6 +48,30 @@ func popCountNEONGuarded(b []byte) int {
 	return popCountNEON(b)
 }
 
+func maskBitsNEONGuarded(dst []byte, b []byte, c byte) {
+	if len(b) < 64 {
+		ref.MaskBits(dst, b, c)
+		return
+	}
+	maskBitsNEON(dst, b, c)
+}
+
+func maskBitsLessNEONGuarded(dst []byte, b []byte, c byte) {
+	if len(b) < 64 {
+		ref.MaskBitsLess(dst, b, c)
+		return
+	}
+	maskBitsLessNEON(dst, b, c)
+}
+
+func maskBitsAnyNEONGuarded(dst []byte, b []byte, chars uint64) {
+	if len(b) < 64 {
+		ref.MaskBitsAny(dst, b, chars)
+		return
+	}
+	maskBitsAnyNEON(dst, b, chars)
+}
+
 func hammingU8NEONGuarded(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
@@ -364,6 +388,9 @@ func init() {
 	s.Bytes.IndexByte = indexByteNEONGuarded
 	s.Bytes.LastIndexByte = lastIndexByteNEONGuarded
 	s.Bytes.PopCount = popCountNEONGuarded
+	s.Bytes.MaskBits = maskBitsNEONGuarded
+	s.Bytes.MaskBitsLess = maskBitsLessNEONGuarded
+	s.Bytes.MaskBitsAny = maskBitsAnyNEONGuarded
 	s.Bytes.Hamming = hammingU8NEONGuarded
 	s.Bytes.HammingWords = hammingU64NEONGuarded
 	s.Bytes.Grayscale = grayscaleU8NEONGuarded

@@ -470,6 +470,90 @@ func IndexAllAny[S Text](dst []int32, s S, chars string) int {
 	return active.Bytes.IndexAllAny(dst, textBytes(s), packed)
 }
 
+// MaskBits writes one bit per byte of s into dst, set where the byte equals c.
+//
+// Bit i of dst[i/8] describes s[i], least-significant bit first, so dst is an
+// eighth the size of s however many bytes match. dst must have room for
+// [MaskLen](len(s)) bytes; it panics otherwise, because a short mask is a
+// silently wrong answer rather than a truncated one.
+//
+// This is [IndexAll] in a different representation, and which one to want
+// depends on what happens next. A list of offsets is smaller when matches are
+// rare and is what a loop over the matches needs. A bitmask is smaller when
+// they are common, and is the right form when the next question is itself
+// bitwise — "which of these are inside a quoted string" is a shift and an
+// and-not over a mask, and a search per offset over a list.
+func MaskBits[S Text](dst []byte, s S, c byte) {
+	b := textBytes(s)
+	if len(dst) < MaskLen(len(b)) {
+		panic("simd: MaskBits: dst too short")
+	}
+	active.Bytes.MaskBits(dst, b, c)
+}
+
+// MaskBitsAny is [MaskBits] for a set: the bit is set where the byte equals any
+// of the bytes in chars.
+//
+// At most eight distinct bytes, for the reason given on [IndexAllAny]. A longer
+// set falls back to the portable path.
+func MaskBitsAny[S Text](dst []byte, s S, chars string) {
+	b := textBytes(s)
+	if len(dst) < MaskLen(len(b)) {
+		panic("simd: MaskBitsAny: dst too short")
+	}
+	if len(chars) == 0 {
+		clear(dst[:MaskLen(len(b))])
+		return
+	}
+	if len(chars) > 8 {
+		maskBitsAnyPortable(dst, b, chars)
+		return
+	}
+	var packed uint64
+	for i := 0; i < 8; i++ {
+		ch := chars[0]
+		if i < len(chars) {
+			ch = chars[i]
+		}
+		packed |= uint64(ch) << (8 * i)
+	}
+	active.Bytes.MaskBitsAny(dst, b, packed)
+}
+
+// MaskBitsLess is [MaskBits] for an inequality: the bit is set where the byte
+// is below c.
+//
+// It answers the range questions a set of eight cannot. "Is there a control
+// character here" is thirty-two values as a set and one call as a comparison.
+func MaskBitsLess[S Text](dst []byte, s S, c byte) {
+	b := textBytes(s)
+	if len(dst) < MaskLen(len(b)) {
+		panic("simd: MaskBitsLess: dst too short")
+	}
+	active.Bytes.MaskBitsLess(dst, b, c)
+}
+
+// MaskLen is how many bytes a [MaskBits] destination needs for n input bytes.
+func MaskLen(n int) int { return (n + 7) / 8 }
+
+func maskBitsAnyPortable(dst, b []byte, chars string) {
+	for i := 0; i < len(b); i++ {
+		if i%8 == 0 {
+			dst[i/8] = 0
+		}
+		hit := false
+		for j := 0; j < len(chars); j++ {
+			if chars[j] == b[i] {
+				hit = true
+				break
+			}
+		}
+		if hit {
+			dst[i/8] |= 1 << (i % 8)
+		}
+	}
+}
+
 func indexAllAnyPortable(dst []int32, b []byte, chars string) int {
 	k := 0
 	for i := 0; i < len(b); i++ {

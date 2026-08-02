@@ -28,6 +28,15 @@ func lastIndexByteSVE2(b []byte, c byte) int
 func popCountSVE2(b []byte) int
 
 //go:noescape
+func maskBitsSVE2(dst []byte, b []byte, c byte)
+
+//go:noescape
+func maskBitsLessSVE2(dst []byte, b []byte, c byte)
+
+//go:noescape
+func maskBitsAnySVE2(dst []byte, b []byte, chars uint64)
+
+//go:noescape
 func hammingU8SVE2(a []byte, b []byte) int
 
 //go:noescape

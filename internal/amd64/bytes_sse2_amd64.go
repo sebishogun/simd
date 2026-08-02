@@ -28,6 +28,15 @@ func lastIndexByteSSE2(b []byte, c byte) int
 func popCountSSE2(b []byte) int
 
 //go:noescape
+func maskBitsSSE2(dst []byte, b []byte, c byte)
+
+//go:noescape
+func maskBitsLessSSE2(dst []byte, b []byte, c byte)
+
+//go:noescape
+func maskBitsAnySSE2(dst []byte, b []byte, chars uint64)
+
+//go:noescape
 func hammingU8SSE2(a []byte, b []byte) int
 
 //go:noescape

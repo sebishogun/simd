@@ -980,7 +980,8 @@ func emitGuard(b *strings.Builder, k spec.Kernel, suffix, arch string) {
 	lenExpr, clamped := "0", ""
 	if name, ok := k.LenParam(); ok {
 		lenExpr = "len(" + name + ")"
-		if others := boundingSlices(k, name); len(others) > 0 && countLens(k) == 1 {
+		if others := boundingSlices(k, name); len(others) > 0 && countLens(k) == 1 &&
+			!k.UnclampedDst {
 			lenExpr, clamped = "n", name
 		}
 	} else if len(k.Params) > 0 {
