@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.5.0
+
+**`MaskBitsAny` gets a four-wide kernel**, chosen automatically when the set has
+four bytes or fewer.
+
+A vector unit compares every byte of the set whether or not the caller supplied
+them, so a set of four padded out to eight did twice the work for the same
+answer — and four is the size real sets tend to be. A JSON parser wants `{}[]`
+and `" \t\n\r"`; both are four.
+
+Measured on 1 MiB with ~40% of bytes matching:
+
+	{}[]           25775 ns -> 12512 ns   2.06x   84 GB/s
+	" \t\n\r"       25762 ns -> 12576 ns   2.05x   83 GB/s
+	{}[]:,         unchanged, 41 GB/s — six bytes still needs the eight-wide form
+
+The API does not change. `MaskBitsAny` dispatches on `len(chars)`, so callers
+get it for free; five to eight bytes take the existing kernel and more than
+eight still takes the portable path.
+
+This came out of profiling simdjson, where the two mask passes over the document
+were 15% of a parse and both had four-byte sets.
+
 ## v1.4.0
 
 **`MaskBits`, `MaskBitsAny`, `MaskBitsLess`** — one bit per input byte instead

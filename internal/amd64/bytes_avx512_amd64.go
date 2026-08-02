@@ -34,6 +34,9 @@ func maskBitsAVX512(dst []byte, b []byte, c byte)
 func maskBitsLessAVX512(dst []byte, b []byte, c byte)
 
 //go:noescape
+func maskBitsAny4AVX512(dst []byte, b []byte, chars uint32)
+
+//go:noescape
 func maskBitsAnyAVX512(dst []byte, b []byte, chars uint64)
 
 //go:noescape

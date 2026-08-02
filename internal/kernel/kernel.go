@@ -558,6 +558,10 @@ type Bytes struct {
 	// byte of chars, the same encoding IndexAllAny takes.
 	MaskBitsAny func(dst, b []byte, chars uint64)
 
+	// MaskBitsAny4 is MaskBitsAny for a set of at most four bytes, packed one
+	// per byte of a uint32. Half the compares of the eight-byte form.
+	MaskBitsAny4 func(dst, b []byte, chars uint32)
+
 	// MaskBitsLess is MaskBits for an inequality: the bit is set where the
 	// byte is below c.
 	MaskBitsLess func(dst, b []byte, c byte)

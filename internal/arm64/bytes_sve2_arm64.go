@@ -34,6 +34,9 @@ func maskBitsSVE2(dst []byte, b []byte, c byte)
 func maskBitsLessSVE2(dst []byte, b []byte, c byte)
 
 //go:noescape
+func maskBitsAny4SVE2(dst []byte, b []byte, chars uint32)
+
+//go:noescape
 func maskBitsAnySVE2(dst []byte, b []byte, chars uint64)
 
 //go:noescape

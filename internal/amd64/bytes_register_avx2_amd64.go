@@ -64,6 +64,14 @@ func maskBitsLessAVX2Guarded(dst []byte, b []byte, c byte) {
 	maskBitsLessAVX2(dst, b, c)
 }
 
+func maskBitsAny4AVX2Guarded(dst []byte, b []byte, chars uint32) {
+	if len(b) < 64 {
+		ref.MaskBitsAny4(dst, b, chars)
+		return
+	}
+	maskBitsAny4AVX2(dst, b, chars)
+}
+
 func maskBitsAnyAVX2Guarded(dst []byte, b []byte, chars uint64) {
 	if len(b) < 64 {
 		ref.MaskBitsAny(dst, b, chars)
@@ -390,6 +398,7 @@ func init() {
 	s.Bytes.PopCount = popCountAVX2Guarded
 	s.Bytes.MaskBits = maskBitsAVX2Guarded
 	s.Bytes.MaskBitsLess = maskBitsLessAVX2Guarded
+	s.Bytes.MaskBitsAny4 = maskBitsAny4AVX2Guarded
 	s.Bytes.MaskBitsAny = maskBitsAnyAVX2Guarded
 	s.Bytes.Hamming = hammingU8AVX2Guarded
 	s.Bytes.HammingWords = hammingU64AVX2Guarded

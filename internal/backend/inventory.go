@@ -57,6 +57,7 @@ var Inventory = []Declared{
 	{"Bytes", "LastIndexNotAny", "LastIndexNotAny", "simd_last_index_not_any"},
 	{"Bytes", "MaskBits", "MaskBits", "simd_mask_bits"},
 	{"Bytes", "MaskBitsAny", "MaskBitsAny", "simd_mask_bits_any"},
+	{"Bytes", "MaskBitsAny4", "MaskBitsAny4", "simd_mask_bits_any4"},
 	{"Bytes", "MaskBitsLess", "MaskBitsLess", "simd_mask_bits_lt"},
 	{"Bytes", "NarrowU16U8", "NarrowU16U8", "simd_narrow_u16_u8"},
 	{"Bytes", "NarrowU32U8", "NarrowU32U8", "simd_narrow_u32_u8"},

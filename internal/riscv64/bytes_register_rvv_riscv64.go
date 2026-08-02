@@ -64,6 +64,14 @@ func maskBitsLessRVVGuarded(dst []byte, b []byte, c byte) {
 	maskBitsLessRVV(dst, b, c)
 }
 
+func maskBitsAny4RVVGuarded(dst []byte, b []byte, chars uint32) {
+	if len(b) < 64 {
+		ref.MaskBitsAny4(dst, b, chars)
+		return
+	}
+	maskBitsAny4RVV(dst, b, chars)
+}
+
 func maskBitsAnyRVVGuarded(dst []byte, b []byte, chars uint64) {
 	if len(b) < 64 {
 		ref.MaskBitsAny(dst, b, chars)
@@ -390,6 +398,7 @@ func init() {
 	s.Bytes.PopCount = popCountRVVGuarded
 	s.Bytes.MaskBits = maskBitsRVVGuarded
 	s.Bytes.MaskBitsLess = maskBitsLessRVVGuarded
+	s.Bytes.MaskBitsAny4 = maskBitsAny4RVVGuarded
 	s.Bytes.MaskBitsAny = maskBitsAnyRVVGuarded
 	s.Bytes.Hamming = hammingU8RVVGuarded
 	s.Bytes.HammingWords = hammingU64RVVGuarded

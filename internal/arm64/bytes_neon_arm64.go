@@ -34,6 +34,9 @@ func maskBitsNEON(dst []byte, b []byte, c byte)
 func maskBitsLessNEON(dst []byte, b []byte, c byte)
 
 //go:noescape
+func maskBitsAny4NEON(dst []byte, b []byte, chars uint32)
+
+//go:noescape
 func maskBitsAnyNEON(dst []byte, b []byte, chars uint64)
 
 //go:noescape

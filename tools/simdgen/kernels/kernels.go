@@ -954,6 +954,18 @@ func Bytes() []spec.Kernel {
 			Threshold:    thScan,
 		},
 		{
+			CName: "simd_mask_bits_any4", GoName: "maskBitsAny4",
+			Group: "Bytes", Field: "MaskBitsAny4", RefFunc: "MaskBitsAny4",
+			Params: []spec.Param{
+				sl("dst", spec.SliceU8), sl("b", spec.SliceU8), sl("chars", spec.U32),
+			},
+			CArgs: []spec.CArg{
+				base("dst"), base("b"), val("chars"), lenOf("b"),
+			},
+			UnclampedDst: true,
+			Threshold:    thScan,
+		},
+		{
 			CName: "simd_mask_bits_any", GoName: "maskBitsAny",
 			Group: "Bytes", Field: "MaskBitsAny", RefFunc: "MaskBitsAny",
 			Params: []spec.Param{

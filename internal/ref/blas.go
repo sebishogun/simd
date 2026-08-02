@@ -133,3 +133,18 @@ func MaskBitsLess(dst, b []byte, c byte) {
 		}
 	}
 }
+
+// MaskBitsAny4 is [MaskBitsAny] for a set of at most four bytes, packed one per
+// byte of a uint32.
+func MaskBitsAny4(dst, b []byte, chars uint32) {
+	c := [4]byte{byte(chars), byte(chars >> 8), byte(chars >> 16), byte(chars >> 24)}
+	for i := 0; i < len(b); i++ {
+		if i%8 == 0 {
+			dst[i/8] = 0
+		}
+		x := b[i]
+		if x == c[0] || x == c[1] || x == c[2] || x == c[3] {
+			dst[i/8] |= 1 << (i % 8)
+		}
+	}
+}

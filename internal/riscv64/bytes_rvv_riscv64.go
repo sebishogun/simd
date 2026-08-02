@@ -34,6 +34,9 @@ func maskBitsRVV(dst []byte, b []byte, c byte)
 func maskBitsLessRVV(dst []byte, b []byte, c byte)
 
 //go:noescape
+func maskBitsAny4RVV(dst []byte, b []byte, chars uint32)
+
+//go:noescape
 func maskBitsAnyRVV(dst []byte, b []byte, chars uint64)
 
 //go:noescape

@@ -310,7 +310,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-467 exported functions and 6,751 generated kernels across nine targets. The
+467 exported functions and 6,757 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over
@@ -319,12 +319,12 @@ counts once in each.
 
 | | kernels | skipped | dominant reason for skips |
 |---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2527 | 90 | LLVM declined to vectorize |
-| arm64 (neon/sve2) | 1629 | 117 | LLVM declined to vectorize |
-| riscv64 (rvv) | 861 | 14 | LLVM declined to vectorize |
-| loong64 (lasx) | 717 | 154 | `$fp`, then `.L0` references |
-| ppc64le (vsx) | 598 | 273 | `r30`, then LLVM refusals |
-| s390x (vx) | 419 | 452 | `r13` — an ABI wall, see below |
+| amd64 (sse2/avx2/avx512) | 2530 | 90 | LLVM declined to vectorize |
+| arm64 (neon/sve2) | 1631 | 117 | LLVM declined to vectorize |
+| riscv64 (rvv) | 862 | 14 | LLVM declined to vectorize |
+| loong64 (lasx) | 717 | 155 | `$fp`, then `.L0` references |
+| ppc64le (vsx) | 598 | 274 | `r30`, then LLVM refusals |
+| s390x (vx) | 419 | 453 | `r13` — an ABI wall, see below |
 
 Most remaining skips are in the `Fast*` tier, which is the newest and least
 portable. Where a target declines a `Fast*` kernel the accurate kernel stands
@@ -473,7 +473,7 @@ the missing primitive — `IndexAll` took a single byte, so six JSON delimiters
 meant six reads of the document. `IndexAllAny` closed it in one release, and
 profiling the result named the next one: on input where matches are common, a
 list of offsets is larger than the input and the store is most of the work. The
-`MaskBits` family in v1.4.0 came from that, and took simdjson's structural pass
+`MaskBits` family in v1.5.0 came from that, and took simdjson's structural pass
 from 1.76 ms to 370 µs.
 
 ## Why this exists
@@ -546,7 +546,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.4.0.** The API is stable: every exported function keeps its name,
+**v1.5.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.
