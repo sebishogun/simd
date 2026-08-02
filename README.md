@@ -463,7 +463,7 @@ what the code can do, rather than a wrapper around the API.
 | | | |
 |---|---|---|
 | [**simdblas**](https://github.com/sebishogun/simdblas) | A BLAS backend for [gonum](https://github.com/gonum/gonum) | One `blas64.Use` call and `mat`, `stat` and `optimize` run on it. Covariance plus Cholesky 4.4×, QR 2.0×, `mat.Mul` 4.3×. |
-| [**simdjson**](https://github.com/sebishogun/simdjson) | Structural-index JSON parsing | 6.8–8.0× `encoding/json` for field extraction, and 1.4–1.8× [minio/simdjson-go](https://github.com/minio/simdjson-go) — which is amd64-only. |
+| [**simdjson**](https://github.com/sebishogun/simdjson) | Structural-index JSON parsing | 6.6× `encoding/json` for field extraction, and 1.4–1.7× [minio/simdjson-go](https://github.com/minio/simdjson-go) — which is amd64-only. Its structural pass is built on `MaskBits`. |
 | [**simdcsv**](https://github.com/sebishogun/simdcsv) | CSV reading | 1.7–2.1× `encoding/csv` on unquoted data, with fields as subslices rather than copies. |
 | [**simdvec**](https://github.com/sebishogun/simdvec) | Embedding search | 18–38× a hand-written loop; the whole index scan is one matrix-vector product. |
 
