@@ -143,21 +143,44 @@ func BenchmarkTextTrimSpace(b *testing.B) {
 	}
 }
 
+// unicodeCorpus is text that actually needs validating. An all-ASCII corpus
+// measures how fast a validator can decline to do its job, which is a real
+// case — most text is ASCII — but it is not the only one, and an
+// implementation can be quick at it while being slower than the standard
+// library at everything else.
+func unicodeCorpus(n int) string {
+	const unit = "こんにちは、世界。The quick brown fox — Ωμέγα, Ñoño, «naïve» — 早い茶色の狐。"
+	var b strings.Builder
+	for b.Len() < n+8 {
+		b.WriteString(unit)
+	}
+	s := b.String()
+	for n > 0 && !utf8.ValidString(s[:n]) {
+		n-- // do not cut a rune in half; that would measure the error path
+	}
+	return s[:n]
+}
+
 func BenchmarkTextValidUTF8(b *testing.B) {
-	for _, n := range textSizes {
-		s := textCorpus(n)
-		b.Run(fmt.Sprintf("n=%d/impl=simd", n), func(b *testing.B) {
-			b.SetBytes(int64(n))
-			for b.Loop() {
-				sinkTextBool = simd.ValidUTF8(s)
-			}
-		})
-		b.Run(fmt.Sprintf("n=%d/impl=std", n), func(b *testing.B) {
-			b.SetBytes(int64(n))
-			for b.Loop() {
-				sinkTextBool = utf8.ValidString(s)
-			}
-		})
+	for _, corpus := range []struct {
+		name string
+		gen  func(int) string
+	}{{"ascii", textCorpus}, {"unicode", unicodeCorpus}} {
+		for _, n := range textSizes {
+			s := corpus.gen(n)
+			b.Run(fmt.Sprintf("text=%s/n=%d/impl=simd", corpus.name, n), func(b *testing.B) {
+				b.SetBytes(int64(len(s)))
+				for b.Loop() {
+					sinkTextBool = simd.ValidUTF8(s)
+				}
+			})
+			b.Run(fmt.Sprintf("text=%s/n=%d/impl=std", corpus.name, n), func(b *testing.B) {
+				b.SetBytes(int64(len(s)))
+				for b.Loop() {
+					sinkTextBool = utf8.ValidString(s)
+				}
+			})
+		}
 	}
 }
 

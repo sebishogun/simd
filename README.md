@@ -222,7 +222,8 @@ already hand-written assembly on four of the six architectures. Geomean +186%.
 | `IndexAny` n=1 MiB | +1084% |
 | `Index` n=1 MiB | +623% |
 | `IndexAll` n=1 MiB | +135% |
-| `ValidUTF8` n=1 MiB | +54% |
+| `ValidUTF8` n=1 MiB, non-ASCII | +332% |
+| `ValidUTF8` n=1 MiB, ASCII | +58% |
 | `TrimSpaceASCII` | +29% |
 
 **Against `encoding/base64`:** −42% to −63%, +74% throughput.
