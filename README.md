@@ -525,7 +525,7 @@ numeric kernels.
 
 ## Where the obvious answer was wrong
 
-[**docs/wrong.md**](docs/wrong.md) records 74 things a competent person would
+[**docs/wrong.md**](docs/wrong.md) records 75 things a competent person would
 have assumed that turned out false, and what each cost. Among them:
 
 - A register can be reserved by *value* rather than by name, which makes it

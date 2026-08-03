@@ -2898,3 +2898,38 @@ LLVM has a vectorizer for, and a lane-to-bit gather is not that — there is no
 loop shape it reconstructs into a movemask. Where the target has a single
 instruction for the whole operation, the builtin that names it is not premature.
 Compiling both and reading the output took two minutes.
+
+## The has-a-zero-byte trick does not say where the zero byte is
+
+`(x - lo) &^ x & hi` is the standard test for "does this word contain a zero
+byte", and it is correct for that question, which is nearly always the question.
+It is not correct for "which bytes are zero". The subtraction borrows across
+byte boundaries, so a zero byte can set the flag on its neighbour.
+
+That distinction does not matter anywhere this expression was already used --
+`OR_ANY` reduces the whole accumulator to one bit and never looks at a lane --
+and it is the whole answer for the mask builders, which write one bit per byte
+into a buffer that a parser then indexes. A bit in the wrong place is a wrong
+answer, not a slow one.
+
+Rewriting `ref.MaskBits`, `MaskBitsAny`, `MaskBitsAny4` and `MaskBitsLess` word
+at a time with the familiar expression produced masks that were wrong for
+`"\x00"` at byte 1, for every byte above 0x7f under `MaskBitsLess`, and for
+whitespace next to a match. `GOSIMD=scalar` in `make test-tiers` caught all of
+it; the conformance differential did not, because it works on inputs above the
+dispatch threshold, where the kernels answer and the portable path is never
+reached.
+
+The exact forms:
+
+	zero:  ^(((x & lo7) + lo7) | x | lo7)     no byte of (x&lo7)+lo7 exceeds 0xfe
+	less:  ^((x&^hi | hi) - lo*c) &^ x & hi   0x80 + low7 - c cannot go negative
+
+Both replace a borrow that crosses bytes with one that cannot.
+
+**The rule.** An expression that reduces to one bit and an expression that
+answers per lane are different expressions, and the well-known one is usually
+the first. Check which question the caller is asking before reusing it -- and
+run the tier lane, because the portable path is the one the differential suite
+cannot see.
+
