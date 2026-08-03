@@ -268,6 +268,13 @@ func indexAnyRVVGuarded(b []byte, chars []byte) int {
 	return indexAnyRVV(b, chars)
 }
 
+func indexAnyOrLessRVVGuarded(b []byte, chars []byte, lo byte) int {
+	if len(b) < 64 {
+		return ref.IndexAnyOrLess(b, chars, lo)
+	}
+	return indexAnyOrLessRVV(b, chars, lo)
+}
+
 func indexNotAnyRVVGuarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
@@ -423,6 +430,7 @@ func init() {
 	s.Bytes.CommonPrefix = commonPrefixRVVGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIIRVVGuarded
 	s.Bytes.IndexAny = indexAnyRVVGuarded
+	s.Bytes.IndexAnyOrLess = indexAnyOrLessRVVGuarded
 	s.Bytes.IndexNotAny = indexNotAnyRVVGuarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyRVVGuarded
 	s.Bytes.CountAny = countAnyRVVGuarded

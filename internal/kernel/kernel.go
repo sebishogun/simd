@@ -568,6 +568,10 @@ type Bytes struct {
 
 	// IndexAny and CountAny match against a set of bytes rather than one.
 	IndexAny, CountAny func(b, chars []byte) int
+
+	// IndexAnyOrLess folds a threshold into IndexAny: the first byte that is in
+	// the set or below lo. One pass and one early exit instead of two of each.
+	IndexAnyOrLess func(b, chars []byte, lo byte) int
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

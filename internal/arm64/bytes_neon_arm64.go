@@ -109,6 +109,9 @@ func equalFoldASCIINEON(a []byte, b []byte) bool
 func indexAnyNEON(b []byte, chars []byte) int
 
 //go:noescape
+func indexAnyOrLessNEON(b []byte, chars []byte, lo byte) int
+
+//go:noescape
 func indexNotAnyNEON(b []byte, chars []byte) int
 
 //go:noescape

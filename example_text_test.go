@@ -31,6 +31,14 @@ func ExampleIndexAny() {
 	// Output: 3
 }
 
+// IndexAnyOrLess adds a threshold to that set, which is what an encoder wants:
+// the next byte that has to be rewritten is either punctuation it cares about
+// or any control character at all.
+func ExampleIndexAnyOrLess() {
+	fmt.Println(simd.IndexAnyOrLess("plain text\tthen a tab", `"\\`, 0x20))
+	// Output: 10
+}
+
 func ExampleIndexNotAny() {
 	fmt.Println(simd.IndexNotAny("   indented", " "))
 	// Output: 3

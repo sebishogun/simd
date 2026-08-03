@@ -268,6 +268,13 @@ func indexAnyNEONGuarded(b []byte, chars []byte) int {
 	return indexAnyNEON(b, chars)
 }
 
+func indexAnyOrLessNEONGuarded(b []byte, chars []byte, lo byte) int {
+	if len(b) < 64 {
+		return ref.IndexAnyOrLess(b, chars, lo)
+	}
+	return indexAnyOrLessNEON(b, chars, lo)
+}
+
 func indexNotAnyNEONGuarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
@@ -423,6 +430,7 @@ func init() {
 	s.Bytes.CommonPrefix = commonPrefixNEONGuarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIINEONGuarded
 	s.Bytes.IndexAny = indexAnyNEONGuarded
+	s.Bytes.IndexAnyOrLess = indexAnyOrLessNEONGuarded
 	s.Bytes.IndexNotAny = indexNotAnyNEONGuarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyNEONGuarded
 	s.Bytes.CountAny = countAnyNEONGuarded

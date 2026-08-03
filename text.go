@@ -122,6 +122,26 @@ func IndexAny[S, T Text](s S, chars T) int {
 	return active.Bytes.IndexAny(textBytes(s), textBytes(chars))
 }
 
+// IndexAnyOrLess returns the index of the first byte of s that is either in
+// chars or numerically below lo, or -1 if no byte is either.
+//
+// This is [IndexAny] with a threshold folded in, and it exists because the
+// question callers actually have is usually both at once: find the next byte
+// that is not ordinary text — a delimiter, a quote, a backslash, or any
+// control character. Asking separately means two scans over the same bytes and
+// then taking the smaller answer, which costs twice as much and, on a string
+// that answers immediately, twice as much of nothing.
+//
+//	// The inner loop of a JSON string encoder: copy up to the next byte that
+//	// has to be rewritten, and start again after it.
+//	n := simd.IndexAnyOrLess(s, `"\`, 0x20)
+//
+// lo of 0 excludes nothing, since no byte is below it, and the call is then
+// exactly [IndexAny].
+func IndexAnyOrLess[S, T Text](s S, chars T, lo byte) int {
+	return active.Bytes.IndexAnyOrLess(textBytes(s), textBytes(chars), lo)
+}
+
 // IndexNotAny returns the index of the first byte of s that is *not* in chars,
 // or -1 if every byte is.
 //

@@ -32,6 +32,37 @@ simd.CountAny("a,b;c,d", ",;")     // 3
 delimiter, whichever it is" would otherwise call `IndexByte` once per delimiter
 and take the minimum, reading the input once per delimiter. This reads it once.
 
+`IndexAnyOrLess` is that argument applied once more. An encoder does not want
+"the next quote" or "the next control character" — it wants whichever comes
+first, and asking separately means two scans and then a comparison:
+
+```go
+n := simd.IndexAnyOrLess(s, `"\`, 0x20) // quote, backslash, or any control
+```
+
+That is the whole inner loop of a JSON or CSV string encoder: copy up to `n`
+verbatim, rewrite the one byte at `n`, and start again after it. Against the
+word-at-a-time version of the same scan, on a string with nothing to rewrite:
+
+| bytes | 8-byte words | `IndexAnyOrLess` | |
+|---|---|---|---|
+| 32 | 13.6 ns | 22.3 ns | word loop wins |
+| 64 | 26.5 | 6.7 | 3.9× |
+| 256 | 104.8 | 14.9 | 7.0× |
+| 4096 | 1652 | 190.8 | 8.7× |
+
+Below 64 bytes the call lands on the portable path, which rebuilds the set
+table each time; the crossover and the dispatch threshold are the same number
+by construction. Keep a word-at-a-time fallback for short strings if you are
+encoding many of them, which an encoder usually is — keys are short.
+
+**The set you choose decides whether any of this pays.** A set whose members
+appear often makes every run short, and a short run cannot cover the cost of
+the call. Adding `<`, `>`, `&` and `0xE2` to the set above — which is what
+matching `encoding/json`'s HTML escaping needs — made it *slower* than the word
+loop on English prose, because `0xE2` leads U+2014 and U+2026 and the scan then
+stops at every dash and ellipsis.
+
 ### Finding every occurrence at once
 
 ```go

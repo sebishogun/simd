@@ -90,6 +90,20 @@ func countSeq(haystack, needle []byte) int {
 	return bytes.Count(haystack, needle)
 }
 
+// indexAnyOrLess is indexAny with a threshold folded in: the first byte that is
+// in the set or below lo. Callers want the two questions answered together
+// because the answer they act on is whichever comes first, and asking twice
+// means two scans and a comparison of the results.
+func indexAnyOrLess(b, chars []byte, lo byte) int {
+	set := makeCharSet(chars)
+	for i := range b {
+		if b[i] < lo || set.has(b[i]) {
+			return i
+		}
+	}
+	return -1
+}
+
 // indexNotAny is the complement of indexAny: the first byte that is not in the
 // set, or -1 if every byte is.
 //
@@ -271,6 +285,9 @@ func ReplaceByte(dst, b []byte, old, with byte) { replaceByte(dst, b, old, with)
 func Index(haystack, needle []byte) int { return index(haystack, needle) }
 
 func ValidUTF8(b []byte) bool { return validUTF8(b) }
+
+// IndexAnyOrLess is exported for the dispatch table and the differential test.
+func IndexAnyOrLess(b, chars []byte, lo byte) int { return indexAnyOrLess(b, chars, lo) }
 
 // The UTF-16 fast path. These three define the semantics the kernels must
 // match: an offset that is len(b) when nothing matched — not -1, because the

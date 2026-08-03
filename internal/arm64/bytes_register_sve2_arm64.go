@@ -268,6 +268,13 @@ func indexAnySVE2Guarded(b []byte, chars []byte) int {
 	return indexAnySVE2(b, chars)
 }
 
+func indexAnyOrLessSVE2Guarded(b []byte, chars []byte, lo byte) int {
+	if len(b) < 64 {
+		return ref.IndexAnyOrLess(b, chars, lo)
+	}
+	return indexAnyOrLessSVE2(b, chars, lo)
+}
+
 func indexNotAnySVE2Guarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
@@ -423,6 +430,7 @@ func init() {
 	s.Bytes.CommonPrefix = commonPrefixSVE2Guarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIISVE2Guarded
 	s.Bytes.IndexAny = indexAnySVE2Guarded
+	s.Bytes.IndexAnyOrLess = indexAnyOrLessSVE2Guarded
 	s.Bytes.IndexNotAny = indexNotAnySVE2Guarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnySVE2Guarded
 	s.Bytes.CountAny = countAnySVE2Guarded

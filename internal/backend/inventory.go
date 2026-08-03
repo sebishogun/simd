@@ -47,6 +47,7 @@ var Inventory = []Declared{
 	{"Bytes", "IndexAll", "IndexAll", "simd_index_all"},
 	{"Bytes", "IndexAllAny", "IndexAllAny", "simd_index_all_any"},
 	{"Bytes", "IndexAny", "IndexAny", "simd_index_any"},
+	{"Bytes", "IndexAnyOrLess", "IndexAnyOrLess", "simd_index_any_or_less"},
 	{"Bytes", "IndexByte", "IndexByte", "simd_index_byte"},
 	{"Bytes", "IndexNonASCII", "IndexNonASCII", "simd_index_nonascii"},
 	{"Bytes", "IndexNonASCII16", "IndexNonASCII16", "simd_index_nonascii16"},

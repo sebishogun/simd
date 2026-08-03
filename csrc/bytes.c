@@ -261,6 +261,43 @@ void simd_index_any(isize *__restrict out, const u8 *__restrict b,
   *out = -1;
 }
 
+// simd_index_any_or_less returns the offset of the first byte of b that is
+// either in set or below lo, or -1.
+//
+// The two questions separately are simd_index_any and a threshold compare, and
+// asking them separately means two passes over the string and two answers to
+// reconcile. Asked together it is one pass with one more comparison per
+// register, and — the part that matters — one early exit, so a string whose
+// first byte already answers it costs one block rather than two full scans.
+//
+// The shape callers want it for is "find the next byte that is not ordinary
+// text": a delimiter, a quote, a backslash, or any control character. That is
+// the inner loop of JSON and CSV encoding, of header validation, and of every
+// escape routine that copies runs verbatim between the bytes it has to rewrite.
+void simd_index_any_or_less(isize *__restrict out, const u8 *__restrict b,
+                            const u8 *__restrict set, isize n, isize k,
+                            u8 lo) {
+  isize i = 0;
+  for (; i + BYTE_LANES <= n; i += BYTE_LANES) {
+    u8xB v = VLOAD(b, i);
+    u8xB hit = (u8xB)(v < SPLAT(u8xB, lo));
+    for (isize s = 0; s < k; s++) hit |= (u8xB)(v == SPLAT(u8xB, set[s]));
+    if (OR_ANY(hit)) break;
+  }
+  for (; i < n; i++) {
+    if (b[i] < lo) {
+      *out = i;
+      return;
+    }
+    for (isize s = 0; s < k; s++)
+      if (b[i] == set[s]) {
+        *out = i;
+        return;
+      }
+  }
+  *out = -1;
+}
+
 void simd_count_any(isize *__restrict out, const u8 *__restrict b,
                     const u8 *__restrict set, isize n, isize k) {
   isize total = 0;

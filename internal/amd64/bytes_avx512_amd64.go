@@ -109,6 +109,9 @@ func equalFoldASCIIAVX512(a []byte, b []byte) bool
 func indexAnyAVX512(b []byte, chars []byte) int
 
 //go:noescape
+func indexAnyOrLessAVX512(b []byte, chars []byte, lo byte) int
+
+//go:noescape
 func indexNotAnyAVX512(b []byte, chars []byte) int
 
 //go:noescape

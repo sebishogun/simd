@@ -1123,6 +1123,17 @@ func Bytes() []spec.Kernel {
 			Threshold: thScan,
 		},
 		{
+			// Six arguments, which is the ABI limit on amd64 and so the widest
+			// a kernel here can be.
+			CName: "simd_index_any_or_less", GoName: "indexAnyOrLess",
+			Group: "Bytes", Field: "IndexAnyOrLess", RefFunc: "IndexAnyOrLess",
+			Params: []spec.Param{sl("b", spec.SliceU8), sl("chars", spec.SliceU8),
+				{Name: "lo", Type: spec.U8}},
+			Result:    &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:     []spec.CArg{out(), base("b"), base("chars"), lenOf("b"), lenOf("chars"), val("lo")},
+			Threshold: thScan,
+		},
+		{
 			// The complement of IndexAny, and the primitive under trimming.
 			CName: "simd_index_not_any", GoName: "indexNotAny",
 			Group: "Bytes", Field: "IndexNotAny", RefFunc: "IndexNotAny",

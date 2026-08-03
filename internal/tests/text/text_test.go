@@ -131,6 +131,39 @@ func TestByteScansAgainstStdlib(t *testing.T) {
 	}
 }
 
+// TestIndexAnyOrLess checks the fused scan against asking the two questions
+// separately, which is what it replaces. The interesting inputs are the ones
+// where both answers exist and they differ, so lo is varied above and below
+// the bytes the corpus actually contains rather than fixed at 0x20.
+func TestIndexAnyOrLess(t *testing.T) {
+	for _, s := range corpus() {
+		b := []byte(s)
+		for _, set := range cutsets {
+			for _, lo := range []byte{0, 1, 0x20, 0x41, 0x61, 0x80, 0xFF} {
+				want := -1
+				for i := 0; i < len(b); i++ {
+					if b[i] < lo || bytes.IndexByte([]byte(set), b[i]) >= 0 {
+						want = i
+						break
+					}
+				}
+				if got := simd.IndexAnyOrLess(s, set, lo); got != want {
+					t.Fatalf("IndexAnyOrLess(%q, %q, %#02x) = %d, want %d",
+						trunc(s), set, lo, got, want)
+				}
+				if got := simd.IndexAnyOrLess(b, []byte(set), lo); got != want {
+					t.Fatalf("IndexAnyOrLess([]byte %q, %q, %#02x) = %d, want %d",
+						trunc(s), set, lo, got, want)
+				}
+			}
+			// lo of 0 excludes nothing, so the call is exactly IndexAny.
+			if got, w := simd.IndexAnyOrLess(s, set, 0), simd.IndexAny(s, set); got != w {
+				t.Fatalf("IndexAnyOrLess(%q, %q, 0) = %d, want IndexAny's %d", trunc(s), set, got, w)
+			}
+		}
+	}
+}
+
 // TestSetScansAgainstStdlib compares against the ASCII-only subset of the
 // stdlib's rune-based functions, which is where the two agree by construction:
 // no byte of a multi-byte UTF-8 sequence is below 0x80, so an ASCII cutset

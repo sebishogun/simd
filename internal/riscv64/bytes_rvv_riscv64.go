@@ -109,6 +109,9 @@ func equalFoldASCIIRVV(a []byte, b []byte) bool
 func indexAnyRVV(b []byte, chars []byte) int
 
 //go:noescape
+func indexAnyOrLessRVV(b []byte, chars []byte, lo byte) int
+
+//go:noescape
 func indexNotAnyRVV(b []byte, chars []byte) int
 
 //go:noescape

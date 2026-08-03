@@ -109,6 +109,9 @@ func equalFoldASCIISSE2(a []byte, b []byte) bool
 func indexAnySSE2(b []byte, chars []byte) int
 
 //go:noescape
+func indexAnyOrLessSSE2(b []byte, chars []byte, lo byte) int
+
+//go:noescape
 func indexNotAnySSE2(b []byte, chars []byte) int
 
 //go:noescape

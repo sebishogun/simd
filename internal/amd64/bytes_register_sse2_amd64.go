@@ -268,6 +268,13 @@ func indexAnySSE2Guarded(b []byte, chars []byte) int {
 	return indexAnySSE2(b, chars)
 }
 
+func indexAnyOrLessSSE2Guarded(b []byte, chars []byte, lo byte) int {
+	if len(b) < 64 {
+		return ref.IndexAnyOrLess(b, chars, lo)
+	}
+	return indexAnyOrLessSSE2(b, chars, lo)
+}
+
 func indexNotAnySSE2Guarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
@@ -423,6 +430,7 @@ func init() {
 	s.Bytes.CommonPrefix = commonPrefixSSE2Guarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIISSE2Guarded
 	s.Bytes.IndexAny = indexAnySSE2Guarded
+	s.Bytes.IndexAnyOrLess = indexAnyOrLessSSE2Guarded
 	s.Bytes.IndexNotAny = indexNotAnySSE2Guarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnySSE2Guarded
 	s.Bytes.CountAny = countAnySSE2Guarded

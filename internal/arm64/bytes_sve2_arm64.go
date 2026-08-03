@@ -109,6 +109,9 @@ func equalFoldASCIISVE2(a []byte, b []byte) bool
 func indexAnySVE2(b []byte, chars []byte) int
 
 //go:noescape
+func indexAnyOrLessSVE2(b []byte, chars []byte, lo byte) int
+
+//go:noescape
 func indexNotAnySVE2(b []byte, chars []byte) int
 
 //go:noescape

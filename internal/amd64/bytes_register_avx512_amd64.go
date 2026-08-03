@@ -268,6 +268,13 @@ func indexAnyAVX512Guarded(b []byte, chars []byte) int {
 	return indexAnyAVX512(b, chars)
 }
 
+func indexAnyOrLessAVX512Guarded(b []byte, chars []byte, lo byte) int {
+	if len(b) < 64 {
+		return ref.IndexAnyOrLess(b, chars, lo)
+	}
+	return indexAnyOrLessAVX512(b, chars, lo)
+}
+
 func indexNotAnyAVX512Guarded(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
@@ -423,6 +430,7 @@ func init() {
 	s.Bytes.CommonPrefix = commonPrefixAVX512Guarded
 	s.Bytes.EqualFoldASCII = equalFoldASCIIAVX512Guarded
 	s.Bytes.IndexAny = indexAnyAVX512Guarded
+	s.Bytes.IndexAnyOrLess = indexAnyOrLessAVX512Guarded
 	s.Bytes.IndexNotAny = indexNotAnyAVX512Guarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyAVX512Guarded
 	s.Bytes.CountAny = countAnyAVX512Guarded
