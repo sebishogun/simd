@@ -296,6 +296,13 @@ func countAnySVE2Guarded(b []byte, chars []byte) int {
 	return countAnySVE2(b, chars)
 }
 
+func jsonCopyRunSVE2Guarded(dst []byte, b []byte, html byte) int {
+	if len(b) < 64 || len(dst) < len(b) {
+		return ref.JSONCopyRun(dst, b, html)
+	}
+	return jsonCopyRunSVE2(dst, b, html)
+}
+
 func b64EncodeSVE2Guarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Encode(dst, b)
@@ -434,6 +441,7 @@ func init() {
 	s.Bytes.IndexNotAny = indexNotAnySVE2Guarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnySVE2Guarded
 	s.Bytes.CountAny = countAnySVE2Guarded
+	s.Bytes.JSONCopyRun = jsonCopyRunSVE2Guarded
 	s.Bytes.B64Encode = b64EncodeSVE2Guarded
 	s.Bytes.B64Decode = b64DecodeSVE2Guarded
 	s.Bytes.ParseInts = parseIntsSVE2Guarded

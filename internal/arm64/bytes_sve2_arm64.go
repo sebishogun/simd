@@ -121,6 +121,9 @@ func lastIndexNotAnySVE2(b []byte, chars []byte) int
 func countAnySVE2(b []byte, chars []byte) int
 
 //go:noescape
+func jsonCopyRunSVE2(dst []byte, b []byte, html byte) int
+
+//go:noescape
 func b64EncodeSVE2(dst []byte, b []byte) int
 
 //go:noescape

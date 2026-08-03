@@ -98,6 +98,7 @@ Organised by task rather than by operation name.
 | **the same, as a bitmask** | `MaskBits` `MaskBitsAny` `MaskBitsLess` — a bit per byte, 22–37× the offset list when matches are dense |
 | find any of a set of bytes | `IndexAny` `IndexNotAny` `CountAny` |
 | **the next byte that is not plain text** | `IndexAnyOrLess` — a set and a threshold in one pass, the inner loop of an escape routine |
+| **copy text up to the byte that needs escaping** | `JSONCopyRun` — the scan and the copy in one pass, for a JSON encoder |
 | trim, fold case, validate UTF-8 | `TrimAny` `TrimSpaceASCII` `EqualFoldASCII` `ValidUTF8` |
 | hex or base64 | `HexEncode` `Base64Encode` `Base64Decode` |
 | convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |
@@ -312,7 +313,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-468 exported functions and 6,757 generated kernels across nine targets. The
+469 exported functions and 6,757 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over

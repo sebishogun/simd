@@ -121,6 +121,9 @@ func lastIndexNotAnyNEON(b []byte, chars []byte) int
 func countAnyNEON(b []byte, chars []byte) int
 
 //go:noescape
+func jsonCopyRunNEON(dst []byte, b []byte, html byte) int
+
+//go:noescape
 func b64EncodeNEON(dst []byte, b []byte) int
 
 //go:noescape

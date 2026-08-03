@@ -166,6 +166,13 @@ func countAnyLASXGuarded(b []byte, chars []byte) int {
 	return countAnyLASX(b, chars)
 }
 
+func jsonCopyRunLASXGuarded(dst []byte, b []byte, html byte) int {
+	if len(b) < 64 || len(dst) < len(b) {
+		return ref.JSONCopyRun(dst, b, html)
+	}
+	return jsonCopyRunLASX(dst, b, html)
+}
+
 func toUpperASCIILASXGuarded(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
@@ -216,6 +223,7 @@ func init() {
 	s.Bytes.IndexAnyOrLess = indexAnyOrLessLASXGuarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyLASXGuarded
 	s.Bytes.CountAny = countAnyLASXGuarded
+	s.Bytes.JSONCopyRun = jsonCopyRunLASXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIILASXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIILASXGuarded
 	s.Bytes.ReplaceByte = replaceByteLASXGuarded

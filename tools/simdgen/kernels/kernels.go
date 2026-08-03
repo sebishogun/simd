@@ -1175,6 +1175,20 @@ func Bytes() []spec.Kernel {
 			Threshold: thScan,
 		},
 		{
+			// The destination is written up to the length of the source and no
+			// further, so the guard must not clamp the source against it: a
+			// caller with room to spare is the normal case here.
+			CName: "simd_json_copy_run", GoName: "jsonCopyRun",
+			Group: "Bytes", Field: "JSONCopyRun", RefFunc: "JSONCopyRun",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8),
+				{Name: "html", Type: spec.U8}},
+			Result:       &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:        []spec.CArg{out(), base("dst"), base("b"), lenOf("b"), val("html")},
+			RefWhen:      "len(dst) < len(b)",
+			UnclampedDst: true,
+			Threshold:    thScan,
+		},
+		{
 			// Also two lengths: the output holds two bytes per input byte, so
 			// clamping them together would give the wrong count for either.
 			// Base64. Two lengths for the same reason hex has two: the

@@ -296,6 +296,13 @@ func countAnyRVVGuarded(b []byte, chars []byte) int {
 	return countAnyRVV(b, chars)
 }
 
+func jsonCopyRunRVVGuarded(dst []byte, b []byte, html byte) int {
+	if len(b) < 64 || len(dst) < len(b) {
+		return ref.JSONCopyRun(dst, b, html)
+	}
+	return jsonCopyRunRVV(dst, b, html)
+}
+
 func b64EncodeRVVGuarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Encode(dst, b)
@@ -434,6 +441,7 @@ func init() {
 	s.Bytes.IndexNotAny = indexNotAnyRVVGuarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyRVVGuarded
 	s.Bytes.CountAny = countAnyRVVGuarded
+	s.Bytes.JSONCopyRun = jsonCopyRunRVVGuarded
 	s.Bytes.B64Encode = b64EncodeRVVGuarded
 	s.Bytes.B64Decode = b64DecodeRVVGuarded
 	s.Bytes.ParseInts = parseIntsRVVGuarded

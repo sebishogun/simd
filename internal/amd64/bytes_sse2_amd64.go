@@ -121,6 +121,9 @@ func lastIndexNotAnySSE2(b []byte, chars []byte) int
 func countAnySSE2(b []byte, chars []byte) int
 
 //go:noescape
+func jsonCopyRunSSE2(dst []byte, b []byte, html byte) int
+
+//go:noescape
 func b64EncodeSSE2(dst []byte, b []byte) int
 
 //go:noescape

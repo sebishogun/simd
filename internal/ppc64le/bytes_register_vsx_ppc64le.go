@@ -130,6 +130,13 @@ func fillBytesVSXGuarded(dst []byte, v byte) {
 	fillBytesVSX(dst, v)
 }
 
+func jsonCopyRunVSXGuarded(dst []byte, b []byte, html byte) int {
+	if len(b) < 64 || len(dst) < len(b) {
+		return ref.JSONCopyRun(dst, b, html)
+	}
+	return jsonCopyRunVSX(dst, b, html)
+}
+
 func hexEncodeVSXGuarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
@@ -181,6 +188,7 @@ func init() {
 	s.Bytes.AndNot = bitAndNotVSXGuarded
 	s.Bytes.Not = bitNotVSXGuarded
 	s.Bytes.Fill = fillBytesVSXGuarded
+	s.Bytes.JSONCopyRun = jsonCopyRunVSXGuarded
 	s.Bytes.HexEncode = hexEncodeVSXGuarded
 	s.Bytes.ToUpperASCII = toUpperASCIIVSXGuarded
 	s.Bytes.ToLowerASCII = toLowerASCIIVSXGuarded

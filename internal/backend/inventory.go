@@ -53,6 +53,7 @@ var Inventory = []Declared{
 	{"Bytes", "IndexNonASCII16", "IndexNonASCII16", "simd_index_nonascii16"},
 	{"Bytes", "IndexNotAny", "IndexNotAny", "simd_index_not_any"},
 	{"Bytes", "IsASCII", "IsASCII", "simd_is_ascii"},
+	{"Bytes", "JSONCopyRun", "JSONCopyRun", "simd_json_copy_run"},
 	{"Bytes", "LastIndex", "LastIndex", "simd_last_index"},
 	{"Bytes", "LastIndexByte", "LastIndexByte", "simd_last_index_byte"},
 	{"Bytes", "LastIndexNotAny", "LastIndexNotAny", "simd_last_index_not_any"},

@@ -121,6 +121,9 @@ func lastIndexNotAnyAVX2(b []byte, chars []byte) int
 func countAnyAVX2(b []byte, chars []byte) int
 
 //go:noescape
+func jsonCopyRunAVX2(dst []byte, b []byte, html byte) int
+
+//go:noescape
 func b64EncodeAVX2(dst []byte, b []byte) int
 
 //go:noescape

@@ -39,6 +39,17 @@ func ExampleIndexAnyOrLess() {
 	// Output: 10
 }
 
+// JSONCopyRun copies and scans in the same pass, which is what an encoder
+// wants: the bytes it can write verbatim, written, and the position of the
+// first one it cannot.
+func ExampleJSONCopyRun() {
+	src := `plain then "a quote`
+	dst := make([]byte, len(src))
+	n := simd.JSONCopyRun(dst, src, true)
+	fmt.Printf("%d %q\n", n, dst[:n])
+	// Output: 11 "plain then "
+}
+
 func ExampleIndexNotAny() {
 	fmt.Println(simd.IndexNotAny("   indented", " "))
 	// Output: 3

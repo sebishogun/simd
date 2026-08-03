@@ -142,6 +142,33 @@ func IndexAnyOrLess[S, T Text](s S, chars T, lo byte) int {
 	return active.Bytes.IndexAnyOrLess(textBytes(s), textBytes(chars), lo)
 }
 
+// JSONCopyRun copies the bytes at the front of s that a JSON encoder may write
+// verbatim into dst, and returns how many it copied.
+//
+// It stops at the first byte that has to be rewritten: a control character, a
+// quote or a backslash, and — when html is true — also `<`, `>`, `&` and the
+// 0xE2 that leads U+2028 and U+2029, which is the set encoding/json escapes by
+// default.
+//
+// The scan and the copy are one pass. Asking where the run ends and then
+// copying it reads every byte twice, which in an encoder is two passes over
+// every string in the document.
+//
+// A byte above ASCII is copied like any other, so text that is not ASCII runs
+// at the same rate as text that is. That is only correct for a caller that has
+// already established the string is valid UTF-8 — no byte of a multi-byte
+// sequence can collide with the set, but an invalid one might.
+//
+// dst must have room for len(s) bytes. It is written up to the returned length
+// and no further.
+func JSONCopyRun[S Text](dst []byte, s S, html bool) int {
+	var h byte
+	if html {
+		h = 1
+	}
+	return active.Bytes.JSONCopyRun(dst, textBytes(s), h)
+}
+
 // IndexNotAny returns the index of the first byte of s that is *not* in chars,
 // or -1 if every byte is.
 //

@@ -90,6 +90,23 @@ func countSeq(haystack, needle []byte) int {
 	return bytes.Count(haystack, needle)
 }
 
+// jsonCopyRun copies the bytes a JSON encoder can write verbatim and returns
+// how many. The escape set is compiled in; html adds the three HTML characters
+// and the 0xE2 that leads U+2028.
+func jsonCopyRun(dst, b []byte, html byte) int {
+	for i := 0; i < len(b); i++ {
+		c := b[i]
+		if c < 0x20 || c == '"' || c == '\\' {
+			return i
+		}
+		if html != 0 && (c == '<' || c == '>' || c == '&' || c == 0xE2) {
+			return i
+		}
+		dst[i] = c
+	}
+	return len(b)
+}
+
 // indexAnyOrLess is indexAny with a threshold folded in: the first byte that is
 // in the set or below lo. Callers want the two questions answered together
 // because the answer they act on is whichever comes first, and asking twice
@@ -288,6 +305,9 @@ func ValidUTF8(b []byte) bool { return validUTF8(b) }
 
 // IndexAnyOrLess is exported for the dispatch table and the differential test.
 func IndexAnyOrLess(b, chars []byte, lo byte) int { return indexAnyOrLess(b, chars, lo) }
+
+// JSONCopyRun is exported for the dispatch table and the differential test.
+func JSONCopyRun(dst, b []byte, html byte) int { return jsonCopyRun(dst, b, html) }
 
 // The UTF-16 fast path. These three define the semantics the kernels must
 // match: an offset that is len(b) when nothing matched — not -1, because the

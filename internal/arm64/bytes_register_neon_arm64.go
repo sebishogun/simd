@@ -296,6 +296,13 @@ func countAnyNEONGuarded(b []byte, chars []byte) int {
 	return countAnyNEON(b, chars)
 }
 
+func jsonCopyRunNEONGuarded(dst []byte, b []byte, html byte) int {
+	if len(b) < 64 || len(dst) < len(b) {
+		return ref.JSONCopyRun(dst, b, html)
+	}
+	return jsonCopyRunNEON(dst, b, html)
+}
+
 func b64EncodeNEONGuarded(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Encode(dst, b)
@@ -434,6 +441,7 @@ func init() {
 	s.Bytes.IndexNotAny = indexNotAnyNEONGuarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyNEONGuarded
 	s.Bytes.CountAny = countAnyNEONGuarded
+	s.Bytes.JSONCopyRun = jsonCopyRunNEONGuarded
 	s.Bytes.B64Encode = b64EncodeNEONGuarded
 	s.Bytes.B64Decode = b64DecodeNEONGuarded
 	s.Bytes.ParseInts = parseIntsNEONGuarded

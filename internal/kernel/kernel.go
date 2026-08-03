@@ -572,6 +572,11 @@ type Bytes struct {
 	// IndexAnyOrLess folds a threshold into IndexAny: the first byte that is in
 	// the set or below lo. One pass and one early exit instead of two of each.
 	IndexAnyOrLess func(b, chars []byte, lo byte) int
+
+	// JSONCopyRun copies the bytes a JSON encoder can write verbatim and
+	// returns how many. Scan and copy in the same pass: done apart, the bytes
+	// are read twice.
+	JSONCopyRun func(dst, b []byte, html byte) int
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

@@ -765,6 +765,51 @@ void simd_valid_utf8(_Bool *__restrict out, const u8 *__restrict b, isize n) {
 }
 
 
+// simd_json_copy_run copies the bytes of b that a JSON encoder can write
+// verbatim, and returns how many that was.
+//
+// The scan and the copy are the same pass. Done separately -- find the run,
+// then memmove it -- the bytes are read twice, and in an encoder that is two
+// passes over every string in the document. Fusing them is the whole point of
+// this kernel and the only reason it earns its call: a scan on its own was
+// measured against the word-at-a-time version it would replace nine times, in
+// nine arrangements, and lost every one.
+//
+// The escape set is compiled in rather than passed, because that is what makes
+// it five arguments instead of seven and six is the ABI's limit. html selects
+// whether the three HTML characters and the 0xE2 that leads U+2028 are in it;
+// encoding/json escapes them by default and its Fast twin does not.
+//
+// A byte above ASCII is not a stopping point. It is copied like any other, so a
+// document of Japanese runs at the vector rate rather than dropping to a byte
+// loop -- the caller has already proved the string is valid UTF-8, and no byte
+// of a multi-byte sequence can collide with the set.
+void simd_json_copy_run(isize *__restrict out, u8 *__restrict dst,
+                        const u8 *__restrict b, isize n, u8 html) {
+  isize i = 0;
+  for (; i + BYTE_LANES <= n; i += BYTE_LANES) {
+    u8xB v = VLOAD(b, i);
+    u8xB hit = (u8xB)(v < SPLAT(u8xB, 0x20)) | (u8xB)(v == SPLAT(u8xB, '"')) |
+               (u8xB)(v == SPLAT(u8xB, '\\'));
+    if (html) {
+      hit |= (u8xB)(v == SPLAT(u8xB, '<')) | (u8xB)(v == SPLAT(u8xB, '>')) |
+             (u8xB)(v == SPLAT(u8xB, '&')) | (u8xB)(v == SPLAT(u8xB, 0xE2));
+    }
+    if (OR_ANY(hit)) break;
+    // The block is clean, so it goes out whole. Storing before the test would
+    // write past the run; storing after it means a clean block is one load and
+    // one store and nothing else.
+    *(u8xB *)(dst + i) = v;
+  }
+  for (; i < n; i++) {
+    u8 c = b[i];
+    if (c < 0x20 || c == '"' || c == '\\') break;
+    if (html && (c == '<' || c == '>' || c == '&' || c == 0xE2)) break;
+    dst[i] = c;
+  }
+  *out = i;
+}
+
 // ---------- base64 ----------
 //
 // Standard alphabet, RFC 4648, with padding. Three input bytes become four

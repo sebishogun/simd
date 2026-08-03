@@ -73,6 +73,9 @@ func lastIndexNotAnyLASX(b []byte, chars []byte) int
 func countAnyLASX(b []byte, chars []byte) int
 
 //go:noescape
+func jsonCopyRunLASX(dst []byte, b []byte, html byte) int
+
+//go:noescape
 func toUpperASCIILASX(dst []byte, b []byte)
 
 //go:noescape
