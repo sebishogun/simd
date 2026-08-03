@@ -640,3 +640,38 @@ func containsByte(s string, c byte) bool {
 	}
 	return false
 }
+
+// JSONMasks writes the five masks a JSON indexer wants, in one pass over s.
+//
+// A two-stage JSON parser classifies its input five ways: the quotes, the
+// backslashes, the four brackets, the bytes below 0x20 that a string may not
+// contain, and the four bytes JSON allows as whitespace. Asking for them one at
+// a time is five passes over the document and five dispatches; this is one load
+// per block and five predicate stores.
+//
+// dst holds five regions of (len(s)+7)/8 bytes, in that order: quote, escape,
+// structural, control, whitespace. It must be at least five times that long.
+//
+// want selects which regions are written, one bit each, low bit first —
+// JSONMaskQuote through JSONMaskSpace. The regions are laid out as though all
+// five were present whatever is asked for, so a caller's offsets do not change
+// with the selection.
+//
+// The character sets are JSON's and are compiled in. A version taking them as
+// arguments could not fold the comparisons, which is the whole point.
+func JSONMasks[S Text](dst []byte, s S, want uint32) {
+	active.Bytes.JSONMasks(dst, textBytes(s), want)
+}
+
+// The bits of JSONMasks's want, and the order of its output regions.
+const (
+	JSONMaskQuote      = 1 << iota // `"`
+	JSONMaskEscape                 // `\`
+	JSONMaskStructural             // `{`, `}`, `[`, `]`
+	JSONMaskControl                // below 0x20
+	JSONMaskSpace                  // space, tab, newline, carriage return
+
+	// JSONMaskAll asks for every region.
+	JSONMaskAll = JSONMaskQuote | JSONMaskEscape | JSONMaskStructural |
+		JSONMaskControl | JSONMaskSpace
+)

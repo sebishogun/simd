@@ -1558,6 +1558,67 @@ typedef _Bool maskxM __attribute__((ext_vector_type(MASK_BITS_LANES)));
     __builtin_memcpy((OUT) + (I) / 8, &bits_, sizeof bits_);             \
   } while (0)
 
+// simd_json_masks writes all five masks a JSON indexer wants from one pass.
+//
+// A two-stage JSON parser classifies the document five ways -- quotes,
+// backslashes, brackets, control characters and whitespace -- and calling
+// simd_mask_bits and friends once each means five passes over the input and
+// five dispatches. This is one load per block and five predicate stores.
+//
+// The five outputs are five regions of one buffer, each (n+7)/8 bytes, in the
+// order quote, escape, structural, control, whitespace. One pointer rather than
+// five because the SysV argument registers run out at six and the caller wants
+// n as well; laying them end to end also means the word loop that consumes them
+// reads five words that are a fixed stride apart rather than five slices.
+//
+// want selects which are written, one bit each, low bit first, so a caller
+// that only needs quotes and escapes does not pay for the other three stores.
+// The regions are still laid out as though all five were present, so the
+// offsets do not depend on what was asked for.
+//
+// The character sets are JSON's and are baked in: `"` and `\\`, the four
+// brackets, below 0x20, and the four whitespace bytes JSON allows. A general
+// version would take them as arguments and could not fold the comparisons.
+void simd_json_masks(u8 *__restrict out, const u8 *__restrict b, isize n,
+                     unsigned want) {
+  const isize stride = (n + 7) / 8;
+  u8 *__restrict q = out;
+  u8 *__restrict e = out + stride;
+  u8 *__restrict st = out + 2 * stride;
+  u8 *__restrict ct = out + 3 * stride;
+  u8 *__restrict ws = out + 4 * stride;
+
+  isize i = 0;
+  for (; i + MASK_BITS_LANES <= n; i += MASK_BITS_LANES) {
+    u8xM v = *(const u8xM *)(b + i);
+    if (want & 1) STORE_MASK_BITS(v == '"', q, i);
+    if (want & 2) STORE_MASK_BITS(v == '\\', e, i);
+    if (want & 4)
+      STORE_MASK_BITS((v == '{') | (v == '}') | (v == '[') | (v == ']'), st, i);
+    if (want & 8) STORE_MASK_BITS(v < 0x20, ct, i);
+    if (want & 16)
+      STORE_MASK_BITS((v == ' ') | (v == '\t') | (v == '\n') | (v == '\r'), ws, i);
+  }
+  for (; i < n; i++) {
+    u8 c = b[i];
+    isize o = i / 8;
+    u8 bit = (u8)(1u << (i % 8));
+    if (i % 8 == 0) {
+      if (want & 1) q[o] = 0;
+      if (want & 2) e[o] = 0;
+      if (want & 4) st[o] = 0;
+      if (want & 8) ct[o] = 0;
+      if (want & 16) ws[o] = 0;
+    }
+    if ((want & 1) && c == '"') q[o] |= bit;
+    if ((want & 2) && c == '\\') e[o] |= bit;
+    if ((want & 4) && (c == '{' || c == '}' || c == '[' || c == ']')) st[o] |= bit;
+    if ((want & 8) && c < 0x20) ct[o] |= bit;
+    if ((want & 16) && (c == ' ' || c == '\t' || c == '\n' || c == '\r'))
+      ws[o] |= bit;
+  }
+}
+
 void simd_mask_bits(u8 *__restrict out, const u8 *__restrict b, u8 c,
                     isize n) {
   isize i = 0;

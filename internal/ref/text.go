@@ -90,6 +90,59 @@ func countSeq(haystack, needle []byte) int {
 	return bytes.Count(haystack, needle)
 }
 
+// jsonMasks writes the five masks a JSON indexer wants, in one pass.
+//
+// dst holds five regions of (len(b)+7)/8 bytes: quotes, backslashes, the four
+// brackets, bytes below 0x20, and the four whitespace bytes JSON allows, in
+// that order. want selects which are written, one bit each, low bit first; the
+// regions are laid out as though all five were present either way, so a
+// caller's offsets do not depend on what it asked for.
+func jsonMasks(dst, b []byte, want uint32) {
+	stride := (len(b) + 7) / 8
+	q := dst[0:]
+	e := dst[stride:]
+	st := dst[2*stride:]
+	ct := dst[3*stride:]
+	ws := dst[4*stride:]
+	for i := 0; i < len(b); i++ {
+		c := b[i]
+		o := i / 8
+		bit := byte(1) << (i % 8)
+		if i%8 == 0 {
+			if want&1 != 0 {
+				q[o] = 0
+			}
+			if want&2 != 0 {
+				e[o] = 0
+			}
+			if want&4 != 0 {
+				st[o] = 0
+			}
+			if want&8 != 0 {
+				ct[o] = 0
+			}
+			if want&16 != 0 {
+				ws[o] = 0
+			}
+		}
+		if want&1 != 0 && c == '"' {
+			q[o] |= bit
+		}
+		if want&2 != 0 && c == '\\' {
+			e[o] |= bit
+		}
+		if want&4 != 0 && (c == '{' || c == '}' || c == '[' || c == ']') {
+			st[o] |= bit
+		}
+		if want&8 != 0 && c < 0x20 {
+			ct[o] |= bit
+		}
+		if want&16 != 0 && (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+			ws[o] |= bit
+		}
+	}
+}
+
 // jsonCopyRun copies the bytes a JSON encoder can write verbatim and returns
 // how many. The escape set is compiled in; html adds the three HTML characters
 // and the 0xE2 that leads U+2028.
@@ -308,6 +361,9 @@ func IndexAnyOrLess(b, chars []byte, lo byte) int { return indexAnyOrLess(b, cha
 
 // JSONCopyRun is exported for the dispatch table and the differential test.
 func JSONCopyRun(dst, b []byte, html byte) int { return jsonCopyRun(dst, b, html) }
+
+// JSONMasks writes the five masks a JSON indexer wants, in one pass.
+func JSONMasks(dst, b []byte, want uint32) { jsonMasks(dst, b, want) }
 
 // The UTF-16 fast path. These three define the semantics the kernels must
 // match: an offset that is len(b) when nothing matched — not -1, because the

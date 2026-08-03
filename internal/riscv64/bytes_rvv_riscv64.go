@@ -121,6 +121,9 @@ func lastIndexNotAnyRVV(b []byte, chars []byte) int
 func countAnyRVV(b []byte, chars []byte) int
 
 //go:noescape
+func jsonMasksRVV(dst []byte, b []byte, want uint32)
+
+//go:noescape
 func jsonCopyRunRVV(dst []byte, b []byte, html byte) int
 
 //go:noescape

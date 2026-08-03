@@ -577,6 +577,16 @@ type Bytes struct {
 	// returns how many. Scan and copy in the same pass: done apart, the bytes
 	// are read twice.
 	JSONCopyRun func(dst, b []byte, html byte) int
+
+	// JSONMasks writes the five masks a JSON indexer wants -- quotes,
+	// backslashes, the four brackets, bytes below 0x20, and JSON's four
+	// whitespace bytes -- from one pass over the input.
+	//
+	// dst holds five regions of (len(b)+7)/8 bytes in that order. want selects
+	// which are written, one bit each, low bit first; the regions are laid out
+	// as though all five were present either way, so a caller's offsets do not
+	// depend on what it asked for.
+	JSONMasks func(dst, b []byte, want uint32)
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

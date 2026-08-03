@@ -185,3 +185,34 @@ func ExampleMaskBitsLess() {
 	fmt.Println(mask[0] != 0)
 	// Output: true
 }
+
+// JSONMasks classifies a document five ways in one pass, which is the first
+// stage of a two-stage JSON parser: find every structural byte before looking
+// at any of them individually.
+func ExampleJSONMasks() {
+	doc := []byte(`{"a": "b\"c"}`)
+
+	// Five regions of one byte per eight input bytes, in a fixed order.
+	stride := (len(doc) + 7) / 8
+	masks := make([]byte, 5*stride)
+	simd.JSONMasks(masks, doc, simd.JSONMaskAll)
+
+	names := []string{"quote", "escape", "structural", "control", "space"}
+	for i, name := range names {
+		region := masks[i*stride : (i+1)*stride]
+		// Which byte positions the mask marks.
+		var at []int
+		for p := 0; p < len(doc); p++ {
+			if region[p/8]>>(p%8)&1 != 0 {
+				at = append(at, p)
+			}
+		}
+		fmt.Printf("%-10s %v\n", name, at)
+	}
+	// Output:
+	// quote      [1 3 6 9 11]
+	// escape     [8]
+	// structural [0 12]
+	// control    []
+	// space      [5]
+}

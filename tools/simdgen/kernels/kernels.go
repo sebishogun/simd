@@ -1175,6 +1175,19 @@ func Bytes() []spec.Kernel {
 			Threshold: thScan,
 		},
 		{
+			// Five masks, one pass. dst holds five regions of (len(b)+7)/8
+			// bytes, so it cannot be clamped against the source and the guard
+			// must not try: the ref path checks the length itself.
+			CName: "simd_json_masks", GoName: "jsonMasks",
+			Group: "Bytes", Field: "JSONMasks", RefFunc: "JSONMasks",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8),
+				{Name: "want", Type: spec.U32}},
+			CArgs:        []spec.CArg{base("dst"), base("b"), lenOf("b"), val("want")},
+			RefWhen:      "len(dst) < 5*((len(b)+7)/8)",
+			UnclampedDst: true,
+			Threshold:    thScan,
+		},
+		{
 			// The destination is written up to the length of the source and no
 			// further, so the guard must not clamp the source against it: a
 			// caller with room to spare is the normal case here.

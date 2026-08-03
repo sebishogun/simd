@@ -99,6 +99,7 @@ Organised by task rather than by operation name.
 | find any of a set of bytes | `IndexAny` `IndexNotAny` `CountAny` |
 | **the next byte that is not plain text** | `IndexAnyOrLess` — a set and a threshold in one pass, the inner loop of an escape routine |
 | **copy text up to the byte that needs escaping** | `JSONCopyRun` — the scan and the copy in one pass, for a JSON encoder |
+| **classify a JSON document five ways at once** | `JSONMasks` — quotes, backslashes, brackets, control bytes and whitespace from one pass; 2x five separate calls |
 | trim, fold case, validate UTF-8 | `TrimAny` `TrimSpaceASCII` `EqualFoldASCII` `ValidUTF8` |
 | hex or base64 | `HexEncode` `Base64Encode` `Base64Decode` |
 | convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |
@@ -313,7 +314,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-469 exported functions and 6,757 generated kernels across nine targets. The
+470 exported functions and 6,779 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over
@@ -322,11 +323,11 @@ counts once in each.
 
 | | kernels | skipped | dominant reason for skips |
 |---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2530 | 90 | LLVM declined to vectorize |
-| arm64 (neon/sve2) | 1631 | 117 | LLVM declined to vectorize |
-| riscv64 (rvv) | 862 | 14 | LLVM declined to vectorize |
-| loong64 (lasx) | 717 | 155 | `$fp`, then `.L0` references |
-| ppc64le (vsx) | 598 | 274 | `r30`, then LLVM refusals |
+| amd64 (sse2/avx2/avx512) | 2539 | 90 | LLVM declined to vectorize |
+| arm64 (neon/sve2) | 1637 | 117 | LLVM declined to vectorize |
+| riscv64 (rvv) | 865 | 14 | LLVM declined to vectorize |
+| loong64 (lasx) | 719 | 155 | `$fp`, then `.L0` references |
+| ppc64le (vsx) | 600 | 274 | `r30`, then LLVM refusals |
 | s390x (vx) | 419 | 453 | `r13` — an ABI wall, see below |
 
 Most remaining skips are in the `Fast*` tier, which is the newest and least

@@ -296,6 +296,14 @@ func countAnySSE2Guarded(b []byte, chars []byte) int {
 	return countAnySSE2(b, chars)
 }
 
+func jsonMasksSSE2Guarded(dst []byte, b []byte, want uint32) {
+	if len(b) < 64 || len(dst) < 5*((len(b)+7)/8) {
+		ref.JSONMasks(dst, b, want)
+		return
+	}
+	jsonMasksSSE2(dst, b, want)
+}
+
 func jsonCopyRunSSE2Guarded(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
@@ -441,6 +449,7 @@ func init() {
 	s.Bytes.IndexNotAny = indexNotAnySSE2Guarded
 	s.Bytes.LastIndexNotAny = lastIndexNotAnySSE2Guarded
 	s.Bytes.CountAny = countAnySSE2Guarded
+	s.Bytes.JSONMasks = jsonMasksSSE2Guarded
 	s.Bytes.JSONCopyRun = jsonCopyRunSSE2Guarded
 	s.Bytes.B64Encode = b64EncodeSSE2Guarded
 	s.Bytes.B64Decode = b64DecodeSSE2Guarded
