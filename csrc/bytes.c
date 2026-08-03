@@ -588,19 +588,15 @@ void simd_last_index_not_any(isize *__restrict out, const u8 *__restrict b,
 
 // ---------- UTF-8 validation ----------
 //
-// The classifying part of UTF-8 validation is branchless and so it
-// vectorizes; the part that decides where a sequence starts is not, and that
-// is what shapes this.
+// Every constraint on well-formed UTF-8 is a constraint between a byte and one
+// of the three bytes before it. Nothing depends on where a sequence started, so
+// nothing has to be found before the checking begins: line each byte up with
+// its three predecessors, and the whole grammar becomes elementwise
+// comparisons over a block.
 //
-// The observation the whole thing rests on: a byte's *length* is determined
-// by the byte itself, and every constraint on a well-formed sequence is a
-// constraint between a byte and one of the three before it. So the scan runs
-// forward once, computes for each byte how many continuations it demands, and
-// checks the arithmetic — no backtracking and no state machine.
-//
-// The overlong, surrogate and out-of-range rules are the ones that make a
-// naive implementation wrong rather than merely slow, so they are written out
-// rather than folded into a range test:
+// The rules that make a naive implementation wrong rather than merely slow are
+// the overlong, surrogate and out-of-range forms, so they are written out one
+// by one rather than folded into a range test:
 //
 //	C0 C1        overlong two-byte forms, never valid
 //	E0 A0..BF    a three-byte form starting E0 needs the second byte >= A0
@@ -608,19 +604,76 @@ void simd_last_index_not_any(isize *__restrict out, const u8 *__restrict b,
 //	F0 90..BF    a four-byte form starting F0 needs the second byte >= 90
 //	F4 80..8F    F4 must not exceed U+10FFFF
 //	F5..FF       no valid sequence starts here
+
+// PREV1/2/3 line each byte up with the one, two or three before it, taking the
+// carry-in from the previous block. The indices are constants, so this is a
+// lane-crossing shuffle of a pair of registers — palignr, valignd, ext, vshuf
+// — and not a load from a constant pool, which is what an index vector would
+// have cost on the RISC targets. See the note at the top of fold.h.
+#define UTF8_PREV1(PRV, CUR) __builtin_shufflevector(PRV, CUR, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62)
+#define UTF8_PREV2(PRV, CUR) __builtin_shufflevector(PRV, CUR, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61)
+#define UTF8_PREV3(PRV, CUR) __builtin_shufflevector(PRV, CUR, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60)
+
 void simd_valid_utf8(_Bool *__restrict out, const u8 *__restrict b, isize n) {
   isize i = 0;
-  // ASCII runs are the common case and the only part worth vectorizing: the
-  // fold reads a whole block and only drops to the byte-wise scan when the
-  // block contains something above 0x7f.
-  while (i < n) {
-    if (i + BYTE_LANES <= n) {
-      u8xB v = VLOAD(b, i);
-      if (!OR_ANY(v & (u8xB)0x80)) {
-        i += BYTE_LANES;
-        continue;
-      }
+  u8xB prev = 0, err = 0;
+  for (; i + BYTE_LANES <= n; i += BYTE_LANES) {
+    u8xB cur = VLOAD(b, i);
+    // Text is mostly ASCII even when it is not entirely ASCII, and a block of
+    // it needs no checking at all. The previous block is included in the test
+    // because a leader in its last three bytes has demands that land here.
+    if (!OR_ANY((cur | prev) & SPLAT(u8xB, 0x80))) {
+      prev = cur;
+      continue;
     }
+    u8xB p1 = UTF8_PREV1(prev, cur);
+    u8xB p2 = UTF8_PREV2(prev, cur);
+    u8xB p3 = UTF8_PREV3(prev, cur);
+
+    // Structure, in one rule: a byte must be a continuation exactly when one
+    // of the three before it demands one. Equality rather than implication is
+    // what makes it sufficient — it rejects a continuation nobody asked for
+    // and a leader whose continuations never arrived, so no separate check of
+    // sequence length is needed.
+    u8xB want = (u8xB)(p1 >= SPLAT(u8xB, 0xC0)) |
+                (u8xB)(p2 >= SPLAT(u8xB, 0xE0)) |
+                (u8xB)(p3 >= SPLAT(u8xB, 0xF0));
+    u8xB is = (u8xB)((cur & SPLAT(u8xB, 0xC0)) == SPLAT(u8xB, 0x80));
+    err |= want ^ is;
+
+    // What is left are the forms that are structurally fine and still not
+    // valid UTF-8, every one of them decided by the leader and the byte after
+    // it alone:
+    //
+    //	C0 C1        overlong two-byte forms, never valid
+    //	E0 80..9F    overlong three-byte form
+    //	ED A0..BF    the surrogate range D800..DFFF
+    //	F0 80..8F    overlong four-byte form
+    //	F4 90..BF    past U+10FFFF
+    //	F5..FF       no valid sequence starts here
+    err |= (u8xB)(p1 <= SPLAT(u8xB, 0xC1)) & (u8xB)(p1 >= SPLAT(u8xB, 0xC0));
+    err |= (u8xB)(p1 == SPLAT(u8xB, 0xE0)) & (u8xB)(cur < SPLAT(u8xB, 0xA0));
+    err |= (u8xB)(p1 == SPLAT(u8xB, 0xED)) & (u8xB)(cur > SPLAT(u8xB, 0x9F));
+    err |= (u8xB)(p1 == SPLAT(u8xB, 0xF0)) & (u8xB)(cur < SPLAT(u8xB, 0x90));
+    err |= (u8xB)(p1 == SPLAT(u8xB, 0xF4)) & (u8xB)(cur > SPLAT(u8xB, 0x8F));
+    err |= (u8xB)(p1 >= SPLAT(u8xB, 0xF5));
+    prev = cur;
+  }
+  if (OR_ANY(err)) {
+    *out = 0;
+    return;
+  }
+
+  // The blocks checked every rule about a byte at a position they covered, but
+  // a leader in the last three bytes makes demands about positions they did
+  // not. So back up to the start of the last character beginning in the
+  // covered region — at most three bytes, since anything longer would already
+  // have been an error — and finish byte-wise from there.
+  if (i > 0) {
+    i--;
+    for (int k = 0; k < 3 && i > 0 && (b[i] & 0xC0) == 0x80; k++) i--;
+  }
+  while (i < n) {
     u8 c = b[i];
     if (c < 0x80) {
       i++;
@@ -673,6 +726,7 @@ void simd_valid_utf8(_Bool *__restrict out, const u8 *__restrict b, isize n) {
   }
   *out = 1;
 }
+
 
 // ---------- base64 ----------
 //

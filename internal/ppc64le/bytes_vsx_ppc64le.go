@@ -22,6 +22,9 @@ func grayscaleU8VSX(dst []byte, r []byte, g []byte, b []byte)
 func isASCIIVSX(b []byte) bool
 
 //go:noescape
+func validUTF8VSX(b []byte) bool
+
+//go:noescape
 func indexNonASCII16VSX(b []uint16) int
 
 //go:noescape

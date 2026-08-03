@@ -36,6 +36,13 @@ func isASCIIVSXGuarded(b []byte) bool {
 	return isASCIIVSX(b)
 }
 
+func validUTF8VSXGuarded(b []byte) bool {
+	if len(b) < 64 {
+		return ref.ValidUTF8(b)
+	}
+	return validUTF8VSX(b)
+}
+
 func indexNonASCII16VSXGuarded(b []uint16) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII16(b)
@@ -163,6 +170,7 @@ func init() {
 	s := backend.For("vsx")
 	s.Bytes.Grayscale = grayscaleU8VSXGuarded
 	s.Bytes.IsASCII = isASCIIVSXGuarded
+	s.Bytes.ValidUTF8 = validUTF8VSXGuarded
 	s.Bytes.IndexNonASCII16 = indexNonASCII16VSXGuarded
 	s.Bytes.WidenU8U16 = widenU8U16VSXGuarded
 	s.Bytes.NarrowU16U8 = narrowU16U8VSXGuarded
