@@ -1,7 +1,6 @@
 goos: linux
 goarch: amd64
 pkg: github.com/sebishogun/simd
-cpu: AMD RYZEN AI MAX+ 395 w/ Radeon 8060S          
 BenchmarkConvolveFull/taps=16/impl=direct-8         	   10000	    105680 ns/op
 BenchmarkConvolveFull/taps=16/impl=direct-8         	   10000	    104784 ns/op
 BenchmarkConvolveFull/taps=16/impl=direct-8         	   10000	    104643 ns/op
@@ -384,7 +383,6 @@ ok  	github.com/sebishogun/simd/cmd/site	0.003s
 goos: linux
 goarch: amd64
 pkg: github.com/sebishogun/simd/internal/amd64
-cpu: AMD RYZEN AI MAX+ 395 w/ Radeon 8060S          
 BenchmarkAddFloat64/n=4/go-8         	827909022	         1.464 ns/op
 BenchmarkAddFloat64/n=4/go-8         	816759996	         1.483 ns/op
 BenchmarkAddFloat64/n=4/go-8         	813718590	         1.455 ns/op
@@ -1005,7 +1003,6 @@ ok  	github.com/sebishogun/simd/internal/asmcheck	0.002s
 goos: linux
 goarch: amd64
 pkg: github.com/sebishogun/simd/internal/benchmarks
-cpu: AMD RYZEN AI MAX+ 395 w/ Radeon 8060S          
 BenchmarkRankOne/n=64/portable-8         	 1000000	      1210 ns/op
 BenchmarkRankOne/n=64/portable-8         	 1000000	      1210 ns/op
 BenchmarkRankOne/n=64/portable-8         	  967320	      1220 ns/op
@@ -5339,7 +5336,6 @@ ok  	github.com/sebishogun/simd/internal/ref	0.013s
 goos: linux
 goarch: amd64
 pkg: github.com/sebishogun/simd/internal/tests/arrays
-cpu: AMD RYZEN AI MAX+ 395 w/ Radeon 8060S          
 BenchmarkAddAll/srcs=3/n=256/impl=nary-8         	33446973	        32.96 ns/op	93217.07 MB/s
 BenchmarkAddAll/srcs=3/n=256/impl=nary-8         	37744722	        30.00 ns/op	102413.43 MB/s
 BenchmarkAddAll/srcs=3/n=256/impl=nary-8         	38357508	        32.16 ns/op	95534.29 MB/s
@@ -5495,7 +5491,6 @@ ok  	github.com/sebishogun/simd/internal/tests/encode	0.002s
 goos: linux
 goarch: amd64
 pkg: github.com/sebishogun/simd/internal/tests/matrix
-cpu: AMD RYZEN AI MAX+ 395 w/ Radeon 8060S          
 BenchmarkMatMul/f32/n=16-8         	23028831	        52.72 ns/op	155372.26 MB/s
 BenchmarkMatMul/f32/n=16-8         	22939872	        52.81 ns/op	155107.78 MB/s
 BenchmarkMatMul/f32/n=16-8         	22893166	        52.88 ns/op	154918.45 MB/s

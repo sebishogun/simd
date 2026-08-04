@@ -29,6 +29,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -54,7 +55,7 @@ func main() {
 		if err != nil {
 			fatal(err)
 		}
-		if err := os.WriteFile(*baseline, data, 0o644); err != nil {
+		if err := os.WriteFile(*baseline, redactCPU(data), 0o644); err != nil {
 			fatal(err)
 		}
 		fmt.Printf("baseline updated from %s\n", newPath)
@@ -211,6 +212,23 @@ func parse(path string) (map[string]float64, error) {
 		return nil, fmt.Errorf("%s: no benchmark results found", path)
 	}
 	return out, nil
+}
+
+// redactCPU drops go test's cpu line from a baseline.
+//
+// The baseline is committed, and that line names the model of whatever machine
+// recorded it. Nothing here reads it -- the parser takes only lines beginning
+// with "Benchmark" -- so it is identifying detail with no purpose in a public
+// repository. goos, goarch and pkg stay: those change what the numbers mean.
+func redactCPU(b []byte) []byte {
+	out := b[:0:0]
+	for _, line := range bytes.SplitAfter(b, []byte("\n")) {
+		if bytes.HasPrefix(line, []byte("cpu:")) {
+			continue
+		}
+		out = append(out, line...)
+	}
+	return out
 }
 
 func fatal(err error) {
