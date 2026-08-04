@@ -1565,8 +1565,9 @@ typedef _Bool maskxM __attribute__((ext_vector_type(MASK_BITS_LANES)));
 // simd_mask_bits and friends once each means five passes over the input and
 // five dispatches. This is one load per block and five predicate stores.
 //
-// The five outputs are five regions of one buffer, each (n+7)/8 bytes, in the
-// order quote, escape, structural, control, whitespace. One pointer rather than
+// The five outputs are five regions of one buffer, each ((n+63)/64)*8 bytes --
+// whole 64-bit words, because that is how they are read -- in the order quote,
+// escape, structural, control, whitespace. One pointer rather than
 // five because the SysV argument registers run out at six and the caller wants
 // n as well; laying them end to end also means the word loop that consumes them
 // reads five words that are a fixed stride apart rather than five slices.
@@ -1581,7 +1582,10 @@ typedef _Bool maskxM __attribute__((ext_vector_type(MASK_BITS_LANES)));
 // version would take them as arguments and could not fold the comparisons.
 void simd_json_masks(u8 *__restrict out, const u8 *__restrict b, isize n,
                      unsigned want) {
-  const isize stride = (n + 7) / 8;
+  // Word-aligned, not (n+7)/8. Every consumer of these masks reads them as
+  // 64-bit words, and a region that stopped at the last byte would let the
+  // final word of one run into the next. Seven bytes per region to avoid that.
+  const isize stride = ((n + 63) / 64) * 8;
   u8 *__restrict q = out;
   u8 *__restrict e = out + stride;
   u8 *__restrict st = out + 2 * stride;
@@ -1598,6 +1602,15 @@ void simd_json_masks(u8 *__restrict out, const u8 *__restrict b, isize n,
     if (want & 8) STORE_MASK_BITS(v < 0x20, ct, i);
     if (want & 16)
       STORE_MASK_BITS((v == ' ') | (v == '\t') | (v == '\n') | (v == '\r'), ws, i);
+  }
+  // Everything from the last full block to the end of the last word, so a
+  // consumer reading whole words sees zeros past the document.
+  for (isize z = (n + 7) / 8; z < stride; z++) {
+    if (want & 1) q[z] = 0;
+    if (want & 2) e[z] = 0;
+    if (want & 4) st[z] = 0;
+    if (want & 8) ct[z] = 0;
+    if (want & 16) ws[z] = 0;
   }
   for (; i < n; i++) {
     u8 c = b[i];

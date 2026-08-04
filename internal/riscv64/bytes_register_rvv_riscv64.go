@@ -297,7 +297,7 @@ func countAnyRVVGuarded(b []byte, chars []byte) int {
 }
 
 func jsonMasksRVVGuarded(dst []byte, b []byte, want uint32) {
-	if len(b) < 64 || len(dst) < 5*((len(b)+7)/8) {
+	if len(b) < 64 || len(dst) < 5*(((len(b)+63)/64)*8) {
 		ref.JSONMasks(dst, b, want)
 		return
 	}

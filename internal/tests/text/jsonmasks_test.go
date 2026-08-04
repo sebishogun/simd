@@ -12,7 +12,7 @@ import (
 // MaskBits calls would write. That is the contract, and it is the only reason
 // fusing them is allowed to be faster.
 func separately(b []byte) [][]byte {
-	n := (len(b) + 7) / 8
+	n := simd.MaskWords(len(b))
 	q := make([]byte, n)
 	e := make([]byte, n)
 	st := make([]byte, n)
@@ -27,7 +27,7 @@ func separately(b []byte) [][]byte {
 }
 
 func fused(b []byte, want uint32) [][]byte {
-	n := (len(b) + 7) / 8
+	n := simd.MaskWords(len(b))
 	dst := make([]byte, 5*n)
 	simd.JSONMasks(dst, b, want)
 	out := make([][]byte, 5)

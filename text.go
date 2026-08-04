@@ -649,8 +649,11 @@ func containsByte(s string, c byte) bool {
 // a time is five passes over the document and five dispatches; this is one load
 // per block and five predicate stores.
 //
-// dst holds five regions of (len(s)+7)/8 bytes, in that order: quote, escape,
+// dst holds five regions of ((len(s)+63)/64)*8 bytes — whole 64-bit words,
+// because that is how a mask is read — in that order: quote, escape,
 // structural, control, whitespace. It must be at least five times that long.
+//
+// [MaskWords] gives the region size.
 //
 // want selects which regions are written, one bit each, low bit first —
 // JSONMaskQuote through JSONMaskSpace. The regions are laid out as though all
@@ -675,3 +678,7 @@ const (
 	JSONMaskAll = JSONMaskQuote | JSONMaskEscape | JSONMaskStructural |
 		JSONMaskControl | JSONMaskSpace
 )
+
+// MaskWords is the size of one [JSONMasks] region for an input of n bytes:
+// enough whole 64-bit words to hold a bit per byte.
+func MaskWords(n int) int { return ((n + 63) / 64) * 8 }

@@ -1183,7 +1183,7 @@ func Bytes() []spec.Kernel {
 			Params: []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8),
 				{Name: "want", Type: spec.U32}},
 			CArgs:        []spec.CArg{base("dst"), base("b"), lenOf("b"), val("want")},
-			RefWhen:      "len(dst) < 5*((len(b)+7)/8)",
+			RefWhen:      "len(dst) < 5*(((len(b)+63)/64)*8)",
 			UnclampedDst: true,
 			Threshold:    thScan,
 		},

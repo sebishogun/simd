@@ -92,18 +92,36 @@ func countSeq(haystack, needle []byte) int {
 
 // jsonMasks writes the five masks a JSON indexer wants, in one pass.
 //
-// dst holds five regions of (len(b)+7)/8 bytes: quotes, backslashes, the four
-// brackets, bytes below 0x20, and the four whitespace bytes JSON allows, in
-// that order. want selects which are written, one bit each, low bit first; the
+// dst holds five regions of ((len(b)+63)/64)*8 bytes -- whole 64-bit words,
+// because that is how they are read: quotes, backslashes, the four brackets,
+// bytes below 0x20, and the four whitespace bytes JSON allows, in that order. want selects which are written, one bit each, low bit first; the
 // regions are laid out as though all five were present either way, so a
 // caller's offsets do not depend on what it asked for.
 func jsonMasks(dst, b []byte, want uint32) {
-	stride := (len(b) + 7) / 8
+	// Word-aligned; see the C. Consumers read these as 64-bit words.
+	stride := ((len(b) + 63) / 64) * 8
 	q := dst[0:]
 	e := dst[stride:]
 	st := dst[2*stride:]
 	ct := dst[3*stride:]
 	ws := dst[4*stride:]
+	for z := (len(b) + 7) / 8; z < stride; z++ {
+		if want&1 != 0 {
+			q[z] = 0
+		}
+		if want&2 != 0 {
+			e[z] = 0
+		}
+		if want&4 != 0 {
+			st[z] = 0
+		}
+		if want&8 != 0 {
+			ct[z] = 0
+		}
+		if want&16 != 0 {
+			ws[z] = 0
+		}
+	}
 	for i := 0; i < len(b); i++ {
 		c := b[i]
 		o := i / 8

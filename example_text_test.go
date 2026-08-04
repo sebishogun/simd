@@ -193,7 +193,7 @@ func ExampleJSONMasks() {
 	doc := []byte(`{"a": "b\"c"}`)
 
 	// Five regions of one byte per eight input bytes, in a fixed order.
-	stride := (len(doc) + 7) / 8
+	stride := simd.MaskWords(len(doc))
 	masks := make([]byte, 5*stride)
 	simd.JSONMasks(masks, doc, simd.JSONMaskAll)
 
@@ -215,4 +215,21 @@ func ExampleJSONMasks() {
 	// structural [0 12]
 	// control    []
 	// space      [5]
+}
+
+// MaskWords sizes a JSONMasks region: enough whole 64-bit words to hold a bit
+// per input byte. The masks are read as words, so a region that stopped at the
+// last byte would let the final word of one run into the next.
+func ExampleMaskWords() {
+	for _, n := range []int{0, 1, 64, 65, 100, 1000} {
+		fmt.Printf("%d bytes -> %d per region, %d for all five\n",
+			n, simd.MaskWords(n), 5*simd.MaskWords(n))
+	}
+	// Output:
+	// 0 bytes -> 0 per region, 0 for all five
+	// 1 bytes -> 8 per region, 40 for all five
+	// 64 bytes -> 8 per region, 40 for all five
+	// 65 bytes -> 16 per region, 80 for all five
+	// 100 bytes -> 16 per region, 80 for all five
+	// 1000 bytes -> 128 per region, 640 for all five
 }

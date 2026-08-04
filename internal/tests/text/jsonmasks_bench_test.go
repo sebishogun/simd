@@ -21,7 +21,7 @@ func jsonish(n int) []byte {
 func BenchmarkMasksSeparate(b *testing.B) {
 	for _, n := range []int{1 << 10, 1 << 16, 1 << 20, 2 << 20} {
 		data := jsonish(n)
-		m := (n + 7) / 8
+		m := simd.MaskWords(n)
 		q, e, st, ct, ws := make([]byte, m), make([]byte, m), make([]byte, m), make([]byte, m), make([]byte, m)
 		b.Run(fmt.Sprint(n), func(b *testing.B) {
 			b.SetBytes(int64(n))
@@ -39,7 +39,7 @@ func BenchmarkMasksSeparate(b *testing.B) {
 func BenchmarkMasksFused(b *testing.B) {
 	for _, n := range []int{1 << 10, 1 << 16, 1 << 20, 2 << 20} {
 		data := jsonish(n)
-		dst := make([]byte, 5*((n+7)/8))
+		dst := make([]byte, 5*simd.MaskWords(n))
 		b.Run(fmt.Sprint(n), func(b *testing.B) {
 			b.SetBytes(int64(n))
 			for i := 0; i < b.N; i++ {
@@ -53,7 +53,7 @@ func BenchmarkMasksFused(b *testing.B) {
 func BenchmarkMasksSeparate3(b *testing.B) {
 	for _, n := range []int{1 << 16, 1 << 20} {
 		data := jsonish(n)
-		m := (n + 7) / 8
+		m := simd.MaskWords(n)
 		q, e, st := make([]byte, m), make([]byte, m), make([]byte, m)
 		b.Run(fmt.Sprint(n), func(b *testing.B) {
 			b.SetBytes(int64(n))
@@ -69,7 +69,7 @@ func BenchmarkMasksSeparate3(b *testing.B) {
 func BenchmarkMasksFused3(b *testing.B) {
 	for _, n := range []int{1 << 16, 1 << 20} {
 		data := jsonish(n)
-		dst := make([]byte, 5*((n+7)/8))
+		dst := make([]byte, 5*simd.MaskWords(n))
 		want := uint32(simd.JSONMaskQuote | simd.JSONMaskEscape | simd.JSONMaskStructural)
 		b.Run(fmt.Sprint(n), func(b *testing.B) {
 			b.SetBytes(int64(n))
