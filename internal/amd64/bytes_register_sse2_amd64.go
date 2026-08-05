@@ -312,7 +312,7 @@ func jsonQuoteSSE2Guarded(dst []byte, b []byte, html byte) int {
 }
 
 func jsonCopyRunSSE2Guarded(dst []byte, b []byte, html byte) int {
-	if len(b) < 64 || len(dst) < len(b) {
+	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunSSE2(dst, b, html)

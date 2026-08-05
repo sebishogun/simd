@@ -55,9 +55,6 @@ func bitNotVSX(dst []byte, b []byte)
 func fillBytesVSX(dst []byte, v byte)
 
 //go:noescape
-func jsonCopyRunVSX(dst []byte, b []byte, html byte) int
-
-//go:noescape
 func hexEncodeVSX(dst []byte, b []byte) int
 
 //go:noescape

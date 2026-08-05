@@ -319,7 +319,7 @@ func jsonQuoteAVX2Guarded(dst []byte, b []byte, html byte) int {
 }
 
 func jsonCopyRunAVX2Guarded(dst []byte, b []byte, html byte) int {
-	if len(b) < 64 || len(dst) < len(b) {
+	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunAVX2(dst, b, html)

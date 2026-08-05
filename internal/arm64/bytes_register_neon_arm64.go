@@ -319,7 +319,7 @@ func jsonQuoteNEONGuarded(dst []byte, b []byte, html byte) int {
 }
 
 func jsonCopyRunNEONGuarded(dst []byte, b []byte, html byte) int {
-	if len(b) < 64 || len(dst) < len(b) {
+	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunNEON(dst, b, html)

@@ -787,6 +787,11 @@ void simd_valid_utf8(_Bool *__restrict out, const u8 *__restrict b, isize n) {
 void simd_json_copy_run(isize *__restrict out, u8 *__restrict dst,
                         const u8 *__restrict b, isize n, u8 html) {
   isize i = 0;
+  // Whether the block loop stopped because something needs escaping, as
+  // opposed to running out of whole blocks. The overlapping tail below is only
+  // sound in the second case: after a hit, everything from i onwards is the
+  // caller's answer and skipping ahead to the end would step over it.
+  _Bool hitBlock = 0;
   for (; i + BYTE_LANES <= n; i += BYTE_LANES) {
     u8xB v = VLOAD(b, i);
     u8xB hit = (u8xB)(v < SPLAT(u8xB, 0x20)) | (u8xB)(v == SPLAT(u8xB, '"')) |
@@ -795,11 +800,41 @@ void simd_json_copy_run(isize *__restrict out, u8 *__restrict dst,
       hit |= (u8xB)(v == SPLAT(u8xB, '<')) | (u8xB)(v == SPLAT(u8xB, '>')) |
              (u8xB)(v == SPLAT(u8xB, '&')) | (u8xB)(v == SPLAT(u8xB, 0xE2));
     }
-    if (OR_ANY(hit)) break;
+    if (OR_ANY(hit)) {
+      hitBlock = 1;
+      break;
+    }
     // The block is clean, so it goes out whole. Storing before the test would
     // write past the run; storing after it means a clean block is one load and
     // one store and nothing else.
     *(u8xB *)(dst + i) = v;
+  }
+  // One more block for the tail, ending at n and overlapping what the loop
+  // already covered.
+  //
+  // The tail was a byte loop, and it showed: 32 bytes took 4.1 ns and 48 took
+  // 9.3, because the second is one block plus sixteen single-byte steps. A
+  // whole extra block costs one load and one compare and re-reads bytes already
+  // known clean, which is cheaper than stepping over half of them. The store
+  // rewrites bytes with the values they already hold.
+  //
+  // Only when the tail is clean, which is the common case. If anything in the
+  // overlapping block needs escaping the byte loop below still has to find
+  // where, and it starts from i rather than from the block, because the hit may
+  // be in the part already passed.
+  if (!hitBlock && i < n && n >= BYTE_LANES) {
+    u8xB v = VLOAD(b, n - BYTE_LANES);
+    u8xB hit = (u8xB)(v < SPLAT(u8xB, 0x20)) | (u8xB)(v == SPLAT(u8xB, '"')) |
+               (u8xB)(v == SPLAT(u8xB, '\\'));
+    if (html) {
+      hit |= (u8xB)(v == SPLAT(u8xB, '<')) | (u8xB)(v == SPLAT(u8xB, '>')) |
+             (u8xB)(v == SPLAT(u8xB, '&')) | (u8xB)(v == SPLAT(u8xB, 0xE2));
+    }
+    if (!OR_ANY(hit)) {
+      *(u8xB *)(dst + n - BYTE_LANES) = v;
+      *out = n;
+      return;
+    }
   }
   for (; i < n; i++) {
     u8 c = b[i];

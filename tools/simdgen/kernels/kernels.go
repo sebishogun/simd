@@ -1231,7 +1231,7 @@ func Bytes() []spec.Kernel {
 			CArgs:        []spec.CArg{out(), base("dst"), base("b"), lenOf("b"), val("html")},
 			RefWhen:      "len(dst) < len(b)",
 			UnclampedDst: true,
-			Threshold:    thScan,
+			Threshold:    32, // one BYTE_LANES block; the 64 came from timing the ref, not the kernel
 		},
 		{
 			// Also two lengths: the output holds two bytes per input byte, so

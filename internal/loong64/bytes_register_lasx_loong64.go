@@ -167,7 +167,7 @@ func countAnyLASXGuarded(b []byte, chars []byte) int {
 }
 
 func jsonCopyRunLASXGuarded(dst []byte, b []byte, html byte) int {
-	if len(b) < 64 || len(dst) < len(b) {
+	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunLASX(dst, b, html)
