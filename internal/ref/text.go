@@ -178,6 +178,29 @@ func jsonCopyRun(dst, b []byte, html byte) int {
 	return len(b)
 }
 
+// jsonCopyValid is jsonCopyRun with UTF-8 validation over what it copied,
+// returning the count or -1 when that region was not valid UTF-8.
+//
+// Written from the rules rather than from the kernel: a run of bytes an encoder
+// may write verbatim, and utf8.Valid over exactly those bytes.
+func jsonCopyValid(dst, b []byte, html byte) int {
+	n := 0
+	for ; n < len(b); n++ {
+		c := b[n]
+		if c < 0x20 || c == '"' || c == '\\' {
+			break
+		}
+		if html != 0 && (c == '<' || c == '>' || c == '&' || c == 0xE2) {
+			break
+		}
+		dst[n] = c
+	}
+	if !utf8.Valid(b[:n]) {
+		return -1
+	}
+	return n
+}
+
 // jsonQuote copies b into dst with JSON escapes written in place and returns
 // how many bytes it wrote. dst must hold 6*len(b).
 //
@@ -457,6 +480,10 @@ func JSONCopyRun(dst, b []byte, html byte) int { return jsonCopyRun(dst, b, html
 // JSONQuote copies b into dst with escapes written in place. dst must hold
 // 6*len(b), which is every byte becoming \\u00XX.
 func JSONQuote(dst, b []byte, html byte) int { return jsonQuote(dst, b, html) }
+
+// JSONCopyValid copies the bytes an encoder can write verbatim and validates
+// them in the same pass, returning the count or -1 if they were not valid UTF-8.
+func JSONCopyValid(dst, b []byte, html byte) int { return jsonCopyValid(dst, b, html) }
 
 // JSONMasks writes the five masks a JSON indexer wants, in one pass.
 func JSONMasks(dst, b []byte, want uint32) { jsonMasks(dst, b, want) }

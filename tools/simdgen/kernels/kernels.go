@@ -1188,6 +1188,21 @@ func Bytes() []spec.Kernel {
 			Threshold:    thScan,
 		},
 		{
+			// Validation folded into the copy, so the caller makes one pass
+			// where it made three. Output is at most len(b) -- it still stops
+			// at the first byte needing an escape -- so unlike simd_json_quote
+			// there is nothing extra to reserve.
+			CName: "simd_json_copy_valid", GoName: "jsonCopyValid",
+			Group: "Bytes", Field: "JSONCopyValid", RefFunc: "JSONCopyValid",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8),
+				{Name: "html", Type: spec.U8}},
+			Result:       &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:        []spec.CArg{out(), base("dst"), base("b"), lenOf("b"), val("html")},
+			RefWhen:      "len(dst) < len(b)",
+			UnclampedDst: true,
+			Threshold:    thScan,
+		},
+		{
 			// Six bytes of output per input byte, because that is what every
 			// byte becoming \u00XX costs. Reserving the worst case up front is
 			// what lets the kernel write without checking for space per byte,

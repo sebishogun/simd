@@ -169,6 +169,26 @@ func JSONCopyRun[S Text](dst []byte, s S, html bool) int {
 	return active.Bytes.JSONCopyRun(dst, textBytes(s), h)
 }
 
+// JSONCopyValid copies the bytes at the front of s that a JSON encoder may
+// write verbatim, proves them valid UTF-8 in the same pass, and returns how
+// many — or a negative number if they were not valid.
+//
+// [JSONCopyRun] answers only the first question, which leaves the caller to
+// walk the same bytes again for the second. This answers both in one pass, and
+// unlike [JSONQuote] it needs no more room than len(s), because it still stops
+// at the first byte needing an escape rather than writing it.
+//
+// A negative result says only that validation failed. Where it failed is the
+// caller's to find, and callers that care are already rescanning to place
+// replacement characters.
+func JSONCopyValid[S Text](dst []byte, s S, html bool) int {
+	var h byte
+	if html {
+		h = 1
+	}
+	return active.Bytes.JSONCopyValid(dst, textBytes(s), h)
+}
+
 // JSONQuote copies s into dst with JSON escapes written in place and returns
 // how many bytes it wrote.
 //

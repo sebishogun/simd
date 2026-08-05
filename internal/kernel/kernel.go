@@ -573,6 +573,13 @@ type Bytes struct {
 	// the set or below lo. One pass and one early exit instead of two of each.
 	IndexAnyOrLess func(b, chars []byte, lo byte) int
 
+	// JSONCopyValid copies the bytes an encoder can write verbatim and proves
+	// them valid UTF-8 in the same pass, returning the count or -1.
+	//
+	// One pass where the caller otherwise makes three: find the clean prefix,
+	// validate, then copy and scan.
+	JSONCopyValid func(dst, b []byte, html byte) int
+
 	// JSONQuote copies b into dst with JSON escapes written in place and
 	// returns how many bytes it wrote. dst must hold 6*len(b), which is every
 	// byte becoming \u00XX.

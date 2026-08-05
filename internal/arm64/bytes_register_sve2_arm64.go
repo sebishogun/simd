@@ -304,6 +304,13 @@ func jsonMasksSVE2Guarded(dst []byte, b []byte, want uint32) {
 	jsonMasksSVE2(dst, b, want)
 }
 
+func jsonCopyValidSVE2Guarded(dst []byte, b []byte, html byte) int {
+	if len(b) < 64 || len(dst) < len(b) {
+		return ref.JSONCopyValid(dst, b, html)
+	}
+	return jsonCopyValidSVE2(dst, b, html)
+}
+
 func jsonQuoteSVE2Guarded(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < 6*len(b) {
 		return ref.JSONQuote(dst, b, html)
@@ -457,6 +464,7 @@ func init() {
 	s.Bytes.LastIndexNotAny = lastIndexNotAnySVE2Guarded
 	s.Bytes.CountAny = countAnySVE2Guarded
 	s.Bytes.JSONMasks = jsonMasksSVE2Guarded
+	s.Bytes.JSONCopyValid = jsonCopyValidSVE2Guarded
 	s.Bytes.JSONQuote = jsonQuoteSVE2Guarded
 	s.Bytes.JSONCopyRun = jsonCopyRunSVE2Guarded
 	s.Bytes.B64Encode = b64EncodeSVE2Guarded

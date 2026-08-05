@@ -810,6 +810,131 @@ void simd_json_copy_run(isize *__restrict out, u8 *__restrict dst,
   *out = i;
 }
 
+// simd_json_copy_valid is simd_json_copy_run with UTF-8 validation folded into
+// the same pass, returning the count it copied or a negative value if what it
+// covered was not valid UTF-8.
+//
+// The encoder walked every string three times: once to find the clean ASCII
+// prefix, once to prove the rest valid UTF-8, and once more to copy it and find
+// the escapes. Three passes over the same bytes, 44% of a struct encode. The
+// classifier here is the one from simd_valid_utf8 and the copy is the one from
+// simd_json_copy_run; running them together costs one block's worth of vector
+// work instead of two passes' worth of memory traffic.
+//
+// Unlike simd_json_quote this needs no extra output space: it still stops at
+// the first byte an encoder cannot write verbatim, so it writes at most n
+// bytes. That reservation is what made the quote kernel unusable here.
+//
+// The negative return says only that validation failed, not where. The caller's
+// invalid path rescans to place the replacement characters, and one return
+// value keeps this inside the six argument registers the ABI allows.
+//
+// Validation covers whole blocks, which can be more than was copied when the
+// stop is mid-block. That is safe in the direction that matters: the extra
+// bytes are still part of the caller's string, so declaring the string invalid
+// on their account is right, and the caller sanitises the whole of it anyway.
+void simd_json_copy_valid(isize *__restrict out, u8 *__restrict dst,
+                          const u8 *__restrict b, isize n, u8 html) {
+  isize i = 0;
+  u8xB prev = 0, err = 0;
+  for (; i + BYTE_LANES <= n; i += BYTE_LANES) {
+    u8xB v = VLOAD(b, i);
+
+    // The escape question first, because it ends the copy and the validity
+    // question does not.
+    u8xB hit = (u8xB)(v < SPLAT(u8xB, 0x20)) | (u8xB)(v == SPLAT(u8xB, '"')) |
+               (u8xB)(v == SPLAT(u8xB, '\\'));
+    if (html) {
+      hit |= (u8xB)(v == SPLAT(u8xB, '<')) | (u8xB)(v == SPLAT(u8xB, '>')) |
+             (u8xB)(v == SPLAT(u8xB, '&')) | (u8xB)(v == SPLAT(u8xB, 0xE2));
+    }
+    if (OR_ANY(hit)) break;
+
+    // Same shape as simd_valid_utf8: a block with nothing above ASCII in it,
+    // and nothing pending from the block before, needs no checking.
+    if (OR_ANY((v | prev) & SPLAT(u8xB, 0x80))) {
+      u8xB p1 = UTF8_PREV1(prev, v);
+      u8xB p2 = UTF8_PREV2(prev, v);
+      u8xB p3 = UTF8_PREV3(prev, v);
+      u8xB want = (u8xB)(p1 >= SPLAT(u8xB, 0xC0)) |
+                  (u8xB)(p2 >= SPLAT(u8xB, 0xE0)) |
+                  (u8xB)(p3 >= SPLAT(u8xB, 0xF0));
+      u8xB is = (u8xB)((v & SPLAT(u8xB, 0xC0)) == SPLAT(u8xB, 0x80));
+      err |= want ^ is;
+      err |= (u8xB)(p1 <= SPLAT(u8xB, 0xC1)) & (u8xB)(p1 >= SPLAT(u8xB, 0xC0));
+      err |= (u8xB)(p1 == SPLAT(u8xB, 0xE0)) & (u8xB)(v < SPLAT(u8xB, 0xA0));
+      err |= (u8xB)(p1 == SPLAT(u8xB, 0xED)) & (u8xB)(v > SPLAT(u8xB, 0x9F));
+      err |= (u8xB)(p1 == SPLAT(u8xB, 0xF0)) & (u8xB)(v < SPLAT(u8xB, 0x90));
+      err |= (u8xB)(p1 == SPLAT(u8xB, 0xF4)) & (u8xB)(v > SPLAT(u8xB, 0x8F));
+      err |= (u8xB)(p1 >= SPLAT(u8xB, 0xF5));
+    }
+    prev = v;
+    *(u8xB *)(dst + i) = v;
+  }
+  if (OR_ANY(err)) {
+    *out = -1;
+    return;
+  }
+
+  // From here it is byte-wise, and it has to finish what the blocks left: a
+  // leader in the last three covered bytes makes demands about bytes they did
+  // not reach. Back up to the start of that character, validate byte-wise to
+  // the stopping point, and copy forward from where the blocks stopped.
+  isize v0 = i;
+  if (v0 > 0) {
+    v0--;
+    for (int k = 0; k < 3 && v0 > 0 && (b[v0] & 0xC0) == 0x80; k++) v0--;
+  }
+  isize stop = i;
+  for (; stop < n; stop++) {
+    u8 c = b[stop];
+    if (c < 0x20 || c == '"' || c == '\\') break;
+    if (html && (c == '<' || c == '>' || c == '&' || c == 0xE2)) break;
+    dst[stop] = c;
+  }
+  while (v0 < stop) {
+    u8 c = b[v0];
+    if (c < 0x80) {
+      v0++;
+      continue;
+    }
+    isize need;
+    if (c >= 0xC2 && c <= 0xDF) {
+      need = 1;
+    } else if (c >= 0xE0 && c <= 0xEF) {
+      need = 2;
+    } else if (c >= 0xF0 && c <= 0xF4) {
+      need = 3;
+    } else {
+      *out = -1;
+      return;
+    }
+    // A sequence that starts inside the copied region and does not finish
+    // inside it is invalid, and it is not the next call's problem. What ended
+    // the copy is either the end of the input or a byte an encoder must escape
+    // -- below 0x20, a quote, a backslash -- and none of those can be a
+    // continuation byte. So the sequence is truncated wherever it stopped.
+    if (v0 + need >= stop) {
+      *out = -1;
+      return;
+    }
+    for (isize k = 1; k <= need; k++) {
+      if ((b[v0 + k] & 0xC0) != 0x80) {
+        *out = -1;
+        return;
+      }
+    }
+    u8 c1 = b[v0 + 1];
+    if ((c == 0xE0 && c1 < 0xA0) || (c == 0xED && c1 > 0x9F) ||
+        (c == 0xF0 && c1 < 0x90) || (c == 0xF4 && c1 > 0x8F)) {
+      *out = -1;
+      return;
+    }
+    v0 += need + 1;
+  }
+  *out = stop;
+}
+
 // simd_json_quote copies b into dst with JSON escapes written in place, and
 // returns how many bytes it wrote.
 //

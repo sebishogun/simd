@@ -54,6 +54,7 @@ var Inventory = []Declared{
 	{"Bytes", "IndexNotAny", "IndexNotAny", "simd_index_not_any"},
 	{"Bytes", "IsASCII", "IsASCII", "simd_is_ascii"},
 	{"Bytes", "JSONCopyRun", "JSONCopyRun", "simd_json_copy_run"},
+	{"Bytes", "JSONCopyValid", "JSONCopyValid", "simd_json_copy_valid"},
 	{"Bytes", "JSONMasks", "JSONMasks", "simd_json_masks"},
 	{"Bytes", "JSONQuote", "JSONQuote", "simd_json_quote"},
 	{"Bytes", "LastIndex", "LastIndex", "simd_last_index"},
