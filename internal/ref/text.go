@@ -2,6 +2,7 @@ package ref
 
 import (
 	"bytes"
+	ebinary "encoding/binary"
 	"strconv"
 	"unicode/utf8"
 )
@@ -105,7 +106,54 @@ func jsonMasks(dst, b []byte, want uint32) {
 	st := dst[2*stride:]
 	ct := dst[3*stride:]
 	ws := dst[4*stride:]
-	for z := (len(b) + 7) / 8; z < stride; z++ {
+
+	// One class-table lookup per byte and five branchless accumulator updates,
+	// flushed every eight bytes. The obvious per-byte form -- five flag tests
+	// and five read-modify-writes against the mask bytes -- was 49% of parsing
+	// a 64-byte document, because this reference IS the production path below
+	// the kernel threshold and everywhere purego runs. want gates the flushes,
+	// not the accumulation: a caller that asked for fewer masks may have sized
+	// dst for fewer, and registers cost nothing.
+	// A 64-bit word per mask per 64 input bytes, flushed with PutUint64: the
+	// byte-at-a-time flush carried a bounds check and a panic edge per mask
+	// byte -- sixteen call sites in the disassembly -- and this pays one per
+	// mask per eight times as much input.
+	o := 0
+	for base := 0; base < len(b); base += 64 {
+		lim := base + 64
+		if lim > len(b) {
+			lim = len(b)
+		}
+		var qw, ew, sw, cw, ww uint64
+		for i := base; i < lim; i++ {
+			cls := uint64(jsonClassTab[b[i]])
+			sh := uint(i) & 63
+			qw |= (cls & 1) << sh
+			ew |= (cls >> 1 & 1) << sh
+			sw |= (cls >> 2 & 1) << sh
+			cw |= (cls >> 3 & 1) << sh
+			ww |= (cls >> 4 & 1) << sh
+		}
+		if want&1 != 0 {
+			ebinary.LittleEndian.PutUint64(q[o:], qw)
+		}
+		if want&2 != 0 {
+			ebinary.LittleEndian.PutUint64(e[o:], ew)
+		}
+		if want&4 != 0 {
+			ebinary.LittleEndian.PutUint64(st[o:], sw)
+		}
+		if want&8 != 0 {
+			ebinary.LittleEndian.PutUint64(ct[o:], cw)
+		}
+		if want&16 != 0 {
+			ebinary.LittleEndian.PutUint64(ws[o:], ww)
+		}
+		o += 8
+	}
+	// Whole words were written, so only the strides' word-alignment padding
+	// past the last written word can remain; clear it for the masks asked for.
+	for z := o; z < stride; z++ {
 		if want&1 != 0 {
 			q[z] = 0
 		}
@@ -122,44 +170,24 @@ func jsonMasks(dst, b []byte, want uint32) {
 			ws[z] = 0
 		}
 	}
-	for i := 0; i < len(b); i++ {
-		c := b[i]
-		o := i / 8
-		bit := byte(1) << (i % 8)
-		if i%8 == 0 {
-			if want&1 != 0 {
-				q[o] = 0
-			}
-			if want&2 != 0 {
-				e[o] = 0
-			}
-			if want&4 != 0 {
-				st[o] = 0
-			}
-			if want&8 != 0 {
-				ct[o] = 0
-			}
-			if want&16 != 0 {
-				ws[o] = 0
-			}
-		}
-		if want&1 != 0 && c == '"' {
-			q[o] |= bit
-		}
-		if want&2 != 0 && c == '\\' {
-			e[o] |= bit
-		}
-		if want&4 != 0 && (c == '{' || c == '}' || c == '[' || c == ']') {
-			st[o] |= bit
-		}
-		if want&8 != 0 && c < 0x20 {
-			ct[o] |= bit
-		}
-		if want&16 != 0 && (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-			ws[o] |= bit
-		}
-	}
 }
+
+// jsonClassTab classifies a byte for jsonMasks: bit 0 quote, bit 1 backslash,
+// bit 2 structural, bit 3 control, bit 4 JSON whitespace.
+var jsonClassTab = func() (t [256]byte) {
+	t['"'] |= 1
+	t['\\'] |= 2
+	for _, c := range []byte("{}[]") {
+		t[c] |= 4
+	}
+	for c := 0; c < 0x20; c++ {
+		t[c] |= 8
+	}
+	for _, c := range []byte(" \t\n\r") {
+		t[c] |= 16
+	}
+	return
+}()
 
 // jsonCopyRun copies the bytes a JSON encoder can write verbatim and returns
 // how many. The escape set is compiled in; html adds the three HTML characters
