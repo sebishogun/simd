@@ -40,6 +40,11 @@ per-build, not per-run. When a change is expected to be worth less than that:
 A/B builds must be **interleaved** in one session and compared on the minimum,
 never across sessions. Run the machine quiet: wait for load average under 1.
 
+**Never pipe a gate through `tail`** (or anything else) without `pipefail`:
+the pipe reports the last command's status and the failure vanishes. This has
+now laundered a red fuzz run, a red README gate, and two red bench-check runs
+into green exits. Run gates bare, or `set -o pipefail` first.
+
 ## The record
 
 `docs/wrong.md` in each repository holds measurements that argued against
