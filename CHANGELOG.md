@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.10.1
+
+**The portable `jsonMasks` classifies through a table and flushes whole
+words.** The reference is the production path below the kernel threshold and
+everywhere `purego` runs, and it was written as an oracle — per input byte, an
+index division, five flag tests and five read-modify-writes. Parsing a 50-byte
+document in simdjson spent 49% of its time in it; the rewrite takes that
+document's `Parse` from 204 ns to 170 through the public API, with `Scan` and
+`Valid` down about 10%. Inputs at the kernel threshold and above are untouched.
+Output is bit-identical, held by the conformance differential against every
+assembly tier.
+
 ## v1.10.0
 
 **`KernelThreshold`** — the input length below which a named operation's guard
