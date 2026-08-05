@@ -2933,3 +2933,38 @@ the first. Check which question the caller is asking before reusing it -- and
 run the tier lane, because the portable path is the one the differential suite
 cannot see.
 
+
+## The README's function count was right and the check on it was wrong
+
+The README says "473 exported functions ... the function count is for an
+ordinary build; the `goexperiment.simd` vector type adds four more."
+
+Counted from outside:
+
+	go doc . | grep -c '^func '                    469
+	GOEXPERIMENT=simd go doc . | grep -c '^func '  473
+
+which reads as an obvious defect: 473 is the experiment's count, the ordinary
+build has 469, and the sentence has them the wrong way round. The difference is
+four, the sentence says the vector type adds four, and `diff` on the two
+listings names them -- MapFloat32x8, MapFloat64x4, ZipFloat32x8, ZipFloat64x4.
+Every piece fits.
+
+It is wrong. `go doc` prints a type's constructors indented under the type, so
+`grep '^func '` at column zero misses them, and this package has exactly four:
+NewFFTPlan, NewRFFTPlan, NewMultiSearcher, NewRK4Workspace. The ordinary build
+has 473 exported functions. The README is right, and
+TestReadmeCountsAreCurrent has been checking it all along -- it parses the
+package with the goexperiment tags stripped and asserts the number, which is why
+it passed while the "defect" was being written up.
+
+Two unrelated groups of four, and the coincidence made a false explanation fit
+better than the true one. A task had already been filed against this repository
+and the number had already been deleted from simdjson's README as unverifiable.
+Both undone.
+
+**The rule.** When a measurement disagrees with a claim, the measurement is a
+suspect too -- especially an ad-hoc one built out of grep, and most of all when
+the story it tells is tidy. There was a test in the tree that answered this
+question properly and it was passing; running it first would have cost nothing.
+Check whether the thing is already checked before concluding it is not.
