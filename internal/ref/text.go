@@ -114,41 +114,46 @@ func jsonMasks(dst, b []byte, want uint32) {
 	// the kernel threshold and everywhere purego runs. want gates the flushes,
 	// not the accumulation: a caller that asked for fewer masks may have sized
 	// dst for fewer, and registers cost nothing.
-	// A 64-bit word per mask per 64 input bytes, flushed with PutUint64: the
-	// byte-at-a-time flush carried a bounds check and a panic edge per mask
-	// byte -- sixteen call sites in the disassembly -- and this pays one per
-	// mask per eight times as much input.
+	// Eight bytes at a time, all five masks from one load. Each answer is a
+	// SWAR containment test collapsed to eight bits with the movemask
+	// multiply; the chains amortise over five masks, which is what the
+	// cleanRun lesson in simdjson's docs/wrong.md says a lone answer cannot
+	// afford. The structural set folds with case: '['|0x20 is '{' and
+	// ']'|0x20 is '}', so four members cost two probes.
+	var qw, ew, sw, cw, ww uint64
 	o := 0
-	for base := 0; base < len(b); base += 64 {
-		lim := base + 64
-		if lim > len(b) {
-			lim = len(b)
+	base := 0
+	for ; base+8 <= len(b); base += 8 {
+		w := ebinary.LittleEndian.Uint64(b[base:])
+		qm := maskEq(w, '"')
+		em := maskEq(w, '\\')
+		lw := w | 0x2020202020202020
+		sm := maskEq(lw, '{') | maskEq(lw, '}')
+		cm := maskLt(w, 0x20)
+		wm := maskEq(w, ' ') | maskEq(w, '\t') | maskEq(w, '\n') | maskEq(w, '\r')
+		sh := uint(base>>3) & 7
+		qw |= uint64(qm) << (8 * sh)
+		ew |= uint64(em) << (8 * sh)
+		sw |= uint64(sm) << (8 * sh)
+		cw |= uint64(cm) << (8 * sh)
+		ww |= uint64(wm) << (8 * sh)
+		if sh == 7 {
+			flushMasks(q, e, st, ct, ws, o, want, qw, ew, sw, cw, ww)
+			qw, ew, sw, cw, ww = 0, 0, 0, 0, 0
+			o += 8
 		}
-		var qw, ew, sw, cw, ww uint64
-		for i := base; i < lim; i++ {
-			cls := uint64(jsonClassTab[b[i]])
-			sh := uint(i) & 63
-			qw |= (cls & 1) << sh
-			ew |= (cls >> 1 & 1) << sh
-			sw |= (cls >> 2 & 1) << sh
-			cw |= (cls >> 3 & 1) << sh
-			ww |= (cls >> 4 & 1) << sh
-		}
-		if want&1 != 0 {
-			ebinary.LittleEndian.PutUint64(q[o:], qw)
-		}
-		if want&2 != 0 {
-			ebinary.LittleEndian.PutUint64(e[o:], ew)
-		}
-		if want&4 != 0 {
-			ebinary.LittleEndian.PutUint64(st[o:], sw)
-		}
-		if want&8 != 0 {
-			ebinary.LittleEndian.PutUint64(ct[o:], cw)
-		}
-		if want&16 != 0 {
-			ebinary.LittleEndian.PutUint64(ws[o:], ww)
-		}
+	}
+	for i := base; i < len(b); i++ {
+		cls := uint64(jsonClassTab[b[i]])
+		sh := uint(i) & 63
+		qw |= (cls & 1) << sh
+		ew |= (cls >> 1 & 1) << sh
+		sw |= (cls >> 2 & 1) << sh
+		cw |= (cls >> 3 & 1) << sh
+		ww |= (cls >> 4 & 1) << sh
+	}
+	if uint(len(b))&63 != 0 || len(b) == 0 && false {
+		flushMasks(q, e, st, ct, ws, o, want, qw, ew, sw, cw, ww)
 		o += 8
 	}
 	// Whole words were written, so only the strides' word-alignment padding
@@ -170,6 +175,59 @@ func jsonMasks(dst, b []byte, want uint32) {
 			ws[z] = 0
 		}
 	}
+}
+
+// flushMasks writes one 64-bit word of each wanted mask at byte offset o.
+func flushMasks(q, e, st, ct, ws []byte, o int, want uint32, qw, ew, sw, cw, ww uint64) {
+	if want&1 != 0 {
+		ebinary.LittleEndian.PutUint64(q[o:], qw)
+	}
+	if want&2 != 0 {
+		ebinary.LittleEndian.PutUint64(e[o:], ew)
+	}
+	if want&4 != 0 {
+		ebinary.LittleEndian.PutUint64(st[o:], sw)
+	}
+	if want&8 != 0 {
+		ebinary.LittleEndian.PutUint64(ct[o:], cw)
+	}
+	if want&16 != 0 {
+		ebinary.LittleEndian.PutUint64(ws[o:], ww)
+	}
+}
+
+// movemask collapses one flag bit per byte -- the high bit -- into eight low
+// bits, byte k to bit k. The multiplier places each shifted flag so they land
+// in the top byte in order; the products cannot collide because each lands in
+// a distinct bit.
+func movemask(m uint64) byte {
+	return byte((m >> 7) * 0x0102040810204080 >> 56)
+}
+
+// maskEq returns a bit per byte of w equal to c, as eight low bits.
+func maskEq(w uint64, c byte) byte {
+	const lo = 0x0101010101010101
+	const hi = 0x8080808080808080
+	x := w ^ (lo * uint64(c))
+	// Exact, not Mycroft: (x-lo)&^x&hi detects a zero byte but can also flag
+	// the byte above one, because the subtraction borrows across bytes.
+	// Setting every byte's high bit before subtracting makes each byte
+	// self-sufficient -- at least 0x80 before losing 1 -- so no borrow ever
+	// crosses, and the mask is a per-byte truth.
+	m := hi &^ (x | ((x | hi) - lo))
+	return movemask(m)
+}
+
+// maskLt returns a bit per byte of w below c (c at most 0x7F), as eight bits.
+func maskLt(w uint64, c byte) byte {
+	const lo = 0x0101010101010101
+	const hi = 0x8080808080808080
+	// Force each byte's high bit before subtracting so a byte above 0x7F
+	// cannot borrow into its neighbour, then drop bytes that had it set: they
+	// are not below c whatever their low bits say.
+	d := (w&^hi | hi) - lo*uint64(c)
+	m := ^d &^ w & hi
+	return movemask(m)
 }
 
 // jsonClassTab classifies a byte for jsonMasks: bit 0 quote, bit 1 backslash,
