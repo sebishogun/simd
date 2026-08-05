@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.10.2
+
+**The portable `jsonMasks` goes word-at-a-time.** Eight bytes per load, all
+five masks from SWAR containment tests collapsed with the movemask multiply.
+On architectures without generated kernels this is the whole of stage one:
+purego twitter `Scan` runs 1.93× faster and `Parse` 1.73×, and a 50-byte
+document's `Parse` through simdjson drops from 170 ns to 129 (204 before this
+release series). Bit-identical, held by the conformance differential against
+every assembly tier and a three-million-word brute-force of the two SWAR
+helpers — one of which exists because Mycroft's zero test is a detector, not a
+per-byte mask.
+
 ## v1.10.1
 
 **The portable `jsonMasks` classifies through a table and flushes whole
