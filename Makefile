@@ -324,6 +324,11 @@ perf-model: ## Model kernel throughput on architectures this machine cannot time
 .PHONY: codegen
 codegen: ## Regenerate every kernel from csrc for all six architectures
 	cd tools && $(GO) run ./simdgen
+	cd tools && $(GO) run ./simdgen/thresholds ..
+
+.PHONY: gen-thresholds
+gen-thresholds: ## Regenerate the KernelThreshold tables alone (no clang needed)
+	cd tools && $(GO) run ./simdgen/thresholds ..
 
 # ---------------------------------------------------------------- performance
 # Every performance number in this repository was measured once by hand, which
