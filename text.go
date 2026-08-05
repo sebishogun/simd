@@ -169,6 +169,30 @@ func JSONCopyRun[S Text](dst []byte, s S, html bool) int {
 	return active.Bytes.JSONCopyRun(dst, textBytes(s), h)
 }
 
+// JSONQuote copies s into dst with JSON escapes written in place and returns
+// how many bytes it wrote.
+//
+// The difference from [JSONCopyRun] is that this does not stop at a byte
+// needing an escape — it writes the escape and carries on. A string with five
+// escapes costs one call rather than five, which is what makes it worth the
+// larger destination.
+//
+// dst must have room for 6*len(s) bytes: that is every byte becoming \u00XX,
+// the worst case, and reserving it is what removes the per-byte space check. A
+// caller who cannot spare that should use [JSONCopyRun] and handle the escapes
+// itself.
+//
+// html selects whether <, > and & are escaped, and whether U+2028 and U+2029
+// are — encoding/json escapes all five by default. A byte above ASCII is copied
+// through, which is correct only for a string already known to be valid UTF-8.
+func JSONQuote[S Text](dst []byte, s S, html bool) int {
+	var h byte
+	if html {
+		h = 1
+	}
+	return active.Bytes.JSONQuote(dst, textBytes(s), h)
+}
+
 // IndexNotAny returns the index of the first byte of s that is *not* in chars,
 // or -1 if every byte is.
 //

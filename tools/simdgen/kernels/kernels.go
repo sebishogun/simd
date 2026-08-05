@@ -1188,6 +1188,23 @@ func Bytes() []spec.Kernel {
 			Threshold:    thScan,
 		},
 		{
+			// Six bytes of output per input byte, because that is what every
+			// byte becoming \u00XX costs. Reserving the worst case up front is
+			// what lets the kernel write without checking for space per byte,
+			// and it is the difference between this and simd_json_copy_run --
+			// that one stops at each escape and returns, so a string with five
+			// of them costs five calls.
+			CName: "simd_json_quote", GoName: "jsonQuote",
+			Group: "Bytes", Field: "JSONQuote", RefFunc: "JSONQuote",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("b", spec.SliceU8),
+				{Name: "html", Type: spec.U8}},
+			Result:       &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:        []spec.CArg{out(), base("dst"), base("b"), lenOf("b"), val("html")},
+			RefWhen:      "len(dst) < 6*len(b)",
+			UnclampedDst: true,
+			Threshold:    thScan,
+		},
+		{
 			// The destination is written up to the length of the source and no
 			// further, so the guard must not clamp the source against it: a
 			// caller with room to spare is the normal case here.

@@ -178,6 +178,80 @@ func jsonCopyRun(dst, b []byte, html byte) int {
 	return len(b)
 }
 
+// jsonQuote copies b into dst with JSON escapes written in place and returns
+// how many bytes it wrote. dst must hold 6*len(b).
+//
+// This is the semantics the kernel has to match, byte for byte, on every
+// architecture: the escape set, the two shorthand forms, \u00XX for the rest,
+// and U+2028 and U+2029 escaped only when html is set and only when the three
+// bytes are actually those codepoints.
+func jsonQuote(dst, b []byte, html byte) int {
+	const hex = "0123456789abcdef"
+	o := 0
+	for i := 0; i < len(b); {
+		c := b[i]
+		if c >= 0x20 && c != '"' && c != '\\' &&
+			(html == 0 || (c != '<' && c != '>' && c != '&' && c != 0xE2)) {
+			dst[o] = c
+			o++
+			i++
+			continue
+		}
+		switch c {
+		case '"':
+			dst[o], dst[o+1] = '\\', '"'
+			o += 2
+			i++
+		case '\\':
+			dst[o], dst[o+1] = '\\', '\\'
+			o += 2
+			i++
+		case '\b':
+			dst[o], dst[o+1] = '\\', 'b'
+			o += 2
+			i++
+		case '\f':
+			dst[o], dst[o+1] = '\\', 'f'
+			o += 2
+			i++
+		case '\n':
+			dst[o], dst[o+1] = '\\', 'n'
+			o += 2
+			i++
+		case '\r':
+			dst[o], dst[o+1] = '\\', 'r'
+			o += 2
+			i++
+		case '\t':
+			dst[o], dst[o+1] = '\\', 't'
+			o += 2
+			i++
+		case 0xE2:
+			if i+2 < len(b) && b[i+1] == 0x80 && (b[i+2] == 0xA8 || b[i+2] == 0xA9) {
+				dst[o], dst[o+1], dst[o+2] = '\\', 'u', '2'
+				dst[o+3], dst[o+4] = '0', '2'
+				if b[i+2] == 0xA8 {
+					dst[o+5] = '8'
+				} else {
+					dst[o+5] = '9'
+				}
+				o += 6
+				i += 3
+			} else {
+				dst[o] = c
+				o++
+				i++
+			}
+		default:
+			dst[o], dst[o+1], dst[o+2], dst[o+3] = '\\', 'u', '0', '0'
+			dst[o+4], dst[o+5] = hex[c>>4], hex[c&0xF]
+			o += 6
+			i++
+		}
+	}
+	return o
+}
+
 // indexAnyOrLess is indexAny with a threshold folded in: the first byte that is
 // in the set or below lo. Callers want the two questions answered together
 // because the answer they act on is whichever comes first, and asking twice
@@ -379,6 +453,10 @@ func IndexAnyOrLess(b, chars []byte, lo byte) int { return indexAnyOrLess(b, cha
 
 // JSONCopyRun is exported for the dispatch table and the differential test.
 func JSONCopyRun(dst, b []byte, html byte) int { return jsonCopyRun(dst, b, html) }
+
+// JSONQuote copies b into dst with escapes written in place. dst must hold
+// 6*len(b), which is every byte becoming \\u00XX.
+func JSONQuote(dst, b []byte, html byte) int { return jsonQuote(dst, b, html) }
 
 // JSONMasks writes the five masks a JSON indexer wants, in one pass.
 func JSONMasks(dst, b []byte, want uint32) { jsonMasks(dst, b, want) }

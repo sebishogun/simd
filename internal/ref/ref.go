@@ -1189,6 +1189,7 @@ func Set() kernel.Set {
 			MaskBitsAny4: MaskBitsAny4,
 			IndexAny:     indexAny, CountAny: countAny, Index: index,
 			IndexAnyOrLess: indexAnyOrLess, JSONCopyRun: jsonCopyRun,
+			JSONQuote:   jsonQuote,
 			JSONMasks:   jsonMasks,
 			IndexNotAny: indexNotAny, LastIndexNotAny: lastIndexNotAny, LastIndex: lastIndex, CountSeq: countSeq,
 			IsASCII: isASCII, ValidUTF8: validUTF8,

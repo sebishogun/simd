@@ -304,6 +304,13 @@ func jsonMasksRVVGuarded(dst []byte, b []byte, want uint32) {
 	jsonMasksRVV(dst, b, want)
 }
 
+func jsonQuoteRVVGuarded(dst []byte, b []byte, html byte) int {
+	if len(b) < 64 || len(dst) < 6*len(b) {
+		return ref.JSONQuote(dst, b, html)
+	}
+	return jsonQuoteRVV(dst, b, html)
+}
+
 func jsonCopyRunRVVGuarded(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
@@ -450,6 +457,7 @@ func init() {
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyRVVGuarded
 	s.Bytes.CountAny = countAnyRVVGuarded
 	s.Bytes.JSONMasks = jsonMasksRVVGuarded
+	s.Bytes.JSONQuote = jsonQuoteRVVGuarded
 	s.Bytes.JSONCopyRun = jsonCopyRunRVVGuarded
 	s.Bytes.B64Encode = b64EncodeRVVGuarded
 	s.Bytes.B64Decode = b64DecodeRVVGuarded

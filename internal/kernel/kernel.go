@@ -573,6 +573,15 @@ type Bytes struct {
 	// the set or below lo. One pass and one early exit instead of two of each.
 	IndexAnyOrLess func(b, chars []byte, lo byte) int
 
+	// JSONQuote copies b into dst with JSON escapes written in place and
+	// returns how many bytes it wrote. dst must hold 6*len(b), which is every
+	// byte becoming \u00XX.
+	//
+	// The difference from JSONCopyRun is that this does not stop at an escape:
+	// it writes it and carries on. A string with five escapes costs one call
+	// rather than five.
+	JSONQuote func(dst, b []byte, html byte) int
+
 	// JSONCopyRun copies the bytes a JSON encoder can write verbatim and
 	// returns how many. Scan and copy in the same pass: done apart, the bytes
 	// are read twice.

@@ -124,6 +124,9 @@ func countAnyNEON(b []byte, chars []byte) int
 func jsonMasksNEON(dst []byte, b []byte, want uint32)
 
 //go:noescape
+func jsonQuoteNEON(dst []byte, b []byte, html byte) int
+
+//go:noescape
 func jsonCopyRunNEON(dst []byte, b []byte, html byte) int
 
 //go:noescape

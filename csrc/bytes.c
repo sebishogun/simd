@@ -810,6 +810,126 @@ void simd_json_copy_run(isize *__restrict out, u8 *__restrict dst,
   *out = i;
 }
 
+// simd_json_quote copies b into dst with JSON escapes written in place, and
+// returns how many bytes it wrote.
+//
+// The difference from simd_json_copy_run is the whole point: that one stops at
+// the first byte needing an escape and hands control back, so a string with
+// five escapes costs five calls and five returns. This writes the escape and
+// keeps going, which is what sonic's quote.c does and is the last measured
+// difference between the two encoders.
+//
+// dst must have room for 6*n bytes. That is the worst case -- every byte
+// becoming \u00XX -- and reserving it up front is what removes the per-byte
+// space check. A caller that cannot afford that should use simd_json_copy_run.
+//
+// html selects whether the three HTML characters are escaped and whether the
+// 0xE2 lead of U+2028 and U+2029 is examined; encoding/json escapes all five by
+// default and its Fast twin escapes none.
+//
+// A byte above ASCII is copied like any other. The caller has already proved
+// the string is valid UTF-8, and no byte of a multi-byte sequence collides with
+// the set -- except 0xE2, which is checked against its two significant
+// followers rather than assumed.
+void simd_json_quote(isize *__restrict out, u8 *__restrict dst,
+                     const u8 *__restrict b, isize n, u8 html) {
+  static const char hex[16] = "0123456789abcdef";
+  isize i = 0, o = 0;
+  while (i < n) {
+    // A whole clean block goes out in one load and one store. After an escape
+    // the loop comes back here rather than walking the rest a byte at a time,
+    // so a string with escapes still runs at the vector rate between them.
+    if (i + BYTE_LANES <= n) {
+      u8xB v = VLOAD(b, i);
+      u8xB hit = (u8xB)(v < SPLAT(u8xB, 0x20)) | (u8xB)(v == SPLAT(u8xB, '"')) |
+                 (u8xB)(v == SPLAT(u8xB, '\\'));
+      if (html) {
+        hit |= (u8xB)(v == SPLAT(u8xB, '<')) | (u8xB)(v == SPLAT(u8xB, '>')) |
+               (u8xB)(v == SPLAT(u8xB, '&')) | (u8xB)(v == SPLAT(u8xB, 0xE2));
+      }
+      if (!OR_ANY(hit)) {
+        *(u8xB *)(dst + o) = v;
+        i += BYTE_LANES;
+        o += BYTE_LANES;
+        continue;
+      }
+    }
+    u8 c = b[i];
+    if (c >= 0x20 && c != '"' && c != '\\' &&
+        (!html || (c != '<' && c != '>' && c != '&' && c != 0xE2))) {
+      dst[o++] = c;
+      i++;
+      continue;
+    }
+    switch (c) {
+    case '"':
+      dst[o++] = '\\';
+      dst[o++] = '"';
+      i++;
+      break;
+    case '\\':
+      dst[o++] = '\\';
+      dst[o++] = '\\';
+      i++;
+      break;
+    case '\b':
+      dst[o++] = '\\';
+      dst[o++] = 'b';
+      i++;
+      break;
+    case '\f':
+      dst[o++] = '\\';
+      dst[o++] = 'f';
+      i++;
+      break;
+    case '\n':
+      dst[o++] = '\\';
+      dst[o++] = 'n';
+      i++;
+      break;
+    case '\r':
+      dst[o++] = '\\';
+      dst[o++] = 'r';
+      i++;
+      break;
+    case '\t':
+      dst[o++] = '\\';
+      dst[o++] = 't';
+      i++;
+      break;
+    default:
+      // 0xE2 only reaches here when html is set, and only two sequences under
+      // it are escaped: U+2028 and U+2029, which a browser reads as line
+      // terminators inside a script. Every other 0xE2 is ordinary text.
+      if (c == 0xE2) {
+        if (i + 2 < n && b[i + 1] == 0x80 &&
+            (b[i + 2] == 0xA8 || b[i + 2] == 0xA9)) {
+          dst[o++] = '\\';
+          dst[o++] = 'u';
+          dst[o++] = '2';
+          dst[o++] = '0';
+          dst[o++] = '2';
+          dst[o++] = b[i + 2] == 0xA8 ? '8' : '9';
+          i += 3;
+        } else {
+          dst[o++] = c;
+          i++;
+        }
+        break;
+      }
+      // A control character with no shorthand: \u00XX.
+      dst[o++] = '\\';
+      dst[o++] = 'u';
+      dst[o++] = '0';
+      dst[o++] = '0';
+      dst[o++] = hex[c >> 4];
+      dst[o++] = hex[c & 0xF];
+      i++;
+    }
+  }
+  *out = o;
+}
+
 // ---------- base64 ----------
 //
 // Standard alphabet, RFC 4648, with padding. Three input bytes become four

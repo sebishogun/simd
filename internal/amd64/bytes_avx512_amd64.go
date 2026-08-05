@@ -124,6 +124,9 @@ func countAnyAVX512(b []byte, chars []byte) int
 func jsonMasksAVX512(dst []byte, b []byte, want uint32)
 
 //go:noescape
+func jsonQuoteAVX512(dst []byte, b []byte, html byte) int
+
+//go:noescape
 func jsonCopyRunAVX512(dst []byte, b []byte, html byte) int
 
 //go:noescape
