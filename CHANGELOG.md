@@ -1,5 +1,46 @@
 # Changelog
 
+## v1.10.0
+
+**`KernelThreshold`** — the input length below which a named operation's guard
+takes the portable reference implementation instead of a vector kernel, on the
+running architecture: `KernelThreshold("IndexByte")` is 1024 on amd64 and 64 on
+riscv64, because the portable loop it competes with differs that much. The
+number was previously knowable only by reading generated guard code, and a
+caller in another repository deriving its own constant from memory paid 35% on
+an encode for a call that looked like a kernel and ran a byte loop. Generated
+per architecture from the same manifest as the guards, and a test now parses
+all 6,789 generated guards across the six architectures and holds each one's
+number to the manifest.
+
+**`JSONQuote`** — copies a string into a JSON encoder's output with the
+escapes written in place, instead of stopping at each byte that needs one. The
+destination must hold six bytes per input byte, the worst case of every byte
+becoming `\u00XX`; that reservation is what removes the per-byte bounds check,
+and it makes the kernel one for callers that size their destination up front.
+An append-based encoder that grows as it writes measured slower using it than
+not, both before and after fixing its buffer sizing — recorded in simdjson's
+docs/wrong.md — so the kernel ships for the callers whose allocation matches
+its precondition.
+
+**`JSONCopyValid`** — `JSONCopyRun` with UTF-8 validation folded into the same
+pass: copies the bytes an encoder may write verbatim, proves them valid UTF-8
+as it goes, and returns the count or a negative value on invalid input. Needs
+no extra output space — it still stops at the first byte needing an escape.
+
+**`JSONCopyRun` finishes its tail with a block, not a byte loop**, and its
+guard threshold drops from 64 bytes to 32. The tail was a byte loop and it
+showed: 32 bytes took 4.1 ns and 48 took 9.3, one block plus sixteen
+single-byte steps. An overlapping block ending at the input's end re-reads
+bytes already known clean, which is cheaper than stepping over half of them:
+
+	bytes     32     40     48     64     96
+	kernel  4.26   4.89   4.96   4.64   5.48
+
+**Committed benchmark baselines no longer name the recording machine's CPU
+model.**
+
+
 ## v1.5.0
 
 **`MaskBitsAny` gets a four-wide kernel**, chosen automatically when the set has

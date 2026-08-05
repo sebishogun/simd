@@ -550,7 +550,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.5.0.** The API is stable: every exported function keeps its name,
+**v1.10.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.
