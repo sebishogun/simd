@@ -304,6 +304,13 @@ func jsonMasksSSE2Guarded(dst []byte, b []byte, want uint32) {
 	jsonMasksSSE2(dst, b, want)
 }
 
+func jsonValidTokensSSE2Guarded(b []byte, masks []uint64, stk []uint64) int {
+	if len(b) < 64 || len(b) == 0 || len(masks) < 2*((len(b)+63)/64) {
+		return ref.JSONValidTokens(b, masks, stk)
+	}
+	return jsonValidTokensSSE2(b, masks, stk)
+}
+
 func jsonStage1SSE2Guarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
@@ -465,6 +472,7 @@ func init() {
 	s.Bytes.LastIndexNotAny = lastIndexNotAnySSE2Guarded
 	s.Bytes.CountAny = countAnySSE2Guarded
 	s.Bytes.JSONMasks = jsonMasksSSE2Guarded
+	s.Bytes.JSONValidTokens = jsonValidTokensSSE2Guarded
 	s.Bytes.JSONStage1 = jsonStage1SSE2Guarded
 	s.Bytes.JSONQuote = jsonQuoteSSE2Guarded
 	s.Bytes.JSONCopyRun = jsonCopyRunSSE2Guarded

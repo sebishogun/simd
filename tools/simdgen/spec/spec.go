@@ -208,6 +208,10 @@ type Kernel struct {
 	// CArgs maps Go parameters onto the C function's arguments, in C order.
 	CArgs []CArg
 
+	// AllowScalar exempts this kernel from the vector-instruction check: its
+	// value is fused control flow, and scalar object code is the intent.
+	AllowScalar bool
+
 	// SkipOn names targets this kernel cannot be built for, either as a whole
 	// GOARCH ("loong64") or as one tier of one ("amd64/sse2").
 	//

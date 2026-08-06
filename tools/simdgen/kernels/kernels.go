@@ -1188,6 +1188,24 @@ func Bytes() []spec.Kernel {
 			Threshold:    thScan,
 		},
 		{
+			// The grammar half of Valid: the state machine over every
+			// significant byte, fused into one scalar routine -- AllowScalar,
+			// because the value is the control flow, not lanes. Returns 1
+			// valid, 0 invalid, -1 when nesting outruns the caller's spill.
+			CName: "simd_json_valid_tokens", GoName: "jsonValidTokens",
+			Group: "Bytes", Field: "JSONValidTokens", RefFunc: "JSONValidTokens",
+			Params: []spec.Param{sl("b", spec.SliceU8), sl("masks", spec.SliceU64),
+				sl("stk", spec.SliceU64)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("b"), base("masks"), lenOf("b"),
+				base("stk"), lenOf("stk")},
+			RefWhen:      "len(b) == 0 || len(masks) < 2*((len(b)+63)/64)",
+			UnclampedDst: true,
+			AllowScalar:  true,
+			Threshold:    thScan,
+			SkipOn:       []string{"s390x"},
+		},
+		{
 			// The indexer's first word pass, fused: escape resolution, quote
 			// parity (carry-less multiply where the tier has it, a two-wide
 			// vector shift chain where it does not), in-string mask, the

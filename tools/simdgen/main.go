@@ -157,6 +157,14 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 
 	opt := verify.DefaultOptions()
 	opt.ObjdumpPath = objdumpBin
+	opt.ScalarOK = map[string]bool{}
+	for _, src := range sources {
+		for _, k := range src.Kernels {
+			if k.AllowScalar {
+				opt.ScalarOK[k.CName] = true
+			}
+		}
+	}
 
 	var failures []string
 	for _, src := range sources {

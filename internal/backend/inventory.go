@@ -58,6 +58,7 @@ var Inventory = []Declared{
 	{"Bytes", "JSONMasks", "JSONMasks", "simd_json_masks"},
 	{"Bytes", "JSONQuote", "JSONQuote", "simd_json_quote"},
 	{"Bytes", "JSONStage1", "JSONStage1", "simd_json_stage1"},
+	{"Bytes", "JSONValidTokens", "JSONValidTokens", "simd_json_valid_tokens"},
 	{"Bytes", "LastIndex", "LastIndex", "simd_last_index"},
 	{"Bytes", "LastIndexByte", "LastIndexByte", "simd_last_index_byte"},
 	{"Bytes", "LastIndexNotAny", "LastIndexNotAny", "simd_last_index_not_any"},

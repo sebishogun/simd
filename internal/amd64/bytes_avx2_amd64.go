@@ -124,6 +124,9 @@ func countAnyAVX2(b []byte, chars []byte) int
 func jsonMasksAVX2(dst []byte, b []byte, want uint32)
 
 //go:noescape
+func jsonValidTokensAVX2(b []byte, masks []uint64, stk []uint64) int
+
+//go:noescape
 func jsonStage1AVX2(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
 
 //go:noescape

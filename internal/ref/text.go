@@ -975,3 +975,229 @@ func stage1Escaped(bs uint64, carry *uint64) uint64 {
 	*carry = c
 	return (even ^ (seq << 1)) & follows
 }
+
+// JSONValidTokens is the grammar half of a JSON Valid: it walks every
+// significant byte -- outside a string, not whitespace, read from the two
+// masks -- and reports whether they form one well-formed value. 1 valid,
+// 0 invalid, -1 the spill filled (nesting deeper than 64*(len(stk)+1)).
+// Reference for simd_json_valid_tokens.
+func JSONValidTokens(b []byte, masks []uint64, stk []uint64) int {
+	return jsonValidTokens(b, masks, stk)
+}
+
+func jsonValidTokens(b []byte, masks []uint64, stk []uint64) int {
+	nw := (len(b) + 63) >> 6
+	const (
+		sValue = iota
+		sFirstValue
+		sKey
+		sFirstKey
+		sColon
+		sAfter
+	)
+	n := len(b)
+	sig := func(w int) uint64 {
+		s := ^masks[nw+w] &^ masks[w]
+		if rem := n - w<<6; rem < 64 {
+			s &= 1<<uint(rem) - 1
+		}
+		return s
+	}
+	sp := 0
+	var lvl uint64
+	depth := 0
+	st := sValue
+	w := 0
+	word := sig(0)
+	for {
+		for word == 0 {
+			w++
+			if w >= nw {
+				if st == sAfter && depth == 0 {
+					return 1
+				}
+				return 0
+			}
+			word = sig(w)
+		}
+		i := w<<6 + bits.TrailingZeros64(word)
+		word &= word - 1
+		c := b[i]
+
+		switch st {
+		case sColon:
+			if c != ':' {
+				return 0
+			}
+			st = sValue
+			continue
+		case sKey, sFirstKey:
+			if c == '"' {
+				st = sColon
+				continue
+			}
+			if c == '}' && st == sFirstKey {
+				goto closeObject
+			}
+			return 0
+		case sAfter:
+			switch c {
+			case ',':
+				if depth == 0 {
+					return 0
+				}
+				if lvl&1 != 0 {
+					st = sKey
+				} else {
+					st = sValue
+				}
+				continue
+			case '}':
+				goto closeObject
+			case ']':
+				goto closeArray
+			}
+			return 0
+		}
+
+		switch c {
+		case '{':
+			if depth&63 == 0 && depth > 0 {
+				if sp >= len(stk) {
+					return -1
+				}
+				stk[sp] = lvl
+				sp++
+			}
+			lvl = lvl<<1 | 1
+			depth++
+			st = sFirstKey
+			continue
+		case '[':
+			if depth&63 == 0 && depth > 0 {
+				if sp >= len(stk) {
+					return -1
+				}
+				stk[sp] = lvl
+				sp++
+			}
+			lvl <<= 1
+			depth++
+			st = sFirstValue
+			continue
+		case '"':
+			st = sAfter
+			continue
+		case ']':
+			if st != sFirstValue {
+				return 0
+			}
+			goto closeArray
+		}
+
+		{
+			var end int
+			switch {
+			case c == 't':
+				if i+4 > n || string(b[i:i+4]) != "true" {
+					return 0
+				}
+				end = i + 4
+			case c == 'f':
+				if i+5 > n || string(b[i:i+5]) != "false" {
+					return 0
+				}
+				end = i + 5
+			case c == 'n':
+				if i+4 > n || string(b[i:i+4]) != "null" {
+					return 0
+				}
+				end = i + 4
+			case c == '-' || (c >= '0' && c <= '9'):
+				e := refNumberEnd(b, i)
+				if e < 0 {
+					return 0
+				}
+				end = e
+			default:
+				return 0
+			}
+			st = sAfter
+			if end >= n {
+				if depth == 0 {
+					return 1
+				}
+				return 0
+			}
+			if end>>6 == w {
+				word &^= 1<<uint(end&63) - 1
+			} else {
+				w = end >> 6
+				word = sig(w) &^ (1<<uint(end&63) - 1)
+			}
+			continue
+		}
+
+	closeObject:
+		if depth == 0 || lvl&1 == 0 {
+			return 0
+		}
+		goto pop
+	closeArray:
+		if depth == 0 || lvl&1 != 0 {
+			return 0
+		}
+	pop:
+		lvl >>= 1
+		depth--
+		if depth&63 == 0 && depth > 0 {
+			sp--
+			lvl = stk[sp]
+		}
+		st = sAfter
+	}
+}
+
+// refNumberEnd returns one past the JSON number at i, or -1.
+func refNumberEnd(b []byte, i int) int {
+	n := len(b)
+	j := i
+	if j < n && b[j] == '-' {
+		j++
+	}
+	if j >= n {
+		return -1
+	}
+	switch {
+	case b[j] == '0':
+		j++
+	case b[j] >= '1' && b[j] <= '9':
+		for j < n && b[j] >= '0' && b[j] <= '9' {
+			j++
+		}
+	default:
+		return -1
+	}
+	if j < n && b[j] == '.' {
+		j++
+		if j >= n || b[j] < '0' || b[j] > '9' {
+			return -1
+		}
+		for j < n && b[j] >= '0' && b[j] <= '9' {
+			j++
+		}
+	}
+	if j < n && (b[j] == 'e' || b[j] == 'E') {
+		j++
+		if j < n && (b[j] == '+' || b[j] == '-') {
+			j++
+		}
+		if j >= n || b[j] < '0' || b[j] > '9' {
+			return -1
+		}
+		for j < n && b[j] >= '0' && b[j] <= '9' {
+			j++
+		}
+	}
+	return j
+}

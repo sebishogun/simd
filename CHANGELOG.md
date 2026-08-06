@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.12.0
+
+**`JSONValidTokens`** -- the grammar half of a JSON `Valid`, fused into one
+scalar kernel: the state machine over every significant byte, reading the
+`JSONStage1` masks, with the number scanner and literal checks inlined and
+the container bit-stack spilling into a caller-provided buffer. Scalar on
+purpose: the new **`AllowScalar`** manifest field exempts kernels whose
+value is fused control flow -- a grammar walk, a state machine -- from the
+vector-instruction check, making them first-class citizens of the
+generator. Downstream in simdjson, twitter `Valid` runs 28% faster and
+holds 1.75x over sonic on that shape. s390x keeps the reference path (the
+masks are read as little-endian words).
+
 ## v1.11.0
 
 **`JSONStage1`** -- the JSON indexer's first word pass, fused into one

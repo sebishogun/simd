@@ -612,6 +612,11 @@ type Bytes struct {
 	// carr carries the three inter-word states between slabs, and res
 	// accumulates the counts, with res[2] seeded to -1 by the caller.
 	JSONStage1 func(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
+
+	// JSONValidTokens is the grammar half of Valid over the two stage-one
+	// masks: 1 well-formed, 0 not, -1 nesting outran the spill and the
+	// caller's own walk must decide.
+	JSONValidTokens func(b []byte, masks []uint64, stk []uint64) int
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

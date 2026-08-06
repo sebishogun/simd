@@ -19,6 +19,7 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned long long u64;
 typedef long long i64;
+typedef unsigned int u32;
 
 void simd_count_byte(isize *__restrict out, const u8 *__restrict b, u8 c,
                      isize n) {
@@ -2145,4 +2146,210 @@ void simd_json_stage1(u64 *__restrict out, const u8 *__restrict masks,
   res[0] += total;
   res[1] += wsCount;
   if (ctlPos >= 0 && res[2] < 0) res[2] = ctlPos;
+}
+
+// simd_json_valid_tokens is the grammar half of Valid: the state machine
+// that walks every significant byte -- outside a string, not whitespace --
+// and answers whether they form one well-formed JSON value. A port of the
+// Go walk it replaces, token for token: strings are their closing quote,
+// numbers and literals are runs the scanner steps over, containers are a
+// bit-stack with a spill the caller provides.
+//
+// This kernel is scalar on purpose (AllowScalar): its value is the fused
+// control flow -- no per-word function calls, no bounds checks, the state
+// and both masks living in registers -- not lanes.
+//
+// out: 1 valid, 0 invalid, -1 the spill filled (deeper than 64*(stkCap+1)
+// levels; the caller falls back to its own walk).
+static inline u64 jvt_sig(const u64 *__restrict masks, isize nw, isize n,
+                          isize w) {
+  // masks is the stage-one out buffer: inStr words first, then wsw.
+  u64 s = ~masks[nw + w] & ~masks[w];
+  isize rem = n - (w << 6);
+  if (rem < 64) s &= ((u64)1 << rem) - 1;
+  return s;
+}
+
+// jvt_number returns one past the number starting at i, or -1. The grammar
+// and the eight-digit SWAR fraction step mirror the Go scanner.
+static isize jvt_number(const u8 *__restrict b, isize n, isize i) {
+  isize j = i;
+  if (j < n && b[j] == '-') j++;
+  if (j >= n) return -1;
+  if (b[j] == '0') {
+    j++;
+  } else if (b[j] >= '1' && b[j] <= '9') {
+    j++;
+    while (j < n && b[j] >= '0' && b[j] <= '9') j++;
+  } else {
+    return -1;
+  }
+  if (j < n && b[j] == '.') {
+    j++;
+    if (j >= n || b[j] < '0' || b[j] > '9') return -1;
+    for (;;) {
+      if (j + 8 <= n) {
+        u64 v;
+        __builtin_memcpy(&v, b + j, 8);
+        u64 x = v ^ 0x3030303030303030ull;
+        u64 m = ((x + 0x7676767676767676ull) | x) & 0x8080808080808080ull;
+        if (m == 0) {
+          j += 8;
+          continue;
+        }
+        j += (isize)(__builtin_ctzll(m) >> 3);
+        break;
+      }
+      while (j < n && b[j] >= '0' && b[j] <= '9') j++;
+      break;
+    }
+  }
+  if (j < n && (b[j] == 'e' || b[j] == 'E')) {
+    j++;
+    if (j < n && (b[j] == '+' || b[j] == '-')) j++;
+    if (j >= n || b[j] < '0' || b[j] > '9') return -1;
+    while (j < n && b[j] >= '0' && b[j] <= '9') j++;
+  }
+  return j;
+}
+
+void simd_json_valid_tokens(i64 *__restrict out, const u8 *__restrict b,
+                            const u64 *__restrict masks, isize n,
+                            u64 *__restrict stk, isize stkCap) {
+  isize nw = (n + 63) >> 6;
+  enum { S_VALUE, S_FIRSTVALUE, S_KEY, S_FIRSTKEY, S_COLON, S_AFTER };
+  isize sp = 0;
+  u64 lvl = 0;
+  i64 depth = 0;
+  int st = S_VALUE;
+  isize w = 0;
+  u64 word = jvt_sig(masks, nw, n, 0);
+  for (;;) {
+    while (word == 0) {
+      w++;
+      if (w >= nw) {
+        *out = (st == S_AFTER && depth == 0) ? 1 : 0;
+        return;
+      }
+      word = jvt_sig(masks, nw, n, w);
+    }
+    isize i = (w << 6) + (isize)__builtin_ctzll(word);
+    word &= word - 1;
+    u8 c = b[i];
+
+    if (st == S_COLON) {
+      if (c != ':') goto bad;
+      st = S_VALUE;
+      continue;
+    }
+    if (st == S_KEY || st == S_FIRSTKEY) {
+      if (c == '"') {
+        st = S_COLON;
+        continue;
+      }
+      if (c == '}' && st == S_FIRSTKEY) goto close_object;
+      goto bad;
+    }
+    if (st == S_AFTER) {
+      if (c == ',') {
+        if (depth == 0) goto bad;
+        st = (lvl & 1) ? S_KEY : S_VALUE;
+        continue;
+      }
+      if (c == '}') goto close_object;
+      if (c == ']') goto close_array;
+      goto bad;
+    }
+
+    // S_VALUE or S_FIRSTVALUE.
+    if (c == '{') {
+      if ((depth & 63) == 0 && depth > 0) {
+        if (sp >= stkCap) goto deep;
+        stk[sp++] = lvl;
+      }
+      lvl = lvl << 1 | 1;
+      depth++;
+      st = S_FIRSTKEY;
+      continue;
+    }
+    if (c == '[') {
+      if ((depth & 63) == 0 && depth > 0) {
+        if (sp >= stkCap) goto deep;
+        stk[sp++] = lvl;
+      }
+      lvl <<= 1;
+      depth++;
+      st = S_FIRSTVALUE;
+      continue;
+    }
+    if (c == '"') {
+      st = S_AFTER;
+      continue;
+    }
+    if (c == ']') {
+      if (st != S_FIRSTVALUE) goto bad;
+      goto close_array;
+    }
+    {
+      isize end;
+      // Literals as word loads, not memcmp: kernels are freestanding and a
+      // libc call fails the build. Little-endian constants; the one
+      // big-endian target skips this kernel already.
+      u32 lit;
+      if (c == 't') {
+        if (i + 4 > n) goto bad;
+        __builtin_memcpy(&lit, b + i, 4);
+        if (lit != 0x65757274u) goto bad; // "true"
+        end = i + 4;
+      } else if (c == 'f') {
+        if (i + 5 > n) goto bad;
+        __builtin_memcpy(&lit, b + i + 1, 4);
+        if (lit != 0x65736c61u) goto bad; // "alse"
+        end = i + 5;
+      } else if (c == 'n') {
+        if (i + 4 > n) goto bad;
+        __builtin_memcpy(&lit, b + i, 4);
+        if (lit != 0x6c6c756eu) goto bad; // "null"
+        end = i + 4;
+      } else if (c == '-' || (c >= '0' && c <= '9')) {
+        end = jvt_number(b, n, i);
+        if (end < 0) goto bad;
+      } else {
+        goto bad;
+      }
+      st = S_AFTER;
+      if (end >= n) {
+        *out = depth == 0 ? 1 : 0;
+        return;
+      }
+      if ((end >> 6) == w) {
+        word &= ~((((u64)1) << (end & 63)) - 1);
+      } else {
+        w = end >> 6;
+        word = jvt_sig(masks, nw, n, w) & ~((((u64)1) << (end & 63)) - 1);
+      }
+      continue;
+    }
+
+  close_object:
+    if (depth == 0 || (lvl & 1) == 0) goto bad;
+    goto pop;
+  close_array:
+    if (depth == 0 || (lvl & 1) != 0) goto bad;
+  pop:
+    lvl >>= 1;
+    depth--;
+    if ((depth & 63) == 0 && depth > 0) {
+      lvl = stk[--sp];
+    }
+    st = S_AFTER;
+    continue;
+
+  bad:
+    *out = 0;
+    return;
+  deep:
+    *out = -1;
+    return;
+  }
 }

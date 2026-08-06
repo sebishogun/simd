@@ -314,7 +314,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-475 exported functions and 6,779 generated kernels across nine targets. The
+476 exported functions and 6,779 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over

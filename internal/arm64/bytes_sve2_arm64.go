@@ -124,6 +124,9 @@ func countAnySVE2(b []byte, chars []byte) int
 func jsonMasksSVE2(dst []byte, b []byte, want uint32)
 
 //go:noescape
+func jsonValidTokensSVE2(b []byte, masks []uint64, stk []uint64) int
+
+//go:noescape
 func jsonStage1SVE2(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
 
 //go:noescape

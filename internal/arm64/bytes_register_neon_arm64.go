@@ -304,6 +304,13 @@ func jsonMasksNEONGuarded(dst []byte, b []byte, want uint32) {
 	jsonMasksNEON(dst, b, want)
 }
 
+func jsonValidTokensNEONGuarded(b []byte, masks []uint64, stk []uint64) int {
+	if len(b) < 64 || len(b) == 0 || len(masks) < 2*((len(b)+63)/64) {
+		return ref.JSONValidTokens(b, masks, stk)
+	}
+	return jsonValidTokensNEON(b, masks, stk)
+}
+
 func jsonStage1NEONGuarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
@@ -472,6 +479,7 @@ func init() {
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyNEONGuarded
 	s.Bytes.CountAny = countAnyNEONGuarded
 	s.Bytes.JSONMasks = jsonMasksNEONGuarded
+	s.Bytes.JSONValidTokens = jsonValidTokensNEONGuarded
 	s.Bytes.JSONStage1 = jsonStage1NEONGuarded
 	s.Bytes.JSONCopyValid = jsonCopyValidNEONGuarded
 	s.Bytes.JSONQuote = jsonQuoteNEONGuarded

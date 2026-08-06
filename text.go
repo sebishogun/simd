@@ -740,3 +740,11 @@ func MaskWords(n int) int { return ((n + 63) / 64) * 8 }
 func JSONStage1(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	active.Bytes.JSONStage1(out, masks, nw, carr, res)
 }
+
+// JSONValidTokens reports whether the significant bytes of b -- outside a
+// string and not whitespace, read from the [JSONStage1] masks -- form one
+// well-formed JSON value: 1 yes, 0 no, -1 the nesting outran stk (deeper
+// than 64*(len(stk)+1) levels) and the caller must walk it itself.
+func JSONValidTokens(b []byte, masks []uint64, stk []uint64) int {
+	return active.Bytes.JSONValidTokens(b, masks, stk)
+}

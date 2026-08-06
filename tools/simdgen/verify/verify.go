@@ -120,6 +120,11 @@ type Options struct {
 	// RequireVector fails a kernel whose body contains no vector instruction
 	// at all, which means LLVM did not vectorize it.
 	RequireVector bool
+	// ScalarOK names functions exempt from RequireVector: kernels whose value
+	// is fused control flow rather than lanes -- a grammar walk, a state
+	// machine -- where scalar object code under the kernel's name is the
+	// point, not a failure to vectorize.
+	ScalarOK map[string]bool
 }
 
 // DefaultOptions are the settings used by the generator.
@@ -335,7 +340,7 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 	// usefully accelerate the kernel — dispatching to it would run scalar code
 	// under a name promising otherwise — so the kernel is dropped rather than
 	// failing the build.
-	if opt.RequireVector && r.VectorInstrs == 0 {
+	if opt.RequireVector && r.VectorInstrs == 0 && !opt.ScalarOK[r.Func] {
 		r.Unsupported = "LLVM did not vectorize it for " + tgt.Tier
 	}
 	return r
