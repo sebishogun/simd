@@ -411,7 +411,11 @@ var All = []Target{
 		Arch: AMD64, Tier: "avx2", Triple: "x86_64-linux-gnu",
 		StackReg: "%rsp",
 		// x86-64-v3 is AVX2 + FMA + BMI, which is what the avx2 tier gates on.
-		MArch:      []string{"-march=x86-64-v3"},
+		// -mpclmul: carry-less multiply is not in the v3 ABI profile, but no
+		// AVX2-capable CPU lacks it -- PCLMUL shipped three years earlier --
+		// and the JSON stage-one kernel's quote parity is one instruction
+		// with it and twelve without.
+		MArch:      []string{"-march=x86-64-v3", "-mpclmul"},
 		InstrWidth: 0,
 		Directives: dirAMD64,
 		IntArgs:    sysvIntArgs,
@@ -428,7 +432,8 @@ var All = []Target{
 		// -mprefer-vector-width=512 is required, not optional: without it LLVM
 		// caps at 256 bits even on x86-64-v4. Measured on one kernel, zero zmm
 		// registers appear without the flag and 74 appear with it.
-		MArch:      []string{"-march=x86-64-v4", "-mprefer-vector-width=512"},
+		// -mpclmul: see the avx2 tier.
+		MArch:      []string{"-march=x86-64-v4", "-mprefer-vector-width=512", "-mpclmul"},
 		InstrWidth: 0,
 		Directives: dirAMD64,
 		IntArgs:    sysvIntArgs,

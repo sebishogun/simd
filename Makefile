@@ -140,12 +140,21 @@ fuzz: ## Fuzz the public API and the tier-vs-reference differential
 # is what this lane exists to check.
 CROSS_PKGS = . ./internal/...
 
+# Hermetic on purpose: the host's module cache rides along read-only,
+# GOPROXY=off and --network=none. Anything in this lane that wants the
+# network is a bug, and under emulation it is a bug that presents as a
+# container at 0% CPU forever -- cmd/site's net/http hang above, then a
+# module download, each silent. With the network gone the same mistakes
+# fail in one second with an error that names the missing thing.
 .PHONY: test-cross
 test-cross: cross-setup ## Every architecture with a backend, under docker + qemu
 	@for p in linux/arm64 linux/s390x linux/ppc64le; do \
 		echo "--- $$p"; \
-		$(DOCKER) run --rm --platform $$p -v "$(PWD)":/src -w /src \
-			-e GOFLAGS=-buildvcs=false -e CGO_ENABLED=0 golang:1.26 \
+		$(DOCKER) run --rm --platform $$p --network=none \
+			-v "$(PWD)":/src -w /src \
+			-v "$$(go env GOMODCACHE)":/go/pkg/mod:ro \
+			-e GOFLAGS=-buildvcs=false -e CGO_ENABLED=0 \
+			-e GOTOOLCHAIN=local -e GOPROXY=off golang:1.26 \
 			sh -c 'go run ./cmd/simdinfo -require-accelerated && \
 			       go test -short -vet=off -timeout 600s $(CROSS_PKGS)' \
 			|| exit 1; \

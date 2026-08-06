@@ -17,6 +17,8 @@
 
 typedef unsigned char u8;
 typedef unsigned short u16;
+typedef unsigned long long u64;
+typedef long long i64;
 
 void simd_count_byte(isize *__restrict out, const u8 *__restrict b, u8 c,
                      isize n) {
@@ -1992,4 +1994,155 @@ void simd_mask_bits_any(u8 *__restrict out, const u8 *__restrict b,
     if (i % 8 == 0) out[i / 8] = 0;
     out[i / 8] |= (u8)(h << (i % 8));
   }
+}
+
+// simd_json_stage1 runs the indexer's first word pass over the five
+// simd_json_masks regions: escape resolution, quote parity, the in-string
+// mask, the structural count, the whitespace count, the
+// control-character-in-string check, and the escape-verification worklist.
+//
+// The Go loop this replaces spent twelve shift-XOR operations per word on
+// quote parity alone; carry-less multiply by all-ones is that entire prefix
+// XOR in one instruction, and the tiers whose baseline lacks it (-march
+// below x86-64-v3, plain armv8-a) run the same chain two words wide in one
+// vector register instead.
+//
+// masks: the five regions exactly as simd_json_masks laid them out --
+// quote, escape, structural, control, whitespace -- each nw words.
+// out, in u64 words: inStr[nw] | wsw[nw] | targets[nw]. inStr is the
+// in-string mask (opening quote and body set, closing quote clear). wsw is
+// the whitespace region copied to words, the form the consumer's skip loop
+// reads. targets[w] is the word's escape-verification mask -- backslashes
+// opening an escape inside a string, shifted onto what they escape -- and
+// is written unconditionally so the caller scans for nonzero words and the
+// reference implementation matches byte for byte.
+// carr: [0] escape-run carry, [1] string-state carry (all ones or zero),
+// [2] leader carry into the next word. Zero for a fresh document; carried
+// between calls so a document can be processed in slabs.
+// res: [0] += count of structural characters outside strings, [1] += count
+// of whitespace outside strings, [2] = byte position of the first control
+// character inside a string, untouched when there is none (the caller
+// seeds it with -1).
+//
+// Little-endian only: the mask regions are bit-per-byte in little-endian
+// word order, and this reads them as u64. The one big-endian target skips
+// this kernel and keeps its scalar path.
+static inline u64 stage1_escaped(u64 bs, u64 *carry) {
+  if (bs == 0) {
+    u64 e = *carry;
+    *carry = 0;
+    return e;
+  }
+  const u64 even = 0x5555555555555555ull;
+  bs &= ~*carry;
+  u64 follows = bs << 1 | *carry;
+  u64 odd_starts = bs & ~even & ~follows;
+  u64 seq = odd_starts + bs;
+  *carry = seq < bs; // carry out of the add
+  return (even ^ (seq << 1)) & follows;
+}
+
+#if defined(__PCLMUL__)
+#include <wmmintrin.h>
+#endif
+
+typedef unsigned long long u64x2 __attribute__((vector_size(16), aligned(8)));
+
+void simd_json_stage1(u64 *__restrict out, const u8 *__restrict masks,
+                      isize nw, u64 *__restrict carr, i64 *__restrict res) {
+  const u64 *__restrict qR = (const u64 *)masks;
+  const u64 *__restrict eR = (const u64 *)(masks + nw * 8);
+  const u64 *__restrict sR = (const u64 *)(masks + 2 * nw * 8);
+  const u64 *__restrict cR = (const u64 *)(masks + 3 * nw * 8);
+  const u64 *__restrict wR = (const u64 *)(masks + 4 * nw * 8);
+  u64 *__restrict inStr = out;
+  u64 *__restrict wsw = out + nw;
+  u64 *__restrict targets = out + 2 * nw;
+
+  u64 ec = carr[0], sc = carr[1], lead = carr[2];
+  i64 total = 0, wsCount = 0, ctlPos = -1;
+
+  isize w = 0;
+  for (; w + 2 <= nw; w += 2) {
+    u64 bs0 = eR[w], bs1 = eR[w + 1];
+    u64 e0 = stage1_escaped(bs0, &ec);
+    u64 e1 = stage1_escaped(bs1, &ec);
+    u64 q0 = qR[w] & ~e0;
+    u64 q1 = qR[w + 1] & ~e1;
+
+    u64 x0, x1;
+#if defined(__PCLMUL__)
+    __m128i ones = _mm_set1_epi8((char)0xFF);
+    __m128i qq = _mm_set_epi64x((long long)q1, (long long)q0);
+    x0 = (u64)_mm_cvtsi128_si64(_mm_clmulepi64_si128(qq, ones, 0x00));
+    x1 = (u64)_mm_cvtsi128_si64(_mm_clmulepi64_si128(qq, ones, 0x01));
+#else
+    u64x2 x = {q0, q1};
+    x ^= x << 1;
+    x ^= x << 2;
+    x ^= x << 4;
+    x ^= x << 8;
+    x ^= x << 16;
+    x ^= x << 32;
+    x0 = x[0];
+    x1 = x[1];
+#endif
+    u64 in0 = x0 ^ sc;
+    u64 in1 = x1 ^ (u64)((i64)in0 >> 63);
+    sc = (u64)((i64)in1 >> 63);
+    inStr[w] = in0;
+    inStr[w + 1] = in1;
+
+    total += (i64)__builtin_popcountll(sR[w] & ~in0);
+    total += (i64)__builtin_popcountll(sR[w + 1] & ~in1);
+
+    u64 c0 = cR[w] & in0;
+    if (c0 && ctlPos < 0) ctlPos = w * 64 + __builtin_ctzll(c0);
+    u64 c1 = cR[w + 1] & in1;
+    if (c1 && ctlPos < 0) ctlPos = (w + 1) * 64 + __builtin_ctzll(c1);
+
+    u64 ws0 = wR[w], ws1 = wR[w + 1];
+    wsw[w] = ws0;
+    wsw[w + 1] = ws1;
+    wsCount += (i64)__builtin_popcountll(ws0 & ~in0);
+    wsCount += (i64)__builtin_popcountll(ws1 & ~in1);
+
+    u64 lead0 = bs0 & in0 & ~e0;
+    targets[w] = lead0 << 1 | lead;
+    lead = lead0 >> 63;
+    u64 lead1 = bs1 & in1 & ~e1;
+    targets[w + 1] = lead1 << 1 | lead;
+    lead = lead1 >> 63;
+  }
+  for (; w < nw; w++) {
+    u64 bs = eR[w];
+    u64 e = stage1_escaped(bs, &ec);
+    u64 q = qR[w] & ~e;
+    u64 x = q;
+    x ^= x << 1;
+    x ^= x << 2;
+    x ^= x << 4;
+    x ^= x << 8;
+    x ^= x << 16;
+    x ^= x << 32;
+    u64 in = x ^ sc;
+    sc = (u64)((i64)in >> 63);
+    inStr[w] = in;
+    total += (i64)__builtin_popcountll(sR[w] & ~in);
+    u64 c = cR[w] & in;
+    if (c && ctlPos < 0) ctlPos = w * 64 + __builtin_ctzll(c);
+    u64 wsWord = wR[w];
+    wsw[w] = wsWord;
+    wsCount += (i64)__builtin_popcountll(wsWord & ~in);
+    u64 leadW = bs & in & ~e;
+    targets[w] = leadW << 1 | lead;
+    lead = leadW >> 63;
+  }
+
+  carr[0] = ec;
+  carr[1] = sc;
+  carr[2] = lead;
+  res[0] += total;
+  res[1] += wsCount;
+  if (ctlPos >= 0 && res[2] < 0) res[2] = ctlPos;
 }

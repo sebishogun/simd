@@ -131,6 +131,7 @@ var kernelThresholds = map[string]int{
 	"JSONCopyValid":          64,
 	"JSONMasks":              64,
 	"JSONQuote":              64,
+	"JSONStage1":             64,
 	"L1Diff":                 0,
 	"L1Norm":                 0,
 	"LastIndex":              64,

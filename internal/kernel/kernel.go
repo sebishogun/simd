@@ -603,6 +603,15 @@ type Bytes struct {
 	// as though all five were present either way, so a caller's offsets do not
 	// depend on what it asked for.
 	JSONMasks func(dst, b []byte, want uint32)
+
+	// JSONStage1 runs the JSON indexer's first word pass over the five
+	// JSONMasks regions: escape resolution, quote parity, the in-string
+	// mask, the structural and whitespace counts outside strings, the first
+	// control character inside a string, and the escape-verification
+	// worklist. out is three regions of nw words -- inStr, wsw, targets --
+	// carr carries the three inter-word states between slabs, and res
+	// accumulates the counts, with res[2] seeded to -1 by the caller.
+	JSONStage1 func(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

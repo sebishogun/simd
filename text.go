@@ -726,3 +726,17 @@ const (
 // MaskWords is the size of one [JSONMasks] region for an input of n bytes:
 // enough whole 64-bit words to hold a bit per byte.
 func MaskWords(n int) int { return ((n + 63) / 64) * 8 }
+
+// JSONStage1 runs the JSON indexer's first word pass over the five
+// [JSONMasks] regions, fused: escape resolution, quote parity, the
+// in-string mask, and the counts and worklists that ride along.
+//
+// out holds three regions of nw 64-bit words -- the in-string mask, the
+// whitespace words, and the escape-verification targets. carr carries the
+// three inter-word states (escape run, string state, leader bit) between
+// slabs and must be zero for a fresh document. res accumulates the
+// structural and whitespace counts and reports the first in-string control
+// character's byte position in res[2], which the caller seeds with -1.
+func JSONStage1(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+	active.Bytes.JSONStage1(out, masks, nw, carr, res)
+}

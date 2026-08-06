@@ -304,6 +304,14 @@ func jsonMasksAVX2Guarded(dst []byte, b []byte, want uint32) {
 	jsonMasksAVX2(dst, b, want)
 }
 
+func jsonStage1AVX2Guarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
+		ref.JSONStage1(out, masks, nw, carr, res)
+		return
+	}
+	jsonStage1AVX2(out, masks, nw, carr, res)
+}
+
 func jsonCopyValidAVX2Guarded(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < len(b) {
 		return ref.JSONCopyValid(dst, b, html)
@@ -464,6 +472,7 @@ func init() {
 	s.Bytes.LastIndexNotAny = lastIndexNotAnyAVX2Guarded
 	s.Bytes.CountAny = countAnyAVX2Guarded
 	s.Bytes.JSONMasks = jsonMasksAVX2Guarded
+	s.Bytes.JSONStage1 = jsonStage1AVX2Guarded
 	s.Bytes.JSONCopyValid = jsonCopyValidAVX2Guarded
 	s.Bytes.JSONQuote = jsonQuoteAVX2Guarded
 	s.Bytes.JSONCopyRun = jsonCopyRunAVX2Guarded

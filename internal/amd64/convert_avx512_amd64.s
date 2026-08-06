@@ -3,7 +3,7 @@
 // Source:  csrc/convert.c
 // Target:  amd64/avx512
 // Clang:   clang version 22.1.8
-// Command: clang --target=x86_64-linux-gnu -march=x86-64-v4 -mprefer-vector-width=512 -O3 -ffreestanding -fno-builtin -fno-builtin-memset -fno-builtin-memcpy -fno-jump-tables -fno-math-errno -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -fomit-frame-pointer -fno-stack-protector -mllvm -inline-threshold=1000 -ffp-contract=off -mno-red-zone -mstackrealign -c ../csrc/convert.c -o ../tools/build/tmp/convert_amd64_avx512.o
+// Command: clang --target=x86_64-linux-gnu -march=x86-64-v4 -mprefer-vector-width=512 -mpclmul -O3 -ffreestanding -fno-builtin -fno-builtin-memset -fno-builtin-memcpy -fno-jump-tables -fno-math-errno -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -fomit-frame-pointer -fno-stack-protector -mllvm -inline-threshold=1000 -ffp-contract=off -mno-red-zone -mstackrealign -c ../csrc/convert.c -o ../tools/build/tmp/convert_amd64_avx512.o
 //
 // The instruction bytes below are the compiled function verbatim. Branches
 // inside a function are PC-relative and remain correct because the whole

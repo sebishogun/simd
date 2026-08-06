@@ -1188,6 +1188,27 @@ func Bytes() []spec.Kernel {
 			Threshold:    thScan,
 		},
 		{
+			// The indexer's first word pass, fused: escape resolution, quote
+			// parity (carry-less multiply where the tier has it, a two-wide
+			// vector shift chain where it does not), in-string mask, the
+			// structural and whitespace counts, the control check, and the
+			// escape-verification worklist. Consumes the five simd_json_masks
+			// regions in place; out is three u64 regions (inStr, wsw,
+			// targets) the caller sizes as 3*nw. Little-endian reads of the
+			// mask bytes are load-bearing, so the one big-endian target keeps
+			// its scalar path.
+			CName: "simd_json_stage1", GoName: "jsonStage1",
+			Group: "Bytes", Field: "JSONStage1", RefFunc: "JSONStage1",
+			Params: []spec.Param{sl("out", spec.SliceU64), sl("masks", spec.SliceU8),
+				{Name: "nw", Type: spec.Int}, sl("carr", spec.SliceU64), sl("res", spec.SliceI64)},
+			CArgs: []spec.CArg{base("out"), base("masks"), val("nw"),
+				base("carr"), base("res")},
+			RefWhen:      "nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3",
+			UnclampedDst: true,
+			Threshold:    thScan,
+			SkipOn:       []string{"s390x"},
+		},
+		{
 			// Validation folded into the copy, so the caller makes one pass
 			// where it made three. Output is at most len(b) -- it still stops
 			// at the first byte needing an escape -- so unlike simd_json_quote

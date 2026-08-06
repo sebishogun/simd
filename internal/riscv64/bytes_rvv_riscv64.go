@@ -124,6 +124,9 @@ func countAnyRVV(b []byte, chars []byte) int
 func jsonMasksRVV(dst []byte, b []byte, want uint32)
 
 //go:noescape
+func jsonStage1RVV(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
+
+//go:noescape
 func jsonCopyValidRVV(dst []byte, b []byte, html byte) int
 
 //go:noescape

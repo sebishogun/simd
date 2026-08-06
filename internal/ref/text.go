@@ -3,6 +3,7 @@ package ref
 import (
 	"bytes"
 	ebinary "encoding/binary"
+	"math/bits"
 	"strconv"
 	"unicode/utf8"
 )
@@ -900,3 +901,77 @@ func narrowU32U8(dst []byte, s []uint32) {
 
 func WidenU8U32(dst []uint32, s []byte)  { widenU8U32(dst, s) }
 func NarrowU32U8(dst []byte, s []uint32) { narrowU32U8(dst, s) }
+
+// JSONStage1 runs the JSON indexer's first word pass over the five JSONMasks
+// regions: escape resolution, quote parity, the in-string mask, and the
+// counts and worklists that ride along. It is the reference for the
+// simd_json_stage1 kernel and mirrors it exactly; see the kernel's comment
+// in csrc/bytes.c for the contract.
+func JSONStage1(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+	jsonStage1(out, masks, nw, carr, res)
+}
+
+func jsonStage1(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+	qR := masks[0:]
+	eR := masks[nw*8:]
+	sR := masks[2*nw*8:]
+	cR := masks[3*nw*8:]
+	wR := masks[4*nw*8:]
+	inStr := out[:nw]
+	wsw := out[nw : 2*nw]
+	targets := out[2*nw : 3*nw]
+
+	ec, sc, lead := carr[0], carr[1], carr[2]
+	var total, wsCount int64
+	ctlPos := int64(-1)
+
+	for w := 0; w < nw; w++ {
+		bs := ebinary.LittleEndian.Uint64(eR[w*8:])
+		e := stage1Escaped(bs, &ec)
+		q := ebinary.LittleEndian.Uint64(qR[w*8:]) &^ e
+		x := q
+		x ^= x << 1
+		x ^= x << 2
+		x ^= x << 4
+		x ^= x << 8
+		x ^= x << 16
+		x ^= x << 32
+		in := x ^ sc
+		sc = uint64(int64(in) >> 63)
+		inStr[w] = in
+		total += int64(bits.OnesCount64(ebinary.LittleEndian.Uint64(sR[w*8:]) &^ in))
+		if c := ebinary.LittleEndian.Uint64(cR[w*8:]) & in; c != 0 && ctlPos < 0 {
+			ctlPos = int64(w*64 + bits.TrailingZeros64(c))
+		}
+		wsWord := ebinary.LittleEndian.Uint64(wR[w*8:])
+		wsw[w] = wsWord
+		wsCount += int64(bits.OnesCount64(wsWord &^ in))
+		leadW := bs & in &^ e
+		targets[w] = leadW<<1 | lead
+		lead = leadW >> 63
+	}
+
+	carr[0], carr[1], carr[2] = ec, sc, lead
+	res[0] += total
+	res[1] += wsCount
+	if ctlPos >= 0 && res[2] < 0 {
+		res[2] = ctlPos
+	}
+}
+
+// stage1Escaped resolves which characters a backslash escapes, one word at a
+// time with a carry: the classic odd-length-run construction.
+func stage1Escaped(bs uint64, carry *uint64) uint64 {
+	if bs == 0 {
+		e := *carry
+		*carry = 0
+		return e
+	}
+	const even = 0x5555555555555555
+	bs &^= *carry
+	follows := bs<<1 | *carry
+	oddStarts := bs &^ even &^ follows
+	seq, c := bits.Add64(oddStarts, bs, 0)
+	*carry = c
+	return (even ^ (seq << 1)) & follows
+}

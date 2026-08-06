@@ -3,7 +3,7 @@
 // Source:  csrc/bytes.c
 // Target:  amd64/avx2
 // Clang:   clang version 22.1.8
-// Command: clang --target=x86_64-linux-gnu -march=x86-64-v3 -O3 -ffreestanding -fno-builtin -fno-builtin-memset -fno-builtin-memcpy -fno-jump-tables -fno-math-errno -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -fomit-frame-pointer -fno-stack-protector -mllvm -inline-threshold=1000 -ffp-contract=off -mno-red-zone -mstackrealign -c ../csrc/bytes.c -o ../tools/build/tmp/bytes_amd64_avx2.o
+// Command: clang --target=x86_64-linux-gnu -march=x86-64-v3 -mpclmul -O3 -ffreestanding -fno-builtin -fno-builtin-memset -fno-builtin-memcpy -fno-jump-tables -fno-math-errno -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -fomit-frame-pointer -fno-stack-protector -mllvm -inline-threshold=1000 -ffp-contract=off -mno-red-zone -mstackrealign -c ../csrc/bytes.c -o ../tools/build/tmp/bytes_amd64_avx2.o
 //
 // The instruction bytes below are the compiled function verbatim. Branches
 // inside a function are PC-relative and remain correct because the whole
@@ -6890,6 +6890,177 @@ TEXT ·jsonMasksAVX2(SB), NOSPLIT|NOFRAME, $0-52
 	QUAD $0x2222225c5c5c5c5d
 	LONG $0x20202022
 	BYTE $0x20
+	RET
+
+// func jsonStage1AVX2(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
+TEXT ·jsonStage1AVX2(SB), NOSPLIT|NOFRAME, $0-104
+	MOVQ out_base+0(FP), DI
+	MOVQ masks_base+24(FP), SI
+	MOVQ nw+48(FP), DX
+	MOVQ carr_base+56(FP), CX
+	MOVQ res_base+80(FP), R8
+	QUAD $0x56415741e5894855
+	QUAD $0xe483485354415541
+	QUAD $0x00000088ec8148f8
+	QUAD $0x048d4c682444894c
+	QUAD $0xd1894900000000d5
+	QUAD $0x40048d4b04e1c149
+	QUAD $0x4c05e2c149d28949
+	QUAD $0x894808698b4c218b
+	QUAD $0x4810798b4c60244c
+	QUAD $0x02fa834838245489
+	QUAD $0x24748948243c8948
+	QUAD $0x894c582444894808
+	QUAD $0x48244c894c502444
+	QUAD $0xcb8d0f402454894c
+	QUAD $0xffffc0c748000001
+	QUAD $0xf63145d23145ffff
+	QUAD $0x0f382454294cdb31
+	QUAD $0x4c8b48000004428e
+	QUAD $0x8b48d1048d4e4824
+	QUAD $0x8948060c8d4a2434
+	QUAD $0x50244c8b4828244c
+	QUAD $0x244c8b48d1148d4a
+	QUAD $0x4c8b48d13c8d4a40
+	QUAD $0x7c8948cf01480824
+	QUAD $0x4a58247c8b482024
+	QUAD $0x8948cf0148d73c8d
+	QUAD $0x894cc8014918247c
+	QUAD $0x48d63c8d4a302444
+	QUAD $0x4ad6014810247c89
+	QUAD $0x48243c8948d13c8d
+	QUAD $0x314506e2c149d101
+	QUAD $0x27e908244c8948c0
+	QUAD $0x2e66666666000001
+	QUAD $0x0000000000841f0f
+	QUAD $0x0c8d4cfbf298c2c4
+	QUAD $0x48fa8948e1094d3f
+	QUAD $0xaaaaaaaaaaaaaab9
+	QUAD $0xf2b062c4ca2148aa
+	QUAD $0x920ffc0149d231e2
+	QUAD $0x5555b948e4014dc2
+	QUAD $0x3149555555555555
+	QUAD $0x240c8b48cc214dcc
+	QUAD $0x8d4cc13cf298a2c4
+	QUAD $0x3c8d4af931493f0c
+	QUAD $0xcf314c000000008d
+	QUAD $0x4904e1c149f98949
+	QUAD $0xe7c148cf894cf931
+	QUAD $0x49f98949cf314c08
+	QUAD $0x314df9314910e1c1
+	QUAD $0xe9314d20e1c149cd
+	QUAD $0x30244c8b48cd894d
+	QUAD $0xc149c13cf2b0a2c4
+	QUAD $0x48ffb80f48f33ffd
+	QUAD $0x4a18244c8b48fb01
+	QUAD $0xc931cf214cc13c8b
+	QUAD $0xd1014ccfbc0f48f3
+	QUAD $0x48c8490f48c08548
+	QUAD $0x4e10247c8b48ff85
+	QUAD $0x48c1450f48c70c89
+	QUAD $0xc10c8b4a20244c8b
+	QUAD $0xf2b0e2c4c60c894a
+	QUAD $0x0149c9b80f48f3c9
+	QUAD $0x214ddbf29842c4ce
+	QUAD $0xf9094c1b0c8d4bcb
+	QUAD $0x0c894a28247c8b48
+	QUAD $0xc0ff493febc149c7
+	QUAD $0x49df894d40c28349
+	QUAD $0x48382444394cd489
+	QUAD $0x02ab840f08244c8b
+	QUAD $0x854dc11c8b4e0000
+	QUAD $0x31fffffed9850fdb
+	QUAD $0x8d4effffff0ee9d2
+	QUAD $0x8d4a08c38349061c
+	QUAD $0x18244c8948080e4c
+	QUAD $0x4489480830448d48
+	QUAD $0x480832448d491024
+	QUAD $0x4a00000080248489
+	QUAD $0x244489480807448d
+	QUAD $0x8948080f448d4a78
+	QUAD $0xffffc0c748702444
+	QUAD $0x4500000040b9ffff
+	QUAD $0x894cc076f9c5c031
+	QUAD $0x894cf63145db31fe
+	QUAD $0x74e920245c894ce2
+	QUAD $0x2e66666666000001
+	QUAD $0x0000000000841f0f
+	QUAD $0xce6ef9e1c4e43145
+	QUAD $0x6ce9c5d26ef9e1c4
+	QUAD $0xa1c40824548b48c9
+	QUAD $0x4469e3c4c214df71
+	QUAD $0xc4de7ef9e1c400d8
+	QUAD $0xee314c01d04469e3
+	QUAD $0xf28948d17ef9c1c4
+	QUAD $0x49ca314c3ffac148
+	QUAD $0x8b483ffdc149d589
+	QUAD $0x4cf2c822c418247c
+	QUAD $0x49c9b80f4df3f8c7
+	QUAD $0xe822c4cb014ddb89
+	QUAD $0x0f49f3db31c70cf2
+	QUAD $0x7c8b48db014cd9b8
+	QUAD $0x49f8c74c8b4e1024
+	QUAD $0x0f4df3db3145f121
+	QUAD $0x5c8d4dc08548d9bc
+	QUAD $0x854dd8490f4cc00b
+	QUAD $0x0c8b4ed8440f4cc9
+	QUAD $0x49f3c031d12149c7
+	QUAD $0x854dc80148c1bc0f
+	QUAD $0xc9854dc3490f49db
+	QUAD $0x240c8b4cc8eff1c5
+	QUAD $0xc3440f49c134894b
+	QUAD $0xbc8b4808c154894b
+	QUAD $0x4c8b4e0000008024
+	QUAD $0x4830244c8948f8c7
+	QUAD $0xc14c894e78244c8b
+	QUAD $0x4df3c9f2c842c4f8
+	QUAD $0x014df3894dc9b80f
+	QUAD $0x0c894ec70c8b4ecb
+	QUAD $0x4df3c9f2e842c4c1
+	QUAD $0xc1c4de014df1b80f
+	QUAD $0x2149ca214dc97ef9
+	QUAD $0x740b4812348d4bf2
+	QUAD $0x4a70244c8b482824
+	QUAD $0x16f9e3c4f8c17489
+	QUAD $0xd72149f7214901ce
+	QUAD $0x14894e3ffaac0f4d
+	QUAD $0xc14930244c8b48c1
+	QUAD $0x834802508d4d3fef
+	QUAD $0x894c04c0834980e9
+	QUAD $0x24443b4ce2894cfe
+	QUAD $0x245c8b4cd0894d38
+	QUAD $0x48fffffc6b8f0f20
+	QUAD $0xc3548b4f28247489
+	QUAD $0x42c45a74d2854df8
+	QUAD $0x493f248d4ffaf2e8
+	QUAD $0xaabe48fa894cd409
+	QUAD $0x48aaaaaaaaaaaaaa
+	QUAD $0x31d2f298e2c4f221
+	QUAD $0xc6920f40fa014cf6
+	QUAD $0x555555b949d20148
+	QUAD $0xca314c5555555555
+	QUAD $0x4dc33c8b4fe2214c
+	QUAD $0xfffe3fe92375ff85
+	QUAD $0x2e666666666666ff
+	QUAD $0x0000000000841f0f
+	QUAD $0x854dc33c8b4ff631
+	QUAD $0xc4fffffe21840fff
+	QUAD $0x4e1c8d4ecff2c842
+	QUAD $0xaaaaaabc49fe894c
+	QUAD $0xe6214caaaaaaaaaa
+	QUAD $0xe43145f6f2a0e2c4
+	QUAD $0x48c4920f41ce014c
+	QUAD $0x55555555b949f601
+	QUAD $0x4cce314c55555555
+	QUAD $0x4cfffffde4e9de21
+	QUAD $0x4c8b48fb894de289
+	QUAD $0x69894c1189486024
+	QUAD $0x4c8b481059894c08
+	QUAD $0x71014c1901486824
+	QUAD $0x83480b78c0854808
+	QUAD $0x4189480479001079
+	QUAD $0x5c415bd8658d4810
+	QUAD $0xc35d5f415e415d41
 	RET
 
 // func jsonCopyValidAVX2(dst []byte, b []byte, html byte) int
