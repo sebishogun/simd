@@ -380,7 +380,7 @@ endif
 
 .PHONY: bench-run
 bench-run: ## Run the benchmarks and write the raw output
-	$(BENCH_PIN) $(GO) test -run '^$$' -bench . -count $(BENCH_COUNT) $(PKG) > $(BENCH_OUT)
+	$(BENCH_PIN) $(GO) test -run '^$$' -bench . -count $(BENCH_COUNT) -shuffle=on $(PKG) > $(BENCH_OUT)
 	@echo "wrote $(BENCH_OUT)"
 
 .PHONY: bench-check
