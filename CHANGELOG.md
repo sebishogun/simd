@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.11.0
+
+**`JSONStage1`** -- the JSON indexer's first word pass, fused into one
+kernel: escape resolution, quote parity, the in-string mask, the structural
+and whitespace counts, the control-in-string check, and the
+escape-verification worklist, consumed straight from the five `JSONMasks`
+regions. Quote parity is carry-less multiply (`PCLMULQDQ`) on the amd64
+vector tiers -- `-mpclmul` joined the v3/v4 tier flags, which no
+AVX2-capable CPU lacks -- and a two-word-wide vector shift chain elsewhere.
+s390x keeps the reference path: the mask words are read little-endian.
+Downstream in simdjson, gsoc-2018 `Valid` runs 1.42× faster end to end.
+
+The cross lane is hermetic now: `--network=none`, `GOPROXY=off`,
+`GOTOOLCHAIN=local`, the host module cache mounted read-only. Two release
+rituals' worth of silent 0%-CPU hangs under emulated net/http become
+one-second failures that name the missing thing.
+
 ## v1.10.2
 
 **The portable `jsonMasks` goes word-at-a-time.** Eight bytes per load, all
