@@ -68,3 +68,38 @@ func TestShuffleFamily(t *testing.T) {
 		}
 	}
 }
+
+func TestBitshuffle(t *testing.T) {
+	rng := rand.New(rand.NewSource(16))
+	for _, tiles := range []int{0, 1, 5, 32} {
+		src := make([]byte, tiles*64)
+		rng.Read(src)
+		d1 := make([]byte, len(src))
+		d2 := make([]byte, len(src))
+		ref.BitshuffleU8(d1, src, 0)
+		simd.Bitshuffle(d2, src)
+		for i := range d1 {
+			if d1[i] != d2[i] {
+				t.Fatalf("tiles=%d shuffle differs at %d", tiles, i)
+			}
+		}
+		back := make([]byte, len(src))
+		simd.Unbitshuffle(back, d2)
+		for i := range src {
+			if back[i] != src[i] {
+				t.Fatalf("tiles=%d round trip at %d", tiles, i)
+			}
+		}
+		// The semantic spot check: plane 0, byte 0 is the low bits of the
+		// first eight input bytes.
+		if tiles > 0 {
+			var want byte
+			for k := 0; k < 8; k++ {
+				want |= (src[k] & 1) << uint(k)
+			}
+			if d2[0] != want {
+				t.Fatalf("plane semantics: got %08b want %08b", d2[0], want)
+			}
+		}
+	}
+}

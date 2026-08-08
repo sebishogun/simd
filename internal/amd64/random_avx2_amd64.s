@@ -13,6 +13,104 @@
 
 #include "textflag.h"
 
+// func hashU64AVX2(dst []uint64, keys []uint64, seed uint64)
+TEXT ·hashU64AVX2(SB), NOSPLIT|NOFRAME, $0-56
+	MOVQ dst_base+0(FP), DI
+	MOVQ keys_base+24(FP), SI
+	MOVQ dst_len+8(FP), DX
+	MOVQ seed+48(FP), CX
+	// Constant pool appended below the body; the displacements
+	// above were patched to reach it and the aligned loads made
+	// unaligned, since nothing promises alignment inside a TEXT.
+	QUAD $0xf8e48348e5894855
+	QUAD $0x79b97f4a7c15b849
+	QUAD $0x087d08fa83489e37
+	QUAD $0x00000118e9c93145
+	QUAD $0xc4c0af0f49c88948
+	QUAD $0x597de2c4c06ef9e1
+	QUAD $0x0d597de2c4c031c0
+	QUAD $0x597de2c400000255
+	QUAD $0x7de2c40000025415
+	QUAD $0xe2c4000002531d59
+	QUAD $0x660000025225597d
+	QUAD $0x0000000000841f0f
+	QUAD $0xfdc520c66cd4fdc5
+	QUAD $0x1ed673c5c5c634d4
+	QUAD $0xefbdc51ed573bdc5
+	QUAD $0xf4cdc5f6efc5c5ed
+	QUAD $0x3dc520d673bdc5f9
+	QUAD $0xc5c5ffd4bdc5c2f4
+	QUAD $0xc5f2f4cdc520f773
+	QUAD $0xc5f9f4d5c5f7d4cd
+	QUAD $0xc2f43dc520d573bd
+	QUAD $0xf773c5c5ffd4bdc5
+	QUAD $0xd4d5c5eaf4d5c520
+	QUAD $0xbdc51bd573c5c5ef
+	QUAD $0xc5f6efbdc51bd673
+	QUAD $0xc5fbf4d5c5edefc5
+	QUAD $0xc4f43dc520d573bd
+	QUAD $0xf773c5c5ffd4bdc5
+	QUAD $0xd4d5c5ecf4d5c520
+	QUAD $0x73bdc5fbf4cdc5ef
+	QUAD $0xbdc5c4f43dc520d6
+	QUAD $0xc520f773c5c5ffd4
+	QUAD $0xc5f7d4cdc5f4f4cd
+	QUAD $0xd573bdc51fd673c5
+	QUAD $0xefc5c5edefbdc51f
+	QUAD $0xfec5c7347ffec5f6
+	QUAD $0x08488d4c20c76c7f
+	QUAD $0x4cd0394810c08348
+	QUAD $0xffffff288e0fc889
+	QUAD $0x8e0fc8294cd08948
+	QUAD $0xc8af0f4900000125
+	QUAD $0x894c087304f88348
+	QUAD $0x8941000000bbe9c8
+	QUAD $0xc0294c03e08341d0
+	QUAD $0xc16ef9e1c4c8014c
+	QUAD $0x7de2c4c0597de2c4
+	QUAD $0xe2c40000011b0d59
+	QUAD $0xc40000011a15597d
+	QUAD $0x000001191d597de2
+	QUAD $0x00011825597de2c4
+	QUAD $0x2e66666666666600
+	QUAD $0x0000000000841f0f
+	QUAD $0xcdc5ce2cd47da1c4
+	QUAD $0xc5edefcdc51ed573
+	QUAD $0x20d573c5c5f1f4d5
+	QUAD $0xf7d4cdc5faf4c5c5
+	QUAD $0xf4d5c520f673cdc5
+	QUAD $0x73cdc5eed4d5c5ea
+	QUAD $0xd5c5edefcdc51bd5
+	QUAD $0xc520d573c5c5f3f4
+	QUAD $0xc5f7d4cdc5fcf4c5
+	QUAD $0xecf4d5c520f673cd
+	QUAD $0xd573cdc5eed4d5c5
+	QUAD $0x7ea1c4edefcdc51f
+	QUAD $0x4c04c18349cf2c7f
+	QUAD $0x74c0854d9475c839
+	QUAD $0x6d1ce4e5b9b84958
+	QUAD $0x3111ebb949bf5847
+	QUAD $0x2e666694d049bb13
+	QUAD $0x0000000000841f0f
+	QUAD $0x4dca0149c6148b4c
+	QUAD $0x314d1eebc149d389
+	QUAD $0xda894dd8af0f4dd3
+	QUAD $0x4dda314d1beac149
+	QUAD $0xc149d3894dd1af0f
+	QUAD $0x1c894cd3314d1feb
+	QUAD $0x75c23948c0ff48c7
+	QUAD $0x77f8c55dec8948c7
+	QUAD $0x000000bf58476dc3
+	QUAD $0x58476d1ce4e5b900
+	QUAD $0x00000094d049bbbf
+	QUAD $0xd049bb133111eb00
+	QUAD $0x000000bf58476d94
+	QUAD $0x58476d1ce4e5b900
+	QUAD $0x00000094d049bbbf
+	QUAD $0xd049bb133111eb00
+	BYTE $0x94
+	RET
+
 // func randFillU64AVX2(dst []uint64, seed uint64)
 TEXT ·randFillU64AVX2(SB), NOSPLIT|NOFRAME, $0-32
 	MOVQ dst_base+0(FP), DI
@@ -212,6 +310,10 @@ TEXT ·randFillU64AVX2(SB), NOSPLIT|NOFRAME, $0-32
 	QUAD $0xb54cda58fbbee87e
 	QUAD $0x2e2ac13ef8e8d8d2
 	QUAD $0xa708a824f612c926
+	QUAD $0x00000000bf58476d
+	QUAD $0xbf58476d1ce4e5b9
+	QUAD $0x0000000094d049bb
+	QUAD $0x94d049bb133111eb
 	QUAD $0x00000000bf58476d
 	QUAD $0xbf58476d1ce4e5b9
 	QUAD $0x0000000094d049bb

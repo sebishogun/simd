@@ -36,3 +36,16 @@ func RandFillU64(dst []uint64, seed uint64) {
 		dst[i] = rotl(s[0][lane]+s[3][lane], 23) + s[0][lane]
 	}
 }
+
+// HashU64 mixes each key through the splitmix64 finalizer with the seed
+// folded in: bulk hashing for bloom filters and partitioning. The
+// specification for simd_hash_u64.
+func HashU64(dst, keys []uint64, seed uint64) {
+	n := min(len(dst), len(keys))
+	for i := 0; i < n; i++ {
+		z := keys[i] + seed*0x9E3779B97f4A7C15
+		z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9
+		z = (z ^ (z >> 27)) * 0x94D049BB133111EB
+		dst[i] = z ^ (z >> 31)
+	}
+}

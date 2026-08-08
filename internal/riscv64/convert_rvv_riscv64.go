@@ -89,3 +89,6 @@ func f16ToF32RVV(dst []float32, a []uint16)
 
 //go:noescape
 func f32ToF16RVV(dst []uint16, a []float32)
+
+//go:noescape
+func varintDecodeU64RVV(dst []uint64, src []byte) (n int, consumed int)

@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.20.0
+
+**The columnar codec tier.** **`BitUnpackInto`** gains a width-
+specialized fast path: the general kernel's runtime shift count defeated
+every vectorizer (the dry run showed it rejected on all nine tiers), so
+the width is switched once outside the block loop and each case unpacks
+with literal shifts -- 2.7-3.8x the general path, wired transparently
+under the existing API. **`VarintDecode`** reads one eight-byte word per
+value, turning the branch per byte into one per value -- an honest 1.27x
+over the stdlib loop, chained as it is through each value's length.
+**`HashUint64`** runs the seeded splitmix64 finalizer a lane at a time,
+80.5 against 10.6 GB/s -- bulk key hashing for bloom filters and
+partitioning; one string still belongs to hash/maphash and its AES path,
+and the doc says so. **`Bitshuffle`**/**`Unbitshuffle`** transpose bits
+into planes over 64-byte tiles, the layout that turns mostly-small
+values into runs of zeros for whatever compressor runs next.
+
 ## v1.19.0
 
 **The data-movement tier.** **`RunLengthDecodeInt32`** goes kernel-backed

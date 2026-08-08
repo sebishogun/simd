@@ -22,4 +22,7 @@ func interleave2U8RVV(dst []byte, a []byte, b []byte)
 func deinterleave2U8RVV(a []byte, b []byte, src []byte)
 
 //go:noescape
+func bitshuffleU8RVV(dst []byte, src []byte, dir byte)
+
+//go:noescape
 func transpose8x8U8RVV(dst []byte, src []byte)

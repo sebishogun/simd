@@ -33,3 +33,36 @@ func Transpose8x8U8(dst, src []byte) {
 		}
 	}
 }
+
+// BitshuffleU8 transposes bits over 64-byte tiles: with dir 0, output
+// plane p byte g holds bit p of input bytes 8g..8g+7; dir 1 inverts.
+// The specification for simd_bitshuffle_u8.
+func BitshuffleU8(dst, src []byte, dir byte) {
+	n := min(len(dst), len(src))
+	tiles := n / 64
+	for t := 0; t < tiles; t++ {
+		s := src[t*64 : t*64+64]
+		d := dst[t*64 : t*64+64]
+		if dir == 0 {
+			for p := 0; p < 8; p++ {
+				for g := 0; g < 8; g++ {
+					var b byte
+					for k := 0; k < 8; k++ {
+						b |= (s[8*g+k] >> uint(p) & 1) << uint(k)
+					}
+					d[p*8+g] = b
+				}
+			}
+		} else {
+			for p := 0; p < 8; p++ {
+				for g := 0; g < 8; g++ {
+					var b byte
+					for k := 0; k < 8; k++ {
+						b |= (s[k*8+g] >> uint(p) & 1) << uint(k)
+					}
+					d[g*8+p] = b
+				}
+			}
+		}
+	}
+}

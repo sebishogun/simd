@@ -89,3 +89,6 @@ func f32ToBF16LASX(dst []uint16, a []float32)
 
 //go:noescape
 func f32ToF16LASX(dst []uint16, a []float32)
+
+//go:noescape
+func varintDecodeU64LASX(dst []uint64, src []byte) (n int, consumed int)

@@ -21,11 +21,14 @@ var allFlatTables = map[string][]any{
 	"Bytes.CRC32C":                   {tblBytesCRC32C[0], tblBytesCRC32C[1], tblBytesCRC32C[2], tblBytesCRC32C[3]},
 	"Bytes.DtoaF64":                  {tblBytesDtoaF64[0], tblBytesDtoaF64[1], tblBytesDtoaF64[2], tblBytesDtoaF64[3]},
 	"Bytes.LZ4BlockDecode":           {tblBytesLZ4BlockDecode[0], tblBytesLZ4BlockDecode[1], tblBytesLZ4BlockDecode[2], tblBytesLZ4BlockDecode[3]},
+	"Bytes.HashU64":                  {tblBytesHashU64[0], tblBytesHashU64[1], tblBytesHashU64[2], tblBytesHashU64[3]},
 	"Bytes.RandFillU64":              {tblBytesRandFillU64[0], tblBytesRandFillU64[1], tblBytesRandFillU64[2], tblBytesRandFillU64[3]},
 	"Bytes.MergeSortedU32":           {tblBytesMergeSortedU32[0], tblBytesMergeSortedU32[1], tblBytesMergeSortedU32[2], tblBytesMergeSortedU32[3]},
 	"Bytes.Interleave2U8":            {tblBytesInterleave2U8[0], tblBytesInterleave2U8[1], tblBytesInterleave2U8[2], tblBytesInterleave2U8[3]},
 	"Bytes.Deinterleave2U8":          {tblBytesDeinterleave2U8[0], tblBytesDeinterleave2U8[1], tblBytesDeinterleave2U8[2], tblBytesDeinterleave2U8[3]},
+	"Bytes.BitshuffleU8":             {tblBytesBitshuffleU8[0], tblBytesBitshuffleU8[1], tblBytesBitshuffleU8[2], tblBytesBitshuffleU8[3]},
 	"Bytes.Transpose8x8U8":           {tblBytesTranspose8x8U8[0], tblBytesTranspose8x8U8[1], tblBytesTranspose8x8U8[2], tblBytesTranspose8x8U8[3]},
+	"Bytes.BitUnpackFastU32":         {tblBytesBitUnpackFastU32[0], tblBytesBitUnpackFastU32[1], tblBytesBitUnpackFastU32[2], tblBytesBitUnpackFastU32[3]},
 	"Convert.QMatMulI8":              {tblConvertQMatMulI8[0], tblConvertQMatMulI8[1], tblConvertQMatMulI8[2], tblConvertQMatMulI8[3]},
 	"Convert.RequantizeI8":           {tblConvertRequantizeI8[0], tblConvertRequantizeI8[1], tblConvertRequantizeI8[2], tblConvertRequantizeI8[3]},
 	"Bytes.RLEDecodeInt32":           {tblBytesRLEDecodeInt32[0], tblBytesRLEDecodeInt32[1], tblBytesRLEDecodeInt32[2], tblBytesRLEDecodeInt32[3]},
@@ -121,6 +124,7 @@ var allFlatTables = map[string][]any{
 	"Convert.F32ToBF16":              {tblConvertF32ToBF16[0], tblConvertF32ToBF16[1], tblConvertF32ToBF16[2], tblConvertF32ToBF16[3]},
 	"Convert.F16ToF32":               {tblConvertF16ToF32[0], tblConvertF16ToF32[1], tblConvertF16ToF32[2], tblConvertF16ToF32[3]},
 	"Convert.F32ToF16":               {tblConvertF32ToF16[0], tblConvertF32ToF16[1], tblConvertF32ToF16[2], tblConvertF32ToF16[3]},
+	"Bytes.VarintDecodeU64":          {tblBytesVarintDecodeU64[0], tblBytesVarintDecodeU64[1], tblBytesVarintDecodeU64[2], tblBytesVarintDecodeU64[3]},
 }
 
 // archSets hands the tests every tier's complete kernel set.

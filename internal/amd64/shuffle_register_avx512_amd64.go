@@ -36,6 +36,14 @@ func Deinterleave2U8AVX512(a []byte, b []byte, src []byte) {
 	deinterleave2U8AVX512(a, b, src)
 }
 
+func BitshuffleU8AVX512(dst []byte, src []byte, dir byte) {
+	if len(dst) < 0 || len(dst) != len(src) || len(dst)%64 != 0 {
+		ref.BitshuffleU8(dst, src, dir)
+		return
+	}
+	bitshuffleU8AVX512(dst, src, dir)
+}
+
 func Transpose8x8U8AVX512(dst []byte, src []byte) {
 	if len(dst) < 0 || len(dst) != len(src) || len(dst)%64 != 0 {
 		ref.Transpose8x8U8(dst, src)
@@ -47,5 +55,6 @@ func Transpose8x8U8AVX512(dst []byte, src []byte) {
 func registerShuffleAVX512(s *kernel.Set) {
 	s.Bytes.Interleave2U8 = Interleave2U8AVX512
 	s.Bytes.Deinterleave2U8 = Deinterleave2U8AVX512
+	s.Bytes.BitshuffleU8 = BitshuffleU8AVX512
 	s.Bytes.Transpose8x8U8 = Transpose8x8U8AVX512
 }

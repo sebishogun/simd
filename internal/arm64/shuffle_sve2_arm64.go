@@ -20,3 +20,6 @@ func interleave2U8SVE2(dst []byte, a []byte, b []byte)
 
 //go:noescape
 func deinterleave2U8SVE2(a []byte, b []byte, src []byte)
+
+//go:noescape
+func bitshuffleU8SVE2(dst []byte, src []byte, dir byte)

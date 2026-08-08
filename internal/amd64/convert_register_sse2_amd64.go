@@ -219,6 +219,13 @@ func F32ToF16SSE2(dst []uint16, a []float32) {
 	f32ToF16SSE2(dst[:n:n], a)
 }
 
+func VarintDecodeU64SSE2(dst []uint64, src []byte) (n int, consumed int) {
+	if len(dst) < 0 || len(src) == 0 {
+		return ref.VarintDecodeU64(dst, src)
+	}
+	return varintDecodeU64SSE2(dst, src)
+}
+
 func registerConvertSSE2(s *kernel.Set) {
 	s.Convert.QuantizeI8 = QuantizeI8SSE2
 	s.Convert.DequantizeI8 = DequantizeI8SSE2
@@ -243,4 +250,5 @@ func registerConvertSSE2(s *kernel.Set) {
 	s.Convert.F32ToBF16 = F32ToBF16SSE2
 	s.Convert.F16ToF32 = F16ToF32SSE2
 	s.Convert.F32ToF16 = F32ToF16SSE2
+	s.Bytes.VarintDecodeU64 = VarintDecodeU64SSE2
 }

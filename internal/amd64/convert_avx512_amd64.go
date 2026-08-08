@@ -101,3 +101,6 @@ func f16ToF32AVX512(dst []float32, a []uint16)
 
 //go:noescape
 func f32ToF16AVX512(dst []uint16, a []float32)
+
+//go:noescape
+func varintDecodeU64AVX512(dst []uint64, src []byte) (n int, consumed int)

@@ -16,4 +16,7 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
 //go:noescape
+func hashU64AVX512(dst []uint64, keys []uint64, seed uint64)
+
+//go:noescape
 func randFillU64AVX512(dst []uint64, seed uint64)

@@ -74,6 +74,12 @@ var tblBytesLZ4BlockDecode = [...]func([]byte, []byte) int{
 	arm64.Lz4BlockDecodeSVE2,
 }
 
+var tblBytesHashU64 = [...]func([]uint64, []uint64, uint64){
+	ref.HashU64,
+	arm64.HashU64NEON,
+	arm64.HashU64SVE2,
+}
+
 var tblBytesRandFillU64 = [...]func([]uint64, uint64){
 	ref.RandFillU64,
 	arm64.RandFillU64NEON,
@@ -98,10 +104,22 @@ var tblBytesDeinterleave2U8 = [...]func([]byte, []byte, []byte){
 	arm64.Deinterleave2U8SVE2,
 }
 
+var tblBytesBitshuffleU8 = [...]func([]byte, []byte, byte){
+	ref.BitshuffleU8,
+	arm64.BitshuffleU8NEON,
+	arm64.BitshuffleU8SVE2,
+}
+
 var tblBytesTranspose8x8U8 = [...]func([]byte, []byte){
 	ref.Transpose8x8U8,
 	ref.Transpose8x8U8,
 	ref.Transpose8x8U8,
+}
+
+var tblBytesBitUnpackFastU32 = [...]func([]uint32, []uint32, int, uint32){
+	ref.BitUnpackFastU32,
+	arm64.BitUnpackFastU32NEON,
+	arm64.BitUnpackFastU32SVE2,
 }
 
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
@@ -672,6 +690,12 @@ var tblConvertF32ToF16 = [...]func([]uint16, []float32){
 	ref.F32ToF16,
 	arm64.F32ToF16NEON,
 	arm64.F32ToF16SVE2,
+}
+
+var tblBytesVarintDecodeU64 = [...]func([]uint64, []byte) (int, int){
+	ref.VarintDecodeU64,
+	arm64.VarintDecodeU64NEON,
+	arm64.VarintDecodeU64SVE2,
 }
 
 var opsF32NEON = kernel.Ops[float32]{

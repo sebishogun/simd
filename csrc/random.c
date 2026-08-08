@@ -55,3 +55,25 @@ void simd_rand_fill_u64(u64 *__restrict dst, isize n, u64 seed) {
     }
   }
 }
+
+// simd_hash_u64: one 64-to-64 mix per lane -- the xorshift-multiply
+// finalizer family (splitmix64's), seeded. Bulk key hashing for bloom
+// filters, partitioning and dictionary probes over columns; a single
+// string wants hash/maphash and its AES path instead, and the doc says
+// so.
+void simd_hash_u64(u64 *__restrict dst, const u64 *__restrict keys,
+                   isize n, u64 seed) {
+  isize i = 0;
+  for (; i + 8 <= n; i += 8) {
+    rnu64x8 z = *(const rnu64x8 *)(keys + i) + (rnu64x8)(seed * 0x9E3779B97f4A7C15ull);
+    z = (z ^ (z >> 30)) * (rnu64x8)0xBF58476D1CE4E5B9ull;
+    z = (z ^ (z >> 27)) * (rnu64x8)0x94D049BB133111EBull;
+    *(rnu64x8 *)(dst + i) = z ^ (z >> 31);
+  }
+  for (; i < n; i++) {
+    u64 z = keys[i] + seed * 0x9E3779B97f4A7C15ull;
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
+    dst[i] = z ^ (z >> 31);
+  }
+}

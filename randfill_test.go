@@ -63,3 +63,48 @@ func BenchmarkRandFillU64(b *testing.B) {
 		}
 	})
 }
+
+func TestHashUint64(t *testing.T) {
+	keys := make([]uint64, 1000)
+	for i := range keys {
+		keys[i] = uint64(i) * 0x123456789
+	}
+	d1 := make([]uint64, len(keys))
+	d2 := make([]uint64, len(keys))
+	ref.HashU64(d1, keys, 7)
+	simd.HashUint64(d2, keys, 7)
+	seen := map[uint64]bool{}
+	for i := range d1 {
+		if d1[i] != d2[i] {
+			t.Fatalf("[%d] ref %x kernel %x", i, d1[i], d2[i])
+		}
+		if seen[d1[i]] {
+			t.Fatalf("collision at %d for sequential keys", i)
+		}
+		seen[d1[i]] = true
+	}
+	simd.HashUint64(d2, keys, 8)
+	if d1[0] == d2[0] && d1[1] == d2[1] {
+		t.Fatal("seed does not move the hashes")
+	}
+}
+
+func BenchmarkHashUint64(b *testing.B) {
+	keys := make([]uint64, 1<<16)
+	for i := range keys {
+		keys[i] = uint64(i)
+	}
+	dst := make([]uint64, len(keys))
+	b.Run("kernel", func(b *testing.B) {
+		b.SetBytes(int64(len(keys) * 8))
+		for b.Loop() {
+			simd.HashUint64(dst, keys, 1)
+		}
+	})
+	b.Run("goloop", func(b *testing.B) {
+		b.SetBytes(int64(len(keys) * 8))
+		for b.Loop() {
+			ref.HashU64(dst, keys, 1)
+		}
+	})
+}

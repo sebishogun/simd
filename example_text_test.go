@@ -412,3 +412,49 @@ func ExampleTranspose8x8Bytes() {
 	// Output:
 	// [0 8 16 24 32 40 48 56]
 }
+
+func ExampleVarintDecode() {
+	src := []byte{0x05, 0xAC, 0x02, 0x80, 0x01} // 5, 300, 128
+	dst := make([]uint64, 3)
+	n, consumed := simd.VarintDecode(dst, src)
+	fmt.Println(n, consumed, dst[:n])
+	// Output:
+	// 3 5 [5 300 128]
+}
+
+func ExampleHashUint64() {
+	keys := []uint64{1, 2, 3}
+	hashes := make([]uint64, 3)
+	simd.HashUint64(hashes, keys, 42)
+	fmt.Println(hashes[0] != hashes[1], hashes[1] != hashes[2])
+	// Output:
+	// true true
+}
+
+func ExampleBitshuffle() {
+	src := make([]byte, 64)
+	for i := range src {
+		src[i] = 1 // every byte's low bit set
+	}
+	dst := make([]byte, 64)
+	simd.Bitshuffle(dst, src)
+	fmt.Println(dst[0], dst[8]) // plane 0 all ones, plane 1 empty
+	back := make([]byte, 64)
+	simd.Unbitshuffle(back, dst)
+	fmt.Println(back[0])
+	// Output:
+	// 255 0
+	// 1
+}
+
+func ExampleUnbitshuffle() {
+	src := make([]byte, 64)
+	copy(src, "columnar")
+	planes := make([]byte, 64)
+	simd.Bitshuffle(planes, src)
+	back := make([]byte, 64)
+	simd.Unbitshuffle(back, planes)
+	fmt.Println(string(back[:8]))
+	// Output:
+	// columnar
+}

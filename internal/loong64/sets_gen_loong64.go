@@ -25,6 +25,8 @@ func Sets() map[string]kernel.Set {
 		registerCompressLASX(&s)
 		registerColumnarLASX(&s)
 		registerRandomLASX(&s)
+		registerShuffleLASX(&s)
+		registerBitunpackLASX(&s)
 		registerSetsLASX(&s)
 		registerGemmLASX(&s)
 		registerNaryLASX(&s)

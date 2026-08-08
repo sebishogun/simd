@@ -16,4 +16,7 @@ import "runtime"
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
 //go:noescape
+func hashU64RVV(dst []uint64, keys []uint64, seed uint64)
+
+//go:noescape
 func randFillU64RVV(dst []uint64, seed uint64)

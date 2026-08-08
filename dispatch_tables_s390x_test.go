@@ -21,11 +21,14 @@ var allFlatTables = map[string][]any{
 	"Bytes.CRC32C":                   {tblBytesCRC32C[0], tblBytesCRC32C[1]},
 	"Bytes.DtoaF64":                  {tblBytesDtoaF64[0], tblBytesDtoaF64[1]},
 	"Bytes.LZ4BlockDecode":           {tblBytesLZ4BlockDecode[0], tblBytesLZ4BlockDecode[1]},
+	"Bytes.HashU64":                  {tblBytesHashU64[0], tblBytesHashU64[1]},
 	"Bytes.RandFillU64":              {tblBytesRandFillU64[0], tblBytesRandFillU64[1]},
 	"Bytes.MergeSortedU32":           {tblBytesMergeSortedU32[0], tblBytesMergeSortedU32[1]},
 	"Bytes.Interleave2U8":            {tblBytesInterleave2U8[0], tblBytesInterleave2U8[1]},
 	"Bytes.Deinterleave2U8":          {tblBytesDeinterleave2U8[0], tblBytesDeinterleave2U8[1]},
+	"Bytes.BitshuffleU8":             {tblBytesBitshuffleU8[0], tblBytesBitshuffleU8[1]},
 	"Bytes.Transpose8x8U8":           {tblBytesTranspose8x8U8[0], tblBytesTranspose8x8U8[1]},
+	"Bytes.BitUnpackFastU32":         {tblBytesBitUnpackFastU32[0], tblBytesBitUnpackFastU32[1]},
 	"Convert.QMatMulI8":              {tblConvertQMatMulI8[0], tblConvertQMatMulI8[1]},
 	"Convert.RequantizeI8":           {tblConvertRequantizeI8[0], tblConvertRequantizeI8[1]},
 	"Bytes.RLEDecodeInt32":           {tblBytesRLEDecodeInt32[0], tblBytesRLEDecodeInt32[1]},
@@ -121,6 +124,7 @@ var allFlatTables = map[string][]any{
 	"Convert.F32ToBF16":              {tblConvertF32ToBF16[0], tblConvertF32ToBF16[1]},
 	"Convert.F16ToF32":               {tblConvertF16ToF32[0], tblConvertF16ToF32[1]},
 	"Convert.F32ToF16":               {tblConvertF32ToF16[0], tblConvertF32ToF16[1]},
+	"Bytes.VarintDecodeU64":          {tblBytesVarintDecodeU64[0], tblBytesVarintDecodeU64[1]},
 }
 
 // archSets hands the tests every tier's complete kernel set.

@@ -22,4 +22,7 @@ func interleave2U8AVX512(dst []byte, a []byte, b []byte)
 func deinterleave2U8AVX512(a []byte, b []byte, src []byte)
 
 //go:noescape
+func bitshuffleU8AVX512(dst []byte, src []byte, dir byte)
+
+//go:noescape
 func transpose8x8U8AVX512(dst []byte, src []byte)

@@ -99,3 +99,13 @@ func AppendVarints[T VarintValue](dst []byte, a []T) []byte {
 	}
 	return dst
 }
+
+// VarintDecode decodes LEB128 varints from src into dst until either
+// runs out, returning how many values were written and how many bytes
+// were consumed. A varint that never terminates within ten bytes, or
+// truncation mid-value, stops the walk with what was complete -- resume
+// by re-slicing src past consumed. One eight-byte load per value where
+// the byte loop takes a branch per byte.
+func VarintDecode(dst []uint64, src []byte) (n, consumed int) {
+	return tblBytesVarintDecodeU64[tierIdx](dst, src)
+}

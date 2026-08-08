@@ -246,6 +246,13 @@ func F32ToF16AVX2(dst []uint16, a []float32) {
 	f32ToF16AVX2(dst[:n:n], a)
 }
 
+func VarintDecodeU64AVX2(dst []uint64, src []byte) (n int, consumed int) {
+	if len(dst) < 0 || len(src) == 0 {
+		return ref.VarintDecodeU64(dst, src)
+	}
+	return varintDecodeU64AVX2(dst, src)
+}
+
 func registerConvertAVX2(s *kernel.Set) {
 	s.Convert.QuantizeI8 = QuantizeI8AVX2
 	s.Convert.DequantizeI8 = DequantizeI8AVX2
@@ -273,4 +280,5 @@ func registerConvertAVX2(s *kernel.Set) {
 	s.Convert.F32ToBF16 = F32ToBF16AVX2
 	s.Convert.F16ToF32 = F16ToF32AVX2
 	s.Convert.F32ToF16 = F32ToF16AVX2
+	s.Bytes.VarintDecodeU64 = VarintDecodeU64AVX2
 }

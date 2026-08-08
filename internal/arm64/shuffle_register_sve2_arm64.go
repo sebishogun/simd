@@ -36,7 +36,16 @@ func Deinterleave2U8SVE2(a []byte, b []byte, src []byte) {
 	deinterleave2U8SVE2(a, b, src)
 }
 
+func BitshuffleU8SVE2(dst []byte, src []byte, dir byte) {
+	if len(dst) < 0 || len(dst) != len(src) || len(dst)%64 != 0 {
+		ref.BitshuffleU8(dst, src, dir)
+		return
+	}
+	bitshuffleU8SVE2(dst, src, dir)
+}
+
 func registerShuffleSVE2(s *kernel.Set) {
 	s.Bytes.Interleave2U8 = Interleave2U8SVE2
 	s.Bytes.Deinterleave2U8 = Deinterleave2U8SVE2
+	s.Bytes.BitshuffleU8 = BitshuffleU8SVE2
 }

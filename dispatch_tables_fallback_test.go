@@ -16,11 +16,14 @@ var allFlatTables = map[string][]any{
 	"Bytes.CRC32C":                   {tblBytesCRC32C[0]},
 	"Bytes.DtoaF64":                  {tblBytesDtoaF64[0]},
 	"Bytes.LZ4BlockDecode":           {tblBytesLZ4BlockDecode[0]},
+	"Bytes.HashU64":                  {tblBytesHashU64[0]},
 	"Bytes.RandFillU64":              {tblBytesRandFillU64[0]},
 	"Bytes.MergeSortedU32":           {tblBytesMergeSortedU32[0]},
 	"Bytes.Interleave2U8":            {tblBytesInterleave2U8[0]},
 	"Bytes.Deinterleave2U8":          {tblBytesDeinterleave2U8[0]},
+	"Bytes.BitshuffleU8":             {tblBytesBitshuffleU8[0]},
 	"Bytes.Transpose8x8U8":           {tblBytesTranspose8x8U8[0]},
+	"Bytes.BitUnpackFastU32":         {tblBytesBitUnpackFastU32[0]},
 	"Convert.QMatMulI8":              {tblConvertQMatMulI8[0]},
 	"Convert.RequantizeI8":           {tblConvertRequantizeI8[0]},
 	"Bytes.RLEDecodeInt32":           {tblBytesRLEDecodeInt32[0]},
@@ -116,6 +119,7 @@ var allFlatTables = map[string][]any{
 	"Convert.F32ToBF16":              {tblConvertF32ToBF16[0]},
 	"Convert.F16ToF32":               {tblConvertF16ToF32[0]},
 	"Convert.F32ToF16":               {tblConvertF32ToF16[0]},
+	"Bytes.VarintDecodeU64":          {tblBytesVarintDecodeU64[0]},
 }
 
 // No generated backend here: the numeric half of the inventory walk

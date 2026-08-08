@@ -19,3 +19,17 @@ func Deinterleave2(a, b, src []byte) {
 func Transpose8x8Bytes(dst, src []byte) {
 	tblBytesTranspose8x8U8[tierIdx](dst, src)
 }
+
+// Bitshuffle transposes the bits of each 64-byte tile so that output
+// plane p holds bit p of every input byte -- the layout that turns
+// mostly-small values into runs of zero bytes for whatever compressor
+// runs next. Unbitshuffle inverts it. len(dst) must equal len(src) and
+// be a multiple of 64.
+func Bitshuffle(dst, src []byte) {
+	tblBytesBitshuffleU8[tierIdx](dst, src, 0)
+}
+
+// Unbitshuffle inverts [Bitshuffle].
+func Unbitshuffle(dst, src []byte) {
+	tblBytesBitshuffleU8[tierIdx](dst, src, 1)
+}

@@ -246,6 +246,13 @@ func F32ToF16NEON(dst []uint16, a []float32) {
 	f32ToF16NEON(dst[:n:n], a)
 }
 
+func VarintDecodeU64NEON(dst []uint64, src []byte) (n int, consumed int) {
+	if len(dst) < 0 || len(src) == 0 {
+		return ref.VarintDecodeU64(dst, src)
+	}
+	return varintDecodeU64NEON(dst, src)
+}
+
 func registerConvertNEON(s *kernel.Set) {
 	s.Convert.QuantizeI8 = QuantizeI8NEON
 	s.Convert.DequantizeI8 = DequantizeI8NEON
@@ -273,4 +280,5 @@ func registerConvertNEON(s *kernel.Set) {
 	s.Convert.F32ToBF16 = F32ToBF16NEON
 	s.Convert.F16ToF32 = F16ToF32NEON
 	s.Convert.F32ToF16 = F32ToF16NEON
+	s.Bytes.VarintDecodeU64 = VarintDecodeU64NEON
 }

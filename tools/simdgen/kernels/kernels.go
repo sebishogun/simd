@@ -1608,7 +1608,23 @@ func Convert() []spec.Kernel {
 			Threshold: thElementwise,
 		}
 	}
-	return []spec.Kernel{
+	vd := spec.Kernel{
+		// One eight-byte load per varint: the continuation mask's first
+		// clear high bit gives the length, SWAR masking assembles the
+		// payload, and the branch per byte becomes one per value.
+		CName: "simd_varint_decode_u64", GoName: "varintDecodeU64",
+		Group: "Bytes", Field: "VarintDecodeU64", RefFunc: "VarintDecodeU64",
+		Params:  []spec.Param{sl("dst", spec.SliceU64), sl("src", spec.SliceU8)},
+		Result:  &spec.Param{Name: "n", Type: spec.Int},
+		Result2: &spec.Param{Name: "consumed", Type: spec.Int},
+		CArgs: []spec.CArg{out(), base("dst"), lenOf("dst"),
+			base("src"), lenOf("src")},
+		RefWhen:      "len(src) == 0",
+		UnclampedDst: true,
+		AllowScalar:  true,
+		Threshold:    0,
+	}
+	out := []spec.Kernel{
 		quant("simd_quantize_i8", "quantizeI8", "QuantizeI8", "QuantizeI8",
 			spec.SliceI8, spec.SliceF32),
 		quant("simd_dequantize_i8", "dequantizeI8", "DequantizeI8", "DequantizeI8",
@@ -1710,6 +1726,8 @@ func Convert() []spec.Kernel {
 		conv("simd_f32_to_f16", "f32ToF16", "F32ToF16", "F32ToF16",
 			spec.SliceU16, spec.SliceF32),
 	}
+	out = append(out, vd)
+	return out
 }
 
 // ---------- numeric kernels with an unusual shape ----------
@@ -2615,6 +2633,17 @@ func LZ4() []spec.Kernel {
 func Random() []spec.Kernel {
 	return []spec.Kernel{
 		{
+			// The splitmix64 finalizer per lane, seeded: bulk key hashing
+			// for bloom filters and partitioning. One string wants
+			// hash/maphash and its AES path instead.
+			CName: "simd_hash_u64", GoName: "hashU64",
+			Group: "Bytes", Field: "HashU64", RefFunc: "HashU64",
+			Params: []spec.Param{sl("dst", spec.SliceU64), sl("keys", spec.SliceU64),
+				{Name: "seed", Type: spec.U64}},
+			CArgs:     []spec.CArg{base("dst"), base("keys"), lenOf("dst"), val("seed")},
+			Threshold: 32,
+		},
+		{
 			// Eight xoshiro256++ streams in lockstep lanes; the reference
 			// defines the stream and the kernel reproduces it exactly.
 			CName: "simd_rand_fill_u64", GoName: "randFillU64",
@@ -2671,11 +2700,46 @@ func Shuffle() []spec.Kernel {
 			Threshold:    64,
 		},
 		{
+			// Two lane-parallel stages: the Hacker's Delight 8x8 bit
+			// transpose per eight-byte group, then the byte transpose of
+			// the group results. dir 1 runs the pair in reverse.
+			CName: "simd_bitshuffle_u8", GoName: "bitshuffleU8",
+			Group: "Bytes", Field: "BitshuffleU8", RefFunc: "BitshuffleU8",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("src", spec.SliceU8),
+				{Name: "dir", Type: spec.U8}},
+			CArgs:        []spec.CArg{base("dst"), base("src"), lenOf("dst"), val("dir")},
+			RefWhen:      "len(dst) != len(src) || len(dst)%64 != 0",
+			UnclampedDst: true,
+			AllowScalar:  true,
+			Threshold:    0,
+		},
+		{
 			CName: "simd_transpose8x8_u8", GoName: "transpose8x8U8",
 			Group: "Bytes", Field: "Transpose8x8U8", RefFunc: "Transpose8x8U8",
 			Params:       []spec.Param{sl("dst", spec.SliceU8), sl("src", spec.SliceU8)},
 			CArgs:        []spec.CArg{base("dst"), base("src"), lenOf("dst")},
 			RefWhen:      "len(dst) != len(src) || len(dst)%64 != 0",
+			UnclampedDst: true,
+			Threshold:    0,
+		},
+	}
+}
+
+// BitUnpack is the width-specialized bitpacked decode. csrc/bitunpack.c.
+func BitUnpack() []spec.Kernel {
+	return []spec.Kernel{
+		{
+			// The general kernel's runtime width defeats every vectorizer;
+			// switching the width once outside the block loop turns each
+			// case into constant shifts, which they all vectorize.
+			CName: "simd_bitunpack_fast_u32", GoName: "bitUnpackFastU32",
+			Group: "Bytes", Field: "BitUnpackFastU32", RefFunc: "BitUnpackFastU32",
+			Params: []spec.Param{sl("dst", spec.SliceU32), sl("src", spec.SliceU32),
+				{Name: "blocks", Type: spec.Int}, {Name: "bits", Type: spec.U32}},
+			CArgs: []spec.CArg{base("dst"), base("src"), val("blocks"),
+				val("bits")},
+			RefWhen: "blocks <= 0 || bits == 0 || bits > 32 || " +
+				"len(dst) < 32*blocks || len(src)*32 < blocks*32*int(bits)",
 			UnclampedDst: true,
 			Threshold:    0,
 		},
@@ -2692,6 +2756,7 @@ var All = []Source{
 	{Path: "csrc/random.c", Kernels: Random()},
 	{Path: "csrc/merge.c", Kernels: Merge()},
 	{Path: "csrc/shuffle.c", Kernels: Shuffle()},
+	{Path: "csrc/bitunpack.c", Kernels: BitUnpack()},
 	{Path: "csrc/sets.c", Kernels: Sets()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},

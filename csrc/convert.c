@@ -661,3 +661,61 @@ void simd_bitunpack_u32(unsigned int *__restrict d, const unsigned int *__restri
     d[i] = v & mask;
   }
 }
+
+// ---------- varint decode ----------
+
+// simd_varint_decode_u64: LEB128 varints from src into dst until either
+// runs out. One eight-byte load per value instead of a byte loop: the
+// continuation bits of the loaded word give the length by count-trailing-
+// zeros of their complement, and the payload assembles with SWAR masking
+// -- the branch per byte becomes one branch per value. Values longer than
+// eight bytes (needing the ninth and tenth) take the byte path; malformed
+// input -- a varint that never terminates within ten bytes, or truncation
+// -- stops the walk. out[0] is values written, out[1] bytes consumed.
+void simd_varint_decode_u64(isize *__restrict out, unsigned long long *__restrict dst,
+                            isize dcap, const unsigned char *__restrict src, isize n) {
+  isize d = 0, i = 0;
+  while (d < dcap && i < n) {
+    if (i + 8 <= n) {
+      unsigned long long w;
+      __builtin_memcpy(&w, src + i, 8);
+      unsigned long long cont = w & 0x8080808080808080ull;
+      if ((cont & 0x80) == 0) {
+        // one byte
+        dst[d++] = w & 0x7f;
+        i += 1;
+        continue;
+      }
+      unsigned long long stops = ~cont & 0x8080808080808080ull;
+      if (stops != 0) {
+        int len = (__builtin_ctzll(stops) >> 3) + 1;
+        // Gather 7-bit groups from len bytes.
+        unsigned long long v = 0;
+        for (int k = len - 1; k >= 0; k--)
+          v = (v << 7) | ((w >> (8 * k)) & 0x7f);
+        dst[d++] = v;
+        i += len;
+        continue;
+      }
+    }
+    // Slow path: near the end, or a varint longer than eight bytes.
+    unsigned long long v = 0;
+    int shift = 0, len = 0;
+    for (;;) {
+      if (i + len >= n || len >= 10) {
+        out[0] = d;
+        out[1] = i;
+        return;
+      }
+      unsigned char b = src[i + len];
+      v |= (unsigned long long)(b & 0x7f) << shift;
+      len++;
+      if ((b & 0x80) == 0) break;
+      shift += 7;
+    }
+    dst[d++] = v;
+    i += len;
+  }
+  out[0] = d;
+  out[1] = i;
+}

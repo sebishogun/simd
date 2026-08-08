@@ -269,4 +269,23 @@ func BitPackInto(dst, a []uint32, bits int32) { tblConvertBitPackU32[tierIdx](ds
 // value straddles whenever len(dst)*bits is not a multiple of 32. Requiring it
 // in the guard is what lets the kernel read unconditionally rather than
 // branching on every element.
-func BitUnpackInto(dst, a []uint32, bits int32) { tblConvertBitUnpackU32[tierIdx](dst, a, bits) }
+func BitUnpackInto(dst, a []uint32, bits int32) {
+	// Whole 32-value blocks go through the width-specialized kernel -- the
+	// general form's runtime shift count defeats every vectorizer, so the
+	// width is switched once and each case unpacks with literal shifts.
+	// The tail, and any degenerate width, keeps the general path.
+	if bits >= 1 && bits <= 32 {
+		blocks := len(dst) / 32
+		for blocks > 0 && len(a)*32 < blocks*32*int(bits) {
+			blocks--
+		}
+		if blocks > 0 {
+			tblBytesBitUnpackFastU32[tierIdx](dst, a, blocks, uint32(bits))
+			dst = dst[32*blocks:]
+			a = a[int(bits)*blocks:]
+		}
+	}
+	if len(dst) > 0 {
+		tblConvertBitUnpackU32[tierIdx](dst, a, bits)
+	}
+}

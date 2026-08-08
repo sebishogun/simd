@@ -236,6 +236,13 @@ func F32ToF16RVV(dst []uint16, a []float32) {
 	f32ToF16RVV(dst[:n:n], a)
 }
 
+func VarintDecodeU64RVV(dst []uint64, src []byte) (n int, consumed int) {
+	if len(dst) < 0 || len(src) == 0 {
+		return ref.VarintDecodeU64(dst, src)
+	}
+	return varintDecodeU64RVV(dst, src)
+}
+
 func registerConvertRVV(s *kernel.Set) {
 	s.Convert.QuantizeI8 = QuantizeI8RVV
 	s.Convert.DequantizeI8 = DequantizeI8RVV
@@ -262,4 +269,5 @@ func registerConvertRVV(s *kernel.Set) {
 	s.Convert.F32ToBF16 = F32ToBF16RVV
 	s.Convert.F16ToF32 = F16ToF32RVV
 	s.Convert.F32ToF16 = F32ToF16RVV
+	s.Bytes.VarintDecodeU64 = VarintDecodeU64RVV
 }

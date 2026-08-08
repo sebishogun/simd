@@ -237,6 +237,13 @@ func F32ToF16LASX(dst []uint16, a []float32) {
 	f32ToF16LASX(dst[:n:n], a)
 }
 
+func VarintDecodeU64LASX(dst []uint64, src []byte) (n int, consumed int) {
+	if len(dst) < 0 || len(src) == 0 {
+		return ref.VarintDecodeU64(dst, src)
+	}
+	return varintDecodeU64LASX(dst, src)
+}
+
 func registerConvertLASX(s *kernel.Set) {
 	s.Convert.QuantizeI8 = QuantizeI8LASX
 	s.Convert.DequantizeI8 = DequantizeI8LASX
@@ -263,4 +270,5 @@ func registerConvertLASX(s *kernel.Set) {
 	s.Convert.BF16ToF32 = Bf16ToF32LASX
 	s.Convert.F32ToBF16 = F32ToBF16LASX
 	s.Convert.F32ToF16 = F32ToF16LASX
+	s.Bytes.VarintDecodeU64 = VarintDecodeU64LASX
 }

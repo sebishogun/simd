@@ -83,6 +83,13 @@ var tblBytesLZ4BlockDecode = [...]func([]byte, []byte) int{
 	amd64.Lz4BlockDecodeAVX512,
 }
 
+var tblBytesHashU64 = [...]func([]uint64, []uint64, uint64){
+	ref.HashU64,
+	amd64.HashU64SSE2,
+	amd64.HashU64AVX2,
+	amd64.HashU64AVX512,
+}
+
 var tblBytesRandFillU64 = [...]func([]uint64, uint64){
 	ref.RandFillU64,
 	amd64.RandFillU64SSE2,
@@ -111,11 +118,25 @@ var tblBytesDeinterleave2U8 = [...]func([]byte, []byte, []byte){
 	amd64.Deinterleave2U8AVX512,
 }
 
+var tblBytesBitshuffleU8 = [...]func([]byte, []byte, byte){
+	ref.BitshuffleU8,
+	amd64.BitshuffleU8SSE2,
+	amd64.BitshuffleU8AVX2,
+	amd64.BitshuffleU8AVX512,
+}
+
 var tblBytesTranspose8x8U8 = [...]func([]byte, []byte){
 	ref.Transpose8x8U8,
 	ref.Transpose8x8U8,
 	amd64.Transpose8x8U8AVX2,
 	amd64.Transpose8x8U8AVX512,
+}
+
+var tblBytesBitUnpackFastU32 = [...]func([]uint32, []uint32, int, uint32){
+	ref.BitUnpackFastU32,
+	amd64.BitUnpackFastU32SSE2,
+	amd64.BitUnpackFastU32AVX2,
+	amd64.BitUnpackFastU32AVX512,
 }
 
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
@@ -781,6 +802,13 @@ var tblConvertF32ToF16 = [...]func([]uint16, []float32){
 	amd64.F32ToF16SSE2,
 	amd64.F32ToF16AVX2,
 	amd64.F32ToF16AVX512,
+}
+
+var tblBytesVarintDecodeU64 = [...]func([]uint64, []byte) (int, int){
+	ref.VarintDecodeU64,
+	amd64.VarintDecodeU64SSE2,
+	amd64.VarintDecodeU64AVX2,
+	amd64.VarintDecodeU64AVX512,
 }
 
 var opsF32SSE2 = kernel.Ops[float32]{

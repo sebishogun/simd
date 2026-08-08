@@ -65,6 +65,11 @@ var tblBytesLZ4BlockDecode = [...]func([]byte, []byte) int{
 	riscv64.Lz4BlockDecodeRVV,
 }
 
+var tblBytesHashU64 = [...]func([]uint64, []uint64, uint64){
+	ref.HashU64,
+	riscv64.HashU64RVV,
+}
+
 var tblBytesRandFillU64 = [...]func([]uint64, uint64){
 	ref.RandFillU64,
 	riscv64.RandFillU64RVV,
@@ -85,9 +90,19 @@ var tblBytesDeinterleave2U8 = [...]func([]byte, []byte, []byte){
 	riscv64.Deinterleave2U8RVV,
 }
 
+var tblBytesBitshuffleU8 = [...]func([]byte, []byte, byte){
+	ref.BitshuffleU8,
+	riscv64.BitshuffleU8RVV,
+}
+
 var tblBytesTranspose8x8U8 = [...]func([]byte, []byte){
 	ref.Transpose8x8U8,
 	riscv64.Transpose8x8U8RVV,
+}
+
+var tblBytesBitUnpackFastU32 = [...]func([]uint32, []uint32, int, uint32){
+	ref.BitUnpackFastU32,
+	riscv64.BitUnpackFastU32RVV,
 }
 
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
@@ -563,6 +578,11 @@ var tblConvertF16ToF32 = [...]func([]float32, []uint16){
 var tblConvertF32ToF16 = [...]func([]uint16, []float32){
 	ref.F32ToF16,
 	riscv64.F32ToF16RVV,
+}
+
+var tblBytesVarintDecodeU64 = [...]func([]uint64, []byte) (int, int){
+	ref.VarintDecodeU64,
+	riscv64.VarintDecodeU64RVV,
 }
 
 var opsF32RVV = kernel.Ops[float32]{

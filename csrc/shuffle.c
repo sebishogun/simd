@@ -63,3 +63,50 @@ void simd_transpose8x8_u8(u8 *__restrict dst, const u8 *__restrict src,
       for (int c = 0; c < 8; c++) d[c * 8 + r] = s[r * 8 + c];
   }
 }
+
+// simd_bitshuffle_u8: Blosc-style bit transposition over 64-byte tiles.
+// Output plane p, byte g holds bit p of input bytes 8g..8g+7 -- the
+// layout that turns "mostly-small values" into runs of zero bytes for
+// the compressor behind it. Two stages, both lane-parallel: an 8x8 BIT
+// transpose of each eight-byte group (the Hacker's Delight multiply
+// form, one u64 lane each), then the 8x8 BYTE transpose of the group
+// results. Unshuffle is the same pair in the opposite order;
+// direction 0 shuffles, 1 unshuffles.
+typedef unsigned long long shu64;
+
+static inline shu64 sh_transpose8(shu64 x) {
+  shu64 t;
+  t = (x ^ (x >> 7)) & 0x00AA00AA00AA00AAull;
+  x = x ^ t ^ (t << 7);
+  t = (x ^ (x >> 14)) & 0x0000CCCC0000CCCCull;
+  x = x ^ t ^ (t << 14);
+  t = (x ^ (x >> 28)) & 0x00000000F0F0F0F0ull;
+  x = x ^ t ^ (t << 28);
+  return x;
+}
+
+void simd_bitshuffle_u8(u8 *__restrict dst, const u8 *__restrict src,
+                        isize n, u8 dir) {
+  isize tiles = n / 64;
+  for (isize t = 0; t < tiles; t++) {
+    const u8 *s = src + t * 64;
+    u8 *d = dst + t * 64;
+    shu64 g[8];
+    if (dir == 0) {
+      for (int i = 0; i < 8; i++) {
+        shu64 w;
+        __builtin_memcpy(&w, s + 8 * i, 8);
+        g[i] = sh_transpose8(w);
+      }
+      for (int p = 0; p < 8; p++)
+        for (int i = 0; i < 8; i++) d[p * 8 + i] = (u8)(g[i] >> (8 * p));
+    } else {
+      for (int i = 0; i < 8; i++) {
+        shu64 w = 0;
+        for (int p = 0; p < 8; p++) w |= (shu64)s[p * 8 + i] << (8 * p);
+        g[i] = sh_transpose8(w);
+      }
+      for (int i = 0; i < 8; i++) __builtin_memcpy(d + 8 * i, &g[i], 8);
+    }
+  }
+}

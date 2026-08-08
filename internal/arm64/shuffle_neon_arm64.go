@@ -20,3 +20,6 @@ func interleave2U8NEON(dst []byte, a []byte, b []byte)
 
 //go:noescape
 func deinterleave2U8NEON(a []byte, b []byte, src []byte)
+
+//go:noescape
+func bitshuffleU8NEON(dst []byte, src []byte, dir byte)

@@ -652,6 +652,18 @@ type Bytes struct {
 	Interleave2U8   func(dst, a, b []byte)
 	Deinterleave2U8 func(a, b, src []byte)
 	Transpose8x8U8  func(dst, src []byte)
+	// BitUnpackFastU32 unpacks whole 32-value blocks at a compile-time-
+	// specialized width; the wrapper handles tails.
+	BitUnpackFastU32 func(dst, src []uint32, blocks int, bits uint32)
+	// VarintDecodeU64 decodes LEB128 varints until dst or src runs out,
+	// returning values written and bytes consumed.
+	VarintDecodeU64 func(dst []uint64, src []byte) (n, consumed int)
+	// BitshuffleU8 transposes bits over 64-byte tiles (dir 0) or inverts
+	// it (dir 1) -- the layout compressors like behind small values.
+	BitshuffleU8 func(dst, src []byte, dir byte)
+	// HashU64 mixes keys through the splitmix64 finalizer, seeded: bulk
+	// hashing for bloom filters and partitioning.
+	HashU64 func(dst, keys []uint64, seed uint64)
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

@@ -20,6 +20,15 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
+func HashU64SVE2(dst []uint64, keys []uint64, seed uint64) {
+	n := min(len(dst), len(keys))
+	if n < 32 {
+		ref.HashU64(dst, keys, seed)
+		return
+	}
+	hashU64SVE2(dst[:n:n], keys, seed)
+}
+
 func RandFillU64SVE2(dst []uint64, seed uint64) {
 	if len(dst) < 0 {
 		ref.RandFillU64(dst, seed)
@@ -29,5 +38,6 @@ func RandFillU64SVE2(dst []uint64, seed uint64) {
 }
 
 func registerRandomSVE2(s *kernel.Set) {
+	s.Bytes.HashU64 = HashU64SVE2
 	s.Bytes.RandFillU64 = RandFillU64SVE2
 }

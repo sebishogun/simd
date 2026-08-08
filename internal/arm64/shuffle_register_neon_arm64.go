@@ -36,7 +36,16 @@ func Deinterleave2U8NEON(a []byte, b []byte, src []byte) {
 	deinterleave2U8NEON(a, b, src)
 }
 
+func BitshuffleU8NEON(dst []byte, src []byte, dir byte) {
+	if len(dst) < 0 || len(dst) != len(src) || len(dst)%64 != 0 {
+		ref.BitshuffleU8(dst, src, dir)
+		return
+	}
+	bitshuffleU8NEON(dst, src, dir)
+}
+
 func registerShuffleNEON(s *kernel.Set) {
 	s.Bytes.Interleave2U8 = Interleave2U8NEON
 	s.Bytes.Deinterleave2U8 = Deinterleave2U8NEON
+	s.Bytes.BitshuffleU8 = BitshuffleU8NEON
 }

@@ -92,3 +92,6 @@ func f16ToF32NEON(dst []float32, a []uint16)
 
 //go:noescape
 func f32ToF16NEON(dst []uint16, a []float32)
+
+//go:noescape
+func varintDecodeU64NEON(dst []uint64, src []byte) (n int, consumed int)

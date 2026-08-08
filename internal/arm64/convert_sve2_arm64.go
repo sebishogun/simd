@@ -92,3 +92,6 @@ func f16ToF32SVE2(dst []float32, a []uint16)
 
 //go:noescape
 func f32ToF16SVE2(dst []uint16, a []float32)
+
+//go:noescape
+func varintDecodeU64SVE2(dst []uint64, src []byte) (n int, consumed int)

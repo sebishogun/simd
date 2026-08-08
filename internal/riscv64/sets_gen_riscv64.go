@@ -30,6 +30,7 @@ func Sets() map[string]kernel.Set {
 		registerRandomRVV(&s)
 		registerMergeRVV(&s)
 		registerShuffleRVV(&s)
+		registerBitunpackRVV(&s)
 		registerSetsRVV(&s)
 		registerGemmRVV(&s)
 		registerNaryRVV(&s)
