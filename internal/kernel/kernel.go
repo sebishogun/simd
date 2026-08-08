@@ -630,6 +630,9 @@ type Bytes struct {
 	// well-formed, 0 not, -1 nesting outran the spill and the caller's
 	// own walk must decide.
 	JSONValid func(b []byte, stk []uint64) int
+	// Adler32 and CRC32C are the checksums, seedable for rolling use.
+	Adler32 func(p []byte, seed uint32) uint32
+	CRC32C  func(p []byte, seed uint32) uint32
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

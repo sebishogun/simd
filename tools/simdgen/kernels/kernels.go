@@ -2520,10 +2520,44 @@ func Columnar() []spec.Kernel {
 	return ks
 }
 
+// Checksum is Adler-32 and CRC32C. csrc/checksum.c.
+func Checksum() []spec.Kernel {
+	return []spec.Kernel{
+		{
+			// The scalar Go loop in hash/adler32 is the baseline everywhere;
+			// the widening multiply-add form vectorizes on every tier.
+			CName: "simd_adler32", GoName: "adler32",
+			Group: "Bytes", Field: "Adler32", RefFunc: "Adler32",
+			Params: []spec.Param{sl("p", spec.SliceU8),
+				{Name: "seed", Type: spec.U32}},
+			Result:    &spec.Param{Name: "ret", Type: spec.U32},
+			CArgs:     []spec.CArg{out(), base("p"), lenOf("p"), val("seed")},
+			Threshold: 64,
+		},
+		{
+			// PCLMUL fold-by-four with a crc32-instruction drain; the
+			// portable body keeps the symbol visible to the AST check and
+			// the verifier skips the tiers where it stays scalar. stdlib
+			// hash/crc32 carries strong asm on amd64 -- the benchmark
+			// decides whether this ships wired anywhere.
+			CName: "simd_crc32c", GoName: "crc32c",
+			Group: "Bytes", Field: "CRC32C", RefFunc: "CRC32C",
+			Params: []spec.Param{sl("p", spec.SliceU8),
+				{Name: "seed", Type: spec.U32}},
+			Result:    &spec.Param{Name: "ret", Type: spec.U32},
+			CArgs:     []spec.CArg{out(), base("p"), lenOf("p"), val("seed")},
+			Threshold: 64,
+			SkipOn: []string{"amd64/sse2", "arm64", "riscv64", "s390x",
+				"loong64", "ppc64le"},
+		},
+	}
+}
+
 var All = []Source{
 	{Path: "csrc/blas.c", Kernels: Blas()},
 	{Path: "csrc/compress.c", Kernels: Compress()},
 	{Path: "csrc/columnar.c", Kernels: Columnar()},
+	{Path: "csrc/checksum.c", Kernels: Checksum()},
 	{Path: "csrc/sets.c", Kernels: Sets()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},

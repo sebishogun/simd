@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.16.0
+
+**Checksums, with both verdicts stated.** **`Adler32`** is 7.2x the
+standard library from a kilobyte up -- 36.4 against 5.1 GB/s on
+amd64/avx512, 2x even at 64 bytes -- carried by a closed-form recurrence
+that needs two vector adds per sixteen bytes and recovers the whole
+weighted structure once per modulus window; hash/adler32 runs a byte at
+a time everywhere. Six tiers carry it. **`CRC32C`** matches hash/crc32's
+Castagnoli bit for bit, folds by four with PCLMULQDQ and drains through
+the crc32 instruction -- and the standard library's three-stream amd64
+assembly still wins bulk hashing, 37 against 20 GB/s, which the doc
+comment and docs/wrong.md entry 77 say plainly. This kernel wins below
+~128 bytes and stands as the portable specification.
+
 ## v1.15.0
 
 **The columnar family** -- Arrow-style validity bitmaps driving typed value

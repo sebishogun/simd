@@ -2968,3 +2968,19 @@ suspect too -- especially an ad-hoc one built out of grep, and most of all when
 the story it tells is tidy. There was a test in the tree that answered this
 question properly and it was passing; running it first would have cost nothing.
 Check whether the thing is already checked before concluding it is not.
+
+## CRC32C by PCLMUL fold, against the standard library's three streams
+
+The fold-by-four kernel with a crc32-instruction drain reaches 20 GB/s
+on amd64/avx512. hash/crc32's Castagnoli assembly reaches 37: it runs
+three independent crc32 instruction streams and recombines them, and
+the instruction's three-cycle latency pipelines across streams in a way
+one folded stream does not beat. Minimum of three, quiet machine, 1 KB
+to 1 MB. Below ~128 bytes the kernel wins (16.8 against 13.2 GB/s at
+64 bytes) because the fold never runs there -- that is the plain
+eight-byte instruction loop against stdlib's setup overhead.
+
+Kept, documented as losing: the function is the portable specification
+and the small-input path, and the doc comment sends bulk hashing to the
+standard library by name. Adler-32 from the same file ships the other
+verdict -- 1.8x stdlib everywhere past a kilobyte.

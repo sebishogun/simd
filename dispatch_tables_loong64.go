@@ -45,6 +45,16 @@ var tblBytesRunStartsU8 = [...]func([]bool, []byte){
 	loong64.RunStartsU8LASX,
 }
 
+var tblBytesAdler32 = [...]func([]byte, uint32) uint32{
+	ref.Adler32,
+	ref.Adler32,
+}
+
+var tblBytesCRC32C = [...]func([]byte, uint32) uint32{
+	ref.CRC32C,
+	ref.CRC32C,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	ref.QMatMulI8,

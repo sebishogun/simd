@@ -17,6 +17,8 @@ var allFlatTables = map[string][]any{
 	"Bytes.RunStartsI32":             {tblBytesRunStartsI32[0], tblBytesRunStartsI32[1]},
 	"Bytes.RunStartsI64":             {tblBytesRunStartsI64[0], tblBytesRunStartsI64[1]},
 	"Bytes.RunStartsU8":              {tblBytesRunStartsU8[0], tblBytesRunStartsU8[1]},
+	"Bytes.Adler32":                  {tblBytesAdler32[0], tblBytesAdler32[1]},
+	"Bytes.CRC32C":                   {tblBytesCRC32C[0], tblBytesCRC32C[1]},
 	"Convert.QMatMulI8":              {tblConvertQMatMulI8[0], tblConvertQMatMulI8[1]},
 	"Convert.RequantizeI8":           {tblConvertRequantizeI8[0], tblConvertRequantizeI8[1]},
 	"Mask.All":                       {tblMaskAll[0], tblMaskAll[1]},

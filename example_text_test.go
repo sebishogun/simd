@@ -321,3 +321,17 @@ func ExampleJSONCopyValid() {
 	// 8 plain te
 	// true
 }
+
+func ExampleAdler32() {
+	sum := simd.Adler32("Wikipedia", 1)
+	fmt.Printf("%08x\n", sum)
+	// Output:
+	// 11e60398
+}
+
+func ExampleCRC32C() {
+	sum := simd.CRC32C([]byte("123456789"), 0)
+	fmt.Printf("%08x\n", sum)
+	// Output:
+	// e3069283
+}

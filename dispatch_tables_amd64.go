@@ -55,6 +55,20 @@ var tblBytesRunStartsU8 = [...]func([]bool, []byte){
 	amd64.RunStartsU8AVX512,
 }
 
+var tblBytesAdler32 = [...]func([]byte, uint32) uint32{
+	ref.Adler32,
+	amd64.Adler32SSE2,
+	amd64.Adler32AVX2,
+	amd64.Adler32AVX512,
+}
+
+var tblBytesCRC32C = [...]func([]byte, uint32) uint32{
+	ref.CRC32C,
+	ref.CRC32C,
+	amd64.Crc32cAVX2,
+	amd64.Crc32cAVX512,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	amd64.QMatMulI8SSE2,

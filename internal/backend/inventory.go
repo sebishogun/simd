@@ -25,10 +25,12 @@ type Declared struct {
 // support, and the dispatcher fills the slot from the reference. What may not
 // happen is the slot being empty in both.
 var Inventory = []Declared{
+	{"Bytes", "Adler32", "Adler32", "simd_adler32"},
 	{"Bytes", "And", "BitAnd", "simd_bit_and"},
 	{"Bytes", "AndNot", "BitAndNot", "simd_bit_andnot"},
 	{"Bytes", "B64Decode", "B64Decode", "simd_b64_decode"},
 	{"Bytes", "B64Encode", "B64Encode", "simd_b64_encode"},
+	{"Bytes", "CRC32C", "CRC32C", "simd_crc32c"},
 	{"Bytes", "CommonPrefix", "CommonPrefix", "simd_common_prefix"},
 	{"Bytes", "Compare", "CompareBytes", "simd_compare_bytes"},
 	{"Bytes", "Count", "CountByte", "simd_count_byte"},

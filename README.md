@@ -108,6 +108,7 @@ Organised by task rather than by operation name.
 | **escape a string into a JSON encoder's buffer** | `JSONQuote` (assumes valid UTF-8) or `JSONCopyValid` (replaces invalid bytes), both with optional HTML-safe escaping |
 | trim, fold case, validate UTF-8 | `TrimAny` `TrimSpaceASCII` `EqualFoldASCII` `ValidUTF8` |
 | hex or base64 | `HexEncode` `Base64Encode` `Base64Decode` |
+| checksum a buffer | `Adler32` — vectorized where stdlib is scalar; `CRC32C` matches hash/crc32 Castagnoli |
 | convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |
 | median / percentile without sorting | `Median` `Quantile`, `MedianInto` for zero-alloc |
 | the k largest or smallest | `TopK` `BottomK` — selects, does not sort |
@@ -320,7 +321,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-480 exported functions and 6,850 generated kernels across nine targets. The
+482 exported functions and 6,858 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over
@@ -329,12 +330,12 @@ counts once in each.
 
 | | kernels | skipped | dominant reason for skips |
 |---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2569 | 99 | LLVM declined to vectorize |
-| arm64 (neon/sve2) | 1659 | 121 | LLVM declined to vectorize |
-| riscv64 (rvv) | 878 | 14 | LLVM declined to vectorize |
-| loong64 (lasx) | 723 | 165 | `$fp`, then `.L0` references |
-| ppc64le (vsx) | 602 | 286 | `r30`, then LLVM refusals |
-| s390x (vx) | 419 | 469 | `r13` — an ABI wall, see below |
+| amd64 (sse2/avx2/avx512) | 2574 | 100 | LLVM declined to vectorize |
+| arm64 (neon/sve2) | 1661 | 123 | LLVM declined to vectorize |
+| riscv64 (rvv) | 879 | 15 | LLVM declined to vectorize |
+| loong64 (lasx) | 723 | 167 | `$fp`, then `.L0` references |
+| ppc64le (vsx) | 602 | 288 | `r30`, then LLVM refusals |
+| s390x (vx) | 419 | 471 | `r13` — an ABI wall, see below |
 
 Most remaining skips are in the `Fast*` tier, which is the newest and least
 portable. Where a target declines a `Fast*` kernel the accurate kernel stands
@@ -533,7 +534,7 @@ numeric kernels.
 
 ## Where the obvious answer was wrong
 
-[**docs/wrong.md**](docs/wrong.md) records 76 things a competent person would
+[**docs/wrong.md**](docs/wrong.md) records 77 things a competent person would
 have assumed that turned out false, and what each cost. Among them:
 
 - A register can be reserved by *value* rather than by name, which makes it
@@ -556,7 +557,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.15.0.** The API is stable: every exported function keeps its name,
+**v1.16.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.
