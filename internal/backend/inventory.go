@@ -36,6 +36,7 @@ var Inventory = []Declared{
 	{"Bytes", "Count", "CountByte", "simd_count_byte"},
 	{"Bytes", "CountAny", "CountAny", "simd_count_any"},
 	{"Bytes", "CountSeq", "CountSeq", "simd_count_seq"},
+	{"Bytes", "DtoaF64", "DtoaF64", "simd_dtoa_f64"},
 	{"Bytes", "Equal", "EqualBytes", "simd_equal_bytes"},
 	{"Bytes", "EqualFoldASCII", "EqualFoldASCII", "simd_equal_fold_ascii"},
 	{"Bytes", "Fill", "FillBytes", "simd_fill_bytes"},

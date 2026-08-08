@@ -335,3 +335,14 @@ func ExampleCRC32C() {
 	// Output:
 	// e3069283
 }
+
+func ExampleFormatFloat64() {
+	var dst [25]byte
+	n := simd.FormatFloat64(dst[:], 122.416294033786585)
+	fmt.Println(string(dst[:n]))
+	n = simd.FormatFloat64(dst[:], 1e21)
+	fmt.Println(string(dst[:n]))
+	// Output:
+	// 122.41629403378658
+	// 1e+21
+}

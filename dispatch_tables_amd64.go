@@ -69,6 +69,13 @@ var tblBytesCRC32C = [...]func([]byte, uint32) uint32{
 	amd64.Crc32cAVX512,
 }
 
+var tblBytesDtoaF64 = [...]func([]byte, float64) int{
+	ref.DtoaF64,
+	amd64.DtoaF64SSE2,
+	amd64.DtoaF64AVX2,
+	amd64.DtoaF64AVX512,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	amd64.QMatMulI8SSE2,

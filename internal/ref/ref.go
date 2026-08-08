@@ -1208,6 +1208,7 @@ func setBase() kernel.Set {
 			JSONValidTokens: jsonValidTokens,
 			JSONValid:       jsonValid,
 			Adler32:         Adler32, CRC32C: CRC32C,
+			DtoaF64:     DtoaF64,
 			IndexNotAny: indexNotAny, LastIndexNotAny: lastIndexNotAny, LastIndex: lastIndex, CountSeq: countSeq,
 			IsASCII: isASCII, ValidUTF8: validUTF8,
 			IndexNonASCII: IndexNonASCII, IndexNonASCII16: IndexNonASCII16,

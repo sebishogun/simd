@@ -633,6 +633,9 @@ type Bytes struct {
 	// Adler32 and CRC32C are the checksums, seedable for rolling use.
 	Adler32 func(p []byte, seed uint32) uint32
 	CRC32C  func(p []byte, seed uint32) uint32
+	// DtoaF64 renders a finite float64 shortest-form with encoding/json's
+	// format rule and returns the byte count; dst must hold 25 bytes.
+	DtoaF64 func(dst []byte, v float64) int
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

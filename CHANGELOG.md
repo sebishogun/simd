@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.17.0
+
+**`FormatFloat64`** -- shortest-form float64, Schubfach with the render
+attached: one call turns a finite float64 into encoding/json's exact
+format (decimal in [1e-6, 1e21), scientific outside, unpadded single-
+digit exponents, "-0" preserved, whole numbers as integers). A
+transliteration of simdjson's Go implementation -- the reference in
+internal/ref is the same transliteration, and a 2.5-million-value
+differential holds all three against strconv byte for byte. 26 ns
+against strconv's 43 on mixed values, 8.3 ns on whole numbers.
+Downstream, simdjson's appendFloat is one kernel call and its
+MarshalFloats gate row moves -9%.
+
 ## v1.16.0
 
 **Checksums, with both verdicts stated.** **`Adler32`** is 7.2x the

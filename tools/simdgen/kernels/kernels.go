@@ -2553,11 +2553,34 @@ func Checksum() []spec.Kernel {
 	}
 }
 
+// Dtoa is shortest float64 formatting. csrc/dtoa.c.
+func Dtoa() []spec.Kernel {
+	return []spec.Kernel{
+		{
+			// Schubfach with the render attached: one call turns a finite
+			// float64 into encoding/json's shortest form. The value is the
+			// fused table walk and digit emission, not lanes; the eleven
+			// kilobytes of pow-of-ten constants are the constant pool.
+			CName: "simd_dtoa_f64", GoName: "dtoaF64",
+			Group: "Bytes", Field: "DtoaF64", RefFunc: "DtoaF64",
+			Params: []spec.Param{sl("dst", spec.SliceU8),
+				{Name: "v", Type: spec.F64}},
+			Result:       &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs:        []spec.CArg{out(), base("dst"), val("v")},
+			RefWhen:      "len(dst) < 25",
+			UnclampedDst: true,
+			AllowScalar:  true,
+			Threshold:    0,
+		},
+	}
+}
+
 var All = []Source{
 	{Path: "csrc/blas.c", Kernels: Blas()},
 	{Path: "csrc/compress.c", Kernels: Compress()},
 	{Path: "csrc/columnar.c", Kernels: Columnar()},
 	{Path: "csrc/checksum.c", Kernels: Checksum()},
+	{Path: "csrc/dtoa.c", Kernels: Dtoa()},
 	{Path: "csrc/sets.c", Kernels: Sets()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},

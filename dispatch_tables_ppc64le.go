@@ -55,6 +55,11 @@ var tblBytesCRC32C = [...]func([]byte, uint32) uint32{
 	ref.CRC32C,
 }
 
+var tblBytesDtoaF64 = [...]func([]byte, float64) int{
+	ref.DtoaF64,
+	ref.DtoaF64,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	ref.QMatMulI8,

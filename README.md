@@ -109,6 +109,7 @@ Organised by task rather than by operation name.
 | trim, fold case, validate UTF-8 | `TrimAny` `TrimSpaceASCII` `EqualFoldASCII` `ValidUTF8` |
 | hex or base64 | `HexEncode` `Base64Encode` `Base64Decode` |
 | checksum a buffer | `Adler32` — vectorized where stdlib is scalar; `CRC32C` matches hash/crc32 Castagnoli |
+| format a float shortest-form | `FormatFloat64` — Schubfach with the render attached, 1.65× strconv, encoding/json's format rule |
 | convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |
 | median / percentile without sorting | `Median` `Quantile`, `MedianInto` for zero-alloc |
 | the k largest or smallest | `TopK` `BottomK` — selects, does not sort |
@@ -321,7 +322,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-482 exported functions and 6,858 generated kernels across nine targets. The
+483 exported functions and 6,858 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over
@@ -557,7 +558,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.16.0.** The API is stable: every exported function keeps its name,
+**v1.17.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.

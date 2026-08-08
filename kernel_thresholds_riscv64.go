@@ -59,6 +59,7 @@ var kernelThresholds = map[string]int{
 	"DivScalar":              16,
 	"Dot":                    0,
 	"DotConj":                0,
+	"DtoaF64":                0,
 	"Equal":                  64,
 	"EqualFoldASCII":         64,
 	"EqualMask":              16,

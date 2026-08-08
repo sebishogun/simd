@@ -19,6 +19,7 @@ var allFlatTables = map[string][]any{
 	"Bytes.RunStartsU8":              {tblBytesRunStartsU8[0], tblBytesRunStartsU8[1], tblBytesRunStartsU8[2], tblBytesRunStartsU8[3]},
 	"Bytes.Adler32":                  {tblBytesAdler32[0], tblBytesAdler32[1], tblBytesAdler32[2], tblBytesAdler32[3]},
 	"Bytes.CRC32C":                   {tblBytesCRC32C[0], tblBytesCRC32C[1], tblBytesCRC32C[2], tblBytesCRC32C[3]},
+	"Bytes.DtoaF64":                  {tblBytesDtoaF64[0], tblBytesDtoaF64[1], tblBytesDtoaF64[2], tblBytesDtoaF64[3]},
 	"Convert.QMatMulI8":              {tblConvertQMatMulI8[0], tblConvertQMatMulI8[1], tblConvertQMatMulI8[2], tblConvertQMatMulI8[3]},
 	"Convert.RequantizeI8":           {tblConvertRequantizeI8[0], tblConvertRequantizeI8[1], tblConvertRequantizeI8[2], tblConvertRequantizeI8[3]},
 	"Mask.All":                       {tblMaskAll[0], tblMaskAll[1], tblMaskAll[2], tblMaskAll[3]},

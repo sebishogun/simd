@@ -21,6 +21,7 @@ var tblBytesRunStartsI64 = [...]func([]bool, []int64){ref.RunStartsI64}
 var tblBytesRunStartsU8 = [...]func([]bool, []byte){ref.RunStartsU8}
 var tblBytesAdler32 = [...]func([]byte, uint32) uint32{ref.Adler32}
 var tblBytesCRC32C = [...]func([]byte, uint32) uint32{ref.CRC32C}
+var tblBytesDtoaF64 = [...]func([]byte, float64) int{ref.DtoaF64}
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){ref.QMatMulI8}
 var tblConvertRequantizeI8 = [...]func([]int8, []int32, float32, int32){ref.RequantizeI8}
 var tblMaskAll = [...]func([]bool) bool{ref.MaskAll}
