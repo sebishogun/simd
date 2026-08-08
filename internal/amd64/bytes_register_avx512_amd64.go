@@ -311,6 +311,13 @@ func jsonValidTokensAVX512Guarded(b []byte, masks []uint64, stk []uint64) int {
 	return jsonValidTokensAVX512(b, masks, stk)
 }
 
+func jsonValidAVX512Guarded(b []byte, stk []uint64) int {
+	if len(b) < 64 || len(b) == 0 {
+		return ref.JSONValid(b, stk)
+	}
+	return jsonValidAVX512(b, stk)
+}
+
 func jsonStage1AVX512Guarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
@@ -480,6 +487,7 @@ func init() {
 	s.Bytes.CountAny = countAnyAVX512Guarded
 	s.Bytes.JSONMasks = jsonMasksAVX512Guarded
 	s.Bytes.JSONValidTokens = jsonValidTokensAVX512Guarded
+	s.Bytes.JSONValid = jsonValidAVX512Guarded
 	s.Bytes.JSONStage1 = jsonStage1AVX512Guarded
 	s.Bytes.JSONCopyValid = jsonCopyValidAVX512Guarded
 	s.Bytes.JSONQuote = jsonQuoteAVX512Guarded

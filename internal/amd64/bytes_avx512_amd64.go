@@ -127,6 +127,9 @@ func jsonMasksAVX512(dst []byte, b []byte, want uint32)
 func jsonValidTokensAVX512(b []byte, masks []uint64, stk []uint64) int
 
 //go:noescape
+func jsonValidAVX512(b []byte, stk []uint64) int
+
+//go:noescape
 func jsonStage1AVX512(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
 
 //go:noescape

@@ -1194,6 +1194,7 @@ func Set() kernel.Set {
 			JSONMasks:       jsonMasks,
 			JSONStage1:      jsonStage1,
 			JSONValidTokens: jsonValidTokens,
+			JSONValid:       jsonValid,
 			IndexNotAny:     indexNotAny, LastIndexNotAny: lastIndexNotAny, LastIndex: lastIndex, CountSeq: countSeq,
 			IsASCII: isASCII, ValidUTF8: validUTF8,
 			IndexNonASCII: IndexNonASCII, IndexNonASCII16: IndexNonASCII16,

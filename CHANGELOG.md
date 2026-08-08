@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.13.0
+
+**`JSONValid`** -- the whole of a JSON `Valid` in one pass, no mask buffers:
+per 64-byte block the five predicates become mask words that never leave
+registers (`__builtin_convertvector` to a lane mask, bit-cast to a word --
+the movemask idiom, minus the store), escapes resolve, quote parity runs
+(carry-less multiply where the tier has it), control bytes inside strings
+reject, the block's escape targets validate at a cost proportional to their
+count, and the significant bits feed the `JSONValidTokens` grammar machine,
+whose number fast-forward now skips whole blocks -- provably carry-safe,
+since a block inside a number holds no quote, backslash, control byte or
+whitespace. The staged pipeline writes and re-reads eight mask regions;
+this writes none. On amd64, arm64 and riscv64 tiers; s390x keeps the
+reference path (little-endian movemask and literal reads), and the one
+partial block is classified a byte at a time because a padded vector load
+would need a variable-length copy, which a freestanding kernel cannot make.
+Downstream in simdjson, `Valid` on gsoc-2018 runs 32% faster and every
+string- and structure-heavy shape gains 14-47%; a density router keeps the
+number-wall corpora on their descent walk.
+
+The qemu lanes now run `internal/tests/text` (the new kernel's differential
+home) and carry the guest's exit status instead of laundering it through a
+pipe.
+
 ## v1.12.0
 
 **`JSONValidTokens`** -- the grammar half of a JSON `Valid`, fused into one

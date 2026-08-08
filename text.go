@@ -748,3 +748,10 @@ func JSONStage1(out []uint64, masks []byte, nw int, carr []uint64, res []int64) 
 func JSONValidTokens(b []byte, masks []uint64, stk []uint64) int {
 	return active.Bytes.JSONValidTokens(b, masks, stk)
 }
+
+// JSONValid reports whether b is one well-formed JSON value, in a single
+// fused pass with no mask buffers: 1 yes, 0 no, -1 the nesting outran stk
+// (deeper than 64*(len(stk)+1) levels) and the caller must walk it itself.
+func JSONValid(b []byte, stk []uint64) int {
+	return active.Bytes.JSONValid(b, stk)
+}

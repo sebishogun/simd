@@ -1206,6 +1206,26 @@ func Bytes() []spec.Kernel {
 			SkipOn:       []string{"s390x"},
 		},
 		{
+			// Valid in one pass: classification, escape resolution, quote
+			// parity, the in-string control check, escape-target validation
+			// and the grammar walk, fused over 64-byte blocks with the masks
+			// living in registers -- none of the staged pipeline's mask
+			// traffic. Little-endian movemask and literal reads are
+			// load-bearing, so the one big-endian target keeps its scalar
+			// path. Returns 1 valid, 0 invalid, -1 when nesting outruns the
+			// caller's spill.
+			CName: "simd_json_valid", GoName: "jsonValid",
+			Group: "Bytes", Field: "JSONValid", RefFunc: "JSONValid",
+			Params: []spec.Param{sl("b", spec.SliceU8), sl("stk", spec.SliceU64)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("b"), lenOf("b"),
+				base("stk"), lenOf("stk")},
+			RefWhen:      "len(b) == 0",
+			UnclampedDst: true,
+			Threshold:    thScan,
+			SkipOn:       []string{"s390x"},
+		},
+		{
 			// The indexer's first word pass, fused: escape resolution, quote
 			// parity (carry-less multiply where the tier has it, a two-wide
 			// vector shift chain where it does not), in-string mask, the

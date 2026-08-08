@@ -127,6 +127,9 @@ func jsonMasksSSE2(dst []byte, b []byte, want uint32)
 func jsonValidTokensSSE2(b []byte, masks []uint64, stk []uint64) int
 
 //go:noescape
+func jsonValidSSE2(b []byte, stk []uint64) int
+
+//go:noescape
 func jsonStage1SSE2(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
 
 //go:noescape

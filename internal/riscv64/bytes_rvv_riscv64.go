@@ -127,6 +127,9 @@ func jsonMasksRVV(dst []byte, b []byte, want uint32)
 func jsonValidTokensRVV(b []byte, masks []uint64, stk []uint64) int
 
 //go:noescape
+func jsonValidRVV(b []byte, stk []uint64) int
+
+//go:noescape
 func jsonStage1RVV(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
 
 //go:noescape

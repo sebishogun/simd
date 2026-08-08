@@ -2353,3 +2353,252 @@ void simd_json_valid_tokens(i64 *__restrict out, const u8 *__restrict b,
     return;
   }
 }
+
+// MASK_BITS_U64 is STORE_MASK_BITS kept in a register: one 64-lane predicate
+// becomes one u64 with no store. The convertvector/bit_cast pair is the form
+// LLVM recognises as movemask; see STORE_MASK_BITS above for the history of
+// the naive loop it replaces.
+#define MASK_BITS_U64(HIT)                                                \
+  ({                                                                      \
+    maskxM mb_ = __builtin_convertvector((HIT), maskxM);                  \
+    __builtin_bit_cast(unsigned long long, mb_);                          \
+  })
+
+// simd_json_valid answers Valid in one pass. The staged pipeline writes
+// five classification regions, reads them back for parity, writes three
+// more, and reads those for the grammar walk; on a megabyte document that
+// is tens of megabytes of mask traffic. Here each 64-byte block's five
+// predicates become mask words that never leave registers: escapes
+// resolve, quote parity runs (carry-less multiply where the tier has it),
+// control bytes inside strings reject, the block's escape targets are
+// validated at a cost proportional to their count, and the significant
+// bits feed the same grammar machine simd_json_valid_tokens runs.
+//
+// The number fast-forward can skip whole blocks. Every skipped block lies
+// strictly inside a number, so it holds no quote, backslash, control byte
+// or whitespace, and the byte before the landing point is a digit -- all
+// three carries are provably unchanged across the skip.
+//
+// out: 1 valid, 0 invalid, -1 the spill filled (deeper than 64*(stkCap+1)
+// levels; the caller falls back to the staged walk).
+void simd_json_valid(i64 *__restrict out, const u8 *__restrict b, isize n,
+                     u64 *__restrict stk, isize stkCap) {
+  enum { S_VALUE, S_FIRSTVALUE, S_KEY, S_FIRSTKEY, S_COLON, S_AFTER };
+  if (n <= 0) {
+    *out = 0;
+    return;
+  }
+  isize nblk = (n + 63) >> 6;
+  u64 ec = 0, sc = 0, lead = 0;
+  isize sp = 0;
+  u64 lvl = 0;
+  i64 depth = 0;
+  int st = S_VALUE;
+  // pend clears a landing block's bits below a number's end, once.
+  u64 pend = ~(u64)0;
+
+  for (isize blk = 0; blk < nblk; blk++) {
+    isize base = blk << 6;
+    isize rem = n - base;
+    u64 clamp;
+    u64 quote, bs, ctl, ws;
+    if (rem >= 64) {
+      clamp = ~(u64)0;
+      u8xM v = *(const u8xM *)(b + base);
+      quote = MASK_BITS_U64(v == '"');
+      bs = MASK_BITS_U64(v == '\\');
+      ctl = MASK_BITS_U64(v < 0x20);
+      ws = MASK_BITS_U64((v == ' ') | (v == '\t') | (v == '\n') | (v == '\r'));
+    } else {
+      // The one partial block, classified a byte at a time: a padded
+      // vector load needs a copy, and a variable-length copy is a memcpy
+      // call, which a freestanding kernel cannot make.
+      clamp = (((u64)1 << rem) - 1);
+      quote = bs = ctl = ws = 0;
+      for (isize k = 0; k < rem; k++) {
+        u8 c = b[base + k];
+        quote |= (u64)(c == '"') << k;
+        bs |= (u64)(c == '\\') << k;
+        ctl |= (u64)(c < 0x20) << k;
+        ws |= (u64)(c == ' ' || c == '\t' || c == '\n' || c == '\r') << k;
+      }
+    }
+
+    u64 e = stage1_escaped(bs, &ec);
+    u64 q = quote & ~e;
+    u64 x;
+#if defined(__PCLMUL__)
+    {
+      __m128i ones = _mm_set1_epi8((char)0xFF);
+      __m128i qq = _mm_cvtsi64_si128((long long)q);
+      x = (u64)_mm_cvtsi128_si64(_mm_clmulepi64_si128(qq, ones, 0x00));
+    }
+#else
+    x = q;
+    x ^= x << 1;
+    x ^= x << 2;
+    x ^= x << 4;
+    x ^= x << 8;
+    x ^= x << 16;
+    x ^= x << 32;
+#endif
+    u64 in = x ^ sc;
+    sc = (u64)((i64)in >> 63);
+
+    if ((ctl & in) != 0) goto bad;
+
+    // Escape targets, validated in place at one iteration per escape --
+    // the recorded economics: proportional-to-hits beats per-byte
+    // classification below ~20 hits a word, and real documents sit far
+    // below that.
+    u64 leaders = bs & in & ~e;
+    u64 target = leaders << 1 | lead;
+    lead = leaders >> 63;
+    if ((target & ~clamp) != 0) goto bad; // backslash as the last byte
+    for (u64 t = target; t != 0; t &= t - 1) {
+      isize p = base + (isize)__builtin_ctzll(t);
+      u8 c = b[p];
+      if (c == '"' || c == '\\' || c == '/' || c == 'b' || c == 'f' ||
+          c == 'n' || c == 'r' || c == 't')
+        continue;
+      if (c != 'u') goto bad;
+      if (p + 4 >= n) goto bad;
+      for (int k = 1; k <= 4; k++) {
+        u8 h = b[p + k];
+        if (!((h >= '0' && h <= '9') || (h >= 'a' && h <= 'f') ||
+              (h >= 'A' && h <= 'F')))
+          goto bad;
+      }
+    }
+
+    u64 sig = ~ws & ~in & clamp & pend;
+    pend = ~(u64)0;
+    while (sig != 0) {
+      isize i = base + (isize)__builtin_ctzll(sig);
+      sig &= sig - 1;
+      u8 c = b[i];
+
+      if (st == S_COLON) {
+        if (c != ':') goto bad;
+        st = S_VALUE;
+        continue;
+      }
+      if (st == S_KEY || st == S_FIRSTKEY) {
+        if (c == '"') {
+          st = S_COLON;
+          continue;
+        }
+        if (c == '}' && st == S_FIRSTKEY) goto close_object;
+        goto bad;
+      }
+      if (st == S_AFTER) {
+        if (c == ',') {
+          if (depth == 0) goto bad;
+          st = (lvl & 1) ? S_KEY : S_VALUE;
+          continue;
+        }
+        if (c == '}') goto close_object;
+        if (c == ']') goto close_array;
+        goto bad;
+      }
+
+      // S_VALUE or S_FIRSTVALUE.
+      if (c == '{') {
+        if ((depth & 63) == 0 && depth > 0) {
+          if (sp >= stkCap) goto deep;
+          stk[sp++] = lvl;
+        }
+        lvl = lvl << 1 | 1;
+        depth++;
+        st = S_FIRSTKEY;
+        continue;
+      }
+      if (c == '[') {
+        if ((depth & 63) == 0 && depth > 0) {
+          if (sp >= stkCap) goto deep;
+          stk[sp++] = lvl;
+        }
+        lvl <<= 1;
+        depth++;
+        st = S_FIRSTVALUE;
+        continue;
+      }
+      if (c == '"') {
+        st = S_AFTER;
+        continue;
+      }
+      if (c == ']') {
+        if (st != S_FIRSTVALUE) goto bad;
+        goto close_array;
+      }
+      {
+        isize end;
+        // Literals as word loads, not memcmp: kernels are freestanding
+        // and a libc call fails the build. Little-endian constants; the
+        // one big-endian target skips this kernel already.
+        u32 lit;
+        if (c == 't') {
+          if (i + 4 > n) goto bad;
+          __builtin_memcpy(&lit, b + i, 4);
+          if (lit != 0x65757274u) goto bad; // "true"
+          end = i + 4;
+        } else if (c == 'f') {
+          if (i + 5 > n) goto bad;
+          __builtin_memcpy(&lit, b + i + 1, 4);
+          if (lit != 0x65736c61u) goto bad; // "alse"
+          end = i + 5;
+        } else if (c == 'n') {
+          if (i + 4 > n) goto bad;
+          __builtin_memcpy(&lit, b + i, 4);
+          if (lit != 0x6c6c756eu) goto bad; // "null"
+          end = i + 4;
+        } else if (c == '-' || (c >= '0' && c <= '9')) {
+          end = jvt_number(b, n, i);
+          if (end < 0) goto bad;
+        } else {
+          goto bad;
+        }
+        st = S_AFTER;
+        if (end >= n) {
+          *out = depth == 0 ? 1 : 0;
+          return;
+        }
+        if ((end >> 6) == blk) {
+          sig &= ~((((u64)1) << (end & 63)) - 1);
+          continue;
+        }
+        // The number runs into a later block: land there, clearing the
+        // consumed low bits on arrival. The skipped interior is all
+        // number bytes, so the carries are already right.
+        pend = ~((((u64)1) << (end & 63)) - 1);
+        blk = (end >> 6) - 1;
+        goto next_block;
+      }
+
+    close_object:
+      if (depth == 0 || (lvl & 1) == 0) goto bad;
+      goto pop;
+    close_array:
+      if (depth == 0 || (lvl & 1) != 0) goto bad;
+    pop:
+      lvl >>= 1;
+      depth--;
+      if ((depth & 63) == 0 && depth > 0) {
+        lvl = stk[--sp];
+      }
+      st = S_AFTER;
+      continue;
+    }
+  next_block:;
+  }
+
+  if (sc != 0) goto bad; // unterminated string
+  *out = (st == S_AFTER && depth == 0) ? 1 : 0;
+  return;
+bad:
+  *out = 0;
+  return;
+deep:
+  *out = -1;
+  return;
+}

@@ -311,6 +311,13 @@ func jsonValidTokensSVE2Guarded(b []byte, masks []uint64, stk []uint64) int {
 	return jsonValidTokensSVE2(b, masks, stk)
 }
 
+func jsonValidSVE2Guarded(b []byte, stk []uint64) int {
+	if len(b) < 64 || len(b) == 0 {
+		return ref.JSONValid(b, stk)
+	}
+	return jsonValidSVE2(b, stk)
+}
+
 func jsonStage1SVE2Guarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
@@ -480,6 +487,7 @@ func init() {
 	s.Bytes.CountAny = countAnySVE2Guarded
 	s.Bytes.JSONMasks = jsonMasksSVE2Guarded
 	s.Bytes.JSONValidTokens = jsonValidTokensSVE2Guarded
+	s.Bytes.JSONValid = jsonValidSVE2Guarded
 	s.Bytes.JSONStage1 = jsonStage1SVE2Guarded
 	s.Bytes.JSONCopyValid = jsonCopyValidSVE2Guarded
 	s.Bytes.JSONQuote = jsonQuoteSVE2Guarded

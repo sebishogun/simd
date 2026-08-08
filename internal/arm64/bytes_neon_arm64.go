@@ -127,6 +127,9 @@ func jsonMasksNEON(dst []byte, b []byte, want uint32)
 func jsonValidTokensNEON(b []byte, masks []uint64, stk []uint64) int
 
 //go:noescape
+func jsonValidNEON(b []byte, stk []uint64) int
+
+//go:noescape
 func jsonStage1NEON(out []uint64, masks []byte, nw int, carr []uint64, res []int64)
 
 //go:noescape

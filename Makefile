@@ -183,7 +183,7 @@ test-cross: cross-setup ## Every architecture with a backend, under docker + qem
 # string asks for it.
 QEMU_LOONG   ?= qemu-loongarch64
 QEMU_RISCV   ?= qemu-riscv64
-QEMU_PKGS    ?= . ./internal/conformance ./internal/ref ./internal/cpu
+QEMU_PKGS    ?= . ./internal/conformance ./internal/ref ./internal/cpu ./internal/tests/text
 
 # Every qemu invocation below passes the binary path TWICE, and that is not a
 # typo.
@@ -249,7 +249,9 @@ qemu-run-plain:
 		bin=$$(mktemp); \
 		GOARCH=$(ARCH) GOOS=linux $(GO) test -c -o $$bin $$p || exit 1; \
 		printf "%-9s %-28s " $(ARCH) $$p; \
-		QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short | tail -1 || exit 1; \
+		out=$$(QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short) || { \
+			echo "$$out" | tail -5; exit 1; }; \
+		echo "$$out" | tail -1; \
 		rm -f $$bin; \
 	done
 
@@ -290,7 +292,9 @@ qemu-run:
 		bin=$$(mktemp); \
 		GOARCH=$(ARCH) GOOS=linux $(GO) test -c -o $$bin $$p || exit 1; \
 		printf "%-9s %-28s " $(ARCH) $$p; \
-		QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short | tail -1 || exit 1; \
+		out=$$(QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short) || { \
+			echo "$$out" | tail -5; exit 1; }; \
+		echo "$$out" | tail -1; \
 		rm -f $$bin; \
 	done
 

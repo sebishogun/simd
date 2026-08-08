@@ -1201,3 +1201,262 @@ func refNumberEnd(b []byte, i int) int {
 	}
 	return j
 }
+
+// JSONValid answers Valid in one fused pass: byte classification, escape
+// resolution, quote parity, the in-string control check, escape-target
+// validation and the grammar walk, one 64-byte block at a time. 1 valid,
+// 0 invalid, -1 the spill filled (nesting deeper than 64*(len(stk)+1)).
+// Reference for simd_json_valid; the per-block order of checks -- control
+// bytes, then escapes, then grammar -- is part of the contract, because it
+// decides whether a document that is both too deep and malformed reports
+// 0 or -1.
+func JSONValid(b []byte, stk []uint64) int {
+	return jsonValid(b, stk)
+}
+
+func jsonValid(b []byte, stk []uint64) int {
+	const (
+		sValue = iota
+		sFirstValue
+		sKey
+		sFirstKey
+		sColon
+		sAfter
+	)
+	n := len(b)
+	if n <= 0 {
+		return 0
+	}
+	nblk := (n + 63) >> 6
+	var ec, sc, lead uint64
+	sp := 0
+	var lvl uint64
+	depth := 0
+	st := sValue
+	// pend clears a landing block's bits below a number's end, once.
+	pend := ^uint64(0)
+
+blocks:
+	for blk := 0; blk < nblk; blk++ {
+		base := blk << 6
+		rem := n - base
+		clamp := ^uint64(0)
+		lim := 64
+		if rem < 64 {
+			clamp = 1<<uint(rem) - 1
+			lim = rem
+		}
+		var quote, bs, ctl, ws uint64
+		for k := 0; k < lim; k++ {
+			c := b[base+k]
+			bit := uint64(1) << uint(k)
+			if c == '"' {
+				quote |= bit
+			}
+			if c == '\\' {
+				bs |= bit
+			}
+			if c < 0x20 {
+				ctl |= bit
+			}
+			if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+				ws |= bit
+			}
+		}
+
+		e := stage1Escaped(bs, &ec)
+		q := quote &^ e
+		x := q
+		x ^= x << 1
+		x ^= x << 2
+		x ^= x << 4
+		x ^= x << 8
+		x ^= x << 16
+		x ^= x << 32
+		in := x ^ sc
+		sc = uint64(int64(in) >> 63)
+
+		if ctl&in != 0 {
+			return 0
+		}
+
+		leaders := bs & in &^ e
+		target := leaders<<1 | lead
+		lead = leaders >> 63
+		if target&^clamp != 0 { // backslash as the last byte
+			return 0
+		}
+		for t := target; t != 0; t &= t - 1 {
+			p := base + bits.TrailingZeros64(t)
+			c := b[p]
+			if c == '"' || c == '\\' || c == '/' || c == 'b' || c == 'f' ||
+				c == 'n' || c == 'r' || c == 't' {
+				continue
+			}
+			if c != 'u' {
+				return 0
+			}
+			if p+4 >= n {
+				return 0
+			}
+			for k := 1; k <= 4; k++ {
+				h := b[p+k]
+				if !(h >= '0' && h <= '9' || h >= 'a' && h <= 'f' ||
+					h >= 'A' && h <= 'F') {
+					return 0
+				}
+			}
+		}
+
+		sig := ^ws &^ in & clamp & pend
+		pend = ^uint64(0)
+		for sig != 0 {
+			i := base + bits.TrailingZeros64(sig)
+			sig &= sig - 1
+			c := b[i]
+
+			switch st {
+			case sColon:
+				if c != ':' {
+					return 0
+				}
+				st = sValue
+				continue
+			case sKey, sFirstKey:
+				if c == '"' {
+					st = sColon
+					continue
+				}
+				if c == '}' && st == sFirstKey {
+					goto closeObject
+				}
+				return 0
+			case sAfter:
+				switch c {
+				case ',':
+					if depth == 0 {
+						return 0
+					}
+					if lvl&1 != 0 {
+						st = sKey
+					} else {
+						st = sValue
+					}
+					continue
+				case '}':
+					goto closeObject
+				case ']':
+					goto closeArray
+				}
+				return 0
+			}
+
+			switch c {
+			case '{':
+				if depth&63 == 0 && depth > 0 {
+					if sp >= len(stk) {
+						return -1
+					}
+					stk[sp] = lvl
+					sp++
+				}
+				lvl = lvl<<1 | 1
+				depth++
+				st = sFirstKey
+				continue
+			case '[':
+				if depth&63 == 0 && depth > 0 {
+					if sp >= len(stk) {
+						return -1
+					}
+					stk[sp] = lvl
+					sp++
+				}
+				lvl <<= 1
+				depth++
+				st = sFirstValue
+				continue
+			case '"':
+				st = sAfter
+				continue
+			case ']':
+				if st != sFirstValue {
+					return 0
+				}
+				goto closeArray
+			}
+
+			{
+				var end int
+				switch {
+				case c == 't':
+					if i+4 > n || string(b[i:i+4]) != "true" {
+						return 0
+					}
+					end = i + 4
+				case c == 'f':
+					if i+5 > n || string(b[i:i+5]) != "false" {
+						return 0
+					}
+					end = i + 5
+				case c == 'n':
+					if i+4 > n || string(b[i:i+4]) != "null" {
+						return 0
+					}
+					end = i + 4
+				case c == '-' || (c >= '0' && c <= '9'):
+					e := refNumberEnd(b, i)
+					if e < 0 {
+						return 0
+					}
+					end = e
+				default:
+					return 0
+				}
+				st = sAfter
+				if end >= n {
+					if depth == 0 {
+						return 1
+					}
+					return 0
+				}
+				if end>>6 == blk {
+					sig &^= 1<<uint(end&63) - 1
+					continue
+				}
+				// The number runs into a later block: land there, clearing
+				// the consumed low bits on arrival. The skipped interior is
+				// all number bytes, so the carries are already right.
+				pend = ^(uint64(1)<<uint(end&63) - 1)
+				blk = end>>6 - 1
+				continue blocks
+			}
+
+		closeObject:
+			if depth == 0 || lvl&1 == 0 {
+				return 0
+			}
+			goto pop
+		closeArray:
+			if depth == 0 || lvl&1 != 0 {
+				return 0
+			}
+		pop:
+			lvl >>= 1
+			depth--
+			if depth&63 == 0 && depth > 0 {
+				sp--
+				lvl = stk[sp]
+			}
+			st = sAfter
+		}
+	}
+
+	if sc != 0 { // unterminated string
+		return 0
+	}
+	if st == sAfter && depth == 0 {
+		return 1
+	}
+	return 0
+}
