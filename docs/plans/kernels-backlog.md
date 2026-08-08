@@ -26,7 +26,42 @@ dtoa (#208) + itoa (#211) when they land. Order: 207, 208, 209, 210, 211,
 - Tests: differential vs hash/crc32.Checksum(Castagnoli) + hash/adler32
   across sizes 0..8K + seeds/rolling updates. Bench vs both stdlib.
 
-## #208 dtoa (Schubfach) — the simdjson marshal gap
+## #208 dtoa (Schubfach) — the simdjson marshal gap [IN PROGRESS]
+
+RECON DONE (post-v1.16.0): simdjson has the full Go Schubfach --
+schubfach.go (235 lines: decimal{sig u64, exp i32}, schubfach() on raw
+bits, needs bits.Mul64 = __int128 in C) + pow10_table.go (~350 entries as
+pow10Hi/pow10Lo split u64 arrays, ~5.6 KB total; pow10Sig(i) indexes at
+i - pow10Min) + a render layer (schubfach_render_test.go names it) that
+turns decimal into bytes, checked against strconv everywhere.
+
+PORT PLAN:
+1. csrc/dtoa.c: port schubfach() verbatim (u128 = unsigned __int128;
+   table as static const u64 arrays -- 5.6 KB constant pool: amd64 fine,
+   arm64 likely, SkipOn the rest initially) PLUS the digit render to
+   bytes (port simdjson's renderer; the kernel returns the final string).
+   Signature: simd_dtoa_f64(i64 *out_n, u8 *dst, f64 v) -> writes
+   shortest repr incl sign/exponent form IDENTICAL to simdjson's
+   renderer (which matches strconv 'g'-shortest for JSON: check its
+   exact format rules -- JSON never emits +, uses e-notation per
+   encoding/json rules). KEEP THE CONTRACT = simdjson's existing output.
+2. simd manifest: Group Bytes, Field DtoaF64, Params (dst SliceU8, v
+   F64), Result Int; RefWhen len(dst) < 32; Threshold 0 (single value!).
+   Ref = PORT the Go schubfach+render INTO internal/ref (copy from
+   simdjson with attribution comment; simdjson later switches to calling
+   simd, single source of truth ends up in simd).
+3. Public: simd.AppendFloat64Shortest(dst []byte, v float64) []byte or
+   Dtoa(dst, v) int style matching JSONQuote conventions.
+4. simdjson wiring: its float render path (find call site of
+   schubfach/render in marshal float encoders) switches to
+   simd.Dtoa when tier has the kernel (fusedValid-style gate or just
+   always -- ref is same speed as its own Go). Then MANDATED: simdjson
+   bench-check x2 + MarshalFloats + canada-struct Marshal + SML rows +
+   flat-float sweep vs sonic. Target: close the ~1.2x flat-float gap.
+5. Single-value call overhead ~1.4ns vs ~20ns/value work: kernel pays
+   off ~7%+ per value; batch variant (vals []f64, idx out) only if the
+   single-value bench says the call boundary matters.
+
 - C port of Schubfach (u128 mults via __int128 ✓ freestanding ok), one
   f64 -> shortest digits + exp. simdjson has Go Schubfach to differential
   against + its render layer. Kernel shape: batch API dtoa_f64(out
