@@ -23,13 +23,13 @@ package simd
 // column has before deciding whether encoding is worth it.
 //
 // It writes min(len(dst), len(a)) entries and allocates nothing.
-func RunStartsInto(dst []bool, a []int32) { active.Bytes.RunStartsI32(dst, a) }
+func RunStartsInto(dst []bool, a []int32) { tblBytesRunStartsI32[tierIdx](dst, a) }
 
 // RunStartsInt64Into is [RunStartsInto] for int64.
-func RunStartsInt64Into(dst []bool, a []int64) { active.Bytes.RunStartsI64(dst, a) }
+func RunStartsInt64Into(dst []bool, a []int64) { tblBytesRunStartsI64[tierIdx](dst, a) }
 
 // RunStartsBytesInto is [RunStartsInto] for bytes.
-func RunStartsBytesInto(dst []bool, a []byte) { active.Bytes.RunStartsU8(dst, a) }
+func RunStartsBytesInto(dst []bool, a []byte) { tblBytesRunStartsU8[tierIdx](dst, a) }
 
 // RunLengthEncodeInt32 writes the runs of a into values and lengths, returning
 // how many runs there were.
@@ -55,7 +55,7 @@ func RunLengthEncodeInt32(values, lengths, a []int32, scratch []bool) int {
 	if n == 0 {
 		return 0
 	}
-	active.Bytes.RunStartsI32(scratch[:n], a[:n])
+	tblBytesRunStartsI32[tierIdx](scratch[:n], a[:n])
 
 	runs := 0
 	start := 0

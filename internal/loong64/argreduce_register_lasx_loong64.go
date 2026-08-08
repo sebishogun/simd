@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,88 +20,85 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func minMaxFloat32LASXGuarded(a []float32) (lo float32, hi float32) {
+func MinMaxFloat32LASX(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32LASX(a)
 }
 
-func argMinFloat64LASXGuarded(a []float64) int {
+func ArgMinFloat64LASX(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat64LASX(a)
 }
 
-func argMaxFloat64LASXGuarded(a []float64) int {
+func ArgMaxFloat64LASX(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat64LASX(a)
 }
 
-func minMaxFloat64LASXGuarded(a []float64) (lo float64, hi float64) {
+func MinMaxFloat64LASX(a []float64) (lo float64, hi float64) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat64LASX(a)
 }
 
-func argMinInt32LASXGuarded(a []int32) int {
+func ArgMinInt32LASX(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt32LASX(a)
 }
 
-func argMaxInt32LASXGuarded(a []int32) int {
+func ArgMaxInt32LASX(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt32LASX(a)
 }
 
-func minMaxInt32LASXGuarded(a []int32) (lo int32, hi int32) {
+func MinMaxInt32LASX(a []int32) (lo int32, hi int32) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt32LASX(a)
 }
 
-func argMinInt64LASXGuarded(a []int64) int {
+func ArgMinInt64LASX(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt64LASX(a)
 }
 
-func argMaxInt64LASXGuarded(a []int64) int {
+func ArgMaxInt64LASX(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt64LASX(a)
 }
 
-func minMaxInt64LASXGuarded(a []int64) (lo int64, hi int64) {
+func MinMaxInt64LASX(a []int64) (lo int64, hi int64) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt64LASX(a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.F32.MinMax = minMaxFloat32LASXGuarded
-	s.F64.ArgMin = argMinFloat64LASXGuarded
-	s.F64.ArgMax = argMaxFloat64LASXGuarded
-	s.F64.MinMax = minMaxFloat64LASXGuarded
-	s.I32.ArgMin = argMinInt32LASXGuarded
-	s.I32.ArgMax = argMaxInt32LASXGuarded
-	s.I32.MinMax = minMaxInt32LASXGuarded
-	s.I64.ArgMin = argMinInt64LASXGuarded
-	s.I64.ArgMax = argMaxInt64LASXGuarded
-	s.I64.MinMax = minMaxInt64LASXGuarded
+func registerArgreduceLASX(s *kernel.Set) {
+	s.F32.MinMax = MinMaxFloat32LASX
+	s.F64.ArgMin = ArgMinFloat64LASX
+	s.F64.ArgMax = ArgMaxFloat64LASX
+	s.F64.MinMax = MinMaxFloat64LASX
+	s.I32.ArgMin = ArgMinInt32LASX
+	s.I32.ArgMax = ArgMaxInt32LASX
+	s.I32.MinMax = MinMaxInt32LASX
+	s.I64.ArgMin = ArgMinInt64LASX
+	s.I64.ArgMax = ArgMaxInt64LASX
+	s.I64.MinMax = MinMaxInt64LASX
 }

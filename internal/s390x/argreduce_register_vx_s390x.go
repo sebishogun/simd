@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,24 +20,21 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func minMaxFloat32VXGuarded(a []float32) (lo float32, hi float32) {
+func MinMaxFloat32VX(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32VX(a)
 }
 
-func minMaxFloat64VXGuarded(a []float64) (lo float64, hi float64) {
+func MinMaxFloat64VX(a []float64) (lo float64, hi float64) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat64VX(a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.F32.MinMax = minMaxFloat32VXGuarded
-	s.F64.MinMax = minMaxFloat64VXGuarded
+func registerArgreduceVX(s *kernel.Set) {
+	s.F32.MinMax = MinMaxFloat32VX
+	s.F64.MinMax = MinMaxFloat64VX
 }

@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,35 +20,35 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func countByteSSE2Guarded(b []byte, c byte) int {
+func CountByteSSE2(b []byte, c byte) int {
 	if len(b) < 1073741824 {
 		return ref.CountByte(b, c)
 	}
 	return countByteSSE2(b, c)
 }
 
-func indexByteSSE2Guarded(b []byte, c byte) int {
+func IndexByteSSE2(b []byte, c byte) int {
 	if len(b) < 1024 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteSSE2(b, c)
 }
 
-func lastIndexByteSSE2Guarded(b []byte, c byte) int {
+func LastIndexByteSSE2(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexByte(b, c)
 	}
 	return lastIndexByteSSE2(b, c)
 }
 
-func popCountSSE2Guarded(b []byte) int {
+func PopCountSSE2(b []byte) int {
 	if len(b) < 64 {
 		return ref.PopCount(b)
 	}
 	return popCountSSE2(b)
 }
 
-func maskBitsSSE2Guarded(dst []byte, b []byte, c byte) {
+func MaskBitsSSE2(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBits(dst, b, c)
 		return
@@ -56,7 +56,7 @@ func maskBitsSSE2Guarded(dst []byte, b []byte, c byte) {
 	maskBitsSSE2(dst, b, c)
 }
 
-func maskBitsLessSSE2Guarded(dst []byte, b []byte, c byte) {
+func MaskBitsLessSSE2(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBitsLess(dst, b, c)
 		return
@@ -64,7 +64,7 @@ func maskBitsLessSSE2Guarded(dst []byte, b []byte, c byte) {
 	maskBitsLessSSE2(dst, b, c)
 }
 
-func maskBitsAny4SSE2Guarded(dst []byte, b []byte, chars uint32) {
+func MaskBitsAny4SSE2(dst []byte, b []byte, chars uint32) {
 	if len(b) < 64 {
 		ref.MaskBitsAny4(dst, b, chars)
 		return
@@ -72,7 +72,7 @@ func maskBitsAny4SSE2Guarded(dst []byte, b []byte, chars uint32) {
 	maskBitsAny4SSE2(dst, b, chars)
 }
 
-func maskBitsAnySSE2Guarded(dst []byte, b []byte, chars uint64) {
+func MaskBitsAnySSE2(dst []byte, b []byte, chars uint64) {
 	if len(b) < 64 {
 		ref.MaskBitsAny(dst, b, chars)
 		return
@@ -80,7 +80,7 @@ func maskBitsAnySSE2Guarded(dst []byte, b []byte, chars uint64) {
 	maskBitsAnySSE2(dst, b, chars)
 }
 
-func hammingU8SSE2Guarded(a []byte, b []byte) int {
+func HammingU8SSE2(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.Hamming(a, b)
@@ -88,7 +88,7 @@ func hammingU8SSE2Guarded(a []byte, b []byte) int {
 	return hammingU8SSE2(a[:n:n], b)
 }
 
-func hammingU64SSE2Guarded(a []uint64, b []uint64) int {
+func HammingU64SSE2(a []uint64, b []uint64) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.HammingWords(a, b)
@@ -96,7 +96,7 @@ func hammingU64SSE2Guarded(a []uint64, b []uint64) int {
 	return hammingU64SSE2(a[:n:n], b)
 }
 
-func grayscaleU8SSE2Guarded(dst []byte, r []byte, g []byte, b []byte) {
+func GrayscaleU8SSE2(dst []byte, r []byte, g []byte, b []byte) {
 	n := min(len(dst), len(r), len(g), len(b))
 	if n < 32 {
 		ref.Grayscale(dst, r, g, b)
@@ -105,7 +105,7 @@ func grayscaleU8SSE2Guarded(dst []byte, r []byte, g []byte, b []byte) {
 	grayscaleU8SSE2(dst[:n:n], r, g, b)
 }
 
-func rgbToUVU8SSE2Guarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
+func RgbToUVU8SSE2(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	n := min(len(u), len(v), len(r), len(g), len(b))
 	if n < 32 {
 		ref.RGBToUV(u, v, r, g, b)
@@ -114,35 +114,35 @@ func rgbToUVU8SSE2Guarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	rgbToUVU8SSE2(u[:n:n], v, r, g, b)
 }
 
-func isASCIISSE2Guarded(b []byte) bool {
+func IsASCIISSE2(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
 	}
 	return isASCIISSE2(b)
 }
 
-func validUTF8SSE2Guarded(b []byte) bool {
+func ValidUTF8SSE2(b []byte) bool {
 	if len(b) < 64 {
 		return ref.ValidUTF8(b)
 	}
 	return validUTF8SSE2(b)
 }
 
-func indexNonASCIISSE2Guarded(b []byte) int {
+func IndexNonASCIISSE2(b []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII(b)
 	}
 	return indexNonASCIISSE2(b)
 }
 
-func indexNonASCII16SSE2Guarded(b []uint16) int {
+func IndexNonASCII16SSE2(b []uint16) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII16(b)
 	}
 	return indexNonASCII16SSE2(b)
 }
 
-func widenU8U16SSE2Guarded(dst []uint16, s []byte) {
+func WidenU8U16SSE2(dst []uint16, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U16(dst, s)
@@ -151,7 +151,7 @@ func widenU8U16SSE2Guarded(dst []uint16, s []byte) {
 	widenU8U16SSE2(dst[:n:n], s)
 }
 
-func narrowU16U8SSE2Guarded(dst []byte, s []uint16) {
+func NarrowU16U8SSE2(dst []byte, s []uint16) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU16U8(dst, s)
@@ -160,7 +160,7 @@ func narrowU16U8SSE2Guarded(dst []byte, s []uint16) {
 	narrowU16U8SSE2(dst[:n:n], s)
 }
 
-func widenU8U32SSE2Guarded(dst []uint32, s []byte) {
+func WidenU8U32SSE2(dst []uint32, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U32(dst, s)
@@ -169,7 +169,7 @@ func widenU8U32SSE2Guarded(dst []uint32, s []byte) {
 	widenU8U32SSE2(dst[:n:n], s)
 }
 
-func narrowU32U8SSE2Guarded(dst []byte, s []uint32) {
+func NarrowU32U8SSE2(dst []byte, s []uint32) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU32U8(dst, s)
@@ -178,7 +178,7 @@ func narrowU32U8SSE2Guarded(dst []byte, s []uint32) {
 	narrowU32U8SSE2(dst[:n:n], s)
 }
 
-func equalBytesSSE2Guarded(a []byte, b []byte) bool {
+func EqualBytesSSE2(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
@@ -186,7 +186,7 @@ func equalBytesSSE2Guarded(a []byte, b []byte) bool {
 	return equalBytesSSE2(a[:n:n], b)
 }
 
-func bitAndSSE2Guarded(dst []byte, a []byte, b []byte) {
+func BitAndSSE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAnd(dst, a, b)
@@ -195,7 +195,7 @@ func bitAndSSE2Guarded(dst []byte, a []byte, b []byte) {
 	bitAndSSE2(dst[:n:n], a, b)
 }
 
-func bitOrSSE2Guarded(dst []byte, a []byte, b []byte) {
+func BitOrSSE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitOr(dst, a, b)
@@ -204,7 +204,7 @@ func bitOrSSE2Guarded(dst []byte, a []byte, b []byte) {
 	bitOrSSE2(dst[:n:n], a, b)
 }
 
-func bitXorSSE2Guarded(dst []byte, a []byte, b []byte) {
+func BitXorSSE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitXor(dst, a, b)
@@ -213,7 +213,7 @@ func bitXorSSE2Guarded(dst []byte, a []byte, b []byte) {
 	bitXorSSE2(dst[:n:n], a, b)
 }
 
-func bitAndNotSSE2Guarded(dst []byte, a []byte, b []byte) {
+func BitAndNotSSE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAndNot(dst, a, b)
@@ -222,7 +222,7 @@ func bitAndNotSSE2Guarded(dst []byte, a []byte, b []byte) {
 	bitAndNotSSE2(dst[:n:n], a, b)
 }
 
-func bitNotSSE2Guarded(dst []byte, b []byte) {
+func BitNotSSE2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.BitNot(dst, b)
@@ -231,7 +231,7 @@ func bitNotSSE2Guarded(dst []byte, b []byte) {
 	bitNotSSE2(dst[:n:n], b)
 }
 
-func fillBytesSSE2Guarded(dst []byte, v byte) {
+func FillBytesSSE2(dst []byte, v byte) {
 	if len(dst) < 32 {
 		ref.FillBytes(dst, v)
 		return
@@ -239,21 +239,21 @@ func fillBytesSSE2Guarded(dst []byte, v byte) {
 	fillBytesSSE2(dst, v)
 }
 
-func compareBytesSSE2Guarded(a []byte, b []byte) int {
+func CompareBytesSSE2(a []byte, b []byte) int {
 	if len(a) < 2048 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesSSE2(a, b)
 }
 
-func commonPrefixSSE2Guarded(a []byte, b []byte) int {
+func CommonPrefixSSE2(a []byte, b []byte) int {
 	if len(a) < 64 {
 		return ref.CommonPrefix(a, b)
 	}
 	return commonPrefixSSE2(a, b)
 }
 
-func equalFoldASCIISSE2Guarded(a []byte, b []byte) bool {
+func EqualFoldASCIISSE2(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
 		return ref.EqualFoldASCII(a, b)
@@ -261,42 +261,42 @@ func equalFoldASCIISSE2Guarded(a []byte, b []byte) bool {
 	return equalFoldASCIISSE2(a[:n:n], b)
 }
 
-func indexAnySSE2Guarded(b []byte, chars []byte) int {
+func IndexAnySSE2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexAny(b, chars)
 	}
 	return indexAnySSE2(b, chars)
 }
 
-func indexAnyOrLessSSE2Guarded(b []byte, chars []byte, lo byte) int {
+func IndexAnyOrLessSSE2(b []byte, chars []byte, lo byte) int {
 	if len(b) < 64 {
 		return ref.IndexAnyOrLess(b, chars, lo)
 	}
 	return indexAnyOrLessSSE2(b, chars, lo)
 }
 
-func indexNotAnySSE2Guarded(b []byte, chars []byte) int {
+func IndexNotAnySSE2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
 	}
 	return indexNotAnySSE2(b, chars)
 }
 
-func lastIndexNotAnySSE2Guarded(b []byte, chars []byte) int {
+func LastIndexNotAnySSE2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexNotAny(b, chars)
 	}
 	return lastIndexNotAnySSE2(b, chars)
 }
 
-func countAnySSE2Guarded(b []byte, chars []byte) int {
+func CountAnySSE2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
 	}
 	return countAnySSE2(b, chars)
 }
 
-func jsonMasksSSE2Guarded(dst []byte, b []byte, want uint32) {
+func JsonMasksSSE2(dst []byte, b []byte, want uint32) {
 	if len(b) < 64 || len(dst) < 5*(((len(b)+63)/64)*8) {
 		ref.JSONMasks(dst, b, want)
 		return
@@ -304,21 +304,21 @@ func jsonMasksSSE2Guarded(dst []byte, b []byte, want uint32) {
 	jsonMasksSSE2(dst, b, want)
 }
 
-func jsonValidTokensSSE2Guarded(b []byte, masks []uint64, stk []uint64) int {
+func JsonValidTokensSSE2(b []byte, masks []uint64, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 || len(masks) < 2*((len(b)+63)/64) {
 		return ref.JSONValidTokens(b, masks, stk)
 	}
 	return jsonValidTokensSSE2(b, masks, stk)
 }
 
-func jsonValidSSE2Guarded(b []byte, stk []uint64) int {
+func JsonValidSSE2(b []byte, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 {
 		return ref.JSONValid(b, stk)
 	}
 	return jsonValidSSE2(b, stk)
 }
 
-func jsonStage1SSE2Guarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+func JsonStage1SSE2(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
 		return
@@ -326,35 +326,35 @@ func jsonStage1SSE2Guarded(out []uint64, masks []byte, nw int, carr []uint64, re
 	jsonStage1SSE2(out, masks, nw, carr, res)
 }
 
-func jsonQuoteSSE2Guarded(dst []byte, b []byte, html byte) int {
+func JsonQuoteSSE2(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < 6*len(b) {
 		return ref.JSONQuote(dst, b, html)
 	}
 	return jsonQuoteSSE2(dst, b, html)
 }
 
-func jsonCopyRunSSE2Guarded(dst []byte, b []byte, html byte) int {
+func JsonCopyRunSSE2(dst []byte, b []byte, html byte) int {
 	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunSSE2(dst, b, html)
 }
 
-func b64EncodeSSE2Guarded(dst []byte, b []byte) int {
+func B64EncodeSSE2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Encode(dst, b)
 	}
 	return b64EncodeSSE2(dst, b)
 }
 
-func b64DecodeSSE2Guarded(dst []byte, b []byte) int {
+func B64DecodeSSE2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Decode(dst, b)
 	}
 	return b64DecodeSSE2(dst, b)
 }
 
-func parseIntsSSE2Guarded(dst []int64, src []byte, idx []int32) (count int, ok bool) {
+func ParseIntsSSE2(dst []int64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseInts(dst, src, idx)
@@ -362,7 +362,7 @@ func parseIntsSSE2Guarded(dst []int64, src []byte, idx []int32) (count int, ok b
 	return parseIntsSSE2(dst, src, idx[:n:n])
 }
 
-func parseUintsSSE2Guarded(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
+func ParseUintsSSE2(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseUints(dst, src, idx)
@@ -370,49 +370,49 @@ func parseUintsSSE2Guarded(dst []uint64, src []byte, idx []int32) (count int, ok
 	return parseUintsSSE2(dst, src, idx[:n:n])
 }
 
-func formatIntsSSE2Guarded(dst []byte, vals []int64, sep byte) int {
+func FormatIntsSSE2(dst []byte, vals []int64, sep byte) int {
 	if len(vals) < 0 || len(dst) < 21*len(vals) {
 		return ref.FormatInts(dst, vals, sep)
 	}
 	return formatIntsSSE2(dst, vals, sep)
 }
 
-func hexDecodeSSE2Guarded(dst []byte, src []byte) (n int, ok bool) {
+func HexDecodeSSE2(dst []byte, src []byte) (n int, ok bool) {
 	if len(dst) < 32 {
 		return ref.HexDecode(dst, src)
 	}
 	return hexDecodeSSE2(dst, src)
 }
 
-func hexEncodeSSE2Guarded(dst []byte, b []byte) int {
+func HexEncodeSSE2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
 	}
 	return hexEncodeSSE2(dst, b)
 }
 
-func indexSSE2Guarded(haystack []byte, needle []byte) int {
+func IndexSSE2(haystack []byte, needle []byte) int {
 	if len(haystack) < 256 {
 		return ref.Index(haystack, needle)
 	}
 	return indexSSE2(haystack, needle)
 }
 
-func lastIndexSSE2Guarded(haystack []byte, needle []byte) int {
+func LastIndexSSE2(haystack []byte, needle []byte) int {
 	if len(haystack) < 64 {
 		return ref.LastIndex(haystack, needle)
 	}
 	return lastIndexSSE2(haystack, needle)
 }
 
-func countSeqSSE2Guarded(haystack []byte, needle []byte) int {
+func CountSeqSSE2(haystack []byte, needle []byte) int {
 	if len(haystack) < 256 || len(needle) == 0 {
 		return ref.CountSeq(haystack, needle)
 	}
 	return countSeqSSE2(haystack, needle)
 }
 
-func toUpperASCIISSE2Guarded(dst []byte, b []byte) {
+func ToUpperASCIISSE2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToUpperASCII(dst, b)
@@ -421,7 +421,7 @@ func toUpperASCIISSE2Guarded(dst []byte, b []byte) {
 	toUpperASCIISSE2(dst[:n:n], b)
 }
 
-func toLowerASCIISSE2Guarded(dst []byte, b []byte) {
+func ToLowerASCIISSE2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToLowerASCII(dst, b)
@@ -430,7 +430,7 @@ func toLowerASCIISSE2Guarded(dst []byte, b []byte) {
 	toLowerASCIISSE2(dst[:n:n], b)
 }
 
-func replaceByteSSE2Guarded(dst []byte, b []byte, old byte, with byte) {
+func ReplaceByteSSE2(dst []byte, b []byte, old byte, with byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ReplaceByte(dst, b, old, with)
@@ -439,62 +439,59 @@ func replaceByteSSE2Guarded(dst []byte, b []byte, old byte, with byte) {
 	replaceByteSSE2(dst[:n:n], b, old, with)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sse2")
-	s.Bytes.Count = countByteSSE2Guarded
-	s.Bytes.IndexByte = indexByteSSE2Guarded
-	s.Bytes.LastIndexByte = lastIndexByteSSE2Guarded
-	s.Bytes.PopCount = popCountSSE2Guarded
-	s.Bytes.MaskBits = maskBitsSSE2Guarded
-	s.Bytes.MaskBitsLess = maskBitsLessSSE2Guarded
-	s.Bytes.MaskBitsAny4 = maskBitsAny4SSE2Guarded
-	s.Bytes.MaskBitsAny = maskBitsAnySSE2Guarded
-	s.Bytes.Hamming = hammingU8SSE2Guarded
-	s.Bytes.HammingWords = hammingU64SSE2Guarded
-	s.Bytes.Grayscale = grayscaleU8SSE2Guarded
-	s.Bytes.RGBToUV = rgbToUVU8SSE2Guarded
-	s.Bytes.IsASCII = isASCIISSE2Guarded
-	s.Bytes.ValidUTF8 = validUTF8SSE2Guarded
-	s.Bytes.IndexNonASCII = indexNonASCIISSE2Guarded
-	s.Bytes.IndexNonASCII16 = indexNonASCII16SSE2Guarded
-	s.Bytes.WidenU8U16 = widenU8U16SSE2Guarded
-	s.Bytes.NarrowU16U8 = narrowU16U8SSE2Guarded
-	s.Bytes.WidenU8U32 = widenU8U32SSE2Guarded
-	s.Bytes.NarrowU32U8 = narrowU32U8SSE2Guarded
-	s.Bytes.Equal = equalBytesSSE2Guarded
-	s.Bytes.And = bitAndSSE2Guarded
-	s.Bytes.Or = bitOrSSE2Guarded
-	s.Bytes.Xor = bitXorSSE2Guarded
-	s.Bytes.AndNot = bitAndNotSSE2Guarded
-	s.Bytes.Not = bitNotSSE2Guarded
-	s.Bytes.Fill = fillBytesSSE2Guarded
-	s.Bytes.Compare = compareBytesSSE2Guarded
-	s.Bytes.CommonPrefix = commonPrefixSSE2Guarded
-	s.Bytes.EqualFoldASCII = equalFoldASCIISSE2Guarded
-	s.Bytes.IndexAny = indexAnySSE2Guarded
-	s.Bytes.IndexAnyOrLess = indexAnyOrLessSSE2Guarded
-	s.Bytes.IndexNotAny = indexNotAnySSE2Guarded
-	s.Bytes.LastIndexNotAny = lastIndexNotAnySSE2Guarded
-	s.Bytes.CountAny = countAnySSE2Guarded
-	s.Bytes.JSONMasks = jsonMasksSSE2Guarded
-	s.Bytes.JSONValidTokens = jsonValidTokensSSE2Guarded
-	s.Bytes.JSONValid = jsonValidSSE2Guarded
-	s.Bytes.JSONStage1 = jsonStage1SSE2Guarded
-	s.Bytes.JSONQuote = jsonQuoteSSE2Guarded
-	s.Bytes.JSONCopyRun = jsonCopyRunSSE2Guarded
-	s.Bytes.B64Encode = b64EncodeSSE2Guarded
-	s.Bytes.B64Decode = b64DecodeSSE2Guarded
-	s.Bytes.ParseInts = parseIntsSSE2Guarded
-	s.Bytes.ParseUints = parseUintsSSE2Guarded
-	s.Bytes.FormatInts = formatIntsSSE2Guarded
-	s.Bytes.HexDecode = hexDecodeSSE2Guarded
-	s.Bytes.HexEncode = hexEncodeSSE2Guarded
-	s.Bytes.Index = indexSSE2Guarded
-	s.Bytes.LastIndex = lastIndexSSE2Guarded
-	s.Bytes.CountSeq = countSeqSSE2Guarded
-	s.Bytes.ToUpperASCII = toUpperASCIISSE2Guarded
-	s.Bytes.ToLowerASCII = toLowerASCIISSE2Guarded
-	s.Bytes.ReplaceByte = replaceByteSSE2Guarded
+func registerBytesSSE2(s *kernel.Set) {
+	s.Bytes.Count = CountByteSSE2
+	s.Bytes.IndexByte = IndexByteSSE2
+	s.Bytes.LastIndexByte = LastIndexByteSSE2
+	s.Bytes.PopCount = PopCountSSE2
+	s.Bytes.MaskBits = MaskBitsSSE2
+	s.Bytes.MaskBitsLess = MaskBitsLessSSE2
+	s.Bytes.MaskBitsAny4 = MaskBitsAny4SSE2
+	s.Bytes.MaskBitsAny = MaskBitsAnySSE2
+	s.Bytes.Hamming = HammingU8SSE2
+	s.Bytes.HammingWords = HammingU64SSE2
+	s.Bytes.Grayscale = GrayscaleU8SSE2
+	s.Bytes.RGBToUV = RgbToUVU8SSE2
+	s.Bytes.IsASCII = IsASCIISSE2
+	s.Bytes.ValidUTF8 = ValidUTF8SSE2
+	s.Bytes.IndexNonASCII = IndexNonASCIISSE2
+	s.Bytes.IndexNonASCII16 = IndexNonASCII16SSE2
+	s.Bytes.WidenU8U16 = WidenU8U16SSE2
+	s.Bytes.NarrowU16U8 = NarrowU16U8SSE2
+	s.Bytes.WidenU8U32 = WidenU8U32SSE2
+	s.Bytes.NarrowU32U8 = NarrowU32U8SSE2
+	s.Bytes.Equal = EqualBytesSSE2
+	s.Bytes.And = BitAndSSE2
+	s.Bytes.Or = BitOrSSE2
+	s.Bytes.Xor = BitXorSSE2
+	s.Bytes.AndNot = BitAndNotSSE2
+	s.Bytes.Not = BitNotSSE2
+	s.Bytes.Fill = FillBytesSSE2
+	s.Bytes.Compare = CompareBytesSSE2
+	s.Bytes.CommonPrefix = CommonPrefixSSE2
+	s.Bytes.EqualFoldASCII = EqualFoldASCIISSE2
+	s.Bytes.IndexAny = IndexAnySSE2
+	s.Bytes.IndexAnyOrLess = IndexAnyOrLessSSE2
+	s.Bytes.IndexNotAny = IndexNotAnySSE2
+	s.Bytes.LastIndexNotAny = LastIndexNotAnySSE2
+	s.Bytes.CountAny = CountAnySSE2
+	s.Bytes.JSONMasks = JsonMasksSSE2
+	s.Bytes.JSONValidTokens = JsonValidTokensSSE2
+	s.Bytes.JSONValid = JsonValidSSE2
+	s.Bytes.JSONStage1 = JsonStage1SSE2
+	s.Bytes.JSONQuote = JsonQuoteSSE2
+	s.Bytes.JSONCopyRun = JsonCopyRunSSE2
+	s.Bytes.B64Encode = B64EncodeSSE2
+	s.Bytes.B64Decode = B64DecodeSSE2
+	s.Bytes.ParseInts = ParseIntsSSE2
+	s.Bytes.ParseUints = ParseUintsSSE2
+	s.Bytes.FormatInts = FormatIntsSSE2
+	s.Bytes.HexDecode = HexDecodeSSE2
+	s.Bytes.HexEncode = HexEncodeSSE2
+	s.Bytes.Index = IndexSSE2
+	s.Bytes.LastIndex = LastIndexSSE2
+	s.Bytes.CountSeq = CountSeqSSE2
+	s.Bytes.ToUpperASCII = ToUpperASCIISSE2
+	s.Bytes.ToLowerASCII = ToLowerASCIISSE2
+	s.Bytes.ReplaceByte = ReplaceByteSSE2
 }

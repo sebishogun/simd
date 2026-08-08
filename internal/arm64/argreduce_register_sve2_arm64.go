@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,104 +20,101 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func argMinFloat32SVE2Guarded(a []float32) int {
+func ArgMinFloat32SVE2(a []float32) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat32SVE2(a)
 }
 
-func argMaxFloat32SVE2Guarded(a []float32) int {
+func ArgMaxFloat32SVE2(a []float32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat32SVE2(a)
 }
 
-func minMaxFloat32SVE2Guarded(a []float32) (lo float32, hi float32) {
+func MinMaxFloat32SVE2(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32SVE2(a)
 }
 
-func argMinFloat64SVE2Guarded(a []float64) int {
+func ArgMinFloat64SVE2(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat64SVE2(a)
 }
 
-func argMaxFloat64SVE2Guarded(a []float64) int {
+func ArgMaxFloat64SVE2(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat64SVE2(a)
 }
 
-func minMaxFloat64SVE2Guarded(a []float64) (lo float64, hi float64) {
+func MinMaxFloat64SVE2(a []float64) (lo float64, hi float64) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat64SVE2(a)
 }
 
-func argMinInt32SVE2Guarded(a []int32) int {
+func ArgMinInt32SVE2(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt32SVE2(a)
 }
 
-func argMaxInt32SVE2Guarded(a []int32) int {
+func ArgMaxInt32SVE2(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt32SVE2(a)
 }
 
-func minMaxInt32SVE2Guarded(a []int32) (lo int32, hi int32) {
+func MinMaxInt32SVE2(a []int32) (lo int32, hi int32) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt32SVE2(a)
 }
 
-func argMinInt64SVE2Guarded(a []int64) int {
+func ArgMinInt64SVE2(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt64SVE2(a)
 }
 
-func argMaxInt64SVE2Guarded(a []int64) int {
+func ArgMaxInt64SVE2(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt64SVE2(a)
 }
 
-func minMaxInt64SVE2Guarded(a []int64) (lo int64, hi int64) {
+func MinMaxInt64SVE2(a []int64) (lo int64, hi int64) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt64SVE2(a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.F32.ArgMin = argMinFloat32SVE2Guarded
-	s.F32.ArgMax = argMaxFloat32SVE2Guarded
-	s.F32.MinMax = minMaxFloat32SVE2Guarded
-	s.F64.ArgMin = argMinFloat64SVE2Guarded
-	s.F64.ArgMax = argMaxFloat64SVE2Guarded
-	s.F64.MinMax = minMaxFloat64SVE2Guarded
-	s.I32.ArgMin = argMinInt32SVE2Guarded
-	s.I32.ArgMax = argMaxInt32SVE2Guarded
-	s.I32.MinMax = minMaxInt32SVE2Guarded
-	s.I64.ArgMin = argMinInt64SVE2Guarded
-	s.I64.ArgMax = argMaxInt64SVE2Guarded
-	s.I64.MinMax = minMaxInt64SVE2Guarded
+func registerArgreduceSVE2(s *kernel.Set) {
+	s.F32.ArgMin = ArgMinFloat32SVE2
+	s.F32.ArgMax = ArgMaxFloat32SVE2
+	s.F32.MinMax = MinMaxFloat32SVE2
+	s.F64.ArgMin = ArgMinFloat64SVE2
+	s.F64.ArgMax = ArgMaxFloat64SVE2
+	s.F64.MinMax = MinMaxFloat64SVE2
+	s.I32.ArgMin = ArgMinInt32SVE2
+	s.I32.ArgMax = ArgMaxInt32SVE2
+	s.I32.MinMax = MinMaxInt32SVE2
+	s.I64.ArgMin = ArgMinInt64SVE2
+	s.I64.ArgMax = ArgMaxInt64SVE2
+	s.I64.MinMax = MinMaxInt64SVE2
 }

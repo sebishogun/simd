@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,35 +20,35 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func lastIndexByteVXGuarded(b []byte, c byte) int {
+func LastIndexByteVX(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexByte(b, c)
 	}
 	return lastIndexByteVX(b, c)
 }
 
-func popCountVXGuarded(b []byte) int {
+func PopCountVX(b []byte) int {
 	if len(b) < 64 {
 		return ref.PopCount(b)
 	}
 	return popCountVX(b)
 }
 
-func isASCIIVXGuarded(b []byte) bool {
+func IsASCIIVX(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
 	}
 	return isASCIIVX(b)
 }
 
-func indexNonASCII16VXGuarded(b []uint16) int {
+func IndexNonASCII16VX(b []uint16) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII16(b)
 	}
 	return indexNonASCII16VX(b)
 }
 
-func widenU8U16VXGuarded(dst []uint16, s []byte) {
+func WidenU8U16VX(dst []uint16, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U16(dst, s)
@@ -57,7 +57,7 @@ func widenU8U16VXGuarded(dst []uint16, s []byte) {
 	widenU8U16VX(dst[:n:n], s)
 }
 
-func narrowU16U8VXGuarded(dst []byte, s []uint16) {
+func NarrowU16U8VX(dst []byte, s []uint16) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU16U8(dst, s)
@@ -66,7 +66,7 @@ func narrowU16U8VXGuarded(dst []byte, s []uint16) {
 	narrowU16U8VX(dst[:n:n], s)
 }
 
-func widenU8U32VXGuarded(dst []uint32, s []byte) {
+func WidenU8U32VX(dst []uint32, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U32(dst, s)
@@ -75,7 +75,7 @@ func widenU8U32VXGuarded(dst []uint32, s []byte) {
 	widenU8U32VX(dst[:n:n], s)
 }
 
-func narrowU32U8VXGuarded(dst []byte, s []uint32) {
+func NarrowU32U8VX(dst []byte, s []uint32) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU32U8(dst, s)
@@ -84,7 +84,7 @@ func narrowU32U8VXGuarded(dst []byte, s []uint32) {
 	narrowU32U8VX(dst[:n:n], s)
 }
 
-func equalBytesVXGuarded(a []byte, b []byte) bool {
+func EqualBytesVX(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
@@ -92,7 +92,7 @@ func equalBytesVXGuarded(a []byte, b []byte) bool {
 	return equalBytesVX(a[:n:n], b)
 }
 
-func bitAndVXGuarded(dst []byte, a []byte, b []byte) {
+func BitAndVX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAnd(dst, a, b)
@@ -101,7 +101,7 @@ func bitAndVXGuarded(dst []byte, a []byte, b []byte) {
 	bitAndVX(dst[:n:n], a, b)
 }
 
-func bitOrVXGuarded(dst []byte, a []byte, b []byte) {
+func BitOrVX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitOr(dst, a, b)
@@ -110,7 +110,7 @@ func bitOrVXGuarded(dst []byte, a []byte, b []byte) {
 	bitOrVX(dst[:n:n], a, b)
 }
 
-func bitXorVXGuarded(dst []byte, a []byte, b []byte) {
+func BitXorVX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitXor(dst, a, b)
@@ -119,7 +119,7 @@ func bitXorVXGuarded(dst []byte, a []byte, b []byte) {
 	bitXorVX(dst[:n:n], a, b)
 }
 
-func bitAndNotVXGuarded(dst []byte, a []byte, b []byte) {
+func BitAndNotVX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAndNot(dst, a, b)
@@ -128,7 +128,7 @@ func bitAndNotVXGuarded(dst []byte, a []byte, b []byte) {
 	bitAndNotVX(dst[:n:n], a, b)
 }
 
-func bitNotVXGuarded(dst []byte, b []byte) {
+func BitNotVX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.BitNot(dst, b)
@@ -137,7 +137,7 @@ func bitNotVXGuarded(dst []byte, b []byte) {
 	bitNotVX(dst[:n:n], b)
 }
 
-func fillBytesVXGuarded(dst []byte, v byte) {
+func FillBytesVX(dst []byte, v byte) {
 	if len(dst) < 32 {
 		ref.FillBytes(dst, v)
 		return
@@ -145,14 +145,14 @@ func fillBytesVXGuarded(dst []byte, v byte) {
 	fillBytesVX(dst, v)
 }
 
-func hexEncodeVXGuarded(dst []byte, b []byte) int {
+func HexEncodeVX(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
 	}
 	return hexEncodeVX(dst, b)
 }
 
-func toUpperASCIIVXGuarded(dst []byte, b []byte) {
+func ToUpperASCIIVX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToUpperASCII(dst, b)
@@ -161,7 +161,7 @@ func toUpperASCIIVXGuarded(dst []byte, b []byte) {
 	toUpperASCIIVX(dst[:n:n], b)
 }
 
-func toLowerASCIIVXGuarded(dst []byte, b []byte) {
+func ToLowerASCIIVX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToLowerASCII(dst, b)
@@ -170,7 +170,7 @@ func toLowerASCIIVXGuarded(dst []byte, b []byte) {
 	toLowerASCIIVX(dst[:n:n], b)
 }
 
-func replaceByteVXGuarded(dst []byte, b []byte, old byte, with byte) {
+func ReplaceByteVX(dst []byte, b []byte, old byte, with byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ReplaceByte(dst, b, old, with)
@@ -179,27 +179,24 @@ func replaceByteVXGuarded(dst []byte, b []byte, old byte, with byte) {
 	replaceByteVX(dst[:n:n], b, old, with)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.Bytes.LastIndexByte = lastIndexByteVXGuarded
-	s.Bytes.PopCount = popCountVXGuarded
-	s.Bytes.IsASCII = isASCIIVXGuarded
-	s.Bytes.IndexNonASCII16 = indexNonASCII16VXGuarded
-	s.Bytes.WidenU8U16 = widenU8U16VXGuarded
-	s.Bytes.NarrowU16U8 = narrowU16U8VXGuarded
-	s.Bytes.WidenU8U32 = widenU8U32VXGuarded
-	s.Bytes.NarrowU32U8 = narrowU32U8VXGuarded
-	s.Bytes.Equal = equalBytesVXGuarded
-	s.Bytes.And = bitAndVXGuarded
-	s.Bytes.Or = bitOrVXGuarded
-	s.Bytes.Xor = bitXorVXGuarded
-	s.Bytes.AndNot = bitAndNotVXGuarded
-	s.Bytes.Not = bitNotVXGuarded
-	s.Bytes.Fill = fillBytesVXGuarded
-	s.Bytes.HexEncode = hexEncodeVXGuarded
-	s.Bytes.ToUpperASCII = toUpperASCIIVXGuarded
-	s.Bytes.ToLowerASCII = toLowerASCIIVXGuarded
-	s.Bytes.ReplaceByte = replaceByteVXGuarded
+func registerBytesVX(s *kernel.Set) {
+	s.Bytes.LastIndexByte = LastIndexByteVX
+	s.Bytes.PopCount = PopCountVX
+	s.Bytes.IsASCII = IsASCIIVX
+	s.Bytes.IndexNonASCII16 = IndexNonASCII16VX
+	s.Bytes.WidenU8U16 = WidenU8U16VX
+	s.Bytes.NarrowU16U8 = NarrowU16U8VX
+	s.Bytes.WidenU8U32 = WidenU8U32VX
+	s.Bytes.NarrowU32U8 = NarrowU32U8VX
+	s.Bytes.Equal = EqualBytesVX
+	s.Bytes.And = BitAndVX
+	s.Bytes.Or = BitOrVX
+	s.Bytes.Xor = BitXorVX
+	s.Bytes.AndNot = BitAndNotVX
+	s.Bytes.Not = BitNotVX
+	s.Bytes.Fill = FillBytesVX
+	s.Bytes.HexEncode = HexEncodeVX
+	s.Bytes.ToUpperASCII = ToUpperASCIIVX
+	s.Bytes.ToLowerASCII = ToLowerASCIIVX
+	s.Bytes.ReplaceByte = ReplaceByteVX
 }

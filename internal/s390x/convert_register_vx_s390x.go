@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func zigzagEncodeI8VXGuarded(dst []byte, a []int8) {
+func ZigzagEncodeI8VX(dst []byte, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI8(dst, a)
@@ -29,7 +29,7 @@ func zigzagEncodeI8VXGuarded(dst []byte, a []int8) {
 	zigzagEncodeI8VX(dst[:n:n], a)
 }
 
-func zigzagDecodeI8VXGuarded(dst []int8, a []byte) {
+func ZigzagDecodeI8VX(dst []int8, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI8(dst, a)
@@ -38,7 +38,7 @@ func zigzagDecodeI8VXGuarded(dst []int8, a []byte) {
 	zigzagDecodeI8VX(dst[:n:n], a)
 }
 
-func zigzagEncodeI16VXGuarded(dst []uint16, a []int16) {
+func ZigzagEncodeI16VX(dst []uint16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI16(dst, a)
@@ -47,7 +47,7 @@ func zigzagEncodeI16VXGuarded(dst []uint16, a []int16) {
 	zigzagEncodeI16VX(dst[:n:n], a)
 }
 
-func zigzagDecodeI16VXGuarded(dst []int16, a []uint16) {
+func ZigzagDecodeI16VX(dst []int16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI16(dst, a)
@@ -56,7 +56,7 @@ func zigzagDecodeI16VXGuarded(dst []int16, a []uint16) {
 	zigzagDecodeI16VX(dst[:n:n], a)
 }
 
-func zigzagEncodeI32VXGuarded(dst []uint32, a []int32) {
+func ZigzagEncodeI32VX(dst []uint32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI32(dst, a)
@@ -65,7 +65,7 @@ func zigzagEncodeI32VXGuarded(dst []uint32, a []int32) {
 	zigzagEncodeI32VX(dst[:n:n], a)
 }
 
-func zigzagDecodeI32VXGuarded(dst []int32, a []uint32) {
+func ZigzagDecodeI32VX(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI32(dst, a)
@@ -74,7 +74,7 @@ func zigzagDecodeI32VXGuarded(dst []int32, a []uint32) {
 	zigzagDecodeI32VX(dst[:n:n], a)
 }
 
-func zigzagEncodeI64VXGuarded(dst []uint64, a []int64) {
+func ZigzagEncodeI64VX(dst []uint64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI64(dst, a)
@@ -83,7 +83,7 @@ func zigzagEncodeI64VXGuarded(dst []uint64, a []int64) {
 	zigzagEncodeI64VX(dst[:n:n], a)
 }
 
-func zigzagDecodeI64VXGuarded(dst []int64, a []uint64) {
+func ZigzagDecodeI64VX(dst []int64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI64(dst, a)
@@ -92,7 +92,7 @@ func zigzagDecodeI64VXGuarded(dst []int64, a []uint64) {
 	zigzagDecodeI64VX(dst[:n:n], a)
 }
 
-func varintLenU32VXGuarded(dst []int32, a []uint32) {
+func VarintLenU32VX(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU32(dst, a)
@@ -101,7 +101,7 @@ func varintLenU32VXGuarded(dst []int32, a []uint32) {
 	varintLenU32VX(dst[:n:n], a)
 }
 
-func bf16ToF32VXGuarded(dst []float32, a []uint16) {
+func Bf16ToF32VX(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.BF16ToF32(dst, a)
@@ -110,7 +110,7 @@ func bf16ToF32VXGuarded(dst []float32, a []uint16) {
 	bf16ToF32VX(dst[:n:n], a)
 }
 
-func f32ToBF16VXGuarded(dst []uint16, a []float32) {
+func F32ToBF16VX(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToBF16(dst, a)
@@ -119,7 +119,7 @@ func f32ToBF16VXGuarded(dst []uint16, a []float32) {
 	f32ToBF16VX(dst[:n:n], a)
 }
 
-func f32ToF16VXGuarded(dst []uint16, a []float32) {
+func F32ToF16VX(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToF16(dst, a)
@@ -128,20 +128,17 @@ func f32ToF16VXGuarded(dst []uint16, a []float32) {
 	f32ToF16VX(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8VXGuarded
-	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8VXGuarded
-	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16VXGuarded
-	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16VXGuarded
-	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32VXGuarded
-	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32VXGuarded
-	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64VXGuarded
-	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64VXGuarded
-	s.Convert.VarintLenU32 = varintLenU32VXGuarded
-	s.Convert.BF16ToF32 = bf16ToF32VXGuarded
-	s.Convert.F32ToBF16 = f32ToBF16VXGuarded
-	s.Convert.F32ToF16 = f32ToF16VXGuarded
+func registerConvertVX(s *kernel.Set) {
+	s.Convert.ZigzagEncodeI8 = ZigzagEncodeI8VX
+	s.Convert.ZigzagDecodeI8 = ZigzagDecodeI8VX
+	s.Convert.ZigzagEncodeI16 = ZigzagEncodeI16VX
+	s.Convert.ZigzagDecodeI16 = ZigzagDecodeI16VX
+	s.Convert.ZigzagEncodeI32 = ZigzagEncodeI32VX
+	s.Convert.ZigzagDecodeI32 = ZigzagDecodeI32VX
+	s.Convert.ZigzagEncodeI64 = ZigzagEncodeI64VX
+	s.Convert.ZigzagDecodeI64 = ZigzagDecodeI64VX
+	s.Convert.VarintLenU32 = VarintLenU32VX
+	s.Convert.BF16ToF32 = Bf16ToF32VX
+	s.Convert.F32ToBF16 = F32ToBF16VX
+	s.Convert.F32ToF16 = F32ToF16VX
 }

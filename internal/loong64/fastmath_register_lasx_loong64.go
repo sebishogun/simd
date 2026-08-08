@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func fastExpFloat64LASXGuarded(dst []float64, a []float64) {
+func FastExpFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp(dst, a)
@@ -29,7 +29,7 @@ func fastExpFloat64LASXGuarded(dst []float64, a []float64) {
 	fastExpFloat64LASX(dst[:n:n], a)
 }
 
-func fastExp2Float64LASXGuarded(dst []float64, a []float64) {
+func FastExp2Float64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp2(dst, a)
@@ -38,7 +38,7 @@ func fastExp2Float64LASXGuarded(dst []float64, a []float64) {
 	fastExp2Float64LASX(dst[:n:n], a)
 }
 
-func fastLogFloat64LASXGuarded(dst []float64, a []float64) {
+func FastLogFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log(dst, a)
@@ -47,7 +47,7 @@ func fastLogFloat64LASXGuarded(dst []float64, a []float64) {
 	fastLogFloat64LASX(dst[:n:n], a)
 }
 
-func fastLog2Float64LASXGuarded(dst []float64, a []float64) {
+func FastLog2Float64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log2(dst, a)
@@ -56,7 +56,7 @@ func fastLog2Float64LASXGuarded(dst []float64, a []float64) {
 	fastLog2Float64LASX(dst[:n:n], a)
 }
 
-func fastLog10Float64LASXGuarded(dst []float64, a []float64) {
+func FastLog10Float64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log10(dst, a)
@@ -65,7 +65,7 @@ func fastLog10Float64LASXGuarded(dst []float64, a []float64) {
 	fastLog10Float64LASX(dst[:n:n], a)
 }
 
-func fastLog1pFloat64LASXGuarded(dst []float64, a []float64) {
+func FastLog1pFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log1p(dst, a)
@@ -74,7 +74,7 @@ func fastLog1pFloat64LASXGuarded(dst []float64, a []float64) {
 	fastLog1pFloat64LASX(dst[:n:n], a)
 }
 
-func fastCbrtFloat64LASXGuarded(dst []float64, a []float64) {
+func FastCbrtFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cbrt(dst, a)
@@ -83,7 +83,7 @@ func fastCbrtFloat64LASXGuarded(dst []float64, a []float64) {
 	fastCbrtFloat64LASX(dst[:n:n], a)
 }
 
-func fastSigmoidFloat64LASXGuarded(dst []float64, a []float64) {
+func FastSigmoidFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sigmoid(dst, a)
@@ -92,7 +92,7 @@ func fastSigmoidFloat64LASXGuarded(dst []float64, a []float64) {
 	fastSigmoidFloat64LASX(dst[:n:n], a)
 }
 
-func fastSinFloat64LASXGuarded(dst []float64, a []float64) {
+func FastSinFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sin(dst, a)
@@ -101,7 +101,7 @@ func fastSinFloat64LASXGuarded(dst []float64, a []float64) {
 	fastSinFloat64LASX(dst[:n:n], a)
 }
 
-func fastCosFloat64LASXGuarded(dst []float64, a []float64) {
+func FastCosFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cos(dst, a)
@@ -110,7 +110,7 @@ func fastCosFloat64LASXGuarded(dst []float64, a []float64) {
 	fastCosFloat64LASX(dst[:n:n], a)
 }
 
-func fastTanFloat64LASXGuarded(dst []float64, a []float64) {
+func FastTanFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tan(dst, a)
@@ -119,7 +119,7 @@ func fastTanFloat64LASXGuarded(dst []float64, a []float64) {
 	fastTanFloat64LASX(dst[:n:n], a)
 }
 
-func fastAsinFloat64LASXGuarded(dst []float64, a []float64) {
+func FastAsinFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -128,7 +128,7 @@ func fastAsinFloat64LASXGuarded(dst []float64, a []float64) {
 	fastAsinFloat64LASX(dst[:n:n], a)
 }
 
-func fastAcosFloat64LASXGuarded(dst []float64, a []float64) {
+func FastAcosFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -137,7 +137,7 @@ func fastAcosFloat64LASXGuarded(dst []float64, a []float64) {
 	fastAcosFloat64LASX(dst[:n:n], a)
 }
 
-func fastAtanFloat64LASXGuarded(dst []float64, a []float64) {
+func FastAtanFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atan(dst, a)
@@ -146,7 +146,7 @@ func fastAtanFloat64LASXGuarded(dst []float64, a []float64) {
 	fastAtanFloat64LASX(dst[:n:n], a)
 }
 
-func fastCoshFloat64LASXGuarded(dst []float64, a []float64) {
+func FastCoshFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cosh(dst, a)
@@ -155,7 +155,7 @@ func fastCoshFloat64LASXGuarded(dst []float64, a []float64) {
 	fastCoshFloat64LASX(dst[:n:n], a)
 }
 
-func fastAsinhFloat64LASXGuarded(dst []float64, a []float64) {
+func FastAsinhFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asinh(dst, a)
@@ -164,7 +164,7 @@ func fastAsinhFloat64LASXGuarded(dst []float64, a []float64) {
 	fastAsinhFloat64LASX(dst[:n:n], a)
 }
 
-func fastAcoshFloat64LASXGuarded(dst []float64, a []float64) {
+func FastAcoshFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acosh(dst, a)
@@ -173,7 +173,7 @@ func fastAcoshFloat64LASXGuarded(dst []float64, a []float64) {
 	fastAcoshFloat64LASX(dst[:n:n], a)
 }
 
-func fastAtanhFloat64LASXGuarded(dst []float64, a []float64) {
+func FastAtanhFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atanh(dst, a)
@@ -182,7 +182,7 @@ func fastAtanhFloat64LASXGuarded(dst []float64, a []float64) {
 	fastAtanhFloat64LASX(dst[:n:n], a)
 }
 
-func fastErfFloat64LASXGuarded(dst []float64, a []float64) {
+func FastErfFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Erf(dst, a)
@@ -191,27 +191,24 @@ func fastErfFloat64LASXGuarded(dst []float64, a []float64) {
 	fastErfFloat64LASX(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.F64.FastExp = fastExpFloat64LASXGuarded
-	s.F64.FastExp2 = fastExp2Float64LASXGuarded
-	s.F64.FastLog = fastLogFloat64LASXGuarded
-	s.F64.FastLog2 = fastLog2Float64LASXGuarded
-	s.F64.FastLog10 = fastLog10Float64LASXGuarded
-	s.F64.FastLog1p = fastLog1pFloat64LASXGuarded
-	s.F64.FastCbrt = fastCbrtFloat64LASXGuarded
-	s.F64.FastSigmoid = fastSigmoidFloat64LASXGuarded
-	s.F64.FastSin = fastSinFloat64LASXGuarded
-	s.F64.FastCos = fastCosFloat64LASXGuarded
-	s.F64.FastTan = fastTanFloat64LASXGuarded
-	s.F64.FastAsin = fastAsinFloat64LASXGuarded
-	s.F64.FastAcos = fastAcosFloat64LASXGuarded
-	s.F64.FastAtan = fastAtanFloat64LASXGuarded
-	s.F64.FastCosh = fastCoshFloat64LASXGuarded
-	s.F64.FastAsinh = fastAsinhFloat64LASXGuarded
-	s.F64.FastAcosh = fastAcoshFloat64LASXGuarded
-	s.F64.FastAtanh = fastAtanhFloat64LASXGuarded
-	s.F64.FastErf = fastErfFloat64LASXGuarded
+func registerFastmathLASX(s *kernel.Set) {
+	s.F64.FastExp = FastExpFloat64LASX
+	s.F64.FastExp2 = FastExp2Float64LASX
+	s.F64.FastLog = FastLogFloat64LASX
+	s.F64.FastLog2 = FastLog2Float64LASX
+	s.F64.FastLog10 = FastLog10Float64LASX
+	s.F64.FastLog1p = FastLog1pFloat64LASX
+	s.F64.FastCbrt = FastCbrtFloat64LASX
+	s.F64.FastSigmoid = FastSigmoidFloat64LASX
+	s.F64.FastSin = FastSinFloat64LASX
+	s.F64.FastCos = FastCosFloat64LASX
+	s.F64.FastTan = FastTanFloat64LASX
+	s.F64.FastAsin = FastAsinFloat64LASX
+	s.F64.FastAcos = FastAcosFloat64LASX
+	s.F64.FastAtan = FastAtanFloat64LASX
+	s.F64.FastCosh = FastCoshFloat64LASX
+	s.F64.FastAsinh = FastAsinhFloat64LASX
+	s.F64.FastAcosh = FastAcoshFloat64LASX
+	s.F64.FastAtanh = FastAtanhFloat64LASX
+	s.F64.FastErf = FastErfFloat64LASX
 }

@@ -53,7 +53,7 @@ func IndexFoldASCII[S, T Text](haystack S, needle T, scratch []byte) int {
 		scratch = make([]byte, len(h))
 	}
 	folded := scratch[:len(h)]
-	active.Bytes.ToLowerASCII(folded, h)
+	tblBytesToLowerASCII[tierIdx](folded, h)
 
 	var nf []byte
 	if len(scratch) >= len(h)+len(n) {
@@ -61,7 +61,7 @@ func IndexFoldASCII[S, T Text](haystack S, needle T, scratch []byte) int {
 	} else {
 		nf = make([]byte, len(n))
 	}
-	active.Bytes.ToLowerASCII(nf, n)
+	tblBytesToLowerASCII[tierIdx](nf, n)
 
 	return Index(folded, nf)
 }
@@ -90,7 +90,7 @@ func CountFoldASCII[S, T Text](haystack S, needle T, scratch []byte) int {
 		scratch = make([]byte, len(h))
 	}
 	folded := scratch[:len(h)]
-	active.Bytes.ToLowerASCII(folded, h)
+	tblBytesToLowerASCII[tierIdx](folded, h)
 
 	var nf []byte
 	if len(scratch) >= len(h)+len(n) {
@@ -98,7 +98,7 @@ func CountFoldASCII[S, T Text](haystack S, needle T, scratch []byte) int {
 	} else {
 		nf = make([]byte, len(n))
 	}
-	active.Bytes.ToLowerASCII(nf, n)
+	tblBytesToLowerASCII[tierIdx](nf, n)
 
 	return Count(folded, nf)
 }

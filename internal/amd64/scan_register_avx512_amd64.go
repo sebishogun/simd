@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func rollingMinFloat32AVX512Guarded(dst []float32, a []float32, window int) {
+func RollingMinFloat32AVX512(dst []float32, a []float32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinFloat(dst, a, window)
 		return
@@ -28,7 +28,7 @@ func rollingMinFloat32AVX512Guarded(dst []float32, a []float32, window int) {
 	rollingMinFloat32AVX512(dst, a, window)
 }
 
-func rollingMaxFloat32AVX512Guarded(dst []float32, a []float32, window int) {
+func RollingMaxFloat32AVX512(dst []float32, a []float32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxFloat(dst, a, window)
 		return
@@ -36,7 +36,7 @@ func rollingMaxFloat32AVX512Guarded(dst []float32, a []float32, window int) {
 	rollingMaxFloat32AVX512(dst, a, window)
 }
 
-func fastCumProdFloat32AVX512Guarded(dst []float32, a []float32) {
+func FastCumProdFloat32AVX512(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -45,7 +45,7 @@ func fastCumProdFloat32AVX512Guarded(dst []float32, a []float32) {
 	fastCumProdFloat32AVX512(dst[:n:n], a)
 }
 
-func fastCumSumFloat32AVX512Guarded(dst []float32, a []float32) {
+func FastCumSumFloat32AVX512(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumSumFloat(dst, a)
@@ -54,7 +54,7 @@ func fastCumSumFloat32AVX512Guarded(dst []float32, a []float32) {
 	fastCumSumFloat32AVX512(dst[:n:n], a)
 }
 
-func rollingMinFloat64AVX512Guarded(dst []float64, a []float64, window int) {
+func RollingMinFloat64AVX512(dst []float64, a []float64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinFloat(dst, a, window)
 		return
@@ -62,7 +62,7 @@ func rollingMinFloat64AVX512Guarded(dst []float64, a []float64, window int) {
 	rollingMinFloat64AVX512(dst, a, window)
 }
 
-func rollingMaxFloat64AVX512Guarded(dst []float64, a []float64, window int) {
+func RollingMaxFloat64AVX512(dst []float64, a []float64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxFloat(dst, a, window)
 		return
@@ -70,7 +70,7 @@ func rollingMaxFloat64AVX512Guarded(dst []float64, a []float64, window int) {
 	rollingMaxFloat64AVX512(dst, a, window)
 }
 
-func fastCumProdFloat64AVX512Guarded(dst []float64, a []float64) {
+func FastCumProdFloat64AVX512(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -79,7 +79,7 @@ func fastCumProdFloat64AVX512Guarded(dst []float64, a []float64) {
 	fastCumProdFloat64AVX512(dst[:n:n], a)
 }
 
-func rollingMinInt32AVX512Guarded(dst []int32, a []int32, window int) {
+func RollingMinInt32AVX512(dst []int32, a []int32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinInt(dst, a, window)
 		return
@@ -87,7 +87,7 @@ func rollingMinInt32AVX512Guarded(dst []int32, a []int32, window int) {
 	rollingMinInt32AVX512(dst, a, window)
 }
 
-func rollingMaxInt32AVX512Guarded(dst []int32, a []int32, window int) {
+func RollingMaxInt32AVX512(dst []int32, a []int32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxInt(dst, a, window)
 		return
@@ -95,7 +95,7 @@ func rollingMaxInt32AVX512Guarded(dst []int32, a []int32, window int) {
 	rollingMaxInt32AVX512(dst, a, window)
 }
 
-func cumMinInt32AVX512Guarded(dst []int32, a []int32) {
+func CumMinInt32AVX512(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -104,7 +104,7 @@ func cumMinInt32AVX512Guarded(dst []int32, a []int32) {
 	cumMinInt32AVX512(dst[:n:n], a)
 }
 
-func cumMaxInt32AVX512Guarded(dst []int32, a []int32) {
+func CumMaxInt32AVX512(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -113,7 +113,7 @@ func cumMaxInt32AVX512Guarded(dst []int32, a []int32) {
 	cumMaxInt32AVX512(dst[:n:n], a)
 }
 
-func cumProdInt32AVX512Guarded(dst []int32, a []int32) {
+func CumProdInt32AVX512(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumProdInt(dst, a)
@@ -122,7 +122,7 @@ func cumProdInt32AVX512Guarded(dst []int32, a []int32) {
 	cumProdInt32AVX512(dst[:n:n], a)
 }
 
-func rollingMinInt64AVX512Guarded(dst []int64, a []int64, window int) {
+func RollingMinInt64AVX512(dst []int64, a []int64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinInt(dst, a, window)
 		return
@@ -130,7 +130,7 @@ func rollingMinInt64AVX512Guarded(dst []int64, a []int64, window int) {
 	rollingMinInt64AVX512(dst, a, window)
 }
 
-func rollingMaxInt64AVX512Guarded(dst []int64, a []int64, window int) {
+func RollingMaxInt64AVX512(dst []int64, a []int64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxInt(dst, a, window)
 		return
@@ -138,7 +138,7 @@ func rollingMaxInt64AVX512Guarded(dst []int64, a []int64, window int) {
 	rollingMaxInt64AVX512(dst, a, window)
 }
 
-func cumMinInt64AVX512Guarded(dst []int64, a []int64) {
+func CumMinInt64AVX512(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -147,7 +147,7 @@ func cumMinInt64AVX512Guarded(dst []int64, a []int64) {
 	cumMinInt64AVX512(dst[:n:n], a)
 }
 
-func cumMaxInt64AVX512Guarded(dst []int64, a []int64) {
+func CumMaxInt64AVX512(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -156,24 +156,21 @@ func cumMaxInt64AVX512Guarded(dst []int64, a []int64) {
 	cumMaxInt64AVX512(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx512")
-	s.F32.RollingMin = rollingMinFloat32AVX512Guarded
-	s.F32.RollingMax = rollingMaxFloat32AVX512Guarded
-	s.F32.FastCumProd = fastCumProdFloat32AVX512Guarded
-	s.F32.FastCumSum = fastCumSumFloat32AVX512Guarded
-	s.F64.RollingMin = rollingMinFloat64AVX512Guarded
-	s.F64.RollingMax = rollingMaxFloat64AVX512Guarded
-	s.F64.FastCumProd = fastCumProdFloat64AVX512Guarded
-	s.I32.RollingMin = rollingMinInt32AVX512Guarded
-	s.I32.RollingMax = rollingMaxInt32AVX512Guarded
-	s.I32.CumMin = cumMinInt32AVX512Guarded
-	s.I32.CumMax = cumMaxInt32AVX512Guarded
-	s.I32.CumProd = cumProdInt32AVX512Guarded
-	s.I64.RollingMin = rollingMinInt64AVX512Guarded
-	s.I64.RollingMax = rollingMaxInt64AVX512Guarded
-	s.I64.CumMin = cumMinInt64AVX512Guarded
-	s.I64.CumMax = cumMaxInt64AVX512Guarded
+func registerScanAVX512(s *kernel.Set) {
+	s.F32.RollingMin = RollingMinFloat32AVX512
+	s.F32.RollingMax = RollingMaxFloat32AVX512
+	s.F32.FastCumProd = FastCumProdFloat32AVX512
+	s.F32.FastCumSum = FastCumSumFloat32AVX512
+	s.F64.RollingMin = RollingMinFloat64AVX512
+	s.F64.RollingMax = RollingMaxFloat64AVX512
+	s.F64.FastCumProd = FastCumProdFloat64AVX512
+	s.I32.RollingMin = RollingMinInt32AVX512
+	s.I32.RollingMax = RollingMaxInt32AVX512
+	s.I32.CumMin = CumMinInt32AVX512
+	s.I32.CumMax = CumMaxInt32AVX512
+	s.I32.CumProd = CumProdInt32AVX512
+	s.I64.RollingMin = RollingMinInt64AVX512
+	s.I64.RollingMax = RollingMaxInt64AVX512
+	s.I64.CumMin = CumMinInt64AVX512
+	s.I64.CumMax = CumMaxInt64AVX512
 }

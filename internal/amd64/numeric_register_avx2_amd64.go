@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,14 +20,14 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func normFloat32AVX2Guarded(a []float32) float32 {
+func NormFloat32AVX2(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
 	}
 	return normFloat32AVX2(a)
 }
 
-func polyEvalFloat32AVX2Guarded(dst []float32, x []float32, coeffs []float32) {
+func PolyEvalFloat32AVX2(dst []float32, x []float32, coeffs []float32) {
 	if len(dst) < 16 {
 		ref.PolyEval(dst, x, coeffs)
 		return
@@ -35,7 +35,7 @@ func polyEvalFloat32AVX2Guarded(dst []float32, x []float32, coeffs []float32) {
 	polyEvalFloat32AVX2(dst, x, coeffs)
 }
 
-func convolveFloat32AVX2Guarded(dst []float32, sig []float32, ker []float32) {
+func ConvolveFloat32AVX2(dst []float32, sig []float32, ker []float32) {
 	if len(dst) < 16 {
 		ref.Convolve(dst, sig, ker)
 		return
@@ -43,7 +43,7 @@ func convolveFloat32AVX2Guarded(dst []float32, sig []float32, ker []float32) {
 	convolveFloat32AVX2(dst, sig, ker)
 }
 
-func correlateFloat32AVX2Guarded(dst []float32, sig []float32, ker []float32) {
+func CorrelateFloat32AVX2(dst []float32, sig []float32, ker []float32) {
 	if len(dst) < 16 {
 		ref.Correlate(dst, sig, ker)
 		return
@@ -51,14 +51,14 @@ func correlateFloat32AVX2Guarded(dst []float32, sig []float32, ker []float32) {
 	correlateFloat32AVX2(dst, sig, ker)
 }
 
-func normFloat64AVX2Guarded(a []float64) float64 {
+func NormFloat64AVX2(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
 	}
 	return normFloat64AVX2(a)
 }
 
-func polyEvalFloat64AVX2Guarded(dst []float64, x []float64, coeffs []float64) {
+func PolyEvalFloat64AVX2(dst []float64, x []float64, coeffs []float64) {
 	if len(dst) < 16 {
 		ref.PolyEval(dst, x, coeffs)
 		return
@@ -66,7 +66,7 @@ func polyEvalFloat64AVX2Guarded(dst []float64, x []float64, coeffs []float64) {
 	polyEvalFloat64AVX2(dst, x, coeffs)
 }
 
-func convolveFloat64AVX2Guarded(dst []float64, sig []float64, ker []float64) {
+func ConvolveFloat64AVX2(dst []float64, sig []float64, ker []float64) {
 	if len(dst) < 16 {
 		ref.Convolve(dst, sig, ker)
 		return
@@ -74,7 +74,7 @@ func convolveFloat64AVX2Guarded(dst []float64, sig []float64, ker []float64) {
 	convolveFloat64AVX2(dst, sig, ker)
 }
 
-func correlateFloat64AVX2Guarded(dst []float64, sig []float64, ker []float64) {
+func CorrelateFloat64AVX2(dst []float64, sig []float64, ker []float64) {
 	if len(dst) < 16 {
 		ref.Correlate(dst, sig, ker)
 		return
@@ -82,7 +82,7 @@ func correlateFloat64AVX2Guarded(dst []float64, sig []float64, ker []float64) {
 	correlateFloat64AVX2(dst, sig, ker)
 }
 
-func tileFloat32AVX2Guarded(dst []float32, pattern []float32) {
+func TileFloat32AVX2(dst []float32, pattern []float32) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -90,7 +90,7 @@ func tileFloat32AVX2Guarded(dst []float32, pattern []float32) {
 	tileFloat32AVX2(dst, pattern)
 }
 
-func gatherFloat32AVX2Guarded(dst []float32, src []float32, idx []int32) {
+func GatherFloat32AVX2(dst []float32, src []float32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -98,7 +98,7 @@ func gatherFloat32AVX2Guarded(dst []float32, src []float32, idx []int32) {
 	gatherFloat32AVX2(dst, src, idx)
 }
 
-func scatterFloat32AVX2Guarded(dst []float32, idx []int32, src []float32) {
+func ScatterFloat32AVX2(dst []float32, idx []int32, src []float32) {
 	if len(dst) < 16 {
 		ref.Scatter(dst, idx, src)
 		return
@@ -106,7 +106,7 @@ func scatterFloat32AVX2Guarded(dst []float32, idx []int32, src []float32) {
 	scatterFloat32AVX2(dst, idx, src)
 }
 
-func tileFloat64AVX2Guarded(dst []float64, pattern []float64) {
+func TileFloat64AVX2(dst []float64, pattern []float64) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -114,7 +114,7 @@ func tileFloat64AVX2Guarded(dst []float64, pattern []float64) {
 	tileFloat64AVX2(dst, pattern)
 }
 
-func gatherFloat64AVX2Guarded(dst []float64, src []float64, idx []int32) {
+func GatherFloat64AVX2(dst []float64, src []float64, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -122,7 +122,7 @@ func gatherFloat64AVX2Guarded(dst []float64, src []float64, idx []int32) {
 	gatherFloat64AVX2(dst, src, idx)
 }
 
-func scatterFloat64AVX2Guarded(dst []float64, idx []int32, src []float64) {
+func ScatterFloat64AVX2(dst []float64, idx []int32, src []float64) {
 	if len(dst) < 16 {
 		ref.Scatter(dst, idx, src)
 		return
@@ -130,7 +130,7 @@ func scatterFloat64AVX2Guarded(dst []float64, idx []int32, src []float64) {
 	scatterFloat64AVX2(dst, idx, src)
 }
 
-func tileInt32AVX2Guarded(dst []int32, pattern []int32) {
+func TileInt32AVX2(dst []int32, pattern []int32) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -138,7 +138,7 @@ func tileInt32AVX2Guarded(dst []int32, pattern []int32) {
 	tileInt32AVX2(dst, pattern)
 }
 
-func gatherInt32AVX2Guarded(dst []int32, src []int32, idx []int32) {
+func GatherInt32AVX2(dst []int32, src []int32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -146,7 +146,7 @@ func gatherInt32AVX2Guarded(dst []int32, src []int32, idx []int32) {
 	gatherInt32AVX2(dst, src, idx)
 }
 
-func scatterInt32AVX2Guarded(dst []int32, idx []int32, src []int32) {
+func ScatterInt32AVX2(dst []int32, idx []int32, src []int32) {
 	if len(dst) < 16 {
 		ref.Scatter(dst, idx, src)
 		return
@@ -154,7 +154,7 @@ func scatterInt32AVX2Guarded(dst []int32, idx []int32, src []int32) {
 	scatterInt32AVX2(dst, idx, src)
 }
 
-func tileInt64AVX2Guarded(dst []int64, pattern []int64) {
+func TileInt64AVX2(dst []int64, pattern []int64) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -162,7 +162,7 @@ func tileInt64AVX2Guarded(dst []int64, pattern []int64) {
 	tileInt64AVX2(dst, pattern)
 }
 
-func gatherInt64AVX2Guarded(dst []int64, src []int64, idx []int32) {
+func GatherInt64AVX2(dst []int64, src []int64, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -170,7 +170,7 @@ func gatherInt64AVX2Guarded(dst []int64, src []int64, idx []int32) {
 	gatherInt64AVX2(dst, src, idx)
 }
 
-func scatterInt64AVX2Guarded(dst []int64, idx []int32, src []int64) {
+func ScatterInt64AVX2(dst []int64, idx []int32, src []int64) {
 	if len(dst) < 16 {
 		ref.Scatter(dst, idx, src)
 		return
@@ -178,7 +178,7 @@ func scatterInt64AVX2Guarded(dst []int64, idx []int32, src []int64) {
 	scatterInt64AVX2(dst, idx, src)
 }
 
-func tileInt8AVX2Guarded(dst []int8, pattern []int8) {
+func TileInt8AVX2(dst []int8, pattern []int8) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -186,7 +186,7 @@ func tileInt8AVX2Guarded(dst []int8, pattern []int8) {
 	tileInt8AVX2(dst, pattern)
 }
 
-func gatherInt8AVX2Guarded(dst []int8, src []int8, idx []int32) {
+func GatherInt8AVX2(dst []int8, src []int8, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -194,7 +194,7 @@ func gatherInt8AVX2Guarded(dst []int8, src []int8, idx []int32) {
 	gatherInt8AVX2(dst, src, idx)
 }
 
-func tileInt16AVX2Guarded(dst []int16, pattern []int16) {
+func TileInt16AVX2(dst []int16, pattern []int16) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -202,7 +202,7 @@ func tileInt16AVX2Guarded(dst []int16, pattern []int16) {
 	tileInt16AVX2(dst, pattern)
 }
 
-func gatherInt16AVX2Guarded(dst []int16, src []int16, idx []int32) {
+func GatherInt16AVX2(dst []int16, src []int16, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -210,7 +210,7 @@ func gatherInt16AVX2Guarded(dst []int16, src []int16, idx []int32) {
 	gatherInt16AVX2(dst, src, idx)
 }
 
-func tileUint8AVX2Guarded(dst []byte, pattern []byte) {
+func TileUint8AVX2(dst []byte, pattern []byte) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -218,7 +218,7 @@ func tileUint8AVX2Guarded(dst []byte, pattern []byte) {
 	tileUint8AVX2(dst, pattern)
 }
 
-func gatherUint8AVX2Guarded(dst []byte, src []byte, idx []int32) {
+func GatherUint8AVX2(dst []byte, src []byte, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -226,7 +226,7 @@ func gatherUint8AVX2Guarded(dst []byte, src []byte, idx []int32) {
 	gatherUint8AVX2(dst, src, idx)
 }
 
-func tileUint16AVX2Guarded(dst []uint16, pattern []uint16) {
+func TileUint16AVX2(dst []uint16, pattern []uint16) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -234,7 +234,7 @@ func tileUint16AVX2Guarded(dst []uint16, pattern []uint16) {
 	tileUint16AVX2(dst, pattern)
 }
 
-func gatherUint16AVX2Guarded(dst []uint16, src []uint16, idx []int32) {
+func GatherUint16AVX2(dst []uint16, src []uint16, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -242,7 +242,7 @@ func gatherUint16AVX2Guarded(dst []uint16, src []uint16, idx []int32) {
 	gatherUint16AVX2(dst, src, idx)
 }
 
-func tileUint32AVX2Guarded(dst []uint32, pattern []uint32) {
+func TileUint32AVX2(dst []uint32, pattern []uint32) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -250,7 +250,7 @@ func tileUint32AVX2Guarded(dst []uint32, pattern []uint32) {
 	tileUint32AVX2(dst, pattern)
 }
 
-func gatherUint32AVX2Guarded(dst []uint32, src []uint32, idx []int32) {
+func GatherUint32AVX2(dst []uint32, src []uint32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -258,7 +258,7 @@ func gatherUint32AVX2Guarded(dst []uint32, src []uint32, idx []int32) {
 	gatherUint32AVX2(dst, src, idx)
 }
 
-func scatterUint32AVX2Guarded(dst []uint32, idx []int32, src []uint32) {
+func ScatterUint32AVX2(dst []uint32, idx []int32, src []uint32) {
 	if len(dst) < 16 {
 		ref.Scatter(dst, idx, src)
 		return
@@ -266,7 +266,7 @@ func scatterUint32AVX2Guarded(dst []uint32, idx []int32, src []uint32) {
 	scatterUint32AVX2(dst, idx, src)
 }
 
-func tileUint64AVX2Guarded(dst []uint64, pattern []uint64) {
+func TileUint64AVX2(dst []uint64, pattern []uint64) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -274,7 +274,7 @@ func tileUint64AVX2Guarded(dst []uint64, pattern []uint64) {
 	tileUint64AVX2(dst, pattern)
 }
 
-func gatherUint64AVX2Guarded(dst []uint64, src []uint64, idx []int32) {
+func GatherUint64AVX2(dst []uint64, src []uint64, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -282,7 +282,7 @@ func gatherUint64AVX2Guarded(dst []uint64, src []uint64, idx []int32) {
 	gatherUint64AVX2(dst, src, idx)
 }
 
-func scatterUint64AVX2Guarded(dst []uint64, idx []int32, src []uint64) {
+func ScatterUint64AVX2(dst []uint64, idx []int32, src []uint64) {
 	if len(dst) < 16 {
 		ref.Scatter(dst, idx, src)
 		return
@@ -290,7 +290,7 @@ func scatterUint64AVX2Guarded(dst []uint64, idx []int32, src []uint64) {
 	scatterUint64AVX2(dst, idx, src)
 }
 
-func movingAverageFloat32AVX2Guarded(dst []float32, a []float32, width int) {
+func MovingAverageFloat32AVX2(dst []float32, a []float32, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
 		return
@@ -298,7 +298,7 @@ func movingAverageFloat32AVX2Guarded(dst []float32, a []float32, width int) {
 	movingAverageFloat32AVX2(dst, a, width)
 }
 
-func shiftDivFloat32AVX2Guarded(dst []float32, a []float32, shift float32, denom float32) {
+func ShiftDivFloat32AVX2(dst []float32, a []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ShiftDiv(dst, a, shift, denom)
@@ -307,7 +307,7 @@ func shiftDivFloat32AVX2Guarded(dst []float32, a []float32, shift float32, denom
 	shiftDivFloat32AVX2(dst[:n:n], a, shift, denom)
 }
 
-func layerNormFloat32AVX2Guarded(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
+func LayerNormFloat32AVX2(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a), len(gamma), len(beta))
 	if n < 16 {
 		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
@@ -316,7 +316,7 @@ func layerNormFloat32AVX2Guarded(dst []float32, a []float32, gamma []float32, be
 	layerNormFloat32AVX2(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
-func movingAverageFloat64AVX2Guarded(dst []float64, a []float64, width int) {
+func MovingAverageFloat64AVX2(dst []float64, a []float64, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
 		return
@@ -324,7 +324,7 @@ func movingAverageFloat64AVX2Guarded(dst []float64, a []float64, width int) {
 	movingAverageFloat64AVX2(dst, a, width)
 }
 
-func shiftDivFloat64AVX2Guarded(dst []float64, a []float64, shift float64, denom float64) {
+func ShiftDivFloat64AVX2(dst []float64, a []float64, shift float64, denom float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ShiftDiv(dst, a, shift, denom)
@@ -333,7 +333,7 @@ func shiftDivFloat64AVX2Guarded(dst []float64, a []float64, shift float64, denom
 	shiftDivFloat64AVX2(dst[:n:n], a, shift, denom)
 }
 
-func layerNormFloat64AVX2Guarded(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
+func LayerNormFloat64AVX2(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
 	n := min(len(dst), len(a), len(gamma), len(beta))
 	if n < 16 {
 		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
@@ -342,7 +342,7 @@ func layerNormFloat64AVX2Guarded(dst []float64, a []float64, gamma []float64, be
 	layerNormFloat64AVX2(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
-func randomU64AVX2Guarded(dst []uint64, seed uint64) {
+func RandomU64AVX2(dst []uint64, seed uint64) {
 	if len(dst) < 16 {
 		ref.RandomU64(dst, seed)
 		return
@@ -350,7 +350,7 @@ func randomU64AVX2Guarded(dst []uint64, seed uint64) {
 	randomU64AVX2(dst, seed)
 }
 
-func randomF64AVX2Guarded(dst []float64, seed uint64) {
+func RandomF64AVX2(dst []float64, seed uint64) {
 	if len(dst) < 16 {
 		ref.RandomF64(dst, seed)
 		return
@@ -358,7 +358,7 @@ func randomF64AVX2Guarded(dst []float64, seed uint64) {
 	randomF64AVX2(dst, seed)
 }
 
-func randomF32AVX2Guarded(dst []float32, seed uint64) {
+func RandomF32AVX2(dst []float32, seed uint64) {
 	if len(dst) < 16 {
 		ref.RandomF32(dst, seed)
 		return
@@ -366,51 +366,48 @@ func randomF32AVX2Guarded(dst []float32, seed uint64) {
 	randomF32AVX2(dst, seed)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx2")
-	s.F32.Norm = normFloat32AVX2Guarded
-	s.F32.PolyEval = polyEvalFloat32AVX2Guarded
-	s.F32.Convolve = convolveFloat32AVX2Guarded
-	s.F32.Correlate = correlateFloat32AVX2Guarded
-	s.F64.Norm = normFloat64AVX2Guarded
-	s.F64.PolyEval = polyEvalFloat64AVX2Guarded
-	s.F64.Convolve = convolveFloat64AVX2Guarded
-	s.F64.Correlate = correlateFloat64AVX2Guarded
-	s.F32.Tile = tileFloat32AVX2Guarded
-	s.F32.Gather = gatherFloat32AVX2Guarded
-	s.F32.Scatter = scatterFloat32AVX2Guarded
-	s.F64.Tile = tileFloat64AVX2Guarded
-	s.F64.Gather = gatherFloat64AVX2Guarded
-	s.F64.Scatter = scatterFloat64AVX2Guarded
-	s.I32.Tile = tileInt32AVX2Guarded
-	s.I32.Gather = gatherInt32AVX2Guarded
-	s.I32.Scatter = scatterInt32AVX2Guarded
-	s.I64.Tile = tileInt64AVX2Guarded
-	s.I64.Gather = gatherInt64AVX2Guarded
-	s.I64.Scatter = scatterInt64AVX2Guarded
-	s.I8.Tile = tileInt8AVX2Guarded
-	s.I8.Gather = gatherInt8AVX2Guarded
-	s.I16.Tile = tileInt16AVX2Guarded
-	s.I16.Gather = gatherInt16AVX2Guarded
-	s.U8.Tile = tileUint8AVX2Guarded
-	s.U8.Gather = gatherUint8AVX2Guarded
-	s.U16.Tile = tileUint16AVX2Guarded
-	s.U16.Gather = gatherUint16AVX2Guarded
-	s.U32.Tile = tileUint32AVX2Guarded
-	s.U32.Gather = gatherUint32AVX2Guarded
-	s.U32.Scatter = scatterUint32AVX2Guarded
-	s.U64.Tile = tileUint64AVX2Guarded
-	s.U64.Gather = gatherUint64AVX2Guarded
-	s.U64.Scatter = scatterUint64AVX2Guarded
-	s.F32.MovingAverage = movingAverageFloat32AVX2Guarded
-	s.F32.ShiftDiv = shiftDivFloat32AVX2Guarded
-	s.F32.LayerNorm = layerNormFloat32AVX2Guarded
-	s.F64.MovingAverage = movingAverageFloat64AVX2Guarded
-	s.F64.ShiftDiv = shiftDivFloat64AVX2Guarded
-	s.F64.LayerNorm = layerNormFloat64AVX2Guarded
-	s.U64.Random = randomU64AVX2Guarded
-	s.F64.Random = randomF64AVX2Guarded
-	s.F32.Random = randomF32AVX2Guarded
+func registerNumericAVX2(s *kernel.Set) {
+	s.F32.Norm = NormFloat32AVX2
+	s.F32.PolyEval = PolyEvalFloat32AVX2
+	s.F32.Convolve = ConvolveFloat32AVX2
+	s.F32.Correlate = CorrelateFloat32AVX2
+	s.F64.Norm = NormFloat64AVX2
+	s.F64.PolyEval = PolyEvalFloat64AVX2
+	s.F64.Convolve = ConvolveFloat64AVX2
+	s.F64.Correlate = CorrelateFloat64AVX2
+	s.F32.Tile = TileFloat32AVX2
+	s.F32.Gather = GatherFloat32AVX2
+	s.F32.Scatter = ScatterFloat32AVX2
+	s.F64.Tile = TileFloat64AVX2
+	s.F64.Gather = GatherFloat64AVX2
+	s.F64.Scatter = ScatterFloat64AVX2
+	s.I32.Tile = TileInt32AVX2
+	s.I32.Gather = GatherInt32AVX2
+	s.I32.Scatter = ScatterInt32AVX2
+	s.I64.Tile = TileInt64AVX2
+	s.I64.Gather = GatherInt64AVX2
+	s.I64.Scatter = ScatterInt64AVX2
+	s.I8.Tile = TileInt8AVX2
+	s.I8.Gather = GatherInt8AVX2
+	s.I16.Tile = TileInt16AVX2
+	s.I16.Gather = GatherInt16AVX2
+	s.U8.Tile = TileUint8AVX2
+	s.U8.Gather = GatherUint8AVX2
+	s.U16.Tile = TileUint16AVX2
+	s.U16.Gather = GatherUint16AVX2
+	s.U32.Tile = TileUint32AVX2
+	s.U32.Gather = GatherUint32AVX2
+	s.U32.Scatter = ScatterUint32AVX2
+	s.U64.Tile = TileUint64AVX2
+	s.U64.Gather = GatherUint64AVX2
+	s.U64.Scatter = ScatterUint64AVX2
+	s.F32.MovingAverage = MovingAverageFloat32AVX2
+	s.F32.ShiftDiv = ShiftDivFloat32AVX2
+	s.F32.LayerNorm = LayerNormFloat32AVX2
+	s.F64.MovingAverage = MovingAverageFloat64AVX2
+	s.F64.ShiftDiv = ShiftDivFloat64AVX2
+	s.F64.LayerNorm = LayerNormFloat64AVX2
+	s.U64.Random = RandomU64AVX2
+	s.F64.Random = RandomF64AVX2
+	s.F32.Random = RandomF32AVX2
 }

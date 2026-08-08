@@ -21,24 +21,24 @@ func IndexByte[S Text](s S, c byte) int {
 	if len(b) < shortText {
 		return bytes.IndexByte(b, c)
 	}
-	return active.Bytes.IndexByte(b, c)
+	return tblBytesIndexByte[tierIdx](b, c)
 }
 
 // LastIndexByte returns the index of the last occurrence of c in s, or -1.
 func LastIndexByte[S Text](s S, c byte) int {
-	return active.Bytes.LastIndexByte(textBytes(s), c)
+	return tblBytesLastIndexByte[tierIdx](textBytes(s), c)
 }
 
 // Equal reports whether a and b are the same length and hold the same bytes.
 //
 // It matches bytes.Equal. A nil argument is equivalent to an empty slice.
-func Equal[S, T Text](a S, b T) bool { return active.Bytes.Equal(textBytes(a), textBytes(b)) }
+func Equal[S, T Text](a S, b T) bool { return tblBytesEqual[tierIdx](textBytes(a), textBytes(b)) }
 
 // Compare returns -1, 0 or +1 ordering a before, equal to, or after b,
 // lexicographically by content and then by length.
 //
 // It matches bytes.Compare.
-func Compare[S, T Text](a S, b T) int { return active.Bytes.Compare(textBytes(a), textBytes(b)) }
+func Compare[S, T Text](a S, b T) int { return tblBytesCompare[tierIdx](textBytes(a), textBytes(b)) }
 
 // CommonPrefixLen returns how many leading bytes a and b share, at most the
 // length of the shorter.
@@ -54,11 +54,11 @@ func Compare[S, T Text](a S, b T) int { return active.Bytes.Compare(textBytes(a)
 // caller that needs a rune boundary should back up to one, which is a
 // constant-time step from any byte index.
 func CommonPrefixLen[S, T Text](a S, b T) int {
-	return active.Bytes.CommonPrefix(textBytes(a), textBytes(b))
+	return tblBytesCommonPrefix[tierIdx](textBytes(a), textBytes(b))
 }
 
 // PopCount returns the total number of set bits across every byte of b.
-func PopCount[S Text](s S) int { return active.Bytes.PopCount(textBytes(s)) }
+func PopCount[S Text](s S) int { return tblBytesPopCount[tierIdx](textBytes(s)) }
 
 // HammingDistance returns the number of bit positions at which a and b
 // differ, over the shorter of the two.
@@ -77,14 +77,14 @@ func PopCount[S Text](s S) int { return active.Bytes.PopCount(textBytes(s)) }
 // The result is exact and identical on every instruction set. It allocates
 // nothing.
 func HammingDistance[S, T Text](a S, b T) int {
-	return active.Bytes.Hamming(textBytes(a), textBytes(b))
+	return tblBytesHamming[tierIdx](textBytes(a), textBytes(b))
 }
 
 // HammingDistanceWords is [HammingDistance] for a bit vector already stored
 // as []uint64, which is the layout most binary-embedding indexes use. It
 // gives the same answer as [HammingDistance] over the same bytes and saves
 // the caller an allocating conversion.
-func HammingDistanceWords(a, b []uint64) int { return active.Bytes.HammingWords(a, b) }
+func HammingDistanceWords(a, b []uint64) int { return tblBytesHammingWords[tierIdx](a, b) }
 
 // ---------- in place ----------
 
@@ -117,22 +117,22 @@ func AndNot(a, b []byte) { AndNotInto(a, a, b) }
 // AndInto sets dst[i] = a[i] & b[i].
 //
 // It processes min(len(dst), len(a), len(b)) bytes. dst may alias a or b.
-func AndInto(dst, a, b []byte) { active.Bytes.And(dst, a, b) }
+func AndInto(dst, a, b []byte) { tblBytesAnd[tierIdx](dst, a, b) }
 
 // OrInto sets dst[i] = a[i] | b[i].
 //
 // It processes min(len(dst), len(a), len(b)) bytes. dst may alias a or b.
-func OrInto(dst, a, b []byte) { active.Bytes.Or(dst, a, b) }
+func OrInto(dst, a, b []byte) { tblBytesOr[tierIdx](dst, a, b) }
 
 // XorInto sets dst[i] = a[i] ^ b[i].
 //
 // It processes min(len(dst), len(a), len(b)) bytes. dst may alias a or b.
-func XorInto(dst, a, b []byte) { active.Bytes.Xor(dst, a, b) }
+func XorInto(dst, a, b []byte) { tblBytesXor[tierIdx](dst, a, b) }
 
 // AndNotInto sets dst[i] = a[i] &^ b[i], clearing in a every bit set in b.
 //
 // It processes min(len(dst), len(a), len(b)) bytes. dst may alias a or b.
-func AndNotInto(dst, a, b []byte) { active.Bytes.AndNot(dst, a, b) }
+func AndNotInto(dst, a, b []byte) { tblBytesAndNot[tierIdx](dst, a, b) }
 
 // ---------- colour ----------
 
@@ -149,7 +149,7 @@ func AndNotInto(dst, a, b []byte) { active.Bytes.AndNot(dst, a, b) }
 // rounds to nearest; truncating would bias an image dark by half a level.
 //
 // It writes min of every argument's length and allocates nothing.
-func GrayscaleInto(dst, r, g, b []byte) { active.Bytes.Grayscale(dst, r, g, b) }
+func GrayscaleInto(dst, r, g, b []byte) { tblBytesGrayscale[tierIdx](dst, r, g, b) }
 
 // RGBToUVInto writes the two full-range (JFIF) chroma planes of three planar
 // colour channels. The luma plane is [GrayscaleInto], which computes the same
@@ -166,4 +166,4 @@ func GrayscaleInto(dst, r, g, b []byte) { active.Bytes.Grayscale(dst, r, g, b) }
 // not tint a greyscale image.
 //
 // Like [GrayscaleInto] it is Q8 fixed point, exact, and allocation-free.
-func RGBToUVInto(u, v, r, g, b []byte) { active.Bytes.RGBToUV(u, v, r, g, b) }
+func RGBToUVInto(u, v, r, g, b []byte) { tblBytesRGBToUV[tierIdx](u, v, r, g, b) }

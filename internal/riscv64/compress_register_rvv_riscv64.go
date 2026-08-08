@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,21 +20,21 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func indexAllRVVGuarded(dst []int32, b []byte, c byte) int {
+func IndexAllRVV(dst []int32, b []byte, c byte) int {
 	if len(dst) < 64 {
 		return ref.IndexAll(dst, b, c)
 	}
 	return indexAllRVV(dst, b, c)
 }
 
-func indexAllAnyRVVGuarded(dst []int32, b []byte, chars uint64) int {
+func IndexAllAnyRVV(dst []int32, b []byte, chars uint64) int {
 	if len(dst) < 64 {
 		return ref.IndexAllAny(dst, b, chars)
 	}
 	return indexAllAnyRVV(dst, b, chars)
 }
 
-func runStartsI32RVVGuarded(dst []bool, a []int32) {
+func RunStartsI32RVV(dst []bool, a []int32) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI32(dst, a)
@@ -43,7 +43,7 @@ func runStartsI32RVVGuarded(dst []bool, a []int32) {
 	runStartsI32RVV(dst, a[:n:n])
 }
 
-func runStartsI64RVVGuarded(dst []bool, a []int64) {
+func RunStartsI64RVV(dst []bool, a []int64) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI64(dst, a)
@@ -52,7 +52,7 @@ func runStartsI64RVVGuarded(dst []bool, a []int64) {
 	runStartsI64RVV(dst, a[:n:n])
 }
 
-func runStartsU8RVVGuarded(dst []bool, a []byte) {
+func RunStartsU8RVV(dst []bool, a []byte) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsU8(dst, a)
@@ -61,7 +61,7 @@ func runStartsU8RVVGuarded(dst []bool, a []byte) {
 	runStartsU8RVV(dst, a[:n:n])
 }
 
-func compressFloat32RVVGuarded(dst []float32, src []float32, keep []bool) int {
+func CompressFloat32RVV(dst []float32, src []float32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressFloat32(dst, src, keep)
@@ -69,7 +69,7 @@ func compressFloat32RVVGuarded(dst []float32, src []float32, keep []bool) int {
 	return compressFloat32RVV(dst, src[:n:n], keep)
 }
 
-func compressFloat64RVVGuarded(dst []float64, src []float64, keep []bool) int {
+func CompressFloat64RVV(dst []float64, src []float64, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressFloat64(dst, src, keep)
@@ -77,7 +77,7 @@ func compressFloat64RVVGuarded(dst []float64, src []float64, keep []bool) int {
 	return compressFloat64RVV(dst, src[:n:n], keep)
 }
 
-func compressInt32RVVGuarded(dst []int32, src []int32, keep []bool) int {
+func CompressInt32RVV(dst []int32, src []int32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressInt32(dst, src, keep)
@@ -85,7 +85,7 @@ func compressInt32RVVGuarded(dst []int32, src []int32, keep []bool) int {
 	return compressInt32RVV(dst, src[:n:n], keep)
 }
 
-func compressInt64RVVGuarded(dst []int64, src []int64, keep []bool) int {
+func CompressInt64RVV(dst []int64, src []int64, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressInt64(dst, src, keep)
@@ -93,17 +93,14 @@ func compressInt64RVVGuarded(dst []int64, src []int64, keep []bool) int {
 	return compressInt64RVV(dst, src[:n:n], keep)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.Bytes.IndexAll = indexAllRVVGuarded
-	s.Bytes.IndexAllAny = indexAllAnyRVVGuarded
-	s.Bytes.RunStartsI32 = runStartsI32RVVGuarded
-	s.Bytes.RunStartsI64 = runStartsI64RVVGuarded
-	s.Bytes.RunStartsU8 = runStartsU8RVVGuarded
-	s.F32.Compress = compressFloat32RVVGuarded
-	s.F64.Compress = compressFloat64RVVGuarded
-	s.I32.Compress = compressInt32RVVGuarded
-	s.I64.Compress = compressInt64RVVGuarded
+func registerCompressRVV(s *kernel.Set) {
+	s.Bytes.IndexAll = IndexAllRVV
+	s.Bytes.IndexAllAny = IndexAllAnyRVV
+	s.Bytes.RunStartsI32 = RunStartsI32RVV
+	s.Bytes.RunStartsI64 = RunStartsI64RVV
+	s.Bytes.RunStartsU8 = RunStartsU8RVV
+	s.F32.Compress = CompressFloat32RVV
+	s.F64.Compress = CompressFloat64RVV
+	s.I32.Compress = CompressInt32RVV
+	s.I64.Compress = CompressInt64RVV
 }

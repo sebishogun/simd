@@ -19,7 +19,9 @@ go get github.com/sebishogun/simd
 Go 1.25 or later. No cgo, no C toolchain, no build tags, no `GOEXPERIMENT`. The
 kernels are compiled ahead of time and committed as assembly, so this is an
 ordinary Go dependency with one transitive import (`golang.org/x/sys`, for CPU
-feature detection).
+feature detection). Dispatch is one static table per operation, so the linker
+keeps only the operations a program actually calls: a binary using three
+functions carries three functions' kernels, not the library.
 
 ## Quick start
 
@@ -552,7 +554,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.13.0.** The API is stable: every exported function keeps its name,
+**v1.14.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.

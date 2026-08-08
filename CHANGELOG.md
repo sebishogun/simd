@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.14.0
+
+**Per-operation dispatch, and binaries a quarter the size.** The registry --
+one `Set` of function values per tier, assembled from init -- made every
+kernel reachable in every binary that imported the package: a program
+calling one function carried all 2,553 amd64 kernels, 6.35 MB of assembly
+plus the runtime tables to describe it. Dispatch is now one static table
+per operation, a composite literal of exported guards indexed by the tier
+selected at startup, and the linker drops every operation a program never
+calls -- assembly included. A JSON-validation binary drops from 15.9 MB to
+4.4 MB (13.4 to 2.9 stripped) and links exactly the nine operations it
+uses. The numeric groups arrive the same way via per-tier partial `Ops`
+structs overlaid lazily per element type, so their granularity is the
+element type the caller instantiates.
+
+Nothing else moves: the API is unchanged, every one of the 6,807 committed
+kernels is byte-identical, thresholds and `GOSIMD` and `Tier()` behave as
+before, and the whole-set machinery survives for the conformance suite
+behind test-only constructors. Measured neutral end to end: the 15-row
+downstream gate held, a 33-row interleaved sweep read inside the noise
+floor on 32 rows, and the flagged wall-clock readings all showed equal or
+fewer instructions retired at fixed iteration counts.
+
 ## v1.13.0
 
 **`JSONValid`** -- the whole of a JSON `Valid` in one pass, no mask buffers:

@@ -58,7 +58,7 @@ func AppendUTF16[S Text](dst []uint16, s S) []uint16 {
 			at := len(dst)
 			dst = slices.Grow(dst, n)[:at+n]
 			if n >= asciiRunFloor {
-				active.Bytes.WidenU8U16(dst[at:at+n], b[:n])
+				tblBytesWidenU8U16[tierIdx](dst[at:at+n], b[:n])
 			} else {
 				for i, c := range b[:n] {
 					dst[at+i] = uint16(c)
@@ -90,7 +90,7 @@ func AppendUTF8(dst []byte, s []uint16) []byte {
 			at := len(dst)
 			dst = slices.Grow(dst, n)[:at+n]
 			if n >= asciiRunFloor {
-				active.Bytes.NarrowU16U8(dst[at:at+n], s[:n])
+				tblBytesNarrowU16U8[tierIdx](dst[at:at+n], s[:n])
 			} else {
 				for i, c := range s[:n] {
 					dst[at+i] = byte(c)
@@ -201,7 +201,7 @@ func asciiRun(b []byte) int {
 		}
 		return len(b)
 	}
-	n := active.Bytes.IndexNonASCII(b)
+	n := tblBytesIndexNonASCII[tierIdx](b)
 	if n <= 0 && b[0] < utf8.RuneSelf {
 		return 1 // guaranteed progress; correctness is unaffected
 	}
@@ -217,7 +217,7 @@ func asciiRun16(s []uint16) int {
 		}
 		return len(s)
 	}
-	n := active.Bytes.IndexNonASCII16(s)
+	n := tblBytesIndexNonASCII16[tierIdx](s)
 	if n <= 0 && s[0] < utf8.RuneSelf {
 		return 1
 	}
@@ -252,7 +252,7 @@ func AppendRunes[S Text](dst []rune, s S) []rune {
 				// A rune is an int32 and the kernel writes uint32; the two
 				// have the same layout, and the values are all below 0x80 so
 				// the reinterpretation cannot change one.
-				active.Bytes.WidenU8U32(runesAsUint32(dst[at:at+n]), b[:n])
+				tblBytesWidenU8U32[tierIdx](runesAsUint32(dst[at:at+n]), b[:n])
 			} else {
 				for i, c := range b[:n] {
 					dst[at+i] = rune(c)
@@ -298,7 +298,7 @@ func AppendUTF8FromRunes(dst []byte, s []rune) []byte {
 				// Same reinterpretation as AppendRunes, in the other
 				// direction: a rune is an int32 with a uint32's layout, and
 				// every value here is below 0x80 so the sign cannot matter.
-				active.Bytes.NarrowU32U8(dst[at:at+n], runesAsUint32(s[:n]))
+				tblBytesNarrowU32U8[tierIdx](dst[at:at+n], runesAsUint32(s[:n]))
 			} else {
 				for i, r := range s[:n] {
 					dst[at+i] = byte(r)

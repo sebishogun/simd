@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,35 +20,35 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func countByteSVE2Guarded(b []byte, c byte) int {
+func CountByteSVE2(b []byte, c byte) int {
 	if len(b) < 1073741824 {
 		return ref.CountByte(b, c)
 	}
 	return countByteSVE2(b, c)
 }
 
-func indexByteSVE2Guarded(b []byte, c byte) int {
+func IndexByteSVE2(b []byte, c byte) int {
 	if len(b) < 1024 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteSVE2(b, c)
 }
 
-func lastIndexByteSVE2Guarded(b []byte, c byte) int {
+func LastIndexByteSVE2(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexByte(b, c)
 	}
 	return lastIndexByteSVE2(b, c)
 }
 
-func popCountSVE2Guarded(b []byte) int {
+func PopCountSVE2(b []byte) int {
 	if len(b) < 64 {
 		return ref.PopCount(b)
 	}
 	return popCountSVE2(b)
 }
 
-func maskBitsSVE2Guarded(dst []byte, b []byte, c byte) {
+func MaskBitsSVE2(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBits(dst, b, c)
 		return
@@ -56,7 +56,7 @@ func maskBitsSVE2Guarded(dst []byte, b []byte, c byte) {
 	maskBitsSVE2(dst, b, c)
 }
 
-func maskBitsLessSVE2Guarded(dst []byte, b []byte, c byte) {
+func MaskBitsLessSVE2(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBitsLess(dst, b, c)
 		return
@@ -64,7 +64,7 @@ func maskBitsLessSVE2Guarded(dst []byte, b []byte, c byte) {
 	maskBitsLessSVE2(dst, b, c)
 }
 
-func maskBitsAny4SVE2Guarded(dst []byte, b []byte, chars uint32) {
+func MaskBitsAny4SVE2(dst []byte, b []byte, chars uint32) {
 	if len(b) < 64 {
 		ref.MaskBitsAny4(dst, b, chars)
 		return
@@ -72,7 +72,7 @@ func maskBitsAny4SVE2Guarded(dst []byte, b []byte, chars uint32) {
 	maskBitsAny4SVE2(dst, b, chars)
 }
 
-func maskBitsAnySVE2Guarded(dst []byte, b []byte, chars uint64) {
+func MaskBitsAnySVE2(dst []byte, b []byte, chars uint64) {
 	if len(b) < 64 {
 		ref.MaskBitsAny(dst, b, chars)
 		return
@@ -80,7 +80,7 @@ func maskBitsAnySVE2Guarded(dst []byte, b []byte, chars uint64) {
 	maskBitsAnySVE2(dst, b, chars)
 }
 
-func hammingU8SVE2Guarded(a []byte, b []byte) int {
+func HammingU8SVE2(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.Hamming(a, b)
@@ -88,7 +88,7 @@ func hammingU8SVE2Guarded(a []byte, b []byte) int {
 	return hammingU8SVE2(a[:n:n], b)
 }
 
-func hammingU64SVE2Guarded(a []uint64, b []uint64) int {
+func HammingU64SVE2(a []uint64, b []uint64) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.HammingWords(a, b)
@@ -96,7 +96,7 @@ func hammingU64SVE2Guarded(a []uint64, b []uint64) int {
 	return hammingU64SVE2(a[:n:n], b)
 }
 
-func grayscaleU8SVE2Guarded(dst []byte, r []byte, g []byte, b []byte) {
+func GrayscaleU8SVE2(dst []byte, r []byte, g []byte, b []byte) {
 	n := min(len(dst), len(r), len(g), len(b))
 	if n < 32 {
 		ref.Grayscale(dst, r, g, b)
@@ -105,7 +105,7 @@ func grayscaleU8SVE2Guarded(dst []byte, r []byte, g []byte, b []byte) {
 	grayscaleU8SVE2(dst[:n:n], r, g, b)
 }
 
-func rgbToUVU8SVE2Guarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
+func RgbToUVU8SVE2(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	n := min(len(u), len(v), len(r), len(g), len(b))
 	if n < 32 {
 		ref.RGBToUV(u, v, r, g, b)
@@ -114,35 +114,35 @@ func rgbToUVU8SVE2Guarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	rgbToUVU8SVE2(u[:n:n], v, r, g, b)
 }
 
-func isASCIISVE2Guarded(b []byte) bool {
+func IsASCIISVE2(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
 	}
 	return isASCIISVE2(b)
 }
 
-func validUTF8SVE2Guarded(b []byte) bool {
+func ValidUTF8SVE2(b []byte) bool {
 	if len(b) < 64 {
 		return ref.ValidUTF8(b)
 	}
 	return validUTF8SVE2(b)
 }
 
-func indexNonASCIISVE2Guarded(b []byte) int {
+func IndexNonASCIISVE2(b []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII(b)
 	}
 	return indexNonASCIISVE2(b)
 }
 
-func indexNonASCII16SVE2Guarded(b []uint16) int {
+func IndexNonASCII16SVE2(b []uint16) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII16(b)
 	}
 	return indexNonASCII16SVE2(b)
 }
 
-func widenU8U16SVE2Guarded(dst []uint16, s []byte) {
+func WidenU8U16SVE2(dst []uint16, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U16(dst, s)
@@ -151,7 +151,7 @@ func widenU8U16SVE2Guarded(dst []uint16, s []byte) {
 	widenU8U16SVE2(dst[:n:n], s)
 }
 
-func narrowU16U8SVE2Guarded(dst []byte, s []uint16) {
+func NarrowU16U8SVE2(dst []byte, s []uint16) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU16U8(dst, s)
@@ -160,7 +160,7 @@ func narrowU16U8SVE2Guarded(dst []byte, s []uint16) {
 	narrowU16U8SVE2(dst[:n:n], s)
 }
 
-func widenU8U32SVE2Guarded(dst []uint32, s []byte) {
+func WidenU8U32SVE2(dst []uint32, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U32(dst, s)
@@ -169,7 +169,7 @@ func widenU8U32SVE2Guarded(dst []uint32, s []byte) {
 	widenU8U32SVE2(dst[:n:n], s)
 }
 
-func narrowU32U8SVE2Guarded(dst []byte, s []uint32) {
+func NarrowU32U8SVE2(dst []byte, s []uint32) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU32U8(dst, s)
@@ -178,7 +178,7 @@ func narrowU32U8SVE2Guarded(dst []byte, s []uint32) {
 	narrowU32U8SVE2(dst[:n:n], s)
 }
 
-func equalBytesSVE2Guarded(a []byte, b []byte) bool {
+func EqualBytesSVE2(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
@@ -186,7 +186,7 @@ func equalBytesSVE2Guarded(a []byte, b []byte) bool {
 	return equalBytesSVE2(a[:n:n], b)
 }
 
-func bitAndSVE2Guarded(dst []byte, a []byte, b []byte) {
+func BitAndSVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAnd(dst, a, b)
@@ -195,7 +195,7 @@ func bitAndSVE2Guarded(dst []byte, a []byte, b []byte) {
 	bitAndSVE2(dst[:n:n], a, b)
 }
 
-func bitOrSVE2Guarded(dst []byte, a []byte, b []byte) {
+func BitOrSVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitOr(dst, a, b)
@@ -204,7 +204,7 @@ func bitOrSVE2Guarded(dst []byte, a []byte, b []byte) {
 	bitOrSVE2(dst[:n:n], a, b)
 }
 
-func bitXorSVE2Guarded(dst []byte, a []byte, b []byte) {
+func BitXorSVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitXor(dst, a, b)
@@ -213,7 +213,7 @@ func bitXorSVE2Guarded(dst []byte, a []byte, b []byte) {
 	bitXorSVE2(dst[:n:n], a, b)
 }
 
-func bitAndNotSVE2Guarded(dst []byte, a []byte, b []byte) {
+func BitAndNotSVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAndNot(dst, a, b)
@@ -222,7 +222,7 @@ func bitAndNotSVE2Guarded(dst []byte, a []byte, b []byte) {
 	bitAndNotSVE2(dst[:n:n], a, b)
 }
 
-func bitNotSVE2Guarded(dst []byte, b []byte) {
+func BitNotSVE2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.BitNot(dst, b)
@@ -231,7 +231,7 @@ func bitNotSVE2Guarded(dst []byte, b []byte) {
 	bitNotSVE2(dst[:n:n], b)
 }
 
-func fillBytesSVE2Guarded(dst []byte, v byte) {
+func FillBytesSVE2(dst []byte, v byte) {
 	if len(dst) < 32 {
 		ref.FillBytes(dst, v)
 		return
@@ -239,21 +239,21 @@ func fillBytesSVE2Guarded(dst []byte, v byte) {
 	fillBytesSVE2(dst, v)
 }
 
-func compareBytesSVE2Guarded(a []byte, b []byte) int {
+func CompareBytesSVE2(a []byte, b []byte) int {
 	if len(a) < 2048 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesSVE2(a, b)
 }
 
-func commonPrefixSVE2Guarded(a []byte, b []byte) int {
+func CommonPrefixSVE2(a []byte, b []byte) int {
 	if len(a) < 64 {
 		return ref.CommonPrefix(a, b)
 	}
 	return commonPrefixSVE2(a, b)
 }
 
-func equalFoldASCIISVE2Guarded(a []byte, b []byte) bool {
+func EqualFoldASCIISVE2(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
 		return ref.EqualFoldASCII(a, b)
@@ -261,42 +261,42 @@ func equalFoldASCIISVE2Guarded(a []byte, b []byte) bool {
 	return equalFoldASCIISVE2(a[:n:n], b)
 }
 
-func indexAnySVE2Guarded(b []byte, chars []byte) int {
+func IndexAnySVE2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexAny(b, chars)
 	}
 	return indexAnySVE2(b, chars)
 }
 
-func indexAnyOrLessSVE2Guarded(b []byte, chars []byte, lo byte) int {
+func IndexAnyOrLessSVE2(b []byte, chars []byte, lo byte) int {
 	if len(b) < 64 {
 		return ref.IndexAnyOrLess(b, chars, lo)
 	}
 	return indexAnyOrLessSVE2(b, chars, lo)
 }
 
-func indexNotAnySVE2Guarded(b []byte, chars []byte) int {
+func IndexNotAnySVE2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
 	}
 	return indexNotAnySVE2(b, chars)
 }
 
-func lastIndexNotAnySVE2Guarded(b []byte, chars []byte) int {
+func LastIndexNotAnySVE2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexNotAny(b, chars)
 	}
 	return lastIndexNotAnySVE2(b, chars)
 }
 
-func countAnySVE2Guarded(b []byte, chars []byte) int {
+func CountAnySVE2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
 	}
 	return countAnySVE2(b, chars)
 }
 
-func jsonMasksSVE2Guarded(dst []byte, b []byte, want uint32) {
+func JsonMasksSVE2(dst []byte, b []byte, want uint32) {
 	if len(b) < 64 || len(dst) < 5*(((len(b)+63)/64)*8) {
 		ref.JSONMasks(dst, b, want)
 		return
@@ -304,21 +304,21 @@ func jsonMasksSVE2Guarded(dst []byte, b []byte, want uint32) {
 	jsonMasksSVE2(dst, b, want)
 }
 
-func jsonValidTokensSVE2Guarded(b []byte, masks []uint64, stk []uint64) int {
+func JsonValidTokensSVE2(b []byte, masks []uint64, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 || len(masks) < 2*((len(b)+63)/64) {
 		return ref.JSONValidTokens(b, masks, stk)
 	}
 	return jsonValidTokensSVE2(b, masks, stk)
 }
 
-func jsonValidSVE2Guarded(b []byte, stk []uint64) int {
+func JsonValidSVE2(b []byte, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 {
 		return ref.JSONValid(b, stk)
 	}
 	return jsonValidSVE2(b, stk)
 }
 
-func jsonStage1SVE2Guarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+func JsonStage1SVE2(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
 		return
@@ -326,42 +326,42 @@ func jsonStage1SVE2Guarded(out []uint64, masks []byte, nw int, carr []uint64, re
 	jsonStage1SVE2(out, masks, nw, carr, res)
 }
 
-func jsonCopyValidSVE2Guarded(dst []byte, b []byte, html byte) int {
+func JsonCopyValidSVE2(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < len(b) {
 		return ref.JSONCopyValid(dst, b, html)
 	}
 	return jsonCopyValidSVE2(dst, b, html)
 }
 
-func jsonQuoteSVE2Guarded(dst []byte, b []byte, html byte) int {
+func JsonQuoteSVE2(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < 6*len(b) {
 		return ref.JSONQuote(dst, b, html)
 	}
 	return jsonQuoteSVE2(dst, b, html)
 }
 
-func jsonCopyRunSVE2Guarded(dst []byte, b []byte, html byte) int {
+func JsonCopyRunSVE2(dst []byte, b []byte, html byte) int {
 	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunSVE2(dst, b, html)
 }
 
-func b64EncodeSVE2Guarded(dst []byte, b []byte) int {
+func B64EncodeSVE2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Encode(dst, b)
 	}
 	return b64EncodeSVE2(dst, b)
 }
 
-func b64DecodeSVE2Guarded(dst []byte, b []byte) int {
+func B64DecodeSVE2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Decode(dst, b)
 	}
 	return b64DecodeSVE2(dst, b)
 }
 
-func parseIntsSVE2Guarded(dst []int64, src []byte, idx []int32) (count int, ok bool) {
+func ParseIntsSVE2(dst []int64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseInts(dst, src, idx)
@@ -369,7 +369,7 @@ func parseIntsSVE2Guarded(dst []int64, src []byte, idx []int32) (count int, ok b
 	return parseIntsSVE2(dst, src, idx[:n:n])
 }
 
-func parseUintsSVE2Guarded(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
+func ParseUintsSVE2(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseUints(dst, src, idx)
@@ -377,49 +377,49 @@ func parseUintsSVE2Guarded(dst []uint64, src []byte, idx []int32) (count int, ok
 	return parseUintsSVE2(dst, src, idx[:n:n])
 }
 
-func formatIntsSVE2Guarded(dst []byte, vals []int64, sep byte) int {
+func FormatIntsSVE2(dst []byte, vals []int64, sep byte) int {
 	if len(vals) < 0 || len(dst) < 21*len(vals) {
 		return ref.FormatInts(dst, vals, sep)
 	}
 	return formatIntsSVE2(dst, vals, sep)
 }
 
-func hexDecodeSVE2Guarded(dst []byte, src []byte) (n int, ok bool) {
+func HexDecodeSVE2(dst []byte, src []byte) (n int, ok bool) {
 	if len(dst) < 32 {
 		return ref.HexDecode(dst, src)
 	}
 	return hexDecodeSVE2(dst, src)
 }
 
-func hexEncodeSVE2Guarded(dst []byte, b []byte) int {
+func HexEncodeSVE2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
 	}
 	return hexEncodeSVE2(dst, b)
 }
 
-func indexSVE2Guarded(haystack []byte, needle []byte) int {
+func IndexSVE2(haystack []byte, needle []byte) int {
 	if len(haystack) < 256 {
 		return ref.Index(haystack, needle)
 	}
 	return indexSVE2(haystack, needle)
 }
 
-func lastIndexSVE2Guarded(haystack []byte, needle []byte) int {
+func LastIndexSVE2(haystack []byte, needle []byte) int {
 	if len(haystack) < 64 {
 		return ref.LastIndex(haystack, needle)
 	}
 	return lastIndexSVE2(haystack, needle)
 }
 
-func countSeqSVE2Guarded(haystack []byte, needle []byte) int {
+func CountSeqSVE2(haystack []byte, needle []byte) int {
 	if len(haystack) < 256 || len(needle) == 0 {
 		return ref.CountSeq(haystack, needle)
 	}
 	return countSeqSVE2(haystack, needle)
 }
 
-func toUpperASCIISVE2Guarded(dst []byte, b []byte) {
+func ToUpperASCIISVE2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToUpperASCII(dst, b)
@@ -428,7 +428,7 @@ func toUpperASCIISVE2Guarded(dst []byte, b []byte) {
 	toUpperASCIISVE2(dst[:n:n], b)
 }
 
-func toLowerASCIISVE2Guarded(dst []byte, b []byte) {
+func ToLowerASCIISVE2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToLowerASCII(dst, b)
@@ -437,7 +437,7 @@ func toLowerASCIISVE2Guarded(dst []byte, b []byte) {
 	toLowerASCIISVE2(dst[:n:n], b)
 }
 
-func replaceByteSVE2Guarded(dst []byte, b []byte, old byte, with byte) {
+func ReplaceByteSVE2(dst []byte, b []byte, old byte, with byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ReplaceByte(dst, b, old, with)
@@ -446,63 +446,60 @@ func replaceByteSVE2Guarded(dst []byte, b []byte, old byte, with byte) {
 	replaceByteSVE2(dst[:n:n], b, old, with)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.Bytes.Count = countByteSVE2Guarded
-	s.Bytes.IndexByte = indexByteSVE2Guarded
-	s.Bytes.LastIndexByte = lastIndexByteSVE2Guarded
-	s.Bytes.PopCount = popCountSVE2Guarded
-	s.Bytes.MaskBits = maskBitsSVE2Guarded
-	s.Bytes.MaskBitsLess = maskBitsLessSVE2Guarded
-	s.Bytes.MaskBitsAny4 = maskBitsAny4SVE2Guarded
-	s.Bytes.MaskBitsAny = maskBitsAnySVE2Guarded
-	s.Bytes.Hamming = hammingU8SVE2Guarded
-	s.Bytes.HammingWords = hammingU64SVE2Guarded
-	s.Bytes.Grayscale = grayscaleU8SVE2Guarded
-	s.Bytes.RGBToUV = rgbToUVU8SVE2Guarded
-	s.Bytes.IsASCII = isASCIISVE2Guarded
-	s.Bytes.ValidUTF8 = validUTF8SVE2Guarded
-	s.Bytes.IndexNonASCII = indexNonASCIISVE2Guarded
-	s.Bytes.IndexNonASCII16 = indexNonASCII16SVE2Guarded
-	s.Bytes.WidenU8U16 = widenU8U16SVE2Guarded
-	s.Bytes.NarrowU16U8 = narrowU16U8SVE2Guarded
-	s.Bytes.WidenU8U32 = widenU8U32SVE2Guarded
-	s.Bytes.NarrowU32U8 = narrowU32U8SVE2Guarded
-	s.Bytes.Equal = equalBytesSVE2Guarded
-	s.Bytes.And = bitAndSVE2Guarded
-	s.Bytes.Or = bitOrSVE2Guarded
-	s.Bytes.Xor = bitXorSVE2Guarded
-	s.Bytes.AndNot = bitAndNotSVE2Guarded
-	s.Bytes.Not = bitNotSVE2Guarded
-	s.Bytes.Fill = fillBytesSVE2Guarded
-	s.Bytes.Compare = compareBytesSVE2Guarded
-	s.Bytes.CommonPrefix = commonPrefixSVE2Guarded
-	s.Bytes.EqualFoldASCII = equalFoldASCIISVE2Guarded
-	s.Bytes.IndexAny = indexAnySVE2Guarded
-	s.Bytes.IndexAnyOrLess = indexAnyOrLessSVE2Guarded
-	s.Bytes.IndexNotAny = indexNotAnySVE2Guarded
-	s.Bytes.LastIndexNotAny = lastIndexNotAnySVE2Guarded
-	s.Bytes.CountAny = countAnySVE2Guarded
-	s.Bytes.JSONMasks = jsonMasksSVE2Guarded
-	s.Bytes.JSONValidTokens = jsonValidTokensSVE2Guarded
-	s.Bytes.JSONValid = jsonValidSVE2Guarded
-	s.Bytes.JSONStage1 = jsonStage1SVE2Guarded
-	s.Bytes.JSONCopyValid = jsonCopyValidSVE2Guarded
-	s.Bytes.JSONQuote = jsonQuoteSVE2Guarded
-	s.Bytes.JSONCopyRun = jsonCopyRunSVE2Guarded
-	s.Bytes.B64Encode = b64EncodeSVE2Guarded
-	s.Bytes.B64Decode = b64DecodeSVE2Guarded
-	s.Bytes.ParseInts = parseIntsSVE2Guarded
-	s.Bytes.ParseUints = parseUintsSVE2Guarded
-	s.Bytes.FormatInts = formatIntsSVE2Guarded
-	s.Bytes.HexDecode = hexDecodeSVE2Guarded
-	s.Bytes.HexEncode = hexEncodeSVE2Guarded
-	s.Bytes.Index = indexSVE2Guarded
-	s.Bytes.LastIndex = lastIndexSVE2Guarded
-	s.Bytes.CountSeq = countSeqSVE2Guarded
-	s.Bytes.ToUpperASCII = toUpperASCIISVE2Guarded
-	s.Bytes.ToLowerASCII = toLowerASCIISVE2Guarded
-	s.Bytes.ReplaceByte = replaceByteSVE2Guarded
+func registerBytesSVE2(s *kernel.Set) {
+	s.Bytes.Count = CountByteSVE2
+	s.Bytes.IndexByte = IndexByteSVE2
+	s.Bytes.LastIndexByte = LastIndexByteSVE2
+	s.Bytes.PopCount = PopCountSVE2
+	s.Bytes.MaskBits = MaskBitsSVE2
+	s.Bytes.MaskBitsLess = MaskBitsLessSVE2
+	s.Bytes.MaskBitsAny4 = MaskBitsAny4SVE2
+	s.Bytes.MaskBitsAny = MaskBitsAnySVE2
+	s.Bytes.Hamming = HammingU8SVE2
+	s.Bytes.HammingWords = HammingU64SVE2
+	s.Bytes.Grayscale = GrayscaleU8SVE2
+	s.Bytes.RGBToUV = RgbToUVU8SVE2
+	s.Bytes.IsASCII = IsASCIISVE2
+	s.Bytes.ValidUTF8 = ValidUTF8SVE2
+	s.Bytes.IndexNonASCII = IndexNonASCIISVE2
+	s.Bytes.IndexNonASCII16 = IndexNonASCII16SVE2
+	s.Bytes.WidenU8U16 = WidenU8U16SVE2
+	s.Bytes.NarrowU16U8 = NarrowU16U8SVE2
+	s.Bytes.WidenU8U32 = WidenU8U32SVE2
+	s.Bytes.NarrowU32U8 = NarrowU32U8SVE2
+	s.Bytes.Equal = EqualBytesSVE2
+	s.Bytes.And = BitAndSVE2
+	s.Bytes.Or = BitOrSVE2
+	s.Bytes.Xor = BitXorSVE2
+	s.Bytes.AndNot = BitAndNotSVE2
+	s.Bytes.Not = BitNotSVE2
+	s.Bytes.Fill = FillBytesSVE2
+	s.Bytes.Compare = CompareBytesSVE2
+	s.Bytes.CommonPrefix = CommonPrefixSVE2
+	s.Bytes.EqualFoldASCII = EqualFoldASCIISVE2
+	s.Bytes.IndexAny = IndexAnySVE2
+	s.Bytes.IndexAnyOrLess = IndexAnyOrLessSVE2
+	s.Bytes.IndexNotAny = IndexNotAnySVE2
+	s.Bytes.LastIndexNotAny = LastIndexNotAnySVE2
+	s.Bytes.CountAny = CountAnySVE2
+	s.Bytes.JSONMasks = JsonMasksSVE2
+	s.Bytes.JSONValidTokens = JsonValidTokensSVE2
+	s.Bytes.JSONValid = JsonValidSVE2
+	s.Bytes.JSONStage1 = JsonStage1SVE2
+	s.Bytes.JSONCopyValid = JsonCopyValidSVE2
+	s.Bytes.JSONQuote = JsonQuoteSVE2
+	s.Bytes.JSONCopyRun = JsonCopyRunSVE2
+	s.Bytes.B64Encode = B64EncodeSVE2
+	s.Bytes.B64Decode = B64DecodeSVE2
+	s.Bytes.ParseInts = ParseIntsSVE2
+	s.Bytes.ParseUints = ParseUintsSVE2
+	s.Bytes.FormatInts = FormatIntsSVE2
+	s.Bytes.HexDecode = HexDecodeSVE2
+	s.Bytes.HexEncode = HexEncodeSVE2
+	s.Bytes.Index = IndexSVE2
+	s.Bytes.LastIndex = LastIndexSVE2
+	s.Bytes.CountSeq = CountSeqSVE2
+	s.Bytes.ToUpperASCII = ToUpperASCIISVE2
+	s.Bytes.ToLowerASCII = ToLowerASCIISVE2
+	s.Bytes.ReplaceByte = ReplaceByteSVE2
 }

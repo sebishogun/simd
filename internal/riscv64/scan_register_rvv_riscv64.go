@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func rollingMinFloat32RVVGuarded(dst []float32, a []float32, window int) {
+func RollingMinFloat32RVV(dst []float32, a []float32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinFloat(dst, a, window)
 		return
@@ -28,7 +28,7 @@ func rollingMinFloat32RVVGuarded(dst []float32, a []float32, window int) {
 	rollingMinFloat32RVV(dst, a, window)
 }
 
-func rollingMaxFloat32RVVGuarded(dst []float32, a []float32, window int) {
+func RollingMaxFloat32RVV(dst []float32, a []float32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxFloat(dst, a, window)
 		return
@@ -36,7 +36,7 @@ func rollingMaxFloat32RVVGuarded(dst []float32, a []float32, window int) {
 	rollingMaxFloat32RVV(dst, a, window)
 }
 
-func fastCumProdFloat32RVVGuarded(dst []float32, a []float32) {
+func FastCumProdFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -45,7 +45,7 @@ func fastCumProdFloat32RVVGuarded(dst []float32, a []float32) {
 	fastCumProdFloat32RVV(dst[:n:n], a)
 }
 
-func fastCumSumFloat32RVVGuarded(dst []float32, a []float32) {
+func FastCumSumFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumSumFloat(dst, a)
@@ -54,7 +54,7 @@ func fastCumSumFloat32RVVGuarded(dst []float32, a []float32) {
 	fastCumSumFloat32RVV(dst[:n:n], a)
 }
 
-func rollingMinFloat64RVVGuarded(dst []float64, a []float64, window int) {
+func RollingMinFloat64RVV(dst []float64, a []float64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinFloat(dst, a, window)
 		return
@@ -62,7 +62,7 @@ func rollingMinFloat64RVVGuarded(dst []float64, a []float64, window int) {
 	rollingMinFloat64RVV(dst, a, window)
 }
 
-func rollingMaxFloat64RVVGuarded(dst []float64, a []float64, window int) {
+func RollingMaxFloat64RVV(dst []float64, a []float64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxFloat(dst, a, window)
 		return
@@ -70,7 +70,7 @@ func rollingMaxFloat64RVVGuarded(dst []float64, a []float64, window int) {
 	rollingMaxFloat64RVV(dst, a, window)
 }
 
-func fastCumProdFloat64RVVGuarded(dst []float64, a []float64) {
+func FastCumProdFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -79,7 +79,7 @@ func fastCumProdFloat64RVVGuarded(dst []float64, a []float64) {
 	fastCumProdFloat64RVV(dst[:n:n], a)
 }
 
-func rollingMinInt32RVVGuarded(dst []int32, a []int32, window int) {
+func RollingMinInt32RVV(dst []int32, a []int32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinInt(dst, a, window)
 		return
@@ -87,7 +87,7 @@ func rollingMinInt32RVVGuarded(dst []int32, a []int32, window int) {
 	rollingMinInt32RVV(dst, a, window)
 }
 
-func rollingMaxInt32RVVGuarded(dst []int32, a []int32, window int) {
+func RollingMaxInt32RVV(dst []int32, a []int32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxInt(dst, a, window)
 		return
@@ -95,7 +95,7 @@ func rollingMaxInt32RVVGuarded(dst []int32, a []int32, window int) {
 	rollingMaxInt32RVV(dst, a, window)
 }
 
-func cumMinInt32RVVGuarded(dst []int32, a []int32) {
+func CumMinInt32RVV(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -104,7 +104,7 @@ func cumMinInt32RVVGuarded(dst []int32, a []int32) {
 	cumMinInt32RVV(dst[:n:n], a)
 }
 
-func cumMaxInt32RVVGuarded(dst []int32, a []int32) {
+func CumMaxInt32RVV(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -113,7 +113,7 @@ func cumMaxInt32RVVGuarded(dst []int32, a []int32) {
 	cumMaxInt32RVV(dst[:n:n], a)
 }
 
-func cumProdInt32RVVGuarded(dst []int32, a []int32) {
+func CumProdInt32RVV(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumProdInt(dst, a)
@@ -122,7 +122,7 @@ func cumProdInt32RVVGuarded(dst []int32, a []int32) {
 	cumProdInt32RVV(dst[:n:n], a)
 }
 
-func rollingMinInt64RVVGuarded(dst []int64, a []int64, window int) {
+func RollingMinInt64RVV(dst []int64, a []int64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinInt(dst, a, window)
 		return
@@ -130,7 +130,7 @@ func rollingMinInt64RVVGuarded(dst []int64, a []int64, window int) {
 	rollingMinInt64RVV(dst, a, window)
 }
 
-func rollingMaxInt64RVVGuarded(dst []int64, a []int64, window int) {
+func RollingMaxInt64RVV(dst []int64, a []int64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxInt(dst, a, window)
 		return
@@ -138,7 +138,7 @@ func rollingMaxInt64RVVGuarded(dst []int64, a []int64, window int) {
 	rollingMaxInt64RVV(dst, a, window)
 }
 
-func cumMinInt64RVVGuarded(dst []int64, a []int64) {
+func CumMinInt64RVV(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -147,7 +147,7 @@ func cumMinInt64RVVGuarded(dst []int64, a []int64) {
 	cumMinInt64RVV(dst[:n:n], a)
 }
 
-func cumMaxInt64RVVGuarded(dst []int64, a []int64) {
+func CumMaxInt64RVV(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -156,24 +156,21 @@ func cumMaxInt64RVVGuarded(dst []int64, a []int64) {
 	cumMaxInt64RVV(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.F32.RollingMin = rollingMinFloat32RVVGuarded
-	s.F32.RollingMax = rollingMaxFloat32RVVGuarded
-	s.F32.FastCumProd = fastCumProdFloat32RVVGuarded
-	s.F32.FastCumSum = fastCumSumFloat32RVVGuarded
-	s.F64.RollingMin = rollingMinFloat64RVVGuarded
-	s.F64.RollingMax = rollingMaxFloat64RVVGuarded
-	s.F64.FastCumProd = fastCumProdFloat64RVVGuarded
-	s.I32.RollingMin = rollingMinInt32RVVGuarded
-	s.I32.RollingMax = rollingMaxInt32RVVGuarded
-	s.I32.CumMin = cumMinInt32RVVGuarded
-	s.I32.CumMax = cumMaxInt32RVVGuarded
-	s.I32.CumProd = cumProdInt32RVVGuarded
-	s.I64.RollingMin = rollingMinInt64RVVGuarded
-	s.I64.RollingMax = rollingMaxInt64RVVGuarded
-	s.I64.CumMin = cumMinInt64RVVGuarded
-	s.I64.CumMax = cumMaxInt64RVVGuarded
+func registerScanRVV(s *kernel.Set) {
+	s.F32.RollingMin = RollingMinFloat32RVV
+	s.F32.RollingMax = RollingMaxFloat32RVV
+	s.F32.FastCumProd = FastCumProdFloat32RVV
+	s.F32.FastCumSum = FastCumSumFloat32RVV
+	s.F64.RollingMin = RollingMinFloat64RVV
+	s.F64.RollingMax = RollingMaxFloat64RVV
+	s.F64.FastCumProd = FastCumProdFloat64RVV
+	s.I32.RollingMin = RollingMinInt32RVV
+	s.I32.RollingMax = RollingMaxInt32RVV
+	s.I32.CumMin = CumMinInt32RVV
+	s.I32.CumMax = CumMaxInt32RVV
+	s.I32.CumProd = CumProdInt32RVV
+	s.I64.RollingMin = RollingMinInt64RVV
+	s.I64.RollingMax = RollingMaxInt64RVV
+	s.I64.CumMin = CumMinInt64RVV
+	s.I64.CumMax = CumMaxInt64RVV
 }

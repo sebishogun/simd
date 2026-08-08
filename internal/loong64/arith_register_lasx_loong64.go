@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func addFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
+func AddFloat32LASX(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -29,7 +29,7 @@ func addFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
 	addFloat32LASX(dst[:n:n], a, b)
 }
 
-func subFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
+func SubFloat32LASX(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -38,7 +38,7 @@ func subFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
 	subFloat32LASX(dst[:n:n], a, b)
 }
 
-func mulFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
+func MulFloat32LASX(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -47,7 +47,7 @@ func mulFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
 	mulFloat32LASX(dst[:n:n], a, b)
 }
 
-func minimumFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
+func MinimumFloat32LASX(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
@@ -56,7 +56,7 @@ func minimumFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
 	minimumFloat32LASX(dst[:n:n], a, b)
 }
 
-func maximumFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
+func MaximumFloat32LASX(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
@@ -65,7 +65,7 @@ func maximumFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
 	maximumFloat32LASX(dst[:n:n], a, b)
 }
 
-func absFloat32LASXGuarded(dst []float32, a []float32) {
+func AbsFloat32LASX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsFloat(dst, a)
@@ -74,7 +74,7 @@ func absFloat32LASXGuarded(dst []float32, a []float32) {
 	absFloat32LASX(dst[:n:n], a)
 }
 
-func negFloat32LASXGuarded(dst []float32, a []float32) {
+func NegFloat32LASX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegFloat(dst, a)
@@ -83,7 +83,7 @@ func negFloat32LASXGuarded(dst []float32, a []float32) {
 	negFloat32LASX(dst[:n:n], a)
 }
 
-func scaleFloat32LASXGuarded(dst []float32, a []float32, s float32) {
+func ScaleFloat32LASX(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -92,7 +92,7 @@ func scaleFloat32LASXGuarded(dst []float32, a []float32, s float32) {
 	scaleFloat32LASX(dst[:n:n], a, s)
 }
 
-func addScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
+func AddScalarFloat32LASX(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -101,7 +101,7 @@ func addScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
 	addScalarFloat32LASX(dst[:n:n], a, s)
 }
 
-func subScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
+func SubScalarFloat32LASX(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -110,7 +110,7 @@ func subScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
 	subScalarFloat32LASX(dst[:n:n], a, s)
 }
 
-func clampFloat32LASXGuarded(dst []float32, a []float32, lo float32, hi float32) {
+func ClampFloat32LASX(dst []float32, a []float32, lo float32, hi float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
@@ -119,7 +119,7 @@ func clampFloat32LASXGuarded(dst []float32, a []float32, lo float32, hi float32)
 	clampFloat32LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillFloat32LASXGuarded(dst []float32, v float32) {
+func FillFloat32LASX(dst []float32, v float32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -127,7 +127,7 @@ func fillFloat32LASXGuarded(dst []float32, v float32) {
 	fillFloat32LASX(dst, v)
 }
 
-func lerpFloat32LASXGuarded(dst []float32, a []float32, b []float32, t float32) {
+func LerpFloat32LASX(dst []float32, a []float32, b []float32, t float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -136,7 +136,7 @@ func lerpFloat32LASXGuarded(dst []float32, a []float32, b []float32, t float32) 
 	lerpFloat32LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledFloat32LASXGuarded(dst []float32, a []float32, b []float32, s float32) {
+func AddScaledFloat32LASX(dst []float32, a []float32, b []float32, s float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -145,7 +145,7 @@ func addScaledFloat32LASXGuarded(dst []float32, a []float32, b []float32, s floa
 	addScaledFloat32LASX(dst[:n:n], a, b, s)
 }
 
-func rampFloat32LASXGuarded(dst []float32, start float32, step float32) {
+func RampFloat32LASX(dst []float32, start float32, step float32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -153,7 +153,7 @@ func rampFloat32LASXGuarded(dst []float32, start float32, step float32) {
 	rampFloat32LASX(dst, start, step)
 }
 
-func addFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
+func AddFloat64LASX(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -162,7 +162,7 @@ func addFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
 	addFloat64LASX(dst[:n:n], a, b)
 }
 
-func subFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
+func SubFloat64LASX(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -171,7 +171,7 @@ func subFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
 	subFloat64LASX(dst[:n:n], a, b)
 }
 
-func mulFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
+func MulFloat64LASX(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -180,7 +180,7 @@ func mulFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
 	mulFloat64LASX(dst[:n:n], a, b)
 }
 
-func minimumFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
+func MinimumFloat64LASX(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
@@ -189,7 +189,7 @@ func minimumFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
 	minimumFloat64LASX(dst[:n:n], a, b)
 }
 
-func maximumFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
+func MaximumFloat64LASX(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
@@ -198,7 +198,7 @@ func maximumFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
 	maximumFloat64LASX(dst[:n:n], a, b)
 }
 
-func absFloat64LASXGuarded(dst []float64, a []float64) {
+func AbsFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsFloat(dst, a)
@@ -207,7 +207,7 @@ func absFloat64LASXGuarded(dst []float64, a []float64) {
 	absFloat64LASX(dst[:n:n], a)
 }
 
-func negFloat64LASXGuarded(dst []float64, a []float64) {
+func NegFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegFloat(dst, a)
@@ -216,7 +216,7 @@ func negFloat64LASXGuarded(dst []float64, a []float64) {
 	negFloat64LASX(dst[:n:n], a)
 }
 
-func scaleFloat64LASXGuarded(dst []float64, a []float64, s float64) {
+func ScaleFloat64LASX(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -225,7 +225,7 @@ func scaleFloat64LASXGuarded(dst []float64, a []float64, s float64) {
 	scaleFloat64LASX(dst[:n:n], a, s)
 }
 
-func addScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
+func AddScalarFloat64LASX(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -234,7 +234,7 @@ func addScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
 	addScalarFloat64LASX(dst[:n:n], a, s)
 }
 
-func subScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
+func SubScalarFloat64LASX(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -243,7 +243,7 @@ func subScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
 	subScalarFloat64LASX(dst[:n:n], a, s)
 }
 
-func clampFloat64LASXGuarded(dst []float64, a []float64, lo float64, hi float64) {
+func ClampFloat64LASX(dst []float64, a []float64, lo float64, hi float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
@@ -252,7 +252,7 @@ func clampFloat64LASXGuarded(dst []float64, a []float64, lo float64, hi float64)
 	clampFloat64LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillFloat64LASXGuarded(dst []float64, v float64) {
+func FillFloat64LASX(dst []float64, v float64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -260,7 +260,7 @@ func fillFloat64LASXGuarded(dst []float64, v float64) {
 	fillFloat64LASX(dst, v)
 }
 
-func lerpFloat64LASXGuarded(dst []float64, a []float64, b []float64, t float64) {
+func LerpFloat64LASX(dst []float64, a []float64, b []float64, t float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -269,7 +269,7 @@ func lerpFloat64LASXGuarded(dst []float64, a []float64, b []float64, t float64) 
 	lerpFloat64LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledFloat64LASXGuarded(dst []float64, a []float64, b []float64, s float64) {
+func AddScaledFloat64LASX(dst []float64, a []float64, b []float64, s float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -278,7 +278,7 @@ func addScaledFloat64LASXGuarded(dst []float64, a []float64, b []float64, s floa
 	addScaledFloat64LASX(dst[:n:n], a, b, s)
 }
 
-func rampFloat64LASXGuarded(dst []float64, start float64, step float64) {
+func RampFloat64LASX(dst []float64, start float64, step float64) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -286,7 +286,7 @@ func rampFloat64LASXGuarded(dst []float64, start float64, step float64) {
 	rampFloat64LASX(dst, start, step)
 }
 
-func addInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+func AddInt32LASX(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -295,7 +295,7 @@ func addInt32LASXGuarded(dst []int32, a []int32, b []int32) {
 	addInt32LASX(dst[:n:n], a, b)
 }
 
-func subInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+func SubInt32LASX(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -304,7 +304,7 @@ func subInt32LASXGuarded(dst []int32, a []int32, b []int32) {
 	subInt32LASX(dst[:n:n], a, b)
 }
 
-func mulInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+func MulInt32LASX(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -313,7 +313,7 @@ func mulInt32LASXGuarded(dst []int32, a []int32, b []int32) {
 	mulInt32LASX(dst[:n:n], a, b)
 }
 
-func minimumInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+func MinimumInt32LASX(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -322,7 +322,7 @@ func minimumInt32LASXGuarded(dst []int32, a []int32, b []int32) {
 	minimumInt32LASX(dst[:n:n], a, b)
 }
 
-func maximumInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+func MaximumInt32LASX(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -331,7 +331,7 @@ func maximumInt32LASXGuarded(dst []int32, a []int32, b []int32) {
 	maximumInt32LASX(dst[:n:n], a, b)
 }
 
-func absInt32LASXGuarded(dst []int32, a []int32) {
+func AbsInt32LASX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -340,7 +340,7 @@ func absInt32LASXGuarded(dst []int32, a []int32) {
 	absInt32LASX(dst[:n:n], a)
 }
 
-func negInt32LASXGuarded(dst []int32, a []int32) {
+func NegInt32LASX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -349,7 +349,7 @@ func negInt32LASXGuarded(dst []int32, a []int32) {
 	negInt32LASX(dst[:n:n], a)
 }
 
-func scaleInt32LASXGuarded(dst []int32, a []int32, s int32) {
+func ScaleInt32LASX(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -358,7 +358,7 @@ func scaleInt32LASXGuarded(dst []int32, a []int32, s int32) {
 	scaleInt32LASX(dst[:n:n], a, s)
 }
 
-func addScalarInt32LASXGuarded(dst []int32, a []int32, s int32) {
+func AddScalarInt32LASX(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -367,7 +367,7 @@ func addScalarInt32LASXGuarded(dst []int32, a []int32, s int32) {
 	addScalarInt32LASX(dst[:n:n], a, s)
 }
 
-func subScalarInt32LASXGuarded(dst []int32, a []int32, s int32) {
+func SubScalarInt32LASX(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -376,7 +376,7 @@ func subScalarInt32LASXGuarded(dst []int32, a []int32, s int32) {
 	subScalarInt32LASX(dst[:n:n], a, s)
 }
 
-func clampInt32LASXGuarded(dst []int32, a []int32, lo int32, hi int32) {
+func ClampInt32LASX(dst []int32, a []int32, lo int32, hi int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -385,7 +385,7 @@ func clampInt32LASXGuarded(dst []int32, a []int32, lo int32, hi int32) {
 	clampInt32LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillInt32LASXGuarded(dst []int32, v int32) {
+func FillInt32LASX(dst []int32, v int32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -393,7 +393,7 @@ func fillInt32LASXGuarded(dst []int32, v int32) {
 	fillInt32LASX(dst, v)
 }
 
-func lerpInt32LASXGuarded(dst []int32, a []int32, b []int32, t int32) {
+func LerpInt32LASX(dst []int32, a []int32, b []int32, t int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -402,7 +402,7 @@ func lerpInt32LASXGuarded(dst []int32, a []int32, b []int32, t int32) {
 	lerpInt32LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledInt32LASXGuarded(dst []int32, a []int32, b []int32, s int32) {
+func AddScaledInt32LASX(dst []int32, a []int32, b []int32, s int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -411,7 +411,7 @@ func addScaledInt32LASXGuarded(dst []int32, a []int32, b []int32, s int32) {
 	addScaledInt32LASX(dst[:n:n], a, b, s)
 }
 
-func rampInt32LASXGuarded(dst []int32, start int32, step int32) {
+func RampInt32LASX(dst []int32, start int32, step int32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -419,7 +419,7 @@ func rampInt32LASXGuarded(dst []int32, start int32, step int32) {
 	rampInt32LASX(dst, start, step)
 }
 
-func addInt64LASXGuarded(dst []int64, a []int64, b []int64) {
+func AddInt64LASX(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -428,7 +428,7 @@ func addInt64LASXGuarded(dst []int64, a []int64, b []int64) {
 	addInt64LASX(dst[:n:n], a, b)
 }
 
-func subInt64LASXGuarded(dst []int64, a []int64, b []int64) {
+func SubInt64LASX(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -437,7 +437,7 @@ func subInt64LASXGuarded(dst []int64, a []int64, b []int64) {
 	subInt64LASX(dst[:n:n], a, b)
 }
 
-func mulInt64LASXGuarded(dst []int64, a []int64, b []int64) {
+func MulInt64LASX(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -446,7 +446,7 @@ func mulInt64LASXGuarded(dst []int64, a []int64, b []int64) {
 	mulInt64LASX(dst[:n:n], a, b)
 }
 
-func minimumInt64LASXGuarded(dst []int64, a []int64, b []int64) {
+func MinimumInt64LASX(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -455,7 +455,7 @@ func minimumInt64LASXGuarded(dst []int64, a []int64, b []int64) {
 	minimumInt64LASX(dst[:n:n], a, b)
 }
 
-func maximumInt64LASXGuarded(dst []int64, a []int64, b []int64) {
+func MaximumInt64LASX(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -464,7 +464,7 @@ func maximumInt64LASXGuarded(dst []int64, a []int64, b []int64) {
 	maximumInt64LASX(dst[:n:n], a, b)
 }
 
-func absInt64LASXGuarded(dst []int64, a []int64) {
+func AbsInt64LASX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -473,7 +473,7 @@ func absInt64LASXGuarded(dst []int64, a []int64) {
 	absInt64LASX(dst[:n:n], a)
 }
 
-func negInt64LASXGuarded(dst []int64, a []int64) {
+func NegInt64LASX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -482,7 +482,7 @@ func negInt64LASXGuarded(dst []int64, a []int64) {
 	negInt64LASX(dst[:n:n], a)
 }
 
-func scaleInt64LASXGuarded(dst []int64, a []int64, s int64) {
+func ScaleInt64LASX(dst []int64, a []int64, s int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -491,7 +491,7 @@ func scaleInt64LASXGuarded(dst []int64, a []int64, s int64) {
 	scaleInt64LASX(dst[:n:n], a, s)
 }
 
-func addScalarInt64LASXGuarded(dst []int64, a []int64, s int64) {
+func AddScalarInt64LASX(dst []int64, a []int64, s int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -500,7 +500,7 @@ func addScalarInt64LASXGuarded(dst []int64, a []int64, s int64) {
 	addScalarInt64LASX(dst[:n:n], a, s)
 }
 
-func subScalarInt64LASXGuarded(dst []int64, a []int64, s int64) {
+func SubScalarInt64LASX(dst []int64, a []int64, s int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -509,7 +509,7 @@ func subScalarInt64LASXGuarded(dst []int64, a []int64, s int64) {
 	subScalarInt64LASX(dst[:n:n], a, s)
 }
 
-func clampInt64LASXGuarded(dst []int64, a []int64, lo int64, hi int64) {
+func ClampInt64LASX(dst []int64, a []int64, lo int64, hi int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -518,7 +518,7 @@ func clampInt64LASXGuarded(dst []int64, a []int64, lo int64, hi int64) {
 	clampInt64LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillInt64LASXGuarded(dst []int64, v int64) {
+func FillInt64LASX(dst []int64, v int64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -526,7 +526,7 @@ func fillInt64LASXGuarded(dst []int64, v int64) {
 	fillInt64LASX(dst, v)
 }
 
-func lerpInt64LASXGuarded(dst []int64, a []int64, b []int64, t int64) {
+func LerpInt64LASX(dst []int64, a []int64, b []int64, t int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -535,7 +535,7 @@ func lerpInt64LASXGuarded(dst []int64, a []int64, b []int64, t int64) {
 	lerpInt64LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledInt64LASXGuarded(dst []int64, a []int64, b []int64, s int64) {
+func AddScaledInt64LASX(dst []int64, a []int64, b []int64, s int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -544,7 +544,7 @@ func addScaledInt64LASXGuarded(dst []int64, a []int64, b []int64, s int64) {
 	addScaledInt64LASX(dst[:n:n], a, b, s)
 }
 
-func rampInt64LASXGuarded(dst []int64, start int64, step int64) {
+func RampInt64LASX(dst []int64, start int64, step int64) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -552,7 +552,7 @@ func rampInt64LASXGuarded(dst []int64, start int64, step int64) {
 	rampInt64LASX(dst, start, step)
 }
 
-func addInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+func AddInt8LASX(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -561,7 +561,7 @@ func addInt8LASXGuarded(dst []int8, a []int8, b []int8) {
 	addInt8LASX(dst[:n:n], a, b)
 }
 
-func subInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+func SubInt8LASX(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -570,7 +570,7 @@ func subInt8LASXGuarded(dst []int8, a []int8, b []int8) {
 	subInt8LASX(dst[:n:n], a, b)
 }
 
-func mulInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+func MulInt8LASX(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -579,7 +579,7 @@ func mulInt8LASXGuarded(dst []int8, a []int8, b []int8) {
 	mulInt8LASX(dst[:n:n], a, b)
 }
 
-func minimumInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+func MinimumInt8LASX(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -588,7 +588,7 @@ func minimumInt8LASXGuarded(dst []int8, a []int8, b []int8) {
 	minimumInt8LASX(dst[:n:n], a, b)
 }
 
-func maximumInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+func MaximumInt8LASX(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -597,7 +597,7 @@ func maximumInt8LASXGuarded(dst []int8, a []int8, b []int8) {
 	maximumInt8LASX(dst[:n:n], a, b)
 }
 
-func absInt8LASXGuarded(dst []int8, a []int8) {
+func AbsInt8LASX(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -606,7 +606,7 @@ func absInt8LASXGuarded(dst []int8, a []int8) {
 	absInt8LASX(dst[:n:n], a)
 }
 
-func negInt8LASXGuarded(dst []int8, a []int8) {
+func NegInt8LASX(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -615,7 +615,7 @@ func negInt8LASXGuarded(dst []int8, a []int8) {
 	negInt8LASX(dst[:n:n], a)
 }
 
-func scaleInt8LASXGuarded(dst []int8, a []int8, s int8) {
+func ScaleInt8LASX(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -624,7 +624,7 @@ func scaleInt8LASXGuarded(dst []int8, a []int8, s int8) {
 	scaleInt8LASX(dst[:n:n], a, s)
 }
 
-func addScalarInt8LASXGuarded(dst []int8, a []int8, s int8) {
+func AddScalarInt8LASX(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -633,7 +633,7 @@ func addScalarInt8LASXGuarded(dst []int8, a []int8, s int8) {
 	addScalarInt8LASX(dst[:n:n], a, s)
 }
 
-func subScalarInt8LASXGuarded(dst []int8, a []int8, s int8) {
+func SubScalarInt8LASX(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -642,7 +642,7 @@ func subScalarInt8LASXGuarded(dst []int8, a []int8, s int8) {
 	subScalarInt8LASX(dst[:n:n], a, s)
 }
 
-func clampInt8LASXGuarded(dst []int8, a []int8, lo int8, hi int8) {
+func ClampInt8LASX(dst []int8, a []int8, lo int8, hi int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -651,7 +651,7 @@ func clampInt8LASXGuarded(dst []int8, a []int8, lo int8, hi int8) {
 	clampInt8LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillInt8LASXGuarded(dst []int8, v int8) {
+func FillInt8LASX(dst []int8, v int8) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -659,7 +659,7 @@ func fillInt8LASXGuarded(dst []int8, v int8) {
 	fillInt8LASX(dst, v)
 }
 
-func lerpInt8LASXGuarded(dst []int8, a []int8, b []int8, t int8) {
+func LerpInt8LASX(dst []int8, a []int8, b []int8, t int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -668,7 +668,7 @@ func lerpInt8LASXGuarded(dst []int8, a []int8, b []int8, t int8) {
 	lerpInt8LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledInt8LASXGuarded(dst []int8, a []int8, b []int8, s int8) {
+func AddScaledInt8LASX(dst []int8, a []int8, b []int8, s int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -677,7 +677,7 @@ func addScaledInt8LASXGuarded(dst []int8, a []int8, b []int8, s int8) {
 	addScaledInt8LASX(dst[:n:n], a, b, s)
 }
 
-func rampInt8LASXGuarded(dst []int8, start int8, step int8) {
+func RampInt8LASX(dst []int8, start int8, step int8) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -685,7 +685,7 @@ func rampInt8LASXGuarded(dst []int8, start int8, step int8) {
 	rampInt8LASX(dst, start, step)
 }
 
-func addInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+func AddInt16LASX(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -694,7 +694,7 @@ func addInt16LASXGuarded(dst []int16, a []int16, b []int16) {
 	addInt16LASX(dst[:n:n], a, b)
 }
 
-func subInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+func SubInt16LASX(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -703,7 +703,7 @@ func subInt16LASXGuarded(dst []int16, a []int16, b []int16) {
 	subInt16LASX(dst[:n:n], a, b)
 }
 
-func mulInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+func MulInt16LASX(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -712,7 +712,7 @@ func mulInt16LASXGuarded(dst []int16, a []int16, b []int16) {
 	mulInt16LASX(dst[:n:n], a, b)
 }
 
-func minimumInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+func MinimumInt16LASX(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -721,7 +721,7 @@ func minimumInt16LASXGuarded(dst []int16, a []int16, b []int16) {
 	minimumInt16LASX(dst[:n:n], a, b)
 }
 
-func maximumInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+func MaximumInt16LASX(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -730,7 +730,7 @@ func maximumInt16LASXGuarded(dst []int16, a []int16, b []int16) {
 	maximumInt16LASX(dst[:n:n], a, b)
 }
 
-func absInt16LASXGuarded(dst []int16, a []int16) {
+func AbsInt16LASX(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -739,7 +739,7 @@ func absInt16LASXGuarded(dst []int16, a []int16) {
 	absInt16LASX(dst[:n:n], a)
 }
 
-func negInt16LASXGuarded(dst []int16, a []int16) {
+func NegInt16LASX(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -748,7 +748,7 @@ func negInt16LASXGuarded(dst []int16, a []int16) {
 	negInt16LASX(dst[:n:n], a)
 }
 
-func scaleInt16LASXGuarded(dst []int16, a []int16, s int16) {
+func ScaleInt16LASX(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -757,7 +757,7 @@ func scaleInt16LASXGuarded(dst []int16, a []int16, s int16) {
 	scaleInt16LASX(dst[:n:n], a, s)
 }
 
-func addScalarInt16LASXGuarded(dst []int16, a []int16, s int16) {
+func AddScalarInt16LASX(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -766,7 +766,7 @@ func addScalarInt16LASXGuarded(dst []int16, a []int16, s int16) {
 	addScalarInt16LASX(dst[:n:n], a, s)
 }
 
-func subScalarInt16LASXGuarded(dst []int16, a []int16, s int16) {
+func SubScalarInt16LASX(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -775,7 +775,7 @@ func subScalarInt16LASXGuarded(dst []int16, a []int16, s int16) {
 	subScalarInt16LASX(dst[:n:n], a, s)
 }
 
-func clampInt16LASXGuarded(dst []int16, a []int16, lo int16, hi int16) {
+func ClampInt16LASX(dst []int16, a []int16, lo int16, hi int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -784,7 +784,7 @@ func clampInt16LASXGuarded(dst []int16, a []int16, lo int16, hi int16) {
 	clampInt16LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillInt16LASXGuarded(dst []int16, v int16) {
+func FillInt16LASX(dst []int16, v int16) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -792,7 +792,7 @@ func fillInt16LASXGuarded(dst []int16, v int16) {
 	fillInt16LASX(dst, v)
 }
 
-func lerpInt16LASXGuarded(dst []int16, a []int16, b []int16, t int16) {
+func LerpInt16LASX(dst []int16, a []int16, b []int16, t int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -801,7 +801,7 @@ func lerpInt16LASXGuarded(dst []int16, a []int16, b []int16, t int16) {
 	lerpInt16LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledInt16LASXGuarded(dst []int16, a []int16, b []int16, s int16) {
+func AddScaledInt16LASX(dst []int16, a []int16, b []int16, s int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -810,7 +810,7 @@ func addScaledInt16LASXGuarded(dst []int16, a []int16, b []int16, s int16) {
 	addScaledInt16LASX(dst[:n:n], a, b, s)
 }
 
-func rampInt16LASXGuarded(dst []int16, start int16, step int16) {
+func RampInt16LASX(dst []int16, start int16, step int16) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -818,7 +818,7 @@ func rampInt16LASXGuarded(dst []int16, start int16, step int16) {
 	rampInt16LASX(dst, start, step)
 }
 
-func addUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+func AddUint8LASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -827,7 +827,7 @@ func addUint8LASXGuarded(dst []byte, a []byte, b []byte) {
 	addUint8LASX(dst[:n:n], a, b)
 }
 
-func subUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+func SubUint8LASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -836,7 +836,7 @@ func subUint8LASXGuarded(dst []byte, a []byte, b []byte) {
 	subUint8LASX(dst[:n:n], a, b)
 }
 
-func mulUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+func MulUint8LASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -845,7 +845,7 @@ func mulUint8LASXGuarded(dst []byte, a []byte, b []byte) {
 	mulUint8LASX(dst[:n:n], a, b)
 }
 
-func minimumUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+func MinimumUint8LASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -854,7 +854,7 @@ func minimumUint8LASXGuarded(dst []byte, a []byte, b []byte) {
 	minimumUint8LASX(dst[:n:n], a, b)
 }
 
-func maximumUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+func MaximumUint8LASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -863,7 +863,7 @@ func maximumUint8LASXGuarded(dst []byte, a []byte, b []byte) {
 	maximumUint8LASX(dst[:n:n], a, b)
 }
 
-func absUint8LASXGuarded(dst []byte, a []byte) {
+func AbsUint8LASX(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -872,7 +872,7 @@ func absUint8LASXGuarded(dst []byte, a []byte) {
 	absUint8LASX(dst[:n:n], a)
 }
 
-func negUint8LASXGuarded(dst []byte, a []byte) {
+func NegUint8LASX(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -881,7 +881,7 @@ func negUint8LASXGuarded(dst []byte, a []byte) {
 	negUint8LASX(dst[:n:n], a)
 }
 
-func scaleUint8LASXGuarded(dst []byte, a []byte, s byte) {
+func ScaleUint8LASX(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -890,7 +890,7 @@ func scaleUint8LASXGuarded(dst []byte, a []byte, s byte) {
 	scaleUint8LASX(dst[:n:n], a, s)
 }
 
-func addScalarUint8LASXGuarded(dst []byte, a []byte, s byte) {
+func AddScalarUint8LASX(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -899,7 +899,7 @@ func addScalarUint8LASXGuarded(dst []byte, a []byte, s byte) {
 	addScalarUint8LASX(dst[:n:n], a, s)
 }
 
-func subScalarUint8LASXGuarded(dst []byte, a []byte, s byte) {
+func SubScalarUint8LASX(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -908,7 +908,7 @@ func subScalarUint8LASXGuarded(dst []byte, a []byte, s byte) {
 	subScalarUint8LASX(dst[:n:n], a, s)
 }
 
-func clampUint8LASXGuarded(dst []byte, a []byte, lo byte, hi byte) {
+func ClampUint8LASX(dst []byte, a []byte, lo byte, hi byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -917,7 +917,7 @@ func clampUint8LASXGuarded(dst []byte, a []byte, lo byte, hi byte) {
 	clampUint8LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillUint8LASXGuarded(dst []byte, v byte) {
+func FillUint8LASX(dst []byte, v byte) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -925,7 +925,7 @@ func fillUint8LASXGuarded(dst []byte, v byte) {
 	fillUint8LASX(dst, v)
 }
 
-func lerpUint8LASXGuarded(dst []byte, a []byte, b []byte, t byte) {
+func LerpUint8LASX(dst []byte, a []byte, b []byte, t byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -934,7 +934,7 @@ func lerpUint8LASXGuarded(dst []byte, a []byte, b []byte, t byte) {
 	lerpUint8LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledUint8LASXGuarded(dst []byte, a []byte, b []byte, s byte) {
+func AddScaledUint8LASX(dst []byte, a []byte, b []byte, s byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -943,7 +943,7 @@ func addScaledUint8LASXGuarded(dst []byte, a []byte, b []byte, s byte) {
 	addScaledUint8LASX(dst[:n:n], a, b, s)
 }
 
-func rampUint8LASXGuarded(dst []byte, start byte, step byte) {
+func RampUint8LASX(dst []byte, start byte, step byte) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -951,7 +951,7 @@ func rampUint8LASXGuarded(dst []byte, start byte, step byte) {
 	rampUint8LASX(dst, start, step)
 }
 
-func addUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+func AddUint16LASX(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -960,7 +960,7 @@ func addUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
 	addUint16LASX(dst[:n:n], a, b)
 }
 
-func subUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+func SubUint16LASX(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -969,7 +969,7 @@ func subUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
 	subUint16LASX(dst[:n:n], a, b)
 }
 
-func mulUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+func MulUint16LASX(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -978,7 +978,7 @@ func mulUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
 	mulUint16LASX(dst[:n:n], a, b)
 }
 
-func minimumUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+func MinimumUint16LASX(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -987,7 +987,7 @@ func minimumUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
 	minimumUint16LASX(dst[:n:n], a, b)
 }
 
-func maximumUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+func MaximumUint16LASX(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -996,7 +996,7 @@ func maximumUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
 	maximumUint16LASX(dst[:n:n], a, b)
 }
 
-func absUint16LASXGuarded(dst []uint16, a []uint16) {
+func AbsUint16LASX(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -1005,7 +1005,7 @@ func absUint16LASXGuarded(dst []uint16, a []uint16) {
 	absUint16LASX(dst[:n:n], a)
 }
 
-func negUint16LASXGuarded(dst []uint16, a []uint16) {
+func NegUint16LASX(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -1014,7 +1014,7 @@ func negUint16LASXGuarded(dst []uint16, a []uint16) {
 	negUint16LASX(dst[:n:n], a)
 }
 
-func scaleUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
+func ScaleUint16LASX(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -1023,7 +1023,7 @@ func scaleUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
 	scaleUint16LASX(dst[:n:n], a, s)
 }
 
-func addScalarUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
+func AddScalarUint16LASX(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -1032,7 +1032,7 @@ func addScalarUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
 	addScalarUint16LASX(dst[:n:n], a, s)
 }
 
-func subScalarUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
+func SubScalarUint16LASX(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -1041,7 +1041,7 @@ func subScalarUint16LASXGuarded(dst []uint16, a []uint16, s uint16) {
 	subScalarUint16LASX(dst[:n:n], a, s)
 }
 
-func clampUint16LASXGuarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
+func ClampUint16LASX(dst []uint16, a []uint16, lo uint16, hi uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -1050,7 +1050,7 @@ func clampUint16LASXGuarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
 	clampUint16LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillUint16LASXGuarded(dst []uint16, v uint16) {
+func FillUint16LASX(dst []uint16, v uint16) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1058,7 +1058,7 @@ func fillUint16LASXGuarded(dst []uint16, v uint16) {
 	fillUint16LASX(dst, v)
 }
 
-func lerpUint16LASXGuarded(dst []uint16, a []uint16, b []uint16, t uint16) {
+func LerpUint16LASX(dst []uint16, a []uint16, b []uint16, t uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1067,7 +1067,7 @@ func lerpUint16LASXGuarded(dst []uint16, a []uint16, b []uint16, t uint16) {
 	lerpUint16LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledUint16LASXGuarded(dst []uint16, a []uint16, b []uint16, s uint16) {
+func AddScaledUint16LASX(dst []uint16, a []uint16, b []uint16, s uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -1076,7 +1076,7 @@ func addScaledUint16LASXGuarded(dst []uint16, a []uint16, b []uint16, s uint16) 
 	addScaledUint16LASX(dst[:n:n], a, b, s)
 }
 
-func rampUint16LASXGuarded(dst []uint16, start uint16, step uint16) {
+func RampUint16LASX(dst []uint16, start uint16, step uint16) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -1084,7 +1084,7 @@ func rampUint16LASXGuarded(dst []uint16, start uint16, step uint16) {
 	rampUint16LASX(dst, start, step)
 }
 
-func addUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+func AddUint32LASX(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -1093,7 +1093,7 @@ func addUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
 	addUint32LASX(dst[:n:n], a, b)
 }
 
-func subUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+func SubUint32LASX(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -1102,7 +1102,7 @@ func subUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
 	subUint32LASX(dst[:n:n], a, b)
 }
 
-func mulUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+func MulUint32LASX(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -1111,7 +1111,7 @@ func mulUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
 	mulUint32LASX(dst[:n:n], a, b)
 }
 
-func minimumUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+func MinimumUint32LASX(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -1120,7 +1120,7 @@ func minimumUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
 	minimumUint32LASX(dst[:n:n], a, b)
 }
 
-func maximumUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+func MaximumUint32LASX(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -1129,7 +1129,7 @@ func maximumUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
 	maximumUint32LASX(dst[:n:n], a, b)
 }
 
-func absUint32LASXGuarded(dst []uint32, a []uint32) {
+func AbsUint32LASX(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -1138,7 +1138,7 @@ func absUint32LASXGuarded(dst []uint32, a []uint32) {
 	absUint32LASX(dst[:n:n], a)
 }
 
-func negUint32LASXGuarded(dst []uint32, a []uint32) {
+func NegUint32LASX(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -1147,7 +1147,7 @@ func negUint32LASXGuarded(dst []uint32, a []uint32) {
 	negUint32LASX(dst[:n:n], a)
 }
 
-func scaleUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
+func ScaleUint32LASX(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -1156,7 +1156,7 @@ func scaleUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
 	scaleUint32LASX(dst[:n:n], a, s)
 }
 
-func addScalarUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
+func AddScalarUint32LASX(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -1165,7 +1165,7 @@ func addScalarUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
 	addScalarUint32LASX(dst[:n:n], a, s)
 }
 
-func subScalarUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
+func SubScalarUint32LASX(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -1174,7 +1174,7 @@ func subScalarUint32LASXGuarded(dst []uint32, a []uint32, s uint32) {
 	subScalarUint32LASX(dst[:n:n], a, s)
 }
 
-func clampUint32LASXGuarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
+func ClampUint32LASX(dst []uint32, a []uint32, lo uint32, hi uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -1183,7 +1183,7 @@ func clampUint32LASXGuarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
 	clampUint32LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillUint32LASXGuarded(dst []uint32, v uint32) {
+func FillUint32LASX(dst []uint32, v uint32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1191,7 +1191,7 @@ func fillUint32LASXGuarded(dst []uint32, v uint32) {
 	fillUint32LASX(dst, v)
 }
 
-func lerpUint32LASXGuarded(dst []uint32, a []uint32, b []uint32, t uint32) {
+func LerpUint32LASX(dst []uint32, a []uint32, b []uint32, t uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1200,7 +1200,7 @@ func lerpUint32LASXGuarded(dst []uint32, a []uint32, b []uint32, t uint32) {
 	lerpUint32LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledUint32LASXGuarded(dst []uint32, a []uint32, b []uint32, s uint32) {
+func AddScaledUint32LASX(dst []uint32, a []uint32, b []uint32, s uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -1209,7 +1209,7 @@ func addScaledUint32LASXGuarded(dst []uint32, a []uint32, b []uint32, s uint32) 
 	addScaledUint32LASX(dst[:n:n], a, b, s)
 }
 
-func rampUint32LASXGuarded(dst []uint32, start uint32, step uint32) {
+func RampUint32LASX(dst []uint32, start uint32, step uint32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -1217,7 +1217,7 @@ func rampUint32LASXGuarded(dst []uint32, start uint32, step uint32) {
 	rampUint32LASX(dst, start, step)
 }
 
-func addUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+func AddUint64LASX(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -1226,7 +1226,7 @@ func addUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
 	addUint64LASX(dst[:n:n], a, b)
 }
 
-func subUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+func SubUint64LASX(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -1235,7 +1235,7 @@ func subUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
 	subUint64LASX(dst[:n:n], a, b)
 }
 
-func mulUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+func MulUint64LASX(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -1244,7 +1244,7 @@ func mulUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
 	mulUint64LASX(dst[:n:n], a, b)
 }
 
-func minimumUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+func MinimumUint64LASX(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -1253,7 +1253,7 @@ func minimumUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
 	minimumUint64LASX(dst[:n:n], a, b)
 }
 
-func maximumUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
+func MaximumUint64LASX(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -1262,7 +1262,7 @@ func maximumUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) {
 	maximumUint64LASX(dst[:n:n], a, b)
 }
 
-func absUint64LASXGuarded(dst []uint64, a []uint64) {
+func AbsUint64LASX(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -1271,7 +1271,7 @@ func absUint64LASXGuarded(dst []uint64, a []uint64) {
 	absUint64LASX(dst[:n:n], a)
 }
 
-func negUint64LASXGuarded(dst []uint64, a []uint64) {
+func NegUint64LASX(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -1280,7 +1280,7 @@ func negUint64LASXGuarded(dst []uint64, a []uint64) {
 	negUint64LASX(dst[:n:n], a)
 }
 
-func scaleUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+func ScaleUint64LASX(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -1289,7 +1289,7 @@ func scaleUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 	scaleUint64LASX(dst[:n:n], a, s)
 }
 
-func addScalarUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+func AddScalarUint64LASX(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -1298,7 +1298,7 @@ func addScalarUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 	addScalarUint64LASX(dst[:n:n], a, s)
 }
 
-func subScalarUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+func SubScalarUint64LASX(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -1307,7 +1307,7 @@ func subScalarUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 	subScalarUint64LASX(dst[:n:n], a, s)
 }
 
-func clampUint64LASXGuarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
+func ClampUint64LASX(dst []uint64, a []uint64, lo uint64, hi uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -1316,7 +1316,7 @@ func clampUint64LASXGuarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
 	clampUint64LASX(dst[:n:n], a, lo, hi)
 }
 
-func fillUint64LASXGuarded(dst []uint64, v uint64) {
+func FillUint64LASX(dst []uint64, v uint64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1324,7 +1324,7 @@ func fillUint64LASXGuarded(dst []uint64, v uint64) {
 	fillUint64LASX(dst, v)
 }
 
-func lerpUint64LASXGuarded(dst []uint64, a []uint64, b []uint64, t uint64) {
+func LerpUint64LASX(dst []uint64, a []uint64, b []uint64, t uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1333,7 +1333,7 @@ func lerpUint64LASXGuarded(dst []uint64, a []uint64, b []uint64, t uint64) {
 	lerpUint64LASX(dst[:n:n], a, b, t)
 }
 
-func addScaledUint64LASXGuarded(dst []uint64, a []uint64, b []uint64, s uint64) {
+func AddScaledUint64LASX(dst []uint64, a []uint64, b []uint64, s uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -1342,7 +1342,7 @@ func addScaledUint64LASXGuarded(dst []uint64, a []uint64, b []uint64, s uint64) 
 	addScaledUint64LASX(dst[:n:n], a, b, s)
 }
 
-func rampUint64LASXGuarded(dst []uint64, start uint64, step uint64) {
+func RampUint64LASX(dst []uint64, start uint64, step uint64) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -1350,7 +1350,7 @@ func rampUint64LASXGuarded(dst []uint64, start uint64, step uint64) {
 	rampUint64LASX(dst, start, step)
 }
 
-func shlInt32LASXGuarded(dst []int32, a []int32, s uint64) {
+func ShlInt32LASX(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1359,7 +1359,7 @@ func shlInt32LASXGuarded(dst []int32, a []int32, s uint64) {
 	shlInt32LASX(dst[:n:n], a, s)
 }
 
-func shrInt32LASXGuarded(dst []int32, a []int32, s uint64) {
+func ShrInt32LASX(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1368,7 +1368,7 @@ func shrInt32LASXGuarded(dst []int32, a []int32, s uint64) {
 	shrInt32LASX(dst[:n:n], a, s)
 }
 
-func rotlInt32LASXGuarded(dst []int32, a []int32, s uint64) {
+func RotlInt32LASX(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1377,7 +1377,7 @@ func rotlInt32LASXGuarded(dst []int32, a []int32, s uint64) {
 	rotlInt32LASX(dst[:n:n], a, s)
 }
 
-func rotrInt32LASXGuarded(dst []int32, a []int32, s uint64) {
+func RotrInt32LASX(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1386,7 +1386,7 @@ func rotrInt32LASXGuarded(dst []int32, a []int32, s uint64) {
 	rotrInt32LASX(dst[:n:n], a, s)
 }
 
-func onesCountInt32LASXGuarded(dst []int32, a []int32) {
+func OnesCountInt32LASX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1395,7 +1395,7 @@ func onesCountInt32LASXGuarded(dst []int32, a []int32) {
 	onesCountInt32LASX(dst[:n:n], a)
 }
 
-func leadingZerosInt32LASXGuarded(dst []int32, a []int32) {
+func LeadingZerosInt32LASX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1404,7 +1404,7 @@ func leadingZerosInt32LASXGuarded(dst []int32, a []int32) {
 	leadingZerosInt32LASX(dst[:n:n], a)
 }
 
-func trailingZerosInt32LASXGuarded(dst []int32, a []int32) {
+func TrailingZerosInt32LASX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1413,7 +1413,7 @@ func trailingZerosInt32LASXGuarded(dst []int32, a []int32) {
 	trailingZerosInt32LASX(dst[:n:n], a)
 }
 
-func reverseBitsInt32LASXGuarded(dst []int32, a []int32) {
+func ReverseBitsInt32LASX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1422,7 +1422,7 @@ func reverseBitsInt32LASXGuarded(dst []int32, a []int32) {
 	reverseBitsInt32LASX(dst[:n:n], a)
 }
 
-func byteSwapInt32LASXGuarded(dst []int32, a []int32) {
+func ByteSwapInt32LASX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1431,7 +1431,7 @@ func byteSwapInt32LASXGuarded(dst []int32, a []int32) {
 	byteSwapInt32LASX(dst[:n:n], a)
 }
 
-func shlInt64LASXGuarded(dst []int64, a []int64, s uint64) {
+func ShlInt64LASX(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1440,7 +1440,7 @@ func shlInt64LASXGuarded(dst []int64, a []int64, s uint64) {
 	shlInt64LASX(dst[:n:n], a, s)
 }
 
-func shrInt64LASXGuarded(dst []int64, a []int64, s uint64) {
+func ShrInt64LASX(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1449,7 +1449,7 @@ func shrInt64LASXGuarded(dst []int64, a []int64, s uint64) {
 	shrInt64LASX(dst[:n:n], a, s)
 }
 
-func rotlInt64LASXGuarded(dst []int64, a []int64, s uint64) {
+func RotlInt64LASX(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1458,7 +1458,7 @@ func rotlInt64LASXGuarded(dst []int64, a []int64, s uint64) {
 	rotlInt64LASX(dst[:n:n], a, s)
 }
 
-func rotrInt64LASXGuarded(dst []int64, a []int64, s uint64) {
+func RotrInt64LASX(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1467,7 +1467,7 @@ func rotrInt64LASXGuarded(dst []int64, a []int64, s uint64) {
 	rotrInt64LASX(dst[:n:n], a, s)
 }
 
-func onesCountInt64LASXGuarded(dst []int64, a []int64) {
+func OnesCountInt64LASX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1476,7 +1476,7 @@ func onesCountInt64LASXGuarded(dst []int64, a []int64) {
 	onesCountInt64LASX(dst[:n:n], a)
 }
 
-func leadingZerosInt64LASXGuarded(dst []int64, a []int64) {
+func LeadingZerosInt64LASX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1485,7 +1485,7 @@ func leadingZerosInt64LASXGuarded(dst []int64, a []int64) {
 	leadingZerosInt64LASX(dst[:n:n], a)
 }
 
-func trailingZerosInt64LASXGuarded(dst []int64, a []int64) {
+func TrailingZerosInt64LASX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1494,7 +1494,7 @@ func trailingZerosInt64LASXGuarded(dst []int64, a []int64) {
 	trailingZerosInt64LASX(dst[:n:n], a)
 }
 
-func reverseBitsInt64LASXGuarded(dst []int64, a []int64) {
+func ReverseBitsInt64LASX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1503,7 +1503,7 @@ func reverseBitsInt64LASXGuarded(dst []int64, a []int64) {
 	reverseBitsInt64LASX(dst[:n:n], a)
 }
 
-func byteSwapInt64LASXGuarded(dst []int64, a []int64) {
+func ByteSwapInt64LASX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1512,7 +1512,7 @@ func byteSwapInt64LASXGuarded(dst []int64, a []int64) {
 	byteSwapInt64LASX(dst[:n:n], a)
 }
 
-func shlInt8LASXGuarded(dst []int8, a []int8, s uint64) {
+func ShlInt8LASX(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1521,7 +1521,7 @@ func shlInt8LASXGuarded(dst []int8, a []int8, s uint64) {
 	shlInt8LASX(dst[:n:n], a, s)
 }
 
-func shrInt8LASXGuarded(dst []int8, a []int8, s uint64) {
+func ShrInt8LASX(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1530,7 +1530,7 @@ func shrInt8LASXGuarded(dst []int8, a []int8, s uint64) {
 	shrInt8LASX(dst[:n:n], a, s)
 }
 
-func rotlInt8LASXGuarded(dst []int8, a []int8, s uint64) {
+func RotlInt8LASX(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1539,7 +1539,7 @@ func rotlInt8LASXGuarded(dst []int8, a []int8, s uint64) {
 	rotlInt8LASX(dst[:n:n], a, s)
 }
 
-func rotrInt8LASXGuarded(dst []int8, a []int8, s uint64) {
+func RotrInt8LASX(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1548,7 +1548,7 @@ func rotrInt8LASXGuarded(dst []int8, a []int8, s uint64) {
 	rotrInt8LASX(dst[:n:n], a, s)
 }
 
-func onesCountInt8LASXGuarded(dst []int8, a []int8) {
+func OnesCountInt8LASX(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1557,7 +1557,7 @@ func onesCountInt8LASXGuarded(dst []int8, a []int8) {
 	onesCountInt8LASX(dst[:n:n], a)
 }
 
-func leadingZerosInt8LASXGuarded(dst []int8, a []int8) {
+func LeadingZerosInt8LASX(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1566,7 +1566,7 @@ func leadingZerosInt8LASXGuarded(dst []int8, a []int8) {
 	leadingZerosInt8LASX(dst[:n:n], a)
 }
 
-func trailingZerosInt8LASXGuarded(dst []int8, a []int8) {
+func TrailingZerosInt8LASX(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1575,7 +1575,7 @@ func trailingZerosInt8LASXGuarded(dst []int8, a []int8) {
 	trailingZerosInt8LASX(dst[:n:n], a)
 }
 
-func reverseBitsInt8LASXGuarded(dst []int8, a []int8) {
+func ReverseBitsInt8LASX(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1584,7 +1584,7 @@ func reverseBitsInt8LASXGuarded(dst []int8, a []int8) {
 	reverseBitsInt8LASX(dst[:n:n], a)
 }
 
-func shlInt16LASXGuarded(dst []int16, a []int16, s uint64) {
+func ShlInt16LASX(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1593,7 +1593,7 @@ func shlInt16LASXGuarded(dst []int16, a []int16, s uint64) {
 	shlInt16LASX(dst[:n:n], a, s)
 }
 
-func shrInt16LASXGuarded(dst []int16, a []int16, s uint64) {
+func ShrInt16LASX(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1602,7 +1602,7 @@ func shrInt16LASXGuarded(dst []int16, a []int16, s uint64) {
 	shrInt16LASX(dst[:n:n], a, s)
 }
 
-func rotlInt16LASXGuarded(dst []int16, a []int16, s uint64) {
+func RotlInt16LASX(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1611,7 +1611,7 @@ func rotlInt16LASXGuarded(dst []int16, a []int16, s uint64) {
 	rotlInt16LASX(dst[:n:n], a, s)
 }
 
-func rotrInt16LASXGuarded(dst []int16, a []int16, s uint64) {
+func RotrInt16LASX(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1620,7 +1620,7 @@ func rotrInt16LASXGuarded(dst []int16, a []int16, s uint64) {
 	rotrInt16LASX(dst[:n:n], a, s)
 }
 
-func onesCountInt16LASXGuarded(dst []int16, a []int16) {
+func OnesCountInt16LASX(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1629,7 +1629,7 @@ func onesCountInt16LASXGuarded(dst []int16, a []int16) {
 	onesCountInt16LASX(dst[:n:n], a)
 }
 
-func leadingZerosInt16LASXGuarded(dst []int16, a []int16) {
+func LeadingZerosInt16LASX(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1638,7 +1638,7 @@ func leadingZerosInt16LASXGuarded(dst []int16, a []int16) {
 	leadingZerosInt16LASX(dst[:n:n], a)
 }
 
-func trailingZerosInt16LASXGuarded(dst []int16, a []int16) {
+func TrailingZerosInt16LASX(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1647,7 +1647,7 @@ func trailingZerosInt16LASXGuarded(dst []int16, a []int16) {
 	trailingZerosInt16LASX(dst[:n:n], a)
 }
 
-func reverseBitsInt16LASXGuarded(dst []int16, a []int16) {
+func ReverseBitsInt16LASX(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1656,7 +1656,7 @@ func reverseBitsInt16LASXGuarded(dst []int16, a []int16) {
 	reverseBitsInt16LASX(dst[:n:n], a)
 }
 
-func byteSwapInt16LASXGuarded(dst []int16, a []int16) {
+func ByteSwapInt16LASX(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1665,7 +1665,7 @@ func byteSwapInt16LASXGuarded(dst []int16, a []int16) {
 	byteSwapInt16LASX(dst[:n:n], a)
 }
 
-func shlUint8LASXGuarded(dst []byte, a []byte, s uint64) {
+func ShlUint8LASX(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1674,7 +1674,7 @@ func shlUint8LASXGuarded(dst []byte, a []byte, s uint64) {
 	shlUint8LASX(dst[:n:n], a, s)
 }
 
-func shrUint8LASXGuarded(dst []byte, a []byte, s uint64) {
+func ShrUint8LASX(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1683,7 +1683,7 @@ func shrUint8LASXGuarded(dst []byte, a []byte, s uint64) {
 	shrUint8LASX(dst[:n:n], a, s)
 }
 
-func rotlUint8LASXGuarded(dst []byte, a []byte, s uint64) {
+func RotlUint8LASX(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1692,7 +1692,7 @@ func rotlUint8LASXGuarded(dst []byte, a []byte, s uint64) {
 	rotlUint8LASX(dst[:n:n], a, s)
 }
 
-func rotrUint8LASXGuarded(dst []byte, a []byte, s uint64) {
+func RotrUint8LASX(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1701,7 +1701,7 @@ func rotrUint8LASXGuarded(dst []byte, a []byte, s uint64) {
 	rotrUint8LASX(dst[:n:n], a, s)
 }
 
-func onesCountUint8LASXGuarded(dst []byte, a []byte) {
+func OnesCountUint8LASX(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1710,7 +1710,7 @@ func onesCountUint8LASXGuarded(dst []byte, a []byte) {
 	onesCountUint8LASX(dst[:n:n], a)
 }
 
-func leadingZerosUint8LASXGuarded(dst []byte, a []byte) {
+func LeadingZerosUint8LASX(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1719,7 +1719,7 @@ func leadingZerosUint8LASXGuarded(dst []byte, a []byte) {
 	leadingZerosUint8LASX(dst[:n:n], a)
 }
 
-func trailingZerosUint8LASXGuarded(dst []byte, a []byte) {
+func TrailingZerosUint8LASX(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1728,7 +1728,7 @@ func trailingZerosUint8LASXGuarded(dst []byte, a []byte) {
 	trailingZerosUint8LASX(dst[:n:n], a)
 }
 
-func reverseBitsUint8LASXGuarded(dst []byte, a []byte) {
+func ReverseBitsUint8LASX(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1737,7 +1737,7 @@ func reverseBitsUint8LASXGuarded(dst []byte, a []byte) {
 	reverseBitsUint8LASX(dst[:n:n], a)
 }
 
-func shlUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
+func ShlUint16LASX(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1746,7 +1746,7 @@ func shlUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
 	shlUint16LASX(dst[:n:n], a, s)
 }
 
-func shrUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
+func ShrUint16LASX(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1755,7 +1755,7 @@ func shrUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
 	shrUint16LASX(dst[:n:n], a, s)
 }
 
-func rotlUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
+func RotlUint16LASX(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1764,7 +1764,7 @@ func rotlUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
 	rotlUint16LASX(dst[:n:n], a, s)
 }
 
-func rotrUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
+func RotrUint16LASX(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1773,7 +1773,7 @@ func rotrUint16LASXGuarded(dst []uint16, a []uint16, s uint64) {
 	rotrUint16LASX(dst[:n:n], a, s)
 }
 
-func onesCountUint16LASXGuarded(dst []uint16, a []uint16) {
+func OnesCountUint16LASX(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1782,7 +1782,7 @@ func onesCountUint16LASXGuarded(dst []uint16, a []uint16) {
 	onesCountUint16LASX(dst[:n:n], a)
 }
 
-func leadingZerosUint16LASXGuarded(dst []uint16, a []uint16) {
+func LeadingZerosUint16LASX(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1791,7 +1791,7 @@ func leadingZerosUint16LASXGuarded(dst []uint16, a []uint16) {
 	leadingZerosUint16LASX(dst[:n:n], a)
 }
 
-func trailingZerosUint16LASXGuarded(dst []uint16, a []uint16) {
+func TrailingZerosUint16LASX(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1800,7 +1800,7 @@ func trailingZerosUint16LASXGuarded(dst []uint16, a []uint16) {
 	trailingZerosUint16LASX(dst[:n:n], a)
 }
 
-func reverseBitsUint16LASXGuarded(dst []uint16, a []uint16) {
+func ReverseBitsUint16LASX(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1809,7 +1809,7 @@ func reverseBitsUint16LASXGuarded(dst []uint16, a []uint16) {
 	reverseBitsUint16LASX(dst[:n:n], a)
 }
 
-func byteSwapUint16LASXGuarded(dst []uint16, a []uint16) {
+func ByteSwapUint16LASX(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1818,7 +1818,7 @@ func byteSwapUint16LASXGuarded(dst []uint16, a []uint16) {
 	byteSwapUint16LASX(dst[:n:n], a)
 }
 
-func shlUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
+func ShlUint32LASX(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1827,7 +1827,7 @@ func shlUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
 	shlUint32LASX(dst[:n:n], a, s)
 }
 
-func shrUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
+func ShrUint32LASX(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1836,7 +1836,7 @@ func shrUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
 	shrUint32LASX(dst[:n:n], a, s)
 }
 
-func rotlUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
+func RotlUint32LASX(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1845,7 +1845,7 @@ func rotlUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
 	rotlUint32LASX(dst[:n:n], a, s)
 }
 
-func rotrUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
+func RotrUint32LASX(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1854,7 +1854,7 @@ func rotrUint32LASXGuarded(dst []uint32, a []uint32, s uint64) {
 	rotrUint32LASX(dst[:n:n], a, s)
 }
 
-func onesCountUint32LASXGuarded(dst []uint32, a []uint32) {
+func OnesCountUint32LASX(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1863,7 +1863,7 @@ func onesCountUint32LASXGuarded(dst []uint32, a []uint32) {
 	onesCountUint32LASX(dst[:n:n], a)
 }
 
-func leadingZerosUint32LASXGuarded(dst []uint32, a []uint32) {
+func LeadingZerosUint32LASX(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1872,7 +1872,7 @@ func leadingZerosUint32LASXGuarded(dst []uint32, a []uint32) {
 	leadingZerosUint32LASX(dst[:n:n], a)
 }
 
-func trailingZerosUint32LASXGuarded(dst []uint32, a []uint32) {
+func TrailingZerosUint32LASX(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1881,7 +1881,7 @@ func trailingZerosUint32LASXGuarded(dst []uint32, a []uint32) {
 	trailingZerosUint32LASX(dst[:n:n], a)
 }
 
-func reverseBitsUint32LASXGuarded(dst []uint32, a []uint32) {
+func ReverseBitsUint32LASX(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1890,7 +1890,7 @@ func reverseBitsUint32LASXGuarded(dst []uint32, a []uint32) {
 	reverseBitsUint32LASX(dst[:n:n], a)
 }
 
-func byteSwapUint32LASXGuarded(dst []uint32, a []uint32) {
+func ByteSwapUint32LASX(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1899,7 +1899,7 @@ func byteSwapUint32LASXGuarded(dst []uint32, a []uint32) {
 	byteSwapUint32LASX(dst[:n:n], a)
 }
 
-func shlUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+func ShlUint64LASX(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1908,7 +1908,7 @@ func shlUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 	shlUint64LASX(dst[:n:n], a, s)
 }
 
-func shrUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+func ShrUint64LASX(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1917,7 +1917,7 @@ func shrUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 	shrUint64LASX(dst[:n:n], a, s)
 }
 
-func rotlUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+func RotlUint64LASX(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1926,7 +1926,7 @@ func rotlUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 	rotlUint64LASX(dst[:n:n], a, s)
 }
 
-func rotrUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
+func RotrUint64LASX(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1935,7 +1935,7 @@ func rotrUint64LASXGuarded(dst []uint64, a []uint64, s uint64) {
 	rotrUint64LASX(dst[:n:n], a, s)
 }
 
-func onesCountUint64LASXGuarded(dst []uint64, a []uint64) {
+func OnesCountUint64LASX(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1944,7 +1944,7 @@ func onesCountUint64LASXGuarded(dst []uint64, a []uint64) {
 	onesCountUint64LASX(dst[:n:n], a)
 }
 
-func leadingZerosUint64LASXGuarded(dst []uint64, a []uint64) {
+func LeadingZerosUint64LASX(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1953,7 +1953,7 @@ func leadingZerosUint64LASXGuarded(dst []uint64, a []uint64) {
 	leadingZerosUint64LASX(dst[:n:n], a)
 }
 
-func trailingZerosUint64LASXGuarded(dst []uint64, a []uint64) {
+func TrailingZerosUint64LASX(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1962,7 +1962,7 @@ func trailingZerosUint64LASXGuarded(dst []uint64, a []uint64) {
 	trailingZerosUint64LASX(dst[:n:n], a)
 }
 
-func reverseBitsUint64LASXGuarded(dst []uint64, a []uint64) {
+func ReverseBitsUint64LASX(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1971,7 +1971,7 @@ func reverseBitsUint64LASXGuarded(dst []uint64, a []uint64) {
 	reverseBitsUint64LASX(dst[:n:n], a)
 }
 
-func byteSwapUint64LASXGuarded(dst []uint64, a []uint64) {
+func ByteSwapUint64LASX(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1980,7 +1980,7 @@ func byteSwapUint64LASXGuarded(dst []uint64, a []uint64) {
 	byteSwapUint64LASX(dst[:n:n], a)
 }
 
-func divFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
+func DivFloat32LASX(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Div(dst, a, b)
@@ -1989,7 +1989,7 @@ func divFloat32LASXGuarded(dst []float32, a []float32, b []float32) {
 	divFloat32LASX(dst[:n:n], a, b)
 }
 
-func divScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
+func DivScalarFloat32LASX(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DivScalar(dst, a, s)
@@ -1998,7 +1998,7 @@ func divScalarFloat32LASXGuarded(dst []float32, a []float32, s float32) {
 	divScalarFloat32LASX(dst[:n:n], a, s)
 }
 
-func sqrtFloat32LASXGuarded(dst []float32, a []float32) {
+func SqrtFloat32LASX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Sqrt(dst, a)
@@ -2007,7 +2007,7 @@ func sqrtFloat32LASXGuarded(dst []float32, a []float32) {
 	sqrtFloat32LASX(dst[:n:n], a)
 }
 
-func reciprocalFloat32LASXGuarded(dst []float32, a []float32) {
+func ReciprocalFloat32LASX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Reciprocal(dst, a)
@@ -2016,7 +2016,7 @@ func reciprocalFloat32LASXGuarded(dst []float32, a []float32) {
 	reciprocalFloat32LASX(dst[:n:n], a)
 }
 
-func floorFloat32LASXGuarded(dst []float32, a []float32) {
+func FloorFloat32LASX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Floor(dst, a)
@@ -2025,7 +2025,7 @@ func floorFloat32LASXGuarded(dst []float32, a []float32) {
 	floorFloat32LASX(dst[:n:n], a)
 }
 
-func ceilFloat32LASXGuarded(dst []float32, a []float32) {
+func CeilFloat32LASX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Ceil(dst, a)
@@ -2034,7 +2034,7 @@ func ceilFloat32LASXGuarded(dst []float32, a []float32) {
 	ceilFloat32LASX(dst[:n:n], a)
 }
 
-func truncFloat32LASXGuarded(dst []float32, a []float32) {
+func TruncFloat32LASX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Trunc(dst, a)
@@ -2043,7 +2043,7 @@ func truncFloat32LASXGuarded(dst []float32, a []float32) {
 	truncFloat32LASX(dst[:n:n], a)
 }
 
-func divFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
+func DivFloat64LASX(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Div(dst, a, b)
@@ -2052,7 +2052,7 @@ func divFloat64LASXGuarded(dst []float64, a []float64, b []float64) {
 	divFloat64LASX(dst[:n:n], a, b)
 }
 
-func divScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
+func DivScalarFloat64LASX(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DivScalar(dst, a, s)
@@ -2061,7 +2061,7 @@ func divScalarFloat64LASXGuarded(dst []float64, a []float64, s float64) {
 	divScalarFloat64LASX(dst[:n:n], a, s)
 }
 
-func sqrtFloat64LASXGuarded(dst []float64, a []float64) {
+func SqrtFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Sqrt(dst, a)
@@ -2070,7 +2070,7 @@ func sqrtFloat64LASXGuarded(dst []float64, a []float64) {
 	sqrtFloat64LASX(dst[:n:n], a)
 }
 
-func reciprocalFloat64LASXGuarded(dst []float64, a []float64) {
+func ReciprocalFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Reciprocal(dst, a)
@@ -2079,7 +2079,7 @@ func reciprocalFloat64LASXGuarded(dst []float64, a []float64) {
 	reciprocalFloat64LASX(dst[:n:n], a)
 }
 
-func floorFloat64LASXGuarded(dst []float64, a []float64) {
+func FloorFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Floor(dst, a)
@@ -2088,7 +2088,7 @@ func floorFloat64LASXGuarded(dst []float64, a []float64) {
 	floorFloat64LASX(dst[:n:n], a)
 }
 
-func ceilFloat64LASXGuarded(dst []float64, a []float64) {
+func CeilFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Ceil(dst, a)
@@ -2097,7 +2097,7 @@ func ceilFloat64LASXGuarded(dst []float64, a []float64) {
 	ceilFloat64LASX(dst[:n:n], a)
 }
 
-func truncFloat64LASXGuarded(dst []float64, a []float64) {
+func TruncFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Trunc(dst, a)
@@ -2106,7 +2106,7 @@ func truncFloat64LASXGuarded(dst []float64, a []float64) {
 	truncFloat64LASX(dst[:n:n], a)
 }
 
-func satAddInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+func SatAddInt32LASX(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2115,7 +2115,7 @@ func satAddInt32LASXGuarded(dst []int32, a []int32, b []int32) {
 	satAddInt32LASX(dst[:n:n], a, b)
 }
 
-func satSubInt32LASXGuarded(dst []int32, a []int32, b []int32) {
+func SatSubInt32LASX(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2124,7 +2124,7 @@ func satSubInt32LASXGuarded(dst []int32, a []int32, b []int32) {
 	satSubInt32LASX(dst[:n:n], a, b)
 }
 
-func satAddInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+func SatAddInt8LASX(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2133,7 +2133,7 @@ func satAddInt8LASXGuarded(dst []int8, a []int8, b []int8) {
 	satAddInt8LASX(dst[:n:n], a, b)
 }
 
-func satSubInt8LASXGuarded(dst []int8, a []int8, b []int8) {
+func SatSubInt8LASX(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2142,7 +2142,7 @@ func satSubInt8LASXGuarded(dst []int8, a []int8, b []int8) {
 	satSubInt8LASX(dst[:n:n], a, b)
 }
 
-func satAddInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+func SatAddInt16LASX(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2151,7 +2151,7 @@ func satAddInt16LASXGuarded(dst []int16, a []int16, b []int16) {
 	satAddInt16LASX(dst[:n:n], a, b)
 }
 
-func satSubInt16LASXGuarded(dst []int16, a []int16, b []int16) {
+func SatSubInt16LASX(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2160,7 +2160,7 @@ func satSubInt16LASXGuarded(dst []int16, a []int16, b []int16) {
 	satSubInt16LASX(dst[:n:n], a, b)
 }
 
-func satAddUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+func SatAddUint8LASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2169,7 +2169,7 @@ func satAddUint8LASXGuarded(dst []byte, a []byte, b []byte) {
 	satAddUint8LASX(dst[:n:n], a, b)
 }
 
-func satSubUint8LASXGuarded(dst []byte, a []byte, b []byte) {
+func SatSubUint8LASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2178,7 +2178,7 @@ func satSubUint8LASXGuarded(dst []byte, a []byte, b []byte) {
 	satSubUint8LASX(dst[:n:n], a, b)
 }
 
-func satAddUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+func SatAddUint16LASX(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2187,7 +2187,7 @@ func satAddUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
 	satAddUint16LASX(dst[:n:n], a, b)
 }
 
-func satSubUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
+func SatSubUint16LASX(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2196,7 +2196,7 @@ func satSubUint16LASXGuarded(dst []uint16, a []uint16, b []uint16) {
 	satSubUint16LASX(dst[:n:n], a, b)
 }
 
-func satAddUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+func SatAddUint32LASX(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2205,7 +2205,7 @@ func satAddUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
 	satAddUint32LASX(dst[:n:n], a, b)
 }
 
-func satSubUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
+func SatSubUint32LASX(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2214,254 +2214,251 @@ func satSubUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) {
 	satSubUint32LASX(dst[:n:n], a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.F32.Add = addFloat32LASXGuarded
-	s.F32.Sub = subFloat32LASXGuarded
-	s.F32.Mul = mulFloat32LASXGuarded
-	s.F32.Minimum = minimumFloat32LASXGuarded
-	s.F32.Maximum = maximumFloat32LASXGuarded
-	s.F32.Abs = absFloat32LASXGuarded
-	s.F32.Neg = negFloat32LASXGuarded
-	s.F32.Scale = scaleFloat32LASXGuarded
-	s.F32.AddScalar = addScalarFloat32LASXGuarded
-	s.F32.SubScalar = subScalarFloat32LASXGuarded
-	s.F32.Clamp = clampFloat32LASXGuarded
-	s.F32.Fill = fillFloat32LASXGuarded
-	s.F32.Lerp = lerpFloat32LASXGuarded
-	s.F32.AddScaled = addScaledFloat32LASXGuarded
-	s.F32.Ramp = rampFloat32LASXGuarded
-	s.F64.Add = addFloat64LASXGuarded
-	s.F64.Sub = subFloat64LASXGuarded
-	s.F64.Mul = mulFloat64LASXGuarded
-	s.F64.Minimum = minimumFloat64LASXGuarded
-	s.F64.Maximum = maximumFloat64LASXGuarded
-	s.F64.Abs = absFloat64LASXGuarded
-	s.F64.Neg = negFloat64LASXGuarded
-	s.F64.Scale = scaleFloat64LASXGuarded
-	s.F64.AddScalar = addScalarFloat64LASXGuarded
-	s.F64.SubScalar = subScalarFloat64LASXGuarded
-	s.F64.Clamp = clampFloat64LASXGuarded
-	s.F64.Fill = fillFloat64LASXGuarded
-	s.F64.Lerp = lerpFloat64LASXGuarded
-	s.F64.AddScaled = addScaledFloat64LASXGuarded
-	s.F64.Ramp = rampFloat64LASXGuarded
-	s.I32.Add = addInt32LASXGuarded
-	s.I32.Sub = subInt32LASXGuarded
-	s.I32.Mul = mulInt32LASXGuarded
-	s.I32.Minimum = minimumInt32LASXGuarded
-	s.I32.Maximum = maximumInt32LASXGuarded
-	s.I32.Abs = absInt32LASXGuarded
-	s.I32.Neg = negInt32LASXGuarded
-	s.I32.Scale = scaleInt32LASXGuarded
-	s.I32.AddScalar = addScalarInt32LASXGuarded
-	s.I32.SubScalar = subScalarInt32LASXGuarded
-	s.I32.Clamp = clampInt32LASXGuarded
-	s.I32.Fill = fillInt32LASXGuarded
-	s.I32.Lerp = lerpInt32LASXGuarded
-	s.I32.AddScaled = addScaledInt32LASXGuarded
-	s.I32.Ramp = rampInt32LASXGuarded
-	s.I64.Add = addInt64LASXGuarded
-	s.I64.Sub = subInt64LASXGuarded
-	s.I64.Mul = mulInt64LASXGuarded
-	s.I64.Minimum = minimumInt64LASXGuarded
-	s.I64.Maximum = maximumInt64LASXGuarded
-	s.I64.Abs = absInt64LASXGuarded
-	s.I64.Neg = negInt64LASXGuarded
-	s.I64.Scale = scaleInt64LASXGuarded
-	s.I64.AddScalar = addScalarInt64LASXGuarded
-	s.I64.SubScalar = subScalarInt64LASXGuarded
-	s.I64.Clamp = clampInt64LASXGuarded
-	s.I64.Fill = fillInt64LASXGuarded
-	s.I64.Lerp = lerpInt64LASXGuarded
-	s.I64.AddScaled = addScaledInt64LASXGuarded
-	s.I64.Ramp = rampInt64LASXGuarded
-	s.I8.Add = addInt8LASXGuarded
-	s.I8.Sub = subInt8LASXGuarded
-	s.I8.Mul = mulInt8LASXGuarded
-	s.I8.Minimum = minimumInt8LASXGuarded
-	s.I8.Maximum = maximumInt8LASXGuarded
-	s.I8.Abs = absInt8LASXGuarded
-	s.I8.Neg = negInt8LASXGuarded
-	s.I8.Scale = scaleInt8LASXGuarded
-	s.I8.AddScalar = addScalarInt8LASXGuarded
-	s.I8.SubScalar = subScalarInt8LASXGuarded
-	s.I8.Clamp = clampInt8LASXGuarded
-	s.I8.Fill = fillInt8LASXGuarded
-	s.I8.Lerp = lerpInt8LASXGuarded
-	s.I8.AddScaled = addScaledInt8LASXGuarded
-	s.I8.Ramp = rampInt8LASXGuarded
-	s.I16.Add = addInt16LASXGuarded
-	s.I16.Sub = subInt16LASXGuarded
-	s.I16.Mul = mulInt16LASXGuarded
-	s.I16.Minimum = minimumInt16LASXGuarded
-	s.I16.Maximum = maximumInt16LASXGuarded
-	s.I16.Abs = absInt16LASXGuarded
-	s.I16.Neg = negInt16LASXGuarded
-	s.I16.Scale = scaleInt16LASXGuarded
-	s.I16.AddScalar = addScalarInt16LASXGuarded
-	s.I16.SubScalar = subScalarInt16LASXGuarded
-	s.I16.Clamp = clampInt16LASXGuarded
-	s.I16.Fill = fillInt16LASXGuarded
-	s.I16.Lerp = lerpInt16LASXGuarded
-	s.I16.AddScaled = addScaledInt16LASXGuarded
-	s.I16.Ramp = rampInt16LASXGuarded
-	s.U8.Add = addUint8LASXGuarded
-	s.U8.Sub = subUint8LASXGuarded
-	s.U8.Mul = mulUint8LASXGuarded
-	s.U8.Minimum = minimumUint8LASXGuarded
-	s.U8.Maximum = maximumUint8LASXGuarded
-	s.U8.Abs = absUint8LASXGuarded
-	s.U8.Neg = negUint8LASXGuarded
-	s.U8.Scale = scaleUint8LASXGuarded
-	s.U8.AddScalar = addScalarUint8LASXGuarded
-	s.U8.SubScalar = subScalarUint8LASXGuarded
-	s.U8.Clamp = clampUint8LASXGuarded
-	s.U8.Fill = fillUint8LASXGuarded
-	s.U8.Lerp = lerpUint8LASXGuarded
-	s.U8.AddScaled = addScaledUint8LASXGuarded
-	s.U8.Ramp = rampUint8LASXGuarded
-	s.U16.Add = addUint16LASXGuarded
-	s.U16.Sub = subUint16LASXGuarded
-	s.U16.Mul = mulUint16LASXGuarded
-	s.U16.Minimum = minimumUint16LASXGuarded
-	s.U16.Maximum = maximumUint16LASXGuarded
-	s.U16.Abs = absUint16LASXGuarded
-	s.U16.Neg = negUint16LASXGuarded
-	s.U16.Scale = scaleUint16LASXGuarded
-	s.U16.AddScalar = addScalarUint16LASXGuarded
-	s.U16.SubScalar = subScalarUint16LASXGuarded
-	s.U16.Clamp = clampUint16LASXGuarded
-	s.U16.Fill = fillUint16LASXGuarded
-	s.U16.Lerp = lerpUint16LASXGuarded
-	s.U16.AddScaled = addScaledUint16LASXGuarded
-	s.U16.Ramp = rampUint16LASXGuarded
-	s.U32.Add = addUint32LASXGuarded
-	s.U32.Sub = subUint32LASXGuarded
-	s.U32.Mul = mulUint32LASXGuarded
-	s.U32.Minimum = minimumUint32LASXGuarded
-	s.U32.Maximum = maximumUint32LASXGuarded
-	s.U32.Abs = absUint32LASXGuarded
-	s.U32.Neg = negUint32LASXGuarded
-	s.U32.Scale = scaleUint32LASXGuarded
-	s.U32.AddScalar = addScalarUint32LASXGuarded
-	s.U32.SubScalar = subScalarUint32LASXGuarded
-	s.U32.Clamp = clampUint32LASXGuarded
-	s.U32.Fill = fillUint32LASXGuarded
-	s.U32.Lerp = lerpUint32LASXGuarded
-	s.U32.AddScaled = addScaledUint32LASXGuarded
-	s.U32.Ramp = rampUint32LASXGuarded
-	s.U64.Add = addUint64LASXGuarded
-	s.U64.Sub = subUint64LASXGuarded
-	s.U64.Mul = mulUint64LASXGuarded
-	s.U64.Minimum = minimumUint64LASXGuarded
-	s.U64.Maximum = maximumUint64LASXGuarded
-	s.U64.Abs = absUint64LASXGuarded
-	s.U64.Neg = negUint64LASXGuarded
-	s.U64.Scale = scaleUint64LASXGuarded
-	s.U64.AddScalar = addScalarUint64LASXGuarded
-	s.U64.SubScalar = subScalarUint64LASXGuarded
-	s.U64.Clamp = clampUint64LASXGuarded
-	s.U64.Fill = fillUint64LASXGuarded
-	s.U64.Lerp = lerpUint64LASXGuarded
-	s.U64.AddScaled = addScaledUint64LASXGuarded
-	s.U64.Ramp = rampUint64LASXGuarded
-	s.I32.Shl = shlInt32LASXGuarded
-	s.I32.Shr = shrInt32LASXGuarded
-	s.I32.Rotl = rotlInt32LASXGuarded
-	s.I32.Rotr = rotrInt32LASXGuarded
-	s.I32.OnesCount = onesCountInt32LASXGuarded
-	s.I32.LeadingZeros = leadingZerosInt32LASXGuarded
-	s.I32.TrailingZeros = trailingZerosInt32LASXGuarded
-	s.I32.ReverseBits = reverseBitsInt32LASXGuarded
-	s.I32.ByteSwap = byteSwapInt32LASXGuarded
-	s.I64.Shl = shlInt64LASXGuarded
-	s.I64.Shr = shrInt64LASXGuarded
-	s.I64.Rotl = rotlInt64LASXGuarded
-	s.I64.Rotr = rotrInt64LASXGuarded
-	s.I64.OnesCount = onesCountInt64LASXGuarded
-	s.I64.LeadingZeros = leadingZerosInt64LASXGuarded
-	s.I64.TrailingZeros = trailingZerosInt64LASXGuarded
-	s.I64.ReverseBits = reverseBitsInt64LASXGuarded
-	s.I64.ByteSwap = byteSwapInt64LASXGuarded
-	s.I8.Shl = shlInt8LASXGuarded
-	s.I8.Shr = shrInt8LASXGuarded
-	s.I8.Rotl = rotlInt8LASXGuarded
-	s.I8.Rotr = rotrInt8LASXGuarded
-	s.I8.OnesCount = onesCountInt8LASXGuarded
-	s.I8.LeadingZeros = leadingZerosInt8LASXGuarded
-	s.I8.TrailingZeros = trailingZerosInt8LASXGuarded
-	s.I8.ReverseBits = reverseBitsInt8LASXGuarded
-	s.I16.Shl = shlInt16LASXGuarded
-	s.I16.Shr = shrInt16LASXGuarded
-	s.I16.Rotl = rotlInt16LASXGuarded
-	s.I16.Rotr = rotrInt16LASXGuarded
-	s.I16.OnesCount = onesCountInt16LASXGuarded
-	s.I16.LeadingZeros = leadingZerosInt16LASXGuarded
-	s.I16.TrailingZeros = trailingZerosInt16LASXGuarded
-	s.I16.ReverseBits = reverseBitsInt16LASXGuarded
-	s.I16.ByteSwap = byteSwapInt16LASXGuarded
-	s.U8.Shl = shlUint8LASXGuarded
-	s.U8.Shr = shrUint8LASXGuarded
-	s.U8.Rotl = rotlUint8LASXGuarded
-	s.U8.Rotr = rotrUint8LASXGuarded
-	s.U8.OnesCount = onesCountUint8LASXGuarded
-	s.U8.LeadingZeros = leadingZerosUint8LASXGuarded
-	s.U8.TrailingZeros = trailingZerosUint8LASXGuarded
-	s.U8.ReverseBits = reverseBitsUint8LASXGuarded
-	s.U16.Shl = shlUint16LASXGuarded
-	s.U16.Shr = shrUint16LASXGuarded
-	s.U16.Rotl = rotlUint16LASXGuarded
-	s.U16.Rotr = rotrUint16LASXGuarded
-	s.U16.OnesCount = onesCountUint16LASXGuarded
-	s.U16.LeadingZeros = leadingZerosUint16LASXGuarded
-	s.U16.TrailingZeros = trailingZerosUint16LASXGuarded
-	s.U16.ReverseBits = reverseBitsUint16LASXGuarded
-	s.U16.ByteSwap = byteSwapUint16LASXGuarded
-	s.U32.Shl = shlUint32LASXGuarded
-	s.U32.Shr = shrUint32LASXGuarded
-	s.U32.Rotl = rotlUint32LASXGuarded
-	s.U32.Rotr = rotrUint32LASXGuarded
-	s.U32.OnesCount = onesCountUint32LASXGuarded
-	s.U32.LeadingZeros = leadingZerosUint32LASXGuarded
-	s.U32.TrailingZeros = trailingZerosUint32LASXGuarded
-	s.U32.ReverseBits = reverseBitsUint32LASXGuarded
-	s.U32.ByteSwap = byteSwapUint32LASXGuarded
-	s.U64.Shl = shlUint64LASXGuarded
-	s.U64.Shr = shrUint64LASXGuarded
-	s.U64.Rotl = rotlUint64LASXGuarded
-	s.U64.Rotr = rotrUint64LASXGuarded
-	s.U64.OnesCount = onesCountUint64LASXGuarded
-	s.U64.LeadingZeros = leadingZerosUint64LASXGuarded
-	s.U64.TrailingZeros = trailingZerosUint64LASXGuarded
-	s.U64.ReverseBits = reverseBitsUint64LASXGuarded
-	s.U64.ByteSwap = byteSwapUint64LASXGuarded
-	s.F32.Div = divFloat32LASXGuarded
-	s.F32.DivScalar = divScalarFloat32LASXGuarded
-	s.F32.Sqrt = sqrtFloat32LASXGuarded
-	s.F32.Reciprocal = reciprocalFloat32LASXGuarded
-	s.F32.Floor = floorFloat32LASXGuarded
-	s.F32.Ceil = ceilFloat32LASXGuarded
-	s.F32.Trunc = truncFloat32LASXGuarded
-	s.F64.Div = divFloat64LASXGuarded
-	s.F64.DivScalar = divScalarFloat64LASXGuarded
-	s.F64.Sqrt = sqrtFloat64LASXGuarded
-	s.F64.Reciprocal = reciprocalFloat64LASXGuarded
-	s.F64.Floor = floorFloat64LASXGuarded
-	s.F64.Ceil = ceilFloat64LASXGuarded
-	s.F64.Trunc = truncFloat64LASXGuarded
-	s.I32.SatAdd = satAddInt32LASXGuarded
-	s.I32.SatSub = satSubInt32LASXGuarded
-	s.I8.SatAdd = satAddInt8LASXGuarded
-	s.I8.SatSub = satSubInt8LASXGuarded
-	s.I16.SatAdd = satAddInt16LASXGuarded
-	s.I16.SatSub = satSubInt16LASXGuarded
-	s.U8.SatAdd = satAddUint8LASXGuarded
-	s.U8.SatSub = satSubUint8LASXGuarded
-	s.U16.SatAdd = satAddUint16LASXGuarded
-	s.U16.SatSub = satSubUint16LASXGuarded
-	s.U32.SatAdd = satAddUint32LASXGuarded
-	s.U32.SatSub = satSubUint32LASXGuarded
+func registerArithLASX(s *kernel.Set) {
+	s.F32.Add = AddFloat32LASX
+	s.F32.Sub = SubFloat32LASX
+	s.F32.Mul = MulFloat32LASX
+	s.F32.Minimum = MinimumFloat32LASX
+	s.F32.Maximum = MaximumFloat32LASX
+	s.F32.Abs = AbsFloat32LASX
+	s.F32.Neg = NegFloat32LASX
+	s.F32.Scale = ScaleFloat32LASX
+	s.F32.AddScalar = AddScalarFloat32LASX
+	s.F32.SubScalar = SubScalarFloat32LASX
+	s.F32.Clamp = ClampFloat32LASX
+	s.F32.Fill = FillFloat32LASX
+	s.F32.Lerp = LerpFloat32LASX
+	s.F32.AddScaled = AddScaledFloat32LASX
+	s.F32.Ramp = RampFloat32LASX
+	s.F64.Add = AddFloat64LASX
+	s.F64.Sub = SubFloat64LASX
+	s.F64.Mul = MulFloat64LASX
+	s.F64.Minimum = MinimumFloat64LASX
+	s.F64.Maximum = MaximumFloat64LASX
+	s.F64.Abs = AbsFloat64LASX
+	s.F64.Neg = NegFloat64LASX
+	s.F64.Scale = ScaleFloat64LASX
+	s.F64.AddScalar = AddScalarFloat64LASX
+	s.F64.SubScalar = SubScalarFloat64LASX
+	s.F64.Clamp = ClampFloat64LASX
+	s.F64.Fill = FillFloat64LASX
+	s.F64.Lerp = LerpFloat64LASX
+	s.F64.AddScaled = AddScaledFloat64LASX
+	s.F64.Ramp = RampFloat64LASX
+	s.I32.Add = AddInt32LASX
+	s.I32.Sub = SubInt32LASX
+	s.I32.Mul = MulInt32LASX
+	s.I32.Minimum = MinimumInt32LASX
+	s.I32.Maximum = MaximumInt32LASX
+	s.I32.Abs = AbsInt32LASX
+	s.I32.Neg = NegInt32LASX
+	s.I32.Scale = ScaleInt32LASX
+	s.I32.AddScalar = AddScalarInt32LASX
+	s.I32.SubScalar = SubScalarInt32LASX
+	s.I32.Clamp = ClampInt32LASX
+	s.I32.Fill = FillInt32LASX
+	s.I32.Lerp = LerpInt32LASX
+	s.I32.AddScaled = AddScaledInt32LASX
+	s.I32.Ramp = RampInt32LASX
+	s.I64.Add = AddInt64LASX
+	s.I64.Sub = SubInt64LASX
+	s.I64.Mul = MulInt64LASX
+	s.I64.Minimum = MinimumInt64LASX
+	s.I64.Maximum = MaximumInt64LASX
+	s.I64.Abs = AbsInt64LASX
+	s.I64.Neg = NegInt64LASX
+	s.I64.Scale = ScaleInt64LASX
+	s.I64.AddScalar = AddScalarInt64LASX
+	s.I64.SubScalar = SubScalarInt64LASX
+	s.I64.Clamp = ClampInt64LASX
+	s.I64.Fill = FillInt64LASX
+	s.I64.Lerp = LerpInt64LASX
+	s.I64.AddScaled = AddScaledInt64LASX
+	s.I64.Ramp = RampInt64LASX
+	s.I8.Add = AddInt8LASX
+	s.I8.Sub = SubInt8LASX
+	s.I8.Mul = MulInt8LASX
+	s.I8.Minimum = MinimumInt8LASX
+	s.I8.Maximum = MaximumInt8LASX
+	s.I8.Abs = AbsInt8LASX
+	s.I8.Neg = NegInt8LASX
+	s.I8.Scale = ScaleInt8LASX
+	s.I8.AddScalar = AddScalarInt8LASX
+	s.I8.SubScalar = SubScalarInt8LASX
+	s.I8.Clamp = ClampInt8LASX
+	s.I8.Fill = FillInt8LASX
+	s.I8.Lerp = LerpInt8LASX
+	s.I8.AddScaled = AddScaledInt8LASX
+	s.I8.Ramp = RampInt8LASX
+	s.I16.Add = AddInt16LASX
+	s.I16.Sub = SubInt16LASX
+	s.I16.Mul = MulInt16LASX
+	s.I16.Minimum = MinimumInt16LASX
+	s.I16.Maximum = MaximumInt16LASX
+	s.I16.Abs = AbsInt16LASX
+	s.I16.Neg = NegInt16LASX
+	s.I16.Scale = ScaleInt16LASX
+	s.I16.AddScalar = AddScalarInt16LASX
+	s.I16.SubScalar = SubScalarInt16LASX
+	s.I16.Clamp = ClampInt16LASX
+	s.I16.Fill = FillInt16LASX
+	s.I16.Lerp = LerpInt16LASX
+	s.I16.AddScaled = AddScaledInt16LASX
+	s.I16.Ramp = RampInt16LASX
+	s.U8.Add = AddUint8LASX
+	s.U8.Sub = SubUint8LASX
+	s.U8.Mul = MulUint8LASX
+	s.U8.Minimum = MinimumUint8LASX
+	s.U8.Maximum = MaximumUint8LASX
+	s.U8.Abs = AbsUint8LASX
+	s.U8.Neg = NegUint8LASX
+	s.U8.Scale = ScaleUint8LASX
+	s.U8.AddScalar = AddScalarUint8LASX
+	s.U8.SubScalar = SubScalarUint8LASX
+	s.U8.Clamp = ClampUint8LASX
+	s.U8.Fill = FillUint8LASX
+	s.U8.Lerp = LerpUint8LASX
+	s.U8.AddScaled = AddScaledUint8LASX
+	s.U8.Ramp = RampUint8LASX
+	s.U16.Add = AddUint16LASX
+	s.U16.Sub = SubUint16LASX
+	s.U16.Mul = MulUint16LASX
+	s.U16.Minimum = MinimumUint16LASX
+	s.U16.Maximum = MaximumUint16LASX
+	s.U16.Abs = AbsUint16LASX
+	s.U16.Neg = NegUint16LASX
+	s.U16.Scale = ScaleUint16LASX
+	s.U16.AddScalar = AddScalarUint16LASX
+	s.U16.SubScalar = SubScalarUint16LASX
+	s.U16.Clamp = ClampUint16LASX
+	s.U16.Fill = FillUint16LASX
+	s.U16.Lerp = LerpUint16LASX
+	s.U16.AddScaled = AddScaledUint16LASX
+	s.U16.Ramp = RampUint16LASX
+	s.U32.Add = AddUint32LASX
+	s.U32.Sub = SubUint32LASX
+	s.U32.Mul = MulUint32LASX
+	s.U32.Minimum = MinimumUint32LASX
+	s.U32.Maximum = MaximumUint32LASX
+	s.U32.Abs = AbsUint32LASX
+	s.U32.Neg = NegUint32LASX
+	s.U32.Scale = ScaleUint32LASX
+	s.U32.AddScalar = AddScalarUint32LASX
+	s.U32.SubScalar = SubScalarUint32LASX
+	s.U32.Clamp = ClampUint32LASX
+	s.U32.Fill = FillUint32LASX
+	s.U32.Lerp = LerpUint32LASX
+	s.U32.AddScaled = AddScaledUint32LASX
+	s.U32.Ramp = RampUint32LASX
+	s.U64.Add = AddUint64LASX
+	s.U64.Sub = SubUint64LASX
+	s.U64.Mul = MulUint64LASX
+	s.U64.Minimum = MinimumUint64LASX
+	s.U64.Maximum = MaximumUint64LASX
+	s.U64.Abs = AbsUint64LASX
+	s.U64.Neg = NegUint64LASX
+	s.U64.Scale = ScaleUint64LASX
+	s.U64.AddScalar = AddScalarUint64LASX
+	s.U64.SubScalar = SubScalarUint64LASX
+	s.U64.Clamp = ClampUint64LASX
+	s.U64.Fill = FillUint64LASX
+	s.U64.Lerp = LerpUint64LASX
+	s.U64.AddScaled = AddScaledUint64LASX
+	s.U64.Ramp = RampUint64LASX
+	s.I32.Shl = ShlInt32LASX
+	s.I32.Shr = ShrInt32LASX
+	s.I32.Rotl = RotlInt32LASX
+	s.I32.Rotr = RotrInt32LASX
+	s.I32.OnesCount = OnesCountInt32LASX
+	s.I32.LeadingZeros = LeadingZerosInt32LASX
+	s.I32.TrailingZeros = TrailingZerosInt32LASX
+	s.I32.ReverseBits = ReverseBitsInt32LASX
+	s.I32.ByteSwap = ByteSwapInt32LASX
+	s.I64.Shl = ShlInt64LASX
+	s.I64.Shr = ShrInt64LASX
+	s.I64.Rotl = RotlInt64LASX
+	s.I64.Rotr = RotrInt64LASX
+	s.I64.OnesCount = OnesCountInt64LASX
+	s.I64.LeadingZeros = LeadingZerosInt64LASX
+	s.I64.TrailingZeros = TrailingZerosInt64LASX
+	s.I64.ReverseBits = ReverseBitsInt64LASX
+	s.I64.ByteSwap = ByteSwapInt64LASX
+	s.I8.Shl = ShlInt8LASX
+	s.I8.Shr = ShrInt8LASX
+	s.I8.Rotl = RotlInt8LASX
+	s.I8.Rotr = RotrInt8LASX
+	s.I8.OnesCount = OnesCountInt8LASX
+	s.I8.LeadingZeros = LeadingZerosInt8LASX
+	s.I8.TrailingZeros = TrailingZerosInt8LASX
+	s.I8.ReverseBits = ReverseBitsInt8LASX
+	s.I16.Shl = ShlInt16LASX
+	s.I16.Shr = ShrInt16LASX
+	s.I16.Rotl = RotlInt16LASX
+	s.I16.Rotr = RotrInt16LASX
+	s.I16.OnesCount = OnesCountInt16LASX
+	s.I16.LeadingZeros = LeadingZerosInt16LASX
+	s.I16.TrailingZeros = TrailingZerosInt16LASX
+	s.I16.ReverseBits = ReverseBitsInt16LASX
+	s.I16.ByteSwap = ByteSwapInt16LASX
+	s.U8.Shl = ShlUint8LASX
+	s.U8.Shr = ShrUint8LASX
+	s.U8.Rotl = RotlUint8LASX
+	s.U8.Rotr = RotrUint8LASX
+	s.U8.OnesCount = OnesCountUint8LASX
+	s.U8.LeadingZeros = LeadingZerosUint8LASX
+	s.U8.TrailingZeros = TrailingZerosUint8LASX
+	s.U8.ReverseBits = ReverseBitsUint8LASX
+	s.U16.Shl = ShlUint16LASX
+	s.U16.Shr = ShrUint16LASX
+	s.U16.Rotl = RotlUint16LASX
+	s.U16.Rotr = RotrUint16LASX
+	s.U16.OnesCount = OnesCountUint16LASX
+	s.U16.LeadingZeros = LeadingZerosUint16LASX
+	s.U16.TrailingZeros = TrailingZerosUint16LASX
+	s.U16.ReverseBits = ReverseBitsUint16LASX
+	s.U16.ByteSwap = ByteSwapUint16LASX
+	s.U32.Shl = ShlUint32LASX
+	s.U32.Shr = ShrUint32LASX
+	s.U32.Rotl = RotlUint32LASX
+	s.U32.Rotr = RotrUint32LASX
+	s.U32.OnesCount = OnesCountUint32LASX
+	s.U32.LeadingZeros = LeadingZerosUint32LASX
+	s.U32.TrailingZeros = TrailingZerosUint32LASX
+	s.U32.ReverseBits = ReverseBitsUint32LASX
+	s.U32.ByteSwap = ByteSwapUint32LASX
+	s.U64.Shl = ShlUint64LASX
+	s.U64.Shr = ShrUint64LASX
+	s.U64.Rotl = RotlUint64LASX
+	s.U64.Rotr = RotrUint64LASX
+	s.U64.OnesCount = OnesCountUint64LASX
+	s.U64.LeadingZeros = LeadingZerosUint64LASX
+	s.U64.TrailingZeros = TrailingZerosUint64LASX
+	s.U64.ReverseBits = ReverseBitsUint64LASX
+	s.U64.ByteSwap = ByteSwapUint64LASX
+	s.F32.Div = DivFloat32LASX
+	s.F32.DivScalar = DivScalarFloat32LASX
+	s.F32.Sqrt = SqrtFloat32LASX
+	s.F32.Reciprocal = ReciprocalFloat32LASX
+	s.F32.Floor = FloorFloat32LASX
+	s.F32.Ceil = CeilFloat32LASX
+	s.F32.Trunc = TruncFloat32LASX
+	s.F64.Div = DivFloat64LASX
+	s.F64.DivScalar = DivScalarFloat64LASX
+	s.F64.Sqrt = SqrtFloat64LASX
+	s.F64.Reciprocal = ReciprocalFloat64LASX
+	s.F64.Floor = FloorFloat64LASX
+	s.F64.Ceil = CeilFloat64LASX
+	s.F64.Trunc = TruncFloat64LASX
+	s.I32.SatAdd = SatAddInt32LASX
+	s.I32.SatSub = SatSubInt32LASX
+	s.I8.SatAdd = SatAddInt8LASX
+	s.I8.SatSub = SatSubInt8LASX
+	s.I16.SatAdd = SatAddInt16LASX
+	s.I16.SatSub = SatSubInt16LASX
+	s.U8.SatAdd = SatAddUint8LASX
+	s.U8.SatSub = SatSubUint8LASX
+	s.U16.SatAdd = SatAddUint16LASX
+	s.U16.SatSub = SatSubUint16LASX
+	s.U32.SatAdd = SatAddUint32LASX
+	s.U32.SatSub = SatSubUint32LASX
 }

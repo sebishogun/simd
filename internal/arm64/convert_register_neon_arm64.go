@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func quantizeI8NEONGuarded(dst []int8, a []float32, scale float32, zeroPoint int32) {
+func QuantizeI8NEON(dst []int8, a []float32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.QuantizeI8(dst, a, scale, zeroPoint)
@@ -29,7 +29,7 @@ func quantizeI8NEONGuarded(dst []int8, a []float32, scale float32, zeroPoint int
 	quantizeI8NEON(dst[:n:n], a, scale, zeroPoint)
 }
 
-func dequantizeI8NEONGuarded(dst []float32, a []int8, scale float32, zeroPoint int32) {
+func DequantizeI8NEON(dst []float32, a []int8, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DequantizeI8(dst, a, scale, zeroPoint)
@@ -38,7 +38,7 @@ func dequantizeI8NEONGuarded(dst []float32, a []int8, scale float32, zeroPoint i
 	dequantizeI8NEON(dst[:n:n], a, scale, zeroPoint)
 }
 
-func quantizeU8NEONGuarded(dst []byte, a []float32, scale float32, zeroPoint int32) {
+func QuantizeU8NEON(dst []byte, a []float32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.QuantizeU8(dst, a, scale, zeroPoint)
@@ -47,7 +47,7 @@ func quantizeU8NEONGuarded(dst []byte, a []float32, scale float32, zeroPoint int
 	quantizeU8NEON(dst[:n:n], a, scale, zeroPoint)
 }
 
-func dequantizeU8NEONGuarded(dst []float32, a []byte, scale float32, zeroPoint int32) {
+func DequantizeU8NEON(dst []float32, a []byte, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DequantizeU8(dst, a, scale, zeroPoint)
@@ -56,7 +56,7 @@ func dequantizeU8NEONGuarded(dst []float32, a []byte, scale float32, zeroPoint i
 	dequantizeU8NEON(dst[:n:n], a, scale, zeroPoint)
 }
 
-func quantizePerChannelI8NEONGuarded(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
+func QuantizePerChannelI8NEON(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.QuantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -64,7 +64,7 @@ func quantizePerChannelI8NEONGuarded(dst []int8, a []float32, scale []float32, z
 	quantizePerChannelI8NEON(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func quantizePerChannelU8NEONGuarded(dst []byte, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
+func QuantizePerChannelU8NEON(dst []byte, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.QuantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -72,7 +72,7 @@ func quantizePerChannelU8NEONGuarded(dst []byte, a []float32, scale []float32, z
 	quantizePerChannelU8NEON(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func dequantizePerChannelI8NEONGuarded(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels int, inner int) {
+func DequantizePerChannelI8NEON(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.DequantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -80,7 +80,7 @@ func dequantizePerChannelI8NEONGuarded(dst []float32, a []int8, scale []float32,
 	dequantizePerChannelI8NEON(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func dequantizePerChannelU8NEONGuarded(dst []float32, a []byte, scale []float32, zeroPoint []int32, channels int, inner int) {
+func DequantizePerChannelU8NEON(dst []float32, a []byte, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.DequantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -88,7 +88,7 @@ func dequantizePerChannelU8NEONGuarded(dst []float32, a []byte, scale []float32,
 	dequantizePerChannelU8NEON(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func zigzagEncodeI8NEONGuarded(dst []byte, a []int8) {
+func ZigzagEncodeI8NEON(dst []byte, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI8(dst, a)
@@ -97,7 +97,7 @@ func zigzagEncodeI8NEONGuarded(dst []byte, a []int8) {
 	zigzagEncodeI8NEON(dst[:n:n], a)
 }
 
-func zigzagDecodeI8NEONGuarded(dst []int8, a []byte) {
+func ZigzagDecodeI8NEON(dst []int8, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI8(dst, a)
@@ -106,7 +106,7 @@ func zigzagDecodeI8NEONGuarded(dst []int8, a []byte) {
 	zigzagDecodeI8NEON(dst[:n:n], a)
 }
 
-func zigzagEncodeI16NEONGuarded(dst []uint16, a []int16) {
+func ZigzagEncodeI16NEON(dst []uint16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI16(dst, a)
@@ -115,7 +115,7 @@ func zigzagEncodeI16NEONGuarded(dst []uint16, a []int16) {
 	zigzagEncodeI16NEON(dst[:n:n], a)
 }
 
-func zigzagDecodeI16NEONGuarded(dst []int16, a []uint16) {
+func ZigzagDecodeI16NEON(dst []int16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI16(dst, a)
@@ -124,7 +124,7 @@ func zigzagDecodeI16NEONGuarded(dst []int16, a []uint16) {
 	zigzagDecodeI16NEON(dst[:n:n], a)
 }
 
-func zigzagEncodeI32NEONGuarded(dst []uint32, a []int32) {
+func ZigzagEncodeI32NEON(dst []uint32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI32(dst, a)
@@ -133,7 +133,7 @@ func zigzagEncodeI32NEONGuarded(dst []uint32, a []int32) {
 	zigzagEncodeI32NEON(dst[:n:n], a)
 }
 
-func zigzagDecodeI32NEONGuarded(dst []int32, a []uint32) {
+func ZigzagDecodeI32NEON(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI32(dst, a)
@@ -142,7 +142,7 @@ func zigzagDecodeI32NEONGuarded(dst []int32, a []uint32) {
 	zigzagDecodeI32NEON(dst[:n:n], a)
 }
 
-func zigzagEncodeI64NEONGuarded(dst []uint64, a []int64) {
+func ZigzagEncodeI64NEON(dst []uint64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI64(dst, a)
@@ -151,7 +151,7 @@ func zigzagEncodeI64NEONGuarded(dst []uint64, a []int64) {
 	zigzagEncodeI64NEON(dst[:n:n], a)
 }
 
-func zigzagDecodeI64NEONGuarded(dst []int64, a []uint64) {
+func ZigzagDecodeI64NEON(dst []int64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI64(dst, a)
@@ -160,7 +160,7 @@ func zigzagDecodeI64NEONGuarded(dst []int64, a []uint64) {
 	zigzagDecodeI64NEON(dst[:n:n], a)
 }
 
-func varintLenU32NEONGuarded(dst []int32, a []uint32) {
+func VarintLenU32NEON(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU32(dst, a)
@@ -169,7 +169,7 @@ func varintLenU32NEONGuarded(dst []int32, a []uint32) {
 	varintLenU32NEON(dst[:n:n], a)
 }
 
-func varintLenU64NEONGuarded(dst []int32, a []uint64) {
+func VarintLenU64NEON(dst []int32, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU64(dst, a)
@@ -178,21 +178,21 @@ func varintLenU64NEONGuarded(dst []int32, a []uint64) {
 	varintLenU64NEON(dst[:n:n], a)
 }
 
-func varintSizeU32NEONGuarded(a []uint32) int {
+func VarintSizeU32NEON(a []uint32) int {
 	if len(a) < 16 {
 		return ref.VarintSizeU32(a)
 	}
 	return varintSizeU32NEON(a)
 }
 
-func varintSizeU64NEONGuarded(a []uint64) int {
+func VarintSizeU64NEON(a []uint64) int {
 	if len(a) < 16 {
 		return ref.VarintSizeU64(a)
 	}
 	return varintSizeU64NEON(a)
 }
 
-func f8e4m3ToF32NEONGuarded(dst []float32, a []byte) {
+func F8e4m3ToF32NEON(dst []float32, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F8E4M3ToF32(dst, a)
@@ -201,7 +201,7 @@ func f8e4m3ToF32NEONGuarded(dst []float32, a []byte) {
 	f8e4m3ToF32NEON(dst[:n:n], a)
 }
 
-func f8e5m2ToF32NEONGuarded(dst []float32, a []byte) {
+func F8e5m2ToF32NEON(dst []float32, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F8E5M2ToF32(dst, a)
@@ -210,7 +210,7 @@ func f8e5m2ToF32NEONGuarded(dst []float32, a []byte) {
 	f8e5m2ToF32NEON(dst[:n:n], a)
 }
 
-func bf16ToF32NEONGuarded(dst []float32, a []uint16) {
+func Bf16ToF32NEON(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.BF16ToF32(dst, a)
@@ -219,7 +219,7 @@ func bf16ToF32NEONGuarded(dst []float32, a []uint16) {
 	bf16ToF32NEON(dst[:n:n], a)
 }
 
-func f32ToBF16NEONGuarded(dst []uint16, a []float32) {
+func F32ToBF16NEON(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToBF16(dst, a)
@@ -228,7 +228,7 @@ func f32ToBF16NEONGuarded(dst []uint16, a []float32) {
 	f32ToBF16NEON(dst[:n:n], a)
 }
 
-func f16ToF32NEONGuarded(dst []float32, a []uint16) {
+func F16ToF32NEON(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F16ToF32(dst, a)
@@ -237,7 +237,7 @@ func f16ToF32NEONGuarded(dst []float32, a []uint16) {
 	f16ToF32NEON(dst[:n:n], a)
 }
 
-func f32ToF16NEONGuarded(dst []uint16, a []float32) {
+func F32ToF16NEON(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToF16(dst, a)
@@ -246,34 +246,31 @@ func f32ToF16NEONGuarded(dst []uint16, a []float32) {
 	f32ToF16NEON(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.Convert.QuantizeI8 = quantizeI8NEONGuarded
-	s.Convert.DequantizeI8 = dequantizeI8NEONGuarded
-	s.Convert.QuantizeU8 = quantizeU8NEONGuarded
-	s.Convert.DequantizeU8 = dequantizeU8NEONGuarded
-	s.Convert.QuantizePerChannelI8 = quantizePerChannelI8NEONGuarded
-	s.Convert.QuantizePerChannelU8 = quantizePerChannelU8NEONGuarded
-	s.Convert.DequantizePerChannelI8 = dequantizePerChannelI8NEONGuarded
-	s.Convert.DequantizePerChannelU8 = dequantizePerChannelU8NEONGuarded
-	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8NEONGuarded
-	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8NEONGuarded
-	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16NEONGuarded
-	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16NEONGuarded
-	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32NEONGuarded
-	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32NEONGuarded
-	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64NEONGuarded
-	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64NEONGuarded
-	s.Convert.VarintLenU32 = varintLenU32NEONGuarded
-	s.Convert.VarintLenU64 = varintLenU64NEONGuarded
-	s.Convert.VarintSizeU32 = varintSizeU32NEONGuarded
-	s.Convert.VarintSizeU64 = varintSizeU64NEONGuarded
-	s.Convert.F8E4M3ToF32 = f8e4m3ToF32NEONGuarded
-	s.Convert.F8E5M2ToF32 = f8e5m2ToF32NEONGuarded
-	s.Convert.BF16ToF32 = bf16ToF32NEONGuarded
-	s.Convert.F32ToBF16 = f32ToBF16NEONGuarded
-	s.Convert.F16ToF32 = f16ToF32NEONGuarded
-	s.Convert.F32ToF16 = f32ToF16NEONGuarded
+func registerConvertNEON(s *kernel.Set) {
+	s.Convert.QuantizeI8 = QuantizeI8NEON
+	s.Convert.DequantizeI8 = DequantizeI8NEON
+	s.Convert.QuantizeU8 = QuantizeU8NEON
+	s.Convert.DequantizeU8 = DequantizeU8NEON
+	s.Convert.QuantizePerChannelI8 = QuantizePerChannelI8NEON
+	s.Convert.QuantizePerChannelU8 = QuantizePerChannelU8NEON
+	s.Convert.DequantizePerChannelI8 = DequantizePerChannelI8NEON
+	s.Convert.DequantizePerChannelU8 = DequantizePerChannelU8NEON
+	s.Convert.ZigzagEncodeI8 = ZigzagEncodeI8NEON
+	s.Convert.ZigzagDecodeI8 = ZigzagDecodeI8NEON
+	s.Convert.ZigzagEncodeI16 = ZigzagEncodeI16NEON
+	s.Convert.ZigzagDecodeI16 = ZigzagDecodeI16NEON
+	s.Convert.ZigzagEncodeI32 = ZigzagEncodeI32NEON
+	s.Convert.ZigzagDecodeI32 = ZigzagDecodeI32NEON
+	s.Convert.ZigzagEncodeI64 = ZigzagEncodeI64NEON
+	s.Convert.ZigzagDecodeI64 = ZigzagDecodeI64NEON
+	s.Convert.VarintLenU32 = VarintLenU32NEON
+	s.Convert.VarintLenU64 = VarintLenU64NEON
+	s.Convert.VarintSizeU32 = VarintSizeU32NEON
+	s.Convert.VarintSizeU64 = VarintSizeU64NEON
+	s.Convert.F8E4M3ToF32 = F8e4m3ToF32NEON
+	s.Convert.F8E5M2ToF32 = F8e5m2ToF32NEON
+	s.Convert.BF16ToF32 = Bf16ToF32NEON
+	s.Convert.F32ToBF16 = F32ToBF16NEON
+	s.Convert.F16ToF32 = F16ToF32NEON
+	s.Convert.F32ToF16 = F32ToF16NEON
 }

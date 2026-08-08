@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func gerFloat32RVVGuarded(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
+func GerFloat32RVV(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -28,7 +28,7 @@ func gerFloat32RVVGuarded(a []float32, x []float32, y []float32, alpha float32, 
 	gerFloat32RVV(a, x, y, alpha, m, n)
 }
 
-func rotFloat32RVVGuarded(x []float32, y []float32, c float32, s float32) {
+func RotFloat32RVV(x []float32, y []float32, c float32, s float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -37,7 +37,7 @@ func rotFloat32RVVGuarded(x []float32, y []float32, c float32, s float32) {
 	rotFloat32RVV(x[:n:n], y, c, s)
 }
 
-func swapFloat32RVVGuarded(x []float32, y []float32) {
+func SwapFloat32RVV(x []float32, y []float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -46,7 +46,7 @@ func swapFloat32RVVGuarded(x []float32, y []float32) {
 	swapFloat32RVV(x[:n:n], y)
 }
 
-func gerFloat64RVVGuarded(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
+func GerFloat64RVV(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -54,7 +54,7 @@ func gerFloat64RVVGuarded(a []float64, x []float64, y []float64, alpha float64, 
 	gerFloat64RVV(a, x, y, alpha, m, n)
 }
 
-func rotFloat64RVVGuarded(x []float64, y []float64, c float64, s float64) {
+func RotFloat64RVV(x []float64, y []float64, c float64, s float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -63,7 +63,7 @@ func rotFloat64RVVGuarded(x []float64, y []float64, c float64, s float64) {
 	rotFloat64RVV(x[:n:n], y, c, s)
 }
 
-func swapFloat64RVVGuarded(x []float64, y []float64) {
+func SwapFloat64RVV(x []float64, y []float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -72,7 +72,7 @@ func swapFloat64RVVGuarded(x []float64, y []float64) {
 	swapFloat64RVV(x[:n:n], y)
 }
 
-func swapInt32RVVGuarded(x []int32, y []int32) {
+func SwapInt32RVV(x []int32, y []int32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -81,7 +81,7 @@ func swapInt32RVVGuarded(x []int32, y []int32) {
 	swapInt32RVV(x[:n:n], y)
 }
 
-func swapInt64RVVGuarded(x []int64, y []int64) {
+func SwapInt64RVV(x []int64, y []int64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -90,16 +90,13 @@ func swapInt64RVVGuarded(x []int64, y []int64) {
 	swapInt64RVV(x[:n:n], y)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.F32.RankOne = gerFloat32RVVGuarded
-	s.F32.Rotate = rotFloat32RVVGuarded
-	s.F32.Swap = swapFloat32RVVGuarded
-	s.F64.RankOne = gerFloat64RVVGuarded
-	s.F64.Rotate = rotFloat64RVVGuarded
-	s.F64.Swap = swapFloat64RVVGuarded
-	s.I32.Swap = swapInt32RVVGuarded
-	s.I64.Swap = swapInt64RVVGuarded
+func registerBlasRVV(s *kernel.Set) {
+	s.F32.RankOne = GerFloat32RVV
+	s.F32.Rotate = RotFloat32RVV
+	s.F32.Swap = SwapFloat32RVV
+	s.F64.RankOne = GerFloat64RVV
+	s.F64.Rotate = RotFloat64RVV
+	s.F64.Swap = SwapFloat64RVV
+	s.I32.Swap = SwapInt32RVV
+	s.I64.Swap = SwapInt64RVV
 }

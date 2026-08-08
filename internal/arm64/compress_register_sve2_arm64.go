@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,21 +20,21 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func indexAllSVE2Guarded(dst []int32, b []byte, c byte) int {
+func IndexAllSVE2(dst []int32, b []byte, c byte) int {
 	if len(dst) < 64 {
 		return ref.IndexAll(dst, b, c)
 	}
 	return indexAllSVE2(dst, b, c)
 }
 
-func indexAllAnySVE2Guarded(dst []int32, b []byte, chars uint64) int {
+func IndexAllAnySVE2(dst []int32, b []byte, chars uint64) int {
 	if len(dst) < 64 {
 		return ref.IndexAllAny(dst, b, chars)
 	}
 	return indexAllAnySVE2(dst, b, chars)
 }
 
-func runStartsI32SVE2Guarded(dst []bool, a []int32) {
+func RunStartsI32SVE2(dst []bool, a []int32) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI32(dst, a)
@@ -43,7 +43,7 @@ func runStartsI32SVE2Guarded(dst []bool, a []int32) {
 	runStartsI32SVE2(dst, a[:n:n])
 }
 
-func runStartsI64SVE2Guarded(dst []bool, a []int64) {
+func RunStartsI64SVE2(dst []bool, a []int64) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI64(dst, a)
@@ -52,7 +52,7 @@ func runStartsI64SVE2Guarded(dst []bool, a []int64) {
 	runStartsI64SVE2(dst, a[:n:n])
 }
 
-func runStartsU8SVE2Guarded(dst []bool, a []byte) {
+func RunStartsU8SVE2(dst []bool, a []byte) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsU8(dst, a)
@@ -61,7 +61,7 @@ func runStartsU8SVE2Guarded(dst []bool, a []byte) {
 	runStartsU8SVE2(dst, a[:n:n])
 }
 
-func compressFloat32SVE2Guarded(dst []float32, src []float32, keep []bool) int {
+func CompressFloat32SVE2(dst []float32, src []float32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressFloat32(dst, src, keep)
@@ -69,7 +69,7 @@ func compressFloat32SVE2Guarded(dst []float32, src []float32, keep []bool) int {
 	return compressFloat32SVE2(dst, src[:n:n], keep)
 }
 
-func compressFloat64SVE2Guarded(dst []float64, src []float64, keep []bool) int {
+func CompressFloat64SVE2(dst []float64, src []float64, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressFloat64(dst, src, keep)
@@ -77,7 +77,7 @@ func compressFloat64SVE2Guarded(dst []float64, src []float64, keep []bool) int {
 	return compressFloat64SVE2(dst, src[:n:n], keep)
 }
 
-func compressInt32SVE2Guarded(dst []int32, src []int32, keep []bool) int {
+func CompressInt32SVE2(dst []int32, src []int32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressInt32(dst, src, keep)
@@ -85,7 +85,7 @@ func compressInt32SVE2Guarded(dst []int32, src []int32, keep []bool) int {
 	return compressInt32SVE2(dst, src[:n:n], keep)
 }
 
-func compressInt64SVE2Guarded(dst []int64, src []int64, keep []bool) int {
+func CompressInt64SVE2(dst []int64, src []int64, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressInt64(dst, src, keep)
@@ -93,17 +93,14 @@ func compressInt64SVE2Guarded(dst []int64, src []int64, keep []bool) int {
 	return compressInt64SVE2(dst, src[:n:n], keep)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.Bytes.IndexAll = indexAllSVE2Guarded
-	s.Bytes.IndexAllAny = indexAllAnySVE2Guarded
-	s.Bytes.RunStartsI32 = runStartsI32SVE2Guarded
-	s.Bytes.RunStartsI64 = runStartsI64SVE2Guarded
-	s.Bytes.RunStartsU8 = runStartsU8SVE2Guarded
-	s.F32.Compress = compressFloat32SVE2Guarded
-	s.F64.Compress = compressFloat64SVE2Guarded
-	s.I32.Compress = compressInt32SVE2Guarded
-	s.I64.Compress = compressInt64SVE2Guarded
+func registerCompressSVE2(s *kernel.Set) {
+	s.Bytes.IndexAll = IndexAllSVE2
+	s.Bytes.IndexAllAny = IndexAllAnySVE2
+	s.Bytes.RunStartsI32 = RunStartsI32SVE2
+	s.Bytes.RunStartsI64 = RunStartsI64SVE2
+	s.Bytes.RunStartsU8 = RunStartsU8SVE2
+	s.F32.Compress = CompressFloat32SVE2
+	s.F64.Compress = CompressFloat64SVE2
+	s.I32.Compress = CompressInt32SVE2
+	s.I64.Compress = CompressInt64SVE2
 }

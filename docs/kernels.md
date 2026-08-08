@@ -222,11 +222,22 @@ is here, which has happened.
 
 ## 5–8. API, tests, conformance, benchmark
 
-The public function is a one-liner through `active`:
+The public function is a one-liner through the operation's own dispatch
+table, indexed by the tier the runtime selected once at startup:
 
 ```go
-func ZigzagEncodeInt32Into(dst []uint32, a []int32) { active.Convert.ZigzagEncodeI32(dst, a) }
+func ZigzagEncodeInt32Into(dst []uint32, a []int32) { tblConvertZigzagEncodeI32[tierIdx](dst, a) }
 ```
+
+The table is generated into `dispatch_tables_<arch>.go` as a static composite
+literal of exported guards -- static, because any computed entry would force
+an init function, and anything reachable from init is linked into every
+binary that imports the package. Static per-operation tables are what let the
+linker drop every operation a program never calls, assembly included: a
+consumer using three operations carries three operations' kernels, not all of
+them. The numeric groups reach their kernels the same way through per-tier
+partial `Ops` structs the dispatcher overlays onto the reference lazily, one
+element type at a time.
 
 The benchmark should compare against **what a caller would otherwise write** —
 the plain Go loop, or the sequence of existing calls this replaces. Benchmarking

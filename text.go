@@ -97,7 +97,7 @@ func Index[S, T Text](haystack S, needle T) int {
 	if len(h) < shortText {
 		return bytes.Index(h, n)
 	}
-	return active.Bytes.Index(h, n)
+	return tblBytesIndex[tierIdx](h, n)
 }
 
 // LastIndex returns the index of the last occurrence of needle in haystack, or
@@ -105,7 +105,7 @@ func Index[S, T Text](haystack S, needle T) int {
 //
 // It matches bytes.LastIndex and strings.LastIndex.
 func LastIndex[S, T Text](haystack S, needle T) int {
-	return active.Bytes.LastIndex(textBytes(haystack), textBytes(needle))
+	return tblBytesLastIndex[tierIdx](textBytes(haystack), textBytes(needle))
 }
 
 // IndexAny returns the index of the first byte of s that is also in chars, or
@@ -119,7 +119,7 @@ func LastIndex[S, T Text](haystack S, needle T) int {
 // of a multi-byte UTF-8 sequence is below 0x80. For a set containing non-ASCII
 // characters they do not, and this is the wrong function.
 func IndexAny[S, T Text](s S, chars T) int {
-	return active.Bytes.IndexAny(textBytes(s), textBytes(chars))
+	return tblBytesIndexAny[tierIdx](textBytes(s), textBytes(chars))
 }
 
 // IndexAnyOrLess returns the index of the first byte of s that is either in
@@ -139,7 +139,7 @@ func IndexAny[S, T Text](s S, chars T) int {
 // lo of 0 excludes nothing, since no byte is below it, and the call is then
 // exactly [IndexAny].
 func IndexAnyOrLess[S, T Text](s S, chars T, lo byte) int {
-	return active.Bytes.IndexAnyOrLess(textBytes(s), textBytes(chars), lo)
+	return tblBytesIndexAnyOrLess[tierIdx](textBytes(s), textBytes(chars), lo)
 }
 
 // JSONCopyRun copies the bytes at the front of s that a JSON encoder may write
@@ -166,7 +166,7 @@ func JSONCopyRun[S Text](dst []byte, s S, html bool) int {
 	if html {
 		h = 1
 	}
-	return active.Bytes.JSONCopyRun(dst, textBytes(s), h)
+	return tblBytesJSONCopyRun[tierIdx](dst, textBytes(s), h)
 }
 
 // JSONCopyValid copies the bytes at the front of s that a JSON encoder may
@@ -186,7 +186,7 @@ func JSONCopyValid[S Text](dst []byte, s S, html bool) int {
 	if html {
 		h = 1
 	}
-	return active.Bytes.JSONCopyValid(dst, textBytes(s), h)
+	return tblBytesJSONCopyValid[tierIdx](dst, textBytes(s), h)
 }
 
 // JSONQuote copies s into dst with JSON escapes written in place and returns
@@ -210,7 +210,7 @@ func JSONQuote[S Text](dst []byte, s S, html bool) int {
 	if html {
 		h = 1
 	}
-	return active.Bytes.JSONQuote(dst, textBytes(s), h)
+	return tblBytesJSONQuote[tierIdx](dst, textBytes(s), h)
 }
 
 // IndexNotAny returns the index of the first byte of s that is *not* in chars,
@@ -221,13 +221,13 @@ func JSONQuote[S Text](dst []byte, s S, html bool) int {
 // An empty set contains nothing, so every byte is outside it and the answer
 // for a non-empty s is 0.
 func IndexNotAny[S, T Text](s S, chars T) int {
-	return active.Bytes.IndexNotAny(textBytes(s), textBytes(chars))
+	return tblBytesIndexNotAny[tierIdx](textBytes(s), textBytes(chars))
 }
 
 // LastIndexNotAny returns the index of the last byte of s that is not in
 // chars, or -1 if every byte is.
 func LastIndexNotAny[S, T Text](s S, chars T) int {
-	return active.Bytes.LastIndexNotAny(textBytes(s), textBytes(chars))
+	return tblBytesLastIndexNotAny[tierIdx](textBytes(s), textBytes(chars))
 }
 
 // Contains reports whether needle is within haystack.
@@ -244,13 +244,13 @@ func ContainsAny[S, T Text](s S, chars T) bool { return IndexAny(s, chars) >= 0 
 // HasPrefix reports whether s begins with prefix.
 func HasPrefix[S, T Text](s S, prefix T) bool {
 	sb, pb := textBytes(s), textBytes(prefix)
-	return len(sb) >= len(pb) && active.Bytes.Equal(sb[:len(pb)], pb)
+	return len(sb) >= len(pb) && tblBytesEqual[tierIdx](sb[:len(pb)], pb)
 }
 
 // HasSuffix reports whether s ends with suffix.
 func HasSuffix[S, T Text](s S, suffix T) bool {
 	sb, xb := textBytes(s), textBytes(suffix)
-	return len(sb) >= len(xb) && active.Bytes.Equal(sb[len(sb)-len(xb):], xb)
+	return len(sb) >= len(xb) && tblBytesEqual[tierIdx](sb[len(sb)-len(xb):], xb)
 }
 
 // ---------- counting ----------
@@ -274,7 +274,7 @@ func Count[S, T Text](haystack S, needle T) int {
 		// obvious "count the bytes that are not continuations" test.
 		return utf8.RuneCount(hb) + 1
 	}
-	return active.Bytes.CountSeq(hb, nb)
+	return tblBytesCountSeq[tierIdx](hb, nb)
 }
 
 // CountByte returns the number of occurrences of c in s.
@@ -283,12 +283,12 @@ func CountByte[S Text](s S, c byte) int {
 	if len(b) < shortText {
 		return bytes.Count(b, []byte{c})
 	}
-	return active.Bytes.Count(b, c)
+	return tblBytesCount[tierIdx](b, c)
 }
 
 // CountAny returns how many bytes of s are in chars.
 func CountAny[S, T Text](s S, chars T) int {
-	return active.Bytes.CountAny(textBytes(s), textBytes(chars))
+	return tblBytesCountAny[tierIdx](textBytes(s), textBytes(chars))
 }
 
 // ---------- trimming ----------
@@ -351,7 +351,7 @@ func TrimSpaceASCII[S Text](s S) S { return TrimAny(s, asciiSpace) }
 // point; every path here truncates identically rather than one disagreeing
 // with another. Split such an input and add the base yourself.
 func IndexAll[S Text](dst []int32, s S, c byte) int {
-	return active.Bytes.IndexAll(dst, textBytes(s), c)
+	return tblBytesIndexAll[tierIdx](dst, textBytes(s), c)
 }
 
 // ---------- classification ----------
@@ -360,12 +360,12 @@ func IndexAll[S Text](dst []int32, s S, c byte) int {
 //
 // It is worth checking before text processing, because the ASCII path of most
 // algorithms is dramatically simpler than the general one.
-func IsASCII[S Text](s S) bool { return active.Bytes.IsASCII(textBytes(s)) }
+func IsASCII[S Text](s S) bool { return tblBytesIsASCII[tierIdx](textBytes(s)) }
 
 // ValidUTF8 reports whether s is entirely well-formed UTF-8.
 //
 // It matches utf8.Valid and utf8.ValidString.
-func ValidUTF8[S Text](s S) bool { return active.Bytes.ValidUTF8(textBytes(s)) }
+func ValidUTF8[S Text](s S) bool { return tblBytesValidUTF8[tierIdx](textBytes(s)) }
 
 // EqualFoldASCII reports whether a and b are equal ignoring ASCII case.
 //
@@ -373,7 +373,7 @@ func ValidUTF8[S Text](s S) bool { return active.Bytes.ValidUTF8(textBytes(s)) }
 // it both faster and wrong for non-ASCII input — use it for protocol tokens
 // (HTTP headers, keywords, hex digits), not for user-facing text.
 func EqualFoldASCII[S, T Text](a S, b T) bool {
-	return active.Bytes.EqualFoldASCII(textBytes(a), textBytes(b))
+	return tblBytesEqualFoldASCII[tierIdx](textBytes(a), textBytes(b))
 }
 
 // ---------- transformation ----------
@@ -383,31 +383,31 @@ func EqualFoldASCII[S, T Text](a S, b T) bool {
 // Only ASCII is folded, which makes this safe to run over UTF-8: continuation
 // bytes are all 0x80 or above and are untouched. For full Unicode folding use
 // the strings package; that is not a vectorizable operation.
-func ToUpperASCII(b []byte) { active.Bytes.ToUpperASCII(b, b) }
+func ToUpperASCII(b []byte) { tblBytesToUpperASCII[tierIdx](b, b) }
 
 // ToLowerASCII maps A-Z to a-z in place, leaving every other byte alone.
 // See [ToUpperASCII] on why this is UTF-8 safe.
-func ToLowerASCII(b []byte) { active.Bytes.ToLowerASCII(b, b) }
+func ToLowerASCII(b []byte) { tblBytesToLowerASCII[tierIdx](b, b) }
 
 // ToUpperASCIIInto writes the ASCII-uppercased s into dst. dst may alias s
 // when s is a []byte.
 func ToUpperASCIIInto[S Text](dst []byte, s S) {
-	active.Bytes.ToUpperASCII(dst, textBytes(s))
+	tblBytesToUpperASCII[tierIdx](dst, textBytes(s))
 }
 
 // ToLowerASCIIInto writes the ASCII-lowercased s into dst. dst may alias s
 // when s is a []byte.
 func ToLowerASCIIInto[S Text](dst []byte, s S) {
-	active.Bytes.ToLowerASCII(dst, textBytes(s))
+	tblBytesToLowerASCII[tierIdx](dst, textBytes(s))
 }
 
 // ReplaceByte replaces every occurrence of old with new, in place.
-func ReplaceByte(b []byte, old, new byte) { active.Bytes.ReplaceByte(b, b, old, new) }
+func ReplaceByte(b []byte, old, new byte) { tblBytesReplaceByte[tierIdx](b, b, old, new) }
 
 // ReplaceByteInto writes s into dst with every old replaced by new.
 // dst may alias s when s is a []byte.
 func ReplaceByteInto[S Text](dst []byte, s S, old, new byte) {
-	active.Bytes.ReplaceByte(dst, textBytes(s), old, new)
+	tblBytesReplaceByte[tierIdx](dst, textBytes(s), old, new)
 }
 
 // HexEncode writes the lowercase hexadecimal encoding of src into dst and
@@ -415,7 +415,7 @@ func ReplaceByteInto[S Text](dst []byte, s S, old, new byte) {
 //
 // It matches encoding/hex.Encode.
 func HexEncode[S Text](dst []byte, src S) int {
-	return active.Bytes.HexEncode(dst, textBytes(src))
+	return tblBytesHexEncode[tierIdx](dst, textBytes(src))
 }
 
 // HexDecode decodes hexadecimal from src into dst, returning the number of
@@ -425,7 +425,7 @@ func HexEncode[S Text](dst []byte, src S) int {
 // On a bad digit it stops there and reports false, with the bytes decoded so
 // far already written. An odd-length input also reports false.
 func HexDecode[S Text](dst []byte, src S) (int, bool) {
-	return active.Bytes.HexDecode(dst, textBytes(src))
+	return tblBytesHexDecode[tierIdx](dst, textBytes(src))
 }
 
 // ---------- base64 ----------
@@ -446,7 +446,7 @@ func Base64DecodedLen(n int) int { return n / 4 * 3 }
 // is allocated — which is the difference from encoding/base64's EncodeToString
 // and the reason the length is the caller's to provide.
 func Base64Encode[S Text](dst []byte, src S) int {
-	return active.Bytes.B64Encode(dst, textBytes(src))
+	return tblBytesB64Encode[tierIdx](dst, textBytes(src))
 }
 
 // Base64Decode writes the decoded bytes of src into dst and returns how many
@@ -461,7 +461,7 @@ func Base64Encode[S Text](dst []byte, src S) int {
 // alphabet, so a rejected input costs the same as an accepted one rather than
 // a branch per character.
 func Base64Decode[S Text](dst []byte, src S) int {
-	return active.Bytes.B64Decode(dst, textBytes(src))
+	return tblBytesB64Decode[tierIdx](dst, textBytes(src))
 }
 
 // ParseInts converts the fields of src into signed integers, writing them to
@@ -489,7 +489,7 @@ func Base64Decode[S Text](dst []byte, src S) int {
 // is the other four fifths. Splitting them lets a caller reuse a scan, and
 // keeps this kernel to the part that was actually slow.
 func ParseInts[S Text](dst []int64, src S, idx []int32) (int, bool) {
-	return active.Bytes.ParseInts(dst, textBytes(src), idx)
+	return tblBytesParseInts[tierIdx](dst, textBytes(src), idx)
 }
 
 // ParseUints is [ParseInts] over the full uint64 range.
@@ -500,7 +500,7 @@ func ParseInts[S Text](dst []int64, src S, idx []int32) (int, bool) {
 //
 // No sign is accepted, not even a leading '+', matching strconv.ParseUint.
 func ParseUints[S Text](dst []uint64, src S, idx []int32) (int, bool) {
-	return active.Bytes.ParseUints(dst, textBytes(src), idx)
+	return tblBytesParseUints[tierIdx](dst, textBytes(src), idx)
 }
 
 // FormatInts writes vals as decimal text separated by sep — the inverse of
@@ -524,7 +524,7 @@ func ParseUints[S Text](dst []uint64, src S, idx []int32) (int, bool) {
 // renders two digits per table lookup, halving both the divisions and the
 // stores. No separator follows the last value.
 func FormatInts(dst []byte, vals []int64, sep byte) int {
-	return active.Bytes.FormatInts(dst, vals, sep)
+	return tblBytesFormatInts[tierIdx](dst, vals, sep)
 }
 
 // IndexAllAny writes the offset of every byte in s that equals any of the bytes
@@ -558,7 +558,7 @@ func IndexAllAny[S Text](dst []int32, s S, chars string) int {
 		}
 		packed |= uint64(c) << (8 * i)
 	}
-	return active.Bytes.IndexAllAny(dst, textBytes(s), packed)
+	return tblBytesIndexAllAny[tierIdx](dst, textBytes(s), packed)
 }
 
 // MaskBits writes one bit per byte of s into dst, set where the byte equals c.
@@ -579,7 +579,7 @@ func MaskBits[S Text](dst []byte, s S, c byte) {
 	if len(dst) < MaskLen(len(b)) {
 		panic("simd: MaskBits: dst too short")
 	}
-	active.Bytes.MaskBits(dst, b, c)
+	tblBytesMaskBits[tierIdx](dst, b, c)
 }
 
 // MaskBitsAny is [MaskBits] for a set: the bit is set where the byte equals any
@@ -613,7 +613,7 @@ func MaskBitsAny[S Text](dst []byte, s S, chars string) {
 			}
 			packed4 |= uint32(ch) << (8 * i)
 		}
-		active.Bytes.MaskBitsAny4(dst, b, packed4)
+		tblBytesMaskBitsAny4[tierIdx](dst, b, packed4)
 		return
 	}
 	var packed uint64
@@ -624,7 +624,7 @@ func MaskBitsAny[S Text](dst []byte, s S, chars string) {
 		}
 		packed |= uint64(ch) << (8 * i)
 	}
-	active.Bytes.MaskBitsAny(dst, b, packed)
+	tblBytesMaskBitsAny[tierIdx](dst, b, packed)
 }
 
 // MaskBitsLess is [MaskBits] for an inequality: the bit is set where the byte
@@ -637,7 +637,7 @@ func MaskBitsLess[S Text](dst []byte, s S, c byte) {
 	if len(dst) < MaskLen(len(b)) {
 		panic("simd: MaskBitsLess: dst too short")
 	}
-	active.Bytes.MaskBitsLess(dst, b, c)
+	tblBytesMaskBitsLess[tierIdx](dst, b, c)
 }
 
 // MaskLen is how many bytes a [MaskBits] destination needs for n input bytes.
@@ -707,7 +707,7 @@ func containsByte(s string, c byte) bool {
 // The character sets are JSON's and are compiled in. A version taking them as
 // arguments could not fold the comparisons, which is the whole point.
 func JSONMasks[S Text](dst []byte, s S, want uint32) {
-	active.Bytes.JSONMasks(dst, textBytes(s), want)
+	tblBytesJSONMasks[tierIdx](dst, textBytes(s), want)
 }
 
 // The bits of JSONMasks's want, and the order of its output regions.
@@ -738,7 +738,7 @@ func MaskWords(n int) int { return ((n + 63) / 64) * 8 }
 // structural and whitespace counts and reports the first in-string control
 // character's byte position in res[2], which the caller seeds with -1.
 func JSONStage1(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
-	active.Bytes.JSONStage1(out, masks, nw, carr, res)
+	tblBytesJSONStage1[tierIdx](out, masks, nw, carr, res)
 }
 
 // JSONValidTokens reports whether the significant bytes of b -- outside a
@@ -746,12 +746,12 @@ func JSONStage1(out []uint64, masks []byte, nw int, carr []uint64, res []int64) 
 // well-formed JSON value: 1 yes, 0 no, -1 the nesting outran stk (deeper
 // than 64*(len(stk)+1) levels) and the caller must walk it itself.
 func JSONValidTokens(b []byte, masks []uint64, stk []uint64) int {
-	return active.Bytes.JSONValidTokens(b, masks, stk)
+	return tblBytesJSONValidTokens[tierIdx](b, masks, stk)
 }
 
 // JSONValid reports whether b is one well-formed JSON value, in a single
 // fused pass with no mask buffers: 1 yes, 0 no, -1 the nesting outran stk
 // (deeper than 64*(len(stk)+1) levels) and the caller must walk it itself.
 func JSONValid(b []byte, stk []uint64) int {
-	return active.Bytes.JSONValid(b, stk)
+	return tblBytesJSONValid[tierIdx](b, stk)
 }

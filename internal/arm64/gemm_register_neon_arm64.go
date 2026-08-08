@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func qMatMulI8NEONGuarded(dst []int32, a []int8, b []int8, m int, k int, n int) {
+func QMatMulI8NEON(dst []int32, a []int8, b []int8, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.QMatMulI8(dst, a, b, m, k, n)
 		return
@@ -28,7 +28,7 @@ func qMatMulI8NEONGuarded(dst []int32, a []int8, b []int8, m int, k int, n int) 
 	qMatMulI8NEON(dst, a, b, m, k, n)
 }
 
-func requantizeI8NEONGuarded(dst []int8, a []int32, scale float32, zeroPoint int32) {
+func RequantizeI8NEON(dst []int8, a []int32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RequantizeI8(dst, a, scale, zeroPoint)
@@ -37,7 +37,7 @@ func requantizeI8NEONGuarded(dst []int8, a []int32, scale float32, zeroPoint int
 	requantizeI8NEON(dst[:n:n], a, scale, zeroPoint)
 }
 
-func matMulFloat32NEONGuarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
+func MatMulFloat32NEON(dst []float32, a []float32, b []float32, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
 		return
@@ -45,7 +45,7 @@ func matMulFloat32NEONGuarded(dst []float32, a []float32, b []float32, m int, k 
 	matMulFloat32NEON(dst, a, b, m, k, n)
 }
 
-func gemvFloat32NEONGuarded(dst []float32, a []float32, x []float32, m int, k int) {
+func GemvFloat32NEON(dst []float32, a []float32, x []float32, m int, k int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k {
 		ref.GemvFloat(dst, a, x, m, k)
 		return
@@ -53,7 +53,7 @@ func gemvFloat32NEONGuarded(dst []float32, a []float32, x []float32, m int, k in
 	gemvFloat32NEON(dst, a, x, m, k)
 }
 
-func matMulFloat64NEONGuarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
+func MatMulFloat64NEON(dst []float64, a []float64, b []float64, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
 		return
@@ -61,7 +61,7 @@ func matMulFloat64NEONGuarded(dst []float64, a []float64, b []float64, m int, k 
 	matMulFloat64NEON(dst, a, b, m, k, n)
 }
 
-func gemvFloat64NEONGuarded(dst []float64, a []float64, x []float64, m int, k int) {
+func GemvFloat64NEON(dst []float64, a []float64, x []float64, m int, k int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k {
 		ref.GemvFloat(dst, a, x, m, k)
 		return
@@ -69,7 +69,7 @@ func gemvFloat64NEONGuarded(dst []float64, a []float64, x []float64, m int, k in
 	gemvFloat64NEON(dst, a, x, m, k)
 }
 
-func gemmPackBFloat32NEONGuarded(bp []float32, b []float32, k int, n int) {
+func GemmPackBFloat32NEON(bp []float32, b []float32, k int, n int) {
 	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+16-1)/16)*k*16 {
 		ref.GemmPackB(bp, b, k, n)
 		return
@@ -77,7 +77,7 @@ func gemmPackBFloat32NEONGuarded(bp []float32, b []float32, k int, n int) {
 	gemmPackBFloat32NEON(bp, b, k, n)
 }
 
-func matMulPkFloat32NEONGuarded(dst []float32, a []float32, bp []float32, m int, k int, n int) {
+func MatMulPkFloat32NEON(dst []float32, a []float32, bp []float32, m int, k int, n int) {
 	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+16-1)/16)*k*16 {
 		ref.MatMulPk(dst, a, bp, m, k, n)
 		return
@@ -85,7 +85,7 @@ func matMulPkFloat32NEONGuarded(dst []float32, a []float32, bp []float32, m int,
 	matMulPkFloat32NEON(dst, a, bp, m, k, n)
 }
 
-func gemmPackBFloat64NEONGuarded(bp []float64, b []float64, k int, n int) {
+func GemmPackBFloat64NEON(bp []float64, b []float64, k int, n int) {
 	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+8-1)/8)*k*8 {
 		ref.GemmPackB(bp, b, k, n)
 		return
@@ -93,7 +93,7 @@ func gemmPackBFloat64NEONGuarded(bp []float64, b []float64, k int, n int) {
 	gemmPackBFloat64NEON(bp, b, k, n)
 }
 
-func matMulPkFloat64NEONGuarded(dst []float64, a []float64, bp []float64, m int, k int, n int) {
+func MatMulPkFloat64NEON(dst []float64, a []float64, bp []float64, m int, k int, n int) {
 	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+8-1)/8)*k*8 {
 		ref.MatMulPk(dst, a, bp, m, k, n)
 		return
@@ -101,18 +101,15 @@ func matMulPkFloat64NEONGuarded(dst []float64, a []float64, bp []float64, m int,
 	matMulPkFloat64NEON(dst, a, bp, m, k, n)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.Convert.QMatMulI8 = qMatMulI8NEONGuarded
-	s.Convert.RequantizeI8 = requantizeI8NEONGuarded
-	s.F32.MatMul = matMulFloat32NEONGuarded
-	s.F32.Gemv = gemvFloat32NEONGuarded
-	s.F64.MatMul = matMulFloat64NEONGuarded
-	s.F64.Gemv = gemvFloat64NEONGuarded
-	s.F32.GemmPackB = gemmPackBFloat32NEONGuarded
-	s.F32.MatMulPk = matMulPkFloat32NEONGuarded
-	s.F64.GemmPackB = gemmPackBFloat64NEONGuarded
-	s.F64.MatMulPk = matMulPkFloat64NEONGuarded
+func registerGemmNEON(s *kernel.Set) {
+	s.Convert.QMatMulI8 = QMatMulI8NEON
+	s.Convert.RequantizeI8 = RequantizeI8NEON
+	s.F32.MatMul = MatMulFloat32NEON
+	s.F32.Gemv = GemvFloat32NEON
+	s.F64.MatMul = MatMulFloat64NEON
+	s.F64.Gemv = GemvFloat64NEON
+	s.F32.GemmPackB = GemmPackBFloat32NEON
+	s.F32.MatMulPk = MatMulPkFloat32NEON
+	s.F64.GemmPackB = GemmPackBFloat64NEON
+	s.F64.MatMulPk = MatMulPkFloat64NEON
 }

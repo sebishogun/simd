@@ -167,19 +167,45 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 	}
 
 	var failures []string
+	// present[arch][tier] holds the CNames emitted for that pair, and
+	// regFuncs[arch][tier] the per-file registration functions, both feeding
+	// the dispatch-table and Sets emission after the build loop.
+	present := map[string]map[string]map[string]bool{}
+	regFuncs := map[string]map[string][]string{}
 	for _, src := range sources {
+		stem := strings.TrimSuffix(filepath.Base(src.Path), filepath.Ext(src.Path))
 		for _, tgt := range targets {
-			n, err := build(cc, src, tgt, root, outDir, opt, verbose, dryRun)
+			emitted, err := build(cc, src, tgt, root, outDir, opt, verbose, dryRun)
 			if err != nil {
 				failures = append(failures, fmt.Sprintf("%s %s: %v", src.Path, tgt, err))
 				fmt.Printf("  %-14s %-8s FAILED\n", tgt.Arch, tgt.Tier)
 				continue
 			}
-			fmt.Printf("  %-14s %-8s %d kernels\n", tgt.Arch, tgt.Tier, n)
+			fmt.Printf("  %-14s %-8s %d kernels\n", tgt.Arch, tgt.Tier, len(emitted))
 			if len(lastSkipped) > 0 {
 				fmt.Printf("  %-14s %-8s %d not supported here: %s\n", "", "",
 					len(lastSkipped), strings.Join(lastSkipped, ", "))
 			}
+			arch, tier := string(tgt.Arch), tgt.Tier
+			if present[arch] == nil {
+				present[arch] = map[string]map[string]bool{}
+				regFuncs[arch] = map[string][]string{}
+			}
+			if present[arch][tier] == nil {
+				present[arch][tier] = map[string]bool{}
+			}
+			for _, k := range emitted {
+				present[arch][tier][k.CName] = true
+			}
+			if len(emitted) > 0 {
+				regFuncs[arch][tier] = append(regFuncs[arch][tier],
+					"register"+strings.ToUpper(stem[:1])+stem[1:]+strings.ToUpper(tier))
+			}
+		}
+	}
+	if !dryRun {
+		if err := emitDispatch(outDir, targets, present, regFuncs); err != nil {
+			return err
 		}
 	}
 	// The inventory is a property of the manifest rather than of any target,
@@ -205,18 +231,19 @@ func run(outDir, tmpDir, root, archFlag, tierFlag, clangBin, objdumpBin string, 
 	return nil
 }
 
-// build compiles, verifies and emits one source file for one target.
+// build compiles, verifies and emits one source file for one target,
+// returning the kernels that survived for it.
 func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDir string,
-	opt verify.Options, verbose, dryRun bool) (int, error) {
+	opt verify.Options, verbose, dryRun bool) ([]spec.Kernel, error) {
 
 	res, err := cc.Object(filepath.Join(root, src.Path), tgt, src.ExtraFlags...)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	obj, err := objfile.Open(res.ObjPath)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	defer obj.Close()
 
@@ -245,12 +272,12 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 	}
 
 	if len(tiered) == 0 {
-		return 0, nil
+		return nil, nil
 	}
 
 	reports, disasm, err := verify.ObjectWithDisasm(res.ObjPath, tgt, cNames, opt)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	var problems []string
 	unusable := map[string]string{}
@@ -266,7 +293,7 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		}
 	}
 	if len(problems) > 0 {
-		return 0, fmt.Errorf("verification failed:\n  - %s", strings.Join(problems, "\n  - "))
+		return nil, fmt.Errorf("verification failed:\n  - %s", strings.Join(problems, "\n  - "))
 	}
 
 	// Drop kernels this target cannot express, and any that reach a symbol the
@@ -281,7 +308,7 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		}
 		fn, err := obj.Func(k.CName)
 		if err != nil {
-			return 0, err
+			return nil, err
 		}
 		if undef := obj.UndefinedRefs(fn); len(undef) > 0 {
 			skipped = append(skipped, fmt.Sprintf("%s (calls %v)", k.CName, undef))
@@ -306,22 +333,24 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 	tiered = kept
 	lastSkipped = skipped
 	if len(tiered) == 0 {
-		return 0, nil
+		return nil, nil
 	}
 
 	fns := map[string]*objfile.Func{}
 	for _, k := range tiered {
 		fn, err := obj.Func(k.CName)
 		if err != nil {
-			return 0, err
+			return nil, err
 		}
 		fns[k.CName] = fn
 	}
 
+	stem := strings.TrimSuffix(filepath.Base(src.Path), filepath.Ext(src.Path))
 	prov := emit.Provenance{
 		ClangVersion: res.ClangVersion,
 		Command:      res.Command,
 		Source:       src.Path,
+		Stem:         stem,
 	}
 	forEmit := map[string][]emit.Instr{}
 	for name, ins := range disasm {
@@ -329,31 +358,30 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 	}
 	asm, err := emit.Asm(tiered, fns, forEmit, tgt, prov)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	pkg := string(tgt.Arch)
 	stub := emit.Stub(tiered, tgt, pkg, prov)
 
 	if dryRun {
-		return len(tiered), nil
+		return tiered, nil
 	}
 
 	dir := filepath.Join(outDir, pkg)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return 0, err
+		return nil, err
 	}
-	stem := strings.TrimSuffix(filepath.Base(src.Path), filepath.Ext(src.Path))
 	if err := os.WriteFile(filepath.Join(dir, stem+tgt.Suffix()+".s"), []byte(asm), 0o644); err != nil {
-		return 0, err
+		return nil, err
 	}
 	if err := os.WriteFile(filepath.Join(dir, stem+tgt.Suffix()+".go"), []byte(stub), 0o644); err != nil {
-		return 0, err
+		return nil, err
 	}
 	reg := emit.Backend(tiered, tgt, pkg, prov)
 	if err := os.WriteFile(filepath.Join(dir, stem+"_register"+tgt.Suffix()+".go"), []byte(reg), 0o644); err != nil {
-		return 0, err
+		return nil, err
 	}
-	return len(tiered), nil
+	return tiered, nil
 }
 
 func selectTargets(archFlag, tierFlag string) []target.Target {
@@ -384,4 +412,76 @@ func allKernels() []spec.Kernel {
 		out = append(out, src.Kernels...)
 	}
 	return out
+}
+
+// emitDispatch writes the per-operation dispatch layer: one tables file in
+// the root package per architecture built this run, the reference-only
+// fallback, and the per-arch Sets aggregator the tests use. Narrowed runs
+// (-arch, -only) skip it: a dispatch file emitted from a partial manifest
+// would silently drop operations.
+func emitDispatch(outDir string, targets []target.Target,
+	present map[string]map[string]map[string]bool,
+	regFuncs map[string]map[string][]string) error {
+
+	if len(sources) != len(kernels.All) {
+		fmt.Printf("  dispatch tables not regenerated: -only narrows the manifest\n")
+		return nil
+	}
+	all := allKernels()
+	rootDir := filepath.Dir(outDir)
+	prov := emit.Provenance{Command: "go run ./tools/simdgen"}
+
+	// Tier order per arch comes from target.All, which is the runtime's
+	// order too.
+	tierOrder := map[string][]string{}
+	var archOrder []string
+	for _, t := range target.All {
+		a := string(t.Arch)
+		if len(tierOrder[a]) == 0 {
+			archOrder = append(archOrder, a)
+		}
+		tierOrder[a] = append(tierOrder[a], t.Tier)
+	}
+
+	built := map[string]bool{}
+	for _, t := range targets {
+		built[string(t.Arch)] = true
+	}
+
+	for _, arch := range archOrder {
+		if !built[arch] {
+			continue
+		}
+		root := emit.RootDispatch(arch, tierOrder[arch], present[arch], all, prov)
+		if err := os.WriteFile(filepath.Join(rootDir, "dispatch_tables_"+arch+".go"),
+			[]byte(root), 0o644); err != nil {
+			return err
+		}
+		sets := emit.ArchSets(arch, tierOrder[arch], regFuncs[arch], prov)
+		if err := os.WriteFile(filepath.Join(outDir, arch, "sets_gen_"+arch+".go"),
+			[]byte(sets), 0o644); err != nil {
+			return err
+		}
+		tst := emit.RootDispatchTest(arch, tierOrder[arch], all, prov)
+		if err := os.WriteFile(filepath.Join(rootDir, "dispatch_tables_"+arch+"_test.go"),
+			[]byte(tst), 0o644); err != nil {
+			return err
+		}
+	}
+
+	// The fallback is a property of the whole target list, not of one run's
+	// narrowing, so it is only written on a full run.
+	if len(built) == len(archOrder) {
+		fb := emit.RootDispatchFallback(archOrder, all, prov)
+		if err := os.WriteFile(filepath.Join(rootDir, "dispatch_tables_fallback.go"),
+			[]byte(fb), 0o644); err != nil {
+			return err
+		}
+		fbt := emit.RootDispatchFallbackTest(archOrder, all, prov)
+		if err := os.WriteFile(filepath.Join(rootDir, "dispatch_tables_fallback_test.go"),
+			[]byte(fbt), 0o644); err != nil {
+			return err
+		}
+	}
+	return nil
 }

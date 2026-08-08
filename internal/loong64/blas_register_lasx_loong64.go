@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func rotFloat32LASXGuarded(x []float32, y []float32, c float32, s float32) {
+func RotFloat32LASX(x []float32, y []float32, c float32, s float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -29,7 +29,7 @@ func rotFloat32LASXGuarded(x []float32, y []float32, c float32, s float32) {
 	rotFloat32LASX(x[:n:n], y, c, s)
 }
 
-func swapFloat32LASXGuarded(x []float32, y []float32) {
+func SwapFloat32LASX(x []float32, y []float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -38,7 +38,7 @@ func swapFloat32LASXGuarded(x []float32, y []float32) {
 	swapFloat32LASX(x[:n:n], y)
 }
 
-func gerFloat64LASXGuarded(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
+func GerFloat64LASX(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -46,7 +46,7 @@ func gerFloat64LASXGuarded(a []float64, x []float64, y []float64, alpha float64,
 	gerFloat64LASX(a, x, y, alpha, m, n)
 }
 
-func rotFloat64LASXGuarded(x []float64, y []float64, c float64, s float64) {
+func RotFloat64LASX(x []float64, y []float64, c float64, s float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -55,7 +55,7 @@ func rotFloat64LASXGuarded(x []float64, y []float64, c float64, s float64) {
 	rotFloat64LASX(x[:n:n], y, c, s)
 }
 
-func swapFloat64LASXGuarded(x []float64, y []float64) {
+func SwapFloat64LASX(x []float64, y []float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -64,7 +64,7 @@ func swapFloat64LASXGuarded(x []float64, y []float64) {
 	swapFloat64LASX(x[:n:n], y)
 }
 
-func swapInt32LASXGuarded(x []int32, y []int32) {
+func SwapInt32LASX(x []int32, y []int32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -73,7 +73,7 @@ func swapInt32LASXGuarded(x []int32, y []int32) {
 	swapInt32LASX(x[:n:n], y)
 }
 
-func swapInt64LASXGuarded(x []int64, y []int64) {
+func SwapInt64LASX(x []int64, y []int64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -82,15 +82,12 @@ func swapInt64LASXGuarded(x []int64, y []int64) {
 	swapInt64LASX(x[:n:n], y)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.F32.Rotate = rotFloat32LASXGuarded
-	s.F32.Swap = swapFloat32LASXGuarded
-	s.F64.RankOne = gerFloat64LASXGuarded
-	s.F64.Rotate = rotFloat64LASXGuarded
-	s.F64.Swap = swapFloat64LASXGuarded
-	s.I32.Swap = swapInt32LASXGuarded
-	s.I64.Swap = swapInt64LASXGuarded
+func registerBlasLASX(s *kernel.Set) {
+	s.F32.Rotate = RotFloat32LASX
+	s.F32.Swap = SwapFloat32LASX
+	s.F64.RankOne = GerFloat64LASX
+	s.F64.Rotate = RotFloat64LASX
+	s.F64.Swap = SwapFloat64LASX
+	s.I32.Swap = SwapInt32LASX
+	s.I64.Swap = SwapInt64LASX
 }

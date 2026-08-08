@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,14 +20,14 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func normFloat32LASXGuarded(a []float32) float32 {
+func NormFloat32LASX(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
 	}
 	return normFloat32LASX(a)
 }
 
-func polyEvalFloat32LASXGuarded(dst []float32, x []float32, coeffs []float32) {
+func PolyEvalFloat32LASX(dst []float32, x []float32, coeffs []float32) {
 	if len(dst) < 16 {
 		ref.PolyEval(dst, x, coeffs)
 		return
@@ -35,7 +35,7 @@ func polyEvalFloat32LASXGuarded(dst []float32, x []float32, coeffs []float32) {
 	polyEvalFloat32LASX(dst, x, coeffs)
 }
 
-func convolveFloat32LASXGuarded(dst []float32, sig []float32, ker []float32) {
+func ConvolveFloat32LASX(dst []float32, sig []float32, ker []float32) {
 	if len(dst) < 16 {
 		ref.Convolve(dst, sig, ker)
 		return
@@ -43,7 +43,7 @@ func convolveFloat32LASXGuarded(dst []float32, sig []float32, ker []float32) {
 	convolveFloat32LASX(dst, sig, ker)
 }
 
-func correlateFloat32LASXGuarded(dst []float32, sig []float32, ker []float32) {
+func CorrelateFloat32LASX(dst []float32, sig []float32, ker []float32) {
 	if len(dst) < 16 {
 		ref.Correlate(dst, sig, ker)
 		return
@@ -51,14 +51,14 @@ func correlateFloat32LASXGuarded(dst []float32, sig []float32, ker []float32) {
 	correlateFloat32LASX(dst, sig, ker)
 }
 
-func normFloat64LASXGuarded(a []float64) float64 {
+func NormFloat64LASX(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
 	}
 	return normFloat64LASX(a)
 }
 
-func polyEvalFloat64LASXGuarded(dst []float64, x []float64, coeffs []float64) {
+func PolyEvalFloat64LASX(dst []float64, x []float64, coeffs []float64) {
 	if len(dst) < 16 {
 		ref.PolyEval(dst, x, coeffs)
 		return
@@ -66,7 +66,7 @@ func polyEvalFloat64LASXGuarded(dst []float64, x []float64, coeffs []float64) {
 	polyEvalFloat64LASX(dst, x, coeffs)
 }
 
-func convolveFloat64LASXGuarded(dst []float64, sig []float64, ker []float64) {
+func ConvolveFloat64LASX(dst []float64, sig []float64, ker []float64) {
 	if len(dst) < 16 {
 		ref.Convolve(dst, sig, ker)
 		return
@@ -74,7 +74,7 @@ func convolveFloat64LASXGuarded(dst []float64, sig []float64, ker []float64) {
 	convolveFloat64LASX(dst, sig, ker)
 }
 
-func correlateFloat64LASXGuarded(dst []float64, sig []float64, ker []float64) {
+func CorrelateFloat64LASX(dst []float64, sig []float64, ker []float64) {
 	if len(dst) < 16 {
 		ref.Correlate(dst, sig, ker)
 		return
@@ -82,7 +82,7 @@ func correlateFloat64LASXGuarded(dst []float64, sig []float64, ker []float64) {
 	correlateFloat64LASX(dst, sig, ker)
 }
 
-func tileFloat32LASXGuarded(dst []float32, pattern []float32) {
+func TileFloat32LASX(dst []float32, pattern []float32) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -90,7 +90,7 @@ func tileFloat32LASXGuarded(dst []float32, pattern []float32) {
 	tileFloat32LASX(dst, pattern)
 }
 
-func gatherFloat32LASXGuarded(dst []float32, src []float32, idx []int32) {
+func GatherFloat32LASX(dst []float32, src []float32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -98,7 +98,7 @@ func gatherFloat32LASXGuarded(dst []float32, src []float32, idx []int32) {
 	gatherFloat32LASX(dst, src, idx)
 }
 
-func tileFloat64LASXGuarded(dst []float64, pattern []float64) {
+func TileFloat64LASX(dst []float64, pattern []float64) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -106,7 +106,7 @@ func tileFloat64LASXGuarded(dst []float64, pattern []float64) {
 	tileFloat64LASX(dst, pattern)
 }
 
-func gatherFloat64LASXGuarded(dst []float64, src []float64, idx []int32) {
+func GatherFloat64LASX(dst []float64, src []float64, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -114,7 +114,7 @@ func gatherFloat64LASXGuarded(dst []float64, src []float64, idx []int32) {
 	gatherFloat64LASX(dst, src, idx)
 }
 
-func tileInt32LASXGuarded(dst []int32, pattern []int32) {
+func TileInt32LASX(dst []int32, pattern []int32) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -122,7 +122,7 @@ func tileInt32LASXGuarded(dst []int32, pattern []int32) {
 	tileInt32LASX(dst, pattern)
 }
 
-func gatherInt32LASXGuarded(dst []int32, src []int32, idx []int32) {
+func GatherInt32LASX(dst []int32, src []int32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -130,7 +130,7 @@ func gatherInt32LASXGuarded(dst []int32, src []int32, idx []int32) {
 	gatherInt32LASX(dst, src, idx)
 }
 
-func tileInt64LASXGuarded(dst []int64, pattern []int64) {
+func TileInt64LASX(dst []int64, pattern []int64) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -138,7 +138,7 @@ func tileInt64LASXGuarded(dst []int64, pattern []int64) {
 	tileInt64LASX(dst, pattern)
 }
 
-func gatherInt64LASXGuarded(dst []int64, src []int64, idx []int32) {
+func GatherInt64LASX(dst []int64, src []int64, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -146,7 +146,7 @@ func gatherInt64LASXGuarded(dst []int64, src []int64, idx []int32) {
 	gatherInt64LASX(dst, src, idx)
 }
 
-func tileInt8LASXGuarded(dst []int8, pattern []int8) {
+func TileInt8LASX(dst []int8, pattern []int8) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -154,7 +154,7 @@ func tileInt8LASXGuarded(dst []int8, pattern []int8) {
 	tileInt8LASX(dst, pattern)
 }
 
-func gatherInt8LASXGuarded(dst []int8, src []int8, idx []int32) {
+func GatherInt8LASX(dst []int8, src []int8, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -162,7 +162,7 @@ func gatherInt8LASXGuarded(dst []int8, src []int8, idx []int32) {
 	gatherInt8LASX(dst, src, idx)
 }
 
-func tileInt16LASXGuarded(dst []int16, pattern []int16) {
+func TileInt16LASX(dst []int16, pattern []int16) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -170,7 +170,7 @@ func tileInt16LASXGuarded(dst []int16, pattern []int16) {
 	tileInt16LASX(dst, pattern)
 }
 
-func gatherInt16LASXGuarded(dst []int16, src []int16, idx []int32) {
+func GatherInt16LASX(dst []int16, src []int16, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -178,7 +178,7 @@ func gatherInt16LASXGuarded(dst []int16, src []int16, idx []int32) {
 	gatherInt16LASX(dst, src, idx)
 }
 
-func tileUint8LASXGuarded(dst []byte, pattern []byte) {
+func TileUint8LASX(dst []byte, pattern []byte) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -186,7 +186,7 @@ func tileUint8LASXGuarded(dst []byte, pattern []byte) {
 	tileUint8LASX(dst, pattern)
 }
 
-func gatherUint8LASXGuarded(dst []byte, src []byte, idx []int32) {
+func GatherUint8LASX(dst []byte, src []byte, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -194,7 +194,7 @@ func gatherUint8LASXGuarded(dst []byte, src []byte, idx []int32) {
 	gatherUint8LASX(dst, src, idx)
 }
 
-func tileUint16LASXGuarded(dst []uint16, pattern []uint16) {
+func TileUint16LASX(dst []uint16, pattern []uint16) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -202,7 +202,7 @@ func tileUint16LASXGuarded(dst []uint16, pattern []uint16) {
 	tileUint16LASX(dst, pattern)
 }
 
-func gatherUint16LASXGuarded(dst []uint16, src []uint16, idx []int32) {
+func GatherUint16LASX(dst []uint16, src []uint16, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -210,7 +210,7 @@ func gatherUint16LASXGuarded(dst []uint16, src []uint16, idx []int32) {
 	gatherUint16LASX(dst, src, idx)
 }
 
-func tileUint32LASXGuarded(dst []uint32, pattern []uint32) {
+func TileUint32LASX(dst []uint32, pattern []uint32) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -218,7 +218,7 @@ func tileUint32LASXGuarded(dst []uint32, pattern []uint32) {
 	tileUint32LASX(dst, pattern)
 }
 
-func gatherUint32LASXGuarded(dst []uint32, src []uint32, idx []int32) {
+func GatherUint32LASX(dst []uint32, src []uint32, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -226,7 +226,7 @@ func gatherUint32LASXGuarded(dst []uint32, src []uint32, idx []int32) {
 	gatherUint32LASX(dst, src, idx)
 }
 
-func tileUint64LASXGuarded(dst []uint64, pattern []uint64) {
+func TileUint64LASX(dst []uint64, pattern []uint64) {
 	if len(dst) < 16 {
 		ref.Tile(dst, pattern)
 		return
@@ -234,7 +234,7 @@ func tileUint64LASXGuarded(dst []uint64, pattern []uint64) {
 	tileUint64LASX(dst, pattern)
 }
 
-func gatherUint64LASXGuarded(dst []uint64, src []uint64, idx []int32) {
+func GatherUint64LASX(dst []uint64, src []uint64, idx []int32) {
 	if len(dst) < 16 {
 		ref.Gather(dst, src, idx)
 		return
@@ -242,7 +242,7 @@ func gatherUint64LASXGuarded(dst []uint64, src []uint64, idx []int32) {
 	gatherUint64LASX(dst, src, idx)
 }
 
-func shiftDivFloat32LASXGuarded(dst []float32, a []float32, shift float32, denom float32) {
+func ShiftDivFloat32LASX(dst []float32, a []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ShiftDiv(dst, a, shift, denom)
@@ -251,7 +251,7 @@ func shiftDivFloat32LASXGuarded(dst []float32, a []float32, shift float32, denom
 	shiftDivFloat32LASX(dst[:n:n], a, shift, denom)
 }
 
-func layerNormFloat32LASXGuarded(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
+func LayerNormFloat32LASX(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a), len(gamma), len(beta))
 	if n < 16 {
 		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
@@ -260,7 +260,7 @@ func layerNormFloat32LASXGuarded(dst []float32, a []float32, gamma []float32, be
 	layerNormFloat32LASX(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
-func shiftDivFloat64LASXGuarded(dst []float64, a []float64, shift float64, denom float64) {
+func ShiftDivFloat64LASX(dst []float64, a []float64, shift float64, denom float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ShiftDiv(dst, a, shift, denom)
@@ -269,7 +269,7 @@ func shiftDivFloat64LASXGuarded(dst []float64, a []float64, shift float64, denom
 	shiftDivFloat64LASX(dst[:n:n], a, shift, denom)
 }
 
-func layerNormFloat64LASXGuarded(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
+func LayerNormFloat64LASX(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
 	n := min(len(dst), len(a), len(gamma), len(beta))
 	if n < 16 {
 		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
@@ -278,7 +278,7 @@ func layerNormFloat64LASXGuarded(dst []float64, a []float64, gamma []float64, be
 	layerNormFloat64LASX(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
-func randomU64LASXGuarded(dst []uint64, seed uint64) {
+func RandomU64LASX(dst []uint64, seed uint64) {
 	if len(dst) < 16 {
 		ref.RandomU64(dst, seed)
 		return
@@ -286,7 +286,7 @@ func randomU64LASXGuarded(dst []uint64, seed uint64) {
 	randomU64LASX(dst, seed)
 }
 
-func randomF64LASXGuarded(dst []float64, seed uint64) {
+func RandomF64LASX(dst []float64, seed uint64) {
 	if len(dst) < 16 {
 		ref.RandomF64(dst, seed)
 		return
@@ -294,7 +294,7 @@ func randomF64LASXGuarded(dst []float64, seed uint64) {
 	randomF64LASX(dst, seed)
 }
 
-func randomF32LASXGuarded(dst []float32, seed uint64) {
+func RandomF32LASX(dst []float32, seed uint64) {
 	if len(dst) < 16 {
 		ref.RandomF32(dst, seed)
 		return
@@ -302,43 +302,40 @@ func randomF32LASXGuarded(dst []float32, seed uint64) {
 	randomF32LASX(dst, seed)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.F32.Norm = normFloat32LASXGuarded
-	s.F32.PolyEval = polyEvalFloat32LASXGuarded
-	s.F32.Convolve = convolveFloat32LASXGuarded
-	s.F32.Correlate = correlateFloat32LASXGuarded
-	s.F64.Norm = normFloat64LASXGuarded
-	s.F64.PolyEval = polyEvalFloat64LASXGuarded
-	s.F64.Convolve = convolveFloat64LASXGuarded
-	s.F64.Correlate = correlateFloat64LASXGuarded
-	s.F32.Tile = tileFloat32LASXGuarded
-	s.F32.Gather = gatherFloat32LASXGuarded
-	s.F64.Tile = tileFloat64LASXGuarded
-	s.F64.Gather = gatherFloat64LASXGuarded
-	s.I32.Tile = tileInt32LASXGuarded
-	s.I32.Gather = gatherInt32LASXGuarded
-	s.I64.Tile = tileInt64LASXGuarded
-	s.I64.Gather = gatherInt64LASXGuarded
-	s.I8.Tile = tileInt8LASXGuarded
-	s.I8.Gather = gatherInt8LASXGuarded
-	s.I16.Tile = tileInt16LASXGuarded
-	s.I16.Gather = gatherInt16LASXGuarded
-	s.U8.Tile = tileUint8LASXGuarded
-	s.U8.Gather = gatherUint8LASXGuarded
-	s.U16.Tile = tileUint16LASXGuarded
-	s.U16.Gather = gatherUint16LASXGuarded
-	s.U32.Tile = tileUint32LASXGuarded
-	s.U32.Gather = gatherUint32LASXGuarded
-	s.U64.Tile = tileUint64LASXGuarded
-	s.U64.Gather = gatherUint64LASXGuarded
-	s.F32.ShiftDiv = shiftDivFloat32LASXGuarded
-	s.F32.LayerNorm = layerNormFloat32LASXGuarded
-	s.F64.ShiftDiv = shiftDivFloat64LASXGuarded
-	s.F64.LayerNorm = layerNormFloat64LASXGuarded
-	s.U64.Random = randomU64LASXGuarded
-	s.F64.Random = randomF64LASXGuarded
-	s.F32.Random = randomF32LASXGuarded
+func registerNumericLASX(s *kernel.Set) {
+	s.F32.Norm = NormFloat32LASX
+	s.F32.PolyEval = PolyEvalFloat32LASX
+	s.F32.Convolve = ConvolveFloat32LASX
+	s.F32.Correlate = CorrelateFloat32LASX
+	s.F64.Norm = NormFloat64LASX
+	s.F64.PolyEval = PolyEvalFloat64LASX
+	s.F64.Convolve = ConvolveFloat64LASX
+	s.F64.Correlate = CorrelateFloat64LASX
+	s.F32.Tile = TileFloat32LASX
+	s.F32.Gather = GatherFloat32LASX
+	s.F64.Tile = TileFloat64LASX
+	s.F64.Gather = GatherFloat64LASX
+	s.I32.Tile = TileInt32LASX
+	s.I32.Gather = GatherInt32LASX
+	s.I64.Tile = TileInt64LASX
+	s.I64.Gather = GatherInt64LASX
+	s.I8.Tile = TileInt8LASX
+	s.I8.Gather = GatherInt8LASX
+	s.I16.Tile = TileInt16LASX
+	s.I16.Gather = GatherInt16LASX
+	s.U8.Tile = TileUint8LASX
+	s.U8.Gather = GatherUint8LASX
+	s.U16.Tile = TileUint16LASX
+	s.U16.Gather = GatherUint16LASX
+	s.U32.Tile = TileUint32LASX
+	s.U32.Gather = GatherUint32LASX
+	s.U64.Tile = TileUint64LASX
+	s.U64.Gather = GatherUint64LASX
+	s.F32.ShiftDiv = ShiftDivFloat32LASX
+	s.F32.LayerNorm = LayerNormFloat32LASX
+	s.F64.ShiftDiv = ShiftDivFloat64LASX
+	s.F64.LayerNorm = LayerNormFloat64LASX
+	s.U64.Random = RandomU64LASX
+	s.F64.Random = RandomF64LASX
+	s.F32.Random = RandomF32LASX
 }

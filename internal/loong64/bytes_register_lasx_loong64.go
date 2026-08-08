@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,42 +20,42 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func countByteLASXGuarded(b []byte, c byte) int {
+func CountByteLASX(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.CountByte(b, c)
 	}
 	return countByteLASX(b, c)
 }
 
-func indexByteLASXGuarded(b []byte, c byte) int {
+func IndexByteLASX(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteLASX(b, c)
 }
 
-func lastIndexByteLASXGuarded(b []byte, c byte) int {
+func LastIndexByteLASX(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexByte(b, c)
 	}
 	return lastIndexByteLASX(b, c)
 }
 
-func popCountLASXGuarded(b []byte) int {
+func PopCountLASX(b []byte) int {
 	if len(b) < 64 {
 		return ref.PopCount(b)
 	}
 	return popCountLASX(b)
 }
 
-func isASCIILASXGuarded(b []byte) bool {
+func IsASCIILASX(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
 	}
 	return isASCIILASX(b)
 }
 
-func equalBytesLASXGuarded(a []byte, b []byte) bool {
+func EqualBytesLASX(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
@@ -63,7 +63,7 @@ func equalBytesLASXGuarded(a []byte, b []byte) bool {
 	return equalBytesLASX(a[:n:n], b)
 }
 
-func bitAndLASXGuarded(dst []byte, a []byte, b []byte) {
+func BitAndLASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAnd(dst, a, b)
@@ -72,7 +72,7 @@ func bitAndLASXGuarded(dst []byte, a []byte, b []byte) {
 	bitAndLASX(dst[:n:n], a, b)
 }
 
-func bitOrLASXGuarded(dst []byte, a []byte, b []byte) {
+func BitOrLASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitOr(dst, a, b)
@@ -81,7 +81,7 @@ func bitOrLASXGuarded(dst []byte, a []byte, b []byte) {
 	bitOrLASX(dst[:n:n], a, b)
 }
 
-func bitXorLASXGuarded(dst []byte, a []byte, b []byte) {
+func BitXorLASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitXor(dst, a, b)
@@ -90,7 +90,7 @@ func bitXorLASXGuarded(dst []byte, a []byte, b []byte) {
 	bitXorLASX(dst[:n:n], a, b)
 }
 
-func bitAndNotLASXGuarded(dst []byte, a []byte, b []byte) {
+func BitAndNotLASX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAndNot(dst, a, b)
@@ -99,7 +99,7 @@ func bitAndNotLASXGuarded(dst []byte, a []byte, b []byte) {
 	bitAndNotLASX(dst[:n:n], a, b)
 }
 
-func bitNotLASXGuarded(dst []byte, b []byte) {
+func BitNotLASX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.BitNot(dst, b)
@@ -108,7 +108,7 @@ func bitNotLASXGuarded(dst []byte, b []byte) {
 	bitNotLASX(dst[:n:n], b)
 }
 
-func fillBytesLASXGuarded(dst []byte, v byte) {
+func FillBytesLASX(dst []byte, v byte) {
 	if len(dst) < 32 {
 		ref.FillBytes(dst, v)
 		return
@@ -116,21 +116,21 @@ func fillBytesLASXGuarded(dst []byte, v byte) {
 	fillBytesLASX(dst, v)
 }
 
-func compareBytesLASXGuarded(a []byte, b []byte) int {
+func CompareBytesLASX(a []byte, b []byte) int {
 	if len(a) < 64 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesLASX(a, b)
 }
 
-func commonPrefixLASXGuarded(a []byte, b []byte) int {
+func CommonPrefixLASX(a []byte, b []byte) int {
 	if len(a) < 64 {
 		return ref.CommonPrefix(a, b)
 	}
 	return commonPrefixLASX(a, b)
 }
 
-func equalFoldASCIILASXGuarded(a []byte, b []byte) bool {
+func EqualFoldASCIILASX(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
 		return ref.EqualFoldASCII(a, b)
@@ -138,42 +138,42 @@ func equalFoldASCIILASXGuarded(a []byte, b []byte) bool {
 	return equalFoldASCIILASX(a[:n:n], b)
 }
 
-func indexAnyLASXGuarded(b []byte, chars []byte) int {
+func IndexAnyLASX(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexAny(b, chars)
 	}
 	return indexAnyLASX(b, chars)
 }
 
-func indexAnyOrLessLASXGuarded(b []byte, chars []byte, lo byte) int {
+func IndexAnyOrLessLASX(b []byte, chars []byte, lo byte) int {
 	if len(b) < 64 {
 		return ref.IndexAnyOrLess(b, chars, lo)
 	}
 	return indexAnyOrLessLASX(b, chars, lo)
 }
 
-func lastIndexNotAnyLASXGuarded(b []byte, chars []byte) int {
+func LastIndexNotAnyLASX(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexNotAny(b, chars)
 	}
 	return lastIndexNotAnyLASX(b, chars)
 }
 
-func countAnyLASXGuarded(b []byte, chars []byte) int {
+func CountAnyLASX(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
 	}
 	return countAnyLASX(b, chars)
 }
 
-func jsonCopyRunLASXGuarded(dst []byte, b []byte, html byte) int {
+func JsonCopyRunLASX(dst []byte, b []byte, html byte) int {
 	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunLASX(dst, b, html)
 }
 
-func toUpperASCIILASXGuarded(dst []byte, b []byte) {
+func ToUpperASCIILASX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToUpperASCII(dst, b)
@@ -182,7 +182,7 @@ func toUpperASCIILASXGuarded(dst []byte, b []byte) {
 	toUpperASCIILASX(dst[:n:n], b)
 }
 
-func toLowerASCIILASXGuarded(dst []byte, b []byte) {
+func ToLowerASCIILASX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToLowerASCII(dst, b)
@@ -191,7 +191,7 @@ func toLowerASCIILASXGuarded(dst []byte, b []byte) {
 	toLowerASCIILASX(dst[:n:n], b)
 }
 
-func replaceByteLASXGuarded(dst []byte, b []byte, old byte, with byte) {
+func ReplaceByteLASX(dst []byte, b []byte, old byte, with byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ReplaceByte(dst, b, old, with)
@@ -200,31 +200,28 @@ func replaceByteLASXGuarded(dst []byte, b []byte, old byte, with byte) {
 	replaceByteLASX(dst[:n:n], b, old, with)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.Bytes.Count = countByteLASXGuarded
-	s.Bytes.IndexByte = indexByteLASXGuarded
-	s.Bytes.LastIndexByte = lastIndexByteLASXGuarded
-	s.Bytes.PopCount = popCountLASXGuarded
-	s.Bytes.IsASCII = isASCIILASXGuarded
-	s.Bytes.Equal = equalBytesLASXGuarded
-	s.Bytes.And = bitAndLASXGuarded
-	s.Bytes.Or = bitOrLASXGuarded
-	s.Bytes.Xor = bitXorLASXGuarded
-	s.Bytes.AndNot = bitAndNotLASXGuarded
-	s.Bytes.Not = bitNotLASXGuarded
-	s.Bytes.Fill = fillBytesLASXGuarded
-	s.Bytes.Compare = compareBytesLASXGuarded
-	s.Bytes.CommonPrefix = commonPrefixLASXGuarded
-	s.Bytes.EqualFoldASCII = equalFoldASCIILASXGuarded
-	s.Bytes.IndexAny = indexAnyLASXGuarded
-	s.Bytes.IndexAnyOrLess = indexAnyOrLessLASXGuarded
-	s.Bytes.LastIndexNotAny = lastIndexNotAnyLASXGuarded
-	s.Bytes.CountAny = countAnyLASXGuarded
-	s.Bytes.JSONCopyRun = jsonCopyRunLASXGuarded
-	s.Bytes.ToUpperASCII = toUpperASCIILASXGuarded
-	s.Bytes.ToLowerASCII = toLowerASCIILASXGuarded
-	s.Bytes.ReplaceByte = replaceByteLASXGuarded
+func registerBytesLASX(s *kernel.Set) {
+	s.Bytes.Count = CountByteLASX
+	s.Bytes.IndexByte = IndexByteLASX
+	s.Bytes.LastIndexByte = LastIndexByteLASX
+	s.Bytes.PopCount = PopCountLASX
+	s.Bytes.IsASCII = IsASCIILASX
+	s.Bytes.Equal = EqualBytesLASX
+	s.Bytes.And = BitAndLASX
+	s.Bytes.Or = BitOrLASX
+	s.Bytes.Xor = BitXorLASX
+	s.Bytes.AndNot = BitAndNotLASX
+	s.Bytes.Not = BitNotLASX
+	s.Bytes.Fill = FillBytesLASX
+	s.Bytes.Compare = CompareBytesLASX
+	s.Bytes.CommonPrefix = CommonPrefixLASX
+	s.Bytes.EqualFoldASCII = EqualFoldASCIILASX
+	s.Bytes.IndexAny = IndexAnyLASX
+	s.Bytes.IndexAnyOrLess = IndexAnyOrLessLASX
+	s.Bytes.LastIndexNotAny = LastIndexNotAnyLASX
+	s.Bytes.CountAny = CountAnyLASX
+	s.Bytes.JSONCopyRun = JsonCopyRunLASX
+	s.Bytes.ToUpperASCII = ToUpperASCIILASX
+	s.Bytes.ToLowerASCII = ToLowerASCIILASX
+	s.Bytes.ReplaceByte = ReplaceByteLASX
 }

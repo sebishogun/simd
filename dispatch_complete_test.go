@@ -33,6 +33,22 @@ import (
 )
 
 func TestDispatchTableComplete(t *testing.T) {
+	// The runtime surface is per-operation tables plus the reference base.
+	// Every table must be fully populated -- one entry per tier, none nil --
+	// and every field of the reference base must be callable, because it is
+	// both slot zero and the overlay's starting point.
+	for name, slots := range allFlatTables {
+		if len(slots) != len(dispatchTiers) {
+			t.Errorf("%s: %d slots for %d tiers", name, len(slots), len(dispatchTiers))
+		}
+		for i, fn := range slots {
+			if fn == nil || reflect.ValueOf(fn).IsNil() {
+				t.Errorf("%s: tier %q slot is nil — a call through it panics",
+					name, dispatchTiers[i])
+			}
+		}
+	}
+
 	var check func(v reflect.Value, path string)
 	check = func(v reflect.Value, path string) {
 		switch v.Kind() {
@@ -46,8 +62,7 @@ func TestDispatchTableComplete(t *testing.T) {
 			}
 		case reflect.Func:
 			if v.IsNil() {
-				t.Errorf("tier %q: %s is nil — a call through it panics",
-					active.Name, path)
+				t.Errorf("refBase: %s is nil — a call through it panics", path)
 			}
 		}
 	}
@@ -55,11 +70,11 @@ func TestDispatchTableComplete(t *testing.T) {
 		name string
 		v    any
 	}{
-		{"Bytes", active.Bytes},
-		{"Convert", active.Convert},
-		{"Mask", active.Mask},
-		{"C64", active.C64},
-		{"C128", active.C128},
+		{"Bytes", refBase.Bytes},
+		{"Convert", refBase.Convert},
+		{"Mask", refBase.Mask},
+		{"C64", refBase.C64},
+		{"C128", refBase.C128},
 	} {
 		check(reflect.ValueOf(g.v), g.name)
 	}

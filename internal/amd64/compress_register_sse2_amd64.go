@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func runStartsI32SSE2Guarded(dst []bool, a []int32) {
+func RunStartsI32SSE2(dst []bool, a []int32) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI32(dst, a)
@@ -29,7 +29,7 @@ func runStartsI32SSE2Guarded(dst []bool, a []int32) {
 	runStartsI32SSE2(dst, a[:n:n])
 }
 
-func runStartsI64SSE2Guarded(dst []bool, a []int64) {
+func RunStartsI64SSE2(dst []bool, a []int64) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI64(dst, a)
@@ -38,7 +38,7 @@ func runStartsI64SSE2Guarded(dst []bool, a []int64) {
 	runStartsI64SSE2(dst, a[:n:n])
 }
 
-func runStartsU8SSE2Guarded(dst []bool, a []byte) {
+func RunStartsU8SSE2(dst []bool, a []byte) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsU8(dst, a)
@@ -47,11 +47,8 @@ func runStartsU8SSE2Guarded(dst []bool, a []byte) {
 	runStartsU8SSE2(dst, a[:n:n])
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sse2")
-	s.Bytes.RunStartsI32 = runStartsI32SSE2Guarded
-	s.Bytes.RunStartsI64 = runStartsI64SSE2Guarded
-	s.Bytes.RunStartsU8 = runStartsU8SSE2Guarded
+func registerCompressSSE2(s *kernel.Set) {
+	s.Bytes.RunStartsI32 = RunStartsI32SSE2
+	s.Bytes.RunStartsI64 = RunStartsI64SSE2
+	s.Bytes.RunStartsU8 = RunStartsU8SSE2
 }

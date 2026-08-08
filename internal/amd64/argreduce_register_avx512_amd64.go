@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,104 +20,101 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func argMinFloat32AVX512Guarded(a []float32) int {
+func ArgMinFloat32AVX512(a []float32) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat32AVX512(a)
 }
 
-func argMaxFloat32AVX512Guarded(a []float32) int {
+func ArgMaxFloat32AVX512(a []float32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat32AVX512(a)
 }
 
-func minMaxFloat32AVX512Guarded(a []float32) (lo float32, hi float32) {
+func MinMaxFloat32AVX512(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32AVX512(a)
 }
 
-func argMinFloat64AVX512Guarded(a []float64) int {
+func ArgMinFloat64AVX512(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat64AVX512(a)
 }
 
-func argMaxFloat64AVX512Guarded(a []float64) int {
+func ArgMaxFloat64AVX512(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat64AVX512(a)
 }
 
-func minMaxFloat64AVX512Guarded(a []float64) (lo float64, hi float64) {
+func MinMaxFloat64AVX512(a []float64) (lo float64, hi float64) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat64AVX512(a)
 }
 
-func argMinInt32AVX512Guarded(a []int32) int {
+func ArgMinInt32AVX512(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt32AVX512(a)
 }
 
-func argMaxInt32AVX512Guarded(a []int32) int {
+func ArgMaxInt32AVX512(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt32AVX512(a)
 }
 
-func minMaxInt32AVX512Guarded(a []int32) (lo int32, hi int32) {
+func MinMaxInt32AVX512(a []int32) (lo int32, hi int32) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt32AVX512(a)
 }
 
-func argMinInt64AVX512Guarded(a []int64) int {
+func ArgMinInt64AVX512(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt64AVX512(a)
 }
 
-func argMaxInt64AVX512Guarded(a []int64) int {
+func ArgMaxInt64AVX512(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt64AVX512(a)
 }
 
-func minMaxInt64AVX512Guarded(a []int64) (lo int64, hi int64) {
+func MinMaxInt64AVX512(a []int64) (lo int64, hi int64) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt64AVX512(a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx512")
-	s.F32.ArgMin = argMinFloat32AVX512Guarded
-	s.F32.ArgMax = argMaxFloat32AVX512Guarded
-	s.F32.MinMax = minMaxFloat32AVX512Guarded
-	s.F64.ArgMin = argMinFloat64AVX512Guarded
-	s.F64.ArgMax = argMaxFloat64AVX512Guarded
-	s.F64.MinMax = minMaxFloat64AVX512Guarded
-	s.I32.ArgMin = argMinInt32AVX512Guarded
-	s.I32.ArgMax = argMaxInt32AVX512Guarded
-	s.I32.MinMax = minMaxInt32AVX512Guarded
-	s.I64.ArgMin = argMinInt64AVX512Guarded
-	s.I64.ArgMax = argMaxInt64AVX512Guarded
-	s.I64.MinMax = minMaxInt64AVX512Guarded
+func registerArgreduceAVX512(s *kernel.Set) {
+	s.F32.ArgMin = ArgMinFloat32AVX512
+	s.F32.ArgMax = ArgMaxFloat32AVX512
+	s.F32.MinMax = MinMaxFloat32AVX512
+	s.F64.ArgMin = ArgMinFloat64AVX512
+	s.F64.ArgMax = ArgMaxFloat64AVX512
+	s.F64.MinMax = MinMaxFloat64AVX512
+	s.I32.ArgMin = ArgMinInt32AVX512
+	s.I32.ArgMax = ArgMaxInt32AVX512
+	s.I32.MinMax = MinMaxInt32AVX512
+	s.I64.ArgMin = ArgMinInt64AVX512
+	s.I64.ArgMax = ArgMaxInt64AVX512
+	s.I64.MinMax = MinMaxInt64AVX512
 }

@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func expFloat32SVE2Guarded(dst []float32, a []float32) {
+func ExpFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp(dst, a)
@@ -29,7 +29,7 @@ func expFloat32SVE2Guarded(dst []float32, a []float32) {
 	expFloat32SVE2(dst[:n:n], a)
 }
 
-func exp2Float32SVE2Guarded(dst []float32, a []float32) {
+func Exp2Float32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp2(dst, a)
@@ -38,7 +38,7 @@ func exp2Float32SVE2Guarded(dst []float32, a []float32) {
 	exp2Float32SVE2(dst[:n:n], a)
 }
 
-func expm1Float32SVE2Guarded(dst []float32, a []float32) {
+func Expm1Float32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Expm1(dst, a)
@@ -47,7 +47,7 @@ func expm1Float32SVE2Guarded(dst []float32, a []float32) {
 	expm1Float32SVE2(dst[:n:n], a)
 }
 
-func logFloat32SVE2Guarded(dst []float32, a []float32) {
+func LogFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log(dst, a)
@@ -56,7 +56,7 @@ func logFloat32SVE2Guarded(dst []float32, a []float32) {
 	logFloat32SVE2(dst[:n:n], a)
 }
 
-func log2Float32SVE2Guarded(dst []float32, a []float32) {
+func Log2Float32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log2(dst, a)
@@ -65,7 +65,7 @@ func log2Float32SVE2Guarded(dst []float32, a []float32) {
 	log2Float32SVE2(dst[:n:n], a)
 }
 
-func log10Float32SVE2Guarded(dst []float32, a []float32) {
+func Log10Float32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log10(dst, a)
@@ -74,7 +74,7 @@ func log10Float32SVE2Guarded(dst []float32, a []float32) {
 	log10Float32SVE2(dst[:n:n], a)
 }
 
-func log1pFloat32SVE2Guarded(dst []float32, a []float32) {
+func Log1pFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log1p(dst, a)
@@ -83,7 +83,7 @@ func log1pFloat32SVE2Guarded(dst []float32, a []float32) {
 	log1pFloat32SVE2(dst[:n:n], a)
 }
 
-func cbrtFloat32SVE2Guarded(dst []float32, a []float32) {
+func CbrtFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cbrt(dst, a)
@@ -92,7 +92,7 @@ func cbrtFloat32SVE2Guarded(dst []float32, a []float32) {
 	cbrtFloat32SVE2(dst[:n:n], a)
 }
 
-func sigmoidFloat32SVE2Guarded(dst []float32, a []float32) {
+func SigmoidFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sigmoid(dst, a)
@@ -101,7 +101,7 @@ func sigmoidFloat32SVE2Guarded(dst []float32, a []float32) {
 	sigmoidFloat32SVE2(dst[:n:n], a)
 }
 
-func sinFloat32SVE2Guarded(dst []float32, a []float32) {
+func SinFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sin(dst, a)
@@ -110,7 +110,7 @@ func sinFloat32SVE2Guarded(dst []float32, a []float32) {
 	sinFloat32SVE2(dst[:n:n], a)
 }
 
-func cosFloat32SVE2Guarded(dst []float32, a []float32) {
+func CosFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cos(dst, a)
@@ -119,7 +119,7 @@ func cosFloat32SVE2Guarded(dst []float32, a []float32) {
 	cosFloat32SVE2(dst[:n:n], a)
 }
 
-func tanFloat32SVE2Guarded(dst []float32, a []float32) {
+func TanFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tan(dst, a)
@@ -128,7 +128,7 @@ func tanFloat32SVE2Guarded(dst []float32, a []float32) {
 	tanFloat32SVE2(dst[:n:n], a)
 }
 
-func asinFloat32SVE2Guarded(dst []float32, a []float32) {
+func AsinFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -137,7 +137,7 @@ func asinFloat32SVE2Guarded(dst []float32, a []float32) {
 	asinFloat32SVE2(dst[:n:n], a)
 }
 
-func acosFloat32SVE2Guarded(dst []float32, a []float32) {
+func AcosFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -146,7 +146,7 @@ func acosFloat32SVE2Guarded(dst []float32, a []float32) {
 	acosFloat32SVE2(dst[:n:n], a)
 }
 
-func atanFloat32SVE2Guarded(dst []float32, a []float32) {
+func AtanFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atan(dst, a)
@@ -155,7 +155,7 @@ func atanFloat32SVE2Guarded(dst []float32, a []float32) {
 	atanFloat32SVE2(dst[:n:n], a)
 }
 
-func sinhFloat32SVE2Guarded(dst []float32, a []float32) {
+func SinhFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sinh(dst, a)
@@ -164,7 +164,7 @@ func sinhFloat32SVE2Guarded(dst []float32, a []float32) {
 	sinhFloat32SVE2(dst[:n:n], a)
 }
 
-func coshFloat32SVE2Guarded(dst []float32, a []float32) {
+func CoshFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cosh(dst, a)
@@ -173,7 +173,7 @@ func coshFloat32SVE2Guarded(dst []float32, a []float32) {
 	coshFloat32SVE2(dst[:n:n], a)
 }
 
-func tanhFloat32SVE2Guarded(dst []float32, a []float32) {
+func TanhFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tanh(dst, a)
@@ -182,7 +182,7 @@ func tanhFloat32SVE2Guarded(dst []float32, a []float32) {
 	tanhFloat32SVE2(dst[:n:n], a)
 }
 
-func asinhFloat32SVE2Guarded(dst []float32, a []float32) {
+func AsinhFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asinh(dst, a)
@@ -191,7 +191,7 @@ func asinhFloat32SVE2Guarded(dst []float32, a []float32) {
 	asinhFloat32SVE2(dst[:n:n], a)
 }
 
-func acoshFloat32SVE2Guarded(dst []float32, a []float32) {
+func AcoshFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acosh(dst, a)
@@ -200,7 +200,7 @@ func acoshFloat32SVE2Guarded(dst []float32, a []float32) {
 	acoshFloat32SVE2(dst[:n:n], a)
 }
 
-func atanhFloat32SVE2Guarded(dst []float32, a []float32) {
+func AtanhFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atanh(dst, a)
@@ -209,7 +209,7 @@ func atanhFloat32SVE2Guarded(dst []float32, a []float32) {
 	atanhFloat32SVE2(dst[:n:n], a)
 }
 
-func erfFloat32SVE2Guarded(dst []float32, a []float32) {
+func ErfFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Erf(dst, a)
@@ -218,7 +218,7 @@ func erfFloat32SVE2Guarded(dst []float32, a []float32) {
 	erfFloat32SVE2(dst[:n:n], a)
 }
 
-func powFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func PowFloat32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Pow(dst, a, b)
@@ -227,7 +227,7 @@ func powFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	powFloat32SVE2(dst[:n:n], a, b)
 }
 
-func atan2Float32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func Atan2Float32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Atan2(dst, a, b)
@@ -236,7 +236,7 @@ func atan2Float32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	atan2Float32SVE2(dst[:n:n], a, b)
 }
 
-func hypotFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func HypotFloat32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -245,7 +245,7 @@ func hypotFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	hypotFloat32SVE2(dst[:n:n], a, b)
 }
 
-func expFloat64SVE2Guarded(dst []float64, a []float64) {
+func ExpFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp(dst, a)
@@ -254,7 +254,7 @@ func expFloat64SVE2Guarded(dst []float64, a []float64) {
 	expFloat64SVE2(dst[:n:n], a)
 }
 
-func exp2Float64SVE2Guarded(dst []float64, a []float64) {
+func Exp2Float64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp2(dst, a)
@@ -263,7 +263,7 @@ func exp2Float64SVE2Guarded(dst []float64, a []float64) {
 	exp2Float64SVE2(dst[:n:n], a)
 }
 
-func expm1Float64SVE2Guarded(dst []float64, a []float64) {
+func Expm1Float64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Expm1(dst, a)
@@ -272,7 +272,7 @@ func expm1Float64SVE2Guarded(dst []float64, a []float64) {
 	expm1Float64SVE2(dst[:n:n], a)
 }
 
-func logFloat64SVE2Guarded(dst []float64, a []float64) {
+func LogFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log(dst, a)
@@ -281,7 +281,7 @@ func logFloat64SVE2Guarded(dst []float64, a []float64) {
 	logFloat64SVE2(dst[:n:n], a)
 }
 
-func log2Float64SVE2Guarded(dst []float64, a []float64) {
+func Log2Float64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log2(dst, a)
@@ -290,7 +290,7 @@ func log2Float64SVE2Guarded(dst []float64, a []float64) {
 	log2Float64SVE2(dst[:n:n], a)
 }
 
-func log10Float64SVE2Guarded(dst []float64, a []float64) {
+func Log10Float64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log10(dst, a)
@@ -299,7 +299,7 @@ func log10Float64SVE2Guarded(dst []float64, a []float64) {
 	log10Float64SVE2(dst[:n:n], a)
 }
 
-func log1pFloat64SVE2Guarded(dst []float64, a []float64) {
+func Log1pFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log1p(dst, a)
@@ -308,7 +308,7 @@ func log1pFloat64SVE2Guarded(dst []float64, a []float64) {
 	log1pFloat64SVE2(dst[:n:n], a)
 }
 
-func cbrtFloat64SVE2Guarded(dst []float64, a []float64) {
+func CbrtFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cbrt(dst, a)
@@ -317,7 +317,7 @@ func cbrtFloat64SVE2Guarded(dst []float64, a []float64) {
 	cbrtFloat64SVE2(dst[:n:n], a)
 }
 
-func sigmoidFloat64SVE2Guarded(dst []float64, a []float64) {
+func SigmoidFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sigmoid(dst, a)
@@ -326,7 +326,7 @@ func sigmoidFloat64SVE2Guarded(dst []float64, a []float64) {
 	sigmoidFloat64SVE2(dst[:n:n], a)
 }
 
-func sinFloat64SVE2Guarded(dst []float64, a []float64) {
+func SinFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sin(dst, a)
@@ -335,7 +335,7 @@ func sinFloat64SVE2Guarded(dst []float64, a []float64) {
 	sinFloat64SVE2(dst[:n:n], a)
 }
 
-func cosFloat64SVE2Guarded(dst []float64, a []float64) {
+func CosFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cos(dst, a)
@@ -344,7 +344,7 @@ func cosFloat64SVE2Guarded(dst []float64, a []float64) {
 	cosFloat64SVE2(dst[:n:n], a)
 }
 
-func tanFloat64SVE2Guarded(dst []float64, a []float64) {
+func TanFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tan(dst, a)
@@ -353,7 +353,7 @@ func tanFloat64SVE2Guarded(dst []float64, a []float64) {
 	tanFloat64SVE2(dst[:n:n], a)
 }
 
-func asinFloat64SVE2Guarded(dst []float64, a []float64) {
+func AsinFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -362,7 +362,7 @@ func asinFloat64SVE2Guarded(dst []float64, a []float64) {
 	asinFloat64SVE2(dst[:n:n], a)
 }
 
-func acosFloat64SVE2Guarded(dst []float64, a []float64) {
+func AcosFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -371,7 +371,7 @@ func acosFloat64SVE2Guarded(dst []float64, a []float64) {
 	acosFloat64SVE2(dst[:n:n], a)
 }
 
-func atanFloat64SVE2Guarded(dst []float64, a []float64) {
+func AtanFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atan(dst, a)
@@ -380,7 +380,7 @@ func atanFloat64SVE2Guarded(dst []float64, a []float64) {
 	atanFloat64SVE2(dst[:n:n], a)
 }
 
-func sinhFloat64SVE2Guarded(dst []float64, a []float64) {
+func SinhFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sinh(dst, a)
@@ -389,7 +389,7 @@ func sinhFloat64SVE2Guarded(dst []float64, a []float64) {
 	sinhFloat64SVE2(dst[:n:n], a)
 }
 
-func coshFloat64SVE2Guarded(dst []float64, a []float64) {
+func CoshFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cosh(dst, a)
@@ -398,7 +398,7 @@ func coshFloat64SVE2Guarded(dst []float64, a []float64) {
 	coshFloat64SVE2(dst[:n:n], a)
 }
 
-func tanhFloat64SVE2Guarded(dst []float64, a []float64) {
+func TanhFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tanh(dst, a)
@@ -407,7 +407,7 @@ func tanhFloat64SVE2Guarded(dst []float64, a []float64) {
 	tanhFloat64SVE2(dst[:n:n], a)
 }
 
-func asinhFloat64SVE2Guarded(dst []float64, a []float64) {
+func AsinhFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asinh(dst, a)
@@ -416,7 +416,7 @@ func asinhFloat64SVE2Guarded(dst []float64, a []float64) {
 	asinhFloat64SVE2(dst[:n:n], a)
 }
 
-func acoshFloat64SVE2Guarded(dst []float64, a []float64) {
+func AcoshFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acosh(dst, a)
@@ -425,7 +425,7 @@ func acoshFloat64SVE2Guarded(dst []float64, a []float64) {
 	acoshFloat64SVE2(dst[:n:n], a)
 }
 
-func atanhFloat64SVE2Guarded(dst []float64, a []float64) {
+func AtanhFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atanh(dst, a)
@@ -434,7 +434,7 @@ func atanhFloat64SVE2Guarded(dst []float64, a []float64) {
 	atanhFloat64SVE2(dst[:n:n], a)
 }
 
-func erfFloat64SVE2Guarded(dst []float64, a []float64) {
+func ErfFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Erf(dst, a)
@@ -443,7 +443,7 @@ func erfFloat64SVE2Guarded(dst []float64, a []float64) {
 	erfFloat64SVE2(dst[:n:n], a)
 }
 
-func powFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func PowFloat64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Pow(dst, a, b)
@@ -452,7 +452,7 @@ func powFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	powFloat64SVE2(dst[:n:n], a, b)
 }
 
-func atan2Float64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func Atan2Float64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Atan2(dst, a, b)
@@ -461,7 +461,7 @@ func atan2Float64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	atan2Float64SVE2(dst[:n:n], a, b)
 }
 
-func hypotFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func HypotFloat64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -470,58 +470,55 @@ func hypotFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	hypotFloat64SVE2(dst[:n:n], a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.F32.Exp = expFloat32SVE2Guarded
-	s.F32.Exp2 = exp2Float32SVE2Guarded
-	s.F32.Expm1 = expm1Float32SVE2Guarded
-	s.F32.Log = logFloat32SVE2Guarded
-	s.F32.Log2 = log2Float32SVE2Guarded
-	s.F32.Log10 = log10Float32SVE2Guarded
-	s.F32.Log1p = log1pFloat32SVE2Guarded
-	s.F32.Cbrt = cbrtFloat32SVE2Guarded
-	s.F32.Sigmoid = sigmoidFloat32SVE2Guarded
-	s.F32.Sin = sinFloat32SVE2Guarded
-	s.F32.Cos = cosFloat32SVE2Guarded
-	s.F32.Tan = tanFloat32SVE2Guarded
-	s.F32.Asin = asinFloat32SVE2Guarded
-	s.F32.Acos = acosFloat32SVE2Guarded
-	s.F32.Atan = atanFloat32SVE2Guarded
-	s.F32.Sinh = sinhFloat32SVE2Guarded
-	s.F32.Cosh = coshFloat32SVE2Guarded
-	s.F32.Tanh = tanhFloat32SVE2Guarded
-	s.F32.Asinh = asinhFloat32SVE2Guarded
-	s.F32.Acosh = acoshFloat32SVE2Guarded
-	s.F32.Atanh = atanhFloat32SVE2Guarded
-	s.F32.Erf = erfFloat32SVE2Guarded
-	s.F32.Pow = powFloat32SVE2Guarded
-	s.F32.Atan2 = atan2Float32SVE2Guarded
-	s.F32.Hypot = hypotFloat32SVE2Guarded
-	s.F64.Exp = expFloat64SVE2Guarded
-	s.F64.Exp2 = exp2Float64SVE2Guarded
-	s.F64.Expm1 = expm1Float64SVE2Guarded
-	s.F64.Log = logFloat64SVE2Guarded
-	s.F64.Log2 = log2Float64SVE2Guarded
-	s.F64.Log10 = log10Float64SVE2Guarded
-	s.F64.Log1p = log1pFloat64SVE2Guarded
-	s.F64.Cbrt = cbrtFloat64SVE2Guarded
-	s.F64.Sigmoid = sigmoidFloat64SVE2Guarded
-	s.F64.Sin = sinFloat64SVE2Guarded
-	s.F64.Cos = cosFloat64SVE2Guarded
-	s.F64.Tan = tanFloat64SVE2Guarded
-	s.F64.Asin = asinFloat64SVE2Guarded
-	s.F64.Acos = acosFloat64SVE2Guarded
-	s.F64.Atan = atanFloat64SVE2Guarded
-	s.F64.Sinh = sinhFloat64SVE2Guarded
-	s.F64.Cosh = coshFloat64SVE2Guarded
-	s.F64.Tanh = tanhFloat64SVE2Guarded
-	s.F64.Asinh = asinhFloat64SVE2Guarded
-	s.F64.Acosh = acoshFloat64SVE2Guarded
-	s.F64.Atanh = atanhFloat64SVE2Guarded
-	s.F64.Erf = erfFloat64SVE2Guarded
-	s.F64.Pow = powFloat64SVE2Guarded
-	s.F64.Atan2 = atan2Float64SVE2Guarded
-	s.F64.Hypot = hypotFloat64SVE2Guarded
+func registerMathSVE2(s *kernel.Set) {
+	s.F32.Exp = ExpFloat32SVE2
+	s.F32.Exp2 = Exp2Float32SVE2
+	s.F32.Expm1 = Expm1Float32SVE2
+	s.F32.Log = LogFloat32SVE2
+	s.F32.Log2 = Log2Float32SVE2
+	s.F32.Log10 = Log10Float32SVE2
+	s.F32.Log1p = Log1pFloat32SVE2
+	s.F32.Cbrt = CbrtFloat32SVE2
+	s.F32.Sigmoid = SigmoidFloat32SVE2
+	s.F32.Sin = SinFloat32SVE2
+	s.F32.Cos = CosFloat32SVE2
+	s.F32.Tan = TanFloat32SVE2
+	s.F32.Asin = AsinFloat32SVE2
+	s.F32.Acos = AcosFloat32SVE2
+	s.F32.Atan = AtanFloat32SVE2
+	s.F32.Sinh = SinhFloat32SVE2
+	s.F32.Cosh = CoshFloat32SVE2
+	s.F32.Tanh = TanhFloat32SVE2
+	s.F32.Asinh = AsinhFloat32SVE2
+	s.F32.Acosh = AcoshFloat32SVE2
+	s.F32.Atanh = AtanhFloat32SVE2
+	s.F32.Erf = ErfFloat32SVE2
+	s.F32.Pow = PowFloat32SVE2
+	s.F32.Atan2 = Atan2Float32SVE2
+	s.F32.Hypot = HypotFloat32SVE2
+	s.F64.Exp = ExpFloat64SVE2
+	s.F64.Exp2 = Exp2Float64SVE2
+	s.F64.Expm1 = Expm1Float64SVE2
+	s.F64.Log = LogFloat64SVE2
+	s.F64.Log2 = Log2Float64SVE2
+	s.F64.Log10 = Log10Float64SVE2
+	s.F64.Log1p = Log1pFloat64SVE2
+	s.F64.Cbrt = CbrtFloat64SVE2
+	s.F64.Sigmoid = SigmoidFloat64SVE2
+	s.F64.Sin = SinFloat64SVE2
+	s.F64.Cos = CosFloat64SVE2
+	s.F64.Tan = TanFloat64SVE2
+	s.F64.Asin = AsinFloat64SVE2
+	s.F64.Acos = AcosFloat64SVE2
+	s.F64.Atan = AtanFloat64SVE2
+	s.F64.Sinh = SinhFloat64SVE2
+	s.F64.Cosh = CoshFloat64SVE2
+	s.F64.Tanh = TanhFloat64SVE2
+	s.F64.Asinh = AsinhFloat64SVE2
+	s.F64.Acosh = AcoshFloat64SVE2
+	s.F64.Atanh = AtanhFloat64SVE2
+	s.F64.Erf = ErfFloat64SVE2
+	s.F64.Pow = PowFloat64SVE2
+	s.F64.Atan2 = Atan2Float64SVE2
+	s.F64.Hypot = HypotFloat64SVE2
 }

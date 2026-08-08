@@ -43,14 +43,14 @@ func BenchmarkCallDepth(b *testing.B) {
 		// dispatch table actually holds.
 		b.Run(fmt.Sprintf("n=%d/1-guarded", n), func(b *testing.B) {
 			for b.Loop() {
-				addFloat64AVX512Guarded(dst, x, y)
+				AddFloat64AVX512(dst, x, y)
 			}
 		})
 
 		// Layer 2: through the kernel.Set function pointer, which is the
 		// indirect call the generic API makes.
 		var set kernel.Set
-		set.F64.Add = addFloat64AVX512Guarded
+		set.F64.Add = AddFloat64AVX512
 		b.Run(fmt.Sprintf("n=%d/2-indirect", n), func(b *testing.B) {
 			for b.Loop() {
 				set.F64.Add(dst, x, y)

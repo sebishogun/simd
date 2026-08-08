@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func runStartsI32LASXGuarded(dst []bool, a []int32) {
+func RunStartsI32LASX(dst []bool, a []int32) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI32(dst, a)
@@ -29,7 +29,7 @@ func runStartsI32LASXGuarded(dst []bool, a []int32) {
 	runStartsI32LASX(dst, a[:n:n])
 }
 
-func runStartsI64LASXGuarded(dst []bool, a []int64) {
+func RunStartsI64LASX(dst []bool, a []int64) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI64(dst, a)
@@ -38,7 +38,7 @@ func runStartsI64LASXGuarded(dst []bool, a []int64) {
 	runStartsI64LASX(dst, a[:n:n])
 }
 
-func runStartsU8LASXGuarded(dst []bool, a []byte) {
+func RunStartsU8LASX(dst []bool, a []byte) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsU8(dst, a)
@@ -47,11 +47,8 @@ func runStartsU8LASXGuarded(dst []bool, a []byte) {
 	runStartsU8LASX(dst, a[:n:n])
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.Bytes.RunStartsI32 = runStartsI32LASXGuarded
-	s.Bytes.RunStartsI64 = runStartsI64LASXGuarded
-	s.Bytes.RunStartsU8 = runStartsU8LASXGuarded
+func registerCompressLASX(s *kernel.Set) {
+	s.Bytes.RunStartsI32 = RunStartsI32LASX
+	s.Bytes.RunStartsI64 = RunStartsI64LASX
+	s.Bytes.RunStartsU8 = RunStartsU8LASX
 }

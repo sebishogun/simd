@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func gerFloat32SVE2Guarded(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
+func GerFloat32SVE2(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -28,7 +28,7 @@ func gerFloat32SVE2Guarded(a []float32, x []float32, y []float32, alpha float32,
 	gerFloat32SVE2(a, x, y, alpha, m, n)
 }
 
-func rotFloat32SVE2Guarded(x []float32, y []float32, c float32, s float32) {
+func RotFloat32SVE2(x []float32, y []float32, c float32, s float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -37,7 +37,7 @@ func rotFloat32SVE2Guarded(x []float32, y []float32, c float32, s float32) {
 	rotFloat32SVE2(x[:n:n], y, c, s)
 }
 
-func gerFloat64SVE2Guarded(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
+func GerFloat64SVE2(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -45,7 +45,7 @@ func gerFloat64SVE2Guarded(a []float64, x []float64, y []float64, alpha float64,
 	gerFloat64SVE2(a, x, y, alpha, m, n)
 }
 
-func rotFloat64SVE2Guarded(x []float64, y []float64, c float64, s float64) {
+func RotFloat64SVE2(x []float64, y []float64, c float64, s float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -54,12 +54,9 @@ func rotFloat64SVE2Guarded(x []float64, y []float64, c float64, s float64) {
 	rotFloat64SVE2(x[:n:n], y, c, s)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.F32.RankOne = gerFloat32SVE2Guarded
-	s.F32.Rotate = rotFloat32SVE2Guarded
-	s.F64.RankOne = gerFloat64SVE2Guarded
-	s.F64.Rotate = rotFloat64SVE2Guarded
+func registerBlasSVE2(s *kernel.Set) {
+	s.F32.RankOne = GerFloat32SVE2
+	s.F32.Rotate = RotFloat32SVE2
+	s.F64.RankOne = GerFloat64SVE2
+	s.F64.Rotate = RotFloat64SVE2
 }

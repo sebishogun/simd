@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func caddComplex64SVE2Guarded(dst []complex64, a []complex64, b []complex64) {
+func CaddComplex64SVE2(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CAdd(dst, a, b)
@@ -29,7 +29,7 @@ func caddComplex64SVE2Guarded(dst []complex64, a []complex64, b []complex64) {
 	caddComplex64SVE2(dst[:n:n], a, b)
 }
 
-func csubComplex64SVE2Guarded(dst []complex64, a []complex64, b []complex64) {
+func CsubComplex64SVE2(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CSub(dst, a, b)
@@ -38,7 +38,7 @@ func csubComplex64SVE2Guarded(dst []complex64, a []complex64, b []complex64) {
 	csubComplex64SVE2(dst[:n:n], a, b)
 }
 
-func cmulComplex64SVE2Guarded(dst []complex64, a []complex64, b []complex64) {
+func CmulComplex64SVE2(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CMul64(dst, a, b)
@@ -47,7 +47,7 @@ func cmulComplex64SVE2Guarded(dst []complex64, a []complex64, b []complex64) {
 	cmulComplex64SVE2(dst[:n:n], a, b)
 }
 
-func cdivComplex64SVE2Guarded(dst []complex64, a []complex64, b []complex64) {
+func CdivComplex64SVE2(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CDiv64(dst, a, b)
@@ -56,7 +56,7 @@ func cdivComplex64SVE2Guarded(dst []complex64, a []complex64, b []complex64) {
 	cdivComplex64SVE2(dst[:n:n], a, b)
 }
 
-func cnegComplex64SVE2Guarded(dst []complex64, a []complex64) {
+func CnegComplex64SVE2(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CNeg(dst, a)
@@ -65,7 +65,7 @@ func cnegComplex64SVE2Guarded(dst []complex64, a []complex64) {
 	cnegComplex64SVE2(dst[:n:n], a)
 }
 
-func cconjComplex64SVE2Guarded(dst []complex64, a []complex64) {
+func CconjComplex64SVE2(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CConj64(dst, a)
@@ -74,7 +74,7 @@ func cconjComplex64SVE2Guarded(dst []complex64, a []complex64) {
 	cconjComplex64SVE2(dst[:n:n], a)
 }
 
-func cabsComplex64SVE2Guarded(dst []float32, a []complex64) {
+func CabsComplex64SVE2(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CAbs64(dst, a)
@@ -83,7 +83,7 @@ func cabsComplex64SVE2Guarded(dst []float32, a []complex64) {
 	cabsComplex64SVE2(dst[:n:n], a)
 }
 
-func crealComplex64SVE2Guarded(dst []float32, a []complex64) {
+func CrealComplex64SVE2(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CReal64(dst, a)
@@ -92,7 +92,7 @@ func crealComplex64SVE2Guarded(dst []float32, a []complex64) {
 	crealComplex64SVE2(dst[:n:n], a)
 }
 
-func cimagComplex64SVE2Guarded(dst []float32, a []complex64) {
+func CimagComplex64SVE2(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CImag64(dst, a)
@@ -101,7 +101,7 @@ func cimagComplex64SVE2Guarded(dst []float32, a []complex64) {
 	cimagComplex64SVE2(dst[:n:n], a)
 }
 
-func cscaleComplex64SVE2Guarded(dst []complex64, a []complex64, s float32) {
+func CscaleComplex64SVE2(dst []complex64, a []complex64, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CScale64(dst, a, s)
@@ -110,14 +110,14 @@ func cscaleComplex64SVE2Guarded(dst []complex64, a []complex64, s float32) {
 	cscaleComplex64SVE2(dst[:n:n], a, s)
 }
 
-func csumComplex64SVE2Guarded(a []complex64) complex64 {
+func CsumComplex64SVE2(a []complex64) complex64 {
 	if len(a) < 0 {
 		return ref.CSum64(a)
 	}
 	return csumComplex64SVE2(a)
 }
 
-func cdotComplex64SVE2Guarded(a []complex64, b []complex64) complex64 {
+func CdotComplex64SVE2(a []complex64, b []complex64) complex64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDot64(a, b)
@@ -125,7 +125,7 @@ func cdotComplex64SVE2Guarded(a []complex64, b []complex64) complex64 {
 	return cdotComplex64SVE2(a[:n:n], b)
 }
 
-func cdotconjComplex64SVE2Guarded(a []complex64, b []complex64) complex64 {
+func CdotconjComplex64SVE2(a []complex64, b []complex64) complex64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDotConj64(a, b)
@@ -133,7 +133,7 @@ func cdotconjComplex64SVE2Guarded(a []complex64, b []complex64) complex64 {
 	return cdotconjComplex64SVE2(a[:n:n], b)
 }
 
-func cfromPartsComplex64SVE2Guarded(dst []complex64, re []float32, im []float32) {
+func CfromPartsComplex64SVE2(dst []complex64, re []float32, im []float32) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
 		ref.CFromParts64(dst, re, im)
@@ -142,7 +142,7 @@ func cfromPartsComplex64SVE2Guarded(dst []complex64, re []float32, im []float32)
 	cfromPartsComplex64SVE2(dst[:n:n], re, im)
 }
 
-func caddComplex128SVE2Guarded(dst []complex128, a []complex128, b []complex128) {
+func CaddComplex128SVE2(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CAdd(dst, a, b)
@@ -151,7 +151,7 @@ func caddComplex128SVE2Guarded(dst []complex128, a []complex128, b []complex128)
 	caddComplex128SVE2(dst[:n:n], a, b)
 }
 
-func csubComplex128SVE2Guarded(dst []complex128, a []complex128, b []complex128) {
+func CsubComplex128SVE2(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CSub(dst, a, b)
@@ -160,7 +160,7 @@ func csubComplex128SVE2Guarded(dst []complex128, a []complex128, b []complex128)
 	csubComplex128SVE2(dst[:n:n], a, b)
 }
 
-func cmulComplex128SVE2Guarded(dst []complex128, a []complex128, b []complex128) {
+func CmulComplex128SVE2(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CMul128(dst, a, b)
@@ -169,7 +169,7 @@ func cmulComplex128SVE2Guarded(dst []complex128, a []complex128, b []complex128)
 	cmulComplex128SVE2(dst[:n:n], a, b)
 }
 
-func cdivComplex128SVE2Guarded(dst []complex128, a []complex128, b []complex128) {
+func CdivComplex128SVE2(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CDiv128(dst, a, b)
@@ -178,7 +178,7 @@ func cdivComplex128SVE2Guarded(dst []complex128, a []complex128, b []complex128)
 	cdivComplex128SVE2(dst[:n:n], a, b)
 }
 
-func cnegComplex128SVE2Guarded(dst []complex128, a []complex128) {
+func CnegComplex128SVE2(dst []complex128, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CNeg(dst, a)
@@ -187,7 +187,7 @@ func cnegComplex128SVE2Guarded(dst []complex128, a []complex128) {
 	cnegComplex128SVE2(dst[:n:n], a)
 }
 
-func cconjComplex128SVE2Guarded(dst []complex128, a []complex128) {
+func CconjComplex128SVE2(dst []complex128, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CConj128(dst, a)
@@ -196,7 +196,7 @@ func cconjComplex128SVE2Guarded(dst []complex128, a []complex128) {
 	cconjComplex128SVE2(dst[:n:n], a)
 }
 
-func cabsComplex128SVE2Guarded(dst []float64, a []complex128) {
+func CabsComplex128SVE2(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CAbs128(dst, a)
@@ -205,7 +205,7 @@ func cabsComplex128SVE2Guarded(dst []float64, a []complex128) {
 	cabsComplex128SVE2(dst[:n:n], a)
 }
 
-func crealComplex128SVE2Guarded(dst []float64, a []complex128) {
+func CrealComplex128SVE2(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CReal128(dst, a)
@@ -214,7 +214,7 @@ func crealComplex128SVE2Guarded(dst []float64, a []complex128) {
 	crealComplex128SVE2(dst[:n:n], a)
 }
 
-func cimagComplex128SVE2Guarded(dst []float64, a []complex128) {
+func CimagComplex128SVE2(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CImag128(dst, a)
@@ -223,7 +223,7 @@ func cimagComplex128SVE2Guarded(dst []float64, a []complex128) {
 	cimagComplex128SVE2(dst[:n:n], a)
 }
 
-func cscaleComplex128SVE2Guarded(dst []complex128, a []complex128, s float64) {
+func CscaleComplex128SVE2(dst []complex128, a []complex128, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CScale128(dst, a, s)
@@ -232,14 +232,14 @@ func cscaleComplex128SVE2Guarded(dst []complex128, a []complex128, s float64) {
 	cscaleComplex128SVE2(dst[:n:n], a, s)
 }
 
-func csumComplex128SVE2Guarded(a []complex128) complex128 {
+func CsumComplex128SVE2(a []complex128) complex128 {
 	if len(a) < 0 {
 		return ref.CSum128(a)
 	}
 	return csumComplex128SVE2(a)
 }
 
-func cdotComplex128SVE2Guarded(a []complex128, b []complex128) complex128 {
+func CdotComplex128SVE2(a []complex128, b []complex128) complex128 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDot128(a, b)
@@ -247,7 +247,7 @@ func cdotComplex128SVE2Guarded(a []complex128, b []complex128) complex128 {
 	return cdotComplex128SVE2(a[:n:n], b)
 }
 
-func cdotconjComplex128SVE2Guarded(a []complex128, b []complex128) complex128 {
+func CdotconjComplex128SVE2(a []complex128, b []complex128) complex128 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDotConj128(a, b)
@@ -255,7 +255,7 @@ func cdotconjComplex128SVE2Guarded(a []complex128, b []complex128) complex128 {
 	return cdotconjComplex128SVE2(a[:n:n], b)
 }
 
-func cfromPartsComplex128SVE2Guarded(dst []complex128, re []float64, im []float64) {
+func CfromPartsComplex128SVE2(dst []complex128, re []float64, im []float64) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
 		ref.CFromParts128(dst, re, im)
@@ -264,36 +264,33 @@ func cfromPartsComplex128SVE2Guarded(dst []complex128, re []float64, im []float6
 	cfromPartsComplex128SVE2(dst[:n:n], re, im)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.C64.Add = caddComplex64SVE2Guarded
-	s.C64.Sub = csubComplex64SVE2Guarded
-	s.C64.Mul = cmulComplex64SVE2Guarded
-	s.C64.Div = cdivComplex64SVE2Guarded
-	s.C64.Neg = cnegComplex64SVE2Guarded
-	s.C64.Conj = cconjComplex64SVE2Guarded
-	s.C64Parts.Abs = cabsComplex64SVE2Guarded
-	s.C64Parts.Real = crealComplex64SVE2Guarded
-	s.C64Parts.Imag = cimagComplex64SVE2Guarded
-	s.C64Parts.Scale = cscaleComplex64SVE2Guarded
-	s.C64.Sum = csumComplex64SVE2Guarded
-	s.C64.Dot = cdotComplex64SVE2Guarded
-	s.C64.DotConj = cdotconjComplex64SVE2Guarded
-	s.C64Parts.FromParts = cfromPartsComplex64SVE2Guarded
-	s.C128.Add = caddComplex128SVE2Guarded
-	s.C128.Sub = csubComplex128SVE2Guarded
-	s.C128.Mul = cmulComplex128SVE2Guarded
-	s.C128.Div = cdivComplex128SVE2Guarded
-	s.C128.Neg = cnegComplex128SVE2Guarded
-	s.C128.Conj = cconjComplex128SVE2Guarded
-	s.C128Parts.Abs = cabsComplex128SVE2Guarded
-	s.C128Parts.Real = crealComplex128SVE2Guarded
-	s.C128Parts.Imag = cimagComplex128SVE2Guarded
-	s.C128Parts.Scale = cscaleComplex128SVE2Guarded
-	s.C128.Sum = csumComplex128SVE2Guarded
-	s.C128.Dot = cdotComplex128SVE2Guarded
-	s.C128.DotConj = cdotconjComplex128SVE2Guarded
-	s.C128Parts.FromParts = cfromPartsComplex128SVE2Guarded
+func registerComplexSVE2(s *kernel.Set) {
+	s.C64.Add = CaddComplex64SVE2
+	s.C64.Sub = CsubComplex64SVE2
+	s.C64.Mul = CmulComplex64SVE2
+	s.C64.Div = CdivComplex64SVE2
+	s.C64.Neg = CnegComplex64SVE2
+	s.C64.Conj = CconjComplex64SVE2
+	s.C64Parts.Abs = CabsComplex64SVE2
+	s.C64Parts.Real = CrealComplex64SVE2
+	s.C64Parts.Imag = CimagComplex64SVE2
+	s.C64Parts.Scale = CscaleComplex64SVE2
+	s.C64.Sum = CsumComplex64SVE2
+	s.C64.Dot = CdotComplex64SVE2
+	s.C64.DotConj = CdotconjComplex64SVE2
+	s.C64Parts.FromParts = CfromPartsComplex64SVE2
+	s.C128.Add = CaddComplex128SVE2
+	s.C128.Sub = CsubComplex128SVE2
+	s.C128.Mul = CmulComplex128SVE2
+	s.C128.Div = CdivComplex128SVE2
+	s.C128.Neg = CnegComplex128SVE2
+	s.C128.Conj = CconjComplex128SVE2
+	s.C128Parts.Abs = CabsComplex128SVE2
+	s.C128Parts.Real = CrealComplex128SVE2
+	s.C128Parts.Imag = CimagComplex128SVE2
+	s.C128Parts.Scale = CscaleComplex128SVE2
+	s.C128.Sum = CsumComplex128SVE2
+	s.C128.Dot = CdotComplex128SVE2
+	s.C128.DotConj = CdotconjComplex128SVE2
+	s.C128Parts.FromParts = CfromPartsComplex128SVE2
 }

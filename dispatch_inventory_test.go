@@ -35,6 +35,7 @@ import (
 	"testing"
 
 	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 )
 
 func TestDeclaredKernelsAreWired(t *testing.T) {
@@ -42,25 +43,43 @@ func TestDeclaredKernelsAreWired(t *testing.T) {
 		t.Fatal("backend.Inventory is empty; run make codegen")
 	}
 
-	set := reflect.ValueOf(active)
+	// The runtime tables carry the flat groups; the numeric groups reach the
+	// dispatcher through per-tier Sets the arch package assembles. Both must
+	// have every declared kernel wired on every tier.
+	var sets map[string]kernel.Set
+	if archSets != nil {
+		sets = archSets()
+	}
+	flat := map[string]bool{"Bytes": true, "Convert": true, "Mask": true}
 	for _, d := range backend.Inventory {
-		// A manifest naming a group or field that kernel.Set does not have is
-		// its own kind of wiring error, and skipping it silently would hide
-		// exactly the omission this test exists for.
-		g := set.FieldByName(d.Group)
-		if !g.IsValid() {
-			t.Errorf("%s: kernel.Set has no group %q", d.CName, d.Group)
+		if flat[d.Group] {
+			slots, ok := allFlatTables[d.Group+"."+d.Field]
+			if !ok {
+				t.Errorf("%s: no dispatch table for %s.%s", d.CName, d.Group, d.Field)
+				continue
+			}
+			for i, fn := range slots {
+				if fn == nil || reflect.ValueOf(fn).IsNil() {
+					t.Errorf("%s: table %s.%s tier %q is nil", d.CName, d.Group, d.Field, dispatchTiers[i])
+				}
+			}
 			continue
 		}
-		f := g.FieldByName(d.Field)
-		if !f.IsValid() {
-			t.Errorf("%s: kernel.Set.%s has no field %q", d.CName, d.Group, d.Field)
-			continue
-		}
-		if f.Kind() == reflect.Func && f.IsNil() {
-			t.Errorf("tier %q: active.%s.%s is nil, but the manifest declares %s — "+
-				"a call through it panics",
-				active.Name, d.Group, d.Field, d.CName)
+		for tier, set := range sets {
+			g := reflect.ValueOf(set).FieldByName(d.Group)
+			if !g.IsValid() {
+				t.Errorf("%s: kernel.Set has no group %q", d.CName, d.Group)
+				continue
+			}
+			f := g.FieldByName(d.Field)
+			if !f.IsValid() {
+				t.Errorf("%s: kernel.Set.%s has no field %q", d.CName, d.Group, d.Field)
+				continue
+			}
+			if f.Kind() == reflect.Func && f.IsNil() {
+				t.Errorf("tier %q: %s.%s is nil, but the manifest declares %s",
+					tier, d.Group, d.Field, d.CName)
+			}
 		}
 	}
 }

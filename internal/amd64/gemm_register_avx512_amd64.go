@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func qMatMulI8AVX512Guarded(dst []int32, a []int8, b []int8, m int, k int, n int) {
+func QMatMulI8AVX512(dst []int32, a []int8, b []int8, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.QMatMulI8(dst, a, b, m, k, n)
 		return
@@ -28,7 +28,7 @@ func qMatMulI8AVX512Guarded(dst []int32, a []int8, b []int8, m int, k int, n int
 	qMatMulI8AVX512(dst, a, b, m, k, n)
 }
 
-func requantizeI8AVX512Guarded(dst []int8, a []int32, scale float32, zeroPoint int32) {
+func RequantizeI8AVX512(dst []int8, a []int32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RequantizeI8(dst, a, scale, zeroPoint)
@@ -37,7 +37,7 @@ func requantizeI8AVX512Guarded(dst []int8, a []int32, scale float32, zeroPoint i
 	requantizeI8AVX512(dst[:n:n], a, scale, zeroPoint)
 }
 
-func matMulFloat32AVX512Guarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
+func MatMulFloat32AVX512(dst []float32, a []float32, b []float32, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
 		return
@@ -45,7 +45,7 @@ func matMulFloat32AVX512Guarded(dst []float32, a []float32, b []float32, m int, 
 	matMulFloat32AVX512(dst, a, b, m, k, n)
 }
 
-func gemvFloat32AVX512Guarded(dst []float32, a []float32, x []float32, m int, k int) {
+func GemvFloat32AVX512(dst []float32, a []float32, x []float32, m int, k int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k {
 		ref.GemvFloat(dst, a, x, m, k)
 		return
@@ -53,7 +53,7 @@ func gemvFloat32AVX512Guarded(dst []float32, a []float32, x []float32, m int, k 
 	gemvFloat32AVX512(dst, a, x, m, k)
 }
 
-func matMulFloat64AVX512Guarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
+func MatMulFloat64AVX512(dst []float64, a []float64, b []float64, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
 		return
@@ -61,7 +61,7 @@ func matMulFloat64AVX512Guarded(dst []float64, a []float64, b []float64, m int, 
 	matMulFloat64AVX512(dst, a, b, m, k, n)
 }
 
-func gemvFloat64AVX512Guarded(dst []float64, a []float64, x []float64, m int, k int) {
+func GemvFloat64AVX512(dst []float64, a []float64, x []float64, m int, k int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k {
 		ref.GemvFloat(dst, a, x, m, k)
 		return
@@ -69,7 +69,7 @@ func gemvFloat64AVX512Guarded(dst []float64, a []float64, x []float64, m int, k 
 	gemvFloat64AVX512(dst, a, x, m, k)
 }
 
-func gemmPackBFloat32AVX512Guarded(bp []float32, b []float32, k int, n int) {
+func GemmPackBFloat32AVX512(bp []float32, b []float32, k int, n int) {
 	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+16-1)/16)*k*16 {
 		ref.GemmPackB(bp, b, k, n)
 		return
@@ -77,7 +77,7 @@ func gemmPackBFloat32AVX512Guarded(bp []float32, b []float32, k int, n int) {
 	gemmPackBFloat32AVX512(bp, b, k, n)
 }
 
-func matMulPkFloat32AVX512Guarded(dst []float32, a []float32, bp []float32, m int, k int, n int) {
+func MatMulPkFloat32AVX512(dst []float32, a []float32, bp []float32, m int, k int, n int) {
 	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+16-1)/16)*k*16 {
 		ref.MatMulPk(dst, a, bp, m, k, n)
 		return
@@ -85,7 +85,7 @@ func matMulPkFloat32AVX512Guarded(dst []float32, a []float32, bp []float32, m in
 	matMulPkFloat32AVX512(dst, a, bp, m, k, n)
 }
 
-func gemmPackBFloat64AVX512Guarded(bp []float64, b []float64, k int, n int) {
+func GemmPackBFloat64AVX512(bp []float64, b []float64, k int, n int) {
 	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+8-1)/8)*k*8 {
 		ref.GemmPackB(bp, b, k, n)
 		return
@@ -93,7 +93,7 @@ func gemmPackBFloat64AVX512Guarded(bp []float64, b []float64, k int, n int) {
 	gemmPackBFloat64AVX512(bp, b, k, n)
 }
 
-func matMulPkFloat64AVX512Guarded(dst []float64, a []float64, bp []float64, m int, k int, n int) {
+func MatMulPkFloat64AVX512(dst []float64, a []float64, bp []float64, m int, k int, n int) {
 	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+8-1)/8)*k*8 {
 		ref.MatMulPk(dst, a, bp, m, k, n)
 		return
@@ -101,7 +101,7 @@ func matMulPkFloat64AVX512Guarded(dst []float64, a []float64, bp []float64, m in
 	matMulPkFloat64AVX512(dst, a, bp, m, k, n)
 }
 
-func transposeFloat32AVX512Guarded(dst []float32, a []float32, m int, n int) {
+func TransposeFloat32AVX512(dst []float32, a []float32, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
 		return
@@ -109,7 +109,7 @@ func transposeFloat32AVX512Guarded(dst []float32, a []float32, m int, n int) {
 	transposeFloat32AVX512(dst, a, m, n)
 }
 
-func transposeFloat64AVX512Guarded(dst []float64, a []float64, m int, n int) {
+func TransposeFloat64AVX512(dst []float64, a []float64, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
 		return
@@ -117,7 +117,7 @@ func transposeFloat64AVX512Guarded(dst []float64, a []float64, m int, n int) {
 	transposeFloat64AVX512(dst, a, m, n)
 }
 
-func transposeInt32AVX512Guarded(dst []int32, a []int32, m int, n int) {
+func TransposeInt32AVX512(dst []int32, a []int32, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
 		return
@@ -125,7 +125,7 @@ func transposeInt32AVX512Guarded(dst []int32, a []int32, m int, n int) {
 	transposeInt32AVX512(dst, a, m, n)
 }
 
-func transposeInt64AVX512Guarded(dst []int64, a []int64, m int, n int) {
+func TransposeInt64AVX512(dst []int64, a []int64, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
 		return
@@ -133,22 +133,19 @@ func transposeInt64AVX512Guarded(dst []int64, a []int64, m int, n int) {
 	transposeInt64AVX512(dst, a, m, n)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx512")
-	s.Convert.QMatMulI8 = qMatMulI8AVX512Guarded
-	s.Convert.RequantizeI8 = requantizeI8AVX512Guarded
-	s.F32.MatMul = matMulFloat32AVX512Guarded
-	s.F32.Gemv = gemvFloat32AVX512Guarded
-	s.F64.MatMul = matMulFloat64AVX512Guarded
-	s.F64.Gemv = gemvFloat64AVX512Guarded
-	s.F32.GemmPackB = gemmPackBFloat32AVX512Guarded
-	s.F32.MatMulPk = matMulPkFloat32AVX512Guarded
-	s.F64.GemmPackB = gemmPackBFloat64AVX512Guarded
-	s.F64.MatMulPk = matMulPkFloat64AVX512Guarded
-	s.F32.Transpose = transposeFloat32AVX512Guarded
-	s.F64.Transpose = transposeFloat64AVX512Guarded
-	s.I32.Transpose = transposeInt32AVX512Guarded
-	s.I64.Transpose = transposeInt64AVX512Guarded
+func registerGemmAVX512(s *kernel.Set) {
+	s.Convert.QMatMulI8 = QMatMulI8AVX512
+	s.Convert.RequantizeI8 = RequantizeI8AVX512
+	s.F32.MatMul = MatMulFloat32AVX512
+	s.F32.Gemv = GemvFloat32AVX512
+	s.F64.MatMul = MatMulFloat64AVX512
+	s.F64.Gemv = GemvFloat64AVX512
+	s.F32.GemmPackB = GemmPackBFloat32AVX512
+	s.F32.MatMulPk = MatMulPkFloat32AVX512
+	s.F64.GemmPackB = GemmPackBFloat64AVX512
+	s.F64.MatMulPk = MatMulPkFloat64AVX512
+	s.F32.Transpose = TransposeFloat32AVX512
+	s.F64.Transpose = TransposeFloat64AVX512
+	s.I32.Transpose = TransposeInt32AVX512
+	s.I64.Transpose = TransposeInt64AVX512
 }

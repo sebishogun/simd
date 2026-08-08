@@ -10,7 +10,7 @@ package ppc64le
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func requantizeI8VSXGuarded(dst []int8, a []int32, scale float32, zeroPoint int32) {
+func RequantizeI8VSX(dst []int8, a []int32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RequantizeI8(dst, a, scale, zeroPoint)
@@ -29,9 +29,6 @@ func requantizeI8VSXGuarded(dst []int8, a []int32, scale float32, zeroPoint int3
 	requantizeI8VSX(dst[:n:n], a, scale, zeroPoint)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vsx")
-	s.Convert.RequantizeI8 = requantizeI8VSXGuarded
+func registerGemmVSX(s *kernel.Set) {
+	s.Convert.RequantizeI8 = RequantizeI8VSX
 }

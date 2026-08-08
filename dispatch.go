@@ -1,122 +1,160 @@
 package simd
 
 import (
-	"github.com/sebishogun/simd/internal/backend"
+	"reflect"
+	"sync"
+
 	"github.com/sebishogun/simd/internal/cpu"
 	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
-// active is the backend every exported function calls through. It is assigned
-// once, during package initialization, and never written again, so reads need
-// no synchronization.
+// Dispatch is a tier index into per-operation tables, not a struct of
+// function pointers. Every exported function reads its own static table --
+// generated into dispatch_tables_<arch>.go -- at tierIdx. The tables are
+// static composite literals of exported guards, which is what lets the
+// linker drop every operation a program never calls, assembly included: a
+// binary that uses three operations carries three operations' kernels. The
+// old form, one Set holding a function value for everything, made every
+// kernel reachable from init and therefore alive in every binary.
 //
-// Backends are swapped as a whole rather than per function. That keeps a tier
-// internally consistent, and it lets the differential tests exercise every
-// instruction set the host supports inside one process instead of re-running
-// the suite once per GOSIMD setting.
-var active kernel.Set
+// tierIdx is assigned once, during package initialization, and never written
+// again, so reads need no synchronization.
+var tierIdx int
 
-// Per-type pointers into active, so ops can hand one back without copying a
-// struct full of function pointers on every call.
-var (
-	opsF32 *kernel.Ops[float32]
-	opsF64 *kernel.Ops[float64]
-	opsI8  *kernel.Ops[int8]
-	opsI16 *kernel.Ops[int16]
-	opsI32 *kernel.Ops[int32]
-	opsI64 *kernel.Ops[int64]
-	opsU8  *kernel.Ops[uint8]
-	opsU16 *kernel.Ops[uint16]
-	opsU32 *kernel.Ops[uint32]
-	opsU64 *kernel.Ops[uint64]
-)
+// refBase is the complete portable reference set: the fallback the numeric
+// overlay starts from, and the direct target for the few operations with no
+// generated kernel anywhere. The reference is a third of a megabyte of
+// ordinary Go and is linked into every consumer regardless; the six
+// megabytes of per-tier assembly are what the tables keep out.
+var refBase = func() kernel.Set {
+	s := ref.Set()
+	ref.FillFastFallbacks(&s)
+	return s
+}()
 
 func init() {
-	active = backendFor(cpu.Detail())
-	// A backend that came from the registry has already had this done; one
-	// that is the bare reference — a purego build, or an architecture with no
-	// generated assembly — has not. Doing it twice is harmless, since it only
-	// fills what is nil.
-	ref.FillFastFallbacks(&active)
-	cpu.SetBackendTier(active.Name)
-	opsF32, opsF64 = &active.F32, &active.F64
-	opsI8, opsI16 = &active.I8, &active.I16
-	opsI32, opsI64 = &active.I32, &active.I64
-	opsU8, opsU16 = &active.U8, &active.U16
-	opsU32, opsU64 = &active.U32, &active.U64
+	tierIdx = tierIndexFor(cpu.Detail())
+	cpu.SetBackendTier(dispatchTiers[tierIdx])
 }
 
-// ops returns the kernel group for element type T.
-//
-// Go cannot dispatch a generic call to a type-specific function pointer
-// without a type switch somewhere. Putting the only one here, rather than
-// repeating it in every exported function, keeps each of those a single line
-// and means the mapping from element type to backend exists in exactly one
-// place. When T is concrete the switch folds away.
-func ops[T Number]() *kernel.Ops[T] {
-	var zero T
-	switch any(zero).(type) {
-	case float32:
-		return any(opsF32).(*kernel.Ops[T])
-	case float64:
-		return any(opsF64).(*kernel.Ops[T])
-	case int32:
-		return any(opsI32).(*kernel.Ops[T])
-	case int64:
-		return any(opsI64).(*kernel.Ops[T])
-	case int8:
-		return any(opsI8).(*kernel.Ops[T])
-	case int16:
-		return any(opsI16).(*kernel.Ops[T])
-	case uint8:
-		return any(opsU8).(*kernel.Ops[T])
-	case uint16:
-		return any(opsU16).(*kernel.Ops[T])
-	case uint32:
-		return any(opsU32).(*kernel.Ops[T])
-	case uint64:
-		return any(opsU64).(*kernel.Ops[T])
-	}
-	panic("simd: unsupported element type")
-}
-
-// backendFor picks the best backend this build actually contains for a CPU.
-//
-// It walks the tiers the CPU supports from strongest to weakest and takes the
-// first one with a registered backend, rather than looking up only the
-// strongest and giving up. Those are not the same thing: a machine with
-// AVX-512 selects the avx512 tier, but if no AVX-512 kernels have been
-// generated yet, the right answer is the AVX2 backend — not to fall all the
-// way back to portable Go and leave a 9x speedup on the table because the
-// best possible tier happened to be missing.
-//
-// Falling through to the reference is still correct and still happens: on an
-// architecture with no generated assembly at all, and in purego builds, it is
-// the only path.
-func backendFor(sel cpu.Selection) kernel.Set {
+// tierIndexFor picks the strongest tier this build has tables for among the
+// ones the CPU supports -- the same walk the Set registry used to do.
+// A machine with AVX-512 whose build carries no AVX-512 kernels gets AVX2,
+// not portable Go. When GOSIMD has pinned a tier, that exact tier is used or
+// the reference is: substituting a neighbour would make a pinned benchmark
+// meaningless.
+func tierIndexFor(sel cpu.Selection) int {
 	if puregoOnly {
-		return ref.Set()
+		return 0
 	}
-	// Available is ordered weakest first, so walk it backwards. When GOSIMD
-	// has pinned a tier, honour that exactly rather than stepping down past
-	// it: forcing a tier is how the tests and benchmarks isolate one, and
-	// silently substituting a different one would make both meaningless.
 	if sel.Forced {
-		if s, ok := backend.Lookup(sel.Tier.String()); ok {
-			return s
-		}
-		return ref.Set()
+		return tierIndexOf(sel.Tier.String())
 	}
 	for i := len(sel.Available) - 1; i >= 0; i-- {
 		if sel.Available[i] > sel.Tier {
 			continue
 		}
-		if s, ok := backend.Lookup(sel.Available[i].String()); ok {
-			return s
+		if idx := tierIndexOf(sel.Available[i].String()); idx > 0 {
+			return idx
 		}
 	}
-	return ref.Set()
+	return 0
+}
+
+func tierIndexOf(name string) int {
+	for i, n := range dispatchTiers {
+		if n == name {
+			return i
+		}
+	}
+	return 0
+}
+
+// opsCache is the per-element-type merge of the reference base with a tier's
+// generated partial Ops, built once on first use. The partials are static --
+// only the fields with kernels on that tier are set -- because their
+// reference fallbacks come from generic constructors whose fields cannot be
+// named in a static literal. Merging lazily keeps the liveness scoped: the
+// float32 partials are referenced only from the float32 instantiation of
+// ops, so a program that never touches float32 never links its kernels.
+type opsCache[T Number] struct {
+	once  sync.Once
+	tiers [len(dispatchTiers)]*kernel.Ops[T]
+}
+
+func (c *opsCache[T]) get(base *kernel.Ops[T], partial []*kernel.Ops[T]) *kernel.Ops[T] {
+	c.once.Do(func() {
+		for i := range c.tiers {
+			s := *base
+			if i < len(partial) && partial[i] != nil {
+				overlay(&s, partial[i])
+			}
+			c.tiers[i] = &s
+		}
+	})
+	return c.tiers[tierIdx]
+}
+
+// overlay copies every non-nil function field of src over dst.
+func overlay[T Number](dst, src *kernel.Ops[T]) {
+	d := reflect.ValueOf(dst).Elem()
+	s := reflect.ValueOf(src).Elem()
+	for i := 0; i < d.NumField(); i++ {
+		f := s.Field(i)
+		if f.Kind() == reflect.Func && !f.IsNil() {
+			d.Field(i).Set(f)
+		}
+	}
+}
+
+var (
+	cacheF32 opsCache[float32]
+	cacheF64 opsCache[float64]
+	cacheI8  opsCache[int8]
+	cacheI16 opsCache[int16]
+	cacheI32 opsCache[int32]
+	cacheI64 opsCache[int64]
+	cacheU8  opsCache[uint8]
+	cacheU16 opsCache[uint16]
+	cacheU32 opsCache[uint32]
+	cacheU64 opsCache[uint64]
+)
+
+// ops returns the kernel group for element type T at the selected tier.
+//
+// Go cannot dispatch a generic call to a type-specific function pointer
+// without a type switch somewhere. Putting the only one here, rather than
+// repeating it in every exported function, keeps each of those a single line
+// and means the mapping from element type to backend exists in exactly one
+// place. When T is concrete the switch folds away, and with it every branch's
+// references: the uint16 tables are not linked because a float32 caller's
+// instantiation mentions them.
+func ops[T Number]() *kernel.Ops[T] {
+	var zero T
+	switch any(zero).(type) {
+	case float32:
+		return any(cacheF32.get(&refBase.F32, opsF32ByTier[:])).(*kernel.Ops[T])
+	case float64:
+		return any(cacheF64.get(&refBase.F64, opsF64ByTier[:])).(*kernel.Ops[T])
+	case int32:
+		return any(cacheI32.get(&refBase.I32, opsI32ByTier[:])).(*kernel.Ops[T])
+	case int64:
+		return any(cacheI64.get(&refBase.I64, opsI64ByTier[:])).(*kernel.Ops[T])
+	case int8:
+		return any(cacheI8.get(&refBase.I8, opsI8ByTier[:])).(*kernel.Ops[T])
+	case int16:
+		return any(cacheI16.get(&refBase.I16, opsI16ByTier[:])).(*kernel.Ops[T])
+	case uint8:
+		return any(cacheU8.get(&refBase.U8, opsU8ByTier[:])).(*kernel.Ops[T])
+	case uint16:
+		return any(cacheU16.get(&refBase.U16, opsU16ByTier[:])).(*kernel.Ops[T])
+	case uint32:
+		return any(cacheU32.get(&refBase.U32, opsU32ByTier[:])).(*kernel.Ops[T])
+	case uint64:
+		return any(cacheU64.get(&refBase.U64, opsU64ByTier[:])).(*kernel.Ops[T])
+	}
+	panic("simd: unsupported element type")
 }
 
 // Tier returns the name of the instruction-set tier whose kernels this
@@ -125,7 +163,7 @@ func backendFor(sel cpu.Selection) kernel.Set {
 // This is the backend in use, which is not always the best tier the CPU
 // supports: if no kernels have been generated for that tier yet, the next one
 // down is used instead. [Describe] reports both.
-func Tier() string { return active.Name }
+func Tier() string { return dispatchTiers[tierIdx] }
 
 // AvailableTiers returns the names of every instruction-set tier this CPU can
 // execute, weakest first, always beginning with "scalar".

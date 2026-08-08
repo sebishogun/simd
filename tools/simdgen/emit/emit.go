@@ -44,6 +44,9 @@ type Provenance struct {
 	ClangVersion string
 	Command      string
 	Source       string
+	// Stem is the source file's basename without extension ("bytes"), used
+	// to name the per-file registration function.
+	Stem string
 }
 
 // Frame is the computed Go ABI0 argument frame for a kernel.
@@ -909,7 +912,7 @@ func Backend(kernels []spec.Kernel, tgt target.Target, pkg string, prov Provenan
 	fmt.Fprintf(&b, "//go:build %s\n\n", tgt.BuildTag())
 	fmt.Fprintf(&b, "package %s\n\n", pkg)
 	fmt.Fprintf(&b, "import (\n\t\"runtime\"\n\n\t%q\n\t%q\n)\n\n",
-		"github.com/sebishogun/simd/internal/backend",
+		"github.com/sebishogun/simd/internal/kernel",
 		"github.com/sebishogun/simd/internal/ref")
 
 	// The kernels arrive with their tier already in their names; only the
@@ -925,10 +928,13 @@ func Backend(kernels []spec.Kernel, tgt target.Target, pkg string, prov Provenan
 		emitGuard(&b, k, suffix, string(tgt.Arch))
 	}
 
-	fmt.Fprintf(&b, "func init() {\n")
-	fmt.Fprintf(&b, "\t// Add to the tier's set rather than installing a whole one: other\n")
-	fmt.Fprintf(&b, "\t// generated files contribute their own kernels to the same tier.\n")
-	fmt.Fprintf(&b, "\ts := backend.For(%q)\n", tgt.Tier)
+	// Registration is a function the per-arch Sets aggregator calls, not an
+	// init. An init would make every guard reachable in every binary that
+	// imports this package, which is exactly the liveness the per-operation
+	// dispatch tables exist to break; only the conformance machinery wants
+	// whole sets, and it can ask for them.
+	fmt.Fprintf(&b, "func register%s%s(s *kernel.Set) {\n",
+		strings.ToUpper(prov.Stem[:1])+prov.Stem[1:], suffix)
 	for _, k := range kernels {
 		fmt.Fprintf(&b, "\ts.%s.%s = %s\n", k.Group, k.Field, guardName(k, suffix))
 	}
@@ -959,7 +965,15 @@ var _ = map[bool]struct{}{false: {}, runtime.GOARCH == %[1]q: {}}
 `, tgt.Arch)
 }
 
-func guardName(k spec.Kernel, _ string) string { return k.GoName + "Guarded" }
+// guardName is the exported threshold wrapper for a kernel. Exported, not
+// a style choice: the root package's dispatch tables name these directly in
+// static composite literals, which is what lets the linker drop every
+// operation a program never calls -- an unexported guard would need the
+// registry, the registry needs init, and anything reachable from init is
+// alive in every binary forever.
+func guardName(k spec.Kernel, _ string) string {
+	return strings.ToUpper(k.GoName[:1]) + k.GoName[1:]
+}
 
 // emitGuard writes the threshold wrapper for one kernel.
 func emitGuard(b *strings.Builder, k spec.Kernel, suffix, arch string) {

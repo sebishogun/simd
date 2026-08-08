@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func fastAsinFloat32VXGuarded(dst []float32, a []float32) {
+func FastAsinFloat32VX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -29,7 +29,7 @@ func fastAsinFloat32VXGuarded(dst []float32, a []float32) {
 	fastAsinFloat32VX(dst[:n:n], a)
 }
 
-func fastAcosFloat32VXGuarded(dst []float32, a []float32) {
+func FastAcosFloat32VX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -38,7 +38,7 @@ func fastAcosFloat32VXGuarded(dst []float32, a []float32) {
 	fastAcosFloat32VX(dst[:n:n], a)
 }
 
-func fastHypotFloat32VXGuarded(dst []float32, a []float32, b []float32) {
+func FastHypotFloat32VX(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -47,7 +47,7 @@ func fastHypotFloat32VXGuarded(dst []float32, a []float32, b []float32) {
 	fastHypotFloat32VX(dst[:n:n], a, b)
 }
 
-func fastAsinFloat64VXGuarded(dst []float64, a []float64) {
+func FastAsinFloat64VX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -56,7 +56,7 @@ func fastAsinFloat64VXGuarded(dst []float64, a []float64) {
 	fastAsinFloat64VX(dst[:n:n], a)
 }
 
-func fastAcosFloat64VXGuarded(dst []float64, a []float64) {
+func FastAcosFloat64VX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -65,7 +65,7 @@ func fastAcosFloat64VXGuarded(dst []float64, a []float64) {
 	fastAcosFloat64VX(dst[:n:n], a)
 }
 
-func fastHypotFloat64VXGuarded(dst []float64, a []float64, b []float64) {
+func FastHypotFloat64VX(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -74,14 +74,11 @@ func fastHypotFloat64VXGuarded(dst []float64, a []float64, b []float64) {
 	fastHypotFloat64VX(dst[:n:n], a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.F32.FastAsin = fastAsinFloat32VXGuarded
-	s.F32.FastAcos = fastAcosFloat32VXGuarded
-	s.F32.FastHypot = fastHypotFloat32VXGuarded
-	s.F64.FastAsin = fastAsinFloat64VXGuarded
-	s.F64.FastAcos = fastAcosFloat64VXGuarded
-	s.F64.FastHypot = fastHypotFloat64VXGuarded
+func registerFastmathVX(s *kernel.Set) {
+	s.F32.FastAsin = FastAsinFloat32VX
+	s.F32.FastAcos = FastAcosFloat32VX
+	s.F32.FastHypot = FastHypotFloat32VX
+	s.F64.FastAsin = FastAsinFloat64VX
+	s.F64.FastAcos = FastAcosFloat64VX
+	s.F64.FastHypot = FastHypotFloat64VX
 }

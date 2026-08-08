@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func qMatMulI8RVVGuarded(dst []int32, a []int8, b []int8, m int, k int, n int) {
+func QMatMulI8RVV(dst []int32, a []int8, b []int8, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.QMatMulI8(dst, a, b, m, k, n)
 		return
@@ -28,7 +28,7 @@ func qMatMulI8RVVGuarded(dst []int32, a []int8, b []int8, m int, k int, n int) {
 	qMatMulI8RVV(dst, a, b, m, k, n)
 }
 
-func requantizeI8RVVGuarded(dst []int8, a []int32, scale float32, zeroPoint int32) {
+func RequantizeI8RVV(dst []int8, a []int32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RequantizeI8(dst, a, scale, zeroPoint)
@@ -37,7 +37,7 @@ func requantizeI8RVVGuarded(dst []int8, a []int32, scale float32, zeroPoint int3
 	requantizeI8RVV(dst[:n:n], a, scale, zeroPoint)
 }
 
-func matMulFloat32RVVGuarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
+func MatMulFloat32RVV(dst []float32, a []float32, b []float32, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
 		return
@@ -45,7 +45,7 @@ func matMulFloat32RVVGuarded(dst []float32, a []float32, b []float32, m int, k i
 	matMulFloat32RVV(dst, a, b, m, k, n)
 }
 
-func gemvFloat32RVVGuarded(dst []float32, a []float32, x []float32, m int, k int) {
+func GemvFloat32RVV(dst []float32, a []float32, x []float32, m int, k int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k {
 		ref.GemvFloat(dst, a, x, m, k)
 		return
@@ -53,7 +53,7 @@ func gemvFloat32RVVGuarded(dst []float32, a []float32, x []float32, m int, k int
 	gemvFloat32RVV(dst, a, x, m, k)
 }
 
-func matMulFloat64RVVGuarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
+func MatMulFloat64RVV(dst []float64, a []float64, b []float64, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
 		return
@@ -61,7 +61,7 @@ func matMulFloat64RVVGuarded(dst []float64, a []float64, b []float64, m int, k i
 	matMulFloat64RVV(dst, a, b, m, k, n)
 }
 
-func gemvFloat64RVVGuarded(dst []float64, a []float64, x []float64, m int, k int) {
+func GemvFloat64RVV(dst []float64, a []float64, x []float64, m int, k int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k {
 		ref.GemvFloat(dst, a, x, m, k)
 		return
@@ -69,7 +69,7 @@ func gemvFloat64RVVGuarded(dst []float64, a []float64, x []float64, m int, k int
 	gemvFloat64RVV(dst, a, x, m, k)
 }
 
-func gemmPackBFloat32RVVGuarded(bp []float32, b []float32, k int, n int) {
+func GemmPackBFloat32RVV(bp []float32, b []float32, k int, n int) {
 	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+16-1)/16)*k*16 {
 		ref.GemmPackB(bp, b, k, n)
 		return
@@ -77,7 +77,7 @@ func gemmPackBFloat32RVVGuarded(bp []float32, b []float32, k int, n int) {
 	gemmPackBFloat32RVV(bp, b, k, n)
 }
 
-func matMulPkFloat32RVVGuarded(dst []float32, a []float32, bp []float32, m int, k int, n int) {
+func MatMulPkFloat32RVV(dst []float32, a []float32, bp []float32, m int, k int, n int) {
 	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+16-1)/16)*k*16 {
 		ref.MatMulPk(dst, a, bp, m, k, n)
 		return
@@ -85,7 +85,7 @@ func matMulPkFloat32RVVGuarded(dst []float32, a []float32, bp []float32, m int, 
 	matMulPkFloat32RVV(dst, a, bp, m, k, n)
 }
 
-func gemmPackBFloat64RVVGuarded(bp []float64, b []float64, k int, n int) {
+func GemmPackBFloat64RVV(bp []float64, b []float64, k int, n int) {
 	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+8-1)/8)*k*8 {
 		ref.GemmPackB(bp, b, k, n)
 		return
@@ -93,7 +93,7 @@ func gemmPackBFloat64RVVGuarded(bp []float64, b []float64, k int, n int) {
 	gemmPackBFloat64RVV(bp, b, k, n)
 }
 
-func matMulPkFloat64RVVGuarded(dst []float64, a []float64, bp []float64, m int, k int, n int) {
+func MatMulPkFloat64RVV(dst []float64, a []float64, bp []float64, m int, k int, n int) {
 	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+8-1)/8)*k*8 {
 		ref.MatMulPk(dst, a, bp, m, k, n)
 		return
@@ -101,7 +101,7 @@ func matMulPkFloat64RVVGuarded(dst []float64, a []float64, bp []float64, m int, 
 	matMulPkFloat64RVV(dst, a, bp, m, k, n)
 }
 
-func transposeFloat32RVVGuarded(dst []float32, a []float32, m int, n int) {
+func TransposeFloat32RVV(dst []float32, a []float32, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
 		return
@@ -109,7 +109,7 @@ func transposeFloat32RVVGuarded(dst []float32, a []float32, m int, n int) {
 	transposeFloat32RVV(dst, a, m, n)
 }
 
-func transposeFloat64RVVGuarded(dst []float64, a []float64, m int, n int) {
+func TransposeFloat64RVV(dst []float64, a []float64, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
 		return
@@ -117,7 +117,7 @@ func transposeFloat64RVVGuarded(dst []float64, a []float64, m int, n int) {
 	transposeFloat64RVV(dst, a, m, n)
 }
 
-func transposeInt32RVVGuarded(dst []int32, a []int32, m int, n int) {
+func TransposeInt32RVV(dst []int32, a []int32, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
 		return
@@ -125,7 +125,7 @@ func transposeInt32RVVGuarded(dst []int32, a []int32, m int, n int) {
 	transposeInt32RVV(dst, a, m, n)
 }
 
-func transposeInt64RVVGuarded(dst []int64, a []int64, m int, n int) {
+func TransposeInt64RVV(dst []int64, a []int64, m int, n int) {
 	if len(dst) < 1024 {
 		ref.Transpose(dst, a, m, n)
 		return
@@ -133,22 +133,19 @@ func transposeInt64RVVGuarded(dst []int64, a []int64, m int, n int) {
 	transposeInt64RVV(dst, a, m, n)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.Convert.QMatMulI8 = qMatMulI8RVVGuarded
-	s.Convert.RequantizeI8 = requantizeI8RVVGuarded
-	s.F32.MatMul = matMulFloat32RVVGuarded
-	s.F32.Gemv = gemvFloat32RVVGuarded
-	s.F64.MatMul = matMulFloat64RVVGuarded
-	s.F64.Gemv = gemvFloat64RVVGuarded
-	s.F32.GemmPackB = gemmPackBFloat32RVVGuarded
-	s.F32.MatMulPk = matMulPkFloat32RVVGuarded
-	s.F64.GemmPackB = gemmPackBFloat64RVVGuarded
-	s.F64.MatMulPk = matMulPkFloat64RVVGuarded
-	s.F32.Transpose = transposeFloat32RVVGuarded
-	s.F64.Transpose = transposeFloat64RVVGuarded
-	s.I32.Transpose = transposeInt32RVVGuarded
-	s.I64.Transpose = transposeInt64RVVGuarded
+func registerGemmRVV(s *kernel.Set) {
+	s.Convert.QMatMulI8 = QMatMulI8RVV
+	s.Convert.RequantizeI8 = RequantizeI8RVV
+	s.F32.MatMul = MatMulFloat32RVV
+	s.F32.Gemv = GemvFloat32RVV
+	s.F64.MatMul = MatMulFloat64RVV
+	s.F64.Gemv = GemvFloat64RVV
+	s.F32.GemmPackB = GemmPackBFloat32RVV
+	s.F32.MatMulPk = MatMulPkFloat32RVV
+	s.F64.GemmPackB = GemmPackBFloat64RVV
+	s.F64.MatMulPk = MatMulPkFloat64RVV
+	s.F32.Transpose = TransposeFloat32RVV
+	s.F64.Transpose = TransposeFloat64RVV
+	s.I32.Transpose = TransposeInt32RVV
+	s.I64.Transpose = TransposeInt64RVV
 }

@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func caddComplex64LASXGuarded(dst []complex64, a []complex64, b []complex64) {
+func CaddComplex64LASX(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CAdd(dst, a, b)
@@ -29,7 +29,7 @@ func caddComplex64LASXGuarded(dst []complex64, a []complex64, b []complex64) {
 	caddComplex64LASX(dst[:n:n], a, b)
 }
 
-func csubComplex64LASXGuarded(dst []complex64, a []complex64, b []complex64) {
+func CsubComplex64LASX(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CSub(dst, a, b)
@@ -38,7 +38,7 @@ func csubComplex64LASXGuarded(dst []complex64, a []complex64, b []complex64) {
 	csubComplex64LASX(dst[:n:n], a, b)
 }
 
-func cnegComplex64LASXGuarded(dst []complex64, a []complex64) {
+func CnegComplex64LASX(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CNeg(dst, a)
@@ -47,7 +47,7 @@ func cnegComplex64LASXGuarded(dst []complex64, a []complex64) {
 	cnegComplex64LASX(dst[:n:n], a)
 }
 
-func crealComplex64LASXGuarded(dst []float32, a []complex64) {
+func CrealComplex64LASX(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CReal64(dst, a)
@@ -56,7 +56,7 @@ func crealComplex64LASXGuarded(dst []float32, a []complex64) {
 	crealComplex64LASX(dst[:n:n], a)
 }
 
-func cimagComplex64LASXGuarded(dst []float32, a []complex64) {
+func CimagComplex64LASX(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CImag64(dst, a)
@@ -65,7 +65,7 @@ func cimagComplex64LASXGuarded(dst []float32, a []complex64) {
 	cimagComplex64LASX(dst[:n:n], a)
 }
 
-func cscaleComplex64LASXGuarded(dst []complex64, a []complex64, s float32) {
+func CscaleComplex64LASX(dst []complex64, a []complex64, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CScale64(dst, a, s)
@@ -74,14 +74,14 @@ func cscaleComplex64LASXGuarded(dst []complex64, a []complex64, s float32) {
 	cscaleComplex64LASX(dst[:n:n], a, s)
 }
 
-func csumComplex64LASXGuarded(a []complex64) complex64 {
+func CsumComplex64LASX(a []complex64) complex64 {
 	if len(a) < 0 {
 		return ref.CSum64(a)
 	}
 	return csumComplex64LASX(a)
 }
 
-func cdotComplex64LASXGuarded(a []complex64, b []complex64) complex64 {
+func CdotComplex64LASX(a []complex64, b []complex64) complex64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDot64(a, b)
@@ -89,7 +89,7 @@ func cdotComplex64LASXGuarded(a []complex64, b []complex64) complex64 {
 	return cdotComplex64LASX(a[:n:n], b)
 }
 
-func cdotconjComplex64LASXGuarded(a []complex64, b []complex64) complex64 {
+func CdotconjComplex64LASX(a []complex64, b []complex64) complex64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDotConj64(a, b)
@@ -97,7 +97,7 @@ func cdotconjComplex64LASXGuarded(a []complex64, b []complex64) complex64 {
 	return cdotconjComplex64LASX(a[:n:n], b)
 }
 
-func caddComplex128LASXGuarded(dst []complex128, a []complex128, b []complex128) {
+func CaddComplex128LASX(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CAdd(dst, a, b)
@@ -106,7 +106,7 @@ func caddComplex128LASXGuarded(dst []complex128, a []complex128, b []complex128)
 	caddComplex128LASX(dst[:n:n], a, b)
 }
 
-func csubComplex128LASXGuarded(dst []complex128, a []complex128, b []complex128) {
+func CsubComplex128LASX(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CSub(dst, a, b)
@@ -115,7 +115,7 @@ func csubComplex128LASXGuarded(dst []complex128, a []complex128, b []complex128)
 	csubComplex128LASX(dst[:n:n], a, b)
 }
 
-func cnegComplex128LASXGuarded(dst []complex128, a []complex128) {
+func CnegComplex128LASX(dst []complex128, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CNeg(dst, a)
@@ -124,7 +124,7 @@ func cnegComplex128LASXGuarded(dst []complex128, a []complex128) {
 	cnegComplex128LASX(dst[:n:n], a)
 }
 
-func cabsComplex128LASXGuarded(dst []float64, a []complex128) {
+func CabsComplex128LASX(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CAbs128(dst, a)
@@ -133,7 +133,7 @@ func cabsComplex128LASXGuarded(dst []float64, a []complex128) {
 	cabsComplex128LASX(dst[:n:n], a)
 }
 
-func crealComplex128LASXGuarded(dst []float64, a []complex128) {
+func CrealComplex128LASX(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CReal128(dst, a)
@@ -142,7 +142,7 @@ func crealComplex128LASXGuarded(dst []float64, a []complex128) {
 	crealComplex128LASX(dst[:n:n], a)
 }
 
-func cimagComplex128LASXGuarded(dst []float64, a []complex128) {
+func CimagComplex128LASX(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CImag128(dst, a)
@@ -151,7 +151,7 @@ func cimagComplex128LASXGuarded(dst []float64, a []complex128) {
 	cimagComplex128LASX(dst[:n:n], a)
 }
 
-func cscaleComplex128LASXGuarded(dst []complex128, a []complex128, s float64) {
+func CscaleComplex128LASX(dst []complex128, a []complex128, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CScale128(dst, a, s)
@@ -160,14 +160,14 @@ func cscaleComplex128LASXGuarded(dst []complex128, a []complex128, s float64) {
 	cscaleComplex128LASX(dst[:n:n], a, s)
 }
 
-func csumComplex128LASXGuarded(a []complex128) complex128 {
+func CsumComplex128LASX(a []complex128) complex128 {
 	if len(a) < 0 {
 		return ref.CSum128(a)
 	}
 	return csumComplex128LASX(a)
 }
 
-func cdotComplex128LASXGuarded(a []complex128, b []complex128) complex128 {
+func CdotComplex128LASX(a []complex128, b []complex128) complex128 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDot128(a, b)
@@ -175,7 +175,7 @@ func cdotComplex128LASXGuarded(a []complex128, b []complex128) complex128 {
 	return cdotComplex128LASX(a[:n:n], b)
 }
 
-func cdotconjComplex128LASXGuarded(a []complex128, b []complex128) complex128 {
+func CdotconjComplex128LASX(a []complex128, b []complex128) complex128 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDotConj128(a, b)
@@ -183,7 +183,7 @@ func cdotconjComplex128LASXGuarded(a []complex128, b []complex128) complex128 {
 	return cdotconjComplex128LASX(a[:n:n], b)
 }
 
-func cfromPartsComplex128LASXGuarded(dst []complex128, re []float64, im []float64) {
+func CfromPartsComplex128LASX(dst []complex128, re []float64, im []float64) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
 		ref.CFromParts128(dst, re, im)
@@ -192,28 +192,25 @@ func cfromPartsComplex128LASXGuarded(dst []complex128, re []float64, im []float6
 	cfromPartsComplex128LASX(dst[:n:n], re, im)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.C64.Add = caddComplex64LASXGuarded
-	s.C64.Sub = csubComplex64LASXGuarded
-	s.C64.Neg = cnegComplex64LASXGuarded
-	s.C64Parts.Real = crealComplex64LASXGuarded
-	s.C64Parts.Imag = cimagComplex64LASXGuarded
-	s.C64Parts.Scale = cscaleComplex64LASXGuarded
-	s.C64.Sum = csumComplex64LASXGuarded
-	s.C64.Dot = cdotComplex64LASXGuarded
-	s.C64.DotConj = cdotconjComplex64LASXGuarded
-	s.C128.Add = caddComplex128LASXGuarded
-	s.C128.Sub = csubComplex128LASXGuarded
-	s.C128.Neg = cnegComplex128LASXGuarded
-	s.C128Parts.Abs = cabsComplex128LASXGuarded
-	s.C128Parts.Real = crealComplex128LASXGuarded
-	s.C128Parts.Imag = cimagComplex128LASXGuarded
-	s.C128Parts.Scale = cscaleComplex128LASXGuarded
-	s.C128.Sum = csumComplex128LASXGuarded
-	s.C128.Dot = cdotComplex128LASXGuarded
-	s.C128.DotConj = cdotconjComplex128LASXGuarded
-	s.C128Parts.FromParts = cfromPartsComplex128LASXGuarded
+func registerComplexLASX(s *kernel.Set) {
+	s.C64.Add = CaddComplex64LASX
+	s.C64.Sub = CsubComplex64LASX
+	s.C64.Neg = CnegComplex64LASX
+	s.C64Parts.Real = CrealComplex64LASX
+	s.C64Parts.Imag = CimagComplex64LASX
+	s.C64Parts.Scale = CscaleComplex64LASX
+	s.C64.Sum = CsumComplex64LASX
+	s.C64.Dot = CdotComplex64LASX
+	s.C64.DotConj = CdotconjComplex64LASX
+	s.C128.Add = CaddComplex128LASX
+	s.C128.Sub = CsubComplex128LASX
+	s.C128.Neg = CnegComplex128LASX
+	s.C128Parts.Abs = CabsComplex128LASX
+	s.C128Parts.Real = CrealComplex128LASX
+	s.C128Parts.Imag = CimagComplex128LASX
+	s.C128Parts.Scale = CscaleComplex128LASX
+	s.C128.Sum = CsumComplex128LASX
+	s.C128.Dot = CdotComplex128LASX
+	s.C128.DotConj = CdotconjComplex128LASX
+	s.C128Parts.FromParts = CfromPartsComplex128LASX
 }

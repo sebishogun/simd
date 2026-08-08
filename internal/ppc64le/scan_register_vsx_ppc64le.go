@@ -10,7 +10,7 @@ package ppc64le
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func fastCumProdFloat32VSXGuarded(dst []float32, a []float32) {
+func FastCumProdFloat32VSX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -29,7 +29,7 @@ func fastCumProdFloat32VSXGuarded(dst []float32, a []float32) {
 	fastCumProdFloat32VSX(dst[:n:n], a)
 }
 
-func fastCumSumFloat32VSXGuarded(dst []float32, a []float32) {
+func FastCumSumFloat32VSX(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumSumFloat(dst, a)
@@ -38,7 +38,7 @@ func fastCumSumFloat32VSXGuarded(dst []float32, a []float32) {
 	fastCumSumFloat32VSX(dst[:n:n], a)
 }
 
-func fastCumProdFloat64VSXGuarded(dst []float64, a []float64) {
+func FastCumProdFloat64VSX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -47,7 +47,7 @@ func fastCumProdFloat64VSXGuarded(dst []float64, a []float64) {
 	fastCumProdFloat64VSX(dst[:n:n], a)
 }
 
-func cumMinInt32VSXGuarded(dst []int32, a []int32) {
+func CumMinInt32VSX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -56,7 +56,7 @@ func cumMinInt32VSXGuarded(dst []int32, a []int32) {
 	cumMinInt32VSX(dst[:n:n], a)
 }
 
-func cumMaxInt32VSXGuarded(dst []int32, a []int32) {
+func CumMaxInt32VSX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -65,7 +65,7 @@ func cumMaxInt32VSXGuarded(dst []int32, a []int32) {
 	cumMaxInt32VSX(dst[:n:n], a)
 }
 
-func cumProdInt32VSXGuarded(dst []int32, a []int32) {
+func CumProdInt32VSX(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumProdInt(dst, a)
@@ -74,7 +74,7 @@ func cumProdInt32VSXGuarded(dst []int32, a []int32) {
 	cumProdInt32VSX(dst[:n:n], a)
 }
 
-func cumMinInt64VSXGuarded(dst []int64, a []int64) {
+func CumMinInt64VSX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -83,7 +83,7 @@ func cumMinInt64VSXGuarded(dst []int64, a []int64) {
 	cumMinInt64VSX(dst[:n:n], a)
 }
 
-func cumMaxInt64VSXGuarded(dst []int64, a []int64) {
+func CumMaxInt64VSX(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -92,16 +92,13 @@ func cumMaxInt64VSXGuarded(dst []int64, a []int64) {
 	cumMaxInt64VSX(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vsx")
-	s.F32.FastCumProd = fastCumProdFloat32VSXGuarded
-	s.F32.FastCumSum = fastCumSumFloat32VSXGuarded
-	s.F64.FastCumProd = fastCumProdFloat64VSXGuarded
-	s.I32.CumMin = cumMinInt32VSXGuarded
-	s.I32.CumMax = cumMaxInt32VSXGuarded
-	s.I32.CumProd = cumProdInt32VSXGuarded
-	s.I64.CumMin = cumMinInt64VSXGuarded
-	s.I64.CumMax = cumMaxInt64VSXGuarded
+func registerScanVSX(s *kernel.Set) {
+	s.F32.FastCumProd = FastCumProdFloat32VSX
+	s.F32.FastCumSum = FastCumSumFloat32VSX
+	s.F64.FastCumProd = FastCumProdFloat64VSX
+	s.I32.CumMin = CumMinInt32VSX
+	s.I32.CumMax = CumMaxInt32VSX
+	s.I32.CumProd = CumProdInt32VSX
+	s.I64.CumMin = CumMinInt64VSX
+	s.I64.CumMax = CumMaxInt64VSX
 }

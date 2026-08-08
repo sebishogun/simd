@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,35 +20,35 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func countByteAVX2Guarded(b []byte, c byte) int {
+func CountByteAVX2(b []byte, c byte) int {
 	if len(b) < 1073741824 {
 		return ref.CountByte(b, c)
 	}
 	return countByteAVX2(b, c)
 }
 
-func indexByteAVX2Guarded(b []byte, c byte) int {
+func IndexByteAVX2(b []byte, c byte) int {
 	if len(b) < 1024 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteAVX2(b, c)
 }
 
-func lastIndexByteAVX2Guarded(b []byte, c byte) int {
+func LastIndexByteAVX2(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexByte(b, c)
 	}
 	return lastIndexByteAVX2(b, c)
 }
 
-func popCountAVX2Guarded(b []byte) int {
+func PopCountAVX2(b []byte) int {
 	if len(b) < 64 {
 		return ref.PopCount(b)
 	}
 	return popCountAVX2(b)
 }
 
-func maskBitsAVX2Guarded(dst []byte, b []byte, c byte) {
+func MaskBitsAVX2(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBits(dst, b, c)
 		return
@@ -56,7 +56,7 @@ func maskBitsAVX2Guarded(dst []byte, b []byte, c byte) {
 	maskBitsAVX2(dst, b, c)
 }
 
-func maskBitsLessAVX2Guarded(dst []byte, b []byte, c byte) {
+func MaskBitsLessAVX2(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBitsLess(dst, b, c)
 		return
@@ -64,7 +64,7 @@ func maskBitsLessAVX2Guarded(dst []byte, b []byte, c byte) {
 	maskBitsLessAVX2(dst, b, c)
 }
 
-func maskBitsAny4AVX2Guarded(dst []byte, b []byte, chars uint32) {
+func MaskBitsAny4AVX2(dst []byte, b []byte, chars uint32) {
 	if len(b) < 64 {
 		ref.MaskBitsAny4(dst, b, chars)
 		return
@@ -72,7 +72,7 @@ func maskBitsAny4AVX2Guarded(dst []byte, b []byte, chars uint32) {
 	maskBitsAny4AVX2(dst, b, chars)
 }
 
-func maskBitsAnyAVX2Guarded(dst []byte, b []byte, chars uint64) {
+func MaskBitsAnyAVX2(dst []byte, b []byte, chars uint64) {
 	if len(b) < 64 {
 		ref.MaskBitsAny(dst, b, chars)
 		return
@@ -80,7 +80,7 @@ func maskBitsAnyAVX2Guarded(dst []byte, b []byte, chars uint64) {
 	maskBitsAnyAVX2(dst, b, chars)
 }
 
-func hammingU8AVX2Guarded(a []byte, b []byte) int {
+func HammingU8AVX2(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.Hamming(a, b)
@@ -88,7 +88,7 @@ func hammingU8AVX2Guarded(a []byte, b []byte) int {
 	return hammingU8AVX2(a[:n:n], b)
 }
 
-func hammingU64AVX2Guarded(a []uint64, b []uint64) int {
+func HammingU64AVX2(a []uint64, b []uint64) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.HammingWords(a, b)
@@ -96,7 +96,7 @@ func hammingU64AVX2Guarded(a []uint64, b []uint64) int {
 	return hammingU64AVX2(a[:n:n], b)
 }
 
-func grayscaleU8AVX2Guarded(dst []byte, r []byte, g []byte, b []byte) {
+func GrayscaleU8AVX2(dst []byte, r []byte, g []byte, b []byte) {
 	n := min(len(dst), len(r), len(g), len(b))
 	if n < 32 {
 		ref.Grayscale(dst, r, g, b)
@@ -105,7 +105,7 @@ func grayscaleU8AVX2Guarded(dst []byte, r []byte, g []byte, b []byte) {
 	grayscaleU8AVX2(dst[:n:n], r, g, b)
 }
 
-func rgbToUVU8AVX2Guarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
+func RgbToUVU8AVX2(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	n := min(len(u), len(v), len(r), len(g), len(b))
 	if n < 32 {
 		ref.RGBToUV(u, v, r, g, b)
@@ -114,35 +114,35 @@ func rgbToUVU8AVX2Guarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	rgbToUVU8AVX2(u[:n:n], v, r, g, b)
 }
 
-func isASCIIAVX2Guarded(b []byte) bool {
+func IsASCIIAVX2(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
 	}
 	return isASCIIAVX2(b)
 }
 
-func validUTF8AVX2Guarded(b []byte) bool {
+func ValidUTF8AVX2(b []byte) bool {
 	if len(b) < 64 {
 		return ref.ValidUTF8(b)
 	}
 	return validUTF8AVX2(b)
 }
 
-func indexNonASCIIAVX2Guarded(b []byte) int {
+func IndexNonASCIIAVX2(b []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII(b)
 	}
 	return indexNonASCIIAVX2(b)
 }
 
-func indexNonASCII16AVX2Guarded(b []uint16) int {
+func IndexNonASCII16AVX2(b []uint16) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII16(b)
 	}
 	return indexNonASCII16AVX2(b)
 }
 
-func widenU8U16AVX2Guarded(dst []uint16, s []byte) {
+func WidenU8U16AVX2(dst []uint16, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U16(dst, s)
@@ -151,7 +151,7 @@ func widenU8U16AVX2Guarded(dst []uint16, s []byte) {
 	widenU8U16AVX2(dst[:n:n], s)
 }
 
-func narrowU16U8AVX2Guarded(dst []byte, s []uint16) {
+func NarrowU16U8AVX2(dst []byte, s []uint16) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU16U8(dst, s)
@@ -160,7 +160,7 @@ func narrowU16U8AVX2Guarded(dst []byte, s []uint16) {
 	narrowU16U8AVX2(dst[:n:n], s)
 }
 
-func widenU8U32AVX2Guarded(dst []uint32, s []byte) {
+func WidenU8U32AVX2(dst []uint32, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U32(dst, s)
@@ -169,7 +169,7 @@ func widenU8U32AVX2Guarded(dst []uint32, s []byte) {
 	widenU8U32AVX2(dst[:n:n], s)
 }
 
-func narrowU32U8AVX2Guarded(dst []byte, s []uint32) {
+func NarrowU32U8AVX2(dst []byte, s []uint32) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU32U8(dst, s)
@@ -178,7 +178,7 @@ func narrowU32U8AVX2Guarded(dst []byte, s []uint32) {
 	narrowU32U8AVX2(dst[:n:n], s)
 }
 
-func equalBytesAVX2Guarded(a []byte, b []byte) bool {
+func EqualBytesAVX2(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
@@ -186,7 +186,7 @@ func equalBytesAVX2Guarded(a []byte, b []byte) bool {
 	return equalBytesAVX2(a[:n:n], b)
 }
 
-func bitAndAVX2Guarded(dst []byte, a []byte, b []byte) {
+func BitAndAVX2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAnd(dst, a, b)
@@ -195,7 +195,7 @@ func bitAndAVX2Guarded(dst []byte, a []byte, b []byte) {
 	bitAndAVX2(dst[:n:n], a, b)
 }
 
-func bitOrAVX2Guarded(dst []byte, a []byte, b []byte) {
+func BitOrAVX2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitOr(dst, a, b)
@@ -204,7 +204,7 @@ func bitOrAVX2Guarded(dst []byte, a []byte, b []byte) {
 	bitOrAVX2(dst[:n:n], a, b)
 }
 
-func bitXorAVX2Guarded(dst []byte, a []byte, b []byte) {
+func BitXorAVX2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitXor(dst, a, b)
@@ -213,7 +213,7 @@ func bitXorAVX2Guarded(dst []byte, a []byte, b []byte) {
 	bitXorAVX2(dst[:n:n], a, b)
 }
 
-func bitAndNotAVX2Guarded(dst []byte, a []byte, b []byte) {
+func BitAndNotAVX2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAndNot(dst, a, b)
@@ -222,7 +222,7 @@ func bitAndNotAVX2Guarded(dst []byte, a []byte, b []byte) {
 	bitAndNotAVX2(dst[:n:n], a, b)
 }
 
-func bitNotAVX2Guarded(dst []byte, b []byte) {
+func BitNotAVX2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.BitNot(dst, b)
@@ -231,7 +231,7 @@ func bitNotAVX2Guarded(dst []byte, b []byte) {
 	bitNotAVX2(dst[:n:n], b)
 }
 
-func fillBytesAVX2Guarded(dst []byte, v byte) {
+func FillBytesAVX2(dst []byte, v byte) {
 	if len(dst) < 32 {
 		ref.FillBytes(dst, v)
 		return
@@ -239,21 +239,21 @@ func fillBytesAVX2Guarded(dst []byte, v byte) {
 	fillBytesAVX2(dst, v)
 }
 
-func compareBytesAVX2Guarded(a []byte, b []byte) int {
+func CompareBytesAVX2(a []byte, b []byte) int {
 	if len(a) < 2048 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesAVX2(a, b)
 }
 
-func commonPrefixAVX2Guarded(a []byte, b []byte) int {
+func CommonPrefixAVX2(a []byte, b []byte) int {
 	if len(a) < 64 {
 		return ref.CommonPrefix(a, b)
 	}
 	return commonPrefixAVX2(a, b)
 }
 
-func equalFoldASCIIAVX2Guarded(a []byte, b []byte) bool {
+func EqualFoldASCIIAVX2(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
 		return ref.EqualFoldASCII(a, b)
@@ -261,42 +261,42 @@ func equalFoldASCIIAVX2Guarded(a []byte, b []byte) bool {
 	return equalFoldASCIIAVX2(a[:n:n], b)
 }
 
-func indexAnyAVX2Guarded(b []byte, chars []byte) int {
+func IndexAnyAVX2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexAny(b, chars)
 	}
 	return indexAnyAVX2(b, chars)
 }
 
-func indexAnyOrLessAVX2Guarded(b []byte, chars []byte, lo byte) int {
+func IndexAnyOrLessAVX2(b []byte, chars []byte, lo byte) int {
 	if len(b) < 64 {
 		return ref.IndexAnyOrLess(b, chars, lo)
 	}
 	return indexAnyOrLessAVX2(b, chars, lo)
 }
 
-func indexNotAnyAVX2Guarded(b []byte, chars []byte) int {
+func IndexNotAnyAVX2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
 	}
 	return indexNotAnyAVX2(b, chars)
 }
 
-func lastIndexNotAnyAVX2Guarded(b []byte, chars []byte) int {
+func LastIndexNotAnyAVX2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexNotAny(b, chars)
 	}
 	return lastIndexNotAnyAVX2(b, chars)
 }
 
-func countAnyAVX2Guarded(b []byte, chars []byte) int {
+func CountAnyAVX2(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
 	}
 	return countAnyAVX2(b, chars)
 }
 
-func jsonMasksAVX2Guarded(dst []byte, b []byte, want uint32) {
+func JsonMasksAVX2(dst []byte, b []byte, want uint32) {
 	if len(b) < 64 || len(dst) < 5*(((len(b)+63)/64)*8) {
 		ref.JSONMasks(dst, b, want)
 		return
@@ -304,21 +304,21 @@ func jsonMasksAVX2Guarded(dst []byte, b []byte, want uint32) {
 	jsonMasksAVX2(dst, b, want)
 }
 
-func jsonValidTokensAVX2Guarded(b []byte, masks []uint64, stk []uint64) int {
+func JsonValidTokensAVX2(b []byte, masks []uint64, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 || len(masks) < 2*((len(b)+63)/64) {
 		return ref.JSONValidTokens(b, masks, stk)
 	}
 	return jsonValidTokensAVX2(b, masks, stk)
 }
 
-func jsonValidAVX2Guarded(b []byte, stk []uint64) int {
+func JsonValidAVX2(b []byte, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 {
 		return ref.JSONValid(b, stk)
 	}
 	return jsonValidAVX2(b, stk)
 }
 
-func jsonStage1AVX2Guarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+func JsonStage1AVX2(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
 		return
@@ -326,42 +326,42 @@ func jsonStage1AVX2Guarded(out []uint64, masks []byte, nw int, carr []uint64, re
 	jsonStage1AVX2(out, masks, nw, carr, res)
 }
 
-func jsonCopyValidAVX2Guarded(dst []byte, b []byte, html byte) int {
+func JsonCopyValidAVX2(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < len(b) {
 		return ref.JSONCopyValid(dst, b, html)
 	}
 	return jsonCopyValidAVX2(dst, b, html)
 }
 
-func jsonQuoteAVX2Guarded(dst []byte, b []byte, html byte) int {
+func JsonQuoteAVX2(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < 6*len(b) {
 		return ref.JSONQuote(dst, b, html)
 	}
 	return jsonQuoteAVX2(dst, b, html)
 }
 
-func jsonCopyRunAVX2Guarded(dst []byte, b []byte, html byte) int {
+func JsonCopyRunAVX2(dst []byte, b []byte, html byte) int {
 	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunAVX2(dst, b, html)
 }
 
-func b64EncodeAVX2Guarded(dst []byte, b []byte) int {
+func B64EncodeAVX2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Encode(dst, b)
 	}
 	return b64EncodeAVX2(dst, b)
 }
 
-func b64DecodeAVX2Guarded(dst []byte, b []byte) int {
+func B64DecodeAVX2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Decode(dst, b)
 	}
 	return b64DecodeAVX2(dst, b)
 }
 
-func parseIntsAVX2Guarded(dst []int64, src []byte, idx []int32) (count int, ok bool) {
+func ParseIntsAVX2(dst []int64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseInts(dst, src, idx)
@@ -369,7 +369,7 @@ func parseIntsAVX2Guarded(dst []int64, src []byte, idx []int32) (count int, ok b
 	return parseIntsAVX2(dst, src, idx[:n:n])
 }
 
-func parseUintsAVX2Guarded(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
+func ParseUintsAVX2(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseUints(dst, src, idx)
@@ -377,49 +377,49 @@ func parseUintsAVX2Guarded(dst []uint64, src []byte, idx []int32) (count int, ok
 	return parseUintsAVX2(dst, src, idx[:n:n])
 }
 
-func formatIntsAVX2Guarded(dst []byte, vals []int64, sep byte) int {
+func FormatIntsAVX2(dst []byte, vals []int64, sep byte) int {
 	if len(vals) < 0 || len(dst) < 21*len(vals) {
 		return ref.FormatInts(dst, vals, sep)
 	}
 	return formatIntsAVX2(dst, vals, sep)
 }
 
-func hexDecodeAVX2Guarded(dst []byte, src []byte) (n int, ok bool) {
+func HexDecodeAVX2(dst []byte, src []byte) (n int, ok bool) {
 	if len(dst) < 32 {
 		return ref.HexDecode(dst, src)
 	}
 	return hexDecodeAVX2(dst, src)
 }
 
-func hexEncodeAVX2Guarded(dst []byte, b []byte) int {
+func HexEncodeAVX2(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
 	}
 	return hexEncodeAVX2(dst, b)
 }
 
-func indexAVX2Guarded(haystack []byte, needle []byte) int {
+func IndexAVX2(haystack []byte, needle []byte) int {
 	if len(haystack) < 256 {
 		return ref.Index(haystack, needle)
 	}
 	return indexAVX2(haystack, needle)
 }
 
-func lastIndexAVX2Guarded(haystack []byte, needle []byte) int {
+func LastIndexAVX2(haystack []byte, needle []byte) int {
 	if len(haystack) < 64 {
 		return ref.LastIndex(haystack, needle)
 	}
 	return lastIndexAVX2(haystack, needle)
 }
 
-func countSeqAVX2Guarded(haystack []byte, needle []byte) int {
+func CountSeqAVX2(haystack []byte, needle []byte) int {
 	if len(haystack) < 256 || len(needle) == 0 {
 		return ref.CountSeq(haystack, needle)
 	}
 	return countSeqAVX2(haystack, needle)
 }
 
-func toUpperASCIIAVX2Guarded(dst []byte, b []byte) {
+func ToUpperASCIIAVX2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToUpperASCII(dst, b)
@@ -428,7 +428,7 @@ func toUpperASCIIAVX2Guarded(dst []byte, b []byte) {
 	toUpperASCIIAVX2(dst[:n:n], b)
 }
 
-func toLowerASCIIAVX2Guarded(dst []byte, b []byte) {
+func ToLowerASCIIAVX2(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToLowerASCII(dst, b)
@@ -437,7 +437,7 @@ func toLowerASCIIAVX2Guarded(dst []byte, b []byte) {
 	toLowerASCIIAVX2(dst[:n:n], b)
 }
 
-func replaceByteAVX2Guarded(dst []byte, b []byte, old byte, with byte) {
+func ReplaceByteAVX2(dst []byte, b []byte, old byte, with byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ReplaceByte(dst, b, old, with)
@@ -446,63 +446,60 @@ func replaceByteAVX2Guarded(dst []byte, b []byte, old byte, with byte) {
 	replaceByteAVX2(dst[:n:n], b, old, with)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx2")
-	s.Bytes.Count = countByteAVX2Guarded
-	s.Bytes.IndexByte = indexByteAVX2Guarded
-	s.Bytes.LastIndexByte = lastIndexByteAVX2Guarded
-	s.Bytes.PopCount = popCountAVX2Guarded
-	s.Bytes.MaskBits = maskBitsAVX2Guarded
-	s.Bytes.MaskBitsLess = maskBitsLessAVX2Guarded
-	s.Bytes.MaskBitsAny4 = maskBitsAny4AVX2Guarded
-	s.Bytes.MaskBitsAny = maskBitsAnyAVX2Guarded
-	s.Bytes.Hamming = hammingU8AVX2Guarded
-	s.Bytes.HammingWords = hammingU64AVX2Guarded
-	s.Bytes.Grayscale = grayscaleU8AVX2Guarded
-	s.Bytes.RGBToUV = rgbToUVU8AVX2Guarded
-	s.Bytes.IsASCII = isASCIIAVX2Guarded
-	s.Bytes.ValidUTF8 = validUTF8AVX2Guarded
-	s.Bytes.IndexNonASCII = indexNonASCIIAVX2Guarded
-	s.Bytes.IndexNonASCII16 = indexNonASCII16AVX2Guarded
-	s.Bytes.WidenU8U16 = widenU8U16AVX2Guarded
-	s.Bytes.NarrowU16U8 = narrowU16U8AVX2Guarded
-	s.Bytes.WidenU8U32 = widenU8U32AVX2Guarded
-	s.Bytes.NarrowU32U8 = narrowU32U8AVX2Guarded
-	s.Bytes.Equal = equalBytesAVX2Guarded
-	s.Bytes.And = bitAndAVX2Guarded
-	s.Bytes.Or = bitOrAVX2Guarded
-	s.Bytes.Xor = bitXorAVX2Guarded
-	s.Bytes.AndNot = bitAndNotAVX2Guarded
-	s.Bytes.Not = bitNotAVX2Guarded
-	s.Bytes.Fill = fillBytesAVX2Guarded
-	s.Bytes.Compare = compareBytesAVX2Guarded
-	s.Bytes.CommonPrefix = commonPrefixAVX2Guarded
-	s.Bytes.EqualFoldASCII = equalFoldASCIIAVX2Guarded
-	s.Bytes.IndexAny = indexAnyAVX2Guarded
-	s.Bytes.IndexAnyOrLess = indexAnyOrLessAVX2Guarded
-	s.Bytes.IndexNotAny = indexNotAnyAVX2Guarded
-	s.Bytes.LastIndexNotAny = lastIndexNotAnyAVX2Guarded
-	s.Bytes.CountAny = countAnyAVX2Guarded
-	s.Bytes.JSONMasks = jsonMasksAVX2Guarded
-	s.Bytes.JSONValidTokens = jsonValidTokensAVX2Guarded
-	s.Bytes.JSONValid = jsonValidAVX2Guarded
-	s.Bytes.JSONStage1 = jsonStage1AVX2Guarded
-	s.Bytes.JSONCopyValid = jsonCopyValidAVX2Guarded
-	s.Bytes.JSONQuote = jsonQuoteAVX2Guarded
-	s.Bytes.JSONCopyRun = jsonCopyRunAVX2Guarded
-	s.Bytes.B64Encode = b64EncodeAVX2Guarded
-	s.Bytes.B64Decode = b64DecodeAVX2Guarded
-	s.Bytes.ParseInts = parseIntsAVX2Guarded
-	s.Bytes.ParseUints = parseUintsAVX2Guarded
-	s.Bytes.FormatInts = formatIntsAVX2Guarded
-	s.Bytes.HexDecode = hexDecodeAVX2Guarded
-	s.Bytes.HexEncode = hexEncodeAVX2Guarded
-	s.Bytes.Index = indexAVX2Guarded
-	s.Bytes.LastIndex = lastIndexAVX2Guarded
-	s.Bytes.CountSeq = countSeqAVX2Guarded
-	s.Bytes.ToUpperASCII = toUpperASCIIAVX2Guarded
-	s.Bytes.ToLowerASCII = toLowerASCIIAVX2Guarded
-	s.Bytes.ReplaceByte = replaceByteAVX2Guarded
+func registerBytesAVX2(s *kernel.Set) {
+	s.Bytes.Count = CountByteAVX2
+	s.Bytes.IndexByte = IndexByteAVX2
+	s.Bytes.LastIndexByte = LastIndexByteAVX2
+	s.Bytes.PopCount = PopCountAVX2
+	s.Bytes.MaskBits = MaskBitsAVX2
+	s.Bytes.MaskBitsLess = MaskBitsLessAVX2
+	s.Bytes.MaskBitsAny4 = MaskBitsAny4AVX2
+	s.Bytes.MaskBitsAny = MaskBitsAnyAVX2
+	s.Bytes.Hamming = HammingU8AVX2
+	s.Bytes.HammingWords = HammingU64AVX2
+	s.Bytes.Grayscale = GrayscaleU8AVX2
+	s.Bytes.RGBToUV = RgbToUVU8AVX2
+	s.Bytes.IsASCII = IsASCIIAVX2
+	s.Bytes.ValidUTF8 = ValidUTF8AVX2
+	s.Bytes.IndexNonASCII = IndexNonASCIIAVX2
+	s.Bytes.IndexNonASCII16 = IndexNonASCII16AVX2
+	s.Bytes.WidenU8U16 = WidenU8U16AVX2
+	s.Bytes.NarrowU16U8 = NarrowU16U8AVX2
+	s.Bytes.WidenU8U32 = WidenU8U32AVX2
+	s.Bytes.NarrowU32U8 = NarrowU32U8AVX2
+	s.Bytes.Equal = EqualBytesAVX2
+	s.Bytes.And = BitAndAVX2
+	s.Bytes.Or = BitOrAVX2
+	s.Bytes.Xor = BitXorAVX2
+	s.Bytes.AndNot = BitAndNotAVX2
+	s.Bytes.Not = BitNotAVX2
+	s.Bytes.Fill = FillBytesAVX2
+	s.Bytes.Compare = CompareBytesAVX2
+	s.Bytes.CommonPrefix = CommonPrefixAVX2
+	s.Bytes.EqualFoldASCII = EqualFoldASCIIAVX2
+	s.Bytes.IndexAny = IndexAnyAVX2
+	s.Bytes.IndexAnyOrLess = IndexAnyOrLessAVX2
+	s.Bytes.IndexNotAny = IndexNotAnyAVX2
+	s.Bytes.LastIndexNotAny = LastIndexNotAnyAVX2
+	s.Bytes.CountAny = CountAnyAVX2
+	s.Bytes.JSONMasks = JsonMasksAVX2
+	s.Bytes.JSONValidTokens = JsonValidTokensAVX2
+	s.Bytes.JSONValid = JsonValidAVX2
+	s.Bytes.JSONStage1 = JsonStage1AVX2
+	s.Bytes.JSONCopyValid = JsonCopyValidAVX2
+	s.Bytes.JSONQuote = JsonQuoteAVX2
+	s.Bytes.JSONCopyRun = JsonCopyRunAVX2
+	s.Bytes.B64Encode = B64EncodeAVX2
+	s.Bytes.B64Decode = B64DecodeAVX2
+	s.Bytes.ParseInts = ParseIntsAVX2
+	s.Bytes.ParseUints = ParseUintsAVX2
+	s.Bytes.FormatInts = FormatIntsAVX2
+	s.Bytes.HexDecode = HexDecodeAVX2
+	s.Bytes.HexEncode = HexEncodeAVX2
+	s.Bytes.Index = IndexAVX2
+	s.Bytes.LastIndex = LastIndexAVX2
+	s.Bytes.CountSeq = CountSeqAVX2
+	s.Bytes.ToUpperASCII = ToUpperASCIIAVX2
+	s.Bytes.ToLowerASCII = ToLowerASCIIAVX2
+	s.Bytes.ReplaceByte = ReplaceByteAVX2
 }

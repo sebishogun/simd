@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,40 +20,37 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func intersectInt32LASXGuarded(dst []int32, a []int32, b []int32) int {
+func IntersectInt32LASX(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt32LASX(dst, a, b)
 }
 
-func intersectInt64LASXGuarded(dst []int64, a []int64, b []int64) int {
+func IntersectInt64LASX(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt64LASX(dst, a, b)
 }
 
-func intersectUint32LASXGuarded(dst []uint32, a []uint32, b []uint32) int {
+func IntersectUint32LASX(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint32LASX(dst, a, b)
 }
 
-func intersectUint64LASXGuarded(dst []uint64, a []uint64, b []uint64) int {
+func IntersectUint64LASX(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint64LASX(dst, a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.I32.Intersect = intersectInt32LASXGuarded
-	s.I64.Intersect = intersectInt64LASXGuarded
-	s.U32.Intersect = intersectUint32LASXGuarded
-	s.U64.Intersect = intersectUint64LASXGuarded
+func registerSetsLASX(s *kernel.Set) {
+	s.I32.Intersect = IntersectInt32LASX
+	s.I64.Intersect = IntersectInt64LASX
+	s.U32.Intersect = IntersectUint32LASX
+	s.U64.Intersect = IntersectUint64LASX
 }

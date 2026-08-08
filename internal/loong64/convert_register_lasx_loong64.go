@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func quantizeI8LASXGuarded(dst []int8, a []float32, scale float32, zeroPoint int32) {
+func QuantizeI8LASX(dst []int8, a []float32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.QuantizeI8(dst, a, scale, zeroPoint)
@@ -29,7 +29,7 @@ func quantizeI8LASXGuarded(dst []int8, a []float32, scale float32, zeroPoint int
 	quantizeI8LASX(dst[:n:n], a, scale, zeroPoint)
 }
 
-func dequantizeI8LASXGuarded(dst []float32, a []int8, scale float32, zeroPoint int32) {
+func DequantizeI8LASX(dst []float32, a []int8, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DequantizeI8(dst, a, scale, zeroPoint)
@@ -38,7 +38,7 @@ func dequantizeI8LASXGuarded(dst []float32, a []int8, scale float32, zeroPoint i
 	dequantizeI8LASX(dst[:n:n], a, scale, zeroPoint)
 }
 
-func quantizeU8LASXGuarded(dst []byte, a []float32, scale float32, zeroPoint int32) {
+func QuantizeU8LASX(dst []byte, a []float32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.QuantizeU8(dst, a, scale, zeroPoint)
@@ -47,7 +47,7 @@ func quantizeU8LASXGuarded(dst []byte, a []float32, scale float32, zeroPoint int
 	quantizeU8LASX(dst[:n:n], a, scale, zeroPoint)
 }
 
-func dequantizeU8LASXGuarded(dst []float32, a []byte, scale float32, zeroPoint int32) {
+func DequantizeU8LASX(dst []float32, a []byte, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DequantizeU8(dst, a, scale, zeroPoint)
@@ -56,7 +56,7 @@ func dequantizeU8LASXGuarded(dst []float32, a []byte, scale float32, zeroPoint i
 	dequantizeU8LASX(dst[:n:n], a, scale, zeroPoint)
 }
 
-func quantizePerChannelI8LASXGuarded(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
+func QuantizePerChannelI8LASX(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.QuantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -64,7 +64,7 @@ func quantizePerChannelI8LASXGuarded(dst []int8, a []float32, scale []float32, z
 	quantizePerChannelI8LASX(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func quantizePerChannelU8LASXGuarded(dst []byte, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
+func QuantizePerChannelU8LASX(dst []byte, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.QuantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -72,7 +72,7 @@ func quantizePerChannelU8LASXGuarded(dst []byte, a []float32, scale []float32, z
 	quantizePerChannelU8LASX(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func dequantizePerChannelI8LASXGuarded(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels int, inner int) {
+func DequantizePerChannelI8LASX(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.DequantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -80,7 +80,7 @@ func dequantizePerChannelI8LASXGuarded(dst []float32, a []int8, scale []float32,
 	dequantizePerChannelI8LASX(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func dequantizePerChannelU8LASXGuarded(dst []float32, a []byte, scale []float32, zeroPoint []int32, channels int, inner int) {
+func DequantizePerChannelU8LASX(dst []float32, a []byte, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.DequantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -88,7 +88,7 @@ func dequantizePerChannelU8LASXGuarded(dst []float32, a []byte, scale []float32,
 	dequantizePerChannelU8LASX(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func zigzagEncodeI8LASXGuarded(dst []byte, a []int8) {
+func ZigzagEncodeI8LASX(dst []byte, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI8(dst, a)
@@ -97,7 +97,7 @@ func zigzagEncodeI8LASXGuarded(dst []byte, a []int8) {
 	zigzagEncodeI8LASX(dst[:n:n], a)
 }
 
-func zigzagDecodeI8LASXGuarded(dst []int8, a []byte) {
+func ZigzagDecodeI8LASX(dst []int8, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI8(dst, a)
@@ -106,7 +106,7 @@ func zigzagDecodeI8LASXGuarded(dst []int8, a []byte) {
 	zigzagDecodeI8LASX(dst[:n:n], a)
 }
 
-func zigzagEncodeI16LASXGuarded(dst []uint16, a []int16) {
+func ZigzagEncodeI16LASX(dst []uint16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI16(dst, a)
@@ -115,7 +115,7 @@ func zigzagEncodeI16LASXGuarded(dst []uint16, a []int16) {
 	zigzagEncodeI16LASX(dst[:n:n], a)
 }
 
-func zigzagDecodeI16LASXGuarded(dst []int16, a []uint16) {
+func ZigzagDecodeI16LASX(dst []int16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI16(dst, a)
@@ -124,7 +124,7 @@ func zigzagDecodeI16LASXGuarded(dst []int16, a []uint16) {
 	zigzagDecodeI16LASX(dst[:n:n], a)
 }
 
-func zigzagEncodeI32LASXGuarded(dst []uint32, a []int32) {
+func ZigzagEncodeI32LASX(dst []uint32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI32(dst, a)
@@ -133,7 +133,7 @@ func zigzagEncodeI32LASXGuarded(dst []uint32, a []int32) {
 	zigzagEncodeI32LASX(dst[:n:n], a)
 }
 
-func zigzagDecodeI32LASXGuarded(dst []int32, a []uint32) {
+func ZigzagDecodeI32LASX(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI32(dst, a)
@@ -142,7 +142,7 @@ func zigzagDecodeI32LASXGuarded(dst []int32, a []uint32) {
 	zigzagDecodeI32LASX(dst[:n:n], a)
 }
 
-func zigzagEncodeI64LASXGuarded(dst []uint64, a []int64) {
+func ZigzagEncodeI64LASX(dst []uint64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI64(dst, a)
@@ -151,7 +151,7 @@ func zigzagEncodeI64LASXGuarded(dst []uint64, a []int64) {
 	zigzagEncodeI64LASX(dst[:n:n], a)
 }
 
-func zigzagDecodeI64LASXGuarded(dst []int64, a []uint64) {
+func ZigzagDecodeI64LASX(dst []int64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI64(dst, a)
@@ -160,7 +160,7 @@ func zigzagDecodeI64LASXGuarded(dst []int64, a []uint64) {
 	zigzagDecodeI64LASX(dst[:n:n], a)
 }
 
-func varintLenU32LASXGuarded(dst []int32, a []uint32) {
+func VarintLenU32LASX(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU32(dst, a)
@@ -169,7 +169,7 @@ func varintLenU32LASXGuarded(dst []int32, a []uint32) {
 	varintLenU32LASX(dst[:n:n], a)
 }
 
-func varintLenU64LASXGuarded(dst []int32, a []uint64) {
+func VarintLenU64LASX(dst []int32, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU64(dst, a)
@@ -178,21 +178,21 @@ func varintLenU64LASXGuarded(dst []int32, a []uint64) {
 	varintLenU64LASX(dst[:n:n], a)
 }
 
-func varintSizeU32LASXGuarded(a []uint32) int {
+func VarintSizeU32LASX(a []uint32) int {
 	if len(a) < 16 {
 		return ref.VarintSizeU32(a)
 	}
 	return varintSizeU32LASX(a)
 }
 
-func varintSizeU64LASXGuarded(a []uint64) int {
+func VarintSizeU64LASX(a []uint64) int {
 	if len(a) < 16 {
 		return ref.VarintSizeU64(a)
 	}
 	return varintSizeU64LASX(a)
 }
 
-func f8e4m3ToF32LASXGuarded(dst []float32, a []byte) {
+func F8e4m3ToF32LASX(dst []float32, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F8E4M3ToF32(dst, a)
@@ -201,7 +201,7 @@ func f8e4m3ToF32LASXGuarded(dst []float32, a []byte) {
 	f8e4m3ToF32LASX(dst[:n:n], a)
 }
 
-func f8e5m2ToF32LASXGuarded(dst []float32, a []byte) {
+func F8e5m2ToF32LASX(dst []float32, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F8E5M2ToF32(dst, a)
@@ -210,7 +210,7 @@ func f8e5m2ToF32LASXGuarded(dst []float32, a []byte) {
 	f8e5m2ToF32LASX(dst[:n:n], a)
 }
 
-func bf16ToF32LASXGuarded(dst []float32, a []uint16) {
+func Bf16ToF32LASX(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.BF16ToF32(dst, a)
@@ -219,7 +219,7 @@ func bf16ToF32LASXGuarded(dst []float32, a []uint16) {
 	bf16ToF32LASX(dst[:n:n], a)
 }
 
-func f32ToBF16LASXGuarded(dst []uint16, a []float32) {
+func F32ToBF16LASX(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToBF16(dst, a)
@@ -228,7 +228,7 @@ func f32ToBF16LASXGuarded(dst []uint16, a []float32) {
 	f32ToBF16LASX(dst[:n:n], a)
 }
 
-func f32ToF16LASXGuarded(dst []uint16, a []float32) {
+func F32ToF16LASX(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToF16(dst, a)
@@ -237,33 +237,30 @@ func f32ToF16LASXGuarded(dst []uint16, a []float32) {
 	f32ToF16LASX(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.Convert.QuantizeI8 = quantizeI8LASXGuarded
-	s.Convert.DequantizeI8 = dequantizeI8LASXGuarded
-	s.Convert.QuantizeU8 = quantizeU8LASXGuarded
-	s.Convert.DequantizeU8 = dequantizeU8LASXGuarded
-	s.Convert.QuantizePerChannelI8 = quantizePerChannelI8LASXGuarded
-	s.Convert.QuantizePerChannelU8 = quantizePerChannelU8LASXGuarded
-	s.Convert.DequantizePerChannelI8 = dequantizePerChannelI8LASXGuarded
-	s.Convert.DequantizePerChannelU8 = dequantizePerChannelU8LASXGuarded
-	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8LASXGuarded
-	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8LASXGuarded
-	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16LASXGuarded
-	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16LASXGuarded
-	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32LASXGuarded
-	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32LASXGuarded
-	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64LASXGuarded
-	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64LASXGuarded
-	s.Convert.VarintLenU32 = varintLenU32LASXGuarded
-	s.Convert.VarintLenU64 = varintLenU64LASXGuarded
-	s.Convert.VarintSizeU32 = varintSizeU32LASXGuarded
-	s.Convert.VarintSizeU64 = varintSizeU64LASXGuarded
-	s.Convert.F8E4M3ToF32 = f8e4m3ToF32LASXGuarded
-	s.Convert.F8E5M2ToF32 = f8e5m2ToF32LASXGuarded
-	s.Convert.BF16ToF32 = bf16ToF32LASXGuarded
-	s.Convert.F32ToBF16 = f32ToBF16LASXGuarded
-	s.Convert.F32ToF16 = f32ToF16LASXGuarded
+func registerConvertLASX(s *kernel.Set) {
+	s.Convert.QuantizeI8 = QuantizeI8LASX
+	s.Convert.DequantizeI8 = DequantizeI8LASX
+	s.Convert.QuantizeU8 = QuantizeU8LASX
+	s.Convert.DequantizeU8 = DequantizeU8LASX
+	s.Convert.QuantizePerChannelI8 = QuantizePerChannelI8LASX
+	s.Convert.QuantizePerChannelU8 = QuantizePerChannelU8LASX
+	s.Convert.DequantizePerChannelI8 = DequantizePerChannelI8LASX
+	s.Convert.DequantizePerChannelU8 = DequantizePerChannelU8LASX
+	s.Convert.ZigzagEncodeI8 = ZigzagEncodeI8LASX
+	s.Convert.ZigzagDecodeI8 = ZigzagDecodeI8LASX
+	s.Convert.ZigzagEncodeI16 = ZigzagEncodeI16LASX
+	s.Convert.ZigzagDecodeI16 = ZigzagDecodeI16LASX
+	s.Convert.ZigzagEncodeI32 = ZigzagEncodeI32LASX
+	s.Convert.ZigzagDecodeI32 = ZigzagDecodeI32LASX
+	s.Convert.ZigzagEncodeI64 = ZigzagEncodeI64LASX
+	s.Convert.ZigzagDecodeI64 = ZigzagDecodeI64LASX
+	s.Convert.VarintLenU32 = VarintLenU32LASX
+	s.Convert.VarintLenU64 = VarintLenU64LASX
+	s.Convert.VarintSizeU32 = VarintSizeU32LASX
+	s.Convert.VarintSizeU64 = VarintSizeU64LASX
+	s.Convert.F8E4M3ToF32 = F8e4m3ToF32LASX
+	s.Convert.F8E5M2ToF32 = F8e5m2ToF32LASX
+	s.Convert.BF16ToF32 = Bf16ToF32LASX
+	s.Convert.F32ToBF16 = F32ToBF16LASX
+	s.Convert.F32ToF16 = F32ToF16LASX
 }

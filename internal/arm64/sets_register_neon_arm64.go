@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,72 +20,69 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func intersectInt32NEONGuarded(dst []int32, a []int32, b []int32) int {
+func IntersectInt32NEON(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt32NEON(dst, a, b)
 }
 
-func differenceInt32NEONGuarded(dst []int32, a []int32, b []int32) int {
+func DifferenceInt32NEON(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt32NEON(dst, a, b)
 }
 
-func intersectInt64NEONGuarded(dst []int64, a []int64, b []int64) int {
+func IntersectInt64NEON(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt64NEON(dst, a, b)
 }
 
-func differenceInt64NEONGuarded(dst []int64, a []int64, b []int64) int {
+func DifferenceInt64NEON(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt64NEON(dst, a, b)
 }
 
-func intersectUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) int {
+func IntersectUint32NEON(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint32NEON(dst, a, b)
 }
 
-func differenceUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) int {
+func DifferenceUint32NEON(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint32NEON(dst, a, b)
 }
 
-func intersectUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) int {
+func IntersectUint64NEON(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint64NEON(dst, a, b)
 }
 
-func differenceUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) int {
+func DifferenceUint64NEON(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint64NEON(dst, a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.I32.Intersect = intersectInt32NEONGuarded
-	s.I32.Difference = differenceInt32NEONGuarded
-	s.I64.Intersect = intersectInt64NEONGuarded
-	s.I64.Difference = differenceInt64NEONGuarded
-	s.U32.Intersect = intersectUint32NEONGuarded
-	s.U32.Difference = differenceUint32NEONGuarded
-	s.U64.Intersect = intersectUint64NEONGuarded
-	s.U64.Difference = differenceUint64NEONGuarded
+func registerSetsNEON(s *kernel.Set) {
+	s.I32.Intersect = IntersectInt32NEON
+	s.I32.Difference = DifferenceInt32NEON
+	s.I64.Intersect = IntersectInt64NEON
+	s.I64.Difference = DifferenceInt64NEON
+	s.U32.Intersect = IntersectUint32NEON
+	s.U32.Difference = DifferenceUint32NEON
+	s.U64.Intersect = IntersectUint64NEON
+	s.U64.Difference = DifferenceUint64NEON
 }

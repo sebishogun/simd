@@ -25,7 +25,7 @@ package simd
 //
 // Exact: every bfloat16 is a float32 with its low mantissa bits zero, so
 // nothing is approximated, including NaN payloads and both infinities.
-func BFloat16ToFloat32Into(dst []float32, a []uint16) { active.Convert.BF16ToF32(dst, a) }
+func BFloat16ToFloat32Into(dst []float32, a []uint16) { tblConvertBF16ToF32[tierIdx](dst, a) }
 
 // Float32ToBFloat16Into narrows each float32 in a into a bfloat16 in dst,
 // rounding to nearest even.
@@ -35,12 +35,12 @@ func BFloat16ToFloat32Into(dst []float32, a []uint16) { active.Convert.BF16ToF32
 // applied to every weight in a network accumulates. A NaN is passed through
 // quieted rather than rounded, because rounding can carry into the exponent
 // and turn a NaN with a low mantissa into an infinity.
-func Float32ToBFloat16Into(dst []uint16, a []float32) { active.Convert.F32ToBF16(dst, a) }
+func Float32ToBFloat16Into(dst []uint16, a []float32) { tblConvertF32ToBF16[tierIdx](dst, a) }
 
 // Float16ToFloat32Into widens each float16 in a into a float32 in dst.
 //
 // Exact, including denormals, which are renormalized rather than flushed.
-func Float16ToFloat32Into(dst []float32, a []uint16) { active.Convert.F16ToF32(dst, a) }
+func Float16ToFloat32Into(dst []float32, a []uint16) { tblConvertF16ToF32[tierIdx](dst, a) }
 
 // Float32ToFloat16Into narrows each float32 in a into a float16 in dst,
 // rounding to nearest even.
@@ -48,7 +48,7 @@ func Float16ToFloat32Into(dst []float32, a []uint16) { active.Convert.F16ToF32(d
 // Values above 65520 in magnitude become infinities and values below the
 // smallest float16 denormal become zeros, both with the sign preserved.
 // Denormals are produced rather than flushed.
-func Float32ToFloat16Into(dst []uint16, a []float32) { active.Convert.F32ToF16(dst, a) }
+func Float32ToFloat16Into(dst []uint16, a []float32) { tblConvertF32ToF16[tierIdx](dst, a) }
 
 // ---------- affine quantization ----------
 
@@ -66,23 +66,23 @@ func Float32ToFloat16Into(dst []uint16, a []float32) { active.Convert.F32ToF16(d
 // Values outside the representable range saturate rather than wrapping. It
 // writes min(len(dst), len(a)) elements and allocates nothing.
 func QuantizeInt8(dst []int8, a []float32, scale float32, zeroPoint int32) {
-	active.Convert.QuantizeI8(dst, a, scale, zeroPoint)
+	tblConvertQuantizeI8[tierIdx](dst, a, scale, zeroPoint)
 }
 
 // DequantizeInt8 is the inverse: x = (q - zeroPoint) * scale.
 func DequantizeInt8(dst []float32, a []int8, scale float32, zeroPoint int32) {
-	active.Convert.DequantizeI8(dst, a, scale, zeroPoint)
+	tblConvertDequantizeI8[tierIdx](dst, a, scale, zeroPoint)
 }
 
 // QuantizeUint8 is [QuantizeInt8] into the unsigned range, clamping to
 // [0, 255]. This is the form TFLite and most mobile runtimes use.
 func QuantizeUint8(dst []uint8, a []float32, scale float32, zeroPoint int32) {
-	active.Convert.QuantizeU8(dst, a, scale, zeroPoint)
+	tblConvertQuantizeU8[tierIdx](dst, a, scale, zeroPoint)
 }
 
 // DequantizeUint8 is the inverse of [QuantizeUint8].
 func DequantizeUint8(dst []float32, a []uint8, scale float32, zeroPoint int32) {
-	active.Convert.DequantizeU8(dst, a, scale, zeroPoint)
+	tblConvertDequantizeU8[tierIdx](dst, a, scale, zeroPoint)
 }
 
 // ---------- zigzag ----------
@@ -102,29 +102,29 @@ func DequantizeUint8(dst []float32, a []uint8, scale float32, zeroPoint int32) {
 // negate-and-double formulation overflows on.
 //
 // It writes min(len(dst), len(a)) elements and allocates nothing.
-func ZigzagEncodeInt32Into(dst []uint32, a []int32) { active.Convert.ZigzagEncodeI32(dst, a) }
+func ZigzagEncodeInt32Into(dst []uint32, a []int32) { tblConvertZigzagEncodeI32[tierIdx](dst, a) }
 
 // ZigzagDecodeInt32Into is the inverse of [ZigzagEncodeInt32Into].
-func ZigzagDecodeInt32Into(dst []int32, a []uint32) { active.Convert.ZigzagDecodeI32(dst, a) }
+func ZigzagDecodeInt32Into(dst []int32, a []uint32) { tblConvertZigzagDecodeI32[tierIdx](dst, a) }
 
 // ZigzagEncodeInt64Into is [ZigzagEncodeInt32Into] for 64-bit values, which is
 // the width protobuf's sint64 uses.
-func ZigzagEncodeInt64Into(dst []uint64, a []int64) { active.Convert.ZigzagEncodeI64(dst, a) }
+func ZigzagEncodeInt64Into(dst []uint64, a []int64) { tblConvertZigzagEncodeI64[tierIdx](dst, a) }
 
 // ZigzagDecodeInt64Into is the inverse of [ZigzagEncodeInt64Into].
-func ZigzagDecodeInt64Into(dst []int64, a []uint64) { active.Convert.ZigzagDecodeI64(dst, a) }
+func ZigzagDecodeInt64Into(dst []int64, a []uint64) { tblConvertZigzagDecodeI64[tierIdx](dst, a) }
 
 // ZigzagEncodeInt16Into is [ZigzagEncodeInt32Into] for 16-bit values.
-func ZigzagEncodeInt16Into(dst []uint16, a []int16) { active.Convert.ZigzagEncodeI16(dst, a) }
+func ZigzagEncodeInt16Into(dst []uint16, a []int16) { tblConvertZigzagEncodeI16[tierIdx](dst, a) }
 
 // ZigzagDecodeInt16Into is the inverse of [ZigzagEncodeInt16Into].
-func ZigzagDecodeInt16Into(dst []int16, a []uint16) { active.Convert.ZigzagDecodeI16(dst, a) }
+func ZigzagDecodeInt16Into(dst []int16, a []uint16) { tblConvertZigzagDecodeI16[tierIdx](dst, a) }
 
 // ZigzagEncodeInt8Into is [ZigzagEncodeInt32Into] for 8-bit values.
-func ZigzagEncodeInt8Into(dst []byte, a []int8) { active.Convert.ZigzagEncodeI8(dst, a) }
+func ZigzagEncodeInt8Into(dst []byte, a []int8) { tblConvertZigzagEncodeI8[tierIdx](dst, a) }
 
 // ZigzagDecodeInt8Into is the inverse of [ZigzagEncodeInt8Into].
-func ZigzagDecodeInt8Into(dst []int8, a []byte) { active.Convert.ZigzagDecodeI8(dst, a) }
+func ZigzagDecodeInt8Into(dst []int8, a []byte) { tblConvertZigzagDecodeI8[tierIdx](dst, a) }
 
 // ---------- quantized matrix multiply ----------
 
@@ -147,7 +147,7 @@ func ZigzagDecodeInt8Into(dst []int8, a []byte) { active.Convert.ZigzagDecodeI8(
 // preserve. It does nothing if the slices are too short for the stated
 // dimensions, and it allocates nothing.
 func QMatMulInt8Into(dst []int32, a, b []int8, m, k, n int) {
-	active.Convert.QMatMulI8(dst, a, b, m, k, n)
+	tblConvertQMatMulI8[tierIdx](dst, a, b, m, k, n)
 }
 
 // RequantizeInt8Into takes an int32 accumulator back down to int8 with a scale
@@ -164,7 +164,7 @@ func QMatMulInt8Into(dst []int32, a, b []int8, m, k, n int) {
 //
 // It writes min(len(dst), len(a)) elements and allocates nothing.
 func RequantizeInt8Into(dst []int8, a []int32, scale float32, zeroPoint int32) {
-	active.Convert.RequantizeI8(dst, a, scale, zeroPoint)
+	tblConvertRequantizeI8[tierIdx](dst, a, scale, zeroPoint)
 }
 
 // ---------- per-channel quantization ----------
@@ -187,23 +187,23 @@ func RequantizeInt8Into(dst []int8, a []int32, scale float32, zeroPoint int32) {
 // It does nothing if the slices are too short for the stated shape, and it
 // allocates nothing.
 func QuantizePerChannelInt8(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels, inner int) {
-	active.Convert.QuantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
+	tblConvertQuantizePerChannelI8[tierIdx](dst, a, scale, zeroPoint, channels, inner)
 }
 
 // QuantizePerChannelUint8 is [QuantizePerChannelInt8] into the unsigned range,
 // clamping to [0, 255].
 func QuantizePerChannelUint8(dst []uint8, a []float32, scale []float32, zeroPoint []int32, channels, inner int) {
-	active.Convert.QuantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
+	tblConvertQuantizePerChannelU8[tierIdx](dst, a, scale, zeroPoint, channels, inner)
 }
 
 // DequantizePerChannelInt8 is the inverse of [QuantizePerChannelInt8].
 func DequantizePerChannelInt8(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels, inner int) {
-	active.Convert.DequantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
+	tblConvertDequantizePerChannelI8[tierIdx](dst, a, scale, zeroPoint, channels, inner)
 }
 
 // DequantizePerChannelUint8 is the inverse of [QuantizePerChannelUint8].
 func DequantizePerChannelUint8(dst []float32, a []uint8, scale []float32, zeroPoint []int32, channels, inner int) {
-	active.Convert.DequantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
+	tblConvertDequantizePerChannelU8[tierIdx](dst, a, scale, zeroPoint, channels, inner)
 }
 
 // ---------- fp8 ----------
@@ -220,14 +220,14 @@ func DequantizePerChannelUint8(dst []float32, a []uint8, scale []float32, zeroPo
 // is IEEE-shaped and does have infinities.
 //
 // It writes min(len(dst), len(a)) elements and allocates nothing.
-func Float8E4M3ToFloat32Into(dst []float32, a []byte) { active.Convert.F8E4M3ToF32(dst, a) }
+func Float8E4M3ToFloat32Into(dst []float32, a []byte) { tblConvertF8E4M3ToF32[tierIdx](dst, a) }
 
 // Float32ToFloat8E4M3Into narrows to OCP e4m3, rounding to nearest even.
 //
 // Because the format has no infinity, values above 448 in magnitude saturate
 // to ±448 rather than becoming one, and an input infinity saturates too. A NaN
 // stays a NaN. Denormals are produced rather than flushed.
-func Float32ToFloat8E4M3Into(dst []byte, a []float32) { active.Convert.F32ToF8E4M3(dst, a) }
+func Float32ToFloat8E4M3Into(dst []byte, a []float32) { tblConvertF32ToF8E4M3[tierIdx](dst, a) }
 
 // Float8E5M2ToFloat32Into widens e5m2 to float32: 1 sign bit, 5 exponent bits,
 // 2 mantissa bits, bias 15. This is the format gradients use, and it trades
@@ -235,13 +235,13 @@ func Float32ToFloat8E4M3Into(dst []byte, a []float32) { active.Convert.F32ToF8E4
 //
 // Unlike e4m3 this one is IEEE-shaped: it has infinities and NaNs where a
 // float16 has them.
-func Float8E5M2ToFloat32Into(dst []float32, a []byte) { active.Convert.F8E5M2ToF32(dst, a) }
+func Float8E5M2ToFloat32Into(dst []float32, a []byte) { tblConvertF8E5M2ToF32[tierIdx](dst, a) }
 
 // Float32ToFloat8E5M2Into narrows to e5m2, rounding to nearest even.
 //
 // Values above 57344 in magnitude become infinities, as in float16. Denormals
 // are produced rather than flushed.
-func Float32ToFloat8E5M2Into(dst []byte, a []float32) { active.Convert.F32ToF8E5M2(dst, a) }
+func Float32ToFloat8E5M2Into(dst []byte, a []float32) { tblConvertF32ToF8E5M2[tierIdx](dst, a) }
 
 // ---------- bit packing ----------
 
@@ -255,7 +255,7 @@ func Float32ToFloat8E5M2Into(dst []byte, a []float32) { active.Convert.F32ToF8E5
 //
 // dst must have room for ceil(len(a)*bits/32) words. bits must be 1 to 32.
 // It does nothing if either is not so, and it allocates nothing.
-func BitPackInto(dst, a []uint32, bits int32) { active.Convert.BitPackU32(dst, a, bits) }
+func BitPackInto(dst, a []uint32, bits int32) { tblConvertBitPackU32[tierIdx](dst, a, bits) }
 
 // BitUnpackInto is the inverse: it reads len(dst) values of `bits` bits each
 // from the bitstream in a.
@@ -269,4 +269,4 @@ func BitPackInto(dst, a []uint32, bits int32) { active.Convert.BitPackU32(dst, a
 // value straddles whenever len(dst)*bits is not a multiple of 32. Requiring it
 // in the guard is what lets the kernel read unconditionally rather than
 // branching on every element.
-func BitUnpackInto(dst, a []uint32, bits int32) { active.Convert.BitUnpackU32(dst, a, bits) }
+func BitUnpackInto(dst, a []uint32, bits int32) { tblConvertBitUnpackU32[tierIdx](dst, a, bits) }

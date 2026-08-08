@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func addFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func AddFloat32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -29,7 +29,7 @@ func addFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	addFloat32SVE2(dst[:n:n], a, b)
 }
 
-func subFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func SubFloat32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -38,7 +38,7 @@ func subFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	subFloat32SVE2(dst[:n:n], a, b)
 }
 
-func mulFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func MulFloat32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -47,7 +47,7 @@ func mulFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	mulFloat32SVE2(dst[:n:n], a, b)
 }
 
-func minimumFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func MinimumFloat32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
@@ -56,7 +56,7 @@ func minimumFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	minimumFloat32SVE2(dst[:n:n], a, b)
 }
 
-func maximumFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func MaximumFloat32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
@@ -65,7 +65,7 @@ func maximumFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	maximumFloat32SVE2(dst[:n:n], a, b)
 }
 
-func absFloat32SVE2Guarded(dst []float32, a []float32) {
+func AbsFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsFloat(dst, a)
@@ -74,7 +74,7 @@ func absFloat32SVE2Guarded(dst []float32, a []float32) {
 	absFloat32SVE2(dst[:n:n], a)
 }
 
-func negFloat32SVE2Guarded(dst []float32, a []float32) {
+func NegFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegFloat(dst, a)
@@ -83,7 +83,7 @@ func negFloat32SVE2Guarded(dst []float32, a []float32) {
 	negFloat32SVE2(dst[:n:n], a)
 }
 
-func scaleFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
+func ScaleFloat32SVE2(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -92,7 +92,7 @@ func scaleFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
 	scaleFloat32SVE2(dst[:n:n], a, s)
 }
 
-func addScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
+func AddScalarFloat32SVE2(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -101,7 +101,7 @@ func addScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
 	addScalarFloat32SVE2(dst[:n:n], a, s)
 }
 
-func subScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
+func SubScalarFloat32SVE2(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -110,7 +110,7 @@ func subScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
 	subScalarFloat32SVE2(dst[:n:n], a, s)
 }
 
-func clampFloat32SVE2Guarded(dst []float32, a []float32, lo float32, hi float32) {
+func ClampFloat32SVE2(dst []float32, a []float32, lo float32, hi float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
@@ -119,7 +119,7 @@ func clampFloat32SVE2Guarded(dst []float32, a []float32, lo float32, hi float32)
 	clampFloat32SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillFloat32SVE2Guarded(dst []float32, v float32) {
+func FillFloat32SVE2(dst []float32, v float32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -127,7 +127,7 @@ func fillFloat32SVE2Guarded(dst []float32, v float32) {
 	fillFloat32SVE2(dst, v)
 }
 
-func lerpFloat32SVE2Guarded(dst []float32, a []float32, b []float32, t float32) {
+func LerpFloat32SVE2(dst []float32, a []float32, b []float32, t float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -136,7 +136,7 @@ func lerpFloat32SVE2Guarded(dst []float32, a []float32, b []float32, t float32) 
 	lerpFloat32SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledFloat32SVE2Guarded(dst []float32, a []float32, b []float32, s float32) {
+func AddScaledFloat32SVE2(dst []float32, a []float32, b []float32, s float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -145,7 +145,7 @@ func addScaledFloat32SVE2Guarded(dst []float32, a []float32, b []float32, s floa
 	addScaledFloat32SVE2(dst[:n:n], a, b, s)
 }
 
-func rampFloat32SVE2Guarded(dst []float32, start float32, step float32) {
+func RampFloat32SVE2(dst []float32, start float32, step float32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -153,7 +153,7 @@ func rampFloat32SVE2Guarded(dst []float32, start float32, step float32) {
 	rampFloat32SVE2(dst, start, step)
 }
 
-func addFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func AddFloat64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -162,7 +162,7 @@ func addFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	addFloat64SVE2(dst[:n:n], a, b)
 }
 
-func subFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func SubFloat64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -171,7 +171,7 @@ func subFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	subFloat64SVE2(dst[:n:n], a, b)
 }
 
-func mulFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func MulFloat64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -180,7 +180,7 @@ func mulFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	mulFloat64SVE2(dst[:n:n], a, b)
 }
 
-func minimumFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func MinimumFloat64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
@@ -189,7 +189,7 @@ func minimumFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	minimumFloat64SVE2(dst[:n:n], a, b)
 }
 
-func maximumFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func MaximumFloat64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
@@ -198,7 +198,7 @@ func maximumFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	maximumFloat64SVE2(dst[:n:n], a, b)
 }
 
-func absFloat64SVE2Guarded(dst []float64, a []float64) {
+func AbsFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsFloat(dst, a)
@@ -207,7 +207,7 @@ func absFloat64SVE2Guarded(dst []float64, a []float64) {
 	absFloat64SVE2(dst[:n:n], a)
 }
 
-func negFloat64SVE2Guarded(dst []float64, a []float64) {
+func NegFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegFloat(dst, a)
@@ -216,7 +216,7 @@ func negFloat64SVE2Guarded(dst []float64, a []float64) {
 	negFloat64SVE2(dst[:n:n], a)
 }
 
-func scaleFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
+func ScaleFloat64SVE2(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -225,7 +225,7 @@ func scaleFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
 	scaleFloat64SVE2(dst[:n:n], a, s)
 }
 
-func addScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
+func AddScalarFloat64SVE2(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -234,7 +234,7 @@ func addScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
 	addScalarFloat64SVE2(dst[:n:n], a, s)
 }
 
-func subScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
+func SubScalarFloat64SVE2(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -243,7 +243,7 @@ func subScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
 	subScalarFloat64SVE2(dst[:n:n], a, s)
 }
 
-func clampFloat64SVE2Guarded(dst []float64, a []float64, lo float64, hi float64) {
+func ClampFloat64SVE2(dst []float64, a []float64, lo float64, hi float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
@@ -252,7 +252,7 @@ func clampFloat64SVE2Guarded(dst []float64, a []float64, lo float64, hi float64)
 	clampFloat64SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillFloat64SVE2Guarded(dst []float64, v float64) {
+func FillFloat64SVE2(dst []float64, v float64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -260,7 +260,7 @@ func fillFloat64SVE2Guarded(dst []float64, v float64) {
 	fillFloat64SVE2(dst, v)
 }
 
-func lerpFloat64SVE2Guarded(dst []float64, a []float64, b []float64, t float64) {
+func LerpFloat64SVE2(dst []float64, a []float64, b []float64, t float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -269,7 +269,7 @@ func lerpFloat64SVE2Guarded(dst []float64, a []float64, b []float64, t float64) 
 	lerpFloat64SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledFloat64SVE2Guarded(dst []float64, a []float64, b []float64, s float64) {
+func AddScaledFloat64SVE2(dst []float64, a []float64, b []float64, s float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -278,7 +278,7 @@ func addScaledFloat64SVE2Guarded(dst []float64, a []float64, b []float64, s floa
 	addScaledFloat64SVE2(dst[:n:n], a, b, s)
 }
 
-func rampFloat64SVE2Guarded(dst []float64, start float64, step float64) {
+func RampFloat64SVE2(dst []float64, start float64, step float64) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -286,7 +286,7 @@ func rampFloat64SVE2Guarded(dst []float64, start float64, step float64) {
 	rampFloat64SVE2(dst, start, step)
 }
 
-func addInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+func AddInt32SVE2(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -295,7 +295,7 @@ func addInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
 	addInt32SVE2(dst[:n:n], a, b)
 }
 
-func subInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+func SubInt32SVE2(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -304,7 +304,7 @@ func subInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
 	subInt32SVE2(dst[:n:n], a, b)
 }
 
-func mulInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+func MulInt32SVE2(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -313,7 +313,7 @@ func mulInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
 	mulInt32SVE2(dst[:n:n], a, b)
 }
 
-func minimumInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+func MinimumInt32SVE2(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -322,7 +322,7 @@ func minimumInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
 	minimumInt32SVE2(dst[:n:n], a, b)
 }
 
-func maximumInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+func MaximumInt32SVE2(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -331,7 +331,7 @@ func maximumInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
 	maximumInt32SVE2(dst[:n:n], a, b)
 }
 
-func absInt32SVE2Guarded(dst []int32, a []int32) {
+func AbsInt32SVE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -340,7 +340,7 @@ func absInt32SVE2Guarded(dst []int32, a []int32) {
 	absInt32SVE2(dst[:n:n], a)
 }
 
-func negInt32SVE2Guarded(dst []int32, a []int32) {
+func NegInt32SVE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -349,7 +349,7 @@ func negInt32SVE2Guarded(dst []int32, a []int32) {
 	negInt32SVE2(dst[:n:n], a)
 }
 
-func scaleInt32SVE2Guarded(dst []int32, a []int32, s int32) {
+func ScaleInt32SVE2(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -358,7 +358,7 @@ func scaleInt32SVE2Guarded(dst []int32, a []int32, s int32) {
 	scaleInt32SVE2(dst[:n:n], a, s)
 }
 
-func addScalarInt32SVE2Guarded(dst []int32, a []int32, s int32) {
+func AddScalarInt32SVE2(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -367,7 +367,7 @@ func addScalarInt32SVE2Guarded(dst []int32, a []int32, s int32) {
 	addScalarInt32SVE2(dst[:n:n], a, s)
 }
 
-func subScalarInt32SVE2Guarded(dst []int32, a []int32, s int32) {
+func SubScalarInt32SVE2(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -376,7 +376,7 @@ func subScalarInt32SVE2Guarded(dst []int32, a []int32, s int32) {
 	subScalarInt32SVE2(dst[:n:n], a, s)
 }
 
-func clampInt32SVE2Guarded(dst []int32, a []int32, lo int32, hi int32) {
+func ClampInt32SVE2(dst []int32, a []int32, lo int32, hi int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -385,7 +385,7 @@ func clampInt32SVE2Guarded(dst []int32, a []int32, lo int32, hi int32) {
 	clampInt32SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillInt32SVE2Guarded(dst []int32, v int32) {
+func FillInt32SVE2(dst []int32, v int32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -393,7 +393,7 @@ func fillInt32SVE2Guarded(dst []int32, v int32) {
 	fillInt32SVE2(dst, v)
 }
 
-func lerpInt32SVE2Guarded(dst []int32, a []int32, b []int32, t int32) {
+func LerpInt32SVE2(dst []int32, a []int32, b []int32, t int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -402,7 +402,7 @@ func lerpInt32SVE2Guarded(dst []int32, a []int32, b []int32, t int32) {
 	lerpInt32SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledInt32SVE2Guarded(dst []int32, a []int32, b []int32, s int32) {
+func AddScaledInt32SVE2(dst []int32, a []int32, b []int32, s int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -411,7 +411,7 @@ func addScaledInt32SVE2Guarded(dst []int32, a []int32, b []int32, s int32) {
 	addScaledInt32SVE2(dst[:n:n], a, b, s)
 }
 
-func rampInt32SVE2Guarded(dst []int32, start int32, step int32) {
+func RampInt32SVE2(dst []int32, start int32, step int32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -419,7 +419,7 @@ func rampInt32SVE2Guarded(dst []int32, start int32, step int32) {
 	rampInt32SVE2(dst, start, step)
 }
 
-func addInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
+func AddInt64SVE2(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -428,7 +428,7 @@ func addInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
 	addInt64SVE2(dst[:n:n], a, b)
 }
 
-func subInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
+func SubInt64SVE2(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -437,7 +437,7 @@ func subInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
 	subInt64SVE2(dst[:n:n], a, b)
 }
 
-func mulInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
+func MulInt64SVE2(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -446,7 +446,7 @@ func mulInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
 	mulInt64SVE2(dst[:n:n], a, b)
 }
 
-func minimumInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
+func MinimumInt64SVE2(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -455,7 +455,7 @@ func minimumInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
 	minimumInt64SVE2(dst[:n:n], a, b)
 }
 
-func maximumInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
+func MaximumInt64SVE2(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -464,7 +464,7 @@ func maximumInt64SVE2Guarded(dst []int64, a []int64, b []int64) {
 	maximumInt64SVE2(dst[:n:n], a, b)
 }
 
-func absInt64SVE2Guarded(dst []int64, a []int64) {
+func AbsInt64SVE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -473,7 +473,7 @@ func absInt64SVE2Guarded(dst []int64, a []int64) {
 	absInt64SVE2(dst[:n:n], a)
 }
 
-func negInt64SVE2Guarded(dst []int64, a []int64) {
+func NegInt64SVE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -482,7 +482,7 @@ func negInt64SVE2Guarded(dst []int64, a []int64) {
 	negInt64SVE2(dst[:n:n], a)
 }
 
-func scaleInt64SVE2Guarded(dst []int64, a []int64, s int64) {
+func ScaleInt64SVE2(dst []int64, a []int64, s int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -491,7 +491,7 @@ func scaleInt64SVE2Guarded(dst []int64, a []int64, s int64) {
 	scaleInt64SVE2(dst[:n:n], a, s)
 }
 
-func addScalarInt64SVE2Guarded(dst []int64, a []int64, s int64) {
+func AddScalarInt64SVE2(dst []int64, a []int64, s int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -500,7 +500,7 @@ func addScalarInt64SVE2Guarded(dst []int64, a []int64, s int64) {
 	addScalarInt64SVE2(dst[:n:n], a, s)
 }
 
-func subScalarInt64SVE2Guarded(dst []int64, a []int64, s int64) {
+func SubScalarInt64SVE2(dst []int64, a []int64, s int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -509,7 +509,7 @@ func subScalarInt64SVE2Guarded(dst []int64, a []int64, s int64) {
 	subScalarInt64SVE2(dst[:n:n], a, s)
 }
 
-func clampInt64SVE2Guarded(dst []int64, a []int64, lo int64, hi int64) {
+func ClampInt64SVE2(dst []int64, a []int64, lo int64, hi int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -518,7 +518,7 @@ func clampInt64SVE2Guarded(dst []int64, a []int64, lo int64, hi int64) {
 	clampInt64SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillInt64SVE2Guarded(dst []int64, v int64) {
+func FillInt64SVE2(dst []int64, v int64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -526,7 +526,7 @@ func fillInt64SVE2Guarded(dst []int64, v int64) {
 	fillInt64SVE2(dst, v)
 }
 
-func lerpInt64SVE2Guarded(dst []int64, a []int64, b []int64, t int64) {
+func LerpInt64SVE2(dst []int64, a []int64, b []int64, t int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -535,7 +535,7 @@ func lerpInt64SVE2Guarded(dst []int64, a []int64, b []int64, t int64) {
 	lerpInt64SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledInt64SVE2Guarded(dst []int64, a []int64, b []int64, s int64) {
+func AddScaledInt64SVE2(dst []int64, a []int64, b []int64, s int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -544,7 +544,7 @@ func addScaledInt64SVE2Guarded(dst []int64, a []int64, b []int64, s int64) {
 	addScaledInt64SVE2(dst[:n:n], a, b, s)
 }
 
-func rampInt64SVE2Guarded(dst []int64, start int64, step int64) {
+func RampInt64SVE2(dst []int64, start int64, step int64) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -552,7 +552,7 @@ func rampInt64SVE2Guarded(dst []int64, start int64, step int64) {
 	rampInt64SVE2(dst, start, step)
 }
 
-func addInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+func AddInt8SVE2(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -561,7 +561,7 @@ func addInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
 	addInt8SVE2(dst[:n:n], a, b)
 }
 
-func subInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+func SubInt8SVE2(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -570,7 +570,7 @@ func subInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
 	subInt8SVE2(dst[:n:n], a, b)
 }
 
-func mulInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+func MulInt8SVE2(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -579,7 +579,7 @@ func mulInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
 	mulInt8SVE2(dst[:n:n], a, b)
 }
 
-func minimumInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+func MinimumInt8SVE2(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -588,7 +588,7 @@ func minimumInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
 	minimumInt8SVE2(dst[:n:n], a, b)
 }
 
-func maximumInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+func MaximumInt8SVE2(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -597,7 +597,7 @@ func maximumInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
 	maximumInt8SVE2(dst[:n:n], a, b)
 }
 
-func absInt8SVE2Guarded(dst []int8, a []int8) {
+func AbsInt8SVE2(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -606,7 +606,7 @@ func absInt8SVE2Guarded(dst []int8, a []int8) {
 	absInt8SVE2(dst[:n:n], a)
 }
 
-func negInt8SVE2Guarded(dst []int8, a []int8) {
+func NegInt8SVE2(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -615,7 +615,7 @@ func negInt8SVE2Guarded(dst []int8, a []int8) {
 	negInt8SVE2(dst[:n:n], a)
 }
 
-func scaleInt8SVE2Guarded(dst []int8, a []int8, s int8) {
+func ScaleInt8SVE2(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -624,7 +624,7 @@ func scaleInt8SVE2Guarded(dst []int8, a []int8, s int8) {
 	scaleInt8SVE2(dst[:n:n], a, s)
 }
 
-func addScalarInt8SVE2Guarded(dst []int8, a []int8, s int8) {
+func AddScalarInt8SVE2(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -633,7 +633,7 @@ func addScalarInt8SVE2Guarded(dst []int8, a []int8, s int8) {
 	addScalarInt8SVE2(dst[:n:n], a, s)
 }
 
-func subScalarInt8SVE2Guarded(dst []int8, a []int8, s int8) {
+func SubScalarInt8SVE2(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -642,7 +642,7 @@ func subScalarInt8SVE2Guarded(dst []int8, a []int8, s int8) {
 	subScalarInt8SVE2(dst[:n:n], a, s)
 }
 
-func clampInt8SVE2Guarded(dst []int8, a []int8, lo int8, hi int8) {
+func ClampInt8SVE2(dst []int8, a []int8, lo int8, hi int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -651,7 +651,7 @@ func clampInt8SVE2Guarded(dst []int8, a []int8, lo int8, hi int8) {
 	clampInt8SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillInt8SVE2Guarded(dst []int8, v int8) {
+func FillInt8SVE2(dst []int8, v int8) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -659,7 +659,7 @@ func fillInt8SVE2Guarded(dst []int8, v int8) {
 	fillInt8SVE2(dst, v)
 }
 
-func lerpInt8SVE2Guarded(dst []int8, a []int8, b []int8, t int8) {
+func LerpInt8SVE2(dst []int8, a []int8, b []int8, t int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -668,7 +668,7 @@ func lerpInt8SVE2Guarded(dst []int8, a []int8, b []int8, t int8) {
 	lerpInt8SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledInt8SVE2Guarded(dst []int8, a []int8, b []int8, s int8) {
+func AddScaledInt8SVE2(dst []int8, a []int8, b []int8, s int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -677,7 +677,7 @@ func addScaledInt8SVE2Guarded(dst []int8, a []int8, b []int8, s int8) {
 	addScaledInt8SVE2(dst[:n:n], a, b, s)
 }
 
-func rampInt8SVE2Guarded(dst []int8, start int8, step int8) {
+func RampInt8SVE2(dst []int8, start int8, step int8) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -685,7 +685,7 @@ func rampInt8SVE2Guarded(dst []int8, start int8, step int8) {
 	rampInt8SVE2(dst, start, step)
 }
 
-func addInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+func AddInt16SVE2(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -694,7 +694,7 @@ func addInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
 	addInt16SVE2(dst[:n:n], a, b)
 }
 
-func subInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+func SubInt16SVE2(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -703,7 +703,7 @@ func subInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
 	subInt16SVE2(dst[:n:n], a, b)
 }
 
-func mulInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+func MulInt16SVE2(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -712,7 +712,7 @@ func mulInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
 	mulInt16SVE2(dst[:n:n], a, b)
 }
 
-func minimumInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+func MinimumInt16SVE2(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -721,7 +721,7 @@ func minimumInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
 	minimumInt16SVE2(dst[:n:n], a, b)
 }
 
-func maximumInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+func MaximumInt16SVE2(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -730,7 +730,7 @@ func maximumInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
 	maximumInt16SVE2(dst[:n:n], a, b)
 }
 
-func absInt16SVE2Guarded(dst []int16, a []int16) {
+func AbsInt16SVE2(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -739,7 +739,7 @@ func absInt16SVE2Guarded(dst []int16, a []int16) {
 	absInt16SVE2(dst[:n:n], a)
 }
 
-func negInt16SVE2Guarded(dst []int16, a []int16) {
+func NegInt16SVE2(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -748,7 +748,7 @@ func negInt16SVE2Guarded(dst []int16, a []int16) {
 	negInt16SVE2(dst[:n:n], a)
 }
 
-func scaleInt16SVE2Guarded(dst []int16, a []int16, s int16) {
+func ScaleInt16SVE2(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -757,7 +757,7 @@ func scaleInt16SVE2Guarded(dst []int16, a []int16, s int16) {
 	scaleInt16SVE2(dst[:n:n], a, s)
 }
 
-func addScalarInt16SVE2Guarded(dst []int16, a []int16, s int16) {
+func AddScalarInt16SVE2(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -766,7 +766,7 @@ func addScalarInt16SVE2Guarded(dst []int16, a []int16, s int16) {
 	addScalarInt16SVE2(dst[:n:n], a, s)
 }
 
-func subScalarInt16SVE2Guarded(dst []int16, a []int16, s int16) {
+func SubScalarInt16SVE2(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -775,7 +775,7 @@ func subScalarInt16SVE2Guarded(dst []int16, a []int16, s int16) {
 	subScalarInt16SVE2(dst[:n:n], a, s)
 }
 
-func clampInt16SVE2Guarded(dst []int16, a []int16, lo int16, hi int16) {
+func ClampInt16SVE2(dst []int16, a []int16, lo int16, hi int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -784,7 +784,7 @@ func clampInt16SVE2Guarded(dst []int16, a []int16, lo int16, hi int16) {
 	clampInt16SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillInt16SVE2Guarded(dst []int16, v int16) {
+func FillInt16SVE2(dst []int16, v int16) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -792,7 +792,7 @@ func fillInt16SVE2Guarded(dst []int16, v int16) {
 	fillInt16SVE2(dst, v)
 }
 
-func lerpInt16SVE2Guarded(dst []int16, a []int16, b []int16, t int16) {
+func LerpInt16SVE2(dst []int16, a []int16, b []int16, t int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -801,7 +801,7 @@ func lerpInt16SVE2Guarded(dst []int16, a []int16, b []int16, t int16) {
 	lerpInt16SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledInt16SVE2Guarded(dst []int16, a []int16, b []int16, s int16) {
+func AddScaledInt16SVE2(dst []int16, a []int16, b []int16, s int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -810,7 +810,7 @@ func addScaledInt16SVE2Guarded(dst []int16, a []int16, b []int16, s int16) {
 	addScaledInt16SVE2(dst[:n:n], a, b, s)
 }
 
-func rampInt16SVE2Guarded(dst []int16, start int16, step int16) {
+func RampInt16SVE2(dst []int16, start int16, step int16) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -818,7 +818,7 @@ func rampInt16SVE2Guarded(dst []int16, start int16, step int16) {
 	rampInt16SVE2(dst, start, step)
 }
 
-func addUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+func AddUint8SVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -827,7 +827,7 @@ func addUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
 	addUint8SVE2(dst[:n:n], a, b)
 }
 
-func subUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+func SubUint8SVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -836,7 +836,7 @@ func subUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
 	subUint8SVE2(dst[:n:n], a, b)
 }
 
-func mulUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+func MulUint8SVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -845,7 +845,7 @@ func mulUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
 	mulUint8SVE2(dst[:n:n], a, b)
 }
 
-func minimumUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+func MinimumUint8SVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -854,7 +854,7 @@ func minimumUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
 	minimumUint8SVE2(dst[:n:n], a, b)
 }
 
-func maximumUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+func MaximumUint8SVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -863,7 +863,7 @@ func maximumUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
 	maximumUint8SVE2(dst[:n:n], a, b)
 }
 
-func absUint8SVE2Guarded(dst []byte, a []byte) {
+func AbsUint8SVE2(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -872,7 +872,7 @@ func absUint8SVE2Guarded(dst []byte, a []byte) {
 	absUint8SVE2(dst[:n:n], a)
 }
 
-func negUint8SVE2Guarded(dst []byte, a []byte) {
+func NegUint8SVE2(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -881,7 +881,7 @@ func negUint8SVE2Guarded(dst []byte, a []byte) {
 	negUint8SVE2(dst[:n:n], a)
 }
 
-func scaleUint8SVE2Guarded(dst []byte, a []byte, s byte) {
+func ScaleUint8SVE2(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -890,7 +890,7 @@ func scaleUint8SVE2Guarded(dst []byte, a []byte, s byte) {
 	scaleUint8SVE2(dst[:n:n], a, s)
 }
 
-func addScalarUint8SVE2Guarded(dst []byte, a []byte, s byte) {
+func AddScalarUint8SVE2(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -899,7 +899,7 @@ func addScalarUint8SVE2Guarded(dst []byte, a []byte, s byte) {
 	addScalarUint8SVE2(dst[:n:n], a, s)
 }
 
-func subScalarUint8SVE2Guarded(dst []byte, a []byte, s byte) {
+func SubScalarUint8SVE2(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -908,7 +908,7 @@ func subScalarUint8SVE2Guarded(dst []byte, a []byte, s byte) {
 	subScalarUint8SVE2(dst[:n:n], a, s)
 }
 
-func clampUint8SVE2Guarded(dst []byte, a []byte, lo byte, hi byte) {
+func ClampUint8SVE2(dst []byte, a []byte, lo byte, hi byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -917,7 +917,7 @@ func clampUint8SVE2Guarded(dst []byte, a []byte, lo byte, hi byte) {
 	clampUint8SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillUint8SVE2Guarded(dst []byte, v byte) {
+func FillUint8SVE2(dst []byte, v byte) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -925,7 +925,7 @@ func fillUint8SVE2Guarded(dst []byte, v byte) {
 	fillUint8SVE2(dst, v)
 }
 
-func lerpUint8SVE2Guarded(dst []byte, a []byte, b []byte, t byte) {
+func LerpUint8SVE2(dst []byte, a []byte, b []byte, t byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -934,7 +934,7 @@ func lerpUint8SVE2Guarded(dst []byte, a []byte, b []byte, t byte) {
 	lerpUint8SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledUint8SVE2Guarded(dst []byte, a []byte, b []byte, s byte) {
+func AddScaledUint8SVE2(dst []byte, a []byte, b []byte, s byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -943,7 +943,7 @@ func addScaledUint8SVE2Guarded(dst []byte, a []byte, b []byte, s byte) {
 	addScaledUint8SVE2(dst[:n:n], a, b, s)
 }
 
-func rampUint8SVE2Guarded(dst []byte, start byte, step byte) {
+func RampUint8SVE2(dst []byte, start byte, step byte) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -951,7 +951,7 @@ func rampUint8SVE2Guarded(dst []byte, start byte, step byte) {
 	rampUint8SVE2(dst, start, step)
 }
 
-func addUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+func AddUint16SVE2(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -960,7 +960,7 @@ func addUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
 	addUint16SVE2(dst[:n:n], a, b)
 }
 
-func subUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+func SubUint16SVE2(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -969,7 +969,7 @@ func subUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
 	subUint16SVE2(dst[:n:n], a, b)
 }
 
-func mulUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+func MulUint16SVE2(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -978,7 +978,7 @@ func mulUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
 	mulUint16SVE2(dst[:n:n], a, b)
 }
 
-func minimumUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+func MinimumUint16SVE2(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -987,7 +987,7 @@ func minimumUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
 	minimumUint16SVE2(dst[:n:n], a, b)
 }
 
-func maximumUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+func MaximumUint16SVE2(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -996,7 +996,7 @@ func maximumUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
 	maximumUint16SVE2(dst[:n:n], a, b)
 }
 
-func negUint16SVE2Guarded(dst []uint16, a []uint16) {
+func NegUint16SVE2(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -1005,7 +1005,7 @@ func negUint16SVE2Guarded(dst []uint16, a []uint16) {
 	negUint16SVE2(dst[:n:n], a)
 }
 
-func scaleUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
+func ScaleUint16SVE2(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -1014,7 +1014,7 @@ func scaleUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
 	scaleUint16SVE2(dst[:n:n], a, s)
 }
 
-func addScalarUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
+func AddScalarUint16SVE2(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -1023,7 +1023,7 @@ func addScalarUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
 	addScalarUint16SVE2(dst[:n:n], a, s)
 }
 
-func subScalarUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
+func SubScalarUint16SVE2(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -1032,7 +1032,7 @@ func subScalarUint16SVE2Guarded(dst []uint16, a []uint16, s uint16) {
 	subScalarUint16SVE2(dst[:n:n], a, s)
 }
 
-func clampUint16SVE2Guarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
+func ClampUint16SVE2(dst []uint16, a []uint16, lo uint16, hi uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -1041,7 +1041,7 @@ func clampUint16SVE2Guarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
 	clampUint16SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillUint16SVE2Guarded(dst []uint16, v uint16) {
+func FillUint16SVE2(dst []uint16, v uint16) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1049,7 +1049,7 @@ func fillUint16SVE2Guarded(dst []uint16, v uint16) {
 	fillUint16SVE2(dst, v)
 }
 
-func lerpUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16, t uint16) {
+func LerpUint16SVE2(dst []uint16, a []uint16, b []uint16, t uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1058,7 +1058,7 @@ func lerpUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16, t uint16) {
 	lerpUint16SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16, s uint16) {
+func AddScaledUint16SVE2(dst []uint16, a []uint16, b []uint16, s uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -1067,7 +1067,7 @@ func addScaledUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16, s uint16) 
 	addScaledUint16SVE2(dst[:n:n], a, b, s)
 }
 
-func rampUint16SVE2Guarded(dst []uint16, start uint16, step uint16) {
+func RampUint16SVE2(dst []uint16, start uint16, step uint16) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -1075,7 +1075,7 @@ func rampUint16SVE2Guarded(dst []uint16, start uint16, step uint16) {
 	rampUint16SVE2(dst, start, step)
 }
 
-func addUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+func AddUint32SVE2(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -1084,7 +1084,7 @@ func addUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
 	addUint32SVE2(dst[:n:n], a, b)
 }
 
-func subUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+func SubUint32SVE2(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -1093,7 +1093,7 @@ func subUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
 	subUint32SVE2(dst[:n:n], a, b)
 }
 
-func mulUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+func MulUint32SVE2(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -1102,7 +1102,7 @@ func mulUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
 	mulUint32SVE2(dst[:n:n], a, b)
 }
 
-func minimumUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+func MinimumUint32SVE2(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -1111,7 +1111,7 @@ func minimumUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
 	minimumUint32SVE2(dst[:n:n], a, b)
 }
 
-func maximumUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+func MaximumUint32SVE2(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -1120,7 +1120,7 @@ func maximumUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
 	maximumUint32SVE2(dst[:n:n], a, b)
 }
 
-func negUint32SVE2Guarded(dst []uint32, a []uint32) {
+func NegUint32SVE2(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -1129,7 +1129,7 @@ func negUint32SVE2Guarded(dst []uint32, a []uint32) {
 	negUint32SVE2(dst[:n:n], a)
 }
 
-func scaleUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
+func ScaleUint32SVE2(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -1138,7 +1138,7 @@ func scaleUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
 	scaleUint32SVE2(dst[:n:n], a, s)
 }
 
-func addScalarUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
+func AddScalarUint32SVE2(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -1147,7 +1147,7 @@ func addScalarUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
 	addScalarUint32SVE2(dst[:n:n], a, s)
 }
 
-func subScalarUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
+func SubScalarUint32SVE2(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -1156,7 +1156,7 @@ func subScalarUint32SVE2Guarded(dst []uint32, a []uint32, s uint32) {
 	subScalarUint32SVE2(dst[:n:n], a, s)
 }
 
-func clampUint32SVE2Guarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
+func ClampUint32SVE2(dst []uint32, a []uint32, lo uint32, hi uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -1165,7 +1165,7 @@ func clampUint32SVE2Guarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
 	clampUint32SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillUint32SVE2Guarded(dst []uint32, v uint32) {
+func FillUint32SVE2(dst []uint32, v uint32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1173,7 +1173,7 @@ func fillUint32SVE2Guarded(dst []uint32, v uint32) {
 	fillUint32SVE2(dst, v)
 }
 
-func lerpUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32, t uint32) {
+func LerpUint32SVE2(dst []uint32, a []uint32, b []uint32, t uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1182,7 +1182,7 @@ func lerpUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32, t uint32) {
 	lerpUint32SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32, s uint32) {
+func AddScaledUint32SVE2(dst []uint32, a []uint32, b []uint32, s uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -1191,7 +1191,7 @@ func addScaledUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32, s uint32) 
 	addScaledUint32SVE2(dst[:n:n], a, b, s)
 }
 
-func rampUint32SVE2Guarded(dst []uint32, start uint32, step uint32) {
+func RampUint32SVE2(dst []uint32, start uint32, step uint32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -1199,7 +1199,7 @@ func rampUint32SVE2Guarded(dst []uint32, start uint32, step uint32) {
 	rampUint32SVE2(dst, start, step)
 }
 
-func addUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+func AddUint64SVE2(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -1208,7 +1208,7 @@ func addUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
 	addUint64SVE2(dst[:n:n], a, b)
 }
 
-func subUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+func SubUint64SVE2(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -1217,7 +1217,7 @@ func subUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
 	subUint64SVE2(dst[:n:n], a, b)
 }
 
-func mulUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+func MulUint64SVE2(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -1226,7 +1226,7 @@ func mulUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
 	mulUint64SVE2(dst[:n:n], a, b)
 }
 
-func minimumUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+func MinimumUint64SVE2(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -1235,7 +1235,7 @@ func minimumUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
 	minimumUint64SVE2(dst[:n:n], a, b)
 }
 
-func maximumUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
+func MaximumUint64SVE2(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -1244,7 +1244,7 @@ func maximumUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) {
 	maximumUint64SVE2(dst[:n:n], a, b)
 }
 
-func negUint64SVE2Guarded(dst []uint64, a []uint64) {
+func NegUint64SVE2(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -1253,7 +1253,7 @@ func negUint64SVE2Guarded(dst []uint64, a []uint64) {
 	negUint64SVE2(dst[:n:n], a)
 }
 
-func scaleUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+func ScaleUint64SVE2(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -1262,7 +1262,7 @@ func scaleUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
 	scaleUint64SVE2(dst[:n:n], a, s)
 }
 
-func addScalarUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+func AddScalarUint64SVE2(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -1271,7 +1271,7 @@ func addScalarUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
 	addScalarUint64SVE2(dst[:n:n], a, s)
 }
 
-func subScalarUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+func SubScalarUint64SVE2(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -1280,7 +1280,7 @@ func subScalarUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
 	subScalarUint64SVE2(dst[:n:n], a, s)
 }
 
-func clampUint64SVE2Guarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
+func ClampUint64SVE2(dst []uint64, a []uint64, lo uint64, hi uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -1289,7 +1289,7 @@ func clampUint64SVE2Guarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
 	clampUint64SVE2(dst[:n:n], a, lo, hi)
 }
 
-func fillUint64SVE2Guarded(dst []uint64, v uint64) {
+func FillUint64SVE2(dst []uint64, v uint64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1297,7 +1297,7 @@ func fillUint64SVE2Guarded(dst []uint64, v uint64) {
 	fillUint64SVE2(dst, v)
 }
 
-func lerpUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64, t uint64) {
+func LerpUint64SVE2(dst []uint64, a []uint64, b []uint64, t uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1306,7 +1306,7 @@ func lerpUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64, t uint64) {
 	lerpUint64SVE2(dst[:n:n], a, b, t)
 }
 
-func addScaledUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64, s uint64) {
+func AddScaledUint64SVE2(dst []uint64, a []uint64, b []uint64, s uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -1315,7 +1315,7 @@ func addScaledUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64, s uint64) 
 	addScaledUint64SVE2(dst[:n:n], a, b, s)
 }
 
-func rampUint64SVE2Guarded(dst []uint64, start uint64, step uint64) {
+func RampUint64SVE2(dst []uint64, start uint64, step uint64) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -1323,7 +1323,7 @@ func rampUint64SVE2Guarded(dst []uint64, start uint64, step uint64) {
 	rampUint64SVE2(dst, start, step)
 }
 
-func shlInt32SVE2Guarded(dst []int32, a []int32, s uint64) {
+func ShlInt32SVE2(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1332,7 +1332,7 @@ func shlInt32SVE2Guarded(dst []int32, a []int32, s uint64) {
 	shlInt32SVE2(dst[:n:n], a, s)
 }
 
-func shrInt32SVE2Guarded(dst []int32, a []int32, s uint64) {
+func ShrInt32SVE2(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1341,7 +1341,7 @@ func shrInt32SVE2Guarded(dst []int32, a []int32, s uint64) {
 	shrInt32SVE2(dst[:n:n], a, s)
 }
 
-func rotlInt32SVE2Guarded(dst []int32, a []int32, s uint64) {
+func RotlInt32SVE2(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1350,7 +1350,7 @@ func rotlInt32SVE2Guarded(dst []int32, a []int32, s uint64) {
 	rotlInt32SVE2(dst[:n:n], a, s)
 }
 
-func rotrInt32SVE2Guarded(dst []int32, a []int32, s uint64) {
+func RotrInt32SVE2(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1359,7 +1359,7 @@ func rotrInt32SVE2Guarded(dst []int32, a []int32, s uint64) {
 	rotrInt32SVE2(dst[:n:n], a, s)
 }
 
-func onesCountInt32SVE2Guarded(dst []int32, a []int32) {
+func OnesCountInt32SVE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1368,7 +1368,7 @@ func onesCountInt32SVE2Guarded(dst []int32, a []int32) {
 	onesCountInt32SVE2(dst[:n:n], a)
 }
 
-func leadingZerosInt32SVE2Guarded(dst []int32, a []int32) {
+func LeadingZerosInt32SVE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1377,7 +1377,7 @@ func leadingZerosInt32SVE2Guarded(dst []int32, a []int32) {
 	leadingZerosInt32SVE2(dst[:n:n], a)
 }
 
-func trailingZerosInt32SVE2Guarded(dst []int32, a []int32) {
+func TrailingZerosInt32SVE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1386,7 +1386,7 @@ func trailingZerosInt32SVE2Guarded(dst []int32, a []int32) {
 	trailingZerosInt32SVE2(dst[:n:n], a)
 }
 
-func reverseBitsInt32SVE2Guarded(dst []int32, a []int32) {
+func ReverseBitsInt32SVE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1395,7 +1395,7 @@ func reverseBitsInt32SVE2Guarded(dst []int32, a []int32) {
 	reverseBitsInt32SVE2(dst[:n:n], a)
 }
 
-func byteSwapInt32SVE2Guarded(dst []int32, a []int32) {
+func ByteSwapInt32SVE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1404,7 +1404,7 @@ func byteSwapInt32SVE2Guarded(dst []int32, a []int32) {
 	byteSwapInt32SVE2(dst[:n:n], a)
 }
 
-func shlInt64SVE2Guarded(dst []int64, a []int64, s uint64) {
+func ShlInt64SVE2(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1413,7 +1413,7 @@ func shlInt64SVE2Guarded(dst []int64, a []int64, s uint64) {
 	shlInt64SVE2(dst[:n:n], a, s)
 }
 
-func shrInt64SVE2Guarded(dst []int64, a []int64, s uint64) {
+func ShrInt64SVE2(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1422,7 +1422,7 @@ func shrInt64SVE2Guarded(dst []int64, a []int64, s uint64) {
 	shrInt64SVE2(dst[:n:n], a, s)
 }
 
-func rotlInt64SVE2Guarded(dst []int64, a []int64, s uint64) {
+func RotlInt64SVE2(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1431,7 +1431,7 @@ func rotlInt64SVE2Guarded(dst []int64, a []int64, s uint64) {
 	rotlInt64SVE2(dst[:n:n], a, s)
 }
 
-func rotrInt64SVE2Guarded(dst []int64, a []int64, s uint64) {
+func RotrInt64SVE2(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1440,7 +1440,7 @@ func rotrInt64SVE2Guarded(dst []int64, a []int64, s uint64) {
 	rotrInt64SVE2(dst[:n:n], a, s)
 }
 
-func onesCountInt64SVE2Guarded(dst []int64, a []int64) {
+func OnesCountInt64SVE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1449,7 +1449,7 @@ func onesCountInt64SVE2Guarded(dst []int64, a []int64) {
 	onesCountInt64SVE2(dst[:n:n], a)
 }
 
-func leadingZerosInt64SVE2Guarded(dst []int64, a []int64) {
+func LeadingZerosInt64SVE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1458,7 +1458,7 @@ func leadingZerosInt64SVE2Guarded(dst []int64, a []int64) {
 	leadingZerosInt64SVE2(dst[:n:n], a)
 }
 
-func trailingZerosInt64SVE2Guarded(dst []int64, a []int64) {
+func TrailingZerosInt64SVE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1467,7 +1467,7 @@ func trailingZerosInt64SVE2Guarded(dst []int64, a []int64) {
 	trailingZerosInt64SVE2(dst[:n:n], a)
 }
 
-func reverseBitsInt64SVE2Guarded(dst []int64, a []int64) {
+func ReverseBitsInt64SVE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1476,7 +1476,7 @@ func reverseBitsInt64SVE2Guarded(dst []int64, a []int64) {
 	reverseBitsInt64SVE2(dst[:n:n], a)
 }
 
-func byteSwapInt64SVE2Guarded(dst []int64, a []int64) {
+func ByteSwapInt64SVE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1485,7 +1485,7 @@ func byteSwapInt64SVE2Guarded(dst []int64, a []int64) {
 	byteSwapInt64SVE2(dst[:n:n], a)
 }
 
-func shlInt8SVE2Guarded(dst []int8, a []int8, s uint64) {
+func ShlInt8SVE2(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1494,7 +1494,7 @@ func shlInt8SVE2Guarded(dst []int8, a []int8, s uint64) {
 	shlInt8SVE2(dst[:n:n], a, s)
 }
 
-func shrInt8SVE2Guarded(dst []int8, a []int8, s uint64) {
+func ShrInt8SVE2(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1503,7 +1503,7 @@ func shrInt8SVE2Guarded(dst []int8, a []int8, s uint64) {
 	shrInt8SVE2(dst[:n:n], a, s)
 }
 
-func rotlInt8SVE2Guarded(dst []int8, a []int8, s uint64) {
+func RotlInt8SVE2(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1512,7 +1512,7 @@ func rotlInt8SVE2Guarded(dst []int8, a []int8, s uint64) {
 	rotlInt8SVE2(dst[:n:n], a, s)
 }
 
-func rotrInt8SVE2Guarded(dst []int8, a []int8, s uint64) {
+func RotrInt8SVE2(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1521,7 +1521,7 @@ func rotrInt8SVE2Guarded(dst []int8, a []int8, s uint64) {
 	rotrInt8SVE2(dst[:n:n], a, s)
 }
 
-func onesCountInt8SVE2Guarded(dst []int8, a []int8) {
+func OnesCountInt8SVE2(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1530,7 +1530,7 @@ func onesCountInt8SVE2Guarded(dst []int8, a []int8) {
 	onesCountInt8SVE2(dst[:n:n], a)
 }
 
-func leadingZerosInt8SVE2Guarded(dst []int8, a []int8) {
+func LeadingZerosInt8SVE2(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1539,7 +1539,7 @@ func leadingZerosInt8SVE2Guarded(dst []int8, a []int8) {
 	leadingZerosInt8SVE2(dst[:n:n], a)
 }
 
-func trailingZerosInt8SVE2Guarded(dst []int8, a []int8) {
+func TrailingZerosInt8SVE2(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1548,7 +1548,7 @@ func trailingZerosInt8SVE2Guarded(dst []int8, a []int8) {
 	trailingZerosInt8SVE2(dst[:n:n], a)
 }
 
-func reverseBitsInt8SVE2Guarded(dst []int8, a []int8) {
+func ReverseBitsInt8SVE2(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1557,7 +1557,7 @@ func reverseBitsInt8SVE2Guarded(dst []int8, a []int8) {
 	reverseBitsInt8SVE2(dst[:n:n], a)
 }
 
-func shlInt16SVE2Guarded(dst []int16, a []int16, s uint64) {
+func ShlInt16SVE2(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1566,7 +1566,7 @@ func shlInt16SVE2Guarded(dst []int16, a []int16, s uint64) {
 	shlInt16SVE2(dst[:n:n], a, s)
 }
 
-func shrInt16SVE2Guarded(dst []int16, a []int16, s uint64) {
+func ShrInt16SVE2(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1575,7 +1575,7 @@ func shrInt16SVE2Guarded(dst []int16, a []int16, s uint64) {
 	shrInt16SVE2(dst[:n:n], a, s)
 }
 
-func rotlInt16SVE2Guarded(dst []int16, a []int16, s uint64) {
+func RotlInt16SVE2(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1584,7 +1584,7 @@ func rotlInt16SVE2Guarded(dst []int16, a []int16, s uint64) {
 	rotlInt16SVE2(dst[:n:n], a, s)
 }
 
-func rotrInt16SVE2Guarded(dst []int16, a []int16, s uint64) {
+func RotrInt16SVE2(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1593,7 +1593,7 @@ func rotrInt16SVE2Guarded(dst []int16, a []int16, s uint64) {
 	rotrInt16SVE2(dst[:n:n], a, s)
 }
 
-func onesCountInt16SVE2Guarded(dst []int16, a []int16) {
+func OnesCountInt16SVE2(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1602,7 +1602,7 @@ func onesCountInt16SVE2Guarded(dst []int16, a []int16) {
 	onesCountInt16SVE2(dst[:n:n], a)
 }
 
-func leadingZerosInt16SVE2Guarded(dst []int16, a []int16) {
+func LeadingZerosInt16SVE2(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1611,7 +1611,7 @@ func leadingZerosInt16SVE2Guarded(dst []int16, a []int16) {
 	leadingZerosInt16SVE2(dst[:n:n], a)
 }
 
-func trailingZerosInt16SVE2Guarded(dst []int16, a []int16) {
+func TrailingZerosInt16SVE2(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1620,7 +1620,7 @@ func trailingZerosInt16SVE2Guarded(dst []int16, a []int16) {
 	trailingZerosInt16SVE2(dst[:n:n], a)
 }
 
-func reverseBitsInt16SVE2Guarded(dst []int16, a []int16) {
+func ReverseBitsInt16SVE2(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1629,7 +1629,7 @@ func reverseBitsInt16SVE2Guarded(dst []int16, a []int16) {
 	reverseBitsInt16SVE2(dst[:n:n], a)
 }
 
-func byteSwapInt16SVE2Guarded(dst []int16, a []int16) {
+func ByteSwapInt16SVE2(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1638,7 +1638,7 @@ func byteSwapInt16SVE2Guarded(dst []int16, a []int16) {
 	byteSwapInt16SVE2(dst[:n:n], a)
 }
 
-func shlUint8SVE2Guarded(dst []byte, a []byte, s uint64) {
+func ShlUint8SVE2(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1647,7 +1647,7 @@ func shlUint8SVE2Guarded(dst []byte, a []byte, s uint64) {
 	shlUint8SVE2(dst[:n:n], a, s)
 }
 
-func shrUint8SVE2Guarded(dst []byte, a []byte, s uint64) {
+func ShrUint8SVE2(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1656,7 +1656,7 @@ func shrUint8SVE2Guarded(dst []byte, a []byte, s uint64) {
 	shrUint8SVE2(dst[:n:n], a, s)
 }
 
-func rotlUint8SVE2Guarded(dst []byte, a []byte, s uint64) {
+func RotlUint8SVE2(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1665,7 +1665,7 @@ func rotlUint8SVE2Guarded(dst []byte, a []byte, s uint64) {
 	rotlUint8SVE2(dst[:n:n], a, s)
 }
 
-func rotrUint8SVE2Guarded(dst []byte, a []byte, s uint64) {
+func RotrUint8SVE2(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1674,7 +1674,7 @@ func rotrUint8SVE2Guarded(dst []byte, a []byte, s uint64) {
 	rotrUint8SVE2(dst[:n:n], a, s)
 }
 
-func onesCountUint8SVE2Guarded(dst []byte, a []byte) {
+func OnesCountUint8SVE2(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1683,7 +1683,7 @@ func onesCountUint8SVE2Guarded(dst []byte, a []byte) {
 	onesCountUint8SVE2(dst[:n:n], a)
 }
 
-func leadingZerosUint8SVE2Guarded(dst []byte, a []byte) {
+func LeadingZerosUint8SVE2(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1692,7 +1692,7 @@ func leadingZerosUint8SVE2Guarded(dst []byte, a []byte) {
 	leadingZerosUint8SVE2(dst[:n:n], a)
 }
 
-func trailingZerosUint8SVE2Guarded(dst []byte, a []byte) {
+func TrailingZerosUint8SVE2(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1701,7 +1701,7 @@ func trailingZerosUint8SVE2Guarded(dst []byte, a []byte) {
 	trailingZerosUint8SVE2(dst[:n:n], a)
 }
 
-func reverseBitsUint8SVE2Guarded(dst []byte, a []byte) {
+func ReverseBitsUint8SVE2(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1710,7 +1710,7 @@ func reverseBitsUint8SVE2Guarded(dst []byte, a []byte) {
 	reverseBitsUint8SVE2(dst[:n:n], a)
 }
 
-func shlUint16SVE2Guarded(dst []uint16, a []uint16, s uint64) {
+func ShlUint16SVE2(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1719,7 +1719,7 @@ func shlUint16SVE2Guarded(dst []uint16, a []uint16, s uint64) {
 	shlUint16SVE2(dst[:n:n], a, s)
 }
 
-func shrUint16SVE2Guarded(dst []uint16, a []uint16, s uint64) {
+func ShrUint16SVE2(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1728,7 +1728,7 @@ func shrUint16SVE2Guarded(dst []uint16, a []uint16, s uint64) {
 	shrUint16SVE2(dst[:n:n], a, s)
 }
 
-func rotlUint16SVE2Guarded(dst []uint16, a []uint16, s uint64) {
+func RotlUint16SVE2(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1737,7 +1737,7 @@ func rotlUint16SVE2Guarded(dst []uint16, a []uint16, s uint64) {
 	rotlUint16SVE2(dst[:n:n], a, s)
 }
 
-func rotrUint16SVE2Guarded(dst []uint16, a []uint16, s uint64) {
+func RotrUint16SVE2(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1746,7 +1746,7 @@ func rotrUint16SVE2Guarded(dst []uint16, a []uint16, s uint64) {
 	rotrUint16SVE2(dst[:n:n], a, s)
 }
 
-func onesCountUint16SVE2Guarded(dst []uint16, a []uint16) {
+func OnesCountUint16SVE2(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1755,7 +1755,7 @@ func onesCountUint16SVE2Guarded(dst []uint16, a []uint16) {
 	onesCountUint16SVE2(dst[:n:n], a)
 }
 
-func leadingZerosUint16SVE2Guarded(dst []uint16, a []uint16) {
+func LeadingZerosUint16SVE2(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1764,7 +1764,7 @@ func leadingZerosUint16SVE2Guarded(dst []uint16, a []uint16) {
 	leadingZerosUint16SVE2(dst[:n:n], a)
 }
 
-func trailingZerosUint16SVE2Guarded(dst []uint16, a []uint16) {
+func TrailingZerosUint16SVE2(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1773,7 +1773,7 @@ func trailingZerosUint16SVE2Guarded(dst []uint16, a []uint16) {
 	trailingZerosUint16SVE2(dst[:n:n], a)
 }
 
-func reverseBitsUint16SVE2Guarded(dst []uint16, a []uint16) {
+func ReverseBitsUint16SVE2(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1782,7 +1782,7 @@ func reverseBitsUint16SVE2Guarded(dst []uint16, a []uint16) {
 	reverseBitsUint16SVE2(dst[:n:n], a)
 }
 
-func byteSwapUint16SVE2Guarded(dst []uint16, a []uint16) {
+func ByteSwapUint16SVE2(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1791,7 +1791,7 @@ func byteSwapUint16SVE2Guarded(dst []uint16, a []uint16) {
 	byteSwapUint16SVE2(dst[:n:n], a)
 }
 
-func shlUint32SVE2Guarded(dst []uint32, a []uint32, s uint64) {
+func ShlUint32SVE2(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1800,7 +1800,7 @@ func shlUint32SVE2Guarded(dst []uint32, a []uint32, s uint64) {
 	shlUint32SVE2(dst[:n:n], a, s)
 }
 
-func shrUint32SVE2Guarded(dst []uint32, a []uint32, s uint64) {
+func ShrUint32SVE2(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1809,7 +1809,7 @@ func shrUint32SVE2Guarded(dst []uint32, a []uint32, s uint64) {
 	shrUint32SVE2(dst[:n:n], a, s)
 }
 
-func rotlUint32SVE2Guarded(dst []uint32, a []uint32, s uint64) {
+func RotlUint32SVE2(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1818,7 +1818,7 @@ func rotlUint32SVE2Guarded(dst []uint32, a []uint32, s uint64) {
 	rotlUint32SVE2(dst[:n:n], a, s)
 }
 
-func rotrUint32SVE2Guarded(dst []uint32, a []uint32, s uint64) {
+func RotrUint32SVE2(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1827,7 +1827,7 @@ func rotrUint32SVE2Guarded(dst []uint32, a []uint32, s uint64) {
 	rotrUint32SVE2(dst[:n:n], a, s)
 }
 
-func onesCountUint32SVE2Guarded(dst []uint32, a []uint32) {
+func OnesCountUint32SVE2(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1836,7 +1836,7 @@ func onesCountUint32SVE2Guarded(dst []uint32, a []uint32) {
 	onesCountUint32SVE2(dst[:n:n], a)
 }
 
-func leadingZerosUint32SVE2Guarded(dst []uint32, a []uint32) {
+func LeadingZerosUint32SVE2(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1845,7 +1845,7 @@ func leadingZerosUint32SVE2Guarded(dst []uint32, a []uint32) {
 	leadingZerosUint32SVE2(dst[:n:n], a)
 }
 
-func trailingZerosUint32SVE2Guarded(dst []uint32, a []uint32) {
+func TrailingZerosUint32SVE2(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1854,7 +1854,7 @@ func trailingZerosUint32SVE2Guarded(dst []uint32, a []uint32) {
 	trailingZerosUint32SVE2(dst[:n:n], a)
 }
 
-func reverseBitsUint32SVE2Guarded(dst []uint32, a []uint32) {
+func ReverseBitsUint32SVE2(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1863,7 +1863,7 @@ func reverseBitsUint32SVE2Guarded(dst []uint32, a []uint32) {
 	reverseBitsUint32SVE2(dst[:n:n], a)
 }
 
-func byteSwapUint32SVE2Guarded(dst []uint32, a []uint32) {
+func ByteSwapUint32SVE2(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1872,7 +1872,7 @@ func byteSwapUint32SVE2Guarded(dst []uint32, a []uint32) {
 	byteSwapUint32SVE2(dst[:n:n], a)
 }
 
-func shlUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+func ShlUint64SVE2(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1881,7 +1881,7 @@ func shlUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
 	shlUint64SVE2(dst[:n:n], a, s)
 }
 
-func shrUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+func ShrUint64SVE2(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1890,7 +1890,7 @@ func shrUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
 	shrUint64SVE2(dst[:n:n], a, s)
 }
 
-func rotlUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+func RotlUint64SVE2(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1899,7 +1899,7 @@ func rotlUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
 	rotlUint64SVE2(dst[:n:n], a, s)
 }
 
-func rotrUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
+func RotrUint64SVE2(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1908,7 +1908,7 @@ func rotrUint64SVE2Guarded(dst []uint64, a []uint64, s uint64) {
 	rotrUint64SVE2(dst[:n:n], a, s)
 }
 
-func onesCountUint64SVE2Guarded(dst []uint64, a []uint64) {
+func OnesCountUint64SVE2(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1917,7 +1917,7 @@ func onesCountUint64SVE2Guarded(dst []uint64, a []uint64) {
 	onesCountUint64SVE2(dst[:n:n], a)
 }
 
-func leadingZerosUint64SVE2Guarded(dst []uint64, a []uint64) {
+func LeadingZerosUint64SVE2(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1926,7 +1926,7 @@ func leadingZerosUint64SVE2Guarded(dst []uint64, a []uint64) {
 	leadingZerosUint64SVE2(dst[:n:n], a)
 }
 
-func trailingZerosUint64SVE2Guarded(dst []uint64, a []uint64) {
+func TrailingZerosUint64SVE2(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1935,7 +1935,7 @@ func trailingZerosUint64SVE2Guarded(dst []uint64, a []uint64) {
 	trailingZerosUint64SVE2(dst[:n:n], a)
 }
 
-func reverseBitsUint64SVE2Guarded(dst []uint64, a []uint64) {
+func ReverseBitsUint64SVE2(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1944,7 +1944,7 @@ func reverseBitsUint64SVE2Guarded(dst []uint64, a []uint64) {
 	reverseBitsUint64SVE2(dst[:n:n], a)
 }
 
-func byteSwapUint64SVE2Guarded(dst []uint64, a []uint64) {
+func ByteSwapUint64SVE2(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1953,7 +1953,7 @@ func byteSwapUint64SVE2Guarded(dst []uint64, a []uint64) {
 	byteSwapUint64SVE2(dst[:n:n], a)
 }
 
-func divFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
+func DivFloat32SVE2(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Div(dst, a, b)
@@ -1962,7 +1962,7 @@ func divFloat32SVE2Guarded(dst []float32, a []float32, b []float32) {
 	divFloat32SVE2(dst[:n:n], a, b)
 }
 
-func divScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
+func DivScalarFloat32SVE2(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DivScalar(dst, a, s)
@@ -1971,7 +1971,7 @@ func divScalarFloat32SVE2Guarded(dst []float32, a []float32, s float32) {
 	divScalarFloat32SVE2(dst[:n:n], a, s)
 }
 
-func sqrtFloat32SVE2Guarded(dst []float32, a []float32) {
+func SqrtFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Sqrt(dst, a)
@@ -1980,7 +1980,7 @@ func sqrtFloat32SVE2Guarded(dst []float32, a []float32) {
 	sqrtFloat32SVE2(dst[:n:n], a)
 }
 
-func reciprocalFloat32SVE2Guarded(dst []float32, a []float32) {
+func ReciprocalFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Reciprocal(dst, a)
@@ -1989,7 +1989,7 @@ func reciprocalFloat32SVE2Guarded(dst []float32, a []float32) {
 	reciprocalFloat32SVE2(dst[:n:n], a)
 }
 
-func floorFloat32SVE2Guarded(dst []float32, a []float32) {
+func FloorFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Floor(dst, a)
@@ -1998,7 +1998,7 @@ func floorFloat32SVE2Guarded(dst []float32, a []float32) {
 	floorFloat32SVE2(dst[:n:n], a)
 }
 
-func ceilFloat32SVE2Guarded(dst []float32, a []float32) {
+func CeilFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Ceil(dst, a)
@@ -2007,7 +2007,7 @@ func ceilFloat32SVE2Guarded(dst []float32, a []float32) {
 	ceilFloat32SVE2(dst[:n:n], a)
 }
 
-func truncFloat32SVE2Guarded(dst []float32, a []float32) {
+func TruncFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Trunc(dst, a)
@@ -2016,7 +2016,7 @@ func truncFloat32SVE2Guarded(dst []float32, a []float32) {
 	truncFloat32SVE2(dst[:n:n], a)
 }
 
-func roundFloat32SVE2Guarded(dst []float32, a []float32) {
+func RoundFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Round(dst, a)
@@ -2025,7 +2025,7 @@ func roundFloat32SVE2Guarded(dst []float32, a []float32) {
 	roundFloat32SVE2(dst[:n:n], a)
 }
 
-func roundToEvenFloat32SVE2Guarded(dst []float32, a []float32) {
+func RoundToEvenFloat32SVE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RoundToEven(dst, a)
@@ -2034,7 +2034,7 @@ func roundToEvenFloat32SVE2Guarded(dst []float32, a []float32) {
 	roundToEvenFloat32SVE2(dst[:n:n], a)
 }
 
-func divFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
+func DivFloat64SVE2(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Div(dst, a, b)
@@ -2043,7 +2043,7 @@ func divFloat64SVE2Guarded(dst []float64, a []float64, b []float64) {
 	divFloat64SVE2(dst[:n:n], a, b)
 }
 
-func divScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
+func DivScalarFloat64SVE2(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DivScalar(dst, a, s)
@@ -2052,7 +2052,7 @@ func divScalarFloat64SVE2Guarded(dst []float64, a []float64, s float64) {
 	divScalarFloat64SVE2(dst[:n:n], a, s)
 }
 
-func sqrtFloat64SVE2Guarded(dst []float64, a []float64) {
+func SqrtFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Sqrt(dst, a)
@@ -2061,7 +2061,7 @@ func sqrtFloat64SVE2Guarded(dst []float64, a []float64) {
 	sqrtFloat64SVE2(dst[:n:n], a)
 }
 
-func reciprocalFloat64SVE2Guarded(dst []float64, a []float64) {
+func ReciprocalFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Reciprocal(dst, a)
@@ -2070,7 +2070,7 @@ func reciprocalFloat64SVE2Guarded(dst []float64, a []float64) {
 	reciprocalFloat64SVE2(dst[:n:n], a)
 }
 
-func floorFloat64SVE2Guarded(dst []float64, a []float64) {
+func FloorFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Floor(dst, a)
@@ -2079,7 +2079,7 @@ func floorFloat64SVE2Guarded(dst []float64, a []float64) {
 	floorFloat64SVE2(dst[:n:n], a)
 }
 
-func ceilFloat64SVE2Guarded(dst []float64, a []float64) {
+func CeilFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Ceil(dst, a)
@@ -2088,7 +2088,7 @@ func ceilFloat64SVE2Guarded(dst []float64, a []float64) {
 	ceilFloat64SVE2(dst[:n:n], a)
 }
 
-func truncFloat64SVE2Guarded(dst []float64, a []float64) {
+func TruncFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Trunc(dst, a)
@@ -2097,7 +2097,7 @@ func truncFloat64SVE2Guarded(dst []float64, a []float64) {
 	truncFloat64SVE2(dst[:n:n], a)
 }
 
-func roundFloat64SVE2Guarded(dst []float64, a []float64) {
+func RoundFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Round(dst, a)
@@ -2106,7 +2106,7 @@ func roundFloat64SVE2Guarded(dst []float64, a []float64) {
 	roundFloat64SVE2(dst[:n:n], a)
 }
 
-func roundToEvenFloat64SVE2Guarded(dst []float64, a []float64) {
+func RoundToEvenFloat64SVE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RoundToEven(dst, a)
@@ -2115,7 +2115,7 @@ func roundToEvenFloat64SVE2Guarded(dst []float64, a []float64) {
 	roundToEvenFloat64SVE2(dst[:n:n], a)
 }
 
-func satAddInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+func SatAddInt32SVE2(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2124,7 +2124,7 @@ func satAddInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
 	satAddInt32SVE2(dst[:n:n], a, b)
 }
 
-func satSubInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
+func SatSubInt32SVE2(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2133,7 +2133,7 @@ func satSubInt32SVE2Guarded(dst []int32, a []int32, b []int32) {
 	satSubInt32SVE2(dst[:n:n], a, b)
 }
 
-func satAddInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+func SatAddInt8SVE2(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2142,7 +2142,7 @@ func satAddInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
 	satAddInt8SVE2(dst[:n:n], a, b)
 }
 
-func satSubInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
+func SatSubInt8SVE2(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2151,7 +2151,7 @@ func satSubInt8SVE2Guarded(dst []int8, a []int8, b []int8) {
 	satSubInt8SVE2(dst[:n:n], a, b)
 }
 
-func satAddInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+func SatAddInt16SVE2(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2160,7 +2160,7 @@ func satAddInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
 	satAddInt16SVE2(dst[:n:n], a, b)
 }
 
-func satSubInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
+func SatSubInt16SVE2(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2169,7 +2169,7 @@ func satSubInt16SVE2Guarded(dst []int16, a []int16, b []int16) {
 	satSubInt16SVE2(dst[:n:n], a, b)
 }
 
-func satAddUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+func SatAddUint8SVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2178,7 +2178,7 @@ func satAddUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
 	satAddUint8SVE2(dst[:n:n], a, b)
 }
 
-func satSubUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
+func SatSubUint8SVE2(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2187,7 +2187,7 @@ func satSubUint8SVE2Guarded(dst []byte, a []byte, b []byte) {
 	satSubUint8SVE2(dst[:n:n], a, b)
 }
 
-func satAddUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+func SatAddUint16SVE2(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2196,7 +2196,7 @@ func satAddUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
 	satAddUint16SVE2(dst[:n:n], a, b)
 }
 
-func satSubUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
+func SatSubUint16SVE2(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2205,7 +2205,7 @@ func satSubUint16SVE2Guarded(dst []uint16, a []uint16, b []uint16) {
 	satSubUint16SVE2(dst[:n:n], a, b)
 }
 
-func satAddUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+func SatAddUint32SVE2(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2214,7 +2214,7 @@ func satAddUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
 	satAddUint32SVE2(dst[:n:n], a, b)
 }
 
-func satSubUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
+func SatSubUint32SVE2(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2223,255 +2223,252 @@ func satSubUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) {
 	satSubUint32SVE2(dst[:n:n], a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.F32.Add = addFloat32SVE2Guarded
-	s.F32.Sub = subFloat32SVE2Guarded
-	s.F32.Mul = mulFloat32SVE2Guarded
-	s.F32.Minimum = minimumFloat32SVE2Guarded
-	s.F32.Maximum = maximumFloat32SVE2Guarded
-	s.F32.Abs = absFloat32SVE2Guarded
-	s.F32.Neg = negFloat32SVE2Guarded
-	s.F32.Scale = scaleFloat32SVE2Guarded
-	s.F32.AddScalar = addScalarFloat32SVE2Guarded
-	s.F32.SubScalar = subScalarFloat32SVE2Guarded
-	s.F32.Clamp = clampFloat32SVE2Guarded
-	s.F32.Fill = fillFloat32SVE2Guarded
-	s.F32.Lerp = lerpFloat32SVE2Guarded
-	s.F32.AddScaled = addScaledFloat32SVE2Guarded
-	s.F32.Ramp = rampFloat32SVE2Guarded
-	s.F64.Add = addFloat64SVE2Guarded
-	s.F64.Sub = subFloat64SVE2Guarded
-	s.F64.Mul = mulFloat64SVE2Guarded
-	s.F64.Minimum = minimumFloat64SVE2Guarded
-	s.F64.Maximum = maximumFloat64SVE2Guarded
-	s.F64.Abs = absFloat64SVE2Guarded
-	s.F64.Neg = negFloat64SVE2Guarded
-	s.F64.Scale = scaleFloat64SVE2Guarded
-	s.F64.AddScalar = addScalarFloat64SVE2Guarded
-	s.F64.SubScalar = subScalarFloat64SVE2Guarded
-	s.F64.Clamp = clampFloat64SVE2Guarded
-	s.F64.Fill = fillFloat64SVE2Guarded
-	s.F64.Lerp = lerpFloat64SVE2Guarded
-	s.F64.AddScaled = addScaledFloat64SVE2Guarded
-	s.F64.Ramp = rampFloat64SVE2Guarded
-	s.I32.Add = addInt32SVE2Guarded
-	s.I32.Sub = subInt32SVE2Guarded
-	s.I32.Mul = mulInt32SVE2Guarded
-	s.I32.Minimum = minimumInt32SVE2Guarded
-	s.I32.Maximum = maximumInt32SVE2Guarded
-	s.I32.Abs = absInt32SVE2Guarded
-	s.I32.Neg = negInt32SVE2Guarded
-	s.I32.Scale = scaleInt32SVE2Guarded
-	s.I32.AddScalar = addScalarInt32SVE2Guarded
-	s.I32.SubScalar = subScalarInt32SVE2Guarded
-	s.I32.Clamp = clampInt32SVE2Guarded
-	s.I32.Fill = fillInt32SVE2Guarded
-	s.I32.Lerp = lerpInt32SVE2Guarded
-	s.I32.AddScaled = addScaledInt32SVE2Guarded
-	s.I32.Ramp = rampInt32SVE2Guarded
-	s.I64.Add = addInt64SVE2Guarded
-	s.I64.Sub = subInt64SVE2Guarded
-	s.I64.Mul = mulInt64SVE2Guarded
-	s.I64.Minimum = minimumInt64SVE2Guarded
-	s.I64.Maximum = maximumInt64SVE2Guarded
-	s.I64.Abs = absInt64SVE2Guarded
-	s.I64.Neg = negInt64SVE2Guarded
-	s.I64.Scale = scaleInt64SVE2Guarded
-	s.I64.AddScalar = addScalarInt64SVE2Guarded
-	s.I64.SubScalar = subScalarInt64SVE2Guarded
-	s.I64.Clamp = clampInt64SVE2Guarded
-	s.I64.Fill = fillInt64SVE2Guarded
-	s.I64.Lerp = lerpInt64SVE2Guarded
-	s.I64.AddScaled = addScaledInt64SVE2Guarded
-	s.I64.Ramp = rampInt64SVE2Guarded
-	s.I8.Add = addInt8SVE2Guarded
-	s.I8.Sub = subInt8SVE2Guarded
-	s.I8.Mul = mulInt8SVE2Guarded
-	s.I8.Minimum = minimumInt8SVE2Guarded
-	s.I8.Maximum = maximumInt8SVE2Guarded
-	s.I8.Abs = absInt8SVE2Guarded
-	s.I8.Neg = negInt8SVE2Guarded
-	s.I8.Scale = scaleInt8SVE2Guarded
-	s.I8.AddScalar = addScalarInt8SVE2Guarded
-	s.I8.SubScalar = subScalarInt8SVE2Guarded
-	s.I8.Clamp = clampInt8SVE2Guarded
-	s.I8.Fill = fillInt8SVE2Guarded
-	s.I8.Lerp = lerpInt8SVE2Guarded
-	s.I8.AddScaled = addScaledInt8SVE2Guarded
-	s.I8.Ramp = rampInt8SVE2Guarded
-	s.I16.Add = addInt16SVE2Guarded
-	s.I16.Sub = subInt16SVE2Guarded
-	s.I16.Mul = mulInt16SVE2Guarded
-	s.I16.Minimum = minimumInt16SVE2Guarded
-	s.I16.Maximum = maximumInt16SVE2Guarded
-	s.I16.Abs = absInt16SVE2Guarded
-	s.I16.Neg = negInt16SVE2Guarded
-	s.I16.Scale = scaleInt16SVE2Guarded
-	s.I16.AddScalar = addScalarInt16SVE2Guarded
-	s.I16.SubScalar = subScalarInt16SVE2Guarded
-	s.I16.Clamp = clampInt16SVE2Guarded
-	s.I16.Fill = fillInt16SVE2Guarded
-	s.I16.Lerp = lerpInt16SVE2Guarded
-	s.I16.AddScaled = addScaledInt16SVE2Guarded
-	s.I16.Ramp = rampInt16SVE2Guarded
-	s.U8.Add = addUint8SVE2Guarded
-	s.U8.Sub = subUint8SVE2Guarded
-	s.U8.Mul = mulUint8SVE2Guarded
-	s.U8.Minimum = minimumUint8SVE2Guarded
-	s.U8.Maximum = maximumUint8SVE2Guarded
-	s.U8.Abs = absUint8SVE2Guarded
-	s.U8.Neg = negUint8SVE2Guarded
-	s.U8.Scale = scaleUint8SVE2Guarded
-	s.U8.AddScalar = addScalarUint8SVE2Guarded
-	s.U8.SubScalar = subScalarUint8SVE2Guarded
-	s.U8.Clamp = clampUint8SVE2Guarded
-	s.U8.Fill = fillUint8SVE2Guarded
-	s.U8.Lerp = lerpUint8SVE2Guarded
-	s.U8.AddScaled = addScaledUint8SVE2Guarded
-	s.U8.Ramp = rampUint8SVE2Guarded
-	s.U16.Add = addUint16SVE2Guarded
-	s.U16.Sub = subUint16SVE2Guarded
-	s.U16.Mul = mulUint16SVE2Guarded
-	s.U16.Minimum = minimumUint16SVE2Guarded
-	s.U16.Maximum = maximumUint16SVE2Guarded
-	s.U16.Neg = negUint16SVE2Guarded
-	s.U16.Scale = scaleUint16SVE2Guarded
-	s.U16.AddScalar = addScalarUint16SVE2Guarded
-	s.U16.SubScalar = subScalarUint16SVE2Guarded
-	s.U16.Clamp = clampUint16SVE2Guarded
-	s.U16.Fill = fillUint16SVE2Guarded
-	s.U16.Lerp = lerpUint16SVE2Guarded
-	s.U16.AddScaled = addScaledUint16SVE2Guarded
-	s.U16.Ramp = rampUint16SVE2Guarded
-	s.U32.Add = addUint32SVE2Guarded
-	s.U32.Sub = subUint32SVE2Guarded
-	s.U32.Mul = mulUint32SVE2Guarded
-	s.U32.Minimum = minimumUint32SVE2Guarded
-	s.U32.Maximum = maximumUint32SVE2Guarded
-	s.U32.Neg = negUint32SVE2Guarded
-	s.U32.Scale = scaleUint32SVE2Guarded
-	s.U32.AddScalar = addScalarUint32SVE2Guarded
-	s.U32.SubScalar = subScalarUint32SVE2Guarded
-	s.U32.Clamp = clampUint32SVE2Guarded
-	s.U32.Fill = fillUint32SVE2Guarded
-	s.U32.Lerp = lerpUint32SVE2Guarded
-	s.U32.AddScaled = addScaledUint32SVE2Guarded
-	s.U32.Ramp = rampUint32SVE2Guarded
-	s.U64.Add = addUint64SVE2Guarded
-	s.U64.Sub = subUint64SVE2Guarded
-	s.U64.Mul = mulUint64SVE2Guarded
-	s.U64.Minimum = minimumUint64SVE2Guarded
-	s.U64.Maximum = maximumUint64SVE2Guarded
-	s.U64.Neg = negUint64SVE2Guarded
-	s.U64.Scale = scaleUint64SVE2Guarded
-	s.U64.AddScalar = addScalarUint64SVE2Guarded
-	s.U64.SubScalar = subScalarUint64SVE2Guarded
-	s.U64.Clamp = clampUint64SVE2Guarded
-	s.U64.Fill = fillUint64SVE2Guarded
-	s.U64.Lerp = lerpUint64SVE2Guarded
-	s.U64.AddScaled = addScaledUint64SVE2Guarded
-	s.U64.Ramp = rampUint64SVE2Guarded
-	s.I32.Shl = shlInt32SVE2Guarded
-	s.I32.Shr = shrInt32SVE2Guarded
-	s.I32.Rotl = rotlInt32SVE2Guarded
-	s.I32.Rotr = rotrInt32SVE2Guarded
-	s.I32.OnesCount = onesCountInt32SVE2Guarded
-	s.I32.LeadingZeros = leadingZerosInt32SVE2Guarded
-	s.I32.TrailingZeros = trailingZerosInt32SVE2Guarded
-	s.I32.ReverseBits = reverseBitsInt32SVE2Guarded
-	s.I32.ByteSwap = byteSwapInt32SVE2Guarded
-	s.I64.Shl = shlInt64SVE2Guarded
-	s.I64.Shr = shrInt64SVE2Guarded
-	s.I64.Rotl = rotlInt64SVE2Guarded
-	s.I64.Rotr = rotrInt64SVE2Guarded
-	s.I64.OnesCount = onesCountInt64SVE2Guarded
-	s.I64.LeadingZeros = leadingZerosInt64SVE2Guarded
-	s.I64.TrailingZeros = trailingZerosInt64SVE2Guarded
-	s.I64.ReverseBits = reverseBitsInt64SVE2Guarded
-	s.I64.ByteSwap = byteSwapInt64SVE2Guarded
-	s.I8.Shl = shlInt8SVE2Guarded
-	s.I8.Shr = shrInt8SVE2Guarded
-	s.I8.Rotl = rotlInt8SVE2Guarded
-	s.I8.Rotr = rotrInt8SVE2Guarded
-	s.I8.OnesCount = onesCountInt8SVE2Guarded
-	s.I8.LeadingZeros = leadingZerosInt8SVE2Guarded
-	s.I8.TrailingZeros = trailingZerosInt8SVE2Guarded
-	s.I8.ReverseBits = reverseBitsInt8SVE2Guarded
-	s.I16.Shl = shlInt16SVE2Guarded
-	s.I16.Shr = shrInt16SVE2Guarded
-	s.I16.Rotl = rotlInt16SVE2Guarded
-	s.I16.Rotr = rotrInt16SVE2Guarded
-	s.I16.OnesCount = onesCountInt16SVE2Guarded
-	s.I16.LeadingZeros = leadingZerosInt16SVE2Guarded
-	s.I16.TrailingZeros = trailingZerosInt16SVE2Guarded
-	s.I16.ReverseBits = reverseBitsInt16SVE2Guarded
-	s.I16.ByteSwap = byteSwapInt16SVE2Guarded
-	s.U8.Shl = shlUint8SVE2Guarded
-	s.U8.Shr = shrUint8SVE2Guarded
-	s.U8.Rotl = rotlUint8SVE2Guarded
-	s.U8.Rotr = rotrUint8SVE2Guarded
-	s.U8.OnesCount = onesCountUint8SVE2Guarded
-	s.U8.LeadingZeros = leadingZerosUint8SVE2Guarded
-	s.U8.TrailingZeros = trailingZerosUint8SVE2Guarded
-	s.U8.ReverseBits = reverseBitsUint8SVE2Guarded
-	s.U16.Shl = shlUint16SVE2Guarded
-	s.U16.Shr = shrUint16SVE2Guarded
-	s.U16.Rotl = rotlUint16SVE2Guarded
-	s.U16.Rotr = rotrUint16SVE2Guarded
-	s.U16.OnesCount = onesCountUint16SVE2Guarded
-	s.U16.LeadingZeros = leadingZerosUint16SVE2Guarded
-	s.U16.TrailingZeros = trailingZerosUint16SVE2Guarded
-	s.U16.ReverseBits = reverseBitsUint16SVE2Guarded
-	s.U16.ByteSwap = byteSwapUint16SVE2Guarded
-	s.U32.Shl = shlUint32SVE2Guarded
-	s.U32.Shr = shrUint32SVE2Guarded
-	s.U32.Rotl = rotlUint32SVE2Guarded
-	s.U32.Rotr = rotrUint32SVE2Guarded
-	s.U32.OnesCount = onesCountUint32SVE2Guarded
-	s.U32.LeadingZeros = leadingZerosUint32SVE2Guarded
-	s.U32.TrailingZeros = trailingZerosUint32SVE2Guarded
-	s.U32.ReverseBits = reverseBitsUint32SVE2Guarded
-	s.U32.ByteSwap = byteSwapUint32SVE2Guarded
-	s.U64.Shl = shlUint64SVE2Guarded
-	s.U64.Shr = shrUint64SVE2Guarded
-	s.U64.Rotl = rotlUint64SVE2Guarded
-	s.U64.Rotr = rotrUint64SVE2Guarded
-	s.U64.OnesCount = onesCountUint64SVE2Guarded
-	s.U64.LeadingZeros = leadingZerosUint64SVE2Guarded
-	s.U64.TrailingZeros = trailingZerosUint64SVE2Guarded
-	s.U64.ReverseBits = reverseBitsUint64SVE2Guarded
-	s.U64.ByteSwap = byteSwapUint64SVE2Guarded
-	s.F32.Div = divFloat32SVE2Guarded
-	s.F32.DivScalar = divScalarFloat32SVE2Guarded
-	s.F32.Sqrt = sqrtFloat32SVE2Guarded
-	s.F32.Reciprocal = reciprocalFloat32SVE2Guarded
-	s.F32.Floor = floorFloat32SVE2Guarded
-	s.F32.Ceil = ceilFloat32SVE2Guarded
-	s.F32.Trunc = truncFloat32SVE2Guarded
-	s.F32.Round = roundFloat32SVE2Guarded
-	s.F32.RoundToEven = roundToEvenFloat32SVE2Guarded
-	s.F64.Div = divFloat64SVE2Guarded
-	s.F64.DivScalar = divScalarFloat64SVE2Guarded
-	s.F64.Sqrt = sqrtFloat64SVE2Guarded
-	s.F64.Reciprocal = reciprocalFloat64SVE2Guarded
-	s.F64.Floor = floorFloat64SVE2Guarded
-	s.F64.Ceil = ceilFloat64SVE2Guarded
-	s.F64.Trunc = truncFloat64SVE2Guarded
-	s.F64.Round = roundFloat64SVE2Guarded
-	s.F64.RoundToEven = roundToEvenFloat64SVE2Guarded
-	s.I32.SatAdd = satAddInt32SVE2Guarded
-	s.I32.SatSub = satSubInt32SVE2Guarded
-	s.I8.SatAdd = satAddInt8SVE2Guarded
-	s.I8.SatSub = satSubInt8SVE2Guarded
-	s.I16.SatAdd = satAddInt16SVE2Guarded
-	s.I16.SatSub = satSubInt16SVE2Guarded
-	s.U8.SatAdd = satAddUint8SVE2Guarded
-	s.U8.SatSub = satSubUint8SVE2Guarded
-	s.U16.SatAdd = satAddUint16SVE2Guarded
-	s.U16.SatSub = satSubUint16SVE2Guarded
-	s.U32.SatAdd = satAddUint32SVE2Guarded
-	s.U32.SatSub = satSubUint32SVE2Guarded
+func registerArithSVE2(s *kernel.Set) {
+	s.F32.Add = AddFloat32SVE2
+	s.F32.Sub = SubFloat32SVE2
+	s.F32.Mul = MulFloat32SVE2
+	s.F32.Minimum = MinimumFloat32SVE2
+	s.F32.Maximum = MaximumFloat32SVE2
+	s.F32.Abs = AbsFloat32SVE2
+	s.F32.Neg = NegFloat32SVE2
+	s.F32.Scale = ScaleFloat32SVE2
+	s.F32.AddScalar = AddScalarFloat32SVE2
+	s.F32.SubScalar = SubScalarFloat32SVE2
+	s.F32.Clamp = ClampFloat32SVE2
+	s.F32.Fill = FillFloat32SVE2
+	s.F32.Lerp = LerpFloat32SVE2
+	s.F32.AddScaled = AddScaledFloat32SVE2
+	s.F32.Ramp = RampFloat32SVE2
+	s.F64.Add = AddFloat64SVE2
+	s.F64.Sub = SubFloat64SVE2
+	s.F64.Mul = MulFloat64SVE2
+	s.F64.Minimum = MinimumFloat64SVE2
+	s.F64.Maximum = MaximumFloat64SVE2
+	s.F64.Abs = AbsFloat64SVE2
+	s.F64.Neg = NegFloat64SVE2
+	s.F64.Scale = ScaleFloat64SVE2
+	s.F64.AddScalar = AddScalarFloat64SVE2
+	s.F64.SubScalar = SubScalarFloat64SVE2
+	s.F64.Clamp = ClampFloat64SVE2
+	s.F64.Fill = FillFloat64SVE2
+	s.F64.Lerp = LerpFloat64SVE2
+	s.F64.AddScaled = AddScaledFloat64SVE2
+	s.F64.Ramp = RampFloat64SVE2
+	s.I32.Add = AddInt32SVE2
+	s.I32.Sub = SubInt32SVE2
+	s.I32.Mul = MulInt32SVE2
+	s.I32.Minimum = MinimumInt32SVE2
+	s.I32.Maximum = MaximumInt32SVE2
+	s.I32.Abs = AbsInt32SVE2
+	s.I32.Neg = NegInt32SVE2
+	s.I32.Scale = ScaleInt32SVE2
+	s.I32.AddScalar = AddScalarInt32SVE2
+	s.I32.SubScalar = SubScalarInt32SVE2
+	s.I32.Clamp = ClampInt32SVE2
+	s.I32.Fill = FillInt32SVE2
+	s.I32.Lerp = LerpInt32SVE2
+	s.I32.AddScaled = AddScaledInt32SVE2
+	s.I32.Ramp = RampInt32SVE2
+	s.I64.Add = AddInt64SVE2
+	s.I64.Sub = SubInt64SVE2
+	s.I64.Mul = MulInt64SVE2
+	s.I64.Minimum = MinimumInt64SVE2
+	s.I64.Maximum = MaximumInt64SVE2
+	s.I64.Abs = AbsInt64SVE2
+	s.I64.Neg = NegInt64SVE2
+	s.I64.Scale = ScaleInt64SVE2
+	s.I64.AddScalar = AddScalarInt64SVE2
+	s.I64.SubScalar = SubScalarInt64SVE2
+	s.I64.Clamp = ClampInt64SVE2
+	s.I64.Fill = FillInt64SVE2
+	s.I64.Lerp = LerpInt64SVE2
+	s.I64.AddScaled = AddScaledInt64SVE2
+	s.I64.Ramp = RampInt64SVE2
+	s.I8.Add = AddInt8SVE2
+	s.I8.Sub = SubInt8SVE2
+	s.I8.Mul = MulInt8SVE2
+	s.I8.Minimum = MinimumInt8SVE2
+	s.I8.Maximum = MaximumInt8SVE2
+	s.I8.Abs = AbsInt8SVE2
+	s.I8.Neg = NegInt8SVE2
+	s.I8.Scale = ScaleInt8SVE2
+	s.I8.AddScalar = AddScalarInt8SVE2
+	s.I8.SubScalar = SubScalarInt8SVE2
+	s.I8.Clamp = ClampInt8SVE2
+	s.I8.Fill = FillInt8SVE2
+	s.I8.Lerp = LerpInt8SVE2
+	s.I8.AddScaled = AddScaledInt8SVE2
+	s.I8.Ramp = RampInt8SVE2
+	s.I16.Add = AddInt16SVE2
+	s.I16.Sub = SubInt16SVE2
+	s.I16.Mul = MulInt16SVE2
+	s.I16.Minimum = MinimumInt16SVE2
+	s.I16.Maximum = MaximumInt16SVE2
+	s.I16.Abs = AbsInt16SVE2
+	s.I16.Neg = NegInt16SVE2
+	s.I16.Scale = ScaleInt16SVE2
+	s.I16.AddScalar = AddScalarInt16SVE2
+	s.I16.SubScalar = SubScalarInt16SVE2
+	s.I16.Clamp = ClampInt16SVE2
+	s.I16.Fill = FillInt16SVE2
+	s.I16.Lerp = LerpInt16SVE2
+	s.I16.AddScaled = AddScaledInt16SVE2
+	s.I16.Ramp = RampInt16SVE2
+	s.U8.Add = AddUint8SVE2
+	s.U8.Sub = SubUint8SVE2
+	s.U8.Mul = MulUint8SVE2
+	s.U8.Minimum = MinimumUint8SVE2
+	s.U8.Maximum = MaximumUint8SVE2
+	s.U8.Abs = AbsUint8SVE2
+	s.U8.Neg = NegUint8SVE2
+	s.U8.Scale = ScaleUint8SVE2
+	s.U8.AddScalar = AddScalarUint8SVE2
+	s.U8.SubScalar = SubScalarUint8SVE2
+	s.U8.Clamp = ClampUint8SVE2
+	s.U8.Fill = FillUint8SVE2
+	s.U8.Lerp = LerpUint8SVE2
+	s.U8.AddScaled = AddScaledUint8SVE2
+	s.U8.Ramp = RampUint8SVE2
+	s.U16.Add = AddUint16SVE2
+	s.U16.Sub = SubUint16SVE2
+	s.U16.Mul = MulUint16SVE2
+	s.U16.Minimum = MinimumUint16SVE2
+	s.U16.Maximum = MaximumUint16SVE2
+	s.U16.Neg = NegUint16SVE2
+	s.U16.Scale = ScaleUint16SVE2
+	s.U16.AddScalar = AddScalarUint16SVE2
+	s.U16.SubScalar = SubScalarUint16SVE2
+	s.U16.Clamp = ClampUint16SVE2
+	s.U16.Fill = FillUint16SVE2
+	s.U16.Lerp = LerpUint16SVE2
+	s.U16.AddScaled = AddScaledUint16SVE2
+	s.U16.Ramp = RampUint16SVE2
+	s.U32.Add = AddUint32SVE2
+	s.U32.Sub = SubUint32SVE2
+	s.U32.Mul = MulUint32SVE2
+	s.U32.Minimum = MinimumUint32SVE2
+	s.U32.Maximum = MaximumUint32SVE2
+	s.U32.Neg = NegUint32SVE2
+	s.U32.Scale = ScaleUint32SVE2
+	s.U32.AddScalar = AddScalarUint32SVE2
+	s.U32.SubScalar = SubScalarUint32SVE2
+	s.U32.Clamp = ClampUint32SVE2
+	s.U32.Fill = FillUint32SVE2
+	s.U32.Lerp = LerpUint32SVE2
+	s.U32.AddScaled = AddScaledUint32SVE2
+	s.U32.Ramp = RampUint32SVE2
+	s.U64.Add = AddUint64SVE2
+	s.U64.Sub = SubUint64SVE2
+	s.U64.Mul = MulUint64SVE2
+	s.U64.Minimum = MinimumUint64SVE2
+	s.U64.Maximum = MaximumUint64SVE2
+	s.U64.Neg = NegUint64SVE2
+	s.U64.Scale = ScaleUint64SVE2
+	s.U64.AddScalar = AddScalarUint64SVE2
+	s.U64.SubScalar = SubScalarUint64SVE2
+	s.U64.Clamp = ClampUint64SVE2
+	s.U64.Fill = FillUint64SVE2
+	s.U64.Lerp = LerpUint64SVE2
+	s.U64.AddScaled = AddScaledUint64SVE2
+	s.U64.Ramp = RampUint64SVE2
+	s.I32.Shl = ShlInt32SVE2
+	s.I32.Shr = ShrInt32SVE2
+	s.I32.Rotl = RotlInt32SVE2
+	s.I32.Rotr = RotrInt32SVE2
+	s.I32.OnesCount = OnesCountInt32SVE2
+	s.I32.LeadingZeros = LeadingZerosInt32SVE2
+	s.I32.TrailingZeros = TrailingZerosInt32SVE2
+	s.I32.ReverseBits = ReverseBitsInt32SVE2
+	s.I32.ByteSwap = ByteSwapInt32SVE2
+	s.I64.Shl = ShlInt64SVE2
+	s.I64.Shr = ShrInt64SVE2
+	s.I64.Rotl = RotlInt64SVE2
+	s.I64.Rotr = RotrInt64SVE2
+	s.I64.OnesCount = OnesCountInt64SVE2
+	s.I64.LeadingZeros = LeadingZerosInt64SVE2
+	s.I64.TrailingZeros = TrailingZerosInt64SVE2
+	s.I64.ReverseBits = ReverseBitsInt64SVE2
+	s.I64.ByteSwap = ByteSwapInt64SVE2
+	s.I8.Shl = ShlInt8SVE2
+	s.I8.Shr = ShrInt8SVE2
+	s.I8.Rotl = RotlInt8SVE2
+	s.I8.Rotr = RotrInt8SVE2
+	s.I8.OnesCount = OnesCountInt8SVE2
+	s.I8.LeadingZeros = LeadingZerosInt8SVE2
+	s.I8.TrailingZeros = TrailingZerosInt8SVE2
+	s.I8.ReverseBits = ReverseBitsInt8SVE2
+	s.I16.Shl = ShlInt16SVE2
+	s.I16.Shr = ShrInt16SVE2
+	s.I16.Rotl = RotlInt16SVE2
+	s.I16.Rotr = RotrInt16SVE2
+	s.I16.OnesCount = OnesCountInt16SVE2
+	s.I16.LeadingZeros = LeadingZerosInt16SVE2
+	s.I16.TrailingZeros = TrailingZerosInt16SVE2
+	s.I16.ReverseBits = ReverseBitsInt16SVE2
+	s.I16.ByteSwap = ByteSwapInt16SVE2
+	s.U8.Shl = ShlUint8SVE2
+	s.U8.Shr = ShrUint8SVE2
+	s.U8.Rotl = RotlUint8SVE2
+	s.U8.Rotr = RotrUint8SVE2
+	s.U8.OnesCount = OnesCountUint8SVE2
+	s.U8.LeadingZeros = LeadingZerosUint8SVE2
+	s.U8.TrailingZeros = TrailingZerosUint8SVE2
+	s.U8.ReverseBits = ReverseBitsUint8SVE2
+	s.U16.Shl = ShlUint16SVE2
+	s.U16.Shr = ShrUint16SVE2
+	s.U16.Rotl = RotlUint16SVE2
+	s.U16.Rotr = RotrUint16SVE2
+	s.U16.OnesCount = OnesCountUint16SVE2
+	s.U16.LeadingZeros = LeadingZerosUint16SVE2
+	s.U16.TrailingZeros = TrailingZerosUint16SVE2
+	s.U16.ReverseBits = ReverseBitsUint16SVE2
+	s.U16.ByteSwap = ByteSwapUint16SVE2
+	s.U32.Shl = ShlUint32SVE2
+	s.U32.Shr = ShrUint32SVE2
+	s.U32.Rotl = RotlUint32SVE2
+	s.U32.Rotr = RotrUint32SVE2
+	s.U32.OnesCount = OnesCountUint32SVE2
+	s.U32.LeadingZeros = LeadingZerosUint32SVE2
+	s.U32.TrailingZeros = TrailingZerosUint32SVE2
+	s.U32.ReverseBits = ReverseBitsUint32SVE2
+	s.U32.ByteSwap = ByteSwapUint32SVE2
+	s.U64.Shl = ShlUint64SVE2
+	s.U64.Shr = ShrUint64SVE2
+	s.U64.Rotl = RotlUint64SVE2
+	s.U64.Rotr = RotrUint64SVE2
+	s.U64.OnesCount = OnesCountUint64SVE2
+	s.U64.LeadingZeros = LeadingZerosUint64SVE2
+	s.U64.TrailingZeros = TrailingZerosUint64SVE2
+	s.U64.ReverseBits = ReverseBitsUint64SVE2
+	s.U64.ByteSwap = ByteSwapUint64SVE2
+	s.F32.Div = DivFloat32SVE2
+	s.F32.DivScalar = DivScalarFloat32SVE2
+	s.F32.Sqrt = SqrtFloat32SVE2
+	s.F32.Reciprocal = ReciprocalFloat32SVE2
+	s.F32.Floor = FloorFloat32SVE2
+	s.F32.Ceil = CeilFloat32SVE2
+	s.F32.Trunc = TruncFloat32SVE2
+	s.F32.Round = RoundFloat32SVE2
+	s.F32.RoundToEven = RoundToEvenFloat32SVE2
+	s.F64.Div = DivFloat64SVE2
+	s.F64.DivScalar = DivScalarFloat64SVE2
+	s.F64.Sqrt = SqrtFloat64SVE2
+	s.F64.Reciprocal = ReciprocalFloat64SVE2
+	s.F64.Floor = FloorFloat64SVE2
+	s.F64.Ceil = CeilFloat64SVE2
+	s.F64.Trunc = TruncFloat64SVE2
+	s.F64.Round = RoundFloat64SVE2
+	s.F64.RoundToEven = RoundToEvenFloat64SVE2
+	s.I32.SatAdd = SatAddInt32SVE2
+	s.I32.SatSub = SatSubInt32SVE2
+	s.I8.SatAdd = SatAddInt8SVE2
+	s.I8.SatSub = SatSubInt8SVE2
+	s.I16.SatAdd = SatAddInt16SVE2
+	s.I16.SatSub = SatSubInt16SVE2
+	s.U8.SatAdd = SatAddUint8SVE2
+	s.U8.SatSub = SatSubUint8SVE2
+	s.U16.SatAdd = SatAddUint16SVE2
+	s.U16.SatSub = SatSubUint16SVE2
+	s.U32.SatAdd = SatAddUint32SVE2
+	s.U32.SatSub = SatSubUint32SVE2
 }

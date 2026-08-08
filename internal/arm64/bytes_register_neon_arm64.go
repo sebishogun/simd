@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,35 +20,35 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func countByteNEONGuarded(b []byte, c byte) int {
+func CountByteNEON(b []byte, c byte) int {
 	if len(b) < 1073741824 {
 		return ref.CountByte(b, c)
 	}
 	return countByteNEON(b, c)
 }
 
-func indexByteNEONGuarded(b []byte, c byte) int {
+func IndexByteNEON(b []byte, c byte) int {
 	if len(b) < 1024 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteNEON(b, c)
 }
 
-func lastIndexByteNEONGuarded(b []byte, c byte) int {
+func LastIndexByteNEON(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexByte(b, c)
 	}
 	return lastIndexByteNEON(b, c)
 }
 
-func popCountNEONGuarded(b []byte) int {
+func PopCountNEON(b []byte) int {
 	if len(b) < 64 {
 		return ref.PopCount(b)
 	}
 	return popCountNEON(b)
 }
 
-func maskBitsNEONGuarded(dst []byte, b []byte, c byte) {
+func MaskBitsNEON(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBits(dst, b, c)
 		return
@@ -56,7 +56,7 @@ func maskBitsNEONGuarded(dst []byte, b []byte, c byte) {
 	maskBitsNEON(dst, b, c)
 }
 
-func maskBitsLessNEONGuarded(dst []byte, b []byte, c byte) {
+func MaskBitsLessNEON(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBitsLess(dst, b, c)
 		return
@@ -64,7 +64,7 @@ func maskBitsLessNEONGuarded(dst []byte, b []byte, c byte) {
 	maskBitsLessNEON(dst, b, c)
 }
 
-func maskBitsAny4NEONGuarded(dst []byte, b []byte, chars uint32) {
+func MaskBitsAny4NEON(dst []byte, b []byte, chars uint32) {
 	if len(b) < 64 {
 		ref.MaskBitsAny4(dst, b, chars)
 		return
@@ -72,7 +72,7 @@ func maskBitsAny4NEONGuarded(dst []byte, b []byte, chars uint32) {
 	maskBitsAny4NEON(dst, b, chars)
 }
 
-func maskBitsAnyNEONGuarded(dst []byte, b []byte, chars uint64) {
+func MaskBitsAnyNEON(dst []byte, b []byte, chars uint64) {
 	if len(b) < 64 {
 		ref.MaskBitsAny(dst, b, chars)
 		return
@@ -80,7 +80,7 @@ func maskBitsAnyNEONGuarded(dst []byte, b []byte, chars uint64) {
 	maskBitsAnyNEON(dst, b, chars)
 }
 
-func hammingU8NEONGuarded(a []byte, b []byte) int {
+func HammingU8NEON(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.Hamming(a, b)
@@ -88,7 +88,7 @@ func hammingU8NEONGuarded(a []byte, b []byte) int {
 	return hammingU8NEON(a[:n:n], b)
 }
 
-func hammingU64NEONGuarded(a []uint64, b []uint64) int {
+func HammingU64NEON(a []uint64, b []uint64) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.HammingWords(a, b)
@@ -96,7 +96,7 @@ func hammingU64NEONGuarded(a []uint64, b []uint64) int {
 	return hammingU64NEON(a[:n:n], b)
 }
 
-func grayscaleU8NEONGuarded(dst []byte, r []byte, g []byte, b []byte) {
+func GrayscaleU8NEON(dst []byte, r []byte, g []byte, b []byte) {
 	n := min(len(dst), len(r), len(g), len(b))
 	if n < 32 {
 		ref.Grayscale(dst, r, g, b)
@@ -105,7 +105,7 @@ func grayscaleU8NEONGuarded(dst []byte, r []byte, g []byte, b []byte) {
 	grayscaleU8NEON(dst[:n:n], r, g, b)
 }
 
-func rgbToUVU8NEONGuarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
+func RgbToUVU8NEON(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	n := min(len(u), len(v), len(r), len(g), len(b))
 	if n < 32 {
 		ref.RGBToUV(u, v, r, g, b)
@@ -114,35 +114,35 @@ func rgbToUVU8NEONGuarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	rgbToUVU8NEON(u[:n:n], v, r, g, b)
 }
 
-func isASCIINEONGuarded(b []byte) bool {
+func IsASCIINEON(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
 	}
 	return isASCIINEON(b)
 }
 
-func validUTF8NEONGuarded(b []byte) bool {
+func ValidUTF8NEON(b []byte) bool {
 	if len(b) < 64 {
 		return ref.ValidUTF8(b)
 	}
 	return validUTF8NEON(b)
 }
 
-func indexNonASCIINEONGuarded(b []byte) int {
+func IndexNonASCIINEON(b []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII(b)
 	}
 	return indexNonASCIINEON(b)
 }
 
-func indexNonASCII16NEONGuarded(b []uint16) int {
+func IndexNonASCII16NEON(b []uint16) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII16(b)
 	}
 	return indexNonASCII16NEON(b)
 }
 
-func widenU8U16NEONGuarded(dst []uint16, s []byte) {
+func WidenU8U16NEON(dst []uint16, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U16(dst, s)
@@ -151,7 +151,7 @@ func widenU8U16NEONGuarded(dst []uint16, s []byte) {
 	widenU8U16NEON(dst[:n:n], s)
 }
 
-func narrowU16U8NEONGuarded(dst []byte, s []uint16) {
+func NarrowU16U8NEON(dst []byte, s []uint16) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU16U8(dst, s)
@@ -160,7 +160,7 @@ func narrowU16U8NEONGuarded(dst []byte, s []uint16) {
 	narrowU16U8NEON(dst[:n:n], s)
 }
 
-func widenU8U32NEONGuarded(dst []uint32, s []byte) {
+func WidenU8U32NEON(dst []uint32, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U32(dst, s)
@@ -169,7 +169,7 @@ func widenU8U32NEONGuarded(dst []uint32, s []byte) {
 	widenU8U32NEON(dst[:n:n], s)
 }
 
-func narrowU32U8NEONGuarded(dst []byte, s []uint32) {
+func NarrowU32U8NEON(dst []byte, s []uint32) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU32U8(dst, s)
@@ -178,7 +178,7 @@ func narrowU32U8NEONGuarded(dst []byte, s []uint32) {
 	narrowU32U8NEON(dst[:n:n], s)
 }
 
-func equalBytesNEONGuarded(a []byte, b []byte) bool {
+func EqualBytesNEON(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 1073741824 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
@@ -186,7 +186,7 @@ func equalBytesNEONGuarded(a []byte, b []byte) bool {
 	return equalBytesNEON(a[:n:n], b)
 }
 
-func bitAndNEONGuarded(dst []byte, a []byte, b []byte) {
+func BitAndNEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAnd(dst, a, b)
@@ -195,7 +195,7 @@ func bitAndNEONGuarded(dst []byte, a []byte, b []byte) {
 	bitAndNEON(dst[:n:n], a, b)
 }
 
-func bitOrNEONGuarded(dst []byte, a []byte, b []byte) {
+func BitOrNEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitOr(dst, a, b)
@@ -204,7 +204,7 @@ func bitOrNEONGuarded(dst []byte, a []byte, b []byte) {
 	bitOrNEON(dst[:n:n], a, b)
 }
 
-func bitXorNEONGuarded(dst []byte, a []byte, b []byte) {
+func BitXorNEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitXor(dst, a, b)
@@ -213,7 +213,7 @@ func bitXorNEONGuarded(dst []byte, a []byte, b []byte) {
 	bitXorNEON(dst[:n:n], a, b)
 }
 
-func bitAndNotNEONGuarded(dst []byte, a []byte, b []byte) {
+func BitAndNotNEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAndNot(dst, a, b)
@@ -222,7 +222,7 @@ func bitAndNotNEONGuarded(dst []byte, a []byte, b []byte) {
 	bitAndNotNEON(dst[:n:n], a, b)
 }
 
-func bitNotNEONGuarded(dst []byte, b []byte) {
+func BitNotNEON(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.BitNot(dst, b)
@@ -231,7 +231,7 @@ func bitNotNEONGuarded(dst []byte, b []byte) {
 	bitNotNEON(dst[:n:n], b)
 }
 
-func fillBytesNEONGuarded(dst []byte, v byte) {
+func FillBytesNEON(dst []byte, v byte) {
 	if len(dst) < 32 {
 		ref.FillBytes(dst, v)
 		return
@@ -239,21 +239,21 @@ func fillBytesNEONGuarded(dst []byte, v byte) {
 	fillBytesNEON(dst, v)
 }
 
-func compareBytesNEONGuarded(a []byte, b []byte) int {
+func CompareBytesNEON(a []byte, b []byte) int {
 	if len(a) < 2048 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesNEON(a, b)
 }
 
-func commonPrefixNEONGuarded(a []byte, b []byte) int {
+func CommonPrefixNEON(a []byte, b []byte) int {
 	if len(a) < 64 {
 		return ref.CommonPrefix(a, b)
 	}
 	return commonPrefixNEON(a, b)
 }
 
-func equalFoldASCIINEONGuarded(a []byte, b []byte) bool {
+func EqualFoldASCIINEON(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
 		return ref.EqualFoldASCII(a, b)
@@ -261,42 +261,42 @@ func equalFoldASCIINEONGuarded(a []byte, b []byte) bool {
 	return equalFoldASCIINEON(a[:n:n], b)
 }
 
-func indexAnyNEONGuarded(b []byte, chars []byte) int {
+func IndexAnyNEON(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexAny(b, chars)
 	}
 	return indexAnyNEON(b, chars)
 }
 
-func indexAnyOrLessNEONGuarded(b []byte, chars []byte, lo byte) int {
+func IndexAnyOrLessNEON(b []byte, chars []byte, lo byte) int {
 	if len(b) < 64 {
 		return ref.IndexAnyOrLess(b, chars, lo)
 	}
 	return indexAnyOrLessNEON(b, chars, lo)
 }
 
-func indexNotAnyNEONGuarded(b []byte, chars []byte) int {
+func IndexNotAnyNEON(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
 	}
 	return indexNotAnyNEON(b, chars)
 }
 
-func lastIndexNotAnyNEONGuarded(b []byte, chars []byte) int {
+func LastIndexNotAnyNEON(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexNotAny(b, chars)
 	}
 	return lastIndexNotAnyNEON(b, chars)
 }
 
-func countAnyNEONGuarded(b []byte, chars []byte) int {
+func CountAnyNEON(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
 	}
 	return countAnyNEON(b, chars)
 }
 
-func jsonMasksNEONGuarded(dst []byte, b []byte, want uint32) {
+func JsonMasksNEON(dst []byte, b []byte, want uint32) {
 	if len(b) < 64 || len(dst) < 5*(((len(b)+63)/64)*8) {
 		ref.JSONMasks(dst, b, want)
 		return
@@ -304,21 +304,21 @@ func jsonMasksNEONGuarded(dst []byte, b []byte, want uint32) {
 	jsonMasksNEON(dst, b, want)
 }
 
-func jsonValidTokensNEONGuarded(b []byte, masks []uint64, stk []uint64) int {
+func JsonValidTokensNEON(b []byte, masks []uint64, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 || len(masks) < 2*((len(b)+63)/64) {
 		return ref.JSONValidTokens(b, masks, stk)
 	}
 	return jsonValidTokensNEON(b, masks, stk)
 }
 
-func jsonValidNEONGuarded(b []byte, stk []uint64) int {
+func JsonValidNEON(b []byte, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 {
 		return ref.JSONValid(b, stk)
 	}
 	return jsonValidNEON(b, stk)
 }
 
-func jsonStage1NEONGuarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+func JsonStage1NEON(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
 		return
@@ -326,42 +326,42 @@ func jsonStage1NEONGuarded(out []uint64, masks []byte, nw int, carr []uint64, re
 	jsonStage1NEON(out, masks, nw, carr, res)
 }
 
-func jsonCopyValidNEONGuarded(dst []byte, b []byte, html byte) int {
+func JsonCopyValidNEON(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < len(b) {
 		return ref.JSONCopyValid(dst, b, html)
 	}
 	return jsonCopyValidNEON(dst, b, html)
 }
 
-func jsonQuoteNEONGuarded(dst []byte, b []byte, html byte) int {
+func JsonQuoteNEON(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < 6*len(b) {
 		return ref.JSONQuote(dst, b, html)
 	}
 	return jsonQuoteNEON(dst, b, html)
 }
 
-func jsonCopyRunNEONGuarded(dst []byte, b []byte, html byte) int {
+func JsonCopyRunNEON(dst []byte, b []byte, html byte) int {
 	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunNEON(dst, b, html)
 }
 
-func b64EncodeNEONGuarded(dst []byte, b []byte) int {
+func B64EncodeNEON(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Encode(dst, b)
 	}
 	return b64EncodeNEON(dst, b)
 }
 
-func b64DecodeNEONGuarded(dst []byte, b []byte) int {
+func B64DecodeNEON(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Decode(dst, b)
 	}
 	return b64DecodeNEON(dst, b)
 }
 
-func parseIntsNEONGuarded(dst []int64, src []byte, idx []int32) (count int, ok bool) {
+func ParseIntsNEON(dst []int64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseInts(dst, src, idx)
@@ -369,7 +369,7 @@ func parseIntsNEONGuarded(dst []int64, src []byte, idx []int32) (count int, ok b
 	return parseIntsNEON(dst, src, idx[:n:n])
 }
 
-func parseUintsNEONGuarded(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
+func ParseUintsNEON(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseUints(dst, src, idx)
@@ -377,49 +377,49 @@ func parseUintsNEONGuarded(dst []uint64, src []byte, idx []int32) (count int, ok
 	return parseUintsNEON(dst, src, idx[:n:n])
 }
 
-func formatIntsNEONGuarded(dst []byte, vals []int64, sep byte) int {
+func FormatIntsNEON(dst []byte, vals []int64, sep byte) int {
 	if len(vals) < 0 || len(dst) < 21*len(vals) {
 		return ref.FormatInts(dst, vals, sep)
 	}
 	return formatIntsNEON(dst, vals, sep)
 }
 
-func hexDecodeNEONGuarded(dst []byte, src []byte) (n int, ok bool) {
+func HexDecodeNEON(dst []byte, src []byte) (n int, ok bool) {
 	if len(dst) < 32 {
 		return ref.HexDecode(dst, src)
 	}
 	return hexDecodeNEON(dst, src)
 }
 
-func hexEncodeNEONGuarded(dst []byte, b []byte) int {
+func HexEncodeNEON(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
 	}
 	return hexEncodeNEON(dst, b)
 }
 
-func indexNEONGuarded(haystack []byte, needle []byte) int {
+func IndexNEON(haystack []byte, needle []byte) int {
 	if len(haystack) < 256 {
 		return ref.Index(haystack, needle)
 	}
 	return indexNEON(haystack, needle)
 }
 
-func lastIndexNEONGuarded(haystack []byte, needle []byte) int {
+func LastIndexNEON(haystack []byte, needle []byte) int {
 	if len(haystack) < 64 {
 		return ref.LastIndex(haystack, needle)
 	}
 	return lastIndexNEON(haystack, needle)
 }
 
-func countSeqNEONGuarded(haystack []byte, needle []byte) int {
+func CountSeqNEON(haystack []byte, needle []byte) int {
 	if len(haystack) < 256 || len(needle) == 0 {
 		return ref.CountSeq(haystack, needle)
 	}
 	return countSeqNEON(haystack, needle)
 }
 
-func toUpperASCIINEONGuarded(dst []byte, b []byte) {
+func ToUpperASCIINEON(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToUpperASCII(dst, b)
@@ -428,7 +428,7 @@ func toUpperASCIINEONGuarded(dst []byte, b []byte) {
 	toUpperASCIINEON(dst[:n:n], b)
 }
 
-func toLowerASCIINEONGuarded(dst []byte, b []byte) {
+func ToLowerASCIINEON(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToLowerASCII(dst, b)
@@ -437,7 +437,7 @@ func toLowerASCIINEONGuarded(dst []byte, b []byte) {
 	toLowerASCIINEON(dst[:n:n], b)
 }
 
-func replaceByteNEONGuarded(dst []byte, b []byte, old byte, with byte) {
+func ReplaceByteNEON(dst []byte, b []byte, old byte, with byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ReplaceByte(dst, b, old, with)
@@ -446,63 +446,60 @@ func replaceByteNEONGuarded(dst []byte, b []byte, old byte, with byte) {
 	replaceByteNEON(dst[:n:n], b, old, with)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.Bytes.Count = countByteNEONGuarded
-	s.Bytes.IndexByte = indexByteNEONGuarded
-	s.Bytes.LastIndexByte = lastIndexByteNEONGuarded
-	s.Bytes.PopCount = popCountNEONGuarded
-	s.Bytes.MaskBits = maskBitsNEONGuarded
-	s.Bytes.MaskBitsLess = maskBitsLessNEONGuarded
-	s.Bytes.MaskBitsAny4 = maskBitsAny4NEONGuarded
-	s.Bytes.MaskBitsAny = maskBitsAnyNEONGuarded
-	s.Bytes.Hamming = hammingU8NEONGuarded
-	s.Bytes.HammingWords = hammingU64NEONGuarded
-	s.Bytes.Grayscale = grayscaleU8NEONGuarded
-	s.Bytes.RGBToUV = rgbToUVU8NEONGuarded
-	s.Bytes.IsASCII = isASCIINEONGuarded
-	s.Bytes.ValidUTF8 = validUTF8NEONGuarded
-	s.Bytes.IndexNonASCII = indexNonASCIINEONGuarded
-	s.Bytes.IndexNonASCII16 = indexNonASCII16NEONGuarded
-	s.Bytes.WidenU8U16 = widenU8U16NEONGuarded
-	s.Bytes.NarrowU16U8 = narrowU16U8NEONGuarded
-	s.Bytes.WidenU8U32 = widenU8U32NEONGuarded
-	s.Bytes.NarrowU32U8 = narrowU32U8NEONGuarded
-	s.Bytes.Equal = equalBytesNEONGuarded
-	s.Bytes.And = bitAndNEONGuarded
-	s.Bytes.Or = bitOrNEONGuarded
-	s.Bytes.Xor = bitXorNEONGuarded
-	s.Bytes.AndNot = bitAndNotNEONGuarded
-	s.Bytes.Not = bitNotNEONGuarded
-	s.Bytes.Fill = fillBytesNEONGuarded
-	s.Bytes.Compare = compareBytesNEONGuarded
-	s.Bytes.CommonPrefix = commonPrefixNEONGuarded
-	s.Bytes.EqualFoldASCII = equalFoldASCIINEONGuarded
-	s.Bytes.IndexAny = indexAnyNEONGuarded
-	s.Bytes.IndexAnyOrLess = indexAnyOrLessNEONGuarded
-	s.Bytes.IndexNotAny = indexNotAnyNEONGuarded
-	s.Bytes.LastIndexNotAny = lastIndexNotAnyNEONGuarded
-	s.Bytes.CountAny = countAnyNEONGuarded
-	s.Bytes.JSONMasks = jsonMasksNEONGuarded
-	s.Bytes.JSONValidTokens = jsonValidTokensNEONGuarded
-	s.Bytes.JSONValid = jsonValidNEONGuarded
-	s.Bytes.JSONStage1 = jsonStage1NEONGuarded
-	s.Bytes.JSONCopyValid = jsonCopyValidNEONGuarded
-	s.Bytes.JSONQuote = jsonQuoteNEONGuarded
-	s.Bytes.JSONCopyRun = jsonCopyRunNEONGuarded
-	s.Bytes.B64Encode = b64EncodeNEONGuarded
-	s.Bytes.B64Decode = b64DecodeNEONGuarded
-	s.Bytes.ParseInts = parseIntsNEONGuarded
-	s.Bytes.ParseUints = parseUintsNEONGuarded
-	s.Bytes.FormatInts = formatIntsNEONGuarded
-	s.Bytes.HexDecode = hexDecodeNEONGuarded
-	s.Bytes.HexEncode = hexEncodeNEONGuarded
-	s.Bytes.Index = indexNEONGuarded
-	s.Bytes.LastIndex = lastIndexNEONGuarded
-	s.Bytes.CountSeq = countSeqNEONGuarded
-	s.Bytes.ToUpperASCII = toUpperASCIINEONGuarded
-	s.Bytes.ToLowerASCII = toLowerASCIINEONGuarded
-	s.Bytes.ReplaceByte = replaceByteNEONGuarded
+func registerBytesNEON(s *kernel.Set) {
+	s.Bytes.Count = CountByteNEON
+	s.Bytes.IndexByte = IndexByteNEON
+	s.Bytes.LastIndexByte = LastIndexByteNEON
+	s.Bytes.PopCount = PopCountNEON
+	s.Bytes.MaskBits = MaskBitsNEON
+	s.Bytes.MaskBitsLess = MaskBitsLessNEON
+	s.Bytes.MaskBitsAny4 = MaskBitsAny4NEON
+	s.Bytes.MaskBitsAny = MaskBitsAnyNEON
+	s.Bytes.Hamming = HammingU8NEON
+	s.Bytes.HammingWords = HammingU64NEON
+	s.Bytes.Grayscale = GrayscaleU8NEON
+	s.Bytes.RGBToUV = RgbToUVU8NEON
+	s.Bytes.IsASCII = IsASCIINEON
+	s.Bytes.ValidUTF8 = ValidUTF8NEON
+	s.Bytes.IndexNonASCII = IndexNonASCIINEON
+	s.Bytes.IndexNonASCII16 = IndexNonASCII16NEON
+	s.Bytes.WidenU8U16 = WidenU8U16NEON
+	s.Bytes.NarrowU16U8 = NarrowU16U8NEON
+	s.Bytes.WidenU8U32 = WidenU8U32NEON
+	s.Bytes.NarrowU32U8 = NarrowU32U8NEON
+	s.Bytes.Equal = EqualBytesNEON
+	s.Bytes.And = BitAndNEON
+	s.Bytes.Or = BitOrNEON
+	s.Bytes.Xor = BitXorNEON
+	s.Bytes.AndNot = BitAndNotNEON
+	s.Bytes.Not = BitNotNEON
+	s.Bytes.Fill = FillBytesNEON
+	s.Bytes.Compare = CompareBytesNEON
+	s.Bytes.CommonPrefix = CommonPrefixNEON
+	s.Bytes.EqualFoldASCII = EqualFoldASCIINEON
+	s.Bytes.IndexAny = IndexAnyNEON
+	s.Bytes.IndexAnyOrLess = IndexAnyOrLessNEON
+	s.Bytes.IndexNotAny = IndexNotAnyNEON
+	s.Bytes.LastIndexNotAny = LastIndexNotAnyNEON
+	s.Bytes.CountAny = CountAnyNEON
+	s.Bytes.JSONMasks = JsonMasksNEON
+	s.Bytes.JSONValidTokens = JsonValidTokensNEON
+	s.Bytes.JSONValid = JsonValidNEON
+	s.Bytes.JSONStage1 = JsonStage1NEON
+	s.Bytes.JSONCopyValid = JsonCopyValidNEON
+	s.Bytes.JSONQuote = JsonQuoteNEON
+	s.Bytes.JSONCopyRun = JsonCopyRunNEON
+	s.Bytes.B64Encode = B64EncodeNEON
+	s.Bytes.B64Decode = B64DecodeNEON
+	s.Bytes.ParseInts = ParseIntsNEON
+	s.Bytes.ParseUints = ParseUintsNEON
+	s.Bytes.FormatInts = FormatIntsNEON
+	s.Bytes.HexDecode = HexDecodeNEON
+	s.Bytes.HexEncode = HexEncodeNEON
+	s.Bytes.Index = IndexNEON
+	s.Bytes.LastIndex = LastIndexNEON
+	s.Bytes.CountSeq = CountSeqNEON
+	s.Bytes.ToUpperASCII = ToUpperASCIINEON
+	s.Bytes.ToLowerASCII = ToLowerASCIINEON
+	s.Bytes.ReplaceByte = ReplaceByteNEON
 }

@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func partitionFloat32RVVGuarded(dst []float32, src []float32, pivot float32) int {
+func PartitionFloat32RVV(dst []float32, src []float32, pivot float32) int {
 	n := min(len(src), len(dst))
 	if n < 64 || len(dst) < len(src) {
 		return ref.Partition(dst, src, pivot)
@@ -28,7 +28,7 @@ func partitionFloat32RVVGuarded(dst []float32, src []float32, pivot float32) int
 	return partitionFloat32RVV(dst, src[:n:n], pivot)
 }
 
-func partitionFloat64RVVGuarded(dst []float64, src []float64, pivot float64) int {
+func PartitionFloat64RVV(dst []float64, src []float64, pivot float64) int {
 	n := min(len(src), len(dst))
 	if n < 64 || len(dst) < len(src) {
 		return ref.Partition(dst, src, pivot)
@@ -36,7 +36,7 @@ func partitionFloat64RVVGuarded(dst []float64, src []float64, pivot float64) int
 	return partitionFloat64RVV(dst, src[:n:n], pivot)
 }
 
-func partitionInt32RVVGuarded(dst []int32, src []int32, pivot int32) int {
+func PartitionInt32RVV(dst []int32, src []int32, pivot int32) int {
 	n := min(len(src), len(dst))
 	if n < 64 || len(dst) < len(src) {
 		return ref.Partition(dst, src, pivot)
@@ -44,7 +44,7 @@ func partitionInt32RVVGuarded(dst []int32, src []int32, pivot int32) int {
 	return partitionInt32RVV(dst, src[:n:n], pivot)
 }
 
-func partitionInt64RVVGuarded(dst []int64, src []int64, pivot int64) int {
+func PartitionInt64RVV(dst []int64, src []int64, pivot int64) int {
 	n := min(len(src), len(dst))
 	if n < 64 || len(dst) < len(src) {
 		return ref.Partition(dst, src, pivot)
@@ -52,12 +52,9 @@ func partitionInt64RVVGuarded(dst []int64, src []int64, pivot int64) int {
 	return partitionInt64RVV(dst, src[:n:n], pivot)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.F32.Partition = partitionFloat32RVVGuarded
-	s.F64.Partition = partitionFloat64RVVGuarded
-	s.I32.Partition = partitionInt32RVVGuarded
-	s.I64.Partition = partitionInt64RVVGuarded
+func registerSortRVV(s *kernel.Set) {
+	s.F32.Partition = PartitionFloat32RVV
+	s.F64.Partition = PartitionFloat64RVV
+	s.I32.Partition = PartitionInt32RVV
+	s.I64.Partition = PartitionInt64RVV
 }

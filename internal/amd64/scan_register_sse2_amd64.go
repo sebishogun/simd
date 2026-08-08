@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func rollingMinFloat32SSE2Guarded(dst []float32, a []float32, window int) {
+func RollingMinFloat32SSE2(dst []float32, a []float32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinFloat(dst, a, window)
 		return
@@ -28,7 +28,7 @@ func rollingMinFloat32SSE2Guarded(dst []float32, a []float32, window int) {
 	rollingMinFloat32SSE2(dst, a, window)
 }
 
-func rollingMaxFloat32SSE2Guarded(dst []float32, a []float32, window int) {
+func RollingMaxFloat32SSE2(dst []float32, a []float32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxFloat(dst, a, window)
 		return
@@ -36,7 +36,7 @@ func rollingMaxFloat32SSE2Guarded(dst []float32, a []float32, window int) {
 	rollingMaxFloat32SSE2(dst, a, window)
 }
 
-func fastCumProdFloat32SSE2Guarded(dst []float32, a []float32) {
+func FastCumProdFloat32SSE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -45,7 +45,7 @@ func fastCumProdFloat32SSE2Guarded(dst []float32, a []float32) {
 	fastCumProdFloat32SSE2(dst[:n:n], a)
 }
 
-func fastCumSumFloat32SSE2Guarded(dst []float32, a []float32) {
+func FastCumSumFloat32SSE2(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumSumFloat(dst, a)
@@ -54,7 +54,7 @@ func fastCumSumFloat32SSE2Guarded(dst []float32, a []float32) {
 	fastCumSumFloat32SSE2(dst[:n:n], a)
 }
 
-func rollingMinFloat64SSE2Guarded(dst []float64, a []float64, window int) {
+func RollingMinFloat64SSE2(dst []float64, a []float64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinFloat(dst, a, window)
 		return
@@ -62,7 +62,7 @@ func rollingMinFloat64SSE2Guarded(dst []float64, a []float64, window int) {
 	rollingMinFloat64SSE2(dst, a, window)
 }
 
-func rollingMaxFloat64SSE2Guarded(dst []float64, a []float64, window int) {
+func RollingMaxFloat64SSE2(dst []float64, a []float64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxFloat(dst, a, window)
 		return
@@ -70,7 +70,7 @@ func rollingMaxFloat64SSE2Guarded(dst []float64, a []float64, window int) {
 	rollingMaxFloat64SSE2(dst, a, window)
 }
 
-func fastCumProdFloat64SSE2Guarded(dst []float64, a []float64) {
+func FastCumProdFloat64SSE2(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -79,7 +79,7 @@ func fastCumProdFloat64SSE2Guarded(dst []float64, a []float64) {
 	fastCumProdFloat64SSE2(dst[:n:n], a)
 }
 
-func rollingMinInt32SSE2Guarded(dst []int32, a []int32, window int) {
+func RollingMinInt32SSE2(dst []int32, a []int32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinInt(dst, a, window)
 		return
@@ -87,7 +87,7 @@ func rollingMinInt32SSE2Guarded(dst []int32, a []int32, window int) {
 	rollingMinInt32SSE2(dst, a, window)
 }
 
-func rollingMaxInt32SSE2Guarded(dst []int32, a []int32, window int) {
+func RollingMaxInt32SSE2(dst []int32, a []int32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxInt(dst, a, window)
 		return
@@ -95,7 +95,7 @@ func rollingMaxInt32SSE2Guarded(dst []int32, a []int32, window int) {
 	rollingMaxInt32SSE2(dst, a, window)
 }
 
-func cumMinInt32SSE2Guarded(dst []int32, a []int32) {
+func CumMinInt32SSE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -104,7 +104,7 @@ func cumMinInt32SSE2Guarded(dst []int32, a []int32) {
 	cumMinInt32SSE2(dst[:n:n], a)
 }
 
-func cumMaxInt32SSE2Guarded(dst []int32, a []int32) {
+func CumMaxInt32SSE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -113,7 +113,7 @@ func cumMaxInt32SSE2Guarded(dst []int32, a []int32) {
 	cumMaxInt32SSE2(dst[:n:n], a)
 }
 
-func cumProdInt32SSE2Guarded(dst []int32, a []int32) {
+func CumProdInt32SSE2(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumProdInt(dst, a)
@@ -122,7 +122,7 @@ func cumProdInt32SSE2Guarded(dst []int32, a []int32) {
 	cumProdInt32SSE2(dst[:n:n], a)
 }
 
-func rollingMinInt64SSE2Guarded(dst []int64, a []int64, window int) {
+func RollingMinInt64SSE2(dst []int64, a []int64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinInt(dst, a, window)
 		return
@@ -130,7 +130,7 @@ func rollingMinInt64SSE2Guarded(dst []int64, a []int64, window int) {
 	rollingMinInt64SSE2(dst, a, window)
 }
 
-func rollingMaxInt64SSE2Guarded(dst []int64, a []int64, window int) {
+func RollingMaxInt64SSE2(dst []int64, a []int64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxInt(dst, a, window)
 		return
@@ -138,7 +138,7 @@ func rollingMaxInt64SSE2Guarded(dst []int64, a []int64, window int) {
 	rollingMaxInt64SSE2(dst, a, window)
 }
 
-func cumMinInt64SSE2Guarded(dst []int64, a []int64) {
+func CumMinInt64SSE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -147,7 +147,7 @@ func cumMinInt64SSE2Guarded(dst []int64, a []int64) {
 	cumMinInt64SSE2(dst[:n:n], a)
 }
 
-func cumMaxInt64SSE2Guarded(dst []int64, a []int64) {
+func CumMaxInt64SSE2(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -156,24 +156,21 @@ func cumMaxInt64SSE2Guarded(dst []int64, a []int64) {
 	cumMaxInt64SSE2(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sse2")
-	s.F32.RollingMin = rollingMinFloat32SSE2Guarded
-	s.F32.RollingMax = rollingMaxFloat32SSE2Guarded
-	s.F32.FastCumProd = fastCumProdFloat32SSE2Guarded
-	s.F32.FastCumSum = fastCumSumFloat32SSE2Guarded
-	s.F64.RollingMin = rollingMinFloat64SSE2Guarded
-	s.F64.RollingMax = rollingMaxFloat64SSE2Guarded
-	s.F64.FastCumProd = fastCumProdFloat64SSE2Guarded
-	s.I32.RollingMin = rollingMinInt32SSE2Guarded
-	s.I32.RollingMax = rollingMaxInt32SSE2Guarded
-	s.I32.CumMin = cumMinInt32SSE2Guarded
-	s.I32.CumMax = cumMaxInt32SSE2Guarded
-	s.I32.CumProd = cumProdInt32SSE2Guarded
-	s.I64.RollingMin = rollingMinInt64SSE2Guarded
-	s.I64.RollingMax = rollingMaxInt64SSE2Guarded
-	s.I64.CumMin = cumMinInt64SSE2Guarded
-	s.I64.CumMax = cumMaxInt64SSE2Guarded
+func registerScanSSE2(s *kernel.Set) {
+	s.F32.RollingMin = RollingMinFloat32SSE2
+	s.F32.RollingMax = RollingMaxFloat32SSE2
+	s.F32.FastCumProd = FastCumProdFloat32SSE2
+	s.F32.FastCumSum = FastCumSumFloat32SSE2
+	s.F64.RollingMin = RollingMinFloat64SSE2
+	s.F64.RollingMax = RollingMaxFloat64SSE2
+	s.F64.FastCumProd = FastCumProdFloat64SSE2
+	s.I32.RollingMin = RollingMinInt32SSE2
+	s.I32.RollingMax = RollingMaxInt32SSE2
+	s.I32.CumMin = CumMinInt32SSE2
+	s.I32.CumMax = CumMaxInt32SSE2
+	s.I32.CumProd = CumProdInt32SSE2
+	s.I64.RollingMin = RollingMinInt64SSE2
+	s.I64.RollingMax = RollingMaxInt64SSE2
+	s.I64.CumMin = CumMinInt64SSE2
+	s.I64.CumMax = CumMaxInt64SSE2
 }

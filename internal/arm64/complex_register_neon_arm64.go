@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func caddComplex64NEONGuarded(dst []complex64, a []complex64, b []complex64) {
+func CaddComplex64NEON(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CAdd(dst, a, b)
@@ -29,7 +29,7 @@ func caddComplex64NEONGuarded(dst []complex64, a []complex64, b []complex64) {
 	caddComplex64NEON(dst[:n:n], a, b)
 }
 
-func csubComplex64NEONGuarded(dst []complex64, a []complex64, b []complex64) {
+func CsubComplex64NEON(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CSub(dst, a, b)
@@ -38,7 +38,7 @@ func csubComplex64NEONGuarded(dst []complex64, a []complex64, b []complex64) {
 	csubComplex64NEON(dst[:n:n], a, b)
 }
 
-func cmulComplex64NEONGuarded(dst []complex64, a []complex64, b []complex64) {
+func CmulComplex64NEON(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CMul64(dst, a, b)
@@ -47,7 +47,7 @@ func cmulComplex64NEONGuarded(dst []complex64, a []complex64, b []complex64) {
 	cmulComplex64NEON(dst[:n:n], a, b)
 }
 
-func cdivComplex64NEONGuarded(dst []complex64, a []complex64, b []complex64) {
+func CdivComplex64NEON(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CDiv64(dst, a, b)
@@ -56,7 +56,7 @@ func cdivComplex64NEONGuarded(dst []complex64, a []complex64, b []complex64) {
 	cdivComplex64NEON(dst[:n:n], a, b)
 }
 
-func cnegComplex64NEONGuarded(dst []complex64, a []complex64) {
+func CnegComplex64NEON(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CNeg(dst, a)
@@ -65,7 +65,7 @@ func cnegComplex64NEONGuarded(dst []complex64, a []complex64) {
 	cnegComplex64NEON(dst[:n:n], a)
 }
 
-func cconjComplex64NEONGuarded(dst []complex64, a []complex64) {
+func CconjComplex64NEON(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CConj64(dst, a)
@@ -74,7 +74,7 @@ func cconjComplex64NEONGuarded(dst []complex64, a []complex64) {
 	cconjComplex64NEON(dst[:n:n], a)
 }
 
-func cabsComplex64NEONGuarded(dst []float32, a []complex64) {
+func CabsComplex64NEON(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CAbs64(dst, a)
@@ -83,7 +83,7 @@ func cabsComplex64NEONGuarded(dst []float32, a []complex64) {
 	cabsComplex64NEON(dst[:n:n], a)
 }
 
-func crealComplex64NEONGuarded(dst []float32, a []complex64) {
+func CrealComplex64NEON(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CReal64(dst, a)
@@ -92,7 +92,7 @@ func crealComplex64NEONGuarded(dst []float32, a []complex64) {
 	crealComplex64NEON(dst[:n:n], a)
 }
 
-func cimagComplex64NEONGuarded(dst []float32, a []complex64) {
+func CimagComplex64NEON(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CImag64(dst, a)
@@ -101,7 +101,7 @@ func cimagComplex64NEONGuarded(dst []float32, a []complex64) {
 	cimagComplex64NEON(dst[:n:n], a)
 }
 
-func cscaleComplex64NEONGuarded(dst []complex64, a []complex64, s float32) {
+func CscaleComplex64NEON(dst []complex64, a []complex64, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CScale64(dst, a, s)
@@ -110,14 +110,14 @@ func cscaleComplex64NEONGuarded(dst []complex64, a []complex64, s float32) {
 	cscaleComplex64NEON(dst[:n:n], a, s)
 }
 
-func csumComplex64NEONGuarded(a []complex64) complex64 {
+func CsumComplex64NEON(a []complex64) complex64 {
 	if len(a) < 0 {
 		return ref.CSum64(a)
 	}
 	return csumComplex64NEON(a)
 }
 
-func cdotComplex64NEONGuarded(a []complex64, b []complex64) complex64 {
+func CdotComplex64NEON(a []complex64, b []complex64) complex64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDot64(a, b)
@@ -125,7 +125,7 @@ func cdotComplex64NEONGuarded(a []complex64, b []complex64) complex64 {
 	return cdotComplex64NEON(a[:n:n], b)
 }
 
-func cdotconjComplex64NEONGuarded(a []complex64, b []complex64) complex64 {
+func CdotconjComplex64NEON(a []complex64, b []complex64) complex64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDotConj64(a, b)
@@ -133,7 +133,7 @@ func cdotconjComplex64NEONGuarded(a []complex64, b []complex64) complex64 {
 	return cdotconjComplex64NEON(a[:n:n], b)
 }
 
-func cfromPartsComplex64NEONGuarded(dst []complex64, re []float32, im []float32) {
+func CfromPartsComplex64NEON(dst []complex64, re []float32, im []float32) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
 		ref.CFromParts64(dst, re, im)
@@ -142,7 +142,7 @@ func cfromPartsComplex64NEONGuarded(dst []complex64, re []float32, im []float32)
 	cfromPartsComplex64NEON(dst[:n:n], re, im)
 }
 
-func caddComplex128NEONGuarded(dst []complex128, a []complex128, b []complex128) {
+func CaddComplex128NEON(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CAdd(dst, a, b)
@@ -151,7 +151,7 @@ func caddComplex128NEONGuarded(dst []complex128, a []complex128, b []complex128)
 	caddComplex128NEON(dst[:n:n], a, b)
 }
 
-func csubComplex128NEONGuarded(dst []complex128, a []complex128, b []complex128) {
+func CsubComplex128NEON(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CSub(dst, a, b)
@@ -160,7 +160,7 @@ func csubComplex128NEONGuarded(dst []complex128, a []complex128, b []complex128)
 	csubComplex128NEON(dst[:n:n], a, b)
 }
 
-func cmulComplex128NEONGuarded(dst []complex128, a []complex128, b []complex128) {
+func CmulComplex128NEON(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CMul128(dst, a, b)
@@ -169,7 +169,7 @@ func cmulComplex128NEONGuarded(dst []complex128, a []complex128, b []complex128)
 	cmulComplex128NEON(dst[:n:n], a, b)
 }
 
-func cdivComplex128NEONGuarded(dst []complex128, a []complex128, b []complex128) {
+func CdivComplex128NEON(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CDiv128(dst, a, b)
@@ -178,7 +178,7 @@ func cdivComplex128NEONGuarded(dst []complex128, a []complex128, b []complex128)
 	cdivComplex128NEON(dst[:n:n], a, b)
 }
 
-func cnegComplex128NEONGuarded(dst []complex128, a []complex128) {
+func CnegComplex128NEON(dst []complex128, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CNeg(dst, a)
@@ -187,7 +187,7 @@ func cnegComplex128NEONGuarded(dst []complex128, a []complex128) {
 	cnegComplex128NEON(dst[:n:n], a)
 }
 
-func cconjComplex128NEONGuarded(dst []complex128, a []complex128) {
+func CconjComplex128NEON(dst []complex128, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CConj128(dst, a)
@@ -196,7 +196,7 @@ func cconjComplex128NEONGuarded(dst []complex128, a []complex128) {
 	cconjComplex128NEON(dst[:n:n], a)
 }
 
-func cabsComplex128NEONGuarded(dst []float64, a []complex128) {
+func CabsComplex128NEON(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CAbs128(dst, a)
@@ -205,7 +205,7 @@ func cabsComplex128NEONGuarded(dst []float64, a []complex128) {
 	cabsComplex128NEON(dst[:n:n], a)
 }
 
-func crealComplex128NEONGuarded(dst []float64, a []complex128) {
+func CrealComplex128NEON(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CReal128(dst, a)
@@ -214,7 +214,7 @@ func crealComplex128NEONGuarded(dst []float64, a []complex128) {
 	crealComplex128NEON(dst[:n:n], a)
 }
 
-func cimagComplex128NEONGuarded(dst []float64, a []complex128) {
+func CimagComplex128NEON(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CImag128(dst, a)
@@ -223,7 +223,7 @@ func cimagComplex128NEONGuarded(dst []float64, a []complex128) {
 	cimagComplex128NEON(dst[:n:n], a)
 }
 
-func cscaleComplex128NEONGuarded(dst []complex128, a []complex128, s float64) {
+func CscaleComplex128NEON(dst []complex128, a []complex128, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CScale128(dst, a, s)
@@ -232,14 +232,14 @@ func cscaleComplex128NEONGuarded(dst []complex128, a []complex128, s float64) {
 	cscaleComplex128NEON(dst[:n:n], a, s)
 }
 
-func csumComplex128NEONGuarded(a []complex128) complex128 {
+func CsumComplex128NEON(a []complex128) complex128 {
 	if len(a) < 0 {
 		return ref.CSum128(a)
 	}
 	return csumComplex128NEON(a)
 }
 
-func cdotComplex128NEONGuarded(a []complex128, b []complex128) complex128 {
+func CdotComplex128NEON(a []complex128, b []complex128) complex128 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDot128(a, b)
@@ -247,7 +247,7 @@ func cdotComplex128NEONGuarded(a []complex128, b []complex128) complex128 {
 	return cdotComplex128NEON(a[:n:n], b)
 }
 
-func cdotconjComplex128NEONGuarded(a []complex128, b []complex128) complex128 {
+func CdotconjComplex128NEON(a []complex128, b []complex128) complex128 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDotConj128(a, b)
@@ -255,7 +255,7 @@ func cdotconjComplex128NEONGuarded(a []complex128, b []complex128) complex128 {
 	return cdotconjComplex128NEON(a[:n:n], b)
 }
 
-func cfromPartsComplex128NEONGuarded(dst []complex128, re []float64, im []float64) {
+func CfromPartsComplex128NEON(dst []complex128, re []float64, im []float64) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
 		ref.CFromParts128(dst, re, im)
@@ -264,36 +264,33 @@ func cfromPartsComplex128NEONGuarded(dst []complex128, re []float64, im []float6
 	cfromPartsComplex128NEON(dst[:n:n], re, im)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.C64.Add = caddComplex64NEONGuarded
-	s.C64.Sub = csubComplex64NEONGuarded
-	s.C64.Mul = cmulComplex64NEONGuarded
-	s.C64.Div = cdivComplex64NEONGuarded
-	s.C64.Neg = cnegComplex64NEONGuarded
-	s.C64.Conj = cconjComplex64NEONGuarded
-	s.C64Parts.Abs = cabsComplex64NEONGuarded
-	s.C64Parts.Real = crealComplex64NEONGuarded
-	s.C64Parts.Imag = cimagComplex64NEONGuarded
-	s.C64Parts.Scale = cscaleComplex64NEONGuarded
-	s.C64.Sum = csumComplex64NEONGuarded
-	s.C64.Dot = cdotComplex64NEONGuarded
-	s.C64.DotConj = cdotconjComplex64NEONGuarded
-	s.C64Parts.FromParts = cfromPartsComplex64NEONGuarded
-	s.C128.Add = caddComplex128NEONGuarded
-	s.C128.Sub = csubComplex128NEONGuarded
-	s.C128.Mul = cmulComplex128NEONGuarded
-	s.C128.Div = cdivComplex128NEONGuarded
-	s.C128.Neg = cnegComplex128NEONGuarded
-	s.C128.Conj = cconjComplex128NEONGuarded
-	s.C128Parts.Abs = cabsComplex128NEONGuarded
-	s.C128Parts.Real = crealComplex128NEONGuarded
-	s.C128Parts.Imag = cimagComplex128NEONGuarded
-	s.C128Parts.Scale = cscaleComplex128NEONGuarded
-	s.C128.Sum = csumComplex128NEONGuarded
-	s.C128.Dot = cdotComplex128NEONGuarded
-	s.C128.DotConj = cdotconjComplex128NEONGuarded
-	s.C128Parts.FromParts = cfromPartsComplex128NEONGuarded
+func registerComplexNEON(s *kernel.Set) {
+	s.C64.Add = CaddComplex64NEON
+	s.C64.Sub = CsubComplex64NEON
+	s.C64.Mul = CmulComplex64NEON
+	s.C64.Div = CdivComplex64NEON
+	s.C64.Neg = CnegComplex64NEON
+	s.C64.Conj = CconjComplex64NEON
+	s.C64Parts.Abs = CabsComplex64NEON
+	s.C64Parts.Real = CrealComplex64NEON
+	s.C64Parts.Imag = CimagComplex64NEON
+	s.C64Parts.Scale = CscaleComplex64NEON
+	s.C64.Sum = CsumComplex64NEON
+	s.C64.Dot = CdotComplex64NEON
+	s.C64.DotConj = CdotconjComplex64NEON
+	s.C64Parts.FromParts = CfromPartsComplex64NEON
+	s.C128.Add = CaddComplex128NEON
+	s.C128.Sub = CsubComplex128NEON
+	s.C128.Mul = CmulComplex128NEON
+	s.C128.Div = CdivComplex128NEON
+	s.C128.Neg = CnegComplex128NEON
+	s.C128.Conj = CconjComplex128NEON
+	s.C128Parts.Abs = CabsComplex128NEON
+	s.C128Parts.Real = CrealComplex128NEON
+	s.C128Parts.Imag = CimagComplex128NEON
+	s.C128Parts.Scale = CscaleComplex128NEON
+	s.C128.Sum = CsumComplex128NEON
+	s.C128.Dot = CdotComplex128NEON
+	s.C128.DotConj = CdotconjComplex128NEON
+	s.C128Parts.FromParts = CfromPartsComplex128NEON
 }

@@ -40,11 +40,11 @@ func TestPerfCallChain(t *testing.T) {
 	for _, n := range []int{4, 8, 16, 32, 64, 128, 256} {
 		x, y, dst := alloc(n)
 		var set kernel.Set
-		set.F64.Add = addFloat64AVX512Guarded
+		set.F64.Add = AddFloat64AVX512
 
 		rs := []perf.Result{
 			perf.Measure("raw assembly", 0, func() { addFloat64AVX512(dst, x, y) }, opt),
-			perf.Measure("+ threshold guard", 0, func() { addFloat64AVX512Guarded(dst, x, y) }, opt),
+			perf.Measure("+ threshold guard", 0, func() { AddFloat64AVX512(dst, x, y) }, opt),
 			perf.Measure("+ indirect call", 0, func() { set.F64.Add(dst, x, y) }, opt),
 			perf.Measure("portable Go", 0, func() { goAdd(dst, x, y) }, opt),
 		}

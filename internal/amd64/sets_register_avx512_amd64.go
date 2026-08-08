@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,72 +20,69 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func intersectInt32AVX512Guarded(dst []int32, a []int32, b []int32) int {
+func IntersectInt32AVX512(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt32AVX512(dst, a, b)
 }
 
-func differenceInt32AVX512Guarded(dst []int32, a []int32, b []int32) int {
+func DifferenceInt32AVX512(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt32AVX512(dst, a, b)
 }
 
-func intersectInt64AVX512Guarded(dst []int64, a []int64, b []int64) int {
+func IntersectInt64AVX512(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt64AVX512(dst, a, b)
 }
 
-func differenceInt64AVX512Guarded(dst []int64, a []int64, b []int64) int {
+func DifferenceInt64AVX512(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt64AVX512(dst, a, b)
 }
 
-func intersectUint32AVX512Guarded(dst []uint32, a []uint32, b []uint32) int {
+func IntersectUint32AVX512(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint32AVX512(dst, a, b)
 }
 
-func differenceUint32AVX512Guarded(dst []uint32, a []uint32, b []uint32) int {
+func DifferenceUint32AVX512(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint32AVX512(dst, a, b)
 }
 
-func intersectUint64AVX512Guarded(dst []uint64, a []uint64, b []uint64) int {
+func IntersectUint64AVX512(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint64AVX512(dst, a, b)
 }
 
-func differenceUint64AVX512Guarded(dst []uint64, a []uint64, b []uint64) int {
+func DifferenceUint64AVX512(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint64AVX512(dst, a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx512")
-	s.I32.Intersect = intersectInt32AVX512Guarded
-	s.I32.Difference = differenceInt32AVX512Guarded
-	s.I64.Intersect = intersectInt64AVX512Guarded
-	s.I64.Difference = differenceInt64AVX512Guarded
-	s.U32.Intersect = intersectUint32AVX512Guarded
-	s.U32.Difference = differenceUint32AVX512Guarded
-	s.U64.Intersect = intersectUint64AVX512Guarded
-	s.U64.Difference = differenceUint64AVX512Guarded
+func registerSetsAVX512(s *kernel.Set) {
+	s.I32.Intersect = IntersectInt32AVX512
+	s.I32.Difference = DifferenceInt32AVX512
+	s.I64.Intersect = IntersectInt64AVX512
+	s.I64.Difference = DifferenceInt64AVX512
+	s.U32.Intersect = IntersectUint32AVX512
+	s.U32.Difference = DifferenceUint32AVX512
+	s.U64.Intersect = IntersectUint64AVX512
+	s.U64.Difference = DifferenceUint64AVX512
 }

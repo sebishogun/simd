@@ -10,7 +10,7 @@ package loong64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "loong64": {}}
 
-func expFloat64LASXGuarded(dst []float64, a []float64) {
+func ExpFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp(dst, a)
@@ -29,7 +29,7 @@ func expFloat64LASXGuarded(dst []float64, a []float64) {
 	expFloat64LASX(dst[:n:n], a)
 }
 
-func exp2Float64LASXGuarded(dst []float64, a []float64) {
+func Exp2Float64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp2(dst, a)
@@ -38,7 +38,7 @@ func exp2Float64LASXGuarded(dst []float64, a []float64) {
 	exp2Float64LASX(dst[:n:n], a)
 }
 
-func logFloat64LASXGuarded(dst []float64, a []float64) {
+func LogFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log(dst, a)
@@ -47,7 +47,7 @@ func logFloat64LASXGuarded(dst []float64, a []float64) {
 	logFloat64LASX(dst[:n:n], a)
 }
 
-func log2Float64LASXGuarded(dst []float64, a []float64) {
+func Log2Float64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log2(dst, a)
@@ -56,7 +56,7 @@ func log2Float64LASXGuarded(dst []float64, a []float64) {
 	log2Float64LASX(dst[:n:n], a)
 }
 
-func log10Float64LASXGuarded(dst []float64, a []float64) {
+func Log10Float64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log10(dst, a)
@@ -65,7 +65,7 @@ func log10Float64LASXGuarded(dst []float64, a []float64) {
 	log10Float64LASX(dst[:n:n], a)
 }
 
-func log1pFloat64LASXGuarded(dst []float64, a []float64) {
+func Log1pFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log1p(dst, a)
@@ -74,7 +74,7 @@ func log1pFloat64LASXGuarded(dst []float64, a []float64) {
 	log1pFloat64LASX(dst[:n:n], a)
 }
 
-func cbrtFloat64LASXGuarded(dst []float64, a []float64) {
+func CbrtFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cbrt(dst, a)
@@ -83,7 +83,7 @@ func cbrtFloat64LASXGuarded(dst []float64, a []float64) {
 	cbrtFloat64LASX(dst[:n:n], a)
 }
 
-func sigmoidFloat64LASXGuarded(dst []float64, a []float64) {
+func SigmoidFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sigmoid(dst, a)
@@ -92,7 +92,7 @@ func sigmoidFloat64LASXGuarded(dst []float64, a []float64) {
 	sigmoidFloat64LASX(dst[:n:n], a)
 }
 
-func sinFloat64LASXGuarded(dst []float64, a []float64) {
+func SinFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sin(dst, a)
@@ -101,7 +101,7 @@ func sinFloat64LASXGuarded(dst []float64, a []float64) {
 	sinFloat64LASX(dst[:n:n], a)
 }
 
-func cosFloat64LASXGuarded(dst []float64, a []float64) {
+func CosFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cos(dst, a)
@@ -110,7 +110,7 @@ func cosFloat64LASXGuarded(dst []float64, a []float64) {
 	cosFloat64LASX(dst[:n:n], a)
 }
 
-func tanFloat64LASXGuarded(dst []float64, a []float64) {
+func TanFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tan(dst, a)
@@ -119,7 +119,7 @@ func tanFloat64LASXGuarded(dst []float64, a []float64) {
 	tanFloat64LASX(dst[:n:n], a)
 }
 
-func asinFloat64LASXGuarded(dst []float64, a []float64) {
+func AsinFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -128,7 +128,7 @@ func asinFloat64LASXGuarded(dst []float64, a []float64) {
 	asinFloat64LASX(dst[:n:n], a)
 }
 
-func acosFloat64LASXGuarded(dst []float64, a []float64) {
+func AcosFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -137,7 +137,7 @@ func acosFloat64LASXGuarded(dst []float64, a []float64) {
 	acosFloat64LASX(dst[:n:n], a)
 }
 
-func atanFloat64LASXGuarded(dst []float64, a []float64) {
+func AtanFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atan(dst, a)
@@ -146,7 +146,7 @@ func atanFloat64LASXGuarded(dst []float64, a []float64) {
 	atanFloat64LASX(dst[:n:n], a)
 }
 
-func coshFloat64LASXGuarded(dst []float64, a []float64) {
+func CoshFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cosh(dst, a)
@@ -155,7 +155,7 @@ func coshFloat64LASXGuarded(dst []float64, a []float64) {
 	coshFloat64LASX(dst[:n:n], a)
 }
 
-func asinhFloat64LASXGuarded(dst []float64, a []float64) {
+func AsinhFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asinh(dst, a)
@@ -164,7 +164,7 @@ func asinhFloat64LASXGuarded(dst []float64, a []float64) {
 	asinhFloat64LASX(dst[:n:n], a)
 }
 
-func acoshFloat64LASXGuarded(dst []float64, a []float64) {
+func AcoshFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acosh(dst, a)
@@ -173,7 +173,7 @@ func acoshFloat64LASXGuarded(dst []float64, a []float64) {
 	acoshFloat64LASX(dst[:n:n], a)
 }
 
-func atanhFloat64LASXGuarded(dst []float64, a []float64) {
+func AtanhFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atanh(dst, a)
@@ -182,7 +182,7 @@ func atanhFloat64LASXGuarded(dst []float64, a []float64) {
 	atanhFloat64LASX(dst[:n:n], a)
 }
 
-func erfFloat64LASXGuarded(dst []float64, a []float64) {
+func ErfFloat64LASX(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Erf(dst, a)
@@ -191,27 +191,24 @@ func erfFloat64LASXGuarded(dst []float64, a []float64) {
 	erfFloat64LASX(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("lasx")
-	s.F64.Exp = expFloat64LASXGuarded
-	s.F64.Exp2 = exp2Float64LASXGuarded
-	s.F64.Log = logFloat64LASXGuarded
-	s.F64.Log2 = log2Float64LASXGuarded
-	s.F64.Log10 = log10Float64LASXGuarded
-	s.F64.Log1p = log1pFloat64LASXGuarded
-	s.F64.Cbrt = cbrtFloat64LASXGuarded
-	s.F64.Sigmoid = sigmoidFloat64LASXGuarded
-	s.F64.Sin = sinFloat64LASXGuarded
-	s.F64.Cos = cosFloat64LASXGuarded
-	s.F64.Tan = tanFloat64LASXGuarded
-	s.F64.Asin = asinFloat64LASXGuarded
-	s.F64.Acos = acosFloat64LASXGuarded
-	s.F64.Atan = atanFloat64LASXGuarded
-	s.F64.Cosh = coshFloat64LASXGuarded
-	s.F64.Asinh = asinhFloat64LASXGuarded
-	s.F64.Acosh = acoshFloat64LASXGuarded
-	s.F64.Atanh = atanhFloat64LASXGuarded
-	s.F64.Erf = erfFloat64LASXGuarded
+func registerMathLASX(s *kernel.Set) {
+	s.F64.Exp = ExpFloat64LASX
+	s.F64.Exp2 = Exp2Float64LASX
+	s.F64.Log = LogFloat64LASX
+	s.F64.Log2 = Log2Float64LASX
+	s.F64.Log10 = Log10Float64LASX
+	s.F64.Log1p = Log1pFloat64LASX
+	s.F64.Cbrt = CbrtFloat64LASX
+	s.F64.Sigmoid = SigmoidFloat64LASX
+	s.F64.Sin = SinFloat64LASX
+	s.F64.Cos = CosFloat64LASX
+	s.F64.Tan = TanFloat64LASX
+	s.F64.Asin = AsinFloat64LASX
+	s.F64.Acos = AcosFloat64LASX
+	s.F64.Atan = AtanFloat64LASX
+	s.F64.Cosh = CoshFloat64LASX
+	s.F64.Asinh = AsinhFloat64LASX
+	s.F64.Acosh = AcoshFloat64LASX
+	s.F64.Atanh = AtanhFloat64LASX
+	s.F64.Erf = ErfFloat64LASX
 }

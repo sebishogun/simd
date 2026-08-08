@@ -10,7 +10,7 @@ package ppc64le
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func grayscaleU8VSXGuarded(dst []byte, r []byte, g []byte, b []byte) {
+func GrayscaleU8VSX(dst []byte, r []byte, g []byte, b []byte) {
 	n := min(len(dst), len(r), len(g), len(b))
 	if n < 32 {
 		ref.Grayscale(dst, r, g, b)
@@ -29,28 +29,28 @@ func grayscaleU8VSXGuarded(dst []byte, r []byte, g []byte, b []byte) {
 	grayscaleU8VSX(dst[:n:n], r, g, b)
 }
 
-func isASCIIVSXGuarded(b []byte) bool {
+func IsASCIIVSX(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
 	}
 	return isASCIIVSX(b)
 }
 
-func validUTF8VSXGuarded(b []byte) bool {
+func ValidUTF8VSX(b []byte) bool {
 	if len(b) < 64 {
 		return ref.ValidUTF8(b)
 	}
 	return validUTF8VSX(b)
 }
 
-func indexNonASCII16VSXGuarded(b []uint16) int {
+func IndexNonASCII16VSX(b []uint16) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII16(b)
 	}
 	return indexNonASCII16VSX(b)
 }
 
-func widenU8U16VSXGuarded(dst []uint16, s []byte) {
+func WidenU8U16VSX(dst []uint16, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U16(dst, s)
@@ -59,7 +59,7 @@ func widenU8U16VSXGuarded(dst []uint16, s []byte) {
 	widenU8U16VSX(dst[:n:n], s)
 }
 
-func narrowU16U8VSXGuarded(dst []byte, s []uint16) {
+func NarrowU16U8VSX(dst []byte, s []uint16) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU16U8(dst, s)
@@ -68,7 +68,7 @@ func narrowU16U8VSXGuarded(dst []byte, s []uint16) {
 	narrowU16U8VSX(dst[:n:n], s)
 }
 
-func narrowU32U8VSXGuarded(dst []byte, s []uint32) {
+func NarrowU32U8VSX(dst []byte, s []uint32) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU32U8(dst, s)
@@ -77,7 +77,7 @@ func narrowU32U8VSXGuarded(dst []byte, s []uint32) {
 	narrowU32U8VSX(dst[:n:n], s)
 }
 
-func bitAndVSXGuarded(dst []byte, a []byte, b []byte) {
+func BitAndVSX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAnd(dst, a, b)
@@ -86,7 +86,7 @@ func bitAndVSXGuarded(dst []byte, a []byte, b []byte) {
 	bitAndVSX(dst[:n:n], a, b)
 }
 
-func bitOrVSXGuarded(dst []byte, a []byte, b []byte) {
+func BitOrVSX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitOr(dst, a, b)
@@ -95,7 +95,7 @@ func bitOrVSXGuarded(dst []byte, a []byte, b []byte) {
 	bitOrVSX(dst[:n:n], a, b)
 }
 
-func bitXorVSXGuarded(dst []byte, a []byte, b []byte) {
+func BitXorVSX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitXor(dst, a, b)
@@ -104,7 +104,7 @@ func bitXorVSXGuarded(dst []byte, a []byte, b []byte) {
 	bitXorVSX(dst[:n:n], a, b)
 }
 
-func bitAndNotVSXGuarded(dst []byte, a []byte, b []byte) {
+func BitAndNotVSX(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAndNot(dst, a, b)
@@ -113,7 +113,7 @@ func bitAndNotVSXGuarded(dst []byte, a []byte, b []byte) {
 	bitAndNotVSX(dst[:n:n], a, b)
 }
 
-func bitNotVSXGuarded(dst []byte, b []byte) {
+func BitNotVSX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.BitNot(dst, b)
@@ -122,7 +122,7 @@ func bitNotVSXGuarded(dst []byte, b []byte) {
 	bitNotVSX(dst[:n:n], b)
 }
 
-func fillBytesVSXGuarded(dst []byte, v byte) {
+func FillBytesVSX(dst []byte, v byte) {
 	if len(dst) < 32 {
 		ref.FillBytes(dst, v)
 		return
@@ -130,14 +130,14 @@ func fillBytesVSXGuarded(dst []byte, v byte) {
 	fillBytesVSX(dst, v)
 }
 
-func hexEncodeVSXGuarded(dst []byte, b []byte) int {
+func HexEncodeVSX(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
 	}
 	return hexEncodeVSX(dst, b)
 }
 
-func toUpperASCIIVSXGuarded(dst []byte, b []byte) {
+func ToUpperASCIIVSX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToUpperASCII(dst, b)
@@ -146,7 +146,7 @@ func toUpperASCIIVSXGuarded(dst []byte, b []byte) {
 	toUpperASCIIVSX(dst[:n:n], b)
 }
 
-func toLowerASCIIVSXGuarded(dst []byte, b []byte) {
+func ToLowerASCIIVSX(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToLowerASCII(dst, b)
@@ -155,7 +155,7 @@ func toLowerASCIIVSXGuarded(dst []byte, b []byte) {
 	toLowerASCIIVSX(dst[:n:n], b)
 }
 
-func replaceByteVSXGuarded(dst []byte, b []byte, old byte, with byte) {
+func ReplaceByteVSX(dst []byte, b []byte, old byte, with byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ReplaceByte(dst, b, old, with)
@@ -164,25 +164,22 @@ func replaceByteVSXGuarded(dst []byte, b []byte, old byte, with byte) {
 	replaceByteVSX(dst[:n:n], b, old, with)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vsx")
-	s.Bytes.Grayscale = grayscaleU8VSXGuarded
-	s.Bytes.IsASCII = isASCIIVSXGuarded
-	s.Bytes.ValidUTF8 = validUTF8VSXGuarded
-	s.Bytes.IndexNonASCII16 = indexNonASCII16VSXGuarded
-	s.Bytes.WidenU8U16 = widenU8U16VSXGuarded
-	s.Bytes.NarrowU16U8 = narrowU16U8VSXGuarded
-	s.Bytes.NarrowU32U8 = narrowU32U8VSXGuarded
-	s.Bytes.And = bitAndVSXGuarded
-	s.Bytes.Or = bitOrVSXGuarded
-	s.Bytes.Xor = bitXorVSXGuarded
-	s.Bytes.AndNot = bitAndNotVSXGuarded
-	s.Bytes.Not = bitNotVSXGuarded
-	s.Bytes.Fill = fillBytesVSXGuarded
-	s.Bytes.HexEncode = hexEncodeVSXGuarded
-	s.Bytes.ToUpperASCII = toUpperASCIIVSXGuarded
-	s.Bytes.ToLowerASCII = toLowerASCIIVSXGuarded
-	s.Bytes.ReplaceByte = replaceByteVSXGuarded
+func registerBytesVSX(s *kernel.Set) {
+	s.Bytes.Grayscale = GrayscaleU8VSX
+	s.Bytes.IsASCII = IsASCIIVSX
+	s.Bytes.ValidUTF8 = ValidUTF8VSX
+	s.Bytes.IndexNonASCII16 = IndexNonASCII16VSX
+	s.Bytes.WidenU8U16 = WidenU8U16VSX
+	s.Bytes.NarrowU16U8 = NarrowU16U8VSX
+	s.Bytes.NarrowU32U8 = NarrowU32U8VSX
+	s.Bytes.And = BitAndVSX
+	s.Bytes.Or = BitOrVSX
+	s.Bytes.Xor = BitXorVSX
+	s.Bytes.AndNot = BitAndNotVSX
+	s.Bytes.Not = BitNotVSX
+	s.Bytes.Fill = FillBytesVSX
+	s.Bytes.HexEncode = HexEncodeVSX
+	s.Bytes.ToUpperASCII = ToUpperASCIIVSX
+	s.Bytes.ToLowerASCII = ToLowerASCIIVSX
+	s.Bytes.ReplaceByte = ReplaceByteVSX
 }

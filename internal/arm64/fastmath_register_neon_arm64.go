@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func fastExpFloat32NEONGuarded(dst []float32, a []float32) {
+func FastExpFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp(dst, a)
@@ -29,7 +29,7 @@ func fastExpFloat32NEONGuarded(dst []float32, a []float32) {
 	fastExpFloat32NEON(dst[:n:n], a)
 }
 
-func fastExp2Float32NEONGuarded(dst []float32, a []float32) {
+func FastExp2Float32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp2(dst, a)
@@ -38,7 +38,7 @@ func fastExp2Float32NEONGuarded(dst []float32, a []float32) {
 	fastExp2Float32NEON(dst[:n:n], a)
 }
 
-func fastExpm1Float32NEONGuarded(dst []float32, a []float32) {
+func FastExpm1Float32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Expm1(dst, a)
@@ -47,7 +47,7 @@ func fastExpm1Float32NEONGuarded(dst []float32, a []float32) {
 	fastExpm1Float32NEON(dst[:n:n], a)
 }
 
-func fastLogFloat32NEONGuarded(dst []float32, a []float32) {
+func FastLogFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log(dst, a)
@@ -56,7 +56,7 @@ func fastLogFloat32NEONGuarded(dst []float32, a []float32) {
 	fastLogFloat32NEON(dst[:n:n], a)
 }
 
-func fastLog2Float32NEONGuarded(dst []float32, a []float32) {
+func FastLog2Float32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log2(dst, a)
@@ -65,7 +65,7 @@ func fastLog2Float32NEONGuarded(dst []float32, a []float32) {
 	fastLog2Float32NEON(dst[:n:n], a)
 }
 
-func fastLog10Float32NEONGuarded(dst []float32, a []float32) {
+func FastLog10Float32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log10(dst, a)
@@ -74,7 +74,7 @@ func fastLog10Float32NEONGuarded(dst []float32, a []float32) {
 	fastLog10Float32NEON(dst[:n:n], a)
 }
 
-func fastLog1pFloat32NEONGuarded(dst []float32, a []float32) {
+func FastLog1pFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log1p(dst, a)
@@ -83,7 +83,7 @@ func fastLog1pFloat32NEONGuarded(dst []float32, a []float32) {
 	fastLog1pFloat32NEON(dst[:n:n], a)
 }
 
-func fastCbrtFloat32NEONGuarded(dst []float32, a []float32) {
+func FastCbrtFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cbrt(dst, a)
@@ -92,7 +92,7 @@ func fastCbrtFloat32NEONGuarded(dst []float32, a []float32) {
 	fastCbrtFloat32NEON(dst[:n:n], a)
 }
 
-func fastSigmoidFloat32NEONGuarded(dst []float32, a []float32) {
+func FastSigmoidFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sigmoid(dst, a)
@@ -101,7 +101,7 @@ func fastSigmoidFloat32NEONGuarded(dst []float32, a []float32) {
 	fastSigmoidFloat32NEON(dst[:n:n], a)
 }
 
-func fastSinFloat32NEONGuarded(dst []float32, a []float32) {
+func FastSinFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sin(dst, a)
@@ -110,7 +110,7 @@ func fastSinFloat32NEONGuarded(dst []float32, a []float32) {
 	fastSinFloat32NEON(dst[:n:n], a)
 }
 
-func fastCosFloat32NEONGuarded(dst []float32, a []float32) {
+func FastCosFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cos(dst, a)
@@ -119,7 +119,7 @@ func fastCosFloat32NEONGuarded(dst []float32, a []float32) {
 	fastCosFloat32NEON(dst[:n:n], a)
 }
 
-func fastTanFloat32NEONGuarded(dst []float32, a []float32) {
+func FastTanFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tan(dst, a)
@@ -128,7 +128,7 @@ func fastTanFloat32NEONGuarded(dst []float32, a []float32) {
 	fastTanFloat32NEON(dst[:n:n], a)
 }
 
-func fastAsinFloat32NEONGuarded(dst []float32, a []float32) {
+func FastAsinFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -137,7 +137,7 @@ func fastAsinFloat32NEONGuarded(dst []float32, a []float32) {
 	fastAsinFloat32NEON(dst[:n:n], a)
 }
 
-func fastAcosFloat32NEONGuarded(dst []float32, a []float32) {
+func FastAcosFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -146,7 +146,7 @@ func fastAcosFloat32NEONGuarded(dst []float32, a []float32) {
 	fastAcosFloat32NEON(dst[:n:n], a)
 }
 
-func fastAtanFloat32NEONGuarded(dst []float32, a []float32) {
+func FastAtanFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atan(dst, a)
@@ -155,7 +155,7 @@ func fastAtanFloat32NEONGuarded(dst []float32, a []float32) {
 	fastAtanFloat32NEON(dst[:n:n], a)
 }
 
-func fastSinhFloat32NEONGuarded(dst []float32, a []float32) {
+func FastSinhFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sinh(dst, a)
@@ -164,7 +164,7 @@ func fastSinhFloat32NEONGuarded(dst []float32, a []float32) {
 	fastSinhFloat32NEON(dst[:n:n], a)
 }
 
-func fastCoshFloat32NEONGuarded(dst []float32, a []float32) {
+func FastCoshFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cosh(dst, a)
@@ -173,7 +173,7 @@ func fastCoshFloat32NEONGuarded(dst []float32, a []float32) {
 	fastCoshFloat32NEON(dst[:n:n], a)
 }
 
-func fastTanhFloat32NEONGuarded(dst []float32, a []float32) {
+func FastTanhFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tanh(dst, a)
@@ -182,7 +182,7 @@ func fastTanhFloat32NEONGuarded(dst []float32, a []float32) {
 	fastTanhFloat32NEON(dst[:n:n], a)
 }
 
-func fastAsinhFloat32NEONGuarded(dst []float32, a []float32) {
+func FastAsinhFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asinh(dst, a)
@@ -191,7 +191,7 @@ func fastAsinhFloat32NEONGuarded(dst []float32, a []float32) {
 	fastAsinhFloat32NEON(dst[:n:n], a)
 }
 
-func fastAcoshFloat32NEONGuarded(dst []float32, a []float32) {
+func FastAcoshFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acosh(dst, a)
@@ -200,7 +200,7 @@ func fastAcoshFloat32NEONGuarded(dst []float32, a []float32) {
 	fastAcoshFloat32NEON(dst[:n:n], a)
 }
 
-func fastAtanhFloat32NEONGuarded(dst []float32, a []float32) {
+func FastAtanhFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atanh(dst, a)
@@ -209,7 +209,7 @@ func fastAtanhFloat32NEONGuarded(dst []float32, a []float32) {
 	fastAtanhFloat32NEON(dst[:n:n], a)
 }
 
-func fastErfFloat32NEONGuarded(dst []float32, a []float32) {
+func FastErfFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Erf(dst, a)
@@ -218,7 +218,7 @@ func fastErfFloat32NEONGuarded(dst []float32, a []float32) {
 	fastErfFloat32NEON(dst[:n:n], a)
 }
 
-func fastPowFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
+func FastPowFloat32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Pow(dst, a, b)
@@ -227,7 +227,7 @@ func fastPowFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	fastPowFloat32NEON(dst[:n:n], a, b)
 }
 
-func fastAtan2Float32NEONGuarded(dst []float32, a []float32, b []float32) {
+func FastAtan2Float32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Atan2(dst, a, b)
@@ -236,7 +236,7 @@ func fastAtan2Float32NEONGuarded(dst []float32, a []float32, b []float32) {
 	fastAtan2Float32NEON(dst[:n:n], a, b)
 }
 
-func fastHypotFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
+func FastHypotFloat32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -245,7 +245,7 @@ func fastHypotFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	fastHypotFloat32NEON(dst[:n:n], a, b)
 }
 
-func fastExpFloat64NEONGuarded(dst []float64, a []float64) {
+func FastExpFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp(dst, a)
@@ -254,7 +254,7 @@ func fastExpFloat64NEONGuarded(dst []float64, a []float64) {
 	fastExpFloat64NEON(dst[:n:n], a)
 }
 
-func fastExp2Float64NEONGuarded(dst []float64, a []float64) {
+func FastExp2Float64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp2(dst, a)
@@ -263,7 +263,7 @@ func fastExp2Float64NEONGuarded(dst []float64, a []float64) {
 	fastExp2Float64NEON(dst[:n:n], a)
 }
 
-func fastExpm1Float64NEONGuarded(dst []float64, a []float64) {
+func FastExpm1Float64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Expm1(dst, a)
@@ -272,7 +272,7 @@ func fastExpm1Float64NEONGuarded(dst []float64, a []float64) {
 	fastExpm1Float64NEON(dst[:n:n], a)
 }
 
-func fastLogFloat64NEONGuarded(dst []float64, a []float64) {
+func FastLogFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log(dst, a)
@@ -281,7 +281,7 @@ func fastLogFloat64NEONGuarded(dst []float64, a []float64) {
 	fastLogFloat64NEON(dst[:n:n], a)
 }
 
-func fastLog2Float64NEONGuarded(dst []float64, a []float64) {
+func FastLog2Float64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log2(dst, a)
@@ -290,7 +290,7 @@ func fastLog2Float64NEONGuarded(dst []float64, a []float64) {
 	fastLog2Float64NEON(dst[:n:n], a)
 }
 
-func fastLog10Float64NEONGuarded(dst []float64, a []float64) {
+func FastLog10Float64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log10(dst, a)
@@ -299,7 +299,7 @@ func fastLog10Float64NEONGuarded(dst []float64, a []float64) {
 	fastLog10Float64NEON(dst[:n:n], a)
 }
 
-func fastLog1pFloat64NEONGuarded(dst []float64, a []float64) {
+func FastLog1pFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log1p(dst, a)
@@ -308,7 +308,7 @@ func fastLog1pFloat64NEONGuarded(dst []float64, a []float64) {
 	fastLog1pFloat64NEON(dst[:n:n], a)
 }
 
-func fastCbrtFloat64NEONGuarded(dst []float64, a []float64) {
+func FastCbrtFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cbrt(dst, a)
@@ -317,7 +317,7 @@ func fastCbrtFloat64NEONGuarded(dst []float64, a []float64) {
 	fastCbrtFloat64NEON(dst[:n:n], a)
 }
 
-func fastSigmoidFloat64NEONGuarded(dst []float64, a []float64) {
+func FastSigmoidFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sigmoid(dst, a)
@@ -326,7 +326,7 @@ func fastSigmoidFloat64NEONGuarded(dst []float64, a []float64) {
 	fastSigmoidFloat64NEON(dst[:n:n], a)
 }
 
-func fastSinFloat64NEONGuarded(dst []float64, a []float64) {
+func FastSinFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sin(dst, a)
@@ -335,7 +335,7 @@ func fastSinFloat64NEONGuarded(dst []float64, a []float64) {
 	fastSinFloat64NEON(dst[:n:n], a)
 }
 
-func fastCosFloat64NEONGuarded(dst []float64, a []float64) {
+func FastCosFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cos(dst, a)
@@ -344,7 +344,7 @@ func fastCosFloat64NEONGuarded(dst []float64, a []float64) {
 	fastCosFloat64NEON(dst[:n:n], a)
 }
 
-func fastTanFloat64NEONGuarded(dst []float64, a []float64) {
+func FastTanFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tan(dst, a)
@@ -353,7 +353,7 @@ func fastTanFloat64NEONGuarded(dst []float64, a []float64) {
 	fastTanFloat64NEON(dst[:n:n], a)
 }
 
-func fastAsinFloat64NEONGuarded(dst []float64, a []float64) {
+func FastAsinFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -362,7 +362,7 @@ func fastAsinFloat64NEONGuarded(dst []float64, a []float64) {
 	fastAsinFloat64NEON(dst[:n:n], a)
 }
 
-func fastAcosFloat64NEONGuarded(dst []float64, a []float64) {
+func FastAcosFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -371,7 +371,7 @@ func fastAcosFloat64NEONGuarded(dst []float64, a []float64) {
 	fastAcosFloat64NEON(dst[:n:n], a)
 }
 
-func fastAtanFloat64NEONGuarded(dst []float64, a []float64) {
+func FastAtanFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atan(dst, a)
@@ -380,7 +380,7 @@ func fastAtanFloat64NEONGuarded(dst []float64, a []float64) {
 	fastAtanFloat64NEON(dst[:n:n], a)
 }
 
-func fastSinhFloat64NEONGuarded(dst []float64, a []float64) {
+func FastSinhFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sinh(dst, a)
@@ -389,7 +389,7 @@ func fastSinhFloat64NEONGuarded(dst []float64, a []float64) {
 	fastSinhFloat64NEON(dst[:n:n], a)
 }
 
-func fastCoshFloat64NEONGuarded(dst []float64, a []float64) {
+func FastCoshFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cosh(dst, a)
@@ -398,7 +398,7 @@ func fastCoshFloat64NEONGuarded(dst []float64, a []float64) {
 	fastCoshFloat64NEON(dst[:n:n], a)
 }
 
-func fastTanhFloat64NEONGuarded(dst []float64, a []float64) {
+func FastTanhFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tanh(dst, a)
@@ -407,7 +407,7 @@ func fastTanhFloat64NEONGuarded(dst []float64, a []float64) {
 	fastTanhFloat64NEON(dst[:n:n], a)
 }
 
-func fastAsinhFloat64NEONGuarded(dst []float64, a []float64) {
+func FastAsinhFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asinh(dst, a)
@@ -416,7 +416,7 @@ func fastAsinhFloat64NEONGuarded(dst []float64, a []float64) {
 	fastAsinhFloat64NEON(dst[:n:n], a)
 }
 
-func fastAcoshFloat64NEONGuarded(dst []float64, a []float64) {
+func FastAcoshFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acosh(dst, a)
@@ -425,7 +425,7 @@ func fastAcoshFloat64NEONGuarded(dst []float64, a []float64) {
 	fastAcoshFloat64NEON(dst[:n:n], a)
 }
 
-func fastAtanhFloat64NEONGuarded(dst []float64, a []float64) {
+func FastAtanhFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atanh(dst, a)
@@ -434,7 +434,7 @@ func fastAtanhFloat64NEONGuarded(dst []float64, a []float64) {
 	fastAtanhFloat64NEON(dst[:n:n], a)
 }
 
-func fastErfFloat64NEONGuarded(dst []float64, a []float64) {
+func FastErfFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Erf(dst, a)
@@ -443,7 +443,7 @@ func fastErfFloat64NEONGuarded(dst []float64, a []float64) {
 	fastErfFloat64NEON(dst[:n:n], a)
 }
 
-func fastPowFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+func FastPowFloat64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Pow(dst, a, b)
@@ -452,7 +452,7 @@ func fastPowFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	fastPowFloat64NEON(dst[:n:n], a, b)
 }
 
-func fastAtan2Float64NEONGuarded(dst []float64, a []float64, b []float64) {
+func FastAtan2Float64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Atan2(dst, a, b)
@@ -461,7 +461,7 @@ func fastAtan2Float64NEONGuarded(dst []float64, a []float64, b []float64) {
 	fastAtan2Float64NEON(dst[:n:n], a, b)
 }
 
-func fastHypotFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+func FastHypotFloat64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -470,58 +470,55 @@ func fastHypotFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	fastHypotFloat64NEON(dst[:n:n], a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.F32.FastExp = fastExpFloat32NEONGuarded
-	s.F32.FastExp2 = fastExp2Float32NEONGuarded
-	s.F32.FastExpm1 = fastExpm1Float32NEONGuarded
-	s.F32.FastLog = fastLogFloat32NEONGuarded
-	s.F32.FastLog2 = fastLog2Float32NEONGuarded
-	s.F32.FastLog10 = fastLog10Float32NEONGuarded
-	s.F32.FastLog1p = fastLog1pFloat32NEONGuarded
-	s.F32.FastCbrt = fastCbrtFloat32NEONGuarded
-	s.F32.FastSigmoid = fastSigmoidFloat32NEONGuarded
-	s.F32.FastSin = fastSinFloat32NEONGuarded
-	s.F32.FastCos = fastCosFloat32NEONGuarded
-	s.F32.FastTan = fastTanFloat32NEONGuarded
-	s.F32.FastAsin = fastAsinFloat32NEONGuarded
-	s.F32.FastAcos = fastAcosFloat32NEONGuarded
-	s.F32.FastAtan = fastAtanFloat32NEONGuarded
-	s.F32.FastSinh = fastSinhFloat32NEONGuarded
-	s.F32.FastCosh = fastCoshFloat32NEONGuarded
-	s.F32.FastTanh = fastTanhFloat32NEONGuarded
-	s.F32.FastAsinh = fastAsinhFloat32NEONGuarded
-	s.F32.FastAcosh = fastAcoshFloat32NEONGuarded
-	s.F32.FastAtanh = fastAtanhFloat32NEONGuarded
-	s.F32.FastErf = fastErfFloat32NEONGuarded
-	s.F32.FastPow = fastPowFloat32NEONGuarded
-	s.F32.FastAtan2 = fastAtan2Float32NEONGuarded
-	s.F32.FastHypot = fastHypotFloat32NEONGuarded
-	s.F64.FastExp = fastExpFloat64NEONGuarded
-	s.F64.FastExp2 = fastExp2Float64NEONGuarded
-	s.F64.FastExpm1 = fastExpm1Float64NEONGuarded
-	s.F64.FastLog = fastLogFloat64NEONGuarded
-	s.F64.FastLog2 = fastLog2Float64NEONGuarded
-	s.F64.FastLog10 = fastLog10Float64NEONGuarded
-	s.F64.FastLog1p = fastLog1pFloat64NEONGuarded
-	s.F64.FastCbrt = fastCbrtFloat64NEONGuarded
-	s.F64.FastSigmoid = fastSigmoidFloat64NEONGuarded
-	s.F64.FastSin = fastSinFloat64NEONGuarded
-	s.F64.FastCos = fastCosFloat64NEONGuarded
-	s.F64.FastTan = fastTanFloat64NEONGuarded
-	s.F64.FastAsin = fastAsinFloat64NEONGuarded
-	s.F64.FastAcos = fastAcosFloat64NEONGuarded
-	s.F64.FastAtan = fastAtanFloat64NEONGuarded
-	s.F64.FastSinh = fastSinhFloat64NEONGuarded
-	s.F64.FastCosh = fastCoshFloat64NEONGuarded
-	s.F64.FastTanh = fastTanhFloat64NEONGuarded
-	s.F64.FastAsinh = fastAsinhFloat64NEONGuarded
-	s.F64.FastAcosh = fastAcoshFloat64NEONGuarded
-	s.F64.FastAtanh = fastAtanhFloat64NEONGuarded
-	s.F64.FastErf = fastErfFloat64NEONGuarded
-	s.F64.FastPow = fastPowFloat64NEONGuarded
-	s.F64.FastAtan2 = fastAtan2Float64NEONGuarded
-	s.F64.FastHypot = fastHypotFloat64NEONGuarded
+func registerFastmathNEON(s *kernel.Set) {
+	s.F32.FastExp = FastExpFloat32NEON
+	s.F32.FastExp2 = FastExp2Float32NEON
+	s.F32.FastExpm1 = FastExpm1Float32NEON
+	s.F32.FastLog = FastLogFloat32NEON
+	s.F32.FastLog2 = FastLog2Float32NEON
+	s.F32.FastLog10 = FastLog10Float32NEON
+	s.F32.FastLog1p = FastLog1pFloat32NEON
+	s.F32.FastCbrt = FastCbrtFloat32NEON
+	s.F32.FastSigmoid = FastSigmoidFloat32NEON
+	s.F32.FastSin = FastSinFloat32NEON
+	s.F32.FastCos = FastCosFloat32NEON
+	s.F32.FastTan = FastTanFloat32NEON
+	s.F32.FastAsin = FastAsinFloat32NEON
+	s.F32.FastAcos = FastAcosFloat32NEON
+	s.F32.FastAtan = FastAtanFloat32NEON
+	s.F32.FastSinh = FastSinhFloat32NEON
+	s.F32.FastCosh = FastCoshFloat32NEON
+	s.F32.FastTanh = FastTanhFloat32NEON
+	s.F32.FastAsinh = FastAsinhFloat32NEON
+	s.F32.FastAcosh = FastAcoshFloat32NEON
+	s.F32.FastAtanh = FastAtanhFloat32NEON
+	s.F32.FastErf = FastErfFloat32NEON
+	s.F32.FastPow = FastPowFloat32NEON
+	s.F32.FastAtan2 = FastAtan2Float32NEON
+	s.F32.FastHypot = FastHypotFloat32NEON
+	s.F64.FastExp = FastExpFloat64NEON
+	s.F64.FastExp2 = FastExp2Float64NEON
+	s.F64.FastExpm1 = FastExpm1Float64NEON
+	s.F64.FastLog = FastLogFloat64NEON
+	s.F64.FastLog2 = FastLog2Float64NEON
+	s.F64.FastLog10 = FastLog10Float64NEON
+	s.F64.FastLog1p = FastLog1pFloat64NEON
+	s.F64.FastCbrt = FastCbrtFloat64NEON
+	s.F64.FastSigmoid = FastSigmoidFloat64NEON
+	s.F64.FastSin = FastSinFloat64NEON
+	s.F64.FastCos = FastCosFloat64NEON
+	s.F64.FastTan = FastTanFloat64NEON
+	s.F64.FastAsin = FastAsinFloat64NEON
+	s.F64.FastAcos = FastAcosFloat64NEON
+	s.F64.FastAtan = FastAtanFloat64NEON
+	s.F64.FastSinh = FastSinhFloat64NEON
+	s.F64.FastCosh = FastCoshFloat64NEON
+	s.F64.FastTanh = FastTanhFloat64NEON
+	s.F64.FastAsinh = FastAsinhFloat64NEON
+	s.F64.FastAcosh = FastAcoshFloat64NEON
+	s.F64.FastAtanh = FastAtanhFloat64NEON
+	s.F64.FastErf = FastErfFloat64NEON
+	s.F64.FastPow = FastPowFloat64NEON
+	s.F64.FastAtan2 = FastAtan2Float64NEON
+	s.F64.FastHypot = FastHypotFloat64NEON
 }

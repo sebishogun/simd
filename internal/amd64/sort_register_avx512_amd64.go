@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func partitionFloat32AVX512Guarded(dst []float32, src []float32, pivot float32) int {
+func PartitionFloat32AVX512(dst []float32, src []float32, pivot float32) int {
 	n := min(len(src), len(dst))
 	if n < 64 || len(dst) < len(src) {
 		return ref.Partition(dst, src, pivot)
@@ -28,7 +28,7 @@ func partitionFloat32AVX512Guarded(dst []float32, src []float32, pivot float32) 
 	return partitionFloat32AVX512(dst, src[:n:n], pivot)
 }
 
-func partitionFloat64AVX512Guarded(dst []float64, src []float64, pivot float64) int {
+func PartitionFloat64AVX512(dst []float64, src []float64, pivot float64) int {
 	n := min(len(src), len(dst))
 	if n < 64 || len(dst) < len(src) {
 		return ref.Partition(dst, src, pivot)
@@ -36,7 +36,7 @@ func partitionFloat64AVX512Guarded(dst []float64, src []float64, pivot float64) 
 	return partitionFloat64AVX512(dst, src[:n:n], pivot)
 }
 
-func partitionInt32AVX512Guarded(dst []int32, src []int32, pivot int32) int {
+func PartitionInt32AVX512(dst []int32, src []int32, pivot int32) int {
 	n := min(len(src), len(dst))
 	if n < 64 || len(dst) < len(src) {
 		return ref.Partition(dst, src, pivot)
@@ -44,7 +44,7 @@ func partitionInt32AVX512Guarded(dst []int32, src []int32, pivot int32) int {
 	return partitionInt32AVX512(dst, src[:n:n], pivot)
 }
 
-func partitionInt64AVX512Guarded(dst []int64, src []int64, pivot int64) int {
+func PartitionInt64AVX512(dst []int64, src []int64, pivot int64) int {
 	n := min(len(src), len(dst))
 	if n < 64 || len(dst) < len(src) {
 		return ref.Partition(dst, src, pivot)
@@ -52,12 +52,9 @@ func partitionInt64AVX512Guarded(dst []int64, src []int64, pivot int64) int {
 	return partitionInt64AVX512(dst, src[:n:n], pivot)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx512")
-	s.F32.Partition = partitionFloat32AVX512Guarded
-	s.F64.Partition = partitionFloat64AVX512Guarded
-	s.I32.Partition = partitionInt32AVX512Guarded
-	s.I64.Partition = partitionInt64AVX512Guarded
+func registerSortAVX512(s *kernel.Set) {
+	s.F32.Partition = PartitionFloat32AVX512
+	s.F64.Partition = PartitionFloat64AVX512
+	s.I32.Partition = PartitionInt32AVX512
+	s.I64.Partition = PartitionInt64AVX512
 }

@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,35 +20,35 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func countByteRVVGuarded(b []byte, c byte) int {
+func CountByteRVV(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.CountByte(b, c)
 	}
 	return countByteRVV(b, c)
 }
 
-func indexByteRVVGuarded(b []byte, c byte) int {
+func IndexByteRVV(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.IndexByte(b, c)
 	}
 	return indexByteRVV(b, c)
 }
 
-func lastIndexByteRVVGuarded(b []byte, c byte) int {
+func LastIndexByteRVV(b []byte, c byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexByte(b, c)
 	}
 	return lastIndexByteRVV(b, c)
 }
 
-func popCountRVVGuarded(b []byte) int {
+func PopCountRVV(b []byte) int {
 	if len(b) < 64 {
 		return ref.PopCount(b)
 	}
 	return popCountRVV(b)
 }
 
-func maskBitsRVVGuarded(dst []byte, b []byte, c byte) {
+func MaskBitsRVV(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBits(dst, b, c)
 		return
@@ -56,7 +56,7 @@ func maskBitsRVVGuarded(dst []byte, b []byte, c byte) {
 	maskBitsRVV(dst, b, c)
 }
 
-func maskBitsLessRVVGuarded(dst []byte, b []byte, c byte) {
+func MaskBitsLessRVV(dst []byte, b []byte, c byte) {
 	if len(b) < 64 {
 		ref.MaskBitsLess(dst, b, c)
 		return
@@ -64,7 +64,7 @@ func maskBitsLessRVVGuarded(dst []byte, b []byte, c byte) {
 	maskBitsLessRVV(dst, b, c)
 }
 
-func maskBitsAny4RVVGuarded(dst []byte, b []byte, chars uint32) {
+func MaskBitsAny4RVV(dst []byte, b []byte, chars uint32) {
 	if len(b) < 64 {
 		ref.MaskBitsAny4(dst, b, chars)
 		return
@@ -72,7 +72,7 @@ func maskBitsAny4RVVGuarded(dst []byte, b []byte, chars uint32) {
 	maskBitsAny4RVV(dst, b, chars)
 }
 
-func maskBitsAnyRVVGuarded(dst []byte, b []byte, chars uint64) {
+func MaskBitsAnyRVV(dst []byte, b []byte, chars uint64) {
 	if len(b) < 64 {
 		ref.MaskBitsAny(dst, b, chars)
 		return
@@ -80,7 +80,7 @@ func maskBitsAnyRVVGuarded(dst []byte, b []byte, chars uint64) {
 	maskBitsAnyRVV(dst, b, chars)
 }
 
-func hammingU8RVVGuarded(a []byte, b []byte) int {
+func HammingU8RVV(a []byte, b []byte) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.Hamming(a, b)
@@ -88,7 +88,7 @@ func hammingU8RVVGuarded(a []byte, b []byte) int {
 	return hammingU8RVV(a[:n:n], b)
 }
 
-func hammingU64RVVGuarded(a []uint64, b []uint64) int {
+func HammingU64RVV(a []uint64, b []uint64) int {
 	n := min(len(a), len(b))
 	if n < 64 {
 		return ref.HammingWords(a, b)
@@ -96,7 +96,7 @@ func hammingU64RVVGuarded(a []uint64, b []uint64) int {
 	return hammingU64RVV(a[:n:n], b)
 }
 
-func grayscaleU8RVVGuarded(dst []byte, r []byte, g []byte, b []byte) {
+func GrayscaleU8RVV(dst []byte, r []byte, g []byte, b []byte) {
 	n := min(len(dst), len(r), len(g), len(b))
 	if n < 32 {
 		ref.Grayscale(dst, r, g, b)
@@ -105,7 +105,7 @@ func grayscaleU8RVVGuarded(dst []byte, r []byte, g []byte, b []byte) {
 	grayscaleU8RVV(dst[:n:n], r, g, b)
 }
 
-func rgbToUVU8RVVGuarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
+func RgbToUVU8RVV(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	n := min(len(u), len(v), len(r), len(g), len(b))
 	if n < 32 {
 		ref.RGBToUV(u, v, r, g, b)
@@ -114,35 +114,35 @@ func rgbToUVU8RVVGuarded(u []byte, v []byte, r []byte, g []byte, b []byte) {
 	rgbToUVU8RVV(u[:n:n], v, r, g, b)
 }
 
-func isASCIIRVVGuarded(b []byte) bool {
+func IsASCIIRVV(b []byte) bool {
 	if len(b) < 64 {
 		return ref.IsASCII(b)
 	}
 	return isASCIIRVV(b)
 }
 
-func validUTF8RVVGuarded(b []byte) bool {
+func ValidUTF8RVV(b []byte) bool {
 	if len(b) < 64 {
 		return ref.ValidUTF8(b)
 	}
 	return validUTF8RVV(b)
 }
 
-func indexNonASCIIRVVGuarded(b []byte) int {
+func IndexNonASCIIRVV(b []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII(b)
 	}
 	return indexNonASCIIRVV(b)
 }
 
-func indexNonASCII16RVVGuarded(b []uint16) int {
+func IndexNonASCII16RVV(b []uint16) int {
 	if len(b) < 64 {
 		return ref.IndexNonASCII16(b)
 	}
 	return indexNonASCII16RVV(b)
 }
 
-func widenU8U16RVVGuarded(dst []uint16, s []byte) {
+func WidenU8U16RVV(dst []uint16, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U16(dst, s)
@@ -151,7 +151,7 @@ func widenU8U16RVVGuarded(dst []uint16, s []byte) {
 	widenU8U16RVV(dst[:n:n], s)
 }
 
-func narrowU16U8RVVGuarded(dst []byte, s []uint16) {
+func NarrowU16U8RVV(dst []byte, s []uint16) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU16U8(dst, s)
@@ -160,7 +160,7 @@ func narrowU16U8RVVGuarded(dst []byte, s []uint16) {
 	narrowU16U8RVV(dst[:n:n], s)
 }
 
-func widenU8U32RVVGuarded(dst []uint32, s []byte) {
+func WidenU8U32RVV(dst []uint32, s []byte) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.WidenU8U32(dst, s)
@@ -169,7 +169,7 @@ func widenU8U32RVVGuarded(dst []uint32, s []byte) {
 	widenU8U32RVV(dst[:n:n], s)
 }
 
-func narrowU32U8RVVGuarded(dst []byte, s []uint32) {
+func NarrowU32U8RVV(dst []byte, s []uint32) {
 	n := min(len(dst), len(s))
 	if n < 32 {
 		ref.NarrowU32U8(dst, s)
@@ -178,7 +178,7 @@ func narrowU32U8RVVGuarded(dst []byte, s []uint32) {
 	narrowU32U8RVV(dst[:n:n], s)
 }
 
-func equalBytesRVVGuarded(a []byte, b []byte) bool {
+func EqualBytesRVV(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
 		return ref.EqualBytes(a, b)
@@ -186,7 +186,7 @@ func equalBytesRVVGuarded(a []byte, b []byte) bool {
 	return equalBytesRVV(a[:n:n], b)
 }
 
-func bitAndRVVGuarded(dst []byte, a []byte, b []byte) {
+func BitAndRVV(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAnd(dst, a, b)
@@ -195,7 +195,7 @@ func bitAndRVVGuarded(dst []byte, a []byte, b []byte) {
 	bitAndRVV(dst[:n:n], a, b)
 }
 
-func bitOrRVVGuarded(dst []byte, a []byte, b []byte) {
+func BitOrRVV(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitOr(dst, a, b)
@@ -204,7 +204,7 @@ func bitOrRVVGuarded(dst []byte, a []byte, b []byte) {
 	bitOrRVV(dst[:n:n], a, b)
 }
 
-func bitXorRVVGuarded(dst []byte, a []byte, b []byte) {
+func BitXorRVV(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitXor(dst, a, b)
@@ -213,7 +213,7 @@ func bitXorRVVGuarded(dst []byte, a []byte, b []byte) {
 	bitXorRVV(dst[:n:n], a, b)
 }
 
-func bitAndNotRVVGuarded(dst []byte, a []byte, b []byte) {
+func BitAndNotRVV(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 32 {
 		ref.BitAndNot(dst, a, b)
@@ -222,7 +222,7 @@ func bitAndNotRVVGuarded(dst []byte, a []byte, b []byte) {
 	bitAndNotRVV(dst[:n:n], a, b)
 }
 
-func bitNotRVVGuarded(dst []byte, b []byte) {
+func BitNotRVV(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.BitNot(dst, b)
@@ -231,7 +231,7 @@ func bitNotRVVGuarded(dst []byte, b []byte) {
 	bitNotRVV(dst[:n:n], b)
 }
 
-func fillBytesRVVGuarded(dst []byte, v byte) {
+func FillBytesRVV(dst []byte, v byte) {
 	if len(dst) < 32 {
 		ref.FillBytes(dst, v)
 		return
@@ -239,21 +239,21 @@ func fillBytesRVVGuarded(dst []byte, v byte) {
 	fillBytesRVV(dst, v)
 }
 
-func compareBytesRVVGuarded(a []byte, b []byte) int {
+func CompareBytesRVV(a []byte, b []byte) int {
 	if len(a) < 64 {
 		return ref.CompareBytes(a, b)
 	}
 	return compareBytesRVV(a, b)
 }
 
-func commonPrefixRVVGuarded(a []byte, b []byte) int {
+func CommonPrefixRVV(a []byte, b []byte) int {
 	if len(a) < 64 {
 		return ref.CommonPrefix(a, b)
 	}
 	return commonPrefixRVV(a, b)
 }
 
-func equalFoldASCIIRVVGuarded(a []byte, b []byte) bool {
+func EqualFoldASCIIRVV(a []byte, b []byte) bool {
 	n := min(len(a), len(b))
 	if n < 64 || len(a) != len(b) {
 		return ref.EqualFoldASCII(a, b)
@@ -261,42 +261,42 @@ func equalFoldASCIIRVVGuarded(a []byte, b []byte) bool {
 	return equalFoldASCIIRVV(a[:n:n], b)
 }
 
-func indexAnyRVVGuarded(b []byte, chars []byte) int {
+func IndexAnyRVV(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexAny(b, chars)
 	}
 	return indexAnyRVV(b, chars)
 }
 
-func indexAnyOrLessRVVGuarded(b []byte, chars []byte, lo byte) int {
+func IndexAnyOrLessRVV(b []byte, chars []byte, lo byte) int {
 	if len(b) < 64 {
 		return ref.IndexAnyOrLess(b, chars, lo)
 	}
 	return indexAnyOrLessRVV(b, chars, lo)
 }
 
-func indexNotAnyRVVGuarded(b []byte, chars []byte) int {
+func IndexNotAnyRVV(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.IndexNotAny(b, chars)
 	}
 	return indexNotAnyRVV(b, chars)
 }
 
-func lastIndexNotAnyRVVGuarded(b []byte, chars []byte) int {
+func LastIndexNotAnyRVV(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.LastIndexNotAny(b, chars)
 	}
 	return lastIndexNotAnyRVV(b, chars)
 }
 
-func countAnyRVVGuarded(b []byte, chars []byte) int {
+func CountAnyRVV(b []byte, chars []byte) int {
 	if len(b) < 64 {
 		return ref.CountAny(b, chars)
 	}
 	return countAnyRVV(b, chars)
 }
 
-func jsonMasksRVVGuarded(dst []byte, b []byte, want uint32) {
+func JsonMasksRVV(dst []byte, b []byte, want uint32) {
 	if len(b) < 64 || len(dst) < 5*(((len(b)+63)/64)*8) {
 		ref.JSONMasks(dst, b, want)
 		return
@@ -304,21 +304,21 @@ func jsonMasksRVVGuarded(dst []byte, b []byte, want uint32) {
 	jsonMasksRVV(dst, b, want)
 }
 
-func jsonValidTokensRVVGuarded(b []byte, masks []uint64, stk []uint64) int {
+func JsonValidTokensRVV(b []byte, masks []uint64, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 || len(masks) < 2*((len(b)+63)/64) {
 		return ref.JSONValidTokens(b, masks, stk)
 	}
 	return jsonValidTokensRVV(b, masks, stk)
 }
 
-func jsonValidRVVGuarded(b []byte, stk []uint64) int {
+func JsonValidRVV(b []byte, stk []uint64) int {
 	if len(b) < 64 || len(b) == 0 {
 		return ref.JSONValid(b, stk)
 	}
 	return jsonValidRVV(b, stk)
 }
 
-func jsonStage1RVVGuarded(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
+func JsonStage1RVV(out []uint64, masks []byte, nw int, carr []uint64, res []int64) {
 	if len(out) < 64 || nw <= 0 || len(out) < 3*nw || len(masks) < 5*nw*8 || len(carr) < 3 || len(res) < 3 {
 		ref.JSONStage1(out, masks, nw, carr, res)
 		return
@@ -326,42 +326,42 @@ func jsonStage1RVVGuarded(out []uint64, masks []byte, nw int, carr []uint64, res
 	jsonStage1RVV(out, masks, nw, carr, res)
 }
 
-func jsonCopyValidRVVGuarded(dst []byte, b []byte, html byte) int {
+func JsonCopyValidRVV(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < len(b) {
 		return ref.JSONCopyValid(dst, b, html)
 	}
 	return jsonCopyValidRVV(dst, b, html)
 }
 
-func jsonQuoteRVVGuarded(dst []byte, b []byte, html byte) int {
+func JsonQuoteRVV(dst []byte, b []byte, html byte) int {
 	if len(b) < 64 || len(dst) < 6*len(b) {
 		return ref.JSONQuote(dst, b, html)
 	}
 	return jsonQuoteRVV(dst, b, html)
 }
 
-func jsonCopyRunRVVGuarded(dst []byte, b []byte, html byte) int {
+func JsonCopyRunRVV(dst []byte, b []byte, html byte) int {
 	if len(b) < 32 || len(dst) < len(b) {
 		return ref.JSONCopyRun(dst, b, html)
 	}
 	return jsonCopyRunRVV(dst, b, html)
 }
 
-func b64EncodeRVVGuarded(dst []byte, b []byte) int {
+func B64EncodeRVV(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Encode(dst, b)
 	}
 	return b64EncodeRVV(dst, b)
 }
 
-func b64DecodeRVVGuarded(dst []byte, b []byte) int {
+func B64DecodeRVV(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.B64Decode(dst, b)
 	}
 	return b64DecodeRVV(dst, b)
 }
 
-func parseIntsRVVGuarded(dst []int64, src []byte, idx []int32) (count int, ok bool) {
+func ParseIntsRVV(dst []int64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseInts(dst, src, idx)
@@ -369,7 +369,7 @@ func parseIntsRVVGuarded(dst []int64, src []byte, idx []int32) (count int, ok bo
 	return parseIntsRVV(dst, src, idx[:n:n])
 }
 
-func parseUintsRVVGuarded(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
+func ParseUintsRVV(dst []uint64, src []byte, idx []int32) (count int, ok bool) {
 	n := min(len(idx), len(dst), len(src))
 	if n < 32 {
 		return ref.ParseUints(dst, src, idx)
@@ -377,49 +377,49 @@ func parseUintsRVVGuarded(dst []uint64, src []byte, idx []int32) (count int, ok 
 	return parseUintsRVV(dst, src, idx[:n:n])
 }
 
-func formatIntsRVVGuarded(dst []byte, vals []int64, sep byte) int {
+func FormatIntsRVV(dst []byte, vals []int64, sep byte) int {
 	if len(vals) < 0 || len(dst) < 21*len(vals) {
 		return ref.FormatInts(dst, vals, sep)
 	}
 	return formatIntsRVV(dst, vals, sep)
 }
 
-func hexDecodeRVVGuarded(dst []byte, src []byte) (n int, ok bool) {
+func HexDecodeRVV(dst []byte, src []byte) (n int, ok bool) {
 	if len(dst) < 32 {
 		return ref.HexDecode(dst, src)
 	}
 	return hexDecodeRVV(dst, src)
 }
 
-func hexEncodeRVVGuarded(dst []byte, b []byte) int {
+func HexEncodeRVV(dst []byte, b []byte) int {
 	if len(dst) < 32 {
 		return ref.HexEncode(dst, b)
 	}
 	return hexEncodeRVV(dst, b)
 }
 
-func indexRVVGuarded(haystack []byte, needle []byte) int {
+func IndexRVV(haystack []byte, needle []byte) int {
 	if len(haystack) < 64 {
 		return ref.Index(haystack, needle)
 	}
 	return indexRVV(haystack, needle)
 }
 
-func lastIndexRVVGuarded(haystack []byte, needle []byte) int {
+func LastIndexRVV(haystack []byte, needle []byte) int {
 	if len(haystack) < 64 {
 		return ref.LastIndex(haystack, needle)
 	}
 	return lastIndexRVV(haystack, needle)
 }
 
-func countSeqRVVGuarded(haystack []byte, needle []byte) int {
+func CountSeqRVV(haystack []byte, needle []byte) int {
 	if len(haystack) < 64 || len(needle) == 0 {
 		return ref.CountSeq(haystack, needle)
 	}
 	return countSeqRVV(haystack, needle)
 }
 
-func toUpperASCIIRVVGuarded(dst []byte, b []byte) {
+func ToUpperASCIIRVV(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToUpperASCII(dst, b)
@@ -428,7 +428,7 @@ func toUpperASCIIRVVGuarded(dst []byte, b []byte) {
 	toUpperASCIIRVV(dst[:n:n], b)
 }
 
-func toLowerASCIIRVVGuarded(dst []byte, b []byte) {
+func ToLowerASCIIRVV(dst []byte, b []byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ToLowerASCII(dst, b)
@@ -437,7 +437,7 @@ func toLowerASCIIRVVGuarded(dst []byte, b []byte) {
 	toLowerASCIIRVV(dst[:n:n], b)
 }
 
-func replaceByteRVVGuarded(dst []byte, b []byte, old byte, with byte) {
+func ReplaceByteRVV(dst []byte, b []byte, old byte, with byte) {
 	n := min(len(dst), len(b))
 	if n < 32 {
 		ref.ReplaceByte(dst, b, old, with)
@@ -446,63 +446,60 @@ func replaceByteRVVGuarded(dst []byte, b []byte, old byte, with byte) {
 	replaceByteRVV(dst[:n:n], b, old, with)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.Bytes.Count = countByteRVVGuarded
-	s.Bytes.IndexByte = indexByteRVVGuarded
-	s.Bytes.LastIndexByte = lastIndexByteRVVGuarded
-	s.Bytes.PopCount = popCountRVVGuarded
-	s.Bytes.MaskBits = maskBitsRVVGuarded
-	s.Bytes.MaskBitsLess = maskBitsLessRVVGuarded
-	s.Bytes.MaskBitsAny4 = maskBitsAny4RVVGuarded
-	s.Bytes.MaskBitsAny = maskBitsAnyRVVGuarded
-	s.Bytes.Hamming = hammingU8RVVGuarded
-	s.Bytes.HammingWords = hammingU64RVVGuarded
-	s.Bytes.Grayscale = grayscaleU8RVVGuarded
-	s.Bytes.RGBToUV = rgbToUVU8RVVGuarded
-	s.Bytes.IsASCII = isASCIIRVVGuarded
-	s.Bytes.ValidUTF8 = validUTF8RVVGuarded
-	s.Bytes.IndexNonASCII = indexNonASCIIRVVGuarded
-	s.Bytes.IndexNonASCII16 = indexNonASCII16RVVGuarded
-	s.Bytes.WidenU8U16 = widenU8U16RVVGuarded
-	s.Bytes.NarrowU16U8 = narrowU16U8RVVGuarded
-	s.Bytes.WidenU8U32 = widenU8U32RVVGuarded
-	s.Bytes.NarrowU32U8 = narrowU32U8RVVGuarded
-	s.Bytes.Equal = equalBytesRVVGuarded
-	s.Bytes.And = bitAndRVVGuarded
-	s.Bytes.Or = bitOrRVVGuarded
-	s.Bytes.Xor = bitXorRVVGuarded
-	s.Bytes.AndNot = bitAndNotRVVGuarded
-	s.Bytes.Not = bitNotRVVGuarded
-	s.Bytes.Fill = fillBytesRVVGuarded
-	s.Bytes.Compare = compareBytesRVVGuarded
-	s.Bytes.CommonPrefix = commonPrefixRVVGuarded
-	s.Bytes.EqualFoldASCII = equalFoldASCIIRVVGuarded
-	s.Bytes.IndexAny = indexAnyRVVGuarded
-	s.Bytes.IndexAnyOrLess = indexAnyOrLessRVVGuarded
-	s.Bytes.IndexNotAny = indexNotAnyRVVGuarded
-	s.Bytes.LastIndexNotAny = lastIndexNotAnyRVVGuarded
-	s.Bytes.CountAny = countAnyRVVGuarded
-	s.Bytes.JSONMasks = jsonMasksRVVGuarded
-	s.Bytes.JSONValidTokens = jsonValidTokensRVVGuarded
-	s.Bytes.JSONValid = jsonValidRVVGuarded
-	s.Bytes.JSONStage1 = jsonStage1RVVGuarded
-	s.Bytes.JSONCopyValid = jsonCopyValidRVVGuarded
-	s.Bytes.JSONQuote = jsonQuoteRVVGuarded
-	s.Bytes.JSONCopyRun = jsonCopyRunRVVGuarded
-	s.Bytes.B64Encode = b64EncodeRVVGuarded
-	s.Bytes.B64Decode = b64DecodeRVVGuarded
-	s.Bytes.ParseInts = parseIntsRVVGuarded
-	s.Bytes.ParseUints = parseUintsRVVGuarded
-	s.Bytes.FormatInts = formatIntsRVVGuarded
-	s.Bytes.HexDecode = hexDecodeRVVGuarded
-	s.Bytes.HexEncode = hexEncodeRVVGuarded
-	s.Bytes.Index = indexRVVGuarded
-	s.Bytes.LastIndex = lastIndexRVVGuarded
-	s.Bytes.CountSeq = countSeqRVVGuarded
-	s.Bytes.ToUpperASCII = toUpperASCIIRVVGuarded
-	s.Bytes.ToLowerASCII = toLowerASCIIRVVGuarded
-	s.Bytes.ReplaceByte = replaceByteRVVGuarded
+func registerBytesRVV(s *kernel.Set) {
+	s.Bytes.Count = CountByteRVV
+	s.Bytes.IndexByte = IndexByteRVV
+	s.Bytes.LastIndexByte = LastIndexByteRVV
+	s.Bytes.PopCount = PopCountRVV
+	s.Bytes.MaskBits = MaskBitsRVV
+	s.Bytes.MaskBitsLess = MaskBitsLessRVV
+	s.Bytes.MaskBitsAny4 = MaskBitsAny4RVV
+	s.Bytes.MaskBitsAny = MaskBitsAnyRVV
+	s.Bytes.Hamming = HammingU8RVV
+	s.Bytes.HammingWords = HammingU64RVV
+	s.Bytes.Grayscale = GrayscaleU8RVV
+	s.Bytes.RGBToUV = RgbToUVU8RVV
+	s.Bytes.IsASCII = IsASCIIRVV
+	s.Bytes.ValidUTF8 = ValidUTF8RVV
+	s.Bytes.IndexNonASCII = IndexNonASCIIRVV
+	s.Bytes.IndexNonASCII16 = IndexNonASCII16RVV
+	s.Bytes.WidenU8U16 = WidenU8U16RVV
+	s.Bytes.NarrowU16U8 = NarrowU16U8RVV
+	s.Bytes.WidenU8U32 = WidenU8U32RVV
+	s.Bytes.NarrowU32U8 = NarrowU32U8RVV
+	s.Bytes.Equal = EqualBytesRVV
+	s.Bytes.And = BitAndRVV
+	s.Bytes.Or = BitOrRVV
+	s.Bytes.Xor = BitXorRVV
+	s.Bytes.AndNot = BitAndNotRVV
+	s.Bytes.Not = BitNotRVV
+	s.Bytes.Fill = FillBytesRVV
+	s.Bytes.Compare = CompareBytesRVV
+	s.Bytes.CommonPrefix = CommonPrefixRVV
+	s.Bytes.EqualFoldASCII = EqualFoldASCIIRVV
+	s.Bytes.IndexAny = IndexAnyRVV
+	s.Bytes.IndexAnyOrLess = IndexAnyOrLessRVV
+	s.Bytes.IndexNotAny = IndexNotAnyRVV
+	s.Bytes.LastIndexNotAny = LastIndexNotAnyRVV
+	s.Bytes.CountAny = CountAnyRVV
+	s.Bytes.JSONMasks = JsonMasksRVV
+	s.Bytes.JSONValidTokens = JsonValidTokensRVV
+	s.Bytes.JSONValid = JsonValidRVV
+	s.Bytes.JSONStage1 = JsonStage1RVV
+	s.Bytes.JSONCopyValid = JsonCopyValidRVV
+	s.Bytes.JSONQuote = JsonQuoteRVV
+	s.Bytes.JSONCopyRun = JsonCopyRunRVV
+	s.Bytes.B64Encode = B64EncodeRVV
+	s.Bytes.B64Decode = B64DecodeRVV
+	s.Bytes.ParseInts = ParseIntsRVV
+	s.Bytes.ParseUints = ParseUintsRVV
+	s.Bytes.FormatInts = FormatIntsRVV
+	s.Bytes.HexDecode = HexDecodeRVV
+	s.Bytes.HexEncode = HexEncodeRVV
+	s.Bytes.Index = IndexRVV
+	s.Bytes.LastIndex = LastIndexRVV
+	s.Bytes.CountSeq = CountSeqRVV
+	s.Bytes.ToUpperASCII = ToUpperASCIIRVV
+	s.Bytes.ToLowerASCII = ToLowerASCIIRVV
+	s.Bytes.ReplaceByte = ReplaceByteRVV
 }

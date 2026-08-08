@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func hypotFloat32VXGuarded(dst []float32, a []float32, b []float32) {
+func HypotFloat32VX(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -29,7 +29,7 @@ func hypotFloat32VXGuarded(dst []float32, a []float32, b []float32) {
 	hypotFloat32VX(dst[:n:n], a, b)
 }
 
-func hypotFloat64VXGuarded(dst []float64, a []float64, b []float64) {
+func HypotFloat64VX(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -38,10 +38,7 @@ func hypotFloat64VXGuarded(dst []float64, a []float64, b []float64) {
 	hypotFloat64VX(dst[:n:n], a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.F32.Hypot = hypotFloat32VXGuarded
-	s.F64.Hypot = hypotFloat64VXGuarded
+func registerMathVX(s *kernel.Set) {
+	s.F32.Hypot = HypotFloat32VX
+	s.F64.Hypot = HypotFloat64VX
 }

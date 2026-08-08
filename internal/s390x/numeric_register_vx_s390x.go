@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,21 +20,21 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func normFloat32VXGuarded(a []float32) float32 {
+func NormFloat32VX(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
 	}
 	return normFloat32VX(a)
 }
 
-func normFloat64VXGuarded(a []float64) float64 {
+func NormFloat64VX(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
 	}
 	return normFloat64VX(a)
 }
 
-func shiftDivFloat32VXGuarded(dst []float32, a []float32, shift float32, denom float32) {
+func ShiftDivFloat32VX(dst []float32, a []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ShiftDiv(dst, a, shift, denom)
@@ -43,7 +43,7 @@ func shiftDivFloat32VXGuarded(dst []float32, a []float32, shift float32, denom f
 	shiftDivFloat32VX(dst[:n:n], a, shift, denom)
 }
 
-func layerNormFloat32VXGuarded(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
+func LayerNormFloat32VX(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a), len(gamma), len(beta))
 	if n < 16 {
 		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
@@ -52,7 +52,7 @@ func layerNormFloat32VXGuarded(dst []float32, a []float32, gamma []float32, beta
 	layerNormFloat32VX(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
-func shiftDivFloat64VXGuarded(dst []float64, a []float64, shift float64, denom float64) {
+func ShiftDivFloat64VX(dst []float64, a []float64, shift float64, denom float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ShiftDiv(dst, a, shift, denom)
@@ -61,7 +61,7 @@ func shiftDivFloat64VXGuarded(dst []float64, a []float64, shift float64, denom f
 	shiftDivFloat64VX(dst[:n:n], a, shift, denom)
 }
 
-func layerNormFloat64VXGuarded(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
+func LayerNormFloat64VX(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
 	n := min(len(dst), len(a), len(gamma), len(beta))
 	if n < 16 {
 		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
@@ -70,14 +70,11 @@ func layerNormFloat64VXGuarded(dst []float64, a []float64, gamma []float64, beta
 	layerNormFloat64VX(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.F32.Norm = normFloat32VXGuarded
-	s.F64.Norm = normFloat64VXGuarded
-	s.F32.ShiftDiv = shiftDivFloat32VXGuarded
-	s.F32.LayerNorm = layerNormFloat32VXGuarded
-	s.F64.ShiftDiv = shiftDivFloat64VXGuarded
-	s.F64.LayerNorm = layerNormFloat64VXGuarded
+func registerNumericVX(s *kernel.Set) {
+	s.F32.Norm = NormFloat32VX
+	s.F64.Norm = NormFloat64VX
+	s.F32.ShiftDiv = ShiftDivFloat32VX
+	s.F32.LayerNorm = LayerNormFloat32VX
+	s.F64.ShiftDiv = ShiftDivFloat64VX
+	s.F64.LayerNorm = LayerNormFloat64VX
 }

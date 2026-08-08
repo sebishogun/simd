@@ -10,7 +10,7 @@ package ppc64le
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func add4Float32VSXGuarded(dst []float32, a []float32, b []float32, c []float32, d []float32) {
+func Add4Float32VSX(dst []float32, a []float32, b []float32, c []float32, d []float32) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -29,7 +29,7 @@ func add4Float32VSXGuarded(dst []float32, a []float32, b []float32, c []float32,
 	add4Float32VSX(dst[:n:n], a, b, c, d)
 }
 
-func mul4Float32VSXGuarded(dst []float32, a []float32, b []float32, c []float32, d []float32) {
+func Mul4Float32VSX(dst []float32, a []float32, b []float32, c []float32, d []float32) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -38,7 +38,7 @@ func mul4Float32VSXGuarded(dst []float32, a []float32, b []float32, c []float32,
 	mul4Float32VSX(dst[:n:n], a, b, c, d)
 }
 
-func add4Float64VSXGuarded(dst []float64, a []float64, b []float64, c []float64, d []float64) {
+func Add4Float64VSX(dst []float64, a []float64, b []float64, c []float64, d []float64) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -47,7 +47,7 @@ func add4Float64VSXGuarded(dst []float64, a []float64, b []float64, c []float64,
 	add4Float64VSX(dst[:n:n], a, b, c, d)
 }
 
-func mul4Float64VSXGuarded(dst []float64, a []float64, b []float64, c []float64, d []float64) {
+func Mul4Float64VSX(dst []float64, a []float64, b []float64, c []float64, d []float64) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -56,7 +56,7 @@ func mul4Float64VSXGuarded(dst []float64, a []float64, b []float64, c []float64,
 	mul4Float64VSX(dst[:n:n], a, b, c, d)
 }
 
-func mul4Int8VSXGuarded(dst []int8, a []int8, b []int8, c []int8, d []int8) {
+func Mul4Int8VSX(dst []int8, a []int8, b []int8, c []int8, d []int8) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -65,7 +65,7 @@ func mul4Int8VSXGuarded(dst []int8, a []int8, b []int8, c []int8, d []int8) {
 	mul4Int8VSX(dst[:n:n], a, b, c, d)
 }
 
-func mul4Uint8VSXGuarded(dst []byte, a []byte, b []byte, c []byte, d []byte) {
+func Mul4Uint8VSX(dst []byte, a []byte, b []byte, c []byte, d []byte) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -74,14 +74,11 @@ func mul4Uint8VSXGuarded(dst []byte, a []byte, b []byte, c []byte, d []byte) {
 	mul4Uint8VSX(dst[:n:n], a, b, c, d)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vsx")
-	s.F32.Add4 = add4Float32VSXGuarded
-	s.F32.Mul4 = mul4Float32VSXGuarded
-	s.F64.Add4 = add4Float64VSXGuarded
-	s.F64.Mul4 = mul4Float64VSXGuarded
-	s.I8.Mul4 = mul4Int8VSXGuarded
-	s.U8.Mul4 = mul4Uint8VSXGuarded
+func registerNaryVSX(s *kernel.Set) {
+	s.F32.Add4 = Add4Float32VSX
+	s.F32.Mul4 = Mul4Float32VSX
+	s.F64.Add4 = Add4Float64VSX
+	s.F64.Mul4 = Mul4Float64VSX
+	s.I8.Mul4 = Mul4Int8VSX
+	s.U8.Mul4 = Mul4Uint8VSX
 }

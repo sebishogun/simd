@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,14 +20,14 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func normFloat32NEONGuarded(a []float32) float32 {
+func NormFloat32NEON(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
 	}
 	return normFloat32NEON(a)
 }
 
-func polyEvalFloat32NEONGuarded(dst []float32, x []float32, coeffs []float32) {
+func PolyEvalFloat32NEON(dst []float32, x []float32, coeffs []float32) {
 	if len(dst) < 16 {
 		ref.PolyEval(dst, x, coeffs)
 		return
@@ -35,7 +35,7 @@ func polyEvalFloat32NEONGuarded(dst []float32, x []float32, coeffs []float32) {
 	polyEvalFloat32NEON(dst, x, coeffs)
 }
 
-func convolveFloat32NEONGuarded(dst []float32, sig []float32, ker []float32) {
+func ConvolveFloat32NEON(dst []float32, sig []float32, ker []float32) {
 	if len(dst) < 16 {
 		ref.Convolve(dst, sig, ker)
 		return
@@ -43,7 +43,7 @@ func convolveFloat32NEONGuarded(dst []float32, sig []float32, ker []float32) {
 	convolveFloat32NEON(dst, sig, ker)
 }
 
-func correlateFloat32NEONGuarded(dst []float32, sig []float32, ker []float32) {
+func CorrelateFloat32NEON(dst []float32, sig []float32, ker []float32) {
 	if len(dst) < 16 {
 		ref.Correlate(dst, sig, ker)
 		return
@@ -51,14 +51,14 @@ func correlateFloat32NEONGuarded(dst []float32, sig []float32, ker []float32) {
 	correlateFloat32NEON(dst, sig, ker)
 }
 
-func normFloat64NEONGuarded(a []float64) float64 {
+func NormFloat64NEON(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.NormFloat(a)
 	}
 	return normFloat64NEON(a)
 }
 
-func polyEvalFloat64NEONGuarded(dst []float64, x []float64, coeffs []float64) {
+func PolyEvalFloat64NEON(dst []float64, x []float64, coeffs []float64) {
 	if len(dst) < 16 {
 		ref.PolyEval(dst, x, coeffs)
 		return
@@ -66,7 +66,7 @@ func polyEvalFloat64NEONGuarded(dst []float64, x []float64, coeffs []float64) {
 	polyEvalFloat64NEON(dst, x, coeffs)
 }
 
-func convolveFloat64NEONGuarded(dst []float64, sig []float64, ker []float64) {
+func ConvolveFloat64NEON(dst []float64, sig []float64, ker []float64) {
 	if len(dst) < 16 {
 		ref.Convolve(dst, sig, ker)
 		return
@@ -74,7 +74,7 @@ func convolveFloat64NEONGuarded(dst []float64, sig []float64, ker []float64) {
 	convolveFloat64NEON(dst, sig, ker)
 }
 
-func correlateFloat64NEONGuarded(dst []float64, sig []float64, ker []float64) {
+func CorrelateFloat64NEON(dst []float64, sig []float64, ker []float64) {
 	if len(dst) < 16 {
 		ref.Correlate(dst, sig, ker)
 		return
@@ -82,7 +82,7 @@ func correlateFloat64NEONGuarded(dst []float64, sig []float64, ker []float64) {
 	correlateFloat64NEON(dst, sig, ker)
 }
 
-func movingAverageFloat32NEONGuarded(dst []float32, a []float32, width int) {
+func MovingAverageFloat32NEON(dst []float32, a []float32, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
 		return
@@ -90,7 +90,7 @@ func movingAverageFloat32NEONGuarded(dst []float32, a []float32, width int) {
 	movingAverageFloat32NEON(dst, a, width)
 }
 
-func shiftDivFloat32NEONGuarded(dst []float32, a []float32, shift float32, denom float32) {
+func ShiftDivFloat32NEON(dst []float32, a []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ShiftDiv(dst, a, shift, denom)
@@ -99,7 +99,7 @@ func shiftDivFloat32NEONGuarded(dst []float32, a []float32, shift float32, denom
 	shiftDivFloat32NEON(dst[:n:n], a, shift, denom)
 }
 
-func layerNormFloat32NEONGuarded(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
+func LayerNormFloat32NEON(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a), len(gamma), len(beta))
 	if n < 16 {
 		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
@@ -108,7 +108,7 @@ func layerNormFloat32NEONGuarded(dst []float32, a []float32, gamma []float32, be
 	layerNormFloat32NEON(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
-func movingAverageFloat64NEONGuarded(dst []float64, a []float64, width int) {
+func MovingAverageFloat64NEON(dst []float64, a []float64, width int) {
 	if len(dst) < 16 {
 		ref.MovingAverage(dst, a, width)
 		return
@@ -116,7 +116,7 @@ func movingAverageFloat64NEONGuarded(dst []float64, a []float64, width int) {
 	movingAverageFloat64NEON(dst, a, width)
 }
 
-func shiftDivFloat64NEONGuarded(dst []float64, a []float64, shift float64, denom float64) {
+func ShiftDivFloat64NEON(dst []float64, a []float64, shift float64, denom float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ShiftDiv(dst, a, shift, denom)
@@ -125,7 +125,7 @@ func shiftDivFloat64NEONGuarded(dst []float64, a []float64, shift float64, denom
 	shiftDivFloat64NEON(dst[:n:n], a, shift, denom)
 }
 
-func layerNormFloat64NEONGuarded(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
+func LayerNormFloat64NEON(dst []float64, a []float64, gamma []float64, beta []float64, shift float64, denom float64) {
 	n := min(len(dst), len(a), len(gamma), len(beta))
 	if n < 16 {
 		ref.LayerNorm(dst, a, gamma, beta, shift, denom)
@@ -134,7 +134,7 @@ func layerNormFloat64NEONGuarded(dst []float64, a []float64, gamma []float64, be
 	layerNormFloat64NEON(dst[:n:n], a, gamma, beta, shift, denom)
 }
 
-func randomF64NEONGuarded(dst []float64, seed uint64) {
+func RandomF64NEON(dst []float64, seed uint64) {
 	if len(dst) < 16 {
 		ref.RandomF64(dst, seed)
 		return
@@ -142,7 +142,7 @@ func randomF64NEONGuarded(dst []float64, seed uint64) {
 	randomF64NEON(dst, seed)
 }
 
-func randomF32NEONGuarded(dst []float32, seed uint64) {
+func RandomF32NEON(dst []float32, seed uint64) {
 	if len(dst) < 16 {
 		ref.RandomF32(dst, seed)
 		return
@@ -150,24 +150,21 @@ func randomF32NEONGuarded(dst []float32, seed uint64) {
 	randomF32NEON(dst, seed)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.F32.Norm = normFloat32NEONGuarded
-	s.F32.PolyEval = polyEvalFloat32NEONGuarded
-	s.F32.Convolve = convolveFloat32NEONGuarded
-	s.F32.Correlate = correlateFloat32NEONGuarded
-	s.F64.Norm = normFloat64NEONGuarded
-	s.F64.PolyEval = polyEvalFloat64NEONGuarded
-	s.F64.Convolve = convolveFloat64NEONGuarded
-	s.F64.Correlate = correlateFloat64NEONGuarded
-	s.F32.MovingAverage = movingAverageFloat32NEONGuarded
-	s.F32.ShiftDiv = shiftDivFloat32NEONGuarded
-	s.F32.LayerNorm = layerNormFloat32NEONGuarded
-	s.F64.MovingAverage = movingAverageFloat64NEONGuarded
-	s.F64.ShiftDiv = shiftDivFloat64NEONGuarded
-	s.F64.LayerNorm = layerNormFloat64NEONGuarded
-	s.F64.Random = randomF64NEONGuarded
-	s.F32.Random = randomF32NEONGuarded
+func registerNumericNEON(s *kernel.Set) {
+	s.F32.Norm = NormFloat32NEON
+	s.F32.PolyEval = PolyEvalFloat32NEON
+	s.F32.Convolve = ConvolveFloat32NEON
+	s.F32.Correlate = CorrelateFloat32NEON
+	s.F64.Norm = NormFloat64NEON
+	s.F64.PolyEval = PolyEvalFloat64NEON
+	s.F64.Convolve = ConvolveFloat64NEON
+	s.F64.Correlate = CorrelateFloat64NEON
+	s.F32.MovingAverage = MovingAverageFloat32NEON
+	s.F32.ShiftDiv = ShiftDivFloat32NEON
+	s.F32.LayerNorm = LayerNormFloat32NEON
+	s.F64.MovingAverage = MovingAverageFloat64NEON
+	s.F64.ShiftDiv = ShiftDivFloat64NEON
+	s.F64.LayerNorm = LayerNormFloat64NEON
+	s.F64.Random = RandomF64NEON
+	s.F32.Random = RandomF32NEON
 }

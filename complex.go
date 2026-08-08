@@ -28,9 +28,9 @@ func complexOps[C Complex]() *kernel.Complex[C] {
 	var zero C
 	switch any(zero).(type) {
 	case complex64:
-		return any(&active.C64).(*kernel.Complex[C])
+		return any(&refBase.C64).(*kernel.Complex[C])
 	case complex128:
-		return any(&active.C128).(*kernel.Complex[C])
+		return any(&refBase.C128).(*kernel.Complex[C])
 	}
 	panic("simd: unsupported complex type")
 }
@@ -44,11 +44,11 @@ func complexParts[C Complex, R Float]() *kernel.ComplexParts[C, R] {
 	var zero C
 	switch any(zero).(type) {
 	case complex64:
-		if p, ok := any(&active.C64Parts).(*kernel.ComplexParts[C, R]); ok {
+		if p, ok := any(&refBase.C64Parts).(*kernel.ComplexParts[C, R]); ok {
 			return p
 		}
 	case complex128:
-		if p, ok := any(&active.C128Parts).(*kernel.ComplexParts[C, R]); ok {
+		if p, ok := any(&refBase.C128Parts).(*kernel.ComplexParts[C, R]); ok {
 			return p
 		}
 	}

@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func add3Float32RVVGuarded(dst []float32, a []float32, b []float32, c []float32) {
+func Add3Float32RVV(dst []float32, a []float32, b []float32, c []float32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -29,7 +29,7 @@ func add3Float32RVVGuarded(dst []float32, a []float32, b []float32, c []float32)
 	add3Float32RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Float32RVVGuarded(dst []float32, a []float32, b []float32, c []float32) {
+func Mul3Float32RVV(dst []float32, a []float32, b []float32, c []float32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -38,7 +38,7 @@ func mul3Float32RVVGuarded(dst []float32, a []float32, b []float32, c []float32)
 	mul3Float32RVV(dst[:n:n], a, b, c)
 }
 
-func add4Float32RVVGuarded(dst []float32, a []float32, b []float32, c []float32, d []float32) {
+func Add4Float32RVV(dst []float32, a []float32, b []float32, c []float32, d []float32) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -47,7 +47,7 @@ func add4Float32RVVGuarded(dst []float32, a []float32, b []float32, c []float32,
 	add4Float32RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Float32RVVGuarded(dst []float32, a []float32, b []float32, c []float32, d []float32) {
+func Mul4Float32RVV(dst []float32, a []float32, b []float32, c []float32, d []float32) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -56,7 +56,7 @@ func mul4Float32RVVGuarded(dst []float32, a []float32, b []float32, c []float32,
 	mul4Float32RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Float64RVVGuarded(dst []float64, a []float64, b []float64, c []float64) {
+func Add3Float64RVV(dst []float64, a []float64, b []float64, c []float64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -65,7 +65,7 @@ func add3Float64RVVGuarded(dst []float64, a []float64, b []float64, c []float64)
 	add3Float64RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Float64RVVGuarded(dst []float64, a []float64, b []float64, c []float64) {
+func Mul3Float64RVV(dst []float64, a []float64, b []float64, c []float64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -74,7 +74,7 @@ func mul3Float64RVVGuarded(dst []float64, a []float64, b []float64, c []float64)
 	mul3Float64RVV(dst[:n:n], a, b, c)
 }
 
-func add4Float64RVVGuarded(dst []float64, a []float64, b []float64, c []float64, d []float64) {
+func Add4Float64RVV(dst []float64, a []float64, b []float64, c []float64, d []float64) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -83,7 +83,7 @@ func add4Float64RVVGuarded(dst []float64, a []float64, b []float64, c []float64,
 	add4Float64RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Float64RVVGuarded(dst []float64, a []float64, b []float64, c []float64, d []float64) {
+func Mul4Float64RVV(dst []float64, a []float64, b []float64, c []float64, d []float64) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -92,7 +92,7 @@ func mul4Float64RVVGuarded(dst []float64, a []float64, b []float64, c []float64,
 	mul4Float64RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Int32RVVGuarded(dst []int32, a []int32, b []int32, c []int32) {
+func Add3Int32RVV(dst []int32, a []int32, b []int32, c []int32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -101,7 +101,7 @@ func add3Int32RVVGuarded(dst []int32, a []int32, b []int32, c []int32) {
 	add3Int32RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Int32RVVGuarded(dst []int32, a []int32, b []int32, c []int32) {
+func Mul3Int32RVV(dst []int32, a []int32, b []int32, c []int32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -110,7 +110,7 @@ func mul3Int32RVVGuarded(dst []int32, a []int32, b []int32, c []int32) {
 	mul3Int32RVV(dst[:n:n], a, b, c)
 }
 
-func add4Int32RVVGuarded(dst []int32, a []int32, b []int32, c []int32, d []int32) {
+func Add4Int32RVV(dst []int32, a []int32, b []int32, c []int32, d []int32) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -119,7 +119,7 @@ func add4Int32RVVGuarded(dst []int32, a []int32, b []int32, c []int32, d []int32
 	add4Int32RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Int32RVVGuarded(dst []int32, a []int32, b []int32, c []int32, d []int32) {
+func Mul4Int32RVV(dst []int32, a []int32, b []int32, c []int32, d []int32) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -128,7 +128,7 @@ func mul4Int32RVVGuarded(dst []int32, a []int32, b []int32, c []int32, d []int32
 	mul4Int32RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Int64RVVGuarded(dst []int64, a []int64, b []int64, c []int64) {
+func Add3Int64RVV(dst []int64, a []int64, b []int64, c []int64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -137,7 +137,7 @@ func add3Int64RVVGuarded(dst []int64, a []int64, b []int64, c []int64) {
 	add3Int64RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Int64RVVGuarded(dst []int64, a []int64, b []int64, c []int64) {
+func Mul3Int64RVV(dst []int64, a []int64, b []int64, c []int64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -146,7 +146,7 @@ func mul3Int64RVVGuarded(dst []int64, a []int64, b []int64, c []int64) {
 	mul3Int64RVV(dst[:n:n], a, b, c)
 }
 
-func add4Int64RVVGuarded(dst []int64, a []int64, b []int64, c []int64, d []int64) {
+func Add4Int64RVV(dst []int64, a []int64, b []int64, c []int64, d []int64) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -155,7 +155,7 @@ func add4Int64RVVGuarded(dst []int64, a []int64, b []int64, c []int64, d []int64
 	add4Int64RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Int64RVVGuarded(dst []int64, a []int64, b []int64, c []int64, d []int64) {
+func Mul4Int64RVV(dst []int64, a []int64, b []int64, c []int64, d []int64) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -164,7 +164,7 @@ func mul4Int64RVVGuarded(dst []int64, a []int64, b []int64, c []int64, d []int64
 	mul4Int64RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Int8RVVGuarded(dst []int8, a []int8, b []int8, c []int8) {
+func Add3Int8RVV(dst []int8, a []int8, b []int8, c []int8) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -173,7 +173,7 @@ func add3Int8RVVGuarded(dst []int8, a []int8, b []int8, c []int8) {
 	add3Int8RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Int8RVVGuarded(dst []int8, a []int8, b []int8, c []int8) {
+func Mul3Int8RVV(dst []int8, a []int8, b []int8, c []int8) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -182,7 +182,7 @@ func mul3Int8RVVGuarded(dst []int8, a []int8, b []int8, c []int8) {
 	mul3Int8RVV(dst[:n:n], a, b, c)
 }
 
-func add4Int8RVVGuarded(dst []int8, a []int8, b []int8, c []int8, d []int8) {
+func Add4Int8RVV(dst []int8, a []int8, b []int8, c []int8, d []int8) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -191,7 +191,7 @@ func add4Int8RVVGuarded(dst []int8, a []int8, b []int8, c []int8, d []int8) {
 	add4Int8RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Int8RVVGuarded(dst []int8, a []int8, b []int8, c []int8, d []int8) {
+func Mul4Int8RVV(dst []int8, a []int8, b []int8, c []int8, d []int8) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -200,7 +200,7 @@ func mul4Int8RVVGuarded(dst []int8, a []int8, b []int8, c []int8, d []int8) {
 	mul4Int8RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Int16RVVGuarded(dst []int16, a []int16, b []int16, c []int16) {
+func Add3Int16RVV(dst []int16, a []int16, b []int16, c []int16) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -209,7 +209,7 @@ func add3Int16RVVGuarded(dst []int16, a []int16, b []int16, c []int16) {
 	add3Int16RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Int16RVVGuarded(dst []int16, a []int16, b []int16, c []int16) {
+func Mul3Int16RVV(dst []int16, a []int16, b []int16, c []int16) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -218,7 +218,7 @@ func mul3Int16RVVGuarded(dst []int16, a []int16, b []int16, c []int16) {
 	mul3Int16RVV(dst[:n:n], a, b, c)
 }
 
-func add4Int16RVVGuarded(dst []int16, a []int16, b []int16, c []int16, d []int16) {
+func Add4Int16RVV(dst []int16, a []int16, b []int16, c []int16, d []int16) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -227,7 +227,7 @@ func add4Int16RVVGuarded(dst []int16, a []int16, b []int16, c []int16, d []int16
 	add4Int16RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Int16RVVGuarded(dst []int16, a []int16, b []int16, c []int16, d []int16) {
+func Mul4Int16RVV(dst []int16, a []int16, b []int16, c []int16, d []int16) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -236,7 +236,7 @@ func mul4Int16RVVGuarded(dst []int16, a []int16, b []int16, c []int16, d []int16
 	mul4Int16RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Uint8RVVGuarded(dst []byte, a []byte, b []byte, c []byte) {
+func Add3Uint8RVV(dst []byte, a []byte, b []byte, c []byte) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -245,7 +245,7 @@ func add3Uint8RVVGuarded(dst []byte, a []byte, b []byte, c []byte) {
 	add3Uint8RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Uint8RVVGuarded(dst []byte, a []byte, b []byte, c []byte) {
+func Mul3Uint8RVV(dst []byte, a []byte, b []byte, c []byte) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -254,7 +254,7 @@ func mul3Uint8RVVGuarded(dst []byte, a []byte, b []byte, c []byte) {
 	mul3Uint8RVV(dst[:n:n], a, b, c)
 }
 
-func add4Uint8RVVGuarded(dst []byte, a []byte, b []byte, c []byte, d []byte) {
+func Add4Uint8RVV(dst []byte, a []byte, b []byte, c []byte, d []byte) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -263,7 +263,7 @@ func add4Uint8RVVGuarded(dst []byte, a []byte, b []byte, c []byte, d []byte) {
 	add4Uint8RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Uint8RVVGuarded(dst []byte, a []byte, b []byte, c []byte, d []byte) {
+func Mul4Uint8RVV(dst []byte, a []byte, b []byte, c []byte, d []byte) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -272,7 +272,7 @@ func mul4Uint8RVVGuarded(dst []byte, a []byte, b []byte, c []byte, d []byte) {
 	mul4Uint8RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Uint16RVVGuarded(dst []uint16, a []uint16, b []uint16, c []uint16) {
+func Add3Uint16RVV(dst []uint16, a []uint16, b []uint16, c []uint16) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -281,7 +281,7 @@ func add3Uint16RVVGuarded(dst []uint16, a []uint16, b []uint16, c []uint16) {
 	add3Uint16RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Uint16RVVGuarded(dst []uint16, a []uint16, b []uint16, c []uint16) {
+func Mul3Uint16RVV(dst []uint16, a []uint16, b []uint16, c []uint16) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -290,7 +290,7 @@ func mul3Uint16RVVGuarded(dst []uint16, a []uint16, b []uint16, c []uint16) {
 	mul3Uint16RVV(dst[:n:n], a, b, c)
 }
 
-func add4Uint16RVVGuarded(dst []uint16, a []uint16, b []uint16, c []uint16, d []uint16) {
+func Add4Uint16RVV(dst []uint16, a []uint16, b []uint16, c []uint16, d []uint16) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -299,7 +299,7 @@ func add4Uint16RVVGuarded(dst []uint16, a []uint16, b []uint16, c []uint16, d []
 	add4Uint16RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Uint16RVVGuarded(dst []uint16, a []uint16, b []uint16, c []uint16, d []uint16) {
+func Mul4Uint16RVV(dst []uint16, a []uint16, b []uint16, c []uint16, d []uint16) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -308,7 +308,7 @@ func mul4Uint16RVVGuarded(dst []uint16, a []uint16, b []uint16, c []uint16, d []
 	mul4Uint16RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Uint32RVVGuarded(dst []uint32, a []uint32, b []uint32, c []uint32) {
+func Add3Uint32RVV(dst []uint32, a []uint32, b []uint32, c []uint32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -317,7 +317,7 @@ func add3Uint32RVVGuarded(dst []uint32, a []uint32, b []uint32, c []uint32) {
 	add3Uint32RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Uint32RVVGuarded(dst []uint32, a []uint32, b []uint32, c []uint32) {
+func Mul3Uint32RVV(dst []uint32, a []uint32, b []uint32, c []uint32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -326,7 +326,7 @@ func mul3Uint32RVVGuarded(dst []uint32, a []uint32, b []uint32, c []uint32) {
 	mul3Uint32RVV(dst[:n:n], a, b, c)
 }
 
-func add4Uint32RVVGuarded(dst []uint32, a []uint32, b []uint32, c []uint32, d []uint32) {
+func Add4Uint32RVV(dst []uint32, a []uint32, b []uint32, c []uint32, d []uint32) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -335,7 +335,7 @@ func add4Uint32RVVGuarded(dst []uint32, a []uint32, b []uint32, c []uint32, d []
 	add4Uint32RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Uint32RVVGuarded(dst []uint32, a []uint32, b []uint32, c []uint32, d []uint32) {
+func Mul4Uint32RVV(dst []uint32, a []uint32, b []uint32, c []uint32, d []uint32) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -344,7 +344,7 @@ func mul4Uint32RVVGuarded(dst []uint32, a []uint32, b []uint32, c []uint32, d []
 	mul4Uint32RVV(dst[:n:n], a, b, c, d)
 }
 
-func add3Uint64RVVGuarded(dst []uint64, a []uint64, b []uint64, c []uint64) {
+func Add3Uint64RVV(dst []uint64, a []uint64, b []uint64, c []uint64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -353,7 +353,7 @@ func add3Uint64RVVGuarded(dst []uint64, a []uint64, b []uint64, c []uint64) {
 	add3Uint64RVV(dst[:n:n], a, b, c)
 }
 
-func mul3Uint64RVVGuarded(dst []uint64, a []uint64, b []uint64, c []uint64) {
+func Mul3Uint64RVV(dst []uint64, a []uint64, b []uint64, c []uint64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -362,7 +362,7 @@ func mul3Uint64RVVGuarded(dst []uint64, a []uint64, b []uint64, c []uint64) {
 	mul3Uint64RVV(dst[:n:n], a, b, c)
 }
 
-func add4Uint64RVVGuarded(dst []uint64, a []uint64, b []uint64, c []uint64, d []uint64) {
+func Add4Uint64RVV(dst []uint64, a []uint64, b []uint64, c []uint64, d []uint64) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Add4(dst, a, b, c, d)
@@ -371,7 +371,7 @@ func add4Uint64RVVGuarded(dst []uint64, a []uint64, b []uint64, c []uint64, d []
 	add4Uint64RVV(dst[:n:n], a, b, c, d)
 }
 
-func mul4Uint64RVVGuarded(dst []uint64, a []uint64, b []uint64, c []uint64, d []uint64) {
+func Mul4Uint64RVV(dst []uint64, a []uint64, b []uint64, c []uint64, d []uint64) {
 	n := min(len(dst), len(a), len(b), len(c), len(d))
 	if n < 256 {
 		ref.Mul4(dst, a, b, c, d)
@@ -380,48 +380,45 @@ func mul4Uint64RVVGuarded(dst []uint64, a []uint64, b []uint64, c []uint64, d []
 	mul4Uint64RVV(dst[:n:n], a, b, c, d)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.F32.Add3 = add3Float32RVVGuarded
-	s.F32.Mul3 = mul3Float32RVVGuarded
-	s.F32.Add4 = add4Float32RVVGuarded
-	s.F32.Mul4 = mul4Float32RVVGuarded
-	s.F64.Add3 = add3Float64RVVGuarded
-	s.F64.Mul3 = mul3Float64RVVGuarded
-	s.F64.Add4 = add4Float64RVVGuarded
-	s.F64.Mul4 = mul4Float64RVVGuarded
-	s.I32.Add3 = add3Int32RVVGuarded
-	s.I32.Mul3 = mul3Int32RVVGuarded
-	s.I32.Add4 = add4Int32RVVGuarded
-	s.I32.Mul4 = mul4Int32RVVGuarded
-	s.I64.Add3 = add3Int64RVVGuarded
-	s.I64.Mul3 = mul3Int64RVVGuarded
-	s.I64.Add4 = add4Int64RVVGuarded
-	s.I64.Mul4 = mul4Int64RVVGuarded
-	s.I8.Add3 = add3Int8RVVGuarded
-	s.I8.Mul3 = mul3Int8RVVGuarded
-	s.I8.Add4 = add4Int8RVVGuarded
-	s.I8.Mul4 = mul4Int8RVVGuarded
-	s.I16.Add3 = add3Int16RVVGuarded
-	s.I16.Mul3 = mul3Int16RVVGuarded
-	s.I16.Add4 = add4Int16RVVGuarded
-	s.I16.Mul4 = mul4Int16RVVGuarded
-	s.U8.Add3 = add3Uint8RVVGuarded
-	s.U8.Mul3 = mul3Uint8RVVGuarded
-	s.U8.Add4 = add4Uint8RVVGuarded
-	s.U8.Mul4 = mul4Uint8RVVGuarded
-	s.U16.Add3 = add3Uint16RVVGuarded
-	s.U16.Mul3 = mul3Uint16RVVGuarded
-	s.U16.Add4 = add4Uint16RVVGuarded
-	s.U16.Mul4 = mul4Uint16RVVGuarded
-	s.U32.Add3 = add3Uint32RVVGuarded
-	s.U32.Mul3 = mul3Uint32RVVGuarded
-	s.U32.Add4 = add4Uint32RVVGuarded
-	s.U32.Mul4 = mul4Uint32RVVGuarded
-	s.U64.Add3 = add3Uint64RVVGuarded
-	s.U64.Mul3 = mul3Uint64RVVGuarded
-	s.U64.Add4 = add4Uint64RVVGuarded
-	s.U64.Mul4 = mul4Uint64RVVGuarded
+func registerNaryRVV(s *kernel.Set) {
+	s.F32.Add3 = Add3Float32RVV
+	s.F32.Mul3 = Mul3Float32RVV
+	s.F32.Add4 = Add4Float32RVV
+	s.F32.Mul4 = Mul4Float32RVV
+	s.F64.Add3 = Add3Float64RVV
+	s.F64.Mul3 = Mul3Float64RVV
+	s.F64.Add4 = Add4Float64RVV
+	s.F64.Mul4 = Mul4Float64RVV
+	s.I32.Add3 = Add3Int32RVV
+	s.I32.Mul3 = Mul3Int32RVV
+	s.I32.Add4 = Add4Int32RVV
+	s.I32.Mul4 = Mul4Int32RVV
+	s.I64.Add3 = Add3Int64RVV
+	s.I64.Mul3 = Mul3Int64RVV
+	s.I64.Add4 = Add4Int64RVV
+	s.I64.Mul4 = Mul4Int64RVV
+	s.I8.Add3 = Add3Int8RVV
+	s.I8.Mul3 = Mul3Int8RVV
+	s.I8.Add4 = Add4Int8RVV
+	s.I8.Mul4 = Mul4Int8RVV
+	s.I16.Add3 = Add3Int16RVV
+	s.I16.Mul3 = Mul3Int16RVV
+	s.I16.Add4 = Add4Int16RVV
+	s.I16.Mul4 = Mul4Int16RVV
+	s.U8.Add3 = Add3Uint8RVV
+	s.U8.Mul3 = Mul3Uint8RVV
+	s.U8.Add4 = Add4Uint8RVV
+	s.U8.Mul4 = Mul4Uint8RVV
+	s.U16.Add3 = Add3Uint16RVV
+	s.U16.Mul3 = Mul3Uint16RVV
+	s.U16.Add4 = Add4Uint16RVV
+	s.U16.Mul4 = Mul4Uint16RVV
+	s.U32.Add3 = Add3Uint32RVV
+	s.U32.Mul3 = Mul3Uint32RVV
+	s.U32.Add4 = Add4Uint32RVV
+	s.U32.Mul4 = Mul4Uint32RVV
+	s.U64.Add3 = Add3Uint64RVV
+	s.U64.Mul3 = Mul3Uint64RVV
+	s.U64.Add4 = Add4Uint64RVV
+	s.U64.Mul4 = Mul4Uint64RVV
 }

@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func gerFloat32SSE2Guarded(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
+func GerFloat32SSE2(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -28,7 +28,7 @@ func gerFloat32SSE2Guarded(a []float32, x []float32, y []float32, alpha float32,
 	gerFloat32SSE2(a, x, y, alpha, m, n)
 }
 
-func rotFloat32SSE2Guarded(x []float32, y []float32, c float32, s float32) {
+func RotFloat32SSE2(x []float32, y []float32, c float32, s float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -37,7 +37,7 @@ func rotFloat32SSE2Guarded(x []float32, y []float32, c float32, s float32) {
 	rotFloat32SSE2(x[:n:n], y, c, s)
 }
 
-func swapFloat32SSE2Guarded(x []float32, y []float32) {
+func SwapFloat32SSE2(x []float32, y []float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -46,7 +46,7 @@ func swapFloat32SSE2Guarded(x []float32, y []float32) {
 	swapFloat32SSE2(x[:n:n], y)
 }
 
-func gerFloat64SSE2Guarded(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
+func GerFloat64SSE2(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -54,7 +54,7 @@ func gerFloat64SSE2Guarded(a []float64, x []float64, y []float64, alpha float64,
 	gerFloat64SSE2(a, x, y, alpha, m, n)
 }
 
-func rotFloat64SSE2Guarded(x []float64, y []float64, c float64, s float64) {
+func RotFloat64SSE2(x []float64, y []float64, c float64, s float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -63,7 +63,7 @@ func rotFloat64SSE2Guarded(x []float64, y []float64, c float64, s float64) {
 	rotFloat64SSE2(x[:n:n], y, c, s)
 }
 
-func swapFloat64SSE2Guarded(x []float64, y []float64) {
+func SwapFloat64SSE2(x []float64, y []float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -72,7 +72,7 @@ func swapFloat64SSE2Guarded(x []float64, y []float64) {
 	swapFloat64SSE2(x[:n:n], y)
 }
 
-func swapInt32SSE2Guarded(x []int32, y []int32) {
+func SwapInt32SSE2(x []int32, y []int32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -81,7 +81,7 @@ func swapInt32SSE2Guarded(x []int32, y []int32) {
 	swapInt32SSE2(x[:n:n], y)
 }
 
-func swapInt64SSE2Guarded(x []int64, y []int64) {
+func SwapInt64SSE2(x []int64, y []int64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -90,16 +90,13 @@ func swapInt64SSE2Guarded(x []int64, y []int64) {
 	swapInt64SSE2(x[:n:n], y)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sse2")
-	s.F32.RankOne = gerFloat32SSE2Guarded
-	s.F32.Rotate = rotFloat32SSE2Guarded
-	s.F32.Swap = swapFloat32SSE2Guarded
-	s.F64.RankOne = gerFloat64SSE2Guarded
-	s.F64.Rotate = rotFloat64SSE2Guarded
-	s.F64.Swap = swapFloat64SSE2Guarded
-	s.I32.Swap = swapInt32SSE2Guarded
-	s.I64.Swap = swapInt64SSE2Guarded
+func registerBlasSSE2(s *kernel.Set) {
+	s.F32.RankOne = GerFloat32SSE2
+	s.F32.Rotate = RotFloat32SSE2
+	s.F32.Swap = SwapFloat32SSE2
+	s.F64.RankOne = GerFloat64SSE2
+	s.F64.Rotate = RotFloat64SSE2
+	s.F64.Swap = SwapFloat64SSE2
+	s.I32.Swap = SwapInt32SSE2
+	s.I64.Swap = SwapInt64SSE2
 }

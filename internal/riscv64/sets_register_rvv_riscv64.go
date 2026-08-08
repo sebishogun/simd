@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,72 +20,69 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func intersectInt32RVVGuarded(dst []int32, a []int32, b []int32) int {
+func IntersectInt32RVV(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt32RVV(dst, a, b)
 }
 
-func differenceInt32RVVGuarded(dst []int32, a []int32, b []int32) int {
+func DifferenceInt32RVV(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt32RVV(dst, a, b)
 }
 
-func intersectInt64RVVGuarded(dst []int64, a []int64, b []int64) int {
+func IntersectInt64RVV(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt64RVV(dst, a, b)
 }
 
-func differenceInt64RVVGuarded(dst []int64, a []int64, b []int64) int {
+func DifferenceInt64RVV(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt64RVV(dst, a, b)
 }
 
-func intersectUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) int {
+func IntersectUint32RVV(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint32RVV(dst, a, b)
 }
 
-func differenceUint32RVVGuarded(dst []uint32, a []uint32, b []uint32) int {
+func DifferenceUint32RVV(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint32RVV(dst, a, b)
 }
 
-func intersectUint64RVVGuarded(dst []uint64, a []uint64, b []uint64) int {
+func IntersectUint64RVV(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint64RVV(dst, a, b)
 }
 
-func differenceUint64RVVGuarded(dst []uint64, a []uint64, b []uint64) int {
+func DifferenceUint64RVV(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint64RVV(dst, a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.I32.Intersect = intersectInt32RVVGuarded
-	s.I32.Difference = differenceInt32RVVGuarded
-	s.I64.Intersect = intersectInt64RVVGuarded
-	s.I64.Difference = differenceInt64RVVGuarded
-	s.U32.Intersect = intersectUint32RVVGuarded
-	s.U32.Difference = differenceUint32RVVGuarded
-	s.U64.Intersect = intersectUint64RVVGuarded
-	s.U64.Difference = differenceUint64RVVGuarded
+func registerSetsRVV(s *kernel.Set) {
+	s.I32.Intersect = IntersectInt32RVV
+	s.I32.Difference = DifferenceInt32RVV
+	s.I64.Intersect = IntersectInt64RVV
+	s.I64.Difference = DifferenceInt64RVV
+	s.U32.Intersect = IntersectUint32RVV
+	s.U32.Difference = DifferenceUint32RVV
+	s.U64.Intersect = IntersectUint64RVV
+	s.U64.Difference = DifferenceUint64RVV
 }

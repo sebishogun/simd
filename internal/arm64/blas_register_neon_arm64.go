@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func gerFloat32NEONGuarded(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
+func GerFloat32NEON(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -28,7 +28,7 @@ func gerFloat32NEONGuarded(a []float32, x []float32, y []float32, alpha float32,
 	gerFloat32NEON(a, x, y, alpha, m, n)
 }
 
-func rotFloat32NEONGuarded(x []float32, y []float32, c float32, s float32) {
+func RotFloat32NEON(x []float32, y []float32, c float32, s float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -37,7 +37,7 @@ func rotFloat32NEONGuarded(x []float32, y []float32, c float32, s float32) {
 	rotFloat32NEON(x[:n:n], y, c, s)
 }
 
-func gerFloat64NEONGuarded(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
+func GerFloat64NEON(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -45,7 +45,7 @@ func gerFloat64NEONGuarded(a []float64, x []float64, y []float64, alpha float64,
 	gerFloat64NEON(a, x, y, alpha, m, n)
 }
 
-func rotFloat64NEONGuarded(x []float64, y []float64, c float64, s float64) {
+func RotFloat64NEON(x []float64, y []float64, c float64, s float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -54,12 +54,9 @@ func rotFloat64NEONGuarded(x []float64, y []float64, c float64, s float64) {
 	rotFloat64NEON(x[:n:n], y, c, s)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.F32.RankOne = gerFloat32NEONGuarded
-	s.F32.Rotate = rotFloat32NEONGuarded
-	s.F64.RankOne = gerFloat64NEONGuarded
-	s.F64.Rotate = rotFloat64NEONGuarded
+func registerBlasNEON(s *kernel.Set) {
+	s.F32.RankOne = GerFloat32NEON
+	s.F32.Rotate = RotFloat32NEON
+	s.F64.RankOne = GerFloat64NEON
+	s.F64.Rotate = RotFloat64NEON
 }

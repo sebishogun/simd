@@ -37,13 +37,13 @@ func viaOps[T Number](dst, a, b []T) { ops[T]().Add(dst, a, b) }
 func viaSwitch[T Number](dst, a, b []T) {
 	switch d := any(dst).(type) {
 	case []float32:
-		active.F32.Add(d, any(a).([]float32), any(b).([]float32))
+		ops[float32]().Add(d, any(a).([]float32), any(b).([]float32))
 	case []float64:
-		active.F64.Add(d, any(a).([]float64), any(b).([]float64))
+		ops[float64]().Add(d, any(a).([]float64), any(b).([]float64))
 	case []int32:
-		active.I32.Add(d, any(a).([]int32), any(b).([]int32))
+		ops[int32]().Add(d, any(a).([]int32), any(b).([]int32))
 	case []int64:
-		active.I64.Add(d, any(a).([]int64), any(b).([]int64))
+		ops[int64]().Add(d, any(a).([]int64), any(b).([]int64))
 	}
 }
 
@@ -56,7 +56,7 @@ func TestGenericDispatchCost(t *testing.T) {
 
 		// The kernel the dispatch eventually reaches, called directly, so the
 		// layers above it can be priced against something.
-		direct := active.F64.Add
+		direct := ops[float64]().Add
 
 		rs := []perf.Result{
 			perf.Measure("direct field call", 0, func() { direct(dst, a, b) }, opt),

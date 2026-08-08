@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,21 +20,21 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func indexAllAVX512Guarded(dst []int32, b []byte, c byte) int {
+func IndexAllAVX512(dst []int32, b []byte, c byte) int {
 	if len(dst) < 64 {
 		return ref.IndexAll(dst, b, c)
 	}
 	return indexAllAVX512(dst, b, c)
 }
 
-func indexAllAnyAVX512Guarded(dst []int32, b []byte, chars uint64) int {
+func IndexAllAnyAVX512(dst []int32, b []byte, chars uint64) int {
 	if len(dst) < 64 {
 		return ref.IndexAllAny(dst, b, chars)
 	}
 	return indexAllAnyAVX512(dst, b, chars)
 }
 
-func runStartsI32AVX512Guarded(dst []bool, a []int32) {
+func RunStartsI32AVX512(dst []bool, a []int32) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI32(dst, a)
@@ -43,7 +43,7 @@ func runStartsI32AVX512Guarded(dst []bool, a []int32) {
 	runStartsI32AVX512(dst, a[:n:n])
 }
 
-func runStartsI64AVX512Guarded(dst []bool, a []int64) {
+func RunStartsI64AVX512(dst []bool, a []int64) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsI64(dst, a)
@@ -52,7 +52,7 @@ func runStartsI64AVX512Guarded(dst []bool, a []int64) {
 	runStartsI64AVX512(dst, a[:n:n])
 }
 
-func runStartsU8AVX512Guarded(dst []bool, a []byte) {
+func RunStartsU8AVX512(dst []bool, a []byte) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsU8(dst, a)
@@ -61,7 +61,7 @@ func runStartsU8AVX512Guarded(dst []bool, a []byte) {
 	runStartsU8AVX512(dst, a[:n:n])
 }
 
-func compressFloat32AVX512Guarded(dst []float32, src []float32, keep []bool) int {
+func CompressFloat32AVX512(dst []float32, src []float32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressFloat32(dst, src, keep)
@@ -69,7 +69,7 @@ func compressFloat32AVX512Guarded(dst []float32, src []float32, keep []bool) int
 	return compressFloat32AVX512(dst, src[:n:n], keep)
 }
 
-func compressFloat64AVX512Guarded(dst []float64, src []float64, keep []bool) int {
+func CompressFloat64AVX512(dst []float64, src []float64, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressFloat64(dst, src, keep)
@@ -77,7 +77,7 @@ func compressFloat64AVX512Guarded(dst []float64, src []float64, keep []bool) int
 	return compressFloat64AVX512(dst, src[:n:n], keep)
 }
 
-func compressInt32AVX512Guarded(dst []int32, src []int32, keep []bool) int {
+func CompressInt32AVX512(dst []int32, src []int32, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressInt32(dst, src, keep)
@@ -85,7 +85,7 @@ func compressInt32AVX512Guarded(dst []int32, src []int32, keep []bool) int {
 	return compressInt32AVX512(dst, src[:n:n], keep)
 }
 
-func compressInt64AVX512Guarded(dst []int64, src []int64, keep []bool) int {
+func CompressInt64AVX512(dst []int64, src []int64, keep []bool) int {
 	n := min(len(src), len(dst), len(keep))
 	if n < 192 || len(dst) < len(src) {
 		return ref.CompressInt64(dst, src, keep)
@@ -93,17 +93,14 @@ func compressInt64AVX512Guarded(dst []int64, src []int64, keep []bool) int {
 	return compressInt64AVX512(dst, src[:n:n], keep)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx512")
-	s.Bytes.IndexAll = indexAllAVX512Guarded
-	s.Bytes.IndexAllAny = indexAllAnyAVX512Guarded
-	s.Bytes.RunStartsI32 = runStartsI32AVX512Guarded
-	s.Bytes.RunStartsI64 = runStartsI64AVX512Guarded
-	s.Bytes.RunStartsU8 = runStartsU8AVX512Guarded
-	s.F32.Compress = compressFloat32AVX512Guarded
-	s.F64.Compress = compressFloat64AVX512Guarded
-	s.I32.Compress = compressInt32AVX512Guarded
-	s.I64.Compress = compressInt64AVX512Guarded
+func registerCompressAVX512(s *kernel.Set) {
+	s.Bytes.IndexAll = IndexAllAVX512
+	s.Bytes.IndexAllAny = IndexAllAnyAVX512
+	s.Bytes.RunStartsI32 = RunStartsI32AVX512
+	s.Bytes.RunStartsI64 = RunStartsI64AVX512
+	s.Bytes.RunStartsU8 = RunStartsU8AVX512
+	s.F32.Compress = CompressFloat32AVX512
+	s.F64.Compress = CompressFloat64AVX512
+	s.I32.Compress = CompressInt32AVX512
+	s.I64.Compress = CompressInt64AVX512
 }

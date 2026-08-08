@@ -10,7 +10,7 @@ package ppc64le
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func rotFloat32VSXGuarded(x []float32, y []float32, c float32, s float32) {
+func RotFloat32VSX(x []float32, y []float32, c float32, s float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -29,7 +29,7 @@ func rotFloat32VSXGuarded(x []float32, y []float32, c float32, s float32) {
 	rotFloat32VSX(x[:n:n], y, c, s)
 }
 
-func swapFloat32VSXGuarded(x []float32, y []float32) {
+func SwapFloat32VSX(x []float32, y []float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -38,7 +38,7 @@ func swapFloat32VSXGuarded(x []float32, y []float32) {
 	swapFloat32VSX(x[:n:n], y)
 }
 
-func rotFloat64VSXGuarded(x []float64, y []float64, c float64, s float64) {
+func RotFloat64VSX(x []float64, y []float64, c float64, s float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -47,7 +47,7 @@ func rotFloat64VSXGuarded(x []float64, y []float64, c float64, s float64) {
 	rotFloat64VSX(x[:n:n], y, c, s)
 }
 
-func swapFloat64VSXGuarded(x []float64, y []float64) {
+func SwapFloat64VSX(x []float64, y []float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -56,7 +56,7 @@ func swapFloat64VSXGuarded(x []float64, y []float64) {
 	swapFloat64VSX(x[:n:n], y)
 }
 
-func swapInt32VSXGuarded(x []int32, y []int32) {
+func SwapInt32VSX(x []int32, y []int32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -65,7 +65,7 @@ func swapInt32VSXGuarded(x []int32, y []int32) {
 	swapInt32VSX(x[:n:n], y)
 }
 
-func swapInt64VSXGuarded(x []int64, y []int64) {
+func SwapInt64VSX(x []int64, y []int64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -74,14 +74,11 @@ func swapInt64VSXGuarded(x []int64, y []int64) {
 	swapInt64VSX(x[:n:n], y)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vsx")
-	s.F32.Rotate = rotFloat32VSXGuarded
-	s.F32.Swap = swapFloat32VSXGuarded
-	s.F64.Rotate = rotFloat64VSXGuarded
-	s.F64.Swap = swapFloat64VSXGuarded
-	s.I32.Swap = swapInt32VSXGuarded
-	s.I64.Swap = swapInt64VSXGuarded
+func registerBlasVSX(s *kernel.Set) {
+	s.F32.Rotate = RotFloat32VSX
+	s.F32.Swap = SwapFloat32VSX
+	s.F64.Rotate = RotFloat64VSX
+	s.F64.Swap = SwapFloat64VSX
+	s.I32.Swap = SwapInt32VSX
+	s.I64.Swap = SwapInt64VSX
 }

@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func caddComplex64RVVGuarded(dst []complex64, a []complex64, b []complex64) {
+func CaddComplex64RVV(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CAdd(dst, a, b)
@@ -29,7 +29,7 @@ func caddComplex64RVVGuarded(dst []complex64, a []complex64, b []complex64) {
 	caddComplex64RVV(dst[:n:n], a, b)
 }
 
-func csubComplex64RVVGuarded(dst []complex64, a []complex64, b []complex64) {
+func CsubComplex64RVV(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CSub(dst, a, b)
@@ -38,7 +38,7 @@ func csubComplex64RVVGuarded(dst []complex64, a []complex64, b []complex64) {
 	csubComplex64RVV(dst[:n:n], a, b)
 }
 
-func cmulComplex64RVVGuarded(dst []complex64, a []complex64, b []complex64) {
+func CmulComplex64RVV(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CMul64(dst, a, b)
@@ -47,7 +47,7 @@ func cmulComplex64RVVGuarded(dst []complex64, a []complex64, b []complex64) {
 	cmulComplex64RVV(dst[:n:n], a, b)
 }
 
-func cdivComplex64RVVGuarded(dst []complex64, a []complex64, b []complex64) {
+func CdivComplex64RVV(dst []complex64, a []complex64, b []complex64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CDiv64(dst, a, b)
@@ -56,7 +56,7 @@ func cdivComplex64RVVGuarded(dst []complex64, a []complex64, b []complex64) {
 	cdivComplex64RVV(dst[:n:n], a, b)
 }
 
-func cnegComplex64RVVGuarded(dst []complex64, a []complex64) {
+func CnegComplex64RVV(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CNeg(dst, a)
@@ -65,7 +65,7 @@ func cnegComplex64RVVGuarded(dst []complex64, a []complex64) {
 	cnegComplex64RVV(dst[:n:n], a)
 }
 
-func cconjComplex64RVVGuarded(dst []complex64, a []complex64) {
+func CconjComplex64RVV(dst []complex64, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CConj64(dst, a)
@@ -74,7 +74,7 @@ func cconjComplex64RVVGuarded(dst []complex64, a []complex64) {
 	cconjComplex64RVV(dst[:n:n], a)
 }
 
-func cabsComplex64RVVGuarded(dst []float32, a []complex64) {
+func CabsComplex64RVV(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CAbs64(dst, a)
@@ -83,7 +83,7 @@ func cabsComplex64RVVGuarded(dst []float32, a []complex64) {
 	cabsComplex64RVV(dst[:n:n], a)
 }
 
-func crealComplex64RVVGuarded(dst []float32, a []complex64) {
+func CrealComplex64RVV(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CReal64(dst, a)
@@ -92,7 +92,7 @@ func crealComplex64RVVGuarded(dst []float32, a []complex64) {
 	crealComplex64RVV(dst[:n:n], a)
 }
 
-func cimagComplex64RVVGuarded(dst []float32, a []complex64) {
+func CimagComplex64RVV(dst []float32, a []complex64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CImag64(dst, a)
@@ -101,7 +101,7 @@ func cimagComplex64RVVGuarded(dst []float32, a []complex64) {
 	cimagComplex64RVV(dst[:n:n], a)
 }
 
-func cscaleComplex64RVVGuarded(dst []complex64, a []complex64, s float32) {
+func CscaleComplex64RVV(dst []complex64, a []complex64, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CScale64(dst, a, s)
@@ -110,14 +110,14 @@ func cscaleComplex64RVVGuarded(dst []complex64, a []complex64, s float32) {
 	cscaleComplex64RVV(dst[:n:n], a, s)
 }
 
-func csumComplex64RVVGuarded(a []complex64) complex64 {
+func CsumComplex64RVV(a []complex64) complex64 {
 	if len(a) < 0 {
 		return ref.CSum64(a)
 	}
 	return csumComplex64RVV(a)
 }
 
-func cdotComplex64RVVGuarded(a []complex64, b []complex64) complex64 {
+func CdotComplex64RVV(a []complex64, b []complex64) complex64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDot64(a, b)
@@ -125,7 +125,7 @@ func cdotComplex64RVVGuarded(a []complex64, b []complex64) complex64 {
 	return cdotComplex64RVV(a[:n:n], b)
 }
 
-func cdotconjComplex64RVVGuarded(a []complex64, b []complex64) complex64 {
+func CdotconjComplex64RVV(a []complex64, b []complex64) complex64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDotConj64(a, b)
@@ -133,7 +133,7 @@ func cdotconjComplex64RVVGuarded(a []complex64, b []complex64) complex64 {
 	return cdotconjComplex64RVV(a[:n:n], b)
 }
 
-func cfromPartsComplex64RVVGuarded(dst []complex64, re []float32, im []float32) {
+func CfromPartsComplex64RVV(dst []complex64, re []float32, im []float32) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
 		ref.CFromParts64(dst, re, im)
@@ -142,7 +142,7 @@ func cfromPartsComplex64RVVGuarded(dst []complex64, re []float32, im []float32) 
 	cfromPartsComplex64RVV(dst[:n:n], re, im)
 }
 
-func caddComplex128RVVGuarded(dst []complex128, a []complex128, b []complex128) {
+func CaddComplex128RVV(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CAdd(dst, a, b)
@@ -151,7 +151,7 @@ func caddComplex128RVVGuarded(dst []complex128, a []complex128, b []complex128) 
 	caddComplex128RVV(dst[:n:n], a, b)
 }
 
-func csubComplex128RVVGuarded(dst []complex128, a []complex128, b []complex128) {
+func CsubComplex128RVV(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CSub(dst, a, b)
@@ -160,7 +160,7 @@ func csubComplex128RVVGuarded(dst []complex128, a []complex128, b []complex128) 
 	csubComplex128RVV(dst[:n:n], a, b)
 }
 
-func cmulComplex128RVVGuarded(dst []complex128, a []complex128, b []complex128) {
+func CmulComplex128RVV(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CMul128(dst, a, b)
@@ -169,7 +169,7 @@ func cmulComplex128RVVGuarded(dst []complex128, a []complex128, b []complex128) 
 	cmulComplex128RVV(dst[:n:n], a, b)
 }
 
-func cdivComplex128RVVGuarded(dst []complex128, a []complex128, b []complex128) {
+func CdivComplex128RVV(dst []complex128, a []complex128, b []complex128) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.CDiv128(dst, a, b)
@@ -178,7 +178,7 @@ func cdivComplex128RVVGuarded(dst []complex128, a []complex128, b []complex128) 
 	cdivComplex128RVV(dst[:n:n], a, b)
 }
 
-func cnegComplex128RVVGuarded(dst []complex128, a []complex128) {
+func CnegComplex128RVV(dst []complex128, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CNeg(dst, a)
@@ -187,7 +187,7 @@ func cnegComplex128RVVGuarded(dst []complex128, a []complex128) {
 	cnegComplex128RVV(dst[:n:n], a)
 }
 
-func cconjComplex128RVVGuarded(dst []complex128, a []complex128) {
+func CconjComplex128RVV(dst []complex128, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CConj128(dst, a)
@@ -196,7 +196,7 @@ func cconjComplex128RVVGuarded(dst []complex128, a []complex128) {
 	cconjComplex128RVV(dst[:n:n], a)
 }
 
-func cabsComplex128RVVGuarded(dst []float64, a []complex128) {
+func CabsComplex128RVV(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CAbs128(dst, a)
@@ -205,7 +205,7 @@ func cabsComplex128RVVGuarded(dst []float64, a []complex128) {
 	cabsComplex128RVV(dst[:n:n], a)
 }
 
-func crealComplex128RVVGuarded(dst []float64, a []complex128) {
+func CrealComplex128RVV(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CReal128(dst, a)
@@ -214,7 +214,7 @@ func crealComplex128RVVGuarded(dst []float64, a []complex128) {
 	crealComplex128RVV(dst[:n:n], a)
 }
 
-func cimagComplex128RVVGuarded(dst []float64, a []complex128) {
+func CimagComplex128RVV(dst []float64, a []complex128) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CImag128(dst, a)
@@ -223,7 +223,7 @@ func cimagComplex128RVVGuarded(dst []float64, a []complex128) {
 	cimagComplex128RVV(dst[:n:n], a)
 }
 
-func cscaleComplex128RVVGuarded(dst []complex128, a []complex128, s float64) {
+func CscaleComplex128RVV(dst []complex128, a []complex128, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CScale128(dst, a, s)
@@ -232,14 +232,14 @@ func cscaleComplex128RVVGuarded(dst []complex128, a []complex128, s float64) {
 	cscaleComplex128RVV(dst[:n:n], a, s)
 }
 
-func csumComplex128RVVGuarded(a []complex128) complex128 {
+func CsumComplex128RVV(a []complex128) complex128 {
 	if len(a) < 0 {
 		return ref.CSum128(a)
 	}
 	return csumComplex128RVV(a)
 }
 
-func cdotComplex128RVVGuarded(a []complex128, b []complex128) complex128 {
+func CdotComplex128RVV(a []complex128, b []complex128) complex128 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDot128(a, b)
@@ -247,7 +247,7 @@ func cdotComplex128RVVGuarded(a []complex128, b []complex128) complex128 {
 	return cdotComplex128RVV(a[:n:n], b)
 }
 
-func cdotconjComplex128RVVGuarded(a []complex128, b []complex128) complex128 {
+func CdotconjComplex128RVV(a []complex128, b []complex128) complex128 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.CDotConj128(a, b)
@@ -255,7 +255,7 @@ func cdotconjComplex128RVVGuarded(a []complex128, b []complex128) complex128 {
 	return cdotconjComplex128RVV(a[:n:n], b)
 }
 
-func cfromPartsComplex128RVVGuarded(dst []complex128, re []float64, im []float64) {
+func CfromPartsComplex128RVV(dst []complex128, re []float64, im []float64) {
 	n := min(len(dst), len(re), len(im))
 	if n < 16 {
 		ref.CFromParts128(dst, re, im)
@@ -264,36 +264,33 @@ func cfromPartsComplex128RVVGuarded(dst []complex128, re []float64, im []float64
 	cfromPartsComplex128RVV(dst[:n:n], re, im)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.C64.Add = caddComplex64RVVGuarded
-	s.C64.Sub = csubComplex64RVVGuarded
-	s.C64.Mul = cmulComplex64RVVGuarded
-	s.C64.Div = cdivComplex64RVVGuarded
-	s.C64.Neg = cnegComplex64RVVGuarded
-	s.C64.Conj = cconjComplex64RVVGuarded
-	s.C64Parts.Abs = cabsComplex64RVVGuarded
-	s.C64Parts.Real = crealComplex64RVVGuarded
-	s.C64Parts.Imag = cimagComplex64RVVGuarded
-	s.C64Parts.Scale = cscaleComplex64RVVGuarded
-	s.C64.Sum = csumComplex64RVVGuarded
-	s.C64.Dot = cdotComplex64RVVGuarded
-	s.C64.DotConj = cdotconjComplex64RVVGuarded
-	s.C64Parts.FromParts = cfromPartsComplex64RVVGuarded
-	s.C128.Add = caddComplex128RVVGuarded
-	s.C128.Sub = csubComplex128RVVGuarded
-	s.C128.Mul = cmulComplex128RVVGuarded
-	s.C128.Div = cdivComplex128RVVGuarded
-	s.C128.Neg = cnegComplex128RVVGuarded
-	s.C128.Conj = cconjComplex128RVVGuarded
-	s.C128Parts.Abs = cabsComplex128RVVGuarded
-	s.C128Parts.Real = crealComplex128RVVGuarded
-	s.C128Parts.Imag = cimagComplex128RVVGuarded
-	s.C128Parts.Scale = cscaleComplex128RVVGuarded
-	s.C128.Sum = csumComplex128RVVGuarded
-	s.C128.Dot = cdotComplex128RVVGuarded
-	s.C128.DotConj = cdotconjComplex128RVVGuarded
-	s.C128Parts.FromParts = cfromPartsComplex128RVVGuarded
+func registerComplexRVV(s *kernel.Set) {
+	s.C64.Add = CaddComplex64RVV
+	s.C64.Sub = CsubComplex64RVV
+	s.C64.Mul = CmulComplex64RVV
+	s.C64.Div = CdivComplex64RVV
+	s.C64.Neg = CnegComplex64RVV
+	s.C64.Conj = CconjComplex64RVV
+	s.C64Parts.Abs = CabsComplex64RVV
+	s.C64Parts.Real = CrealComplex64RVV
+	s.C64Parts.Imag = CimagComplex64RVV
+	s.C64Parts.Scale = CscaleComplex64RVV
+	s.C64.Sum = CsumComplex64RVV
+	s.C64.Dot = CdotComplex64RVV
+	s.C64.DotConj = CdotconjComplex64RVV
+	s.C64Parts.FromParts = CfromPartsComplex64RVV
+	s.C128.Add = CaddComplex128RVV
+	s.C128.Sub = CsubComplex128RVV
+	s.C128.Mul = CmulComplex128RVV
+	s.C128.Div = CdivComplex128RVV
+	s.C128.Neg = CnegComplex128RVV
+	s.C128.Conj = CconjComplex128RVV
+	s.C128Parts.Abs = CabsComplex128RVV
+	s.C128Parts.Real = CrealComplex128RVV
+	s.C128Parts.Imag = CimagComplex128RVV
+	s.C128Parts.Scale = CscaleComplex128RVV
+	s.C128.Sum = CsumComplex128RVV
+	s.C128.Dot = CdotComplex128RVV
+	s.C128.DotConj = CdotconjComplex128RVV
+	s.C128Parts.FromParts = CfromPartsComplex128RVV
 }

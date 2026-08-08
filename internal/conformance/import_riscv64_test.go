@@ -2,11 +2,10 @@
 
 package conformance
 
-// Importing the architecture package for its side effect: its init functions
-// register the generated backends, which is what this suite tests.
-//
-// One file per architecture, each carrying the same build constraint as the
-// package it imports. A single unconditional import would not compile, because
-// the constraints exclude every architecture but the current one and Go treats
-// "no Go files" as an error rather than an empty package.
-import _ "github.com/sebishogun/simd/internal/riscv64"
+// The architecture package no longer registers anything from init -- that
+// registration made every kernel reachable in every consumer's binary, which
+// the per-operation dispatch tables exist to prevent. The suite asks for
+// whole sets explicitly instead; only test binaries pay for them.
+import "github.com/sebishogun/simd/internal/riscv64"
+
+func init() { archSetsFn = riscv64.Sets }

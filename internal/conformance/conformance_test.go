@@ -56,17 +56,20 @@ const maxLen = 70
 //
 // A skipped tier is logged rather than passed over quietly. A suite that
 // silently tested nothing would look identical to one that passed.
+// archSetsFn is installed by the per-architecture import file; nil means a
+// purego build or an architecture with no generated backend.
+var archSetsFn func() map[string]kernel.Set
+
 func tiers(t *testing.T) map[string]kernel.Set {
+	if archSetsFn == nil {
+		t.Skip("no generated backend in this build")
+	}
 	runnable := map[string]bool{}
 	for _, tr := range cpu.Detail().Available {
 		runnable[tr.String()] = true
 	}
 	out := map[string]kernel.Set{}
-	for _, name := range backend.Tiers() {
-		s, ok := backend.Lookup(name)
-		if !ok {
-			continue
-		}
+	for name, s := range archSetsFn() {
 		if !runnable[name] {
 			t.Logf("skipping tier %s: compiled in, but this CPU cannot execute it (%s)",
 				name, cpu.Describe())

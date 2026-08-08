@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,72 +20,69 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func intersectInt32SVE2Guarded(dst []int32, a []int32, b []int32) int {
+func IntersectInt32SVE2(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt32SVE2(dst, a, b)
 }
 
-func differenceInt32SVE2Guarded(dst []int32, a []int32, b []int32) int {
+func DifferenceInt32SVE2(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt32SVE2(dst, a, b)
 }
 
-func intersectInt64SVE2Guarded(dst []int64, a []int64, b []int64) int {
+func IntersectInt64SVE2(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt64SVE2(dst, a, b)
 }
 
-func differenceInt64SVE2Guarded(dst []int64, a []int64, b []int64) int {
+func DifferenceInt64SVE2(dst []int64, a []int64, b []int64) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt64SVE2(dst, a, b)
 }
 
-func intersectUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) int {
+func IntersectUint32SVE2(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint32SVE2(dst, a, b)
 }
 
-func differenceUint32SVE2Guarded(dst []uint32, a []uint32, b []uint32) int {
+func DifferenceUint32SVE2(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint32SVE2(dst, a, b)
 }
 
-func intersectUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) int {
+func IntersectUint64SVE2(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint64SVE2(dst, a, b)
 }
 
-func differenceUint64SVE2Guarded(dst []uint64, a []uint64, b []uint64) int {
+func DifferenceUint64SVE2(dst []uint64, a []uint64, b []uint64) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint64SVE2(dst, a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.I32.Intersect = intersectInt32SVE2Guarded
-	s.I32.Difference = differenceInt32SVE2Guarded
-	s.I64.Intersect = intersectInt64SVE2Guarded
-	s.I64.Difference = differenceInt64SVE2Guarded
-	s.U32.Intersect = intersectUint32SVE2Guarded
-	s.U32.Difference = differenceUint32SVE2Guarded
-	s.U64.Intersect = intersectUint64SVE2Guarded
-	s.U64.Difference = differenceUint64SVE2Guarded
+func registerSetsSVE2(s *kernel.Set) {
+	s.I32.Intersect = IntersectInt32SVE2
+	s.I32.Difference = DifferenceInt32SVE2
+	s.I64.Intersect = IntersectInt64SVE2
+	s.I64.Difference = DifferenceInt64SVE2
+	s.U32.Intersect = IntersectUint32SVE2
+	s.U32.Difference = DifferenceUint32SVE2
+	s.U64.Intersect = IntersectUint64SVE2
+	s.U64.Difference = DifferenceUint64SVE2
 }

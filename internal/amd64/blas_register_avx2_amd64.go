@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func gerFloat32AVX2Guarded(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
+func GerFloat32AVX2(a []float32, x []float32, y []float32, alpha float32, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -28,7 +28,7 @@ func gerFloat32AVX2Guarded(a []float32, x []float32, y []float32, alpha float32,
 	gerFloat32AVX2(a, x, y, alpha, m, n)
 }
 
-func rotFloat32AVX2Guarded(x []float32, y []float32, c float32, s float32) {
+func RotFloat32AVX2(x []float32, y []float32, c float32, s float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -37,7 +37,7 @@ func rotFloat32AVX2Guarded(x []float32, y []float32, c float32, s float32) {
 	rotFloat32AVX2(x[:n:n], y, c, s)
 }
 
-func swapFloat32AVX2Guarded(x []float32, y []float32) {
+func SwapFloat32AVX2(x []float32, y []float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -46,7 +46,7 @@ func swapFloat32AVX2Guarded(x []float32, y []float32) {
 	swapFloat32AVX2(x[:n:n], y)
 }
 
-func gerFloat64AVX2Guarded(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
+func GerFloat64AVX2(a []float64, x []float64, y []float64, alpha float64, m int, n int) {
 	if len(a) < 64 {
 		ref.RankOneFloat(a, x, y, alpha, m, n)
 		return
@@ -54,7 +54,7 @@ func gerFloat64AVX2Guarded(a []float64, x []float64, y []float64, alpha float64,
 	gerFloat64AVX2(a, x, y, alpha, m, n)
 }
 
-func rotFloat64AVX2Guarded(x []float64, y []float64, c float64, s float64) {
+func RotFloat64AVX2(x []float64, y []float64, c float64, s float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -63,7 +63,7 @@ func rotFloat64AVX2Guarded(x []float64, y []float64, c float64, s float64) {
 	rotFloat64AVX2(x[:n:n], y, c, s)
 }
 
-func swapFloat64AVX2Guarded(x []float64, y []float64) {
+func SwapFloat64AVX2(x []float64, y []float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -72,7 +72,7 @@ func swapFloat64AVX2Guarded(x []float64, y []float64) {
 	swapFloat64AVX2(x[:n:n], y)
 }
 
-func swapInt32AVX2Guarded(x []int32, y []int32) {
+func SwapInt32AVX2(x []int32, y []int32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -81,7 +81,7 @@ func swapInt32AVX2Guarded(x []int32, y []int32) {
 	swapInt32AVX2(x[:n:n], y)
 }
 
-func swapInt64AVX2Guarded(x []int64, y []int64) {
+func SwapInt64AVX2(x []int64, y []int64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -90,16 +90,13 @@ func swapInt64AVX2Guarded(x []int64, y []int64) {
 	swapInt64AVX2(x[:n:n], y)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx2")
-	s.F32.RankOne = gerFloat32AVX2Guarded
-	s.F32.Rotate = rotFloat32AVX2Guarded
-	s.F32.Swap = swapFloat32AVX2Guarded
-	s.F64.RankOne = gerFloat64AVX2Guarded
-	s.F64.Rotate = rotFloat64AVX2Guarded
-	s.F64.Swap = swapFloat64AVX2Guarded
-	s.I32.Swap = swapInt32AVX2Guarded
-	s.I64.Swap = swapInt64AVX2Guarded
+func registerBlasAVX2(s *kernel.Set) {
+	s.F32.RankOne = GerFloat32AVX2
+	s.F32.Rotate = RotFloat32AVX2
+	s.F32.Swap = SwapFloat32AVX2
+	s.F64.RankOne = GerFloat64AVX2
+	s.F64.Rotate = RotFloat64AVX2
+	s.F64.Swap = SwapFloat64AVX2
+	s.I32.Swap = SwapInt32AVX2
+	s.I64.Swap = SwapInt64AVX2
 }

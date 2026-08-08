@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func add3Float32VXGuarded(dst []float32, a []float32, b []float32, c []float32) {
+func Add3Float32VX(dst []float32, a []float32, b []float32, c []float32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -29,7 +29,7 @@ func add3Float32VXGuarded(dst []float32, a []float32, b []float32, c []float32) 
 	add3Float32VX(dst[:n:n], a, b, c)
 }
 
-func mul3Float32VXGuarded(dst []float32, a []float32, b []float32, c []float32) {
+func Mul3Float32VX(dst []float32, a []float32, b []float32, c []float32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -38,7 +38,7 @@ func mul3Float32VXGuarded(dst []float32, a []float32, b []float32, c []float32) 
 	mul3Float32VX(dst[:n:n], a, b, c)
 }
 
-func add3Float64VXGuarded(dst []float64, a []float64, b []float64, c []float64) {
+func Add3Float64VX(dst []float64, a []float64, b []float64, c []float64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -47,7 +47,7 @@ func add3Float64VXGuarded(dst []float64, a []float64, b []float64, c []float64) 
 	add3Float64VX(dst[:n:n], a, b, c)
 }
 
-func mul3Float64VXGuarded(dst []float64, a []float64, b []float64, c []float64) {
+func Mul3Float64VX(dst []float64, a []float64, b []float64, c []float64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -56,7 +56,7 @@ func mul3Float64VXGuarded(dst []float64, a []float64, b []float64, c []float64) 
 	mul3Float64VX(dst[:n:n], a, b, c)
 }
 
-func add3Int32VXGuarded(dst []int32, a []int32, b []int32, c []int32) {
+func Add3Int32VX(dst []int32, a []int32, b []int32, c []int32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -65,7 +65,7 @@ func add3Int32VXGuarded(dst []int32, a []int32, b []int32, c []int32) {
 	add3Int32VX(dst[:n:n], a, b, c)
 }
 
-func mul3Int32VXGuarded(dst []int32, a []int32, b []int32, c []int32) {
+func Mul3Int32VX(dst []int32, a []int32, b []int32, c []int32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -74,7 +74,7 @@ func mul3Int32VXGuarded(dst []int32, a []int32, b []int32, c []int32) {
 	mul3Int32VX(dst[:n:n], a, b, c)
 }
 
-func add3Int64VXGuarded(dst []int64, a []int64, b []int64, c []int64) {
+func Add3Int64VX(dst []int64, a []int64, b []int64, c []int64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -83,7 +83,7 @@ func add3Int64VXGuarded(dst []int64, a []int64, b []int64, c []int64) {
 	add3Int64VX(dst[:n:n], a, b, c)
 }
 
-func add3Int8VXGuarded(dst []int8, a []int8, b []int8, c []int8) {
+func Add3Int8VX(dst []int8, a []int8, b []int8, c []int8) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -92,7 +92,7 @@ func add3Int8VXGuarded(dst []int8, a []int8, b []int8, c []int8) {
 	add3Int8VX(dst[:n:n], a, b, c)
 }
 
-func mul3Int8VXGuarded(dst []int8, a []int8, b []int8, c []int8) {
+func Mul3Int8VX(dst []int8, a []int8, b []int8, c []int8) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -101,7 +101,7 @@ func mul3Int8VXGuarded(dst []int8, a []int8, b []int8, c []int8) {
 	mul3Int8VX(dst[:n:n], a, b, c)
 }
 
-func add3Int16VXGuarded(dst []int16, a []int16, b []int16, c []int16) {
+func Add3Int16VX(dst []int16, a []int16, b []int16, c []int16) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -110,7 +110,7 @@ func add3Int16VXGuarded(dst []int16, a []int16, b []int16, c []int16) {
 	add3Int16VX(dst[:n:n], a, b, c)
 }
 
-func mul3Int16VXGuarded(dst []int16, a []int16, b []int16, c []int16) {
+func Mul3Int16VX(dst []int16, a []int16, b []int16, c []int16) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -119,7 +119,7 @@ func mul3Int16VXGuarded(dst []int16, a []int16, b []int16, c []int16) {
 	mul3Int16VX(dst[:n:n], a, b, c)
 }
 
-func add3Uint8VXGuarded(dst []byte, a []byte, b []byte, c []byte) {
+func Add3Uint8VX(dst []byte, a []byte, b []byte, c []byte) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -128,7 +128,7 @@ func add3Uint8VXGuarded(dst []byte, a []byte, b []byte, c []byte) {
 	add3Uint8VX(dst[:n:n], a, b, c)
 }
 
-func mul3Uint8VXGuarded(dst []byte, a []byte, b []byte, c []byte) {
+func Mul3Uint8VX(dst []byte, a []byte, b []byte, c []byte) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -137,7 +137,7 @@ func mul3Uint8VXGuarded(dst []byte, a []byte, b []byte, c []byte) {
 	mul3Uint8VX(dst[:n:n], a, b, c)
 }
 
-func add3Uint16VXGuarded(dst []uint16, a []uint16, b []uint16, c []uint16) {
+func Add3Uint16VX(dst []uint16, a []uint16, b []uint16, c []uint16) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -146,7 +146,7 @@ func add3Uint16VXGuarded(dst []uint16, a []uint16, b []uint16, c []uint16) {
 	add3Uint16VX(dst[:n:n], a, b, c)
 }
 
-func mul3Uint16VXGuarded(dst []uint16, a []uint16, b []uint16, c []uint16) {
+func Mul3Uint16VX(dst []uint16, a []uint16, b []uint16, c []uint16) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -155,7 +155,7 @@ func mul3Uint16VXGuarded(dst []uint16, a []uint16, b []uint16, c []uint16) {
 	mul3Uint16VX(dst[:n:n], a, b, c)
 }
 
-func add3Uint32VXGuarded(dst []uint32, a []uint32, b []uint32, c []uint32) {
+func Add3Uint32VX(dst []uint32, a []uint32, b []uint32, c []uint32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -164,7 +164,7 @@ func add3Uint32VXGuarded(dst []uint32, a []uint32, b []uint32, c []uint32) {
 	add3Uint32VX(dst[:n:n], a, b, c)
 }
 
-func mul3Uint32VXGuarded(dst []uint32, a []uint32, b []uint32, c []uint32) {
+func Mul3Uint32VX(dst []uint32, a []uint32, b []uint32, c []uint32) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Mul3(dst, a, b, c)
@@ -173,7 +173,7 @@ func mul3Uint32VXGuarded(dst []uint32, a []uint32, b []uint32, c []uint32) {
 	mul3Uint32VX(dst[:n:n], a, b, c)
 }
 
-func add3Uint64VXGuarded(dst []uint64, a []uint64, b []uint64, c []uint64) {
+func Add3Uint64VX(dst []uint64, a []uint64, b []uint64, c []uint64) {
 	n := min(len(dst), len(a), len(b), len(c))
 	if n < 256 {
 		ref.Add3(dst, a, b, c)
@@ -182,26 +182,23 @@ func add3Uint64VXGuarded(dst []uint64, a []uint64, b []uint64, c []uint64) {
 	add3Uint64VX(dst[:n:n], a, b, c)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.F32.Add3 = add3Float32VXGuarded
-	s.F32.Mul3 = mul3Float32VXGuarded
-	s.F64.Add3 = add3Float64VXGuarded
-	s.F64.Mul3 = mul3Float64VXGuarded
-	s.I32.Add3 = add3Int32VXGuarded
-	s.I32.Mul3 = mul3Int32VXGuarded
-	s.I64.Add3 = add3Int64VXGuarded
-	s.I8.Add3 = add3Int8VXGuarded
-	s.I8.Mul3 = mul3Int8VXGuarded
-	s.I16.Add3 = add3Int16VXGuarded
-	s.I16.Mul3 = mul3Int16VXGuarded
-	s.U8.Add3 = add3Uint8VXGuarded
-	s.U8.Mul3 = mul3Uint8VXGuarded
-	s.U16.Add3 = add3Uint16VXGuarded
-	s.U16.Mul3 = mul3Uint16VXGuarded
-	s.U32.Add3 = add3Uint32VXGuarded
-	s.U32.Mul3 = mul3Uint32VXGuarded
-	s.U64.Add3 = add3Uint64VXGuarded
+func registerNaryVX(s *kernel.Set) {
+	s.F32.Add3 = Add3Float32VX
+	s.F32.Mul3 = Mul3Float32VX
+	s.F64.Add3 = Add3Float64VX
+	s.F64.Mul3 = Mul3Float64VX
+	s.I32.Add3 = Add3Int32VX
+	s.I32.Mul3 = Mul3Int32VX
+	s.I64.Add3 = Add3Int64VX
+	s.I8.Add3 = Add3Int8VX
+	s.I8.Mul3 = Mul3Int8VX
+	s.I16.Add3 = Add3Int16VX
+	s.I16.Mul3 = Mul3Int16VX
+	s.U8.Add3 = Add3Uint8VX
+	s.U8.Mul3 = Mul3Uint8VX
+	s.U16.Add3 = Add3Uint16VX
+	s.U16.Mul3 = Mul3Uint16VX
+	s.U32.Add3 = Add3Uint32VX
+	s.U32.Mul3 = Mul3Uint32VX
+	s.U64.Add3 = Add3Uint64VX
 }

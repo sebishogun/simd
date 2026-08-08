@@ -10,7 +10,7 @@ package ppc64le
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func quantizeI8VSXGuarded(dst []int8, a []float32, scale float32, zeroPoint int32) {
+func QuantizeI8VSX(dst []int8, a []float32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.QuantizeI8(dst, a, scale, zeroPoint)
@@ -29,7 +29,7 @@ func quantizeI8VSXGuarded(dst []int8, a []float32, scale float32, zeroPoint int3
 	quantizeI8VSX(dst[:n:n], a, scale, zeroPoint)
 }
 
-func quantizeU8VSXGuarded(dst []byte, a []float32, scale float32, zeroPoint int32) {
+func QuantizeU8VSX(dst []byte, a []float32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.QuantizeU8(dst, a, scale, zeroPoint)
@@ -38,7 +38,7 @@ func quantizeU8VSXGuarded(dst []byte, a []float32, scale float32, zeroPoint int3
 	quantizeU8VSX(dst[:n:n], a, scale, zeroPoint)
 }
 
-func zigzagEncodeI8VSXGuarded(dst []byte, a []int8) {
+func ZigzagEncodeI8VSX(dst []byte, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI8(dst, a)
@@ -47,7 +47,7 @@ func zigzagEncodeI8VSXGuarded(dst []byte, a []int8) {
 	zigzagEncodeI8VSX(dst[:n:n], a)
 }
 
-func zigzagDecodeI8VSXGuarded(dst []int8, a []byte) {
+func ZigzagDecodeI8VSX(dst []int8, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI8(dst, a)
@@ -56,7 +56,7 @@ func zigzagDecodeI8VSXGuarded(dst []int8, a []byte) {
 	zigzagDecodeI8VSX(dst[:n:n], a)
 }
 
-func zigzagEncodeI16VSXGuarded(dst []uint16, a []int16) {
+func ZigzagEncodeI16VSX(dst []uint16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI16(dst, a)
@@ -65,7 +65,7 @@ func zigzagEncodeI16VSXGuarded(dst []uint16, a []int16) {
 	zigzagEncodeI16VSX(dst[:n:n], a)
 }
 
-func zigzagDecodeI16VSXGuarded(dst []int16, a []uint16) {
+func ZigzagDecodeI16VSX(dst []int16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI16(dst, a)
@@ -74,7 +74,7 @@ func zigzagDecodeI16VSXGuarded(dst []int16, a []uint16) {
 	zigzagDecodeI16VSX(dst[:n:n], a)
 }
 
-func zigzagEncodeI32VSXGuarded(dst []uint32, a []int32) {
+func ZigzagEncodeI32VSX(dst []uint32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI32(dst, a)
@@ -83,7 +83,7 @@ func zigzagEncodeI32VSXGuarded(dst []uint32, a []int32) {
 	zigzagEncodeI32VSX(dst[:n:n], a)
 }
 
-func zigzagDecodeI32VSXGuarded(dst []int32, a []uint32) {
+func ZigzagDecodeI32VSX(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI32(dst, a)
@@ -92,7 +92,7 @@ func zigzagDecodeI32VSXGuarded(dst []int32, a []uint32) {
 	zigzagDecodeI32VSX(dst[:n:n], a)
 }
 
-func zigzagEncodeI64VSXGuarded(dst []uint64, a []int64) {
+func ZigzagEncodeI64VSX(dst []uint64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI64(dst, a)
@@ -101,7 +101,7 @@ func zigzagEncodeI64VSXGuarded(dst []uint64, a []int64) {
 	zigzagEncodeI64VSX(dst[:n:n], a)
 }
 
-func zigzagDecodeI64VSXGuarded(dst []int64, a []uint64) {
+func ZigzagDecodeI64VSX(dst []int64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI64(dst, a)
@@ -110,7 +110,7 @@ func zigzagDecodeI64VSXGuarded(dst []int64, a []uint64) {
 	zigzagDecodeI64VSX(dst[:n:n], a)
 }
 
-func varintLenU32VSXGuarded(dst []int32, a []uint32) {
+func VarintLenU32VSX(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU32(dst, a)
@@ -119,7 +119,7 @@ func varintLenU32VSXGuarded(dst []int32, a []uint32) {
 	varintLenU32VSX(dst[:n:n], a)
 }
 
-func varintLenU64VSXGuarded(dst []int32, a []uint64) {
+func VarintLenU64VSX(dst []int32, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU64(dst, a)
@@ -128,14 +128,14 @@ func varintLenU64VSXGuarded(dst []int32, a []uint64) {
 	varintLenU64VSX(dst[:n:n], a)
 }
 
-func varintSizeU32VSXGuarded(a []uint32) int {
+func VarintSizeU32VSX(a []uint32) int {
 	if len(a) < 16 {
 		return ref.VarintSizeU32(a)
 	}
 	return varintSizeU32VSX(a)
 }
 
-func bf16ToF32VSXGuarded(dst []float32, a []uint16) {
+func Bf16ToF32VSX(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.BF16ToF32(dst, a)
@@ -144,7 +144,7 @@ func bf16ToF32VSXGuarded(dst []float32, a []uint16) {
 	bf16ToF32VSX(dst[:n:n], a)
 }
 
-func f32ToBF16VSXGuarded(dst []uint16, a []float32) {
+func F32ToBF16VSX(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToBF16(dst, a)
@@ -153,7 +153,7 @@ func f32ToBF16VSXGuarded(dst []uint16, a []float32) {
 	f32ToBF16VSX(dst[:n:n], a)
 }
 
-func f16ToF32VSXGuarded(dst []float32, a []uint16) {
+func F16ToF32VSX(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F16ToF32(dst, a)
@@ -162,7 +162,7 @@ func f16ToF32VSXGuarded(dst []float32, a []uint16) {
 	f16ToF32VSX(dst[:n:n], a)
 }
 
-func f32ToF16VSXGuarded(dst []uint16, a []float32) {
+func F32ToF16VSX(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToF16(dst, a)
@@ -171,25 +171,22 @@ func f32ToF16VSXGuarded(dst []uint16, a []float32) {
 	f32ToF16VSX(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vsx")
-	s.Convert.QuantizeI8 = quantizeI8VSXGuarded
-	s.Convert.QuantizeU8 = quantizeU8VSXGuarded
-	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8VSXGuarded
-	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8VSXGuarded
-	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16VSXGuarded
-	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16VSXGuarded
-	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32VSXGuarded
-	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32VSXGuarded
-	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64VSXGuarded
-	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64VSXGuarded
-	s.Convert.VarintLenU32 = varintLenU32VSXGuarded
-	s.Convert.VarintLenU64 = varintLenU64VSXGuarded
-	s.Convert.VarintSizeU32 = varintSizeU32VSXGuarded
-	s.Convert.BF16ToF32 = bf16ToF32VSXGuarded
-	s.Convert.F32ToBF16 = f32ToBF16VSXGuarded
-	s.Convert.F16ToF32 = f16ToF32VSXGuarded
-	s.Convert.F32ToF16 = f32ToF16VSXGuarded
+func registerConvertVSX(s *kernel.Set) {
+	s.Convert.QuantizeI8 = QuantizeI8VSX
+	s.Convert.QuantizeU8 = QuantizeU8VSX
+	s.Convert.ZigzagEncodeI8 = ZigzagEncodeI8VSX
+	s.Convert.ZigzagDecodeI8 = ZigzagDecodeI8VSX
+	s.Convert.ZigzagEncodeI16 = ZigzagEncodeI16VSX
+	s.Convert.ZigzagDecodeI16 = ZigzagDecodeI16VSX
+	s.Convert.ZigzagEncodeI32 = ZigzagEncodeI32VSX
+	s.Convert.ZigzagDecodeI32 = ZigzagDecodeI32VSX
+	s.Convert.ZigzagEncodeI64 = ZigzagEncodeI64VSX
+	s.Convert.ZigzagDecodeI64 = ZigzagDecodeI64VSX
+	s.Convert.VarintLenU32 = VarintLenU32VSX
+	s.Convert.VarintLenU64 = VarintLenU64VSX
+	s.Convert.VarintSizeU32 = VarintSizeU32VSX
+	s.Convert.BF16ToF32 = Bf16ToF32VSX
+	s.Convert.F32ToBF16 = F32ToBF16VSX
+	s.Convert.F16ToF32 = F16ToF32VSX
+	s.Convert.F32ToF16 = F32ToF16VSX
 }

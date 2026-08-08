@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func rotFloat32VXGuarded(x []float32, y []float32, c float32, s float32) {
+func RotFloat32VX(x []float32, y []float32, c float32, s float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -29,7 +29,7 @@ func rotFloat32VXGuarded(x []float32, y []float32, c float32, s float32) {
 	rotFloat32VX(x[:n:n], y, c, s)
 }
 
-func swapFloat32VXGuarded(x []float32, y []float32) {
+func SwapFloat32VX(x []float32, y []float32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -38,7 +38,7 @@ func swapFloat32VXGuarded(x []float32, y []float32) {
 	swapFloat32VX(x[:n:n], y)
 }
 
-func rotFloat64VXGuarded(x []float64, y []float64, c float64, s float64) {
+func RotFloat64VX(x []float64, y []float64, c float64, s float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.RotateFloat(x, y, c, s)
@@ -47,7 +47,7 @@ func rotFloat64VXGuarded(x []float64, y []float64, c float64, s float64) {
 	rotFloat64VX(x[:n:n], y, c, s)
 }
 
-func swapFloat64VXGuarded(x []float64, y []float64) {
+func SwapFloat64VX(x []float64, y []float64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapFloat(x, y)
@@ -56,7 +56,7 @@ func swapFloat64VXGuarded(x []float64, y []float64) {
 	swapFloat64VX(x[:n:n], y)
 }
 
-func swapInt32VXGuarded(x []int32, y []int32) {
+func SwapInt32VX(x []int32, y []int32) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -65,7 +65,7 @@ func swapInt32VXGuarded(x []int32, y []int32) {
 	swapInt32VX(x[:n:n], y)
 }
 
-func swapInt64VXGuarded(x []int64, y []int64) {
+func SwapInt64VX(x []int64, y []int64) {
 	n := min(len(x), len(y))
 	if n < 16 {
 		ref.SwapInt(x, y)
@@ -74,14 +74,11 @@ func swapInt64VXGuarded(x []int64, y []int64) {
 	swapInt64VX(x[:n:n], y)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.F32.Rotate = rotFloat32VXGuarded
-	s.F32.Swap = swapFloat32VXGuarded
-	s.F64.Rotate = rotFloat64VXGuarded
-	s.F64.Swap = swapFloat64VXGuarded
-	s.I32.Swap = swapInt32VXGuarded
-	s.I64.Swap = swapInt64VXGuarded
+func registerBlasVX(s *kernel.Set) {
+	s.F32.Rotate = RotFloat32VX
+	s.F32.Swap = SwapFloat32VX
+	s.F64.Rotate = RotFloat64VX
+	s.F64.Swap = SwapFloat64VX
+	s.I32.Swap = SwapInt32VX
+	s.I64.Swap = SwapInt64VX
 }

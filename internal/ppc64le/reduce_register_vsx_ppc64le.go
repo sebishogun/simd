@@ -10,7 +10,7 @@ package ppc64le
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,21 +20,21 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func minrFloat32VSXGuarded(a []float32) float32 {
+func MinrFloat32VSX(a []float32) float32 {
 	if len(a) < 1 {
 		return ref.MinReduceFloat(a)
 	}
 	return minrFloat32VSX(a)
 }
 
-func maxrFloat32VSXGuarded(a []float32) float32 {
+func MaxrFloat32VSX(a []float32) float32 {
 	if len(a) < 1 {
 		return ref.MaxReduceFloat(a)
 	}
 	return maxrFloat32VSX(a)
 }
 
-func diffFloat32VSXGuarded(dst []float32, a []float32) {
+func DiffFloat32VSX(dst []float32, a []float32) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -42,63 +42,63 @@ func diffFloat32VSXGuarded(dst []float32, a []float32) {
 	diffFloat32VSX(dst, a)
 }
 
-func minrFloat64VSXGuarded(a []float64) float64 {
+func MinrFloat64VSX(a []float64) float64 {
 	if len(a) < 1 {
 		return ref.MinReduceFloat(a)
 	}
 	return minrFloat64VSX(a)
 }
 
-func maxrFloat64VSXGuarded(a []float64) float64 {
+func MaxrFloat64VSX(a []float64) float64 {
 	if len(a) < 1 {
 		return ref.MaxReduceFloat(a)
 	}
 	return maxrFloat64VSX(a)
 }
 
-func sumsqFloat64VSXGuarded(a []float64) float64 {
+func SumsqFloat64VSX(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumSquaresFloat(a)
 	}
 	return sumsqFloat64VSX(a)
 }
 
-func sumsqdevFloat64VSXGuarded(a []float64, c float64) float64 {
+func SumsqdevFloat64VSX(a []float64, c float64) float64 {
 	if len(a) < 0 {
 		return ref.SumSqDevFloat(a, c)
 	}
 	return sumsqdevFloat64VSX(a, c)
 }
 
-func minrInt32VSXGuarded(a []int32) int32 {
+func MinrInt32VSX(a []int32) int32 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
 	}
 	return minrInt32VSX(a)
 }
 
-func maxrInt32VSXGuarded(a []int32) int32 {
+func MaxrInt32VSX(a []int32) int32 {
 	if len(a) < 1 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrInt32VSX(a)
 }
 
-func sumsqInt32VSXGuarded(a []int32) int32 {
+func SumsqInt32VSX(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqInt32VSX(a)
 }
 
-func sumsqdevInt32VSXGuarded(a []int32, c int32) int32 {
+func SumsqdevInt32VSX(a []int32, c int32) int32 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevInt32VSX(a, c)
 }
 
-func sumsqdiffInt32VSXGuarded(a []int32, b []int32) int32 {
+func SumsqdiffInt32VSX(a []int32, b []int32) int32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -106,7 +106,7 @@ func sumsqdiffInt32VSXGuarded(a []int32, b []int32) int32 {
 	return sumsqdiffInt32VSX(a[:n:n], b)
 }
 
-func diffInt32VSXGuarded(dst []int32, a []int32) {
+func DiffInt32VSX(dst []int32, a []int32) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -114,49 +114,49 @@ func diffInt32VSXGuarded(dst []int32, a []int32) {
 	diffInt32VSX(dst, a)
 }
 
-func minrInt64VSXGuarded(a []int64) int64 {
+func MinrInt64VSX(a []int64) int64 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
 	}
 	return minrInt64VSX(a)
 }
 
-func maxrInt64VSXGuarded(a []int64) int64 {
+func MaxrInt64VSX(a []int64) int64 {
 	if len(a) < 1 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrInt64VSX(a)
 }
 
-func minrInt8VSXGuarded(a []int8) int8 {
+func MinrInt8VSX(a []int8) int8 {
 	if len(a) < 24 {
 		return ref.MinReduceInt(a)
 	}
 	return minrInt8VSX(a)
 }
 
-func maxrInt8VSXGuarded(a []int8) int8 {
+func MaxrInt8VSX(a []int8) int8 {
 	if len(a) < 24 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrInt8VSX(a)
 }
 
-func sumsqInt8VSXGuarded(a []int8) int8 {
+func SumsqInt8VSX(a []int8) int8 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqInt8VSX(a)
 }
 
-func sumsqdevInt8VSXGuarded(a []int8, c int8) int8 {
+func SumsqdevInt8VSX(a []int8, c int8) int8 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevInt8VSX(a, c)
 }
 
-func sumsqdiffInt8VSXGuarded(a []int8, b []int8) int8 {
+func SumsqdiffInt8VSX(a []int8, b []int8) int8 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -164,7 +164,7 @@ func sumsqdiffInt8VSXGuarded(a []int8, b []int8) int8 {
 	return sumsqdiffInt8VSX(a[:n:n], b)
 }
 
-func diffInt8VSXGuarded(dst []int8, a []int8) {
+func DiffInt8VSX(dst []int8, a []int8) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -172,35 +172,35 @@ func diffInt8VSXGuarded(dst []int8, a []int8) {
 	diffInt8VSX(dst, a)
 }
 
-func minrInt16VSXGuarded(a []int16) int16 {
+func MinrInt16VSX(a []int16) int16 {
 	if len(a) < 16 {
 		return ref.MinReduceInt(a)
 	}
 	return minrInt16VSX(a)
 }
 
-func maxrInt16VSXGuarded(a []int16) int16 {
+func MaxrInt16VSX(a []int16) int16 {
 	if len(a) < 16 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrInt16VSX(a)
 }
 
-func sumsqInt16VSXGuarded(a []int16) int16 {
+func SumsqInt16VSX(a []int16) int16 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqInt16VSX(a)
 }
 
-func sumsqdevInt16VSXGuarded(a []int16, c int16) int16 {
+func SumsqdevInt16VSX(a []int16, c int16) int16 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevInt16VSX(a, c)
 }
 
-func sumsqdiffInt16VSXGuarded(a []int16, b []int16) int16 {
+func SumsqdiffInt16VSX(a []int16, b []int16) int16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -208,7 +208,7 @@ func sumsqdiffInt16VSXGuarded(a []int16, b []int16) int16 {
 	return sumsqdiffInt16VSX(a[:n:n], b)
 }
 
-func diffInt16VSXGuarded(dst []int16, a []int16) {
+func DiffInt16VSX(dst []int16, a []int16) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -216,35 +216,35 @@ func diffInt16VSXGuarded(dst []int16, a []int16) {
 	diffInt16VSX(dst, a)
 }
 
-func minrUint8VSXGuarded(a []byte) byte {
+func MinrUint8VSX(a []byte) byte {
 	if len(a) < 24 {
 		return ref.MinReduceInt(a)
 	}
 	return minrUint8VSX(a)
 }
 
-func maxrUint8VSXGuarded(a []byte) byte {
+func MaxrUint8VSX(a []byte) byte {
 	if len(a) < 24 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrUint8VSX(a)
 }
 
-func sumsqUint8VSXGuarded(a []byte) byte {
+func SumsqUint8VSX(a []byte) byte {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqUint8VSX(a)
 }
 
-func sumsqdevUint8VSXGuarded(a []byte, c byte) byte {
+func SumsqdevUint8VSX(a []byte, c byte) byte {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevUint8VSX(a, c)
 }
 
-func sumsqdiffUint8VSXGuarded(a []byte, b []byte) byte {
+func SumsqdiffUint8VSX(a []byte, b []byte) byte {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -252,7 +252,7 @@ func sumsqdiffUint8VSXGuarded(a []byte, b []byte) byte {
 	return sumsqdiffUint8VSX(a[:n:n], b)
 }
 
-func diffUint8VSXGuarded(dst []byte, a []byte) {
+func DiffUint8VSX(dst []byte, a []byte) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -260,35 +260,35 @@ func diffUint8VSXGuarded(dst []byte, a []byte) {
 	diffUint8VSX(dst, a)
 }
 
-func minrUint16VSXGuarded(a []uint16) uint16 {
+func MinrUint16VSX(a []uint16) uint16 {
 	if len(a) < 16 {
 		return ref.MinReduceInt(a)
 	}
 	return minrUint16VSX(a)
 }
 
-func maxrUint16VSXGuarded(a []uint16) uint16 {
+func MaxrUint16VSX(a []uint16) uint16 {
 	if len(a) < 16 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrUint16VSX(a)
 }
 
-func sumsqUint16VSXGuarded(a []uint16) uint16 {
+func SumsqUint16VSX(a []uint16) uint16 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqUint16VSX(a)
 }
 
-func sumsqdevUint16VSXGuarded(a []uint16, c uint16) uint16 {
+func SumsqdevUint16VSX(a []uint16, c uint16) uint16 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevUint16VSX(a, c)
 }
 
-func sumsqdiffUint16VSXGuarded(a []uint16, b []uint16) uint16 {
+func SumsqdiffUint16VSX(a []uint16, b []uint16) uint16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -296,7 +296,7 @@ func sumsqdiffUint16VSXGuarded(a []uint16, b []uint16) uint16 {
 	return sumsqdiffUint16VSX(a[:n:n], b)
 }
 
-func diffUint16VSXGuarded(dst []uint16, a []uint16) {
+func DiffUint16VSX(dst []uint16, a []uint16) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -304,35 +304,35 @@ func diffUint16VSXGuarded(dst []uint16, a []uint16) {
 	diffUint16VSX(dst, a)
 }
 
-func minrUint32VSXGuarded(a []uint32) uint32 {
+func MinrUint32VSX(a []uint32) uint32 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
 	}
 	return minrUint32VSX(a)
 }
 
-func maxrUint32VSXGuarded(a []uint32) uint32 {
+func MaxrUint32VSX(a []uint32) uint32 {
 	if len(a) < 1 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrUint32VSX(a)
 }
 
-func sumsqUint32VSXGuarded(a []uint32) uint32 {
+func SumsqUint32VSX(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqUint32VSX(a)
 }
 
-func sumsqdevUint32VSXGuarded(a []uint32, c uint32) uint32 {
+func SumsqdevUint32VSX(a []uint32, c uint32) uint32 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevUint32VSX(a, c)
 }
 
-func sumsqdiffUint32VSXGuarded(a []uint32, b []uint32) uint32 {
+func SumsqdiffUint32VSX(a []uint32, b []uint32) uint32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -340,7 +340,7 @@ func sumsqdiffUint32VSXGuarded(a []uint32, b []uint32) uint32 {
 	return sumsqdiffUint32VSX(a[:n:n], b)
 }
 
-func diffUint32VSXGuarded(dst []uint32, a []uint32) {
+func DiffUint32VSX(dst []uint32, a []uint32) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -348,28 +348,28 @@ func diffUint32VSXGuarded(dst []uint32, a []uint32) {
 	diffUint32VSX(dst, a)
 }
 
-func minrUint64VSXGuarded(a []uint64) uint64 {
+func MinrUint64VSX(a []uint64) uint64 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
 	}
 	return minrUint64VSX(a)
 }
 
-func maxrUint64VSXGuarded(a []uint64) uint64 {
+func MaxrUint64VSX(a []uint64) uint64 {
 	if len(a) < 1 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrUint64VSX(a)
 }
 
-func sumFloat32VSXGuarded(a []float32) float32 {
+func SumFloat32VSX(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
 	}
 	return sumFloat32VSX(a)
 }
 
-func dotFloat32VSXGuarded(a []float32, b []float32) float32 {
+func DotFloat32VSX(a []float32, b []float32) float32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotFloat(a, b)
@@ -377,7 +377,7 @@ func dotFloat32VSXGuarded(a []float32, b []float32) float32 {
 	return dotFloat32VSX(a[:n:n], b)
 }
 
-func sumLanesFloat32VSXGuarded(dst []float32, a []float32) {
+func SumLanesFloat32VSX(dst []float32, a []float32) {
 	if len(a) < 0 {
 		ref.SumLanesFloat(dst, a)
 		return
@@ -385,14 +385,14 @@ func sumLanesFloat32VSXGuarded(dst []float32, a []float32) {
 	sumLanesFloat32VSX(dst, a)
 }
 
-func sumFloat64VSXGuarded(a []float64) float64 {
+func SumFloat64VSX(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
 	}
 	return sumFloat64VSX(a)
 }
 
-func dotFloat64VSXGuarded(a []float64, b []float64) float64 {
+func DotFloat64VSX(a []float64, b []float64) float64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotFloat(a, b)
@@ -400,14 +400,14 @@ func dotFloat64VSXGuarded(a []float64, b []float64) float64 {
 	return dotFloat64VSX(a[:n:n], b)
 }
 
-func l1normFloat64VSXGuarded(a []float64) float64 {
+func L1normFloat64VSX(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.L1NormFloat(a)
 	}
 	return l1normFloat64VSX(a)
 }
 
-func sumLanesFloat64VSXGuarded(dst []float64, a []float64) {
+func SumLanesFloat64VSX(dst []float64, a []float64) {
 	if len(a) < 0 {
 		ref.SumLanesFloat(dst, a)
 		return
@@ -415,21 +415,21 @@ func sumLanesFloat64VSXGuarded(dst []float64, a []float64) {
 	sumLanesFloat64VSX(dst, a)
 }
 
-func sumInt32VSXGuarded(a []int32) int32 {
+func SumInt32VSX(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt32VSX(a)
 }
 
-func prodInt32VSXGuarded(a []int32) int32 {
+func ProdInt32VSX(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodInt32VSX(a)
 }
 
-func dotInt32VSXGuarded(a []int32, b []int32) int32 {
+func DotInt32VSX(a []int32, b []int32) int32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -437,14 +437,14 @@ func dotInt32VSXGuarded(a []int32, b []int32) int32 {
 	return dotInt32VSX(a[:n:n], b)
 }
 
-func l1normInt32VSXGuarded(a []int32) int32 {
+func L1normInt32VSX(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normInt32VSX(a)
 }
 
-func l1diffInt32VSXGuarded(a []int32, b []int32) int32 {
+func L1diffInt32VSX(a []int32, b []int32) int32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -452,21 +452,21 @@ func l1diffInt32VSXGuarded(a []int32, b []int32) int32 {
 	return l1diffInt32VSX(a[:n:n], b)
 }
 
-func sumInt64VSXGuarded(a []int64) int64 {
+func SumInt64VSX(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt64VSX(a)
 }
 
-func l1normInt64VSXGuarded(a []int64) int64 {
+func L1normInt64VSX(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normInt64VSX(a)
 }
 
-func l1diffInt64VSXGuarded(a []int64, b []int64) int64 {
+func L1diffInt64VSX(a []int64, b []int64) int64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -474,21 +474,21 @@ func l1diffInt64VSXGuarded(a []int64, b []int64) int64 {
 	return l1diffInt64VSX(a[:n:n], b)
 }
 
-func sumInt8VSXGuarded(a []int8) int8 {
+func SumInt8VSX(a []int8) int8 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt8VSX(a)
 }
 
-func prodInt8VSXGuarded(a []int8) int8 {
+func ProdInt8VSX(a []int8) int8 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodInt8VSX(a)
 }
 
-func dotInt8VSXGuarded(a []int8, b []int8) int8 {
+func DotInt8VSX(a []int8, b []int8) int8 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -496,14 +496,14 @@ func dotInt8VSXGuarded(a []int8, b []int8) int8 {
 	return dotInt8VSX(a[:n:n], b)
 }
 
-func l1normInt8VSXGuarded(a []int8) int8 {
+func L1normInt8VSX(a []int8) int8 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normInt8VSX(a)
 }
 
-func l1diffInt8VSXGuarded(a []int8, b []int8) int8 {
+func L1diffInt8VSX(a []int8, b []int8) int8 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -511,21 +511,21 @@ func l1diffInt8VSXGuarded(a []int8, b []int8) int8 {
 	return l1diffInt8VSX(a[:n:n], b)
 }
 
-func sumInt16VSXGuarded(a []int16) int16 {
+func SumInt16VSX(a []int16) int16 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt16VSX(a)
 }
 
-func prodInt16VSXGuarded(a []int16) int16 {
+func ProdInt16VSX(a []int16) int16 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodInt16VSX(a)
 }
 
-func dotInt16VSXGuarded(a []int16, b []int16) int16 {
+func DotInt16VSX(a []int16, b []int16) int16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -533,14 +533,14 @@ func dotInt16VSXGuarded(a []int16, b []int16) int16 {
 	return dotInt16VSX(a[:n:n], b)
 }
 
-func l1normInt16VSXGuarded(a []int16) int16 {
+func L1normInt16VSX(a []int16) int16 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normInt16VSX(a)
 }
 
-func l1diffInt16VSXGuarded(a []int16, b []int16) int16 {
+func L1diffInt16VSX(a []int16, b []int16) int16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -548,21 +548,21 @@ func l1diffInt16VSXGuarded(a []int16, b []int16) int16 {
 	return l1diffInt16VSX(a[:n:n], b)
 }
 
-func sumUint8VSXGuarded(a []byte) byte {
+func SumUint8VSX(a []byte) byte {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumUint8VSX(a)
 }
 
-func prodUint8VSXGuarded(a []byte) byte {
+func ProdUint8VSX(a []byte) byte {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodUint8VSX(a)
 }
 
-func dotUint8VSXGuarded(a []byte, b []byte) byte {
+func DotUint8VSX(a []byte, b []byte) byte {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -570,14 +570,14 @@ func dotUint8VSXGuarded(a []byte, b []byte) byte {
 	return dotUint8VSX(a[:n:n], b)
 }
 
-func l1normUint8VSXGuarded(a []byte) byte {
+func L1normUint8VSX(a []byte) byte {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normUint8VSX(a)
 }
 
-func l1diffUint8VSXGuarded(a []byte, b []byte) byte {
+func L1diffUint8VSX(a []byte, b []byte) byte {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -585,21 +585,21 @@ func l1diffUint8VSXGuarded(a []byte, b []byte) byte {
 	return l1diffUint8VSX(a[:n:n], b)
 }
 
-func sumUint16VSXGuarded(a []uint16) uint16 {
+func SumUint16VSX(a []uint16) uint16 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumUint16VSX(a)
 }
 
-func prodUint16VSXGuarded(a []uint16) uint16 {
+func ProdUint16VSX(a []uint16) uint16 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodUint16VSX(a)
 }
 
-func dotUint16VSXGuarded(a []uint16, b []uint16) uint16 {
+func DotUint16VSX(a []uint16, b []uint16) uint16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -607,14 +607,14 @@ func dotUint16VSXGuarded(a []uint16, b []uint16) uint16 {
 	return dotUint16VSX(a[:n:n], b)
 }
 
-func l1normUint16VSXGuarded(a []uint16) uint16 {
+func L1normUint16VSX(a []uint16) uint16 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normUint16VSX(a)
 }
 
-func l1diffUint16VSXGuarded(a []uint16, b []uint16) uint16 {
+func L1diffUint16VSX(a []uint16, b []uint16) uint16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -622,21 +622,21 @@ func l1diffUint16VSXGuarded(a []uint16, b []uint16) uint16 {
 	return l1diffUint16VSX(a[:n:n], b)
 }
 
-func sumUint32VSXGuarded(a []uint32) uint32 {
+func SumUint32VSX(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumUint32VSX(a)
 }
 
-func prodUint32VSXGuarded(a []uint32) uint32 {
+func ProdUint32VSX(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodUint32VSX(a)
 }
 
-func dotUint32VSXGuarded(a []uint32, b []uint32) uint32 {
+func DotUint32VSX(a []uint32, b []uint32) uint32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -644,14 +644,14 @@ func dotUint32VSXGuarded(a []uint32, b []uint32) uint32 {
 	return dotUint32VSX(a[:n:n], b)
 }
 
-func l1normUint32VSXGuarded(a []uint32) uint32 {
+func L1normUint32VSX(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normUint32VSX(a)
 }
 
-func l1diffUint32VSXGuarded(a []uint32, b []uint32) uint32 {
+func L1diffUint32VSX(a []uint32, b []uint32) uint32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -659,21 +659,21 @@ func l1diffUint32VSXGuarded(a []uint32, b []uint32) uint32 {
 	return l1diffUint32VSX(a[:n:n], b)
 }
 
-func sumUint64VSXGuarded(a []uint64) uint64 {
+func SumUint64VSX(a []uint64) uint64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumUint64VSX(a)
 }
 
-func l1normUint64VSXGuarded(a []uint64) uint64 {
+func L1normUint64VSX(a []uint64) uint64 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normUint64VSX(a)
 }
 
-func l1diffUint64VSXGuarded(a []uint64, b []uint64) uint64 {
+func L1diffUint64VSX(a []uint64, b []uint64) uint64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -681,98 +681,95 @@ func l1diffUint64VSXGuarded(a []uint64, b []uint64) uint64 {
 	return l1diffUint64VSX(a[:n:n], b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vsx")
-	s.F32.Min = minrFloat32VSXGuarded
-	s.F32.Max = maxrFloat32VSXGuarded
-	s.F32.Diff = diffFloat32VSXGuarded
-	s.F64.Min = minrFloat64VSXGuarded
-	s.F64.Max = maxrFloat64VSXGuarded
-	s.F64.SumSquares = sumsqFloat64VSXGuarded
-	s.F64.SumSqDev = sumsqdevFloat64VSXGuarded
-	s.I32.Min = minrInt32VSXGuarded
-	s.I32.Max = maxrInt32VSXGuarded
-	s.I32.SumSquares = sumsqInt32VSXGuarded
-	s.I32.SumSqDev = sumsqdevInt32VSXGuarded
-	s.I32.SumSqDiff = sumsqdiffInt32VSXGuarded
-	s.I32.Diff = diffInt32VSXGuarded
-	s.I64.Min = minrInt64VSXGuarded
-	s.I64.Max = maxrInt64VSXGuarded
-	s.I8.Min = minrInt8VSXGuarded
-	s.I8.Max = maxrInt8VSXGuarded
-	s.I8.SumSquares = sumsqInt8VSXGuarded
-	s.I8.SumSqDev = sumsqdevInt8VSXGuarded
-	s.I8.SumSqDiff = sumsqdiffInt8VSXGuarded
-	s.I8.Diff = diffInt8VSXGuarded
-	s.I16.Min = minrInt16VSXGuarded
-	s.I16.Max = maxrInt16VSXGuarded
-	s.I16.SumSquares = sumsqInt16VSXGuarded
-	s.I16.SumSqDev = sumsqdevInt16VSXGuarded
-	s.I16.SumSqDiff = sumsqdiffInt16VSXGuarded
-	s.I16.Diff = diffInt16VSXGuarded
-	s.U8.Min = minrUint8VSXGuarded
-	s.U8.Max = maxrUint8VSXGuarded
-	s.U8.SumSquares = sumsqUint8VSXGuarded
-	s.U8.SumSqDev = sumsqdevUint8VSXGuarded
-	s.U8.SumSqDiff = sumsqdiffUint8VSXGuarded
-	s.U8.Diff = diffUint8VSXGuarded
-	s.U16.Min = minrUint16VSXGuarded
-	s.U16.Max = maxrUint16VSXGuarded
-	s.U16.SumSquares = sumsqUint16VSXGuarded
-	s.U16.SumSqDev = sumsqdevUint16VSXGuarded
-	s.U16.SumSqDiff = sumsqdiffUint16VSXGuarded
-	s.U16.Diff = diffUint16VSXGuarded
-	s.U32.Min = minrUint32VSXGuarded
-	s.U32.Max = maxrUint32VSXGuarded
-	s.U32.SumSquares = sumsqUint32VSXGuarded
-	s.U32.SumSqDev = sumsqdevUint32VSXGuarded
-	s.U32.SumSqDiff = sumsqdiffUint32VSXGuarded
-	s.U32.Diff = diffUint32VSXGuarded
-	s.U64.Min = minrUint64VSXGuarded
-	s.U64.Max = maxrUint64VSXGuarded
-	s.F32.Sum = sumFloat32VSXGuarded
-	s.F32.Dot = dotFloat32VSXGuarded
-	s.F32.SumLanes = sumLanesFloat32VSXGuarded
-	s.F64.Sum = sumFloat64VSXGuarded
-	s.F64.Dot = dotFloat64VSXGuarded
-	s.F64.L1Norm = l1normFloat64VSXGuarded
-	s.F64.SumLanes = sumLanesFloat64VSXGuarded
-	s.I32.Sum = sumInt32VSXGuarded
-	s.I32.Prod = prodInt32VSXGuarded
-	s.I32.Dot = dotInt32VSXGuarded
-	s.I32.L1Norm = l1normInt32VSXGuarded
-	s.I32.L1Diff = l1diffInt32VSXGuarded
-	s.I64.Sum = sumInt64VSXGuarded
-	s.I64.L1Norm = l1normInt64VSXGuarded
-	s.I64.L1Diff = l1diffInt64VSXGuarded
-	s.I8.Sum = sumInt8VSXGuarded
-	s.I8.Prod = prodInt8VSXGuarded
-	s.I8.Dot = dotInt8VSXGuarded
-	s.I8.L1Norm = l1normInt8VSXGuarded
-	s.I8.L1Diff = l1diffInt8VSXGuarded
-	s.I16.Sum = sumInt16VSXGuarded
-	s.I16.Prod = prodInt16VSXGuarded
-	s.I16.Dot = dotInt16VSXGuarded
-	s.I16.L1Norm = l1normInt16VSXGuarded
-	s.I16.L1Diff = l1diffInt16VSXGuarded
-	s.U8.Sum = sumUint8VSXGuarded
-	s.U8.Prod = prodUint8VSXGuarded
-	s.U8.Dot = dotUint8VSXGuarded
-	s.U8.L1Norm = l1normUint8VSXGuarded
-	s.U8.L1Diff = l1diffUint8VSXGuarded
-	s.U16.Sum = sumUint16VSXGuarded
-	s.U16.Prod = prodUint16VSXGuarded
-	s.U16.Dot = dotUint16VSXGuarded
-	s.U16.L1Norm = l1normUint16VSXGuarded
-	s.U16.L1Diff = l1diffUint16VSXGuarded
-	s.U32.Sum = sumUint32VSXGuarded
-	s.U32.Prod = prodUint32VSXGuarded
-	s.U32.Dot = dotUint32VSXGuarded
-	s.U32.L1Norm = l1normUint32VSXGuarded
-	s.U32.L1Diff = l1diffUint32VSXGuarded
-	s.U64.Sum = sumUint64VSXGuarded
-	s.U64.L1Norm = l1normUint64VSXGuarded
-	s.U64.L1Diff = l1diffUint64VSXGuarded
+func registerReduceVSX(s *kernel.Set) {
+	s.F32.Min = MinrFloat32VSX
+	s.F32.Max = MaxrFloat32VSX
+	s.F32.Diff = DiffFloat32VSX
+	s.F64.Min = MinrFloat64VSX
+	s.F64.Max = MaxrFloat64VSX
+	s.F64.SumSquares = SumsqFloat64VSX
+	s.F64.SumSqDev = SumsqdevFloat64VSX
+	s.I32.Min = MinrInt32VSX
+	s.I32.Max = MaxrInt32VSX
+	s.I32.SumSquares = SumsqInt32VSX
+	s.I32.SumSqDev = SumsqdevInt32VSX
+	s.I32.SumSqDiff = SumsqdiffInt32VSX
+	s.I32.Diff = DiffInt32VSX
+	s.I64.Min = MinrInt64VSX
+	s.I64.Max = MaxrInt64VSX
+	s.I8.Min = MinrInt8VSX
+	s.I8.Max = MaxrInt8VSX
+	s.I8.SumSquares = SumsqInt8VSX
+	s.I8.SumSqDev = SumsqdevInt8VSX
+	s.I8.SumSqDiff = SumsqdiffInt8VSX
+	s.I8.Diff = DiffInt8VSX
+	s.I16.Min = MinrInt16VSX
+	s.I16.Max = MaxrInt16VSX
+	s.I16.SumSquares = SumsqInt16VSX
+	s.I16.SumSqDev = SumsqdevInt16VSX
+	s.I16.SumSqDiff = SumsqdiffInt16VSX
+	s.I16.Diff = DiffInt16VSX
+	s.U8.Min = MinrUint8VSX
+	s.U8.Max = MaxrUint8VSX
+	s.U8.SumSquares = SumsqUint8VSX
+	s.U8.SumSqDev = SumsqdevUint8VSX
+	s.U8.SumSqDiff = SumsqdiffUint8VSX
+	s.U8.Diff = DiffUint8VSX
+	s.U16.Min = MinrUint16VSX
+	s.U16.Max = MaxrUint16VSX
+	s.U16.SumSquares = SumsqUint16VSX
+	s.U16.SumSqDev = SumsqdevUint16VSX
+	s.U16.SumSqDiff = SumsqdiffUint16VSX
+	s.U16.Diff = DiffUint16VSX
+	s.U32.Min = MinrUint32VSX
+	s.U32.Max = MaxrUint32VSX
+	s.U32.SumSquares = SumsqUint32VSX
+	s.U32.SumSqDev = SumsqdevUint32VSX
+	s.U32.SumSqDiff = SumsqdiffUint32VSX
+	s.U32.Diff = DiffUint32VSX
+	s.U64.Min = MinrUint64VSX
+	s.U64.Max = MaxrUint64VSX
+	s.F32.Sum = SumFloat32VSX
+	s.F32.Dot = DotFloat32VSX
+	s.F32.SumLanes = SumLanesFloat32VSX
+	s.F64.Sum = SumFloat64VSX
+	s.F64.Dot = DotFloat64VSX
+	s.F64.L1Norm = L1normFloat64VSX
+	s.F64.SumLanes = SumLanesFloat64VSX
+	s.I32.Sum = SumInt32VSX
+	s.I32.Prod = ProdInt32VSX
+	s.I32.Dot = DotInt32VSX
+	s.I32.L1Norm = L1normInt32VSX
+	s.I32.L1Diff = L1diffInt32VSX
+	s.I64.Sum = SumInt64VSX
+	s.I64.L1Norm = L1normInt64VSX
+	s.I64.L1Diff = L1diffInt64VSX
+	s.I8.Sum = SumInt8VSX
+	s.I8.Prod = ProdInt8VSX
+	s.I8.Dot = DotInt8VSX
+	s.I8.L1Norm = L1normInt8VSX
+	s.I8.L1Diff = L1diffInt8VSX
+	s.I16.Sum = SumInt16VSX
+	s.I16.Prod = ProdInt16VSX
+	s.I16.Dot = DotInt16VSX
+	s.I16.L1Norm = L1normInt16VSX
+	s.I16.L1Diff = L1diffInt16VSX
+	s.U8.Sum = SumUint8VSX
+	s.U8.Prod = ProdUint8VSX
+	s.U8.Dot = DotUint8VSX
+	s.U8.L1Norm = L1normUint8VSX
+	s.U8.L1Diff = L1diffUint8VSX
+	s.U16.Sum = SumUint16VSX
+	s.U16.Prod = ProdUint16VSX
+	s.U16.Dot = DotUint16VSX
+	s.U16.L1Norm = L1normUint16VSX
+	s.U16.L1Diff = L1diffUint16VSX
+	s.U32.Sum = SumUint32VSX
+	s.U32.Prod = ProdUint32VSX
+	s.U32.Dot = DotUint32VSX
+	s.U32.L1Norm = L1normUint32VSX
+	s.U32.L1Diff = L1diffUint32VSX
+	s.U64.Sum = SumUint64VSX
+	s.U64.L1Norm = L1normUint64VSX
+	s.U64.L1Diff = L1diffUint64VSX
 }

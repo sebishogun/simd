@@ -48,9 +48,9 @@ type VarintValue interface{ uint32 | uint64 }
 func VarintLenInto[T VarintValue](dst []int32, a []T) {
 	switch v := any(a).(type) {
 	case []uint32:
-		active.Convert.VarintLenU32(dst, v)
+		tblConvertVarintLenU32[tierIdx](dst, v)
 	case []uint64:
-		active.Convert.VarintLenU64(dst, v)
+		tblConvertVarintLenU64[tierIdx](dst, v)
 	}
 }
 
@@ -63,9 +63,9 @@ func VarintLenInto[T VarintValue](dst []int32, a []T) {
 func VarintSize[T VarintValue](a []T) int {
 	switch v := any(a).(type) {
 	case []uint32:
-		return active.Convert.VarintSizeU32(v)
+		return tblConvertVarintSizeU32[tierIdx](v)
 	case []uint64:
-		return active.Convert.VarintSizeU64(v)
+		return tblConvertVarintSizeU64[tierIdx](v)
 	}
 	panic("simd: unreachable")
 }

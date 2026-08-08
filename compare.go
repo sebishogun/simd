@@ -74,37 +74,37 @@ func GreaterEqualScalarInto[T Number](dst []bool, a []T, v T) {
 // ---------- boolean vectors ----------
 
 // All reports whether every element is true. An empty mask is vacuously true.
-func All(m []bool) bool { return active.Mask.All(m) }
+func All(m []bool) bool { return tblMaskAll[tierIdx](m) }
 
 // Any reports whether any element is true. An empty mask is false.
-func Any(m []bool) bool { return active.Mask.Any(m) }
+func Any(m []bool) bool { return tblMaskAny[tierIdx](m) }
 
 // CountTrue returns how many elements are true.
-func CountTrue(m []bool) int { return active.Mask.Count(m) }
+func CountTrue(m []bool) int { return tblMaskCount[tierIdx](m) }
 
 // AndMask sets a[i] = a[i] && b[i], in place.
-func AndMask(a, b []bool) { active.Mask.And(a, a, b) }
+func AndMask(a, b []bool) { tblMaskAnd[tierIdx](a, a, b) }
 
 // OrMask sets a[i] = a[i] || b[i], in place.
-func OrMask(a, b []bool) { active.Mask.Or(a, a, b) }
+func OrMask(a, b []bool) { tblMaskOr[tierIdx](a, a, b) }
 
 // XorMask sets a[i] = a[i] != b[i], in place.
-func XorMask(a, b []bool) { active.Mask.Xor(a, a, b) }
+func XorMask(a, b []bool) { tblMaskXor[tierIdx](a, a, b) }
 
 // NotMask inverts every element, in place.
-func NotMask(a []bool) { active.Mask.Not(a, a) }
+func NotMask(a []bool) { tblMaskNot[tierIdx](a, a) }
 
 // AndMaskInto sets dst[i] = a[i] && b[i]. dst may alias a or b.
-func AndMaskInto(dst, a, b []bool) { active.Mask.And(dst, a, b) }
+func AndMaskInto(dst, a, b []bool) { tblMaskAnd[tierIdx](dst, a, b) }
 
 // OrMaskInto sets dst[i] = a[i] || b[i]. dst may alias a or b.
-func OrMaskInto(dst, a, b []bool) { active.Mask.Or(dst, a, b) }
+func OrMaskInto(dst, a, b []bool) { tblMaskOr[tierIdx](dst, a, b) }
 
 // XorMaskInto sets dst[i] = a[i] != b[i]. dst may alias a or b.
-func XorMaskInto(dst, a, b []bool) { active.Mask.Xor(dst, a, b) }
+func XorMaskInto(dst, a, b []bool) { tblMaskXor[tierIdx](dst, a, b) }
 
 // NotMaskInto sets dst[i] = !a[i]. dst may alias a.
-func NotMaskInto(dst, a []bool) { active.Mask.Not(dst, a) }
+func NotMaskInto(dst, a []bool) { tblMaskNot[tierIdx](dst, a) }
 
 // ---------- selection ----------
 

@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,35 +20,35 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func minrFloat32NEONGuarded(a []float32) float32 {
+func MinrFloat32NEON(a []float32) float32 {
 	if len(a) < 1 {
 		return ref.MinReduceFloat(a)
 	}
 	return minrFloat32NEON(a)
 }
 
-func maxrFloat32NEONGuarded(a []float32) float32 {
+func MaxrFloat32NEON(a []float32) float32 {
 	if len(a) < 1 {
 		return ref.MaxReduceFloat(a)
 	}
 	return maxrFloat32NEON(a)
 }
 
-func sumsqFloat32NEONGuarded(a []float32) float32 {
+func SumsqFloat32NEON(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumSquaresFloat(a)
 	}
 	return sumsqFloat32NEON(a)
 }
 
-func sumsqdevFloat32NEONGuarded(a []float32, c float32) float32 {
+func SumsqdevFloat32NEON(a []float32, c float32) float32 {
 	if len(a) < 0 {
 		return ref.SumSqDevFloat(a, c)
 	}
 	return sumsqdevFloat32NEON(a, c)
 }
 
-func sumsqdiffFloat32NEONGuarded(a []float32, b []float32) float32 {
+func SumsqdiffFloat32NEON(a []float32, b []float32) float32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
@@ -56,7 +56,7 @@ func sumsqdiffFloat32NEONGuarded(a []float32, b []float32) float32 {
 	return sumsqdiffFloat32NEON(a[:n:n], b)
 }
 
-func diffFloat32NEONGuarded(dst []float32, a []float32) {
+func DiffFloat32NEON(dst []float32, a []float32) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -64,35 +64,35 @@ func diffFloat32NEONGuarded(dst []float32, a []float32) {
 	diffFloat32NEON(dst, a)
 }
 
-func minrFloat64NEONGuarded(a []float64) float64 {
+func MinrFloat64NEON(a []float64) float64 {
 	if len(a) < 1 {
 		return ref.MinReduceFloat(a)
 	}
 	return minrFloat64NEON(a)
 }
 
-func maxrFloat64NEONGuarded(a []float64) float64 {
+func MaxrFloat64NEON(a []float64) float64 {
 	if len(a) < 1 {
 		return ref.MaxReduceFloat(a)
 	}
 	return maxrFloat64NEON(a)
 }
 
-func sumsqFloat64NEONGuarded(a []float64) float64 {
+func SumsqFloat64NEON(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumSquaresFloat(a)
 	}
 	return sumsqFloat64NEON(a)
 }
 
-func sumsqdevFloat64NEONGuarded(a []float64, c float64) float64 {
+func SumsqdevFloat64NEON(a []float64, c float64) float64 {
 	if len(a) < 0 {
 		return ref.SumSqDevFloat(a, c)
 	}
 	return sumsqdevFloat64NEON(a, c)
 }
 
-func sumsqdiffFloat64NEONGuarded(a []float64, b []float64) float64 {
+func SumsqdiffFloat64NEON(a []float64, b []float64) float64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffFloat(a, b)
@@ -100,7 +100,7 @@ func sumsqdiffFloat64NEONGuarded(a []float64, b []float64) float64 {
 	return sumsqdiffFloat64NEON(a[:n:n], b)
 }
 
-func diffFloat64NEONGuarded(dst []float64, a []float64) {
+func DiffFloat64NEON(dst []float64, a []float64) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -108,35 +108,35 @@ func diffFloat64NEONGuarded(dst []float64, a []float64) {
 	diffFloat64NEON(dst, a)
 }
 
-func minrInt32NEONGuarded(a []int32) int32 {
+func MinrInt32NEON(a []int32) int32 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
 	}
 	return minrInt32NEON(a)
 }
 
-func maxrInt32NEONGuarded(a []int32) int32 {
+func MaxrInt32NEON(a []int32) int32 {
 	if len(a) < 1 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrInt32NEON(a)
 }
 
-func sumsqInt32NEONGuarded(a []int32) int32 {
+func SumsqInt32NEON(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqInt32NEON(a)
 }
 
-func sumsqdevInt32NEONGuarded(a []int32, c int32) int32 {
+func SumsqdevInt32NEON(a []int32, c int32) int32 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevInt32NEON(a, c)
 }
 
-func sumsqdiffInt32NEONGuarded(a []int32, b []int32) int32 {
+func SumsqdiffInt32NEON(a []int32, b []int32) int32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -144,7 +144,7 @@ func sumsqdiffInt32NEONGuarded(a []int32, b []int32) int32 {
 	return sumsqdiffInt32NEON(a[:n:n], b)
 }
 
-func diffInt32NEONGuarded(dst []int32, a []int32) {
+func DiffInt32NEON(dst []int32, a []int32) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -152,21 +152,21 @@ func diffInt32NEONGuarded(dst []int32, a []int32) {
 	diffInt32NEON(dst, a)
 }
 
-func minrInt64NEONGuarded(a []int64) int64 {
+func MinrInt64NEON(a []int64) int64 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
 	}
 	return minrInt64NEON(a)
 }
 
-func maxrInt64NEONGuarded(a []int64) int64 {
+func MaxrInt64NEON(a []int64) int64 {
 	if len(a) < 1 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrInt64NEON(a)
 }
 
-func diffInt64NEONGuarded(dst []int64, a []int64) {
+func DiffInt64NEON(dst []int64, a []int64) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -174,35 +174,35 @@ func diffInt64NEONGuarded(dst []int64, a []int64) {
 	diffInt64NEON(dst, a)
 }
 
-func minrInt8NEONGuarded(a []int8) int8 {
+func MinrInt8NEON(a []int8) int8 {
 	if len(a) < 24 {
 		return ref.MinReduceInt(a)
 	}
 	return minrInt8NEON(a)
 }
 
-func maxrInt8NEONGuarded(a []int8) int8 {
+func MaxrInt8NEON(a []int8) int8 {
 	if len(a) < 24 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrInt8NEON(a)
 }
 
-func sumsqInt8NEONGuarded(a []int8) int8 {
+func SumsqInt8NEON(a []int8) int8 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqInt8NEON(a)
 }
 
-func sumsqdevInt8NEONGuarded(a []int8, c int8) int8 {
+func SumsqdevInt8NEON(a []int8, c int8) int8 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevInt8NEON(a, c)
 }
 
-func sumsqdiffInt8NEONGuarded(a []int8, b []int8) int8 {
+func SumsqdiffInt8NEON(a []int8, b []int8) int8 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -210,7 +210,7 @@ func sumsqdiffInt8NEONGuarded(a []int8, b []int8) int8 {
 	return sumsqdiffInt8NEON(a[:n:n], b)
 }
 
-func diffInt8NEONGuarded(dst []int8, a []int8) {
+func DiffInt8NEON(dst []int8, a []int8) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -218,35 +218,35 @@ func diffInt8NEONGuarded(dst []int8, a []int8) {
 	diffInt8NEON(dst, a)
 }
 
-func minrInt16NEONGuarded(a []int16) int16 {
+func MinrInt16NEON(a []int16) int16 {
 	if len(a) < 16 {
 		return ref.MinReduceInt(a)
 	}
 	return minrInt16NEON(a)
 }
 
-func maxrInt16NEONGuarded(a []int16) int16 {
+func MaxrInt16NEON(a []int16) int16 {
 	if len(a) < 16 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrInt16NEON(a)
 }
 
-func sumsqInt16NEONGuarded(a []int16) int16 {
+func SumsqInt16NEON(a []int16) int16 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqInt16NEON(a)
 }
 
-func sumsqdevInt16NEONGuarded(a []int16, c int16) int16 {
+func SumsqdevInt16NEON(a []int16, c int16) int16 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevInt16NEON(a, c)
 }
 
-func sumsqdiffInt16NEONGuarded(a []int16, b []int16) int16 {
+func SumsqdiffInt16NEON(a []int16, b []int16) int16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -254,7 +254,7 @@ func sumsqdiffInt16NEONGuarded(a []int16, b []int16) int16 {
 	return sumsqdiffInt16NEON(a[:n:n], b)
 }
 
-func diffInt16NEONGuarded(dst []int16, a []int16) {
+func DiffInt16NEON(dst []int16, a []int16) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -262,35 +262,35 @@ func diffInt16NEONGuarded(dst []int16, a []int16) {
 	diffInt16NEON(dst, a)
 }
 
-func minrUint8NEONGuarded(a []byte) byte {
+func MinrUint8NEON(a []byte) byte {
 	if len(a) < 24 {
 		return ref.MinReduceInt(a)
 	}
 	return minrUint8NEON(a)
 }
 
-func maxrUint8NEONGuarded(a []byte) byte {
+func MaxrUint8NEON(a []byte) byte {
 	if len(a) < 24 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrUint8NEON(a)
 }
 
-func sumsqUint8NEONGuarded(a []byte) byte {
+func SumsqUint8NEON(a []byte) byte {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqUint8NEON(a)
 }
 
-func sumsqdevUint8NEONGuarded(a []byte, c byte) byte {
+func SumsqdevUint8NEON(a []byte, c byte) byte {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevUint8NEON(a, c)
 }
 
-func sumsqdiffUint8NEONGuarded(a []byte, b []byte) byte {
+func SumsqdiffUint8NEON(a []byte, b []byte) byte {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -298,7 +298,7 @@ func sumsqdiffUint8NEONGuarded(a []byte, b []byte) byte {
 	return sumsqdiffUint8NEON(a[:n:n], b)
 }
 
-func diffUint8NEONGuarded(dst []byte, a []byte) {
+func DiffUint8NEON(dst []byte, a []byte) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -306,35 +306,35 @@ func diffUint8NEONGuarded(dst []byte, a []byte) {
 	diffUint8NEON(dst, a)
 }
 
-func minrUint16NEONGuarded(a []uint16) uint16 {
+func MinrUint16NEON(a []uint16) uint16 {
 	if len(a) < 16 {
 		return ref.MinReduceInt(a)
 	}
 	return minrUint16NEON(a)
 }
 
-func maxrUint16NEONGuarded(a []uint16) uint16 {
+func MaxrUint16NEON(a []uint16) uint16 {
 	if len(a) < 16 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrUint16NEON(a)
 }
 
-func sumsqUint16NEONGuarded(a []uint16) uint16 {
+func SumsqUint16NEON(a []uint16) uint16 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqUint16NEON(a)
 }
 
-func sumsqdevUint16NEONGuarded(a []uint16, c uint16) uint16 {
+func SumsqdevUint16NEON(a []uint16, c uint16) uint16 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevUint16NEON(a, c)
 }
 
-func sumsqdiffUint16NEONGuarded(a []uint16, b []uint16) uint16 {
+func SumsqdiffUint16NEON(a []uint16, b []uint16) uint16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -342,7 +342,7 @@ func sumsqdiffUint16NEONGuarded(a []uint16, b []uint16) uint16 {
 	return sumsqdiffUint16NEON(a[:n:n], b)
 }
 
-func diffUint16NEONGuarded(dst []uint16, a []uint16) {
+func DiffUint16NEON(dst []uint16, a []uint16) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -350,35 +350,35 @@ func diffUint16NEONGuarded(dst []uint16, a []uint16) {
 	diffUint16NEON(dst, a)
 }
 
-func minrUint32NEONGuarded(a []uint32) uint32 {
+func MinrUint32NEON(a []uint32) uint32 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
 	}
 	return minrUint32NEON(a)
 }
 
-func maxrUint32NEONGuarded(a []uint32) uint32 {
+func MaxrUint32NEON(a []uint32) uint32 {
 	if len(a) < 1 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrUint32NEON(a)
 }
 
-func sumsqUint32NEONGuarded(a []uint32) uint32 {
+func SumsqUint32NEON(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.SumSquaresInt(a)
 	}
 	return sumsqUint32NEON(a)
 }
 
-func sumsqdevUint32NEONGuarded(a []uint32, c uint32) uint32 {
+func SumsqdevUint32NEON(a []uint32, c uint32) uint32 {
 	if len(a) < 0 {
 		return ref.SumSqDevInt(a, c)
 	}
 	return sumsqdevUint32NEON(a, c)
 }
 
-func sumsqdiffUint32NEONGuarded(a []uint32, b []uint32) uint32 {
+func SumsqdiffUint32NEON(a []uint32, b []uint32) uint32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.SumSqDiffInt(a, b)
@@ -386,7 +386,7 @@ func sumsqdiffUint32NEONGuarded(a []uint32, b []uint32) uint32 {
 	return sumsqdiffUint32NEON(a[:n:n], b)
 }
 
-func diffUint32NEONGuarded(dst []uint32, a []uint32) {
+func DiffUint32NEON(dst []uint32, a []uint32) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -394,21 +394,21 @@ func diffUint32NEONGuarded(dst []uint32, a []uint32) {
 	diffUint32NEON(dst, a)
 }
 
-func minrUint64NEONGuarded(a []uint64) uint64 {
+func MinrUint64NEON(a []uint64) uint64 {
 	if len(a) < 1 {
 		return ref.MinReduceInt(a)
 	}
 	return minrUint64NEON(a)
 }
 
-func maxrUint64NEONGuarded(a []uint64) uint64 {
+func MaxrUint64NEON(a []uint64) uint64 {
 	if len(a) < 1 {
 		return ref.MaxReduceInt(a)
 	}
 	return maxrUint64NEON(a)
 }
 
-func diffUint64NEONGuarded(dst []uint64, a []uint64) {
+func DiffUint64NEON(dst []uint64, a []uint64) {
 	if len(dst) < 16 {
 		ref.Diff(dst, a)
 		return
@@ -416,14 +416,14 @@ func diffUint64NEONGuarded(dst []uint64, a []uint64) {
 	diffUint64NEON(dst, a)
 }
 
-func sumFloat32NEONGuarded(a []float32) float32 {
+func SumFloat32NEON(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
 	}
 	return sumFloat32NEON(a)
 }
 
-func dotFloat32NEONGuarded(a []float32, b []float32) float32 {
+func DotFloat32NEON(a []float32, b []float32) float32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotFloat(a, b)
@@ -431,14 +431,14 @@ func dotFloat32NEONGuarded(a []float32, b []float32) float32 {
 	return dotFloat32NEON(a[:n:n], b)
 }
 
-func l1normFloat32NEONGuarded(a []float32) float32 {
+func L1normFloat32NEON(a []float32) float32 {
 	if len(a) < 0 {
 		return ref.L1NormFloat(a)
 	}
 	return l1normFloat32NEON(a)
 }
 
-func l1diffFloat32NEONGuarded(a []float32, b []float32) float32 {
+func L1diffFloat32NEON(a []float32, b []float32) float32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffFloat(a, b)
@@ -446,7 +446,7 @@ func l1diffFloat32NEONGuarded(a []float32, b []float32) float32 {
 	return l1diffFloat32NEON(a[:n:n], b)
 }
 
-func sumLanesFloat32NEONGuarded(dst []float32, a []float32) {
+func SumLanesFloat32NEON(dst []float32, a []float32) {
 	if len(a) < 0 {
 		ref.SumLanesFloat(dst, a)
 		return
@@ -454,21 +454,21 @@ func sumLanesFloat32NEONGuarded(dst []float32, a []float32) {
 	sumLanesFloat32NEON(dst, a)
 }
 
-func sparseDotFloat32NEONGuarded(v []float32, idx []int32, x []float32) float32 {
+func SparseDotFloat32NEON(v []float32, idx []int32, x []float32) float32 {
 	if len(x) < 0 {
 		return ref.SparseDotFloat(v, idx, x)
 	}
 	return sparseDotFloat32NEON(v, idx, x)
 }
 
-func sumFloat64NEONGuarded(a []float64) float64 {
+func SumFloat64NEON(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.SumFloat(a)
 	}
 	return sumFloat64NEON(a)
 }
 
-func dotFloat64NEONGuarded(a []float64, b []float64) float64 {
+func DotFloat64NEON(a []float64, b []float64) float64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotFloat(a, b)
@@ -476,14 +476,14 @@ func dotFloat64NEONGuarded(a []float64, b []float64) float64 {
 	return dotFloat64NEON(a[:n:n], b)
 }
 
-func l1normFloat64NEONGuarded(a []float64) float64 {
+func L1normFloat64NEON(a []float64) float64 {
 	if len(a) < 0 {
 		return ref.L1NormFloat(a)
 	}
 	return l1normFloat64NEON(a)
 }
 
-func l1diffFloat64NEONGuarded(a []float64, b []float64) float64 {
+func L1diffFloat64NEON(a []float64, b []float64) float64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffFloat(a, b)
@@ -491,7 +491,7 @@ func l1diffFloat64NEONGuarded(a []float64, b []float64) float64 {
 	return l1diffFloat64NEON(a[:n:n], b)
 }
 
-func sumLanesFloat64NEONGuarded(dst []float64, a []float64) {
+func SumLanesFloat64NEON(dst []float64, a []float64) {
 	if len(a) < 0 {
 		ref.SumLanesFloat(dst, a)
 		return
@@ -499,28 +499,28 @@ func sumLanesFloat64NEONGuarded(dst []float64, a []float64) {
 	sumLanesFloat64NEON(dst, a)
 }
 
-func sparseDotFloat64NEONGuarded(v []float64, idx []int32, x []float64) float64 {
+func SparseDotFloat64NEON(v []float64, idx []int32, x []float64) float64 {
 	if len(x) < 0 {
 		return ref.SparseDotFloat(v, idx, x)
 	}
 	return sparseDotFloat64NEON(v, idx, x)
 }
 
-func sumInt32NEONGuarded(a []int32) int32 {
+func SumInt32NEON(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt32NEON(a)
 }
 
-func prodInt32NEONGuarded(a []int32) int32 {
+func ProdInt32NEON(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodInt32NEON(a)
 }
 
-func dotInt32NEONGuarded(a []int32, b []int32) int32 {
+func DotInt32NEON(a []int32, b []int32) int32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -528,14 +528,14 @@ func dotInt32NEONGuarded(a []int32, b []int32) int32 {
 	return dotInt32NEON(a[:n:n], b)
 }
 
-func l1normInt32NEONGuarded(a []int32) int32 {
+func L1normInt32NEON(a []int32) int32 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normInt32NEON(a)
 }
 
-func l1diffInt32NEONGuarded(a []int32, b []int32) int32 {
+func L1diffInt32NEON(a []int32, b []int32) int32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -543,21 +543,21 @@ func l1diffInt32NEONGuarded(a []int32, b []int32) int32 {
 	return l1diffInt32NEON(a[:n:n], b)
 }
 
-func sumInt64NEONGuarded(a []int64) int64 {
+func SumInt64NEON(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt64NEON(a)
 }
 
-func l1normInt64NEONGuarded(a []int64) int64 {
+func L1normInt64NEON(a []int64) int64 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normInt64NEON(a)
 }
 
-func l1diffInt64NEONGuarded(a []int64, b []int64) int64 {
+func L1diffInt64NEON(a []int64, b []int64) int64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -565,21 +565,21 @@ func l1diffInt64NEONGuarded(a []int64, b []int64) int64 {
 	return l1diffInt64NEON(a[:n:n], b)
 }
 
-func sumInt8NEONGuarded(a []int8) int8 {
+func SumInt8NEON(a []int8) int8 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt8NEON(a)
 }
 
-func prodInt8NEONGuarded(a []int8) int8 {
+func ProdInt8NEON(a []int8) int8 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodInt8NEON(a)
 }
 
-func dotInt8NEONGuarded(a []int8, b []int8) int8 {
+func DotInt8NEON(a []int8, b []int8) int8 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -587,14 +587,14 @@ func dotInt8NEONGuarded(a []int8, b []int8) int8 {
 	return dotInt8NEON(a[:n:n], b)
 }
 
-func l1normInt8NEONGuarded(a []int8) int8 {
+func L1normInt8NEON(a []int8) int8 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normInt8NEON(a)
 }
 
-func l1diffInt8NEONGuarded(a []int8, b []int8) int8 {
+func L1diffInt8NEON(a []int8, b []int8) int8 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -602,21 +602,21 @@ func l1diffInt8NEONGuarded(a []int8, b []int8) int8 {
 	return l1diffInt8NEON(a[:n:n], b)
 }
 
-func sumInt16NEONGuarded(a []int16) int16 {
+func SumInt16NEON(a []int16) int16 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumInt16NEON(a)
 }
 
-func prodInt16NEONGuarded(a []int16) int16 {
+func ProdInt16NEON(a []int16) int16 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodInt16NEON(a)
 }
 
-func dotInt16NEONGuarded(a []int16, b []int16) int16 {
+func DotInt16NEON(a []int16, b []int16) int16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -624,14 +624,14 @@ func dotInt16NEONGuarded(a []int16, b []int16) int16 {
 	return dotInt16NEON(a[:n:n], b)
 }
 
-func l1normInt16NEONGuarded(a []int16) int16 {
+func L1normInt16NEON(a []int16) int16 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normInt16NEON(a)
 }
 
-func l1diffInt16NEONGuarded(a []int16, b []int16) int16 {
+func L1diffInt16NEON(a []int16, b []int16) int16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -639,21 +639,21 @@ func l1diffInt16NEONGuarded(a []int16, b []int16) int16 {
 	return l1diffInt16NEON(a[:n:n], b)
 }
 
-func sumUint8NEONGuarded(a []byte) byte {
+func SumUint8NEON(a []byte) byte {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumUint8NEON(a)
 }
 
-func prodUint8NEONGuarded(a []byte) byte {
+func ProdUint8NEON(a []byte) byte {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodUint8NEON(a)
 }
 
-func dotUint8NEONGuarded(a []byte, b []byte) byte {
+func DotUint8NEON(a []byte, b []byte) byte {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -661,14 +661,14 @@ func dotUint8NEONGuarded(a []byte, b []byte) byte {
 	return dotUint8NEON(a[:n:n], b)
 }
 
-func l1normUint8NEONGuarded(a []byte) byte {
+func L1normUint8NEON(a []byte) byte {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normUint8NEON(a)
 }
 
-func l1diffUint8NEONGuarded(a []byte, b []byte) byte {
+func L1diffUint8NEON(a []byte, b []byte) byte {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -676,21 +676,21 @@ func l1diffUint8NEONGuarded(a []byte, b []byte) byte {
 	return l1diffUint8NEON(a[:n:n], b)
 }
 
-func sumUint16NEONGuarded(a []uint16) uint16 {
+func SumUint16NEON(a []uint16) uint16 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumUint16NEON(a)
 }
 
-func prodUint16NEONGuarded(a []uint16) uint16 {
+func ProdUint16NEON(a []uint16) uint16 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodUint16NEON(a)
 }
 
-func dotUint16NEONGuarded(a []uint16, b []uint16) uint16 {
+func DotUint16NEON(a []uint16, b []uint16) uint16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -698,14 +698,14 @@ func dotUint16NEONGuarded(a []uint16, b []uint16) uint16 {
 	return dotUint16NEON(a[:n:n], b)
 }
 
-func l1normUint16NEONGuarded(a []uint16) uint16 {
+func L1normUint16NEON(a []uint16) uint16 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normUint16NEON(a)
 }
 
-func l1diffUint16NEONGuarded(a []uint16, b []uint16) uint16 {
+func L1diffUint16NEON(a []uint16, b []uint16) uint16 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -713,21 +713,21 @@ func l1diffUint16NEONGuarded(a []uint16, b []uint16) uint16 {
 	return l1diffUint16NEON(a[:n:n], b)
 }
 
-func sumUint32NEONGuarded(a []uint32) uint32 {
+func SumUint32NEON(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumUint32NEON(a)
 }
 
-func prodUint32NEONGuarded(a []uint32) uint32 {
+func ProdUint32NEON(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.ProdInt(a)
 	}
 	return prodUint32NEON(a)
 }
 
-func dotUint32NEONGuarded(a []uint32, b []uint32) uint32 {
+func DotUint32NEON(a []uint32, b []uint32) uint32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.DotInt(a, b)
@@ -735,14 +735,14 @@ func dotUint32NEONGuarded(a []uint32, b []uint32) uint32 {
 	return dotUint32NEON(a[:n:n], b)
 }
 
-func l1normUint32NEONGuarded(a []uint32) uint32 {
+func L1normUint32NEON(a []uint32) uint32 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normUint32NEON(a)
 }
 
-func l1diffUint32NEONGuarded(a []uint32, b []uint32) uint32 {
+func L1diffUint32NEON(a []uint32, b []uint32) uint32 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -750,21 +750,21 @@ func l1diffUint32NEONGuarded(a []uint32, b []uint32) uint32 {
 	return l1diffUint32NEON(a[:n:n], b)
 }
 
-func sumUint64NEONGuarded(a []uint64) uint64 {
+func SumUint64NEON(a []uint64) uint64 {
 	if len(a) < 0 {
 		return ref.SumInt(a)
 	}
 	return sumUint64NEON(a)
 }
 
-func l1normUint64NEONGuarded(a []uint64) uint64 {
+func L1normUint64NEON(a []uint64) uint64 {
 	if len(a) < 0 {
 		return ref.L1NormInt(a)
 	}
 	return l1normUint64NEON(a)
 }
 
-func l1diffUint64NEONGuarded(a []uint64, b []uint64) uint64 {
+func L1diffUint64NEON(a []uint64, b []uint64) uint64 {
 	n := min(len(a), len(b))
 	if n < 0 {
 		return ref.L1DiffInt(a, b)
@@ -772,110 +772,107 @@ func l1diffUint64NEONGuarded(a []uint64, b []uint64) uint64 {
 	return l1diffUint64NEON(a[:n:n], b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.F32.Min = minrFloat32NEONGuarded
-	s.F32.Max = maxrFloat32NEONGuarded
-	s.F32.SumSquares = sumsqFloat32NEONGuarded
-	s.F32.SumSqDev = sumsqdevFloat32NEONGuarded
-	s.F32.SumSqDiff = sumsqdiffFloat32NEONGuarded
-	s.F32.Diff = diffFloat32NEONGuarded
-	s.F64.Min = minrFloat64NEONGuarded
-	s.F64.Max = maxrFloat64NEONGuarded
-	s.F64.SumSquares = sumsqFloat64NEONGuarded
-	s.F64.SumSqDev = sumsqdevFloat64NEONGuarded
-	s.F64.SumSqDiff = sumsqdiffFloat64NEONGuarded
-	s.F64.Diff = diffFloat64NEONGuarded
-	s.I32.Min = minrInt32NEONGuarded
-	s.I32.Max = maxrInt32NEONGuarded
-	s.I32.SumSquares = sumsqInt32NEONGuarded
-	s.I32.SumSqDev = sumsqdevInt32NEONGuarded
-	s.I32.SumSqDiff = sumsqdiffInt32NEONGuarded
-	s.I32.Diff = diffInt32NEONGuarded
-	s.I64.Min = minrInt64NEONGuarded
-	s.I64.Max = maxrInt64NEONGuarded
-	s.I64.Diff = diffInt64NEONGuarded
-	s.I8.Min = minrInt8NEONGuarded
-	s.I8.Max = maxrInt8NEONGuarded
-	s.I8.SumSquares = sumsqInt8NEONGuarded
-	s.I8.SumSqDev = sumsqdevInt8NEONGuarded
-	s.I8.SumSqDiff = sumsqdiffInt8NEONGuarded
-	s.I8.Diff = diffInt8NEONGuarded
-	s.I16.Min = minrInt16NEONGuarded
-	s.I16.Max = maxrInt16NEONGuarded
-	s.I16.SumSquares = sumsqInt16NEONGuarded
-	s.I16.SumSqDev = sumsqdevInt16NEONGuarded
-	s.I16.SumSqDiff = sumsqdiffInt16NEONGuarded
-	s.I16.Diff = diffInt16NEONGuarded
-	s.U8.Min = minrUint8NEONGuarded
-	s.U8.Max = maxrUint8NEONGuarded
-	s.U8.SumSquares = sumsqUint8NEONGuarded
-	s.U8.SumSqDev = sumsqdevUint8NEONGuarded
-	s.U8.SumSqDiff = sumsqdiffUint8NEONGuarded
-	s.U8.Diff = diffUint8NEONGuarded
-	s.U16.Min = minrUint16NEONGuarded
-	s.U16.Max = maxrUint16NEONGuarded
-	s.U16.SumSquares = sumsqUint16NEONGuarded
-	s.U16.SumSqDev = sumsqdevUint16NEONGuarded
-	s.U16.SumSqDiff = sumsqdiffUint16NEONGuarded
-	s.U16.Diff = diffUint16NEONGuarded
-	s.U32.Min = minrUint32NEONGuarded
-	s.U32.Max = maxrUint32NEONGuarded
-	s.U32.SumSquares = sumsqUint32NEONGuarded
-	s.U32.SumSqDev = sumsqdevUint32NEONGuarded
-	s.U32.SumSqDiff = sumsqdiffUint32NEONGuarded
-	s.U32.Diff = diffUint32NEONGuarded
-	s.U64.Min = minrUint64NEONGuarded
-	s.U64.Max = maxrUint64NEONGuarded
-	s.U64.Diff = diffUint64NEONGuarded
-	s.F32.Sum = sumFloat32NEONGuarded
-	s.F32.Dot = dotFloat32NEONGuarded
-	s.F32.L1Norm = l1normFloat32NEONGuarded
-	s.F32.L1Diff = l1diffFloat32NEONGuarded
-	s.F32.SumLanes = sumLanesFloat32NEONGuarded
-	s.F32.SparseDot = sparseDotFloat32NEONGuarded
-	s.F64.Sum = sumFloat64NEONGuarded
-	s.F64.Dot = dotFloat64NEONGuarded
-	s.F64.L1Norm = l1normFloat64NEONGuarded
-	s.F64.L1Diff = l1diffFloat64NEONGuarded
-	s.F64.SumLanes = sumLanesFloat64NEONGuarded
-	s.F64.SparseDot = sparseDotFloat64NEONGuarded
-	s.I32.Sum = sumInt32NEONGuarded
-	s.I32.Prod = prodInt32NEONGuarded
-	s.I32.Dot = dotInt32NEONGuarded
-	s.I32.L1Norm = l1normInt32NEONGuarded
-	s.I32.L1Diff = l1diffInt32NEONGuarded
-	s.I64.Sum = sumInt64NEONGuarded
-	s.I64.L1Norm = l1normInt64NEONGuarded
-	s.I64.L1Diff = l1diffInt64NEONGuarded
-	s.I8.Sum = sumInt8NEONGuarded
-	s.I8.Prod = prodInt8NEONGuarded
-	s.I8.Dot = dotInt8NEONGuarded
-	s.I8.L1Norm = l1normInt8NEONGuarded
-	s.I8.L1Diff = l1diffInt8NEONGuarded
-	s.I16.Sum = sumInt16NEONGuarded
-	s.I16.Prod = prodInt16NEONGuarded
-	s.I16.Dot = dotInt16NEONGuarded
-	s.I16.L1Norm = l1normInt16NEONGuarded
-	s.I16.L1Diff = l1diffInt16NEONGuarded
-	s.U8.Sum = sumUint8NEONGuarded
-	s.U8.Prod = prodUint8NEONGuarded
-	s.U8.Dot = dotUint8NEONGuarded
-	s.U8.L1Norm = l1normUint8NEONGuarded
-	s.U8.L1Diff = l1diffUint8NEONGuarded
-	s.U16.Sum = sumUint16NEONGuarded
-	s.U16.Prod = prodUint16NEONGuarded
-	s.U16.Dot = dotUint16NEONGuarded
-	s.U16.L1Norm = l1normUint16NEONGuarded
-	s.U16.L1Diff = l1diffUint16NEONGuarded
-	s.U32.Sum = sumUint32NEONGuarded
-	s.U32.Prod = prodUint32NEONGuarded
-	s.U32.Dot = dotUint32NEONGuarded
-	s.U32.L1Norm = l1normUint32NEONGuarded
-	s.U32.L1Diff = l1diffUint32NEONGuarded
-	s.U64.Sum = sumUint64NEONGuarded
-	s.U64.L1Norm = l1normUint64NEONGuarded
-	s.U64.L1Diff = l1diffUint64NEONGuarded
+func registerReduceNEON(s *kernel.Set) {
+	s.F32.Min = MinrFloat32NEON
+	s.F32.Max = MaxrFloat32NEON
+	s.F32.SumSquares = SumsqFloat32NEON
+	s.F32.SumSqDev = SumsqdevFloat32NEON
+	s.F32.SumSqDiff = SumsqdiffFloat32NEON
+	s.F32.Diff = DiffFloat32NEON
+	s.F64.Min = MinrFloat64NEON
+	s.F64.Max = MaxrFloat64NEON
+	s.F64.SumSquares = SumsqFloat64NEON
+	s.F64.SumSqDev = SumsqdevFloat64NEON
+	s.F64.SumSqDiff = SumsqdiffFloat64NEON
+	s.F64.Diff = DiffFloat64NEON
+	s.I32.Min = MinrInt32NEON
+	s.I32.Max = MaxrInt32NEON
+	s.I32.SumSquares = SumsqInt32NEON
+	s.I32.SumSqDev = SumsqdevInt32NEON
+	s.I32.SumSqDiff = SumsqdiffInt32NEON
+	s.I32.Diff = DiffInt32NEON
+	s.I64.Min = MinrInt64NEON
+	s.I64.Max = MaxrInt64NEON
+	s.I64.Diff = DiffInt64NEON
+	s.I8.Min = MinrInt8NEON
+	s.I8.Max = MaxrInt8NEON
+	s.I8.SumSquares = SumsqInt8NEON
+	s.I8.SumSqDev = SumsqdevInt8NEON
+	s.I8.SumSqDiff = SumsqdiffInt8NEON
+	s.I8.Diff = DiffInt8NEON
+	s.I16.Min = MinrInt16NEON
+	s.I16.Max = MaxrInt16NEON
+	s.I16.SumSquares = SumsqInt16NEON
+	s.I16.SumSqDev = SumsqdevInt16NEON
+	s.I16.SumSqDiff = SumsqdiffInt16NEON
+	s.I16.Diff = DiffInt16NEON
+	s.U8.Min = MinrUint8NEON
+	s.U8.Max = MaxrUint8NEON
+	s.U8.SumSquares = SumsqUint8NEON
+	s.U8.SumSqDev = SumsqdevUint8NEON
+	s.U8.SumSqDiff = SumsqdiffUint8NEON
+	s.U8.Diff = DiffUint8NEON
+	s.U16.Min = MinrUint16NEON
+	s.U16.Max = MaxrUint16NEON
+	s.U16.SumSquares = SumsqUint16NEON
+	s.U16.SumSqDev = SumsqdevUint16NEON
+	s.U16.SumSqDiff = SumsqdiffUint16NEON
+	s.U16.Diff = DiffUint16NEON
+	s.U32.Min = MinrUint32NEON
+	s.U32.Max = MaxrUint32NEON
+	s.U32.SumSquares = SumsqUint32NEON
+	s.U32.SumSqDev = SumsqdevUint32NEON
+	s.U32.SumSqDiff = SumsqdiffUint32NEON
+	s.U32.Diff = DiffUint32NEON
+	s.U64.Min = MinrUint64NEON
+	s.U64.Max = MaxrUint64NEON
+	s.U64.Diff = DiffUint64NEON
+	s.F32.Sum = SumFloat32NEON
+	s.F32.Dot = DotFloat32NEON
+	s.F32.L1Norm = L1normFloat32NEON
+	s.F32.L1Diff = L1diffFloat32NEON
+	s.F32.SumLanes = SumLanesFloat32NEON
+	s.F32.SparseDot = SparseDotFloat32NEON
+	s.F64.Sum = SumFloat64NEON
+	s.F64.Dot = DotFloat64NEON
+	s.F64.L1Norm = L1normFloat64NEON
+	s.F64.L1Diff = L1diffFloat64NEON
+	s.F64.SumLanes = SumLanesFloat64NEON
+	s.F64.SparseDot = SparseDotFloat64NEON
+	s.I32.Sum = SumInt32NEON
+	s.I32.Prod = ProdInt32NEON
+	s.I32.Dot = DotInt32NEON
+	s.I32.L1Norm = L1normInt32NEON
+	s.I32.L1Diff = L1diffInt32NEON
+	s.I64.Sum = SumInt64NEON
+	s.I64.L1Norm = L1normInt64NEON
+	s.I64.L1Diff = L1diffInt64NEON
+	s.I8.Sum = SumInt8NEON
+	s.I8.Prod = ProdInt8NEON
+	s.I8.Dot = DotInt8NEON
+	s.I8.L1Norm = L1normInt8NEON
+	s.I8.L1Diff = L1diffInt8NEON
+	s.I16.Sum = SumInt16NEON
+	s.I16.Prod = ProdInt16NEON
+	s.I16.Dot = DotInt16NEON
+	s.I16.L1Norm = L1normInt16NEON
+	s.I16.L1Diff = L1diffInt16NEON
+	s.U8.Sum = SumUint8NEON
+	s.U8.Prod = ProdUint8NEON
+	s.U8.Dot = DotUint8NEON
+	s.U8.L1Norm = L1normUint8NEON
+	s.U8.L1Diff = L1diffUint8NEON
+	s.U16.Sum = SumUint16NEON
+	s.U16.Prod = ProdUint16NEON
+	s.U16.Dot = DotUint16NEON
+	s.U16.L1Norm = L1normUint16NEON
+	s.U16.L1Diff = L1diffUint16NEON
+	s.U32.Sum = SumUint32NEON
+	s.U32.Prod = ProdUint32NEON
+	s.U32.Dot = DotUint32NEON
+	s.U32.L1Norm = L1normUint32NEON
+	s.U32.L1Diff = L1diffUint32NEON
+	s.U64.Sum = SumUint64NEON
+	s.U64.L1Norm = L1normUint64NEON
+	s.U64.L1Diff = L1diffUint64NEON
 }

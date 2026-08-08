@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,104 +20,101 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func argMinFloat32NEONGuarded(a []float32) int {
+func ArgMinFloat32NEON(a []float32) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat32NEON(a)
 }
 
-func argMaxFloat32NEONGuarded(a []float32) int {
+func ArgMaxFloat32NEON(a []float32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat32NEON(a)
 }
 
-func minMaxFloat32NEONGuarded(a []float32) (lo float32, hi float32) {
+func MinMaxFloat32NEON(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32NEON(a)
 }
 
-func argMinFloat64NEONGuarded(a []float64) int {
+func ArgMinFloat64NEON(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat64NEON(a)
 }
 
-func argMaxFloat64NEONGuarded(a []float64) int {
+func ArgMaxFloat64NEON(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat64NEON(a)
 }
 
-func minMaxFloat64NEONGuarded(a []float64) (lo float64, hi float64) {
+func MinMaxFloat64NEON(a []float64) (lo float64, hi float64) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat64NEON(a)
 }
 
-func argMinInt32NEONGuarded(a []int32) int {
+func ArgMinInt32NEON(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt32NEON(a)
 }
 
-func argMaxInt32NEONGuarded(a []int32) int {
+func ArgMaxInt32NEON(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt32NEON(a)
 }
 
-func minMaxInt32NEONGuarded(a []int32) (lo int32, hi int32) {
+func MinMaxInt32NEON(a []int32) (lo int32, hi int32) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt32NEON(a)
 }
 
-func argMinInt64NEONGuarded(a []int64) int {
+func ArgMinInt64NEON(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt64NEON(a)
 }
 
-func argMaxInt64NEONGuarded(a []int64) int {
+func ArgMaxInt64NEON(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt64NEON(a)
 }
 
-func minMaxInt64NEONGuarded(a []int64) (lo int64, hi int64) {
+func MinMaxInt64NEON(a []int64) (lo int64, hi int64) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt64NEON(a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.F32.ArgMin = argMinFloat32NEONGuarded
-	s.F32.ArgMax = argMaxFloat32NEONGuarded
-	s.F32.MinMax = minMaxFloat32NEONGuarded
-	s.F64.ArgMin = argMinFloat64NEONGuarded
-	s.F64.ArgMax = argMaxFloat64NEONGuarded
-	s.F64.MinMax = minMaxFloat64NEONGuarded
-	s.I32.ArgMin = argMinInt32NEONGuarded
-	s.I32.ArgMax = argMaxInt32NEONGuarded
-	s.I32.MinMax = minMaxInt32NEONGuarded
-	s.I64.ArgMin = argMinInt64NEONGuarded
-	s.I64.ArgMax = argMaxInt64NEONGuarded
-	s.I64.MinMax = minMaxInt64NEONGuarded
+func registerArgreduceNEON(s *kernel.Set) {
+	s.F32.ArgMin = ArgMinFloat32NEON
+	s.F32.ArgMax = ArgMaxFloat32NEON
+	s.F32.MinMax = MinMaxFloat32NEON
+	s.F64.ArgMin = ArgMinFloat64NEON
+	s.F64.ArgMax = ArgMaxFloat64NEON
+	s.F64.MinMax = MinMaxFloat64NEON
+	s.I32.ArgMin = ArgMinInt32NEON
+	s.I32.ArgMax = ArgMaxInt32NEON
+	s.I32.MinMax = MinMaxInt32NEON
+	s.I64.ArgMin = ArgMinInt64NEON
+	s.I64.ArgMax = ArgMaxInt64NEON
+	s.I64.MinMax = MinMaxInt64NEON
 }

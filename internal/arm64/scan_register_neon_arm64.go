@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func rollingMinFloat32NEONGuarded(dst []float32, a []float32, window int) {
+func RollingMinFloat32NEON(dst []float32, a []float32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinFloat(dst, a, window)
 		return
@@ -28,7 +28,7 @@ func rollingMinFloat32NEONGuarded(dst []float32, a []float32, window int) {
 	rollingMinFloat32NEON(dst, a, window)
 }
 
-func rollingMaxFloat32NEONGuarded(dst []float32, a []float32, window int) {
+func RollingMaxFloat32NEON(dst []float32, a []float32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxFloat(dst, a, window)
 		return
@@ -36,7 +36,7 @@ func rollingMaxFloat32NEONGuarded(dst []float32, a []float32, window int) {
 	rollingMaxFloat32NEON(dst, a, window)
 }
 
-func fastCumProdFloat32NEONGuarded(dst []float32, a []float32) {
+func FastCumProdFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -45,7 +45,7 @@ func fastCumProdFloat32NEONGuarded(dst []float32, a []float32) {
 	fastCumProdFloat32NEON(dst[:n:n], a)
 }
 
-func fastCumSumFloat32NEONGuarded(dst []float32, a []float32) {
+func FastCumSumFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumSumFloat(dst, a)
@@ -54,7 +54,7 @@ func fastCumSumFloat32NEONGuarded(dst []float32, a []float32) {
 	fastCumSumFloat32NEON(dst[:n:n], a)
 }
 
-func fastCumProdFloat64NEONGuarded(dst []float64, a []float64) {
+func FastCumProdFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.FastCumProdFloat(dst, a)
@@ -63,7 +63,7 @@ func fastCumProdFloat64NEONGuarded(dst []float64, a []float64) {
 	fastCumProdFloat64NEON(dst[:n:n], a)
 }
 
-func rollingMinInt32NEONGuarded(dst []int32, a []int32, window int) {
+func RollingMinInt32NEON(dst []int32, a []int32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinInt(dst, a, window)
 		return
@@ -71,7 +71,7 @@ func rollingMinInt32NEONGuarded(dst []int32, a []int32, window int) {
 	rollingMinInt32NEON(dst, a, window)
 }
 
-func rollingMaxInt32NEONGuarded(dst []int32, a []int32, window int) {
+func RollingMaxInt32NEON(dst []int32, a []int32, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxInt(dst, a, window)
 		return
@@ -79,7 +79,7 @@ func rollingMaxInt32NEONGuarded(dst []int32, a []int32, window int) {
 	rollingMaxInt32NEON(dst, a, window)
 }
 
-func cumMinInt32NEONGuarded(dst []int32, a []int32) {
+func CumMinInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -88,7 +88,7 @@ func cumMinInt32NEONGuarded(dst []int32, a []int32) {
 	cumMinInt32NEON(dst[:n:n], a)
 }
 
-func cumMaxInt32NEONGuarded(dst []int32, a []int32) {
+func CumMaxInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -97,7 +97,7 @@ func cumMaxInt32NEONGuarded(dst []int32, a []int32) {
 	cumMaxInt32NEON(dst[:n:n], a)
 }
 
-func cumProdInt32NEONGuarded(dst []int32, a []int32) {
+func CumProdInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumProdInt(dst, a)
@@ -106,7 +106,7 @@ func cumProdInt32NEONGuarded(dst []int32, a []int32) {
 	cumProdInt32NEON(dst[:n:n], a)
 }
 
-func rollingMinInt64NEONGuarded(dst []int64, a []int64, window int) {
+func RollingMinInt64NEON(dst []int64, a []int64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMinInt(dst, a, window)
 		return
@@ -114,7 +114,7 @@ func rollingMinInt64NEONGuarded(dst []int64, a []int64, window int) {
 	rollingMinInt64NEON(dst, a, window)
 }
 
-func rollingMaxInt64NEONGuarded(dst []int64, a []int64, window int) {
+func RollingMaxInt64NEON(dst []int64, a []int64, window int) {
 	if len(dst) < 16 {
 		ref.RollingMaxInt(dst, a, window)
 		return
@@ -122,7 +122,7 @@ func rollingMaxInt64NEONGuarded(dst []int64, a []int64, window int) {
 	rollingMaxInt64NEON(dst, a, window)
 }
 
-func cumMinInt64NEONGuarded(dst []int64, a []int64) {
+func CumMinInt64NEON(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMinInt(dst, a)
@@ -131,7 +131,7 @@ func cumMinInt64NEONGuarded(dst []int64, a []int64) {
 	cumMinInt64NEON(dst[:n:n], a)
 }
 
-func cumMaxInt64NEONGuarded(dst []int64, a []int64) {
+func CumMaxInt64NEON(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.CumMaxInt(dst, a)
@@ -140,22 +140,19 @@ func cumMaxInt64NEONGuarded(dst []int64, a []int64) {
 	cumMaxInt64NEON(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.F32.RollingMin = rollingMinFloat32NEONGuarded
-	s.F32.RollingMax = rollingMaxFloat32NEONGuarded
-	s.F32.FastCumProd = fastCumProdFloat32NEONGuarded
-	s.F32.FastCumSum = fastCumSumFloat32NEONGuarded
-	s.F64.FastCumProd = fastCumProdFloat64NEONGuarded
-	s.I32.RollingMin = rollingMinInt32NEONGuarded
-	s.I32.RollingMax = rollingMaxInt32NEONGuarded
-	s.I32.CumMin = cumMinInt32NEONGuarded
-	s.I32.CumMax = cumMaxInt32NEONGuarded
-	s.I32.CumProd = cumProdInt32NEONGuarded
-	s.I64.RollingMin = rollingMinInt64NEONGuarded
-	s.I64.RollingMax = rollingMaxInt64NEONGuarded
-	s.I64.CumMin = cumMinInt64NEONGuarded
-	s.I64.CumMax = cumMaxInt64NEONGuarded
+func registerScanNEON(s *kernel.Set) {
+	s.F32.RollingMin = RollingMinFloat32NEON
+	s.F32.RollingMax = RollingMaxFloat32NEON
+	s.F32.FastCumProd = FastCumProdFloat32NEON
+	s.F32.FastCumSum = FastCumSumFloat32NEON
+	s.F64.FastCumProd = FastCumProdFloat64NEON
+	s.I32.RollingMin = RollingMinInt32NEON
+	s.I32.RollingMax = RollingMaxInt32NEON
+	s.I32.CumMin = CumMinInt32NEON
+	s.I32.CumMax = CumMaxInt32NEON
+	s.I32.CumProd = CumProdInt32NEON
+	s.I64.RollingMin = RollingMinInt64NEON
+	s.I64.RollingMax = RollingMaxInt64NEON
+	s.I64.CumMin = CumMinInt64NEON
+	s.I64.CumMax = CumMaxInt64NEON
 }

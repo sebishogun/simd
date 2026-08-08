@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,40 +20,37 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func intersectInt32SSE2Guarded(dst []int32, a []int32, b []int32) int {
+func IntersectInt32SSE2(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectInt32SSE2(dst, a, b)
 }
 
-func differenceInt32SSE2Guarded(dst []int32, a []int32, b []int32) int {
+func DifferenceInt32SSE2(dst []int32, a []int32, b []int32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceInt32SSE2(dst, a, b)
 }
 
-func intersectUint32SSE2Guarded(dst []uint32, a []uint32, b []uint32) int {
+func IntersectUint32SSE2(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.IntersectInt(dst, a, b)
 	}
 	return intersectUint32SSE2(dst, a, b)
 }
 
-func differenceUint32SSE2Guarded(dst []uint32, a []uint32, b []uint32) int {
+func DifferenceUint32SSE2(dst []uint32, a []uint32, b []uint32) int {
 	if len(a) < 64 {
 		return ref.DifferenceInt(dst, a, b)
 	}
 	return differenceUint32SSE2(dst, a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sse2")
-	s.I32.Intersect = intersectInt32SSE2Guarded
-	s.I32.Difference = differenceInt32SSE2Guarded
-	s.U32.Intersect = intersectUint32SSE2Guarded
-	s.U32.Difference = differenceUint32SSE2Guarded
+func registerSetsSSE2(s *kernel.Set) {
+	s.I32.Intersect = IntersectInt32SSE2
+	s.I32.Difference = DifferenceInt32SSE2
+	s.U32.Intersect = IntersectUint32SSE2
+	s.U32.Difference = DifferenceUint32SSE2
 }

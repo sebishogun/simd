@@ -10,7 +10,7 @@ package ppc64le
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,56 +20,53 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "ppc64le": {}}
 
-func minMaxFloat32VSXGuarded(a []float32) (lo float32, hi float32) {
+func MinMaxFloat32VSX(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32VSX(a)
 }
 
-func minMaxFloat64VSXGuarded(a []float64) (lo float64, hi float64) {
+func MinMaxFloat64VSX(a []float64) (lo float64, hi float64) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat64VSX(a)
 }
 
-func argMinInt32VSXGuarded(a []int32) int {
+func ArgMinInt32VSX(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt32VSX(a)
 }
 
-func argMaxInt32VSXGuarded(a []int32) int {
+func ArgMaxInt32VSX(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt32VSX(a)
 }
 
-func argMinInt64VSXGuarded(a []int64) int {
+func ArgMinInt64VSX(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt64VSX(a)
 }
 
-func argMaxInt64VSXGuarded(a []int64) int {
+func ArgMaxInt64VSX(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt64VSX(a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vsx")
-	s.F32.MinMax = minMaxFloat32VSXGuarded
-	s.F64.MinMax = minMaxFloat64VSXGuarded
-	s.I32.ArgMin = argMinInt32VSXGuarded
-	s.I32.ArgMax = argMaxInt32VSXGuarded
-	s.I64.ArgMin = argMinInt64VSXGuarded
-	s.I64.ArgMax = argMaxInt64VSXGuarded
+func registerArgreduceVSX(s *kernel.Set) {
+	s.F32.MinMax = MinMaxFloat32VSX
+	s.F64.MinMax = MinMaxFloat64VSX
+	s.I32.ArgMin = ArgMinInt32VSX
+	s.I32.ArgMax = ArgMaxInt32VSX
+	s.I64.ArgMin = ArgMinInt64VSX
+	s.I64.ArgMax = ArgMaxInt64VSX
 }

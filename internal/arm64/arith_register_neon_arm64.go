@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func addFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
+func AddFloat32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -29,7 +29,7 @@ func addFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	addFloat32NEON(dst[:n:n], a, b)
 }
 
-func subFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
+func SubFloat32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -38,7 +38,7 @@ func subFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	subFloat32NEON(dst[:n:n], a, b)
 }
 
-func mulFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
+func MulFloat32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -47,7 +47,7 @@ func mulFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	mulFloat32NEON(dst[:n:n], a, b)
 }
 
-func minimumFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
+func MinimumFloat32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
@@ -56,7 +56,7 @@ func minimumFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	minimumFloat32NEON(dst[:n:n], a, b)
 }
 
-func maximumFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
+func MaximumFloat32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
@@ -65,7 +65,7 @@ func maximumFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	maximumFloat32NEON(dst[:n:n], a, b)
 }
 
-func absFloat32NEONGuarded(dst []float32, a []float32) {
+func AbsFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsFloat(dst, a)
@@ -74,7 +74,7 @@ func absFloat32NEONGuarded(dst []float32, a []float32) {
 	absFloat32NEON(dst[:n:n], a)
 }
 
-func negFloat32NEONGuarded(dst []float32, a []float32) {
+func NegFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegFloat(dst, a)
@@ -83,7 +83,7 @@ func negFloat32NEONGuarded(dst []float32, a []float32) {
 	negFloat32NEON(dst[:n:n], a)
 }
 
-func scaleFloat32NEONGuarded(dst []float32, a []float32, s float32) {
+func ScaleFloat32NEON(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -92,7 +92,7 @@ func scaleFloat32NEONGuarded(dst []float32, a []float32, s float32) {
 	scaleFloat32NEON(dst[:n:n], a, s)
 }
 
-func addScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
+func AddScalarFloat32NEON(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -101,7 +101,7 @@ func addScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
 	addScalarFloat32NEON(dst[:n:n], a, s)
 }
 
-func subScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
+func SubScalarFloat32NEON(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -110,7 +110,7 @@ func subScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
 	subScalarFloat32NEON(dst[:n:n], a, s)
 }
 
-func clampFloat32NEONGuarded(dst []float32, a []float32, lo float32, hi float32) {
+func ClampFloat32NEON(dst []float32, a []float32, lo float32, hi float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
@@ -119,7 +119,7 @@ func clampFloat32NEONGuarded(dst []float32, a []float32, lo float32, hi float32)
 	clampFloat32NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillFloat32NEONGuarded(dst []float32, v float32) {
+func FillFloat32NEON(dst []float32, v float32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -127,7 +127,7 @@ func fillFloat32NEONGuarded(dst []float32, v float32) {
 	fillFloat32NEON(dst, v)
 }
 
-func lerpFloat32NEONGuarded(dst []float32, a []float32, b []float32, t float32) {
+func LerpFloat32NEON(dst []float32, a []float32, b []float32, t float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -136,7 +136,7 @@ func lerpFloat32NEONGuarded(dst []float32, a []float32, b []float32, t float32) 
 	lerpFloat32NEON(dst[:n:n], a, b, t)
 }
 
-func addScaledFloat32NEONGuarded(dst []float32, a []float32, b []float32, s float32) {
+func AddScaledFloat32NEON(dst []float32, a []float32, b []float32, s float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -145,7 +145,7 @@ func addScaledFloat32NEONGuarded(dst []float32, a []float32, b []float32, s floa
 	addScaledFloat32NEON(dst[:n:n], a, b, s)
 }
 
-func rampFloat32NEONGuarded(dst []float32, start float32, step float32) {
+func RampFloat32NEON(dst []float32, start float32, step float32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -153,7 +153,7 @@ func rampFloat32NEONGuarded(dst []float32, start float32, step float32) {
 	rampFloat32NEON(dst, start, step)
 }
 
-func addFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+func AddFloat64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -162,7 +162,7 @@ func addFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	addFloat64NEON(dst[:n:n], a, b)
 }
 
-func subFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+func SubFloat64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -171,7 +171,7 @@ func subFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	subFloat64NEON(dst[:n:n], a, b)
 }
 
-func mulFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+func MulFloat64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -180,7 +180,7 @@ func mulFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	mulFloat64NEON(dst[:n:n], a, b)
 }
 
-func minimumFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+func MinimumFloat64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumFloat(dst, a, b)
@@ -189,7 +189,7 @@ func minimumFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	minimumFloat64NEON(dst[:n:n], a, b)
 }
 
-func maximumFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+func MaximumFloat64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumFloat(dst, a, b)
@@ -198,7 +198,7 @@ func maximumFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	maximumFloat64NEON(dst[:n:n], a, b)
 }
 
-func absFloat64NEONGuarded(dst []float64, a []float64) {
+func AbsFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsFloat(dst, a)
@@ -207,7 +207,7 @@ func absFloat64NEONGuarded(dst []float64, a []float64) {
 	absFloat64NEON(dst[:n:n], a)
 }
 
-func negFloat64NEONGuarded(dst []float64, a []float64) {
+func NegFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegFloat(dst, a)
@@ -216,7 +216,7 @@ func negFloat64NEONGuarded(dst []float64, a []float64) {
 	negFloat64NEON(dst[:n:n], a)
 }
 
-func scaleFloat64NEONGuarded(dst []float64, a []float64, s float64) {
+func ScaleFloat64NEON(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -225,7 +225,7 @@ func scaleFloat64NEONGuarded(dst []float64, a []float64, s float64) {
 	scaleFloat64NEON(dst[:n:n], a, s)
 }
 
-func addScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
+func AddScalarFloat64NEON(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -234,7 +234,7 @@ func addScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
 	addScalarFloat64NEON(dst[:n:n], a, s)
 }
 
-func subScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
+func SubScalarFloat64NEON(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -243,7 +243,7 @@ func subScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
 	subScalarFloat64NEON(dst[:n:n], a, s)
 }
 
-func clampFloat64NEONGuarded(dst []float64, a []float64, lo float64, hi float64) {
+func ClampFloat64NEON(dst []float64, a []float64, lo float64, hi float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampFloat(dst, a, lo, hi)
@@ -252,7 +252,7 @@ func clampFloat64NEONGuarded(dst []float64, a []float64, lo float64, hi float64)
 	clampFloat64NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillFloat64NEONGuarded(dst []float64, v float64) {
+func FillFloat64NEON(dst []float64, v float64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -260,7 +260,7 @@ func fillFloat64NEONGuarded(dst []float64, v float64) {
 	fillFloat64NEON(dst, v)
 }
 
-func lerpFloat64NEONGuarded(dst []float64, a []float64, b []float64, t float64) {
+func LerpFloat64NEON(dst []float64, a []float64, b []float64, t float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -269,7 +269,7 @@ func lerpFloat64NEONGuarded(dst []float64, a []float64, b []float64, t float64) 
 	lerpFloat64NEON(dst[:n:n], a, b, t)
 }
 
-func addScaledFloat64NEONGuarded(dst []float64, a []float64, b []float64, s float64) {
+func AddScaledFloat64NEON(dst []float64, a []float64, b []float64, s float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -278,7 +278,7 @@ func addScaledFloat64NEONGuarded(dst []float64, a []float64, b []float64, s floa
 	addScaledFloat64NEON(dst[:n:n], a, b, s)
 }
 
-func rampFloat64NEONGuarded(dst []float64, start float64, step float64) {
+func RampFloat64NEON(dst []float64, start float64, step float64) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -286,7 +286,7 @@ func rampFloat64NEONGuarded(dst []float64, start float64, step float64) {
 	rampFloat64NEON(dst, start, step)
 }
 
-func addInt32NEONGuarded(dst []int32, a []int32, b []int32) {
+func AddInt32NEON(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -295,7 +295,7 @@ func addInt32NEONGuarded(dst []int32, a []int32, b []int32) {
 	addInt32NEON(dst[:n:n], a, b)
 }
 
-func subInt32NEONGuarded(dst []int32, a []int32, b []int32) {
+func SubInt32NEON(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -304,7 +304,7 @@ func subInt32NEONGuarded(dst []int32, a []int32, b []int32) {
 	subInt32NEON(dst[:n:n], a, b)
 }
 
-func mulInt32NEONGuarded(dst []int32, a []int32, b []int32) {
+func MulInt32NEON(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -313,7 +313,7 @@ func mulInt32NEONGuarded(dst []int32, a []int32, b []int32) {
 	mulInt32NEON(dst[:n:n], a, b)
 }
 
-func minimumInt32NEONGuarded(dst []int32, a []int32, b []int32) {
+func MinimumInt32NEON(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -322,7 +322,7 @@ func minimumInt32NEONGuarded(dst []int32, a []int32, b []int32) {
 	minimumInt32NEON(dst[:n:n], a, b)
 }
 
-func maximumInt32NEONGuarded(dst []int32, a []int32, b []int32) {
+func MaximumInt32NEON(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -331,7 +331,7 @@ func maximumInt32NEONGuarded(dst []int32, a []int32, b []int32) {
 	maximumInt32NEON(dst[:n:n], a, b)
 }
 
-func absInt32NEONGuarded(dst []int32, a []int32) {
+func AbsInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -340,7 +340,7 @@ func absInt32NEONGuarded(dst []int32, a []int32) {
 	absInt32NEON(dst[:n:n], a)
 }
 
-func negInt32NEONGuarded(dst []int32, a []int32) {
+func NegInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -349,7 +349,7 @@ func negInt32NEONGuarded(dst []int32, a []int32) {
 	negInt32NEON(dst[:n:n], a)
 }
 
-func scaleInt32NEONGuarded(dst []int32, a []int32, s int32) {
+func ScaleInt32NEON(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -358,7 +358,7 @@ func scaleInt32NEONGuarded(dst []int32, a []int32, s int32) {
 	scaleInt32NEON(dst[:n:n], a, s)
 }
 
-func addScalarInt32NEONGuarded(dst []int32, a []int32, s int32) {
+func AddScalarInt32NEON(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -367,7 +367,7 @@ func addScalarInt32NEONGuarded(dst []int32, a []int32, s int32) {
 	addScalarInt32NEON(dst[:n:n], a, s)
 }
 
-func subScalarInt32NEONGuarded(dst []int32, a []int32, s int32) {
+func SubScalarInt32NEON(dst []int32, a []int32, s int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -376,7 +376,7 @@ func subScalarInt32NEONGuarded(dst []int32, a []int32, s int32) {
 	subScalarInt32NEON(dst[:n:n], a, s)
 }
 
-func clampInt32NEONGuarded(dst []int32, a []int32, lo int32, hi int32) {
+func ClampInt32NEON(dst []int32, a []int32, lo int32, hi int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -385,7 +385,7 @@ func clampInt32NEONGuarded(dst []int32, a []int32, lo int32, hi int32) {
 	clampInt32NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillInt32NEONGuarded(dst []int32, v int32) {
+func FillInt32NEON(dst []int32, v int32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -393,7 +393,7 @@ func fillInt32NEONGuarded(dst []int32, v int32) {
 	fillInt32NEON(dst, v)
 }
 
-func lerpInt32NEONGuarded(dst []int32, a []int32, b []int32, t int32) {
+func LerpInt32NEON(dst []int32, a []int32, b []int32, t int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -402,7 +402,7 @@ func lerpInt32NEONGuarded(dst []int32, a []int32, b []int32, t int32) {
 	lerpInt32NEON(dst[:n:n], a, b, t)
 }
 
-func addScaledInt32NEONGuarded(dst []int32, a []int32, b []int32, s int32) {
+func AddScaledInt32NEON(dst []int32, a []int32, b []int32, s int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -411,7 +411,7 @@ func addScaledInt32NEONGuarded(dst []int32, a []int32, b []int32, s int32) {
 	addScaledInt32NEON(dst[:n:n], a, b, s)
 }
 
-func rampInt32NEONGuarded(dst []int32, start int32, step int32) {
+func RampInt32NEON(dst []int32, start int32, step int32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -419,7 +419,7 @@ func rampInt32NEONGuarded(dst []int32, start int32, step int32) {
 	rampInt32NEON(dst, start, step)
 }
 
-func addInt64NEONGuarded(dst []int64, a []int64, b []int64) {
+func AddInt64NEON(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -428,7 +428,7 @@ func addInt64NEONGuarded(dst []int64, a []int64, b []int64) {
 	addInt64NEON(dst[:n:n], a, b)
 }
 
-func subInt64NEONGuarded(dst []int64, a []int64, b []int64) {
+func SubInt64NEON(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -437,7 +437,7 @@ func subInt64NEONGuarded(dst []int64, a []int64, b []int64) {
 	subInt64NEON(dst[:n:n], a, b)
 }
 
-func minimumInt64NEONGuarded(dst []int64, a []int64, b []int64) {
+func MinimumInt64NEON(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -446,7 +446,7 @@ func minimumInt64NEONGuarded(dst []int64, a []int64, b []int64) {
 	minimumInt64NEON(dst[:n:n], a, b)
 }
 
-func maximumInt64NEONGuarded(dst []int64, a []int64, b []int64) {
+func MaximumInt64NEON(dst []int64, a []int64, b []int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -455,7 +455,7 @@ func maximumInt64NEONGuarded(dst []int64, a []int64, b []int64) {
 	maximumInt64NEON(dst[:n:n], a, b)
 }
 
-func absInt64NEONGuarded(dst []int64, a []int64) {
+func AbsInt64NEON(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -464,7 +464,7 @@ func absInt64NEONGuarded(dst []int64, a []int64) {
 	absInt64NEON(dst[:n:n], a)
 }
 
-func negInt64NEONGuarded(dst []int64, a []int64) {
+func NegInt64NEON(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -473,7 +473,7 @@ func negInt64NEONGuarded(dst []int64, a []int64) {
 	negInt64NEON(dst[:n:n], a)
 }
 
-func addScalarInt64NEONGuarded(dst []int64, a []int64, s int64) {
+func AddScalarInt64NEON(dst []int64, a []int64, s int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -482,7 +482,7 @@ func addScalarInt64NEONGuarded(dst []int64, a []int64, s int64) {
 	addScalarInt64NEON(dst[:n:n], a, s)
 }
 
-func subScalarInt64NEONGuarded(dst []int64, a []int64, s int64) {
+func SubScalarInt64NEON(dst []int64, a []int64, s int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -491,7 +491,7 @@ func subScalarInt64NEONGuarded(dst []int64, a []int64, s int64) {
 	subScalarInt64NEON(dst[:n:n], a, s)
 }
 
-func clampInt64NEONGuarded(dst []int64, a []int64, lo int64, hi int64) {
+func ClampInt64NEON(dst []int64, a []int64, lo int64, hi int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -500,7 +500,7 @@ func clampInt64NEONGuarded(dst []int64, a []int64, lo int64, hi int64) {
 	clampInt64NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillInt64NEONGuarded(dst []int64, v int64) {
+func FillInt64NEON(dst []int64, v int64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -508,7 +508,7 @@ func fillInt64NEONGuarded(dst []int64, v int64) {
 	fillInt64NEON(dst, v)
 }
 
-func lerpInt64NEONGuarded(dst []int64, a []int64, b []int64, t int64) {
+func LerpInt64NEON(dst []int64, a []int64, b []int64, t int64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -517,7 +517,7 @@ func lerpInt64NEONGuarded(dst []int64, a []int64, b []int64, t int64) {
 	lerpInt64NEON(dst[:n:n], a, b, t)
 }
 
-func addInt8NEONGuarded(dst []int8, a []int8, b []int8) {
+func AddInt8NEON(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -526,7 +526,7 @@ func addInt8NEONGuarded(dst []int8, a []int8, b []int8) {
 	addInt8NEON(dst[:n:n], a, b)
 }
 
-func subInt8NEONGuarded(dst []int8, a []int8, b []int8) {
+func SubInt8NEON(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -535,7 +535,7 @@ func subInt8NEONGuarded(dst []int8, a []int8, b []int8) {
 	subInt8NEON(dst[:n:n], a, b)
 }
 
-func mulInt8NEONGuarded(dst []int8, a []int8, b []int8) {
+func MulInt8NEON(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -544,7 +544,7 @@ func mulInt8NEONGuarded(dst []int8, a []int8, b []int8) {
 	mulInt8NEON(dst[:n:n], a, b)
 }
 
-func minimumInt8NEONGuarded(dst []int8, a []int8, b []int8) {
+func MinimumInt8NEON(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -553,7 +553,7 @@ func minimumInt8NEONGuarded(dst []int8, a []int8, b []int8) {
 	minimumInt8NEON(dst[:n:n], a, b)
 }
 
-func maximumInt8NEONGuarded(dst []int8, a []int8, b []int8) {
+func MaximumInt8NEON(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -562,7 +562,7 @@ func maximumInt8NEONGuarded(dst []int8, a []int8, b []int8) {
 	maximumInt8NEON(dst[:n:n], a, b)
 }
 
-func absInt8NEONGuarded(dst []int8, a []int8) {
+func AbsInt8NEON(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -571,7 +571,7 @@ func absInt8NEONGuarded(dst []int8, a []int8) {
 	absInt8NEON(dst[:n:n], a)
 }
 
-func negInt8NEONGuarded(dst []int8, a []int8) {
+func NegInt8NEON(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -580,7 +580,7 @@ func negInt8NEONGuarded(dst []int8, a []int8) {
 	negInt8NEON(dst[:n:n], a)
 }
 
-func scaleInt8NEONGuarded(dst []int8, a []int8, s int8) {
+func ScaleInt8NEON(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -589,7 +589,7 @@ func scaleInt8NEONGuarded(dst []int8, a []int8, s int8) {
 	scaleInt8NEON(dst[:n:n], a, s)
 }
 
-func addScalarInt8NEONGuarded(dst []int8, a []int8, s int8) {
+func AddScalarInt8NEON(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -598,7 +598,7 @@ func addScalarInt8NEONGuarded(dst []int8, a []int8, s int8) {
 	addScalarInt8NEON(dst[:n:n], a, s)
 }
 
-func subScalarInt8NEONGuarded(dst []int8, a []int8, s int8) {
+func SubScalarInt8NEON(dst []int8, a []int8, s int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -607,7 +607,7 @@ func subScalarInt8NEONGuarded(dst []int8, a []int8, s int8) {
 	subScalarInt8NEON(dst[:n:n], a, s)
 }
 
-func clampInt8NEONGuarded(dst []int8, a []int8, lo int8, hi int8) {
+func ClampInt8NEON(dst []int8, a []int8, lo int8, hi int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -616,7 +616,7 @@ func clampInt8NEONGuarded(dst []int8, a []int8, lo int8, hi int8) {
 	clampInt8NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillInt8NEONGuarded(dst []int8, v int8) {
+func FillInt8NEON(dst []int8, v int8) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -624,7 +624,7 @@ func fillInt8NEONGuarded(dst []int8, v int8) {
 	fillInt8NEON(dst, v)
 }
 
-func lerpInt8NEONGuarded(dst []int8, a []int8, b []int8, t int8) {
+func LerpInt8NEON(dst []int8, a []int8, b []int8, t int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -633,7 +633,7 @@ func lerpInt8NEONGuarded(dst []int8, a []int8, b []int8, t int8) {
 	lerpInt8NEON(dst[:n:n], a, b, t)
 }
 
-func addScaledInt8NEONGuarded(dst []int8, a []int8, b []int8, s int8) {
+func AddScaledInt8NEON(dst []int8, a []int8, b []int8, s int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -642,7 +642,7 @@ func addScaledInt8NEONGuarded(dst []int8, a []int8, b []int8, s int8) {
 	addScaledInt8NEON(dst[:n:n], a, b, s)
 }
 
-func rampInt8NEONGuarded(dst []int8, start int8, step int8) {
+func RampInt8NEON(dst []int8, start int8, step int8) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -650,7 +650,7 @@ func rampInt8NEONGuarded(dst []int8, start int8, step int8) {
 	rampInt8NEON(dst, start, step)
 }
 
-func addInt16NEONGuarded(dst []int16, a []int16, b []int16) {
+func AddInt16NEON(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -659,7 +659,7 @@ func addInt16NEONGuarded(dst []int16, a []int16, b []int16) {
 	addInt16NEON(dst[:n:n], a, b)
 }
 
-func subInt16NEONGuarded(dst []int16, a []int16, b []int16) {
+func SubInt16NEON(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -668,7 +668,7 @@ func subInt16NEONGuarded(dst []int16, a []int16, b []int16) {
 	subInt16NEON(dst[:n:n], a, b)
 }
 
-func mulInt16NEONGuarded(dst []int16, a []int16, b []int16) {
+func MulInt16NEON(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -677,7 +677,7 @@ func mulInt16NEONGuarded(dst []int16, a []int16, b []int16) {
 	mulInt16NEON(dst[:n:n], a, b)
 }
 
-func minimumInt16NEONGuarded(dst []int16, a []int16, b []int16) {
+func MinimumInt16NEON(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -686,7 +686,7 @@ func minimumInt16NEONGuarded(dst []int16, a []int16, b []int16) {
 	minimumInt16NEON(dst[:n:n], a, b)
 }
 
-func maximumInt16NEONGuarded(dst []int16, a []int16, b []int16) {
+func MaximumInt16NEON(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -695,7 +695,7 @@ func maximumInt16NEONGuarded(dst []int16, a []int16, b []int16) {
 	maximumInt16NEON(dst[:n:n], a, b)
 }
 
-func absInt16NEONGuarded(dst []int16, a []int16) {
+func AbsInt16NEON(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AbsInt(dst, a)
@@ -704,7 +704,7 @@ func absInt16NEONGuarded(dst []int16, a []int16) {
 	absInt16NEON(dst[:n:n], a)
 }
 
-func negInt16NEONGuarded(dst []int16, a []int16) {
+func NegInt16NEON(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -713,7 +713,7 @@ func negInt16NEONGuarded(dst []int16, a []int16) {
 	negInt16NEON(dst[:n:n], a)
 }
 
-func scaleInt16NEONGuarded(dst []int16, a []int16, s int16) {
+func ScaleInt16NEON(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -722,7 +722,7 @@ func scaleInt16NEONGuarded(dst []int16, a []int16, s int16) {
 	scaleInt16NEON(dst[:n:n], a, s)
 }
 
-func addScalarInt16NEONGuarded(dst []int16, a []int16, s int16) {
+func AddScalarInt16NEON(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -731,7 +731,7 @@ func addScalarInt16NEONGuarded(dst []int16, a []int16, s int16) {
 	addScalarInt16NEON(dst[:n:n], a, s)
 }
 
-func subScalarInt16NEONGuarded(dst []int16, a []int16, s int16) {
+func SubScalarInt16NEON(dst []int16, a []int16, s int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -740,7 +740,7 @@ func subScalarInt16NEONGuarded(dst []int16, a []int16, s int16) {
 	subScalarInt16NEON(dst[:n:n], a, s)
 }
 
-func clampInt16NEONGuarded(dst []int16, a []int16, lo int16, hi int16) {
+func ClampInt16NEON(dst []int16, a []int16, lo int16, hi int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -749,7 +749,7 @@ func clampInt16NEONGuarded(dst []int16, a []int16, lo int16, hi int16) {
 	clampInt16NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillInt16NEONGuarded(dst []int16, v int16) {
+func FillInt16NEON(dst []int16, v int16) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -757,7 +757,7 @@ func fillInt16NEONGuarded(dst []int16, v int16) {
 	fillInt16NEON(dst, v)
 }
 
-func lerpInt16NEONGuarded(dst []int16, a []int16, b []int16, t int16) {
+func LerpInt16NEON(dst []int16, a []int16, b []int16, t int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -766,7 +766,7 @@ func lerpInt16NEONGuarded(dst []int16, a []int16, b []int16, t int16) {
 	lerpInt16NEON(dst[:n:n], a, b, t)
 }
 
-func addScaledInt16NEONGuarded(dst []int16, a []int16, b []int16, s int16) {
+func AddScaledInt16NEON(dst []int16, a []int16, b []int16, s int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -775,7 +775,7 @@ func addScaledInt16NEONGuarded(dst []int16, a []int16, b []int16, s int16) {
 	addScaledInt16NEON(dst[:n:n], a, b, s)
 }
 
-func rampInt16NEONGuarded(dst []int16, start int16, step int16) {
+func RampInt16NEON(dst []int16, start int16, step int16) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -783,7 +783,7 @@ func rampInt16NEONGuarded(dst []int16, start int16, step int16) {
 	rampInt16NEON(dst, start, step)
 }
 
-func addUint8NEONGuarded(dst []byte, a []byte, b []byte) {
+func AddUint8NEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -792,7 +792,7 @@ func addUint8NEONGuarded(dst []byte, a []byte, b []byte) {
 	addUint8NEON(dst[:n:n], a, b)
 }
 
-func subUint8NEONGuarded(dst []byte, a []byte, b []byte) {
+func SubUint8NEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -801,7 +801,7 @@ func subUint8NEONGuarded(dst []byte, a []byte, b []byte) {
 	subUint8NEON(dst[:n:n], a, b)
 }
 
-func mulUint8NEONGuarded(dst []byte, a []byte, b []byte) {
+func MulUint8NEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -810,7 +810,7 @@ func mulUint8NEONGuarded(dst []byte, a []byte, b []byte) {
 	mulUint8NEON(dst[:n:n], a, b)
 }
 
-func minimumUint8NEONGuarded(dst []byte, a []byte, b []byte) {
+func MinimumUint8NEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -819,7 +819,7 @@ func minimumUint8NEONGuarded(dst []byte, a []byte, b []byte) {
 	minimumUint8NEON(dst[:n:n], a, b)
 }
 
-func maximumUint8NEONGuarded(dst []byte, a []byte, b []byte) {
+func MaximumUint8NEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -828,7 +828,7 @@ func maximumUint8NEONGuarded(dst []byte, a []byte, b []byte) {
 	maximumUint8NEON(dst[:n:n], a, b)
 }
 
-func negUint8NEONGuarded(dst []byte, a []byte) {
+func NegUint8NEON(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -837,7 +837,7 @@ func negUint8NEONGuarded(dst []byte, a []byte) {
 	negUint8NEON(dst[:n:n], a)
 }
 
-func scaleUint8NEONGuarded(dst []byte, a []byte, s byte) {
+func ScaleUint8NEON(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -846,7 +846,7 @@ func scaleUint8NEONGuarded(dst []byte, a []byte, s byte) {
 	scaleUint8NEON(dst[:n:n], a, s)
 }
 
-func addScalarUint8NEONGuarded(dst []byte, a []byte, s byte) {
+func AddScalarUint8NEON(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -855,7 +855,7 @@ func addScalarUint8NEONGuarded(dst []byte, a []byte, s byte) {
 	addScalarUint8NEON(dst[:n:n], a, s)
 }
 
-func subScalarUint8NEONGuarded(dst []byte, a []byte, s byte) {
+func SubScalarUint8NEON(dst []byte, a []byte, s byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -864,7 +864,7 @@ func subScalarUint8NEONGuarded(dst []byte, a []byte, s byte) {
 	subScalarUint8NEON(dst[:n:n], a, s)
 }
 
-func clampUint8NEONGuarded(dst []byte, a []byte, lo byte, hi byte) {
+func ClampUint8NEON(dst []byte, a []byte, lo byte, hi byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -873,7 +873,7 @@ func clampUint8NEONGuarded(dst []byte, a []byte, lo byte, hi byte) {
 	clampUint8NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillUint8NEONGuarded(dst []byte, v byte) {
+func FillUint8NEON(dst []byte, v byte) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -881,7 +881,7 @@ func fillUint8NEONGuarded(dst []byte, v byte) {
 	fillUint8NEON(dst, v)
 }
 
-func lerpUint8NEONGuarded(dst []byte, a []byte, b []byte, t byte) {
+func LerpUint8NEON(dst []byte, a []byte, b []byte, t byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -890,7 +890,7 @@ func lerpUint8NEONGuarded(dst []byte, a []byte, b []byte, t byte) {
 	lerpUint8NEON(dst[:n:n], a, b, t)
 }
 
-func addScaledUint8NEONGuarded(dst []byte, a []byte, b []byte, s byte) {
+func AddScaledUint8NEON(dst []byte, a []byte, b []byte, s byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -899,7 +899,7 @@ func addScaledUint8NEONGuarded(dst []byte, a []byte, b []byte, s byte) {
 	addScaledUint8NEON(dst[:n:n], a, b, s)
 }
 
-func rampUint8NEONGuarded(dst []byte, start byte, step byte) {
+func RampUint8NEON(dst []byte, start byte, step byte) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -907,7 +907,7 @@ func rampUint8NEONGuarded(dst []byte, start byte, step byte) {
 	rampUint8NEON(dst, start, step)
 }
 
-func addUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
+func AddUint16NEON(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -916,7 +916,7 @@ func addUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
 	addUint16NEON(dst[:n:n], a, b)
 }
 
-func subUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
+func SubUint16NEON(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -925,7 +925,7 @@ func subUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
 	subUint16NEON(dst[:n:n], a, b)
 }
 
-func mulUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
+func MulUint16NEON(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -934,7 +934,7 @@ func mulUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
 	mulUint16NEON(dst[:n:n], a, b)
 }
 
-func minimumUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
+func MinimumUint16NEON(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -943,7 +943,7 @@ func minimumUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
 	minimumUint16NEON(dst[:n:n], a, b)
 }
 
-func maximumUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
+func MaximumUint16NEON(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -952,7 +952,7 @@ func maximumUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
 	maximumUint16NEON(dst[:n:n], a, b)
 }
 
-func negUint16NEONGuarded(dst []uint16, a []uint16) {
+func NegUint16NEON(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -961,7 +961,7 @@ func negUint16NEONGuarded(dst []uint16, a []uint16) {
 	negUint16NEON(dst[:n:n], a)
 }
 
-func scaleUint16NEONGuarded(dst []uint16, a []uint16, s uint16) {
+func ScaleUint16NEON(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -970,7 +970,7 @@ func scaleUint16NEONGuarded(dst []uint16, a []uint16, s uint16) {
 	scaleUint16NEON(dst[:n:n], a, s)
 }
 
-func addScalarUint16NEONGuarded(dst []uint16, a []uint16, s uint16) {
+func AddScalarUint16NEON(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -979,7 +979,7 @@ func addScalarUint16NEONGuarded(dst []uint16, a []uint16, s uint16) {
 	addScalarUint16NEON(dst[:n:n], a, s)
 }
 
-func subScalarUint16NEONGuarded(dst []uint16, a []uint16, s uint16) {
+func SubScalarUint16NEON(dst []uint16, a []uint16, s uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -988,7 +988,7 @@ func subScalarUint16NEONGuarded(dst []uint16, a []uint16, s uint16) {
 	subScalarUint16NEON(dst[:n:n], a, s)
 }
 
-func clampUint16NEONGuarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
+func ClampUint16NEON(dst []uint16, a []uint16, lo uint16, hi uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -997,7 +997,7 @@ func clampUint16NEONGuarded(dst []uint16, a []uint16, lo uint16, hi uint16) {
 	clampUint16NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillUint16NEONGuarded(dst []uint16, v uint16) {
+func FillUint16NEON(dst []uint16, v uint16) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1005,7 +1005,7 @@ func fillUint16NEONGuarded(dst []uint16, v uint16) {
 	fillUint16NEON(dst, v)
 }
 
-func lerpUint16NEONGuarded(dst []uint16, a []uint16, b []uint16, t uint16) {
+func LerpUint16NEON(dst []uint16, a []uint16, b []uint16, t uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1014,7 +1014,7 @@ func lerpUint16NEONGuarded(dst []uint16, a []uint16, b []uint16, t uint16) {
 	lerpUint16NEON(dst[:n:n], a, b, t)
 }
 
-func addScaledUint16NEONGuarded(dst []uint16, a []uint16, b []uint16, s uint16) {
+func AddScaledUint16NEON(dst []uint16, a []uint16, b []uint16, s uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -1023,7 +1023,7 @@ func addScaledUint16NEONGuarded(dst []uint16, a []uint16, b []uint16, s uint16) 
 	addScaledUint16NEON(dst[:n:n], a, b, s)
 }
 
-func rampUint16NEONGuarded(dst []uint16, start uint16, step uint16) {
+func RampUint16NEON(dst []uint16, start uint16, step uint16) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -1031,7 +1031,7 @@ func rampUint16NEONGuarded(dst []uint16, start uint16, step uint16) {
 	rampUint16NEON(dst, start, step)
 }
 
-func addUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
+func AddUint32NEON(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -1040,7 +1040,7 @@ func addUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
 	addUint32NEON(dst[:n:n], a, b)
 }
 
-func subUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
+func SubUint32NEON(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -1049,7 +1049,7 @@ func subUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
 	subUint32NEON(dst[:n:n], a, b)
 }
 
-func mulUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
+func MulUint32NEON(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Mul(dst, a, b)
@@ -1058,7 +1058,7 @@ func mulUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
 	mulUint32NEON(dst[:n:n], a, b)
 }
 
-func minimumUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
+func MinimumUint32NEON(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -1067,7 +1067,7 @@ func minimumUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
 	minimumUint32NEON(dst[:n:n], a, b)
 }
 
-func maximumUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
+func MaximumUint32NEON(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -1076,7 +1076,7 @@ func maximumUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
 	maximumUint32NEON(dst[:n:n], a, b)
 }
 
-func negUint32NEONGuarded(dst []uint32, a []uint32) {
+func NegUint32NEON(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -1085,7 +1085,7 @@ func negUint32NEONGuarded(dst []uint32, a []uint32) {
 	negUint32NEON(dst[:n:n], a)
 }
 
-func scaleUint32NEONGuarded(dst []uint32, a []uint32, s uint32) {
+func ScaleUint32NEON(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Scale(dst, a, s)
@@ -1094,7 +1094,7 @@ func scaleUint32NEONGuarded(dst []uint32, a []uint32, s uint32) {
 	scaleUint32NEON(dst[:n:n], a, s)
 }
 
-func addScalarUint32NEONGuarded(dst []uint32, a []uint32, s uint32) {
+func AddScalarUint32NEON(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -1103,7 +1103,7 @@ func addScalarUint32NEONGuarded(dst []uint32, a []uint32, s uint32) {
 	addScalarUint32NEON(dst[:n:n], a, s)
 }
 
-func subScalarUint32NEONGuarded(dst []uint32, a []uint32, s uint32) {
+func SubScalarUint32NEON(dst []uint32, a []uint32, s uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -1112,7 +1112,7 @@ func subScalarUint32NEONGuarded(dst []uint32, a []uint32, s uint32) {
 	subScalarUint32NEON(dst[:n:n], a, s)
 }
 
-func clampUint32NEONGuarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
+func ClampUint32NEON(dst []uint32, a []uint32, lo uint32, hi uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -1121,7 +1121,7 @@ func clampUint32NEONGuarded(dst []uint32, a []uint32, lo uint32, hi uint32) {
 	clampUint32NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillUint32NEONGuarded(dst []uint32, v uint32) {
+func FillUint32NEON(dst []uint32, v uint32) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1129,7 +1129,7 @@ func fillUint32NEONGuarded(dst []uint32, v uint32) {
 	fillUint32NEON(dst, v)
 }
 
-func lerpUint32NEONGuarded(dst []uint32, a []uint32, b []uint32, t uint32) {
+func LerpUint32NEON(dst []uint32, a []uint32, b []uint32, t uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1138,7 +1138,7 @@ func lerpUint32NEONGuarded(dst []uint32, a []uint32, b []uint32, t uint32) {
 	lerpUint32NEON(dst[:n:n], a, b, t)
 }
 
-func addScaledUint32NEONGuarded(dst []uint32, a []uint32, b []uint32, s uint32) {
+func AddScaledUint32NEON(dst []uint32, a []uint32, b []uint32, s uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.AddScaled(dst, a, b, s)
@@ -1147,7 +1147,7 @@ func addScaledUint32NEONGuarded(dst []uint32, a []uint32, b []uint32, s uint32) 
 	addScaledUint32NEON(dst[:n:n], a, b, s)
 }
 
-func rampUint32NEONGuarded(dst []uint32, start uint32, step uint32) {
+func RampUint32NEON(dst []uint32, start uint32, step uint32) {
 	if len(dst) < 16 {
 		ref.Ramp(dst, start, step)
 		return
@@ -1155,7 +1155,7 @@ func rampUint32NEONGuarded(dst []uint32, start uint32, step uint32) {
 	rampUint32NEON(dst, start, step)
 }
 
-func addUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) {
+func AddUint64NEON(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Add(dst, a, b)
@@ -1164,7 +1164,7 @@ func addUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) {
 	addUint64NEON(dst[:n:n], a, b)
 }
 
-func subUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) {
+func SubUint64NEON(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Sub(dst, a, b)
@@ -1173,7 +1173,7 @@ func subUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) {
 	subUint64NEON(dst[:n:n], a, b)
 }
 
-func minimumUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) {
+func MinimumUint64NEON(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MinimumInt(dst, a, b)
@@ -1182,7 +1182,7 @@ func minimumUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) {
 	minimumUint64NEON(dst[:n:n], a, b)
 }
 
-func maximumUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) {
+func MaximumUint64NEON(dst []uint64, a []uint64, b []uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.MaximumInt(dst, a, b)
@@ -1191,7 +1191,7 @@ func maximumUint64NEONGuarded(dst []uint64, a []uint64, b []uint64) {
 	maximumUint64NEON(dst[:n:n], a, b)
 }
 
-func negUint64NEONGuarded(dst []uint64, a []uint64) {
+func NegUint64NEON(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.NegInt(dst, a)
@@ -1200,7 +1200,7 @@ func negUint64NEONGuarded(dst []uint64, a []uint64) {
 	negUint64NEON(dst[:n:n], a)
 }
 
-func addScalarUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+func AddScalarUint64NEON(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.AddScalar(dst, a, s)
@@ -1209,7 +1209,7 @@ func addScalarUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
 	addScalarUint64NEON(dst[:n:n], a, s)
 }
 
-func subScalarUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+func SubScalarUint64NEON(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.SubScalar(dst, a, s)
@@ -1218,7 +1218,7 @@ func subScalarUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
 	subScalarUint64NEON(dst[:n:n], a, s)
 }
 
-func clampUint64NEONGuarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
+func ClampUint64NEON(dst []uint64, a []uint64, lo uint64, hi uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ClampInt(dst, a, lo, hi)
@@ -1227,7 +1227,7 @@ func clampUint64NEONGuarded(dst []uint64, a []uint64, lo uint64, hi uint64) {
 	clampUint64NEON(dst[:n:n], a, lo, hi)
 }
 
-func fillUint64NEONGuarded(dst []uint64, v uint64) {
+func FillUint64NEON(dst []uint64, v uint64) {
 	if len(dst) < 16 {
 		ref.Fill(dst, v)
 		return
@@ -1235,7 +1235,7 @@ func fillUint64NEONGuarded(dst []uint64, v uint64) {
 	fillUint64NEON(dst, v)
 }
 
-func lerpUint64NEONGuarded(dst []uint64, a []uint64, b []uint64, t uint64) {
+func LerpUint64NEON(dst []uint64, a []uint64, b []uint64, t uint64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Lerp(dst, a, b, t)
@@ -1244,7 +1244,7 @@ func lerpUint64NEONGuarded(dst []uint64, a []uint64, b []uint64, t uint64) {
 	lerpUint64NEON(dst[:n:n], a, b, t)
 }
 
-func shlInt32NEONGuarded(dst []int32, a []int32, s uint64) {
+func ShlInt32NEON(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1253,7 +1253,7 @@ func shlInt32NEONGuarded(dst []int32, a []int32, s uint64) {
 	shlInt32NEON(dst[:n:n], a, s)
 }
 
-func shrInt32NEONGuarded(dst []int32, a []int32, s uint64) {
+func ShrInt32NEON(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1262,7 +1262,7 @@ func shrInt32NEONGuarded(dst []int32, a []int32, s uint64) {
 	shrInt32NEON(dst[:n:n], a, s)
 }
 
-func rotlInt32NEONGuarded(dst []int32, a []int32, s uint64) {
+func RotlInt32NEON(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1271,7 +1271,7 @@ func rotlInt32NEONGuarded(dst []int32, a []int32, s uint64) {
 	rotlInt32NEON(dst[:n:n], a, s)
 }
 
-func rotrInt32NEONGuarded(dst []int32, a []int32, s uint64) {
+func RotrInt32NEON(dst []int32, a []int32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1280,7 +1280,7 @@ func rotrInt32NEONGuarded(dst []int32, a []int32, s uint64) {
 	rotrInt32NEON(dst[:n:n], a, s)
 }
 
-func onesCountInt32NEONGuarded(dst []int32, a []int32) {
+func OnesCountInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1289,7 +1289,7 @@ func onesCountInt32NEONGuarded(dst []int32, a []int32) {
 	onesCountInt32NEON(dst[:n:n], a)
 }
 
-func leadingZerosInt32NEONGuarded(dst []int32, a []int32) {
+func LeadingZerosInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1298,7 +1298,7 @@ func leadingZerosInt32NEONGuarded(dst []int32, a []int32) {
 	leadingZerosInt32NEON(dst[:n:n], a)
 }
 
-func trailingZerosInt32NEONGuarded(dst []int32, a []int32) {
+func TrailingZerosInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1307,7 +1307,7 @@ func trailingZerosInt32NEONGuarded(dst []int32, a []int32) {
 	trailingZerosInt32NEON(dst[:n:n], a)
 }
 
-func reverseBitsInt32NEONGuarded(dst []int32, a []int32) {
+func ReverseBitsInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1316,7 +1316,7 @@ func reverseBitsInt32NEONGuarded(dst []int32, a []int32) {
 	reverseBitsInt32NEON(dst[:n:n], a)
 }
 
-func byteSwapInt32NEONGuarded(dst []int32, a []int32) {
+func ByteSwapInt32NEON(dst []int32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1325,7 +1325,7 @@ func byteSwapInt32NEONGuarded(dst []int32, a []int32) {
 	byteSwapInt32NEON(dst[:n:n], a)
 }
 
-func shlInt64NEONGuarded(dst []int64, a []int64, s uint64) {
+func ShlInt64NEON(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1334,7 +1334,7 @@ func shlInt64NEONGuarded(dst []int64, a []int64, s uint64) {
 	shlInt64NEON(dst[:n:n], a, s)
 }
 
-func shrInt64NEONGuarded(dst []int64, a []int64, s uint64) {
+func ShrInt64NEON(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1343,7 +1343,7 @@ func shrInt64NEONGuarded(dst []int64, a []int64, s uint64) {
 	shrInt64NEON(dst[:n:n], a, s)
 }
 
-func rotlInt64NEONGuarded(dst []int64, a []int64, s uint64) {
+func RotlInt64NEON(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1352,7 +1352,7 @@ func rotlInt64NEONGuarded(dst []int64, a []int64, s uint64) {
 	rotlInt64NEON(dst[:n:n], a, s)
 }
 
-func rotrInt64NEONGuarded(dst []int64, a []int64, s uint64) {
+func RotrInt64NEON(dst []int64, a []int64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1361,7 +1361,7 @@ func rotrInt64NEONGuarded(dst []int64, a []int64, s uint64) {
 	rotrInt64NEON(dst[:n:n], a, s)
 }
 
-func onesCountInt64NEONGuarded(dst []int64, a []int64) {
+func OnesCountInt64NEON(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1370,7 +1370,7 @@ func onesCountInt64NEONGuarded(dst []int64, a []int64) {
 	onesCountInt64NEON(dst[:n:n], a)
 }
 
-func reverseBitsInt64NEONGuarded(dst []int64, a []int64) {
+func ReverseBitsInt64NEON(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1379,7 +1379,7 @@ func reverseBitsInt64NEONGuarded(dst []int64, a []int64) {
 	reverseBitsInt64NEON(dst[:n:n], a)
 }
 
-func byteSwapInt64NEONGuarded(dst []int64, a []int64) {
+func ByteSwapInt64NEON(dst []int64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1388,7 +1388,7 @@ func byteSwapInt64NEONGuarded(dst []int64, a []int64) {
 	byteSwapInt64NEON(dst[:n:n], a)
 }
 
-func shlInt8NEONGuarded(dst []int8, a []int8, s uint64) {
+func ShlInt8NEON(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1397,7 +1397,7 @@ func shlInt8NEONGuarded(dst []int8, a []int8, s uint64) {
 	shlInt8NEON(dst[:n:n], a, s)
 }
 
-func shrInt8NEONGuarded(dst []int8, a []int8, s uint64) {
+func ShrInt8NEON(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1406,7 +1406,7 @@ func shrInt8NEONGuarded(dst []int8, a []int8, s uint64) {
 	shrInt8NEON(dst[:n:n], a, s)
 }
 
-func rotlInt8NEONGuarded(dst []int8, a []int8, s uint64) {
+func RotlInt8NEON(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1415,7 +1415,7 @@ func rotlInt8NEONGuarded(dst []int8, a []int8, s uint64) {
 	rotlInt8NEON(dst[:n:n], a, s)
 }
 
-func rotrInt8NEONGuarded(dst []int8, a []int8, s uint64) {
+func RotrInt8NEON(dst []int8, a []int8, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1424,7 +1424,7 @@ func rotrInt8NEONGuarded(dst []int8, a []int8, s uint64) {
 	rotrInt8NEON(dst[:n:n], a, s)
 }
 
-func onesCountInt8NEONGuarded(dst []int8, a []int8) {
+func OnesCountInt8NEON(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1433,7 +1433,7 @@ func onesCountInt8NEONGuarded(dst []int8, a []int8) {
 	onesCountInt8NEON(dst[:n:n], a)
 }
 
-func leadingZerosInt8NEONGuarded(dst []int8, a []int8) {
+func LeadingZerosInt8NEON(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1442,7 +1442,7 @@ func leadingZerosInt8NEONGuarded(dst []int8, a []int8) {
 	leadingZerosInt8NEON(dst[:n:n], a)
 }
 
-func trailingZerosInt8NEONGuarded(dst []int8, a []int8) {
+func TrailingZerosInt8NEON(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1451,7 +1451,7 @@ func trailingZerosInt8NEONGuarded(dst []int8, a []int8) {
 	trailingZerosInt8NEON(dst[:n:n], a)
 }
 
-func reverseBitsInt8NEONGuarded(dst []int8, a []int8) {
+func ReverseBitsInt8NEON(dst []int8, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1460,7 +1460,7 @@ func reverseBitsInt8NEONGuarded(dst []int8, a []int8) {
 	reverseBitsInt8NEON(dst[:n:n], a)
 }
 
-func shlInt16NEONGuarded(dst []int16, a []int16, s uint64) {
+func ShlInt16NEON(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1469,7 +1469,7 @@ func shlInt16NEONGuarded(dst []int16, a []int16, s uint64) {
 	shlInt16NEON(dst[:n:n], a, s)
 }
 
-func shrInt16NEONGuarded(dst []int16, a []int16, s uint64) {
+func ShrInt16NEON(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1478,7 +1478,7 @@ func shrInt16NEONGuarded(dst []int16, a []int16, s uint64) {
 	shrInt16NEON(dst[:n:n], a, s)
 }
 
-func rotlInt16NEONGuarded(dst []int16, a []int16, s uint64) {
+func RotlInt16NEON(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1487,7 +1487,7 @@ func rotlInt16NEONGuarded(dst []int16, a []int16, s uint64) {
 	rotlInt16NEON(dst[:n:n], a, s)
 }
 
-func rotrInt16NEONGuarded(dst []int16, a []int16, s uint64) {
+func RotrInt16NEON(dst []int16, a []int16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1496,7 +1496,7 @@ func rotrInt16NEONGuarded(dst []int16, a []int16, s uint64) {
 	rotrInt16NEON(dst[:n:n], a, s)
 }
 
-func onesCountInt16NEONGuarded(dst []int16, a []int16) {
+func OnesCountInt16NEON(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1505,7 +1505,7 @@ func onesCountInt16NEONGuarded(dst []int16, a []int16) {
 	onesCountInt16NEON(dst[:n:n], a)
 }
 
-func leadingZerosInt16NEONGuarded(dst []int16, a []int16) {
+func LeadingZerosInt16NEON(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1514,7 +1514,7 @@ func leadingZerosInt16NEONGuarded(dst []int16, a []int16) {
 	leadingZerosInt16NEON(dst[:n:n], a)
 }
 
-func trailingZerosInt16NEONGuarded(dst []int16, a []int16) {
+func TrailingZerosInt16NEON(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1523,7 +1523,7 @@ func trailingZerosInt16NEONGuarded(dst []int16, a []int16) {
 	trailingZerosInt16NEON(dst[:n:n], a)
 }
 
-func reverseBitsInt16NEONGuarded(dst []int16, a []int16) {
+func ReverseBitsInt16NEON(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1532,7 +1532,7 @@ func reverseBitsInt16NEONGuarded(dst []int16, a []int16) {
 	reverseBitsInt16NEON(dst[:n:n], a)
 }
 
-func byteSwapInt16NEONGuarded(dst []int16, a []int16) {
+func ByteSwapInt16NEON(dst []int16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1541,7 +1541,7 @@ func byteSwapInt16NEONGuarded(dst []int16, a []int16) {
 	byteSwapInt16NEON(dst[:n:n], a)
 }
 
-func shlUint8NEONGuarded(dst []byte, a []byte, s uint64) {
+func ShlUint8NEON(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1550,7 +1550,7 @@ func shlUint8NEONGuarded(dst []byte, a []byte, s uint64) {
 	shlUint8NEON(dst[:n:n], a, s)
 }
 
-func shrUint8NEONGuarded(dst []byte, a []byte, s uint64) {
+func ShrUint8NEON(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1559,7 +1559,7 @@ func shrUint8NEONGuarded(dst []byte, a []byte, s uint64) {
 	shrUint8NEON(dst[:n:n], a, s)
 }
 
-func rotlUint8NEONGuarded(dst []byte, a []byte, s uint64) {
+func RotlUint8NEON(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1568,7 +1568,7 @@ func rotlUint8NEONGuarded(dst []byte, a []byte, s uint64) {
 	rotlUint8NEON(dst[:n:n], a, s)
 }
 
-func rotrUint8NEONGuarded(dst []byte, a []byte, s uint64) {
+func RotrUint8NEON(dst []byte, a []byte, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1577,7 +1577,7 @@ func rotrUint8NEONGuarded(dst []byte, a []byte, s uint64) {
 	rotrUint8NEON(dst[:n:n], a, s)
 }
 
-func onesCountUint8NEONGuarded(dst []byte, a []byte) {
+func OnesCountUint8NEON(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1586,7 +1586,7 @@ func onesCountUint8NEONGuarded(dst []byte, a []byte) {
 	onesCountUint8NEON(dst[:n:n], a)
 }
 
-func leadingZerosUint8NEONGuarded(dst []byte, a []byte) {
+func LeadingZerosUint8NEON(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1595,7 +1595,7 @@ func leadingZerosUint8NEONGuarded(dst []byte, a []byte) {
 	leadingZerosUint8NEON(dst[:n:n], a)
 }
 
-func trailingZerosUint8NEONGuarded(dst []byte, a []byte) {
+func TrailingZerosUint8NEON(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1604,7 +1604,7 @@ func trailingZerosUint8NEONGuarded(dst []byte, a []byte) {
 	trailingZerosUint8NEON(dst[:n:n], a)
 }
 
-func reverseBitsUint8NEONGuarded(dst []byte, a []byte) {
+func ReverseBitsUint8NEON(dst []byte, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1613,7 +1613,7 @@ func reverseBitsUint8NEONGuarded(dst []byte, a []byte) {
 	reverseBitsUint8NEON(dst[:n:n], a)
 }
 
-func shlUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
+func ShlUint16NEON(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1622,7 +1622,7 @@ func shlUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
 	shlUint16NEON(dst[:n:n], a, s)
 }
 
-func shrUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
+func ShrUint16NEON(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1631,7 +1631,7 @@ func shrUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
 	shrUint16NEON(dst[:n:n], a, s)
 }
 
-func rotlUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
+func RotlUint16NEON(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1640,7 +1640,7 @@ func rotlUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
 	rotlUint16NEON(dst[:n:n], a, s)
 }
 
-func rotrUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
+func RotrUint16NEON(dst []uint16, a []uint16, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1649,7 +1649,7 @@ func rotrUint16NEONGuarded(dst []uint16, a []uint16, s uint64) {
 	rotrUint16NEON(dst[:n:n], a, s)
 }
 
-func onesCountUint16NEONGuarded(dst []uint16, a []uint16) {
+func OnesCountUint16NEON(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1658,7 +1658,7 @@ func onesCountUint16NEONGuarded(dst []uint16, a []uint16) {
 	onesCountUint16NEON(dst[:n:n], a)
 }
 
-func leadingZerosUint16NEONGuarded(dst []uint16, a []uint16) {
+func LeadingZerosUint16NEON(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1667,7 +1667,7 @@ func leadingZerosUint16NEONGuarded(dst []uint16, a []uint16) {
 	leadingZerosUint16NEON(dst[:n:n], a)
 }
 
-func trailingZerosUint16NEONGuarded(dst []uint16, a []uint16) {
+func TrailingZerosUint16NEON(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1676,7 +1676,7 @@ func trailingZerosUint16NEONGuarded(dst []uint16, a []uint16) {
 	trailingZerosUint16NEON(dst[:n:n], a)
 }
 
-func reverseBitsUint16NEONGuarded(dst []uint16, a []uint16) {
+func ReverseBitsUint16NEON(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1685,7 +1685,7 @@ func reverseBitsUint16NEONGuarded(dst []uint16, a []uint16) {
 	reverseBitsUint16NEON(dst[:n:n], a)
 }
 
-func byteSwapUint16NEONGuarded(dst []uint16, a []uint16) {
+func ByteSwapUint16NEON(dst []uint16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1694,7 +1694,7 @@ func byteSwapUint16NEONGuarded(dst []uint16, a []uint16) {
 	byteSwapUint16NEON(dst[:n:n], a)
 }
 
-func shlUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
+func ShlUint32NEON(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1703,7 +1703,7 @@ func shlUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
 	shlUint32NEON(dst[:n:n], a, s)
 }
 
-func shrUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
+func ShrUint32NEON(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1712,7 +1712,7 @@ func shrUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
 	shrUint32NEON(dst[:n:n], a, s)
 }
 
-func rotlUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
+func RotlUint32NEON(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1721,7 +1721,7 @@ func rotlUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
 	rotlUint32NEON(dst[:n:n], a, s)
 }
 
-func rotrUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
+func RotrUint32NEON(dst []uint32, a []uint32, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1730,7 +1730,7 @@ func rotrUint32NEONGuarded(dst []uint32, a []uint32, s uint64) {
 	rotrUint32NEON(dst[:n:n], a, s)
 }
 
-func onesCountUint32NEONGuarded(dst []uint32, a []uint32) {
+func OnesCountUint32NEON(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1739,7 +1739,7 @@ func onesCountUint32NEONGuarded(dst []uint32, a []uint32) {
 	onesCountUint32NEON(dst[:n:n], a)
 }
 
-func leadingZerosUint32NEONGuarded(dst []uint32, a []uint32) {
+func LeadingZerosUint32NEON(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.LeadingZeros(dst, a)
@@ -1748,7 +1748,7 @@ func leadingZerosUint32NEONGuarded(dst []uint32, a []uint32) {
 	leadingZerosUint32NEON(dst[:n:n], a)
 }
 
-func trailingZerosUint32NEONGuarded(dst []uint32, a []uint32) {
+func TrailingZerosUint32NEON(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.TrailingZeros(dst, a)
@@ -1757,7 +1757,7 @@ func trailingZerosUint32NEONGuarded(dst []uint32, a []uint32) {
 	trailingZerosUint32NEON(dst[:n:n], a)
 }
 
-func reverseBitsUint32NEONGuarded(dst []uint32, a []uint32) {
+func ReverseBitsUint32NEON(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1766,7 +1766,7 @@ func reverseBitsUint32NEONGuarded(dst []uint32, a []uint32) {
 	reverseBitsUint32NEON(dst[:n:n], a)
 }
 
-func byteSwapUint32NEONGuarded(dst []uint32, a []uint32) {
+func ByteSwapUint32NEON(dst []uint32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1775,7 +1775,7 @@ func byteSwapUint32NEONGuarded(dst []uint32, a []uint32) {
 	byteSwapUint32NEON(dst[:n:n], a)
 }
 
-func shlUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+func ShlUint64NEON(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shl(dst, a, s)
@@ -1784,7 +1784,7 @@ func shlUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
 	shlUint64NEON(dst[:n:n], a, s)
 }
 
-func shrUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+func ShrUint64NEON(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Shr(dst, a, s)
@@ -1793,7 +1793,7 @@ func shrUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
 	shrUint64NEON(dst[:n:n], a, s)
 }
 
-func rotlUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+func RotlUint64NEON(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotl(dst, a, s)
@@ -1802,7 +1802,7 @@ func rotlUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
 	rotlUint64NEON(dst[:n:n], a, s)
 }
 
-func rotrUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
+func RotrUint64NEON(dst []uint64, a []uint64, s uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Rotr(dst, a, s)
@@ -1811,7 +1811,7 @@ func rotrUint64NEONGuarded(dst []uint64, a []uint64, s uint64) {
 	rotrUint64NEON(dst[:n:n], a, s)
 }
 
-func onesCountUint64NEONGuarded(dst []uint64, a []uint64) {
+func OnesCountUint64NEON(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.OnesCount(dst, a)
@@ -1820,7 +1820,7 @@ func onesCountUint64NEONGuarded(dst []uint64, a []uint64) {
 	onesCountUint64NEON(dst[:n:n], a)
 }
 
-func reverseBitsUint64NEONGuarded(dst []uint64, a []uint64) {
+func ReverseBitsUint64NEON(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ReverseBits(dst, a)
@@ -1829,7 +1829,7 @@ func reverseBitsUint64NEONGuarded(dst []uint64, a []uint64) {
 	reverseBitsUint64NEON(dst[:n:n], a)
 }
 
-func byteSwapUint64NEONGuarded(dst []uint64, a []uint64) {
+func ByteSwapUint64NEON(dst []uint64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ByteSwap(dst, a)
@@ -1838,7 +1838,7 @@ func byteSwapUint64NEONGuarded(dst []uint64, a []uint64) {
 	byteSwapUint64NEON(dst[:n:n], a)
 }
 
-func divFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
+func DivFloat32NEON(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Div(dst, a, b)
@@ -1847,7 +1847,7 @@ func divFloat32NEONGuarded(dst []float32, a []float32, b []float32) {
 	divFloat32NEON(dst[:n:n], a, b)
 }
 
-func divScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
+func DivScalarFloat32NEON(dst []float32, a []float32, s float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DivScalar(dst, a, s)
@@ -1856,7 +1856,7 @@ func divScalarFloat32NEONGuarded(dst []float32, a []float32, s float32) {
 	divScalarFloat32NEON(dst[:n:n], a, s)
 }
 
-func sqrtFloat32NEONGuarded(dst []float32, a []float32) {
+func SqrtFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Sqrt(dst, a)
@@ -1865,7 +1865,7 @@ func sqrtFloat32NEONGuarded(dst []float32, a []float32) {
 	sqrtFloat32NEON(dst[:n:n], a)
 }
 
-func reciprocalFloat32NEONGuarded(dst []float32, a []float32) {
+func ReciprocalFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Reciprocal(dst, a)
@@ -1874,7 +1874,7 @@ func reciprocalFloat32NEONGuarded(dst []float32, a []float32) {
 	reciprocalFloat32NEON(dst[:n:n], a)
 }
 
-func floorFloat32NEONGuarded(dst []float32, a []float32) {
+func FloorFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Floor(dst, a)
@@ -1883,7 +1883,7 @@ func floorFloat32NEONGuarded(dst []float32, a []float32) {
 	floorFloat32NEON(dst[:n:n], a)
 }
 
-func ceilFloat32NEONGuarded(dst []float32, a []float32) {
+func CeilFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Ceil(dst, a)
@@ -1892,7 +1892,7 @@ func ceilFloat32NEONGuarded(dst []float32, a []float32) {
 	ceilFloat32NEON(dst[:n:n], a)
 }
 
-func truncFloat32NEONGuarded(dst []float32, a []float32) {
+func TruncFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Trunc(dst, a)
@@ -1901,7 +1901,7 @@ func truncFloat32NEONGuarded(dst []float32, a []float32) {
 	truncFloat32NEON(dst[:n:n], a)
 }
 
-func roundFloat32NEONGuarded(dst []float32, a []float32) {
+func RoundFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Round(dst, a)
@@ -1910,7 +1910,7 @@ func roundFloat32NEONGuarded(dst []float32, a []float32) {
 	roundFloat32NEON(dst[:n:n], a)
 }
 
-func roundToEvenFloat32NEONGuarded(dst []float32, a []float32) {
+func RoundToEvenFloat32NEON(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RoundToEven(dst, a)
@@ -1919,7 +1919,7 @@ func roundToEvenFloat32NEONGuarded(dst []float32, a []float32) {
 	roundToEvenFloat32NEON(dst[:n:n], a)
 }
 
-func divFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
+func DivFloat64NEON(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.Div(dst, a, b)
@@ -1928,7 +1928,7 @@ func divFloat64NEONGuarded(dst []float64, a []float64, b []float64) {
 	divFloat64NEON(dst[:n:n], a, b)
 }
 
-func divScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
+func DivScalarFloat64NEON(dst []float64, a []float64, s float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DivScalar(dst, a, s)
@@ -1937,7 +1937,7 @@ func divScalarFloat64NEONGuarded(dst []float64, a []float64, s float64) {
 	divScalarFloat64NEON(dst[:n:n], a, s)
 }
 
-func sqrtFloat64NEONGuarded(dst []float64, a []float64) {
+func SqrtFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Sqrt(dst, a)
@@ -1946,7 +1946,7 @@ func sqrtFloat64NEONGuarded(dst []float64, a []float64) {
 	sqrtFloat64NEON(dst[:n:n], a)
 }
 
-func reciprocalFloat64NEONGuarded(dst []float64, a []float64) {
+func ReciprocalFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Reciprocal(dst, a)
@@ -1955,7 +1955,7 @@ func reciprocalFloat64NEONGuarded(dst []float64, a []float64) {
 	reciprocalFloat64NEON(dst[:n:n], a)
 }
 
-func floorFloat64NEONGuarded(dst []float64, a []float64) {
+func FloorFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Floor(dst, a)
@@ -1964,7 +1964,7 @@ func floorFloat64NEONGuarded(dst []float64, a []float64) {
 	floorFloat64NEON(dst[:n:n], a)
 }
 
-func ceilFloat64NEONGuarded(dst []float64, a []float64) {
+func CeilFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Ceil(dst, a)
@@ -1973,7 +1973,7 @@ func ceilFloat64NEONGuarded(dst []float64, a []float64) {
 	ceilFloat64NEON(dst[:n:n], a)
 }
 
-func truncFloat64NEONGuarded(dst []float64, a []float64) {
+func TruncFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Trunc(dst, a)
@@ -1982,7 +1982,7 @@ func truncFloat64NEONGuarded(dst []float64, a []float64) {
 	truncFloat64NEON(dst[:n:n], a)
 }
 
-func roundFloat64NEONGuarded(dst []float64, a []float64) {
+func RoundFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.Round(dst, a)
@@ -1991,7 +1991,7 @@ func roundFloat64NEONGuarded(dst []float64, a []float64) {
 	roundFloat64NEON(dst[:n:n], a)
 }
 
-func roundToEvenFloat64NEONGuarded(dst []float64, a []float64) {
+func RoundToEvenFloat64NEON(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RoundToEven(dst, a)
@@ -2000,7 +2000,7 @@ func roundToEvenFloat64NEONGuarded(dst []float64, a []float64) {
 	roundToEvenFloat64NEON(dst[:n:n], a)
 }
 
-func satAddInt32NEONGuarded(dst []int32, a []int32, b []int32) {
+func SatAddInt32NEON(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2009,7 +2009,7 @@ func satAddInt32NEONGuarded(dst []int32, a []int32, b []int32) {
 	satAddInt32NEON(dst[:n:n], a, b)
 }
 
-func satSubInt32NEONGuarded(dst []int32, a []int32, b []int32) {
+func SatSubInt32NEON(dst []int32, a []int32, b []int32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2018,7 +2018,7 @@ func satSubInt32NEONGuarded(dst []int32, a []int32, b []int32) {
 	satSubInt32NEON(dst[:n:n], a, b)
 }
 
-func satAddInt8NEONGuarded(dst []int8, a []int8, b []int8) {
+func SatAddInt8NEON(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2027,7 +2027,7 @@ func satAddInt8NEONGuarded(dst []int8, a []int8, b []int8) {
 	satAddInt8NEON(dst[:n:n], a, b)
 }
 
-func satSubInt8NEONGuarded(dst []int8, a []int8, b []int8) {
+func SatSubInt8NEON(dst []int8, a []int8, b []int8) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2036,7 +2036,7 @@ func satSubInt8NEONGuarded(dst []int8, a []int8, b []int8) {
 	satSubInt8NEON(dst[:n:n], a, b)
 }
 
-func satAddInt16NEONGuarded(dst []int16, a []int16, b []int16) {
+func SatAddInt16NEON(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2045,7 +2045,7 @@ func satAddInt16NEONGuarded(dst []int16, a []int16, b []int16) {
 	satAddInt16NEON(dst[:n:n], a, b)
 }
 
-func satSubInt16NEONGuarded(dst []int16, a []int16, b []int16) {
+func SatSubInt16NEON(dst []int16, a []int16, b []int16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2054,7 +2054,7 @@ func satSubInt16NEONGuarded(dst []int16, a []int16, b []int16) {
 	satSubInt16NEON(dst[:n:n], a, b)
 }
 
-func satAddUint8NEONGuarded(dst []byte, a []byte, b []byte) {
+func SatAddUint8NEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2063,7 +2063,7 @@ func satAddUint8NEONGuarded(dst []byte, a []byte, b []byte) {
 	satAddUint8NEON(dst[:n:n], a, b)
 }
 
-func satSubUint8NEONGuarded(dst []byte, a []byte, b []byte) {
+func SatSubUint8NEON(dst []byte, a []byte, b []byte) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2072,7 +2072,7 @@ func satSubUint8NEONGuarded(dst []byte, a []byte, b []byte) {
 	satSubUint8NEON(dst[:n:n], a, b)
 }
 
-func satAddUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
+func SatAddUint16NEON(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2081,7 +2081,7 @@ func satAddUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
 	satAddUint16NEON(dst[:n:n], a, b)
 }
 
-func satSubUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
+func SatSubUint16NEON(dst []uint16, a []uint16, b []uint16) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2090,7 +2090,7 @@ func satSubUint16NEONGuarded(dst []uint16, a []uint16, b []uint16) {
 	satSubUint16NEON(dst[:n:n], a, b)
 }
 
-func satAddUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
+func SatAddUint32NEON(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatAdd(dst, a, b)
@@ -2099,7 +2099,7 @@ func satAddUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
 	satAddUint32NEON(dst[:n:n], a, b)
 }
 
-func satSubUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
+func SatSubUint32NEON(dst []uint32, a []uint32, b []uint32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 16 {
 		ref.SatSub(dst, a, b)
@@ -2108,242 +2108,239 @@ func satSubUint32NEONGuarded(dst []uint32, a []uint32, b []uint32) {
 	satSubUint32NEON(dst[:n:n], a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("neon")
-	s.F32.Add = addFloat32NEONGuarded
-	s.F32.Sub = subFloat32NEONGuarded
-	s.F32.Mul = mulFloat32NEONGuarded
-	s.F32.Minimum = minimumFloat32NEONGuarded
-	s.F32.Maximum = maximumFloat32NEONGuarded
-	s.F32.Abs = absFloat32NEONGuarded
-	s.F32.Neg = negFloat32NEONGuarded
-	s.F32.Scale = scaleFloat32NEONGuarded
-	s.F32.AddScalar = addScalarFloat32NEONGuarded
-	s.F32.SubScalar = subScalarFloat32NEONGuarded
-	s.F32.Clamp = clampFloat32NEONGuarded
-	s.F32.Fill = fillFloat32NEONGuarded
-	s.F32.Lerp = lerpFloat32NEONGuarded
-	s.F32.AddScaled = addScaledFloat32NEONGuarded
-	s.F32.Ramp = rampFloat32NEONGuarded
-	s.F64.Add = addFloat64NEONGuarded
-	s.F64.Sub = subFloat64NEONGuarded
-	s.F64.Mul = mulFloat64NEONGuarded
-	s.F64.Minimum = minimumFloat64NEONGuarded
-	s.F64.Maximum = maximumFloat64NEONGuarded
-	s.F64.Abs = absFloat64NEONGuarded
-	s.F64.Neg = negFloat64NEONGuarded
-	s.F64.Scale = scaleFloat64NEONGuarded
-	s.F64.AddScalar = addScalarFloat64NEONGuarded
-	s.F64.SubScalar = subScalarFloat64NEONGuarded
-	s.F64.Clamp = clampFloat64NEONGuarded
-	s.F64.Fill = fillFloat64NEONGuarded
-	s.F64.Lerp = lerpFloat64NEONGuarded
-	s.F64.AddScaled = addScaledFloat64NEONGuarded
-	s.F64.Ramp = rampFloat64NEONGuarded
-	s.I32.Add = addInt32NEONGuarded
-	s.I32.Sub = subInt32NEONGuarded
-	s.I32.Mul = mulInt32NEONGuarded
-	s.I32.Minimum = minimumInt32NEONGuarded
-	s.I32.Maximum = maximumInt32NEONGuarded
-	s.I32.Abs = absInt32NEONGuarded
-	s.I32.Neg = negInt32NEONGuarded
-	s.I32.Scale = scaleInt32NEONGuarded
-	s.I32.AddScalar = addScalarInt32NEONGuarded
-	s.I32.SubScalar = subScalarInt32NEONGuarded
-	s.I32.Clamp = clampInt32NEONGuarded
-	s.I32.Fill = fillInt32NEONGuarded
-	s.I32.Lerp = lerpInt32NEONGuarded
-	s.I32.AddScaled = addScaledInt32NEONGuarded
-	s.I32.Ramp = rampInt32NEONGuarded
-	s.I64.Add = addInt64NEONGuarded
-	s.I64.Sub = subInt64NEONGuarded
-	s.I64.Minimum = minimumInt64NEONGuarded
-	s.I64.Maximum = maximumInt64NEONGuarded
-	s.I64.Abs = absInt64NEONGuarded
-	s.I64.Neg = negInt64NEONGuarded
-	s.I64.AddScalar = addScalarInt64NEONGuarded
-	s.I64.SubScalar = subScalarInt64NEONGuarded
-	s.I64.Clamp = clampInt64NEONGuarded
-	s.I64.Fill = fillInt64NEONGuarded
-	s.I64.Lerp = lerpInt64NEONGuarded
-	s.I8.Add = addInt8NEONGuarded
-	s.I8.Sub = subInt8NEONGuarded
-	s.I8.Mul = mulInt8NEONGuarded
-	s.I8.Minimum = minimumInt8NEONGuarded
-	s.I8.Maximum = maximumInt8NEONGuarded
-	s.I8.Abs = absInt8NEONGuarded
-	s.I8.Neg = negInt8NEONGuarded
-	s.I8.Scale = scaleInt8NEONGuarded
-	s.I8.AddScalar = addScalarInt8NEONGuarded
-	s.I8.SubScalar = subScalarInt8NEONGuarded
-	s.I8.Clamp = clampInt8NEONGuarded
-	s.I8.Fill = fillInt8NEONGuarded
-	s.I8.Lerp = lerpInt8NEONGuarded
-	s.I8.AddScaled = addScaledInt8NEONGuarded
-	s.I8.Ramp = rampInt8NEONGuarded
-	s.I16.Add = addInt16NEONGuarded
-	s.I16.Sub = subInt16NEONGuarded
-	s.I16.Mul = mulInt16NEONGuarded
-	s.I16.Minimum = minimumInt16NEONGuarded
-	s.I16.Maximum = maximumInt16NEONGuarded
-	s.I16.Abs = absInt16NEONGuarded
-	s.I16.Neg = negInt16NEONGuarded
-	s.I16.Scale = scaleInt16NEONGuarded
-	s.I16.AddScalar = addScalarInt16NEONGuarded
-	s.I16.SubScalar = subScalarInt16NEONGuarded
-	s.I16.Clamp = clampInt16NEONGuarded
-	s.I16.Fill = fillInt16NEONGuarded
-	s.I16.Lerp = lerpInt16NEONGuarded
-	s.I16.AddScaled = addScaledInt16NEONGuarded
-	s.I16.Ramp = rampInt16NEONGuarded
-	s.U8.Add = addUint8NEONGuarded
-	s.U8.Sub = subUint8NEONGuarded
-	s.U8.Mul = mulUint8NEONGuarded
-	s.U8.Minimum = minimumUint8NEONGuarded
-	s.U8.Maximum = maximumUint8NEONGuarded
-	s.U8.Neg = negUint8NEONGuarded
-	s.U8.Scale = scaleUint8NEONGuarded
-	s.U8.AddScalar = addScalarUint8NEONGuarded
-	s.U8.SubScalar = subScalarUint8NEONGuarded
-	s.U8.Clamp = clampUint8NEONGuarded
-	s.U8.Fill = fillUint8NEONGuarded
-	s.U8.Lerp = lerpUint8NEONGuarded
-	s.U8.AddScaled = addScaledUint8NEONGuarded
-	s.U8.Ramp = rampUint8NEONGuarded
-	s.U16.Add = addUint16NEONGuarded
-	s.U16.Sub = subUint16NEONGuarded
-	s.U16.Mul = mulUint16NEONGuarded
-	s.U16.Minimum = minimumUint16NEONGuarded
-	s.U16.Maximum = maximumUint16NEONGuarded
-	s.U16.Neg = negUint16NEONGuarded
-	s.U16.Scale = scaleUint16NEONGuarded
-	s.U16.AddScalar = addScalarUint16NEONGuarded
-	s.U16.SubScalar = subScalarUint16NEONGuarded
-	s.U16.Clamp = clampUint16NEONGuarded
-	s.U16.Fill = fillUint16NEONGuarded
-	s.U16.Lerp = lerpUint16NEONGuarded
-	s.U16.AddScaled = addScaledUint16NEONGuarded
-	s.U16.Ramp = rampUint16NEONGuarded
-	s.U32.Add = addUint32NEONGuarded
-	s.U32.Sub = subUint32NEONGuarded
-	s.U32.Mul = mulUint32NEONGuarded
-	s.U32.Minimum = minimumUint32NEONGuarded
-	s.U32.Maximum = maximumUint32NEONGuarded
-	s.U32.Neg = negUint32NEONGuarded
-	s.U32.Scale = scaleUint32NEONGuarded
-	s.U32.AddScalar = addScalarUint32NEONGuarded
-	s.U32.SubScalar = subScalarUint32NEONGuarded
-	s.U32.Clamp = clampUint32NEONGuarded
-	s.U32.Fill = fillUint32NEONGuarded
-	s.U32.Lerp = lerpUint32NEONGuarded
-	s.U32.AddScaled = addScaledUint32NEONGuarded
-	s.U32.Ramp = rampUint32NEONGuarded
-	s.U64.Add = addUint64NEONGuarded
-	s.U64.Sub = subUint64NEONGuarded
-	s.U64.Minimum = minimumUint64NEONGuarded
-	s.U64.Maximum = maximumUint64NEONGuarded
-	s.U64.Neg = negUint64NEONGuarded
-	s.U64.AddScalar = addScalarUint64NEONGuarded
-	s.U64.SubScalar = subScalarUint64NEONGuarded
-	s.U64.Clamp = clampUint64NEONGuarded
-	s.U64.Fill = fillUint64NEONGuarded
-	s.U64.Lerp = lerpUint64NEONGuarded
-	s.I32.Shl = shlInt32NEONGuarded
-	s.I32.Shr = shrInt32NEONGuarded
-	s.I32.Rotl = rotlInt32NEONGuarded
-	s.I32.Rotr = rotrInt32NEONGuarded
-	s.I32.OnesCount = onesCountInt32NEONGuarded
-	s.I32.LeadingZeros = leadingZerosInt32NEONGuarded
-	s.I32.TrailingZeros = trailingZerosInt32NEONGuarded
-	s.I32.ReverseBits = reverseBitsInt32NEONGuarded
-	s.I32.ByteSwap = byteSwapInt32NEONGuarded
-	s.I64.Shl = shlInt64NEONGuarded
-	s.I64.Shr = shrInt64NEONGuarded
-	s.I64.Rotl = rotlInt64NEONGuarded
-	s.I64.Rotr = rotrInt64NEONGuarded
-	s.I64.OnesCount = onesCountInt64NEONGuarded
-	s.I64.ReverseBits = reverseBitsInt64NEONGuarded
-	s.I64.ByteSwap = byteSwapInt64NEONGuarded
-	s.I8.Shl = shlInt8NEONGuarded
-	s.I8.Shr = shrInt8NEONGuarded
-	s.I8.Rotl = rotlInt8NEONGuarded
-	s.I8.Rotr = rotrInt8NEONGuarded
-	s.I8.OnesCount = onesCountInt8NEONGuarded
-	s.I8.LeadingZeros = leadingZerosInt8NEONGuarded
-	s.I8.TrailingZeros = trailingZerosInt8NEONGuarded
-	s.I8.ReverseBits = reverseBitsInt8NEONGuarded
-	s.I16.Shl = shlInt16NEONGuarded
-	s.I16.Shr = shrInt16NEONGuarded
-	s.I16.Rotl = rotlInt16NEONGuarded
-	s.I16.Rotr = rotrInt16NEONGuarded
-	s.I16.OnesCount = onesCountInt16NEONGuarded
-	s.I16.LeadingZeros = leadingZerosInt16NEONGuarded
-	s.I16.TrailingZeros = trailingZerosInt16NEONGuarded
-	s.I16.ReverseBits = reverseBitsInt16NEONGuarded
-	s.I16.ByteSwap = byteSwapInt16NEONGuarded
-	s.U8.Shl = shlUint8NEONGuarded
-	s.U8.Shr = shrUint8NEONGuarded
-	s.U8.Rotl = rotlUint8NEONGuarded
-	s.U8.Rotr = rotrUint8NEONGuarded
-	s.U8.OnesCount = onesCountUint8NEONGuarded
-	s.U8.LeadingZeros = leadingZerosUint8NEONGuarded
-	s.U8.TrailingZeros = trailingZerosUint8NEONGuarded
-	s.U8.ReverseBits = reverseBitsUint8NEONGuarded
-	s.U16.Shl = shlUint16NEONGuarded
-	s.U16.Shr = shrUint16NEONGuarded
-	s.U16.Rotl = rotlUint16NEONGuarded
-	s.U16.Rotr = rotrUint16NEONGuarded
-	s.U16.OnesCount = onesCountUint16NEONGuarded
-	s.U16.LeadingZeros = leadingZerosUint16NEONGuarded
-	s.U16.TrailingZeros = trailingZerosUint16NEONGuarded
-	s.U16.ReverseBits = reverseBitsUint16NEONGuarded
-	s.U16.ByteSwap = byteSwapUint16NEONGuarded
-	s.U32.Shl = shlUint32NEONGuarded
-	s.U32.Shr = shrUint32NEONGuarded
-	s.U32.Rotl = rotlUint32NEONGuarded
-	s.U32.Rotr = rotrUint32NEONGuarded
-	s.U32.OnesCount = onesCountUint32NEONGuarded
-	s.U32.LeadingZeros = leadingZerosUint32NEONGuarded
-	s.U32.TrailingZeros = trailingZerosUint32NEONGuarded
-	s.U32.ReverseBits = reverseBitsUint32NEONGuarded
-	s.U32.ByteSwap = byteSwapUint32NEONGuarded
-	s.U64.Shl = shlUint64NEONGuarded
-	s.U64.Shr = shrUint64NEONGuarded
-	s.U64.Rotl = rotlUint64NEONGuarded
-	s.U64.Rotr = rotrUint64NEONGuarded
-	s.U64.OnesCount = onesCountUint64NEONGuarded
-	s.U64.ReverseBits = reverseBitsUint64NEONGuarded
-	s.U64.ByteSwap = byteSwapUint64NEONGuarded
-	s.F32.Div = divFloat32NEONGuarded
-	s.F32.DivScalar = divScalarFloat32NEONGuarded
-	s.F32.Sqrt = sqrtFloat32NEONGuarded
-	s.F32.Reciprocal = reciprocalFloat32NEONGuarded
-	s.F32.Floor = floorFloat32NEONGuarded
-	s.F32.Ceil = ceilFloat32NEONGuarded
-	s.F32.Trunc = truncFloat32NEONGuarded
-	s.F32.Round = roundFloat32NEONGuarded
-	s.F32.RoundToEven = roundToEvenFloat32NEONGuarded
-	s.F64.Div = divFloat64NEONGuarded
-	s.F64.DivScalar = divScalarFloat64NEONGuarded
-	s.F64.Sqrt = sqrtFloat64NEONGuarded
-	s.F64.Reciprocal = reciprocalFloat64NEONGuarded
-	s.F64.Floor = floorFloat64NEONGuarded
-	s.F64.Ceil = ceilFloat64NEONGuarded
-	s.F64.Trunc = truncFloat64NEONGuarded
-	s.F64.Round = roundFloat64NEONGuarded
-	s.F64.RoundToEven = roundToEvenFloat64NEONGuarded
-	s.I32.SatAdd = satAddInt32NEONGuarded
-	s.I32.SatSub = satSubInt32NEONGuarded
-	s.I8.SatAdd = satAddInt8NEONGuarded
-	s.I8.SatSub = satSubInt8NEONGuarded
-	s.I16.SatAdd = satAddInt16NEONGuarded
-	s.I16.SatSub = satSubInt16NEONGuarded
-	s.U8.SatAdd = satAddUint8NEONGuarded
-	s.U8.SatSub = satSubUint8NEONGuarded
-	s.U16.SatAdd = satAddUint16NEONGuarded
-	s.U16.SatSub = satSubUint16NEONGuarded
-	s.U32.SatAdd = satAddUint32NEONGuarded
-	s.U32.SatSub = satSubUint32NEONGuarded
+func registerArithNEON(s *kernel.Set) {
+	s.F32.Add = AddFloat32NEON
+	s.F32.Sub = SubFloat32NEON
+	s.F32.Mul = MulFloat32NEON
+	s.F32.Minimum = MinimumFloat32NEON
+	s.F32.Maximum = MaximumFloat32NEON
+	s.F32.Abs = AbsFloat32NEON
+	s.F32.Neg = NegFloat32NEON
+	s.F32.Scale = ScaleFloat32NEON
+	s.F32.AddScalar = AddScalarFloat32NEON
+	s.F32.SubScalar = SubScalarFloat32NEON
+	s.F32.Clamp = ClampFloat32NEON
+	s.F32.Fill = FillFloat32NEON
+	s.F32.Lerp = LerpFloat32NEON
+	s.F32.AddScaled = AddScaledFloat32NEON
+	s.F32.Ramp = RampFloat32NEON
+	s.F64.Add = AddFloat64NEON
+	s.F64.Sub = SubFloat64NEON
+	s.F64.Mul = MulFloat64NEON
+	s.F64.Minimum = MinimumFloat64NEON
+	s.F64.Maximum = MaximumFloat64NEON
+	s.F64.Abs = AbsFloat64NEON
+	s.F64.Neg = NegFloat64NEON
+	s.F64.Scale = ScaleFloat64NEON
+	s.F64.AddScalar = AddScalarFloat64NEON
+	s.F64.SubScalar = SubScalarFloat64NEON
+	s.F64.Clamp = ClampFloat64NEON
+	s.F64.Fill = FillFloat64NEON
+	s.F64.Lerp = LerpFloat64NEON
+	s.F64.AddScaled = AddScaledFloat64NEON
+	s.F64.Ramp = RampFloat64NEON
+	s.I32.Add = AddInt32NEON
+	s.I32.Sub = SubInt32NEON
+	s.I32.Mul = MulInt32NEON
+	s.I32.Minimum = MinimumInt32NEON
+	s.I32.Maximum = MaximumInt32NEON
+	s.I32.Abs = AbsInt32NEON
+	s.I32.Neg = NegInt32NEON
+	s.I32.Scale = ScaleInt32NEON
+	s.I32.AddScalar = AddScalarInt32NEON
+	s.I32.SubScalar = SubScalarInt32NEON
+	s.I32.Clamp = ClampInt32NEON
+	s.I32.Fill = FillInt32NEON
+	s.I32.Lerp = LerpInt32NEON
+	s.I32.AddScaled = AddScaledInt32NEON
+	s.I32.Ramp = RampInt32NEON
+	s.I64.Add = AddInt64NEON
+	s.I64.Sub = SubInt64NEON
+	s.I64.Minimum = MinimumInt64NEON
+	s.I64.Maximum = MaximumInt64NEON
+	s.I64.Abs = AbsInt64NEON
+	s.I64.Neg = NegInt64NEON
+	s.I64.AddScalar = AddScalarInt64NEON
+	s.I64.SubScalar = SubScalarInt64NEON
+	s.I64.Clamp = ClampInt64NEON
+	s.I64.Fill = FillInt64NEON
+	s.I64.Lerp = LerpInt64NEON
+	s.I8.Add = AddInt8NEON
+	s.I8.Sub = SubInt8NEON
+	s.I8.Mul = MulInt8NEON
+	s.I8.Minimum = MinimumInt8NEON
+	s.I8.Maximum = MaximumInt8NEON
+	s.I8.Abs = AbsInt8NEON
+	s.I8.Neg = NegInt8NEON
+	s.I8.Scale = ScaleInt8NEON
+	s.I8.AddScalar = AddScalarInt8NEON
+	s.I8.SubScalar = SubScalarInt8NEON
+	s.I8.Clamp = ClampInt8NEON
+	s.I8.Fill = FillInt8NEON
+	s.I8.Lerp = LerpInt8NEON
+	s.I8.AddScaled = AddScaledInt8NEON
+	s.I8.Ramp = RampInt8NEON
+	s.I16.Add = AddInt16NEON
+	s.I16.Sub = SubInt16NEON
+	s.I16.Mul = MulInt16NEON
+	s.I16.Minimum = MinimumInt16NEON
+	s.I16.Maximum = MaximumInt16NEON
+	s.I16.Abs = AbsInt16NEON
+	s.I16.Neg = NegInt16NEON
+	s.I16.Scale = ScaleInt16NEON
+	s.I16.AddScalar = AddScalarInt16NEON
+	s.I16.SubScalar = SubScalarInt16NEON
+	s.I16.Clamp = ClampInt16NEON
+	s.I16.Fill = FillInt16NEON
+	s.I16.Lerp = LerpInt16NEON
+	s.I16.AddScaled = AddScaledInt16NEON
+	s.I16.Ramp = RampInt16NEON
+	s.U8.Add = AddUint8NEON
+	s.U8.Sub = SubUint8NEON
+	s.U8.Mul = MulUint8NEON
+	s.U8.Minimum = MinimumUint8NEON
+	s.U8.Maximum = MaximumUint8NEON
+	s.U8.Neg = NegUint8NEON
+	s.U8.Scale = ScaleUint8NEON
+	s.U8.AddScalar = AddScalarUint8NEON
+	s.U8.SubScalar = SubScalarUint8NEON
+	s.U8.Clamp = ClampUint8NEON
+	s.U8.Fill = FillUint8NEON
+	s.U8.Lerp = LerpUint8NEON
+	s.U8.AddScaled = AddScaledUint8NEON
+	s.U8.Ramp = RampUint8NEON
+	s.U16.Add = AddUint16NEON
+	s.U16.Sub = SubUint16NEON
+	s.U16.Mul = MulUint16NEON
+	s.U16.Minimum = MinimumUint16NEON
+	s.U16.Maximum = MaximumUint16NEON
+	s.U16.Neg = NegUint16NEON
+	s.U16.Scale = ScaleUint16NEON
+	s.U16.AddScalar = AddScalarUint16NEON
+	s.U16.SubScalar = SubScalarUint16NEON
+	s.U16.Clamp = ClampUint16NEON
+	s.U16.Fill = FillUint16NEON
+	s.U16.Lerp = LerpUint16NEON
+	s.U16.AddScaled = AddScaledUint16NEON
+	s.U16.Ramp = RampUint16NEON
+	s.U32.Add = AddUint32NEON
+	s.U32.Sub = SubUint32NEON
+	s.U32.Mul = MulUint32NEON
+	s.U32.Minimum = MinimumUint32NEON
+	s.U32.Maximum = MaximumUint32NEON
+	s.U32.Neg = NegUint32NEON
+	s.U32.Scale = ScaleUint32NEON
+	s.U32.AddScalar = AddScalarUint32NEON
+	s.U32.SubScalar = SubScalarUint32NEON
+	s.U32.Clamp = ClampUint32NEON
+	s.U32.Fill = FillUint32NEON
+	s.U32.Lerp = LerpUint32NEON
+	s.U32.AddScaled = AddScaledUint32NEON
+	s.U32.Ramp = RampUint32NEON
+	s.U64.Add = AddUint64NEON
+	s.U64.Sub = SubUint64NEON
+	s.U64.Minimum = MinimumUint64NEON
+	s.U64.Maximum = MaximumUint64NEON
+	s.U64.Neg = NegUint64NEON
+	s.U64.AddScalar = AddScalarUint64NEON
+	s.U64.SubScalar = SubScalarUint64NEON
+	s.U64.Clamp = ClampUint64NEON
+	s.U64.Fill = FillUint64NEON
+	s.U64.Lerp = LerpUint64NEON
+	s.I32.Shl = ShlInt32NEON
+	s.I32.Shr = ShrInt32NEON
+	s.I32.Rotl = RotlInt32NEON
+	s.I32.Rotr = RotrInt32NEON
+	s.I32.OnesCount = OnesCountInt32NEON
+	s.I32.LeadingZeros = LeadingZerosInt32NEON
+	s.I32.TrailingZeros = TrailingZerosInt32NEON
+	s.I32.ReverseBits = ReverseBitsInt32NEON
+	s.I32.ByteSwap = ByteSwapInt32NEON
+	s.I64.Shl = ShlInt64NEON
+	s.I64.Shr = ShrInt64NEON
+	s.I64.Rotl = RotlInt64NEON
+	s.I64.Rotr = RotrInt64NEON
+	s.I64.OnesCount = OnesCountInt64NEON
+	s.I64.ReverseBits = ReverseBitsInt64NEON
+	s.I64.ByteSwap = ByteSwapInt64NEON
+	s.I8.Shl = ShlInt8NEON
+	s.I8.Shr = ShrInt8NEON
+	s.I8.Rotl = RotlInt8NEON
+	s.I8.Rotr = RotrInt8NEON
+	s.I8.OnesCount = OnesCountInt8NEON
+	s.I8.LeadingZeros = LeadingZerosInt8NEON
+	s.I8.TrailingZeros = TrailingZerosInt8NEON
+	s.I8.ReverseBits = ReverseBitsInt8NEON
+	s.I16.Shl = ShlInt16NEON
+	s.I16.Shr = ShrInt16NEON
+	s.I16.Rotl = RotlInt16NEON
+	s.I16.Rotr = RotrInt16NEON
+	s.I16.OnesCount = OnesCountInt16NEON
+	s.I16.LeadingZeros = LeadingZerosInt16NEON
+	s.I16.TrailingZeros = TrailingZerosInt16NEON
+	s.I16.ReverseBits = ReverseBitsInt16NEON
+	s.I16.ByteSwap = ByteSwapInt16NEON
+	s.U8.Shl = ShlUint8NEON
+	s.U8.Shr = ShrUint8NEON
+	s.U8.Rotl = RotlUint8NEON
+	s.U8.Rotr = RotrUint8NEON
+	s.U8.OnesCount = OnesCountUint8NEON
+	s.U8.LeadingZeros = LeadingZerosUint8NEON
+	s.U8.TrailingZeros = TrailingZerosUint8NEON
+	s.U8.ReverseBits = ReverseBitsUint8NEON
+	s.U16.Shl = ShlUint16NEON
+	s.U16.Shr = ShrUint16NEON
+	s.U16.Rotl = RotlUint16NEON
+	s.U16.Rotr = RotrUint16NEON
+	s.U16.OnesCount = OnesCountUint16NEON
+	s.U16.LeadingZeros = LeadingZerosUint16NEON
+	s.U16.TrailingZeros = TrailingZerosUint16NEON
+	s.U16.ReverseBits = ReverseBitsUint16NEON
+	s.U16.ByteSwap = ByteSwapUint16NEON
+	s.U32.Shl = ShlUint32NEON
+	s.U32.Shr = ShrUint32NEON
+	s.U32.Rotl = RotlUint32NEON
+	s.U32.Rotr = RotrUint32NEON
+	s.U32.OnesCount = OnesCountUint32NEON
+	s.U32.LeadingZeros = LeadingZerosUint32NEON
+	s.U32.TrailingZeros = TrailingZerosUint32NEON
+	s.U32.ReverseBits = ReverseBitsUint32NEON
+	s.U32.ByteSwap = ByteSwapUint32NEON
+	s.U64.Shl = ShlUint64NEON
+	s.U64.Shr = ShrUint64NEON
+	s.U64.Rotl = RotlUint64NEON
+	s.U64.Rotr = RotrUint64NEON
+	s.U64.OnesCount = OnesCountUint64NEON
+	s.U64.ReverseBits = ReverseBitsUint64NEON
+	s.U64.ByteSwap = ByteSwapUint64NEON
+	s.F32.Div = DivFloat32NEON
+	s.F32.DivScalar = DivScalarFloat32NEON
+	s.F32.Sqrt = SqrtFloat32NEON
+	s.F32.Reciprocal = ReciprocalFloat32NEON
+	s.F32.Floor = FloorFloat32NEON
+	s.F32.Ceil = CeilFloat32NEON
+	s.F32.Trunc = TruncFloat32NEON
+	s.F32.Round = RoundFloat32NEON
+	s.F32.RoundToEven = RoundToEvenFloat32NEON
+	s.F64.Div = DivFloat64NEON
+	s.F64.DivScalar = DivScalarFloat64NEON
+	s.F64.Sqrt = SqrtFloat64NEON
+	s.F64.Reciprocal = ReciprocalFloat64NEON
+	s.F64.Floor = FloorFloat64NEON
+	s.F64.Ceil = CeilFloat64NEON
+	s.F64.Trunc = TruncFloat64NEON
+	s.F64.Round = RoundFloat64NEON
+	s.F64.RoundToEven = RoundToEvenFloat64NEON
+	s.I32.SatAdd = SatAddInt32NEON
+	s.I32.SatSub = SatSubInt32NEON
+	s.I8.SatAdd = SatAddInt8NEON
+	s.I8.SatSub = SatSubInt8NEON
+	s.I16.SatAdd = SatAddInt16NEON
+	s.I16.SatSub = SatSubInt16NEON
+	s.U8.SatAdd = SatAddUint8NEON
+	s.U8.SatSub = SatSubUint8NEON
+	s.U16.SatAdd = SatAddUint16NEON
+	s.U16.SatSub = SatSubUint16NEON
+	s.U32.SatAdd = SatAddUint32NEON
+	s.U32.SatSub = SatSubUint32NEON
 }

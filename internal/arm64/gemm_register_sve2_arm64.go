@@ -10,7 +10,7 @@ package arm64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "arm64": {}}
 
-func qMatMulI8SVE2Guarded(dst []int32, a []int8, b []int8, m int, k int, n int) {
+func QMatMulI8SVE2(dst []int32, a []int8, b []int8, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.QMatMulI8(dst, a, b, m, k, n)
 		return
@@ -28,7 +28,7 @@ func qMatMulI8SVE2Guarded(dst []int32, a []int8, b []int8, m int, k int, n int) 
 	qMatMulI8SVE2(dst, a, b, m, k, n)
 }
 
-func requantizeI8SVE2Guarded(dst []int8, a []int32, scale float32, zeroPoint int32) {
+func RequantizeI8SVE2(dst []int8, a []int32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.RequantizeI8(dst, a, scale, zeroPoint)
@@ -37,7 +37,7 @@ func requantizeI8SVE2Guarded(dst []int8, a []int32, scale float32, zeroPoint int
 	requantizeI8SVE2(dst[:n:n], a, scale, zeroPoint)
 }
 
-func matMulFloat32SVE2Guarded(dst []float32, a []float32, b []float32, m int, k int, n int) {
+func MatMulFloat32SVE2(dst []float32, a []float32, b []float32, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
 		return
@@ -45,7 +45,7 @@ func matMulFloat32SVE2Guarded(dst []float32, a []float32, b []float32, m int, k 
 	matMulFloat32SVE2(dst, a, b, m, k, n)
 }
 
-func gemvFloat32SVE2Guarded(dst []float32, a []float32, x []float32, m int, k int) {
+func GemvFloat32SVE2(dst []float32, a []float32, x []float32, m int, k int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k {
 		ref.GemvFloat(dst, a, x, m, k)
 		return
@@ -53,7 +53,7 @@ func gemvFloat32SVE2Guarded(dst []float32, a []float32, x []float32, m int, k in
 	gemvFloat32SVE2(dst, a, x, m, k)
 }
 
-func matMulFloat64SVE2Guarded(dst []float64, a []float64, b []float64, m int, k int, n int) {
+func MatMulFloat64SVE2(dst []float64, a []float64, b []float64, m int, k int, n int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || n <= 0 || len(dst) < m*n || len(a) < m*k || len(b) < k*n {
 		ref.MatMul(dst, a, b, m, k, n)
 		return
@@ -61,7 +61,7 @@ func matMulFloat64SVE2Guarded(dst []float64, a []float64, b []float64, m int, k 
 	matMulFloat64SVE2(dst, a, b, m, k, n)
 }
 
-func gemvFloat64SVE2Guarded(dst []float64, a []float64, x []float64, m int, k int) {
+func GemvFloat64SVE2(dst []float64, a []float64, x []float64, m int, k int) {
 	if len(dst) < 0 || m <= 0 || k <= 0 || len(dst) < m || len(a) < m*k || len(x) < k {
 		ref.GemvFloat(dst, a, x, m, k)
 		return
@@ -69,7 +69,7 @@ func gemvFloat64SVE2Guarded(dst []float64, a []float64, x []float64, m int, k in
 	gemvFloat64SVE2(dst, a, x, m, k)
 }
 
-func gemmPackBFloat32SVE2Guarded(bp []float32, b []float32, k int, n int) {
+func GemmPackBFloat32SVE2(bp []float32, b []float32, k int, n int) {
 	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+16-1)/16)*k*16 {
 		ref.GemmPackB(bp, b, k, n)
 		return
@@ -77,7 +77,7 @@ func gemmPackBFloat32SVE2Guarded(bp []float32, b []float32, k int, n int) {
 	gemmPackBFloat32SVE2(bp, b, k, n)
 }
 
-func matMulPkFloat32SVE2Guarded(dst []float32, a []float32, bp []float32, m int, k int, n int) {
+func MatMulPkFloat32SVE2(dst []float32, a []float32, bp []float32, m int, k int, n int) {
 	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+16-1)/16)*k*16 {
 		ref.MatMulPk(dst, a, bp, m, k, n)
 		return
@@ -85,7 +85,7 @@ func matMulPkFloat32SVE2Guarded(dst []float32, a []float32, bp []float32, m int,
 	matMulPkFloat32SVE2(dst, a, bp, m, k, n)
 }
 
-func gemmPackBFloat64SVE2Guarded(bp []float64, b []float64, k int, n int) {
+func GemmPackBFloat64SVE2(bp []float64, b []float64, k int, n int) {
 	if len(bp) < 0 || k < 0 || n < 0 || len(b) < k*n || len(bp) < ((n+8-1)/8)*k*8 {
 		ref.GemmPackB(bp, b, k, n)
 		return
@@ -93,7 +93,7 @@ func gemmPackBFloat64SVE2Guarded(bp []float64, b []float64, k int, n int) {
 	gemmPackBFloat64SVE2(bp, b, k, n)
 }
 
-func matMulPkFloat64SVE2Guarded(dst []float64, a []float64, bp []float64, m int, k int, n int) {
+func MatMulPkFloat64SVE2(dst []float64, a []float64, bp []float64, m int, k int, n int) {
 	if len(dst) < 0 || m < 0 || k < 0 || n < 0 || len(dst) < m*n || len(a) < m*k || len(bp) < ((n+8-1)/8)*k*8 {
 		ref.MatMulPk(dst, a, bp, m, k, n)
 		return
@@ -101,18 +101,15 @@ func matMulPkFloat64SVE2Guarded(dst []float64, a []float64, bp []float64, m int,
 	matMulPkFloat64SVE2(dst, a, bp, m, k, n)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("sve2")
-	s.Convert.QMatMulI8 = qMatMulI8SVE2Guarded
-	s.Convert.RequantizeI8 = requantizeI8SVE2Guarded
-	s.F32.MatMul = matMulFloat32SVE2Guarded
-	s.F32.Gemv = gemvFloat32SVE2Guarded
-	s.F64.MatMul = matMulFloat64SVE2Guarded
-	s.F64.Gemv = gemvFloat64SVE2Guarded
-	s.F32.GemmPackB = gemmPackBFloat32SVE2Guarded
-	s.F32.MatMulPk = matMulPkFloat32SVE2Guarded
-	s.F64.GemmPackB = gemmPackBFloat64SVE2Guarded
-	s.F64.MatMulPk = matMulPkFloat64SVE2Guarded
+func registerGemmSVE2(s *kernel.Set) {
+	s.Convert.QMatMulI8 = QMatMulI8SVE2
+	s.Convert.RequantizeI8 = RequantizeI8SVE2
+	s.F32.MatMul = MatMulFloat32SVE2
+	s.F32.Gemv = GemvFloat32SVE2
+	s.F64.MatMul = MatMulFloat64SVE2
+	s.F64.Gemv = GemvFloat64SVE2
+	s.F32.GemmPackB = GemmPackBFloat32SVE2
+	s.F32.MatMulPk = MatMulPkFloat32SVE2
+	s.F64.GemmPackB = GemmPackBFloat64SVE2
+	s.F64.MatMulPk = MatMulPkFloat64SVE2
 }

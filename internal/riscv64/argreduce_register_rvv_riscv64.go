@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,104 +20,101 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func argMinFloat32RVVGuarded(a []float32) int {
+func ArgMinFloat32RVV(a []float32) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat32RVV(a)
 }
 
-func argMaxFloat32RVVGuarded(a []float32) int {
+func ArgMaxFloat32RVV(a []float32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat32RVV(a)
 }
 
-func minMaxFloat32RVVGuarded(a []float32) (lo float32, hi float32) {
+func MinMaxFloat32RVV(a []float32) (lo float32, hi float32) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat32RVV(a)
 }
 
-func argMinFloat64RVVGuarded(a []float64) int {
+func ArgMinFloat64RVV(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMinFloat(a)
 	}
 	return argMinFloat64RVV(a)
 }
 
-func argMaxFloat64RVVGuarded(a []float64) int {
+func ArgMaxFloat64RVV(a []float64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxFloat(a)
 	}
 	return argMaxFloat64RVV(a)
 }
 
-func minMaxFloat64RVVGuarded(a []float64) (lo float64, hi float64) {
+func MinMaxFloat64RVV(a []float64) (lo float64, hi float64) {
 	if len(a) < 1 {
 		return ref.MinMaxFloat(a)
 	}
 	return minMaxFloat64RVV(a)
 }
 
-func argMinInt32RVVGuarded(a []int32) int {
+func ArgMinInt32RVV(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt32RVV(a)
 }
 
-func argMaxInt32RVVGuarded(a []int32) int {
+func ArgMaxInt32RVV(a []int32) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt32RVV(a)
 }
 
-func minMaxInt32RVVGuarded(a []int32) (lo int32, hi int32) {
+func MinMaxInt32RVV(a []int32) (lo int32, hi int32) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt32RVV(a)
 }
 
-func argMinInt64RVVGuarded(a []int64) int {
+func ArgMinInt64RVV(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMinInt(a)
 	}
 	return argMinInt64RVV(a)
 }
 
-func argMaxInt64RVVGuarded(a []int64) int {
+func ArgMaxInt64RVV(a []int64) int {
 	if len(a) < 1 {
 		return ref.ArgMaxInt(a)
 	}
 	return argMaxInt64RVV(a)
 }
 
-func minMaxInt64RVVGuarded(a []int64) (lo int64, hi int64) {
+func MinMaxInt64RVV(a []int64) (lo int64, hi int64) {
 	if len(a) < 1 {
 		return ref.MinMaxInt(a)
 	}
 	return minMaxInt64RVV(a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.F32.ArgMin = argMinFloat32RVVGuarded
-	s.F32.ArgMax = argMaxFloat32RVVGuarded
-	s.F32.MinMax = minMaxFloat32RVVGuarded
-	s.F64.ArgMin = argMinFloat64RVVGuarded
-	s.F64.ArgMax = argMaxFloat64RVVGuarded
-	s.F64.MinMax = minMaxFloat64RVVGuarded
-	s.I32.ArgMin = argMinInt32RVVGuarded
-	s.I32.ArgMax = argMaxInt32RVVGuarded
-	s.I32.MinMax = minMaxInt32RVVGuarded
-	s.I64.ArgMin = argMinInt64RVVGuarded
-	s.I64.ArgMax = argMaxInt64RVVGuarded
-	s.I64.MinMax = minMaxInt64RVVGuarded
+func registerArgreduceRVV(s *kernel.Set) {
+	s.F32.ArgMin = ArgMinFloat32RVV
+	s.F32.ArgMax = ArgMaxFloat32RVV
+	s.F32.MinMax = MinMaxFloat32RVV
+	s.F64.ArgMin = ArgMinFloat64RVV
+	s.F64.ArgMax = ArgMaxFloat64RVV
+	s.F64.MinMax = MinMaxFloat64RVV
+	s.I32.ArgMin = ArgMinInt32RVV
+	s.I32.ArgMax = ArgMaxInt32RVV
+	s.I32.MinMax = MinMaxInt32RVV
+	s.I64.ArgMin = ArgMinInt64RVV
+	s.I64.ArgMax = ArgMaxInt64RVV
+	s.I64.MinMax = MinMaxInt64RVV
 }

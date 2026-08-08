@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -52,9 +53,11 @@ func tableFor(t *testing.T, root, arch string) map[string]int {
 }
 
 // guardRe matches a generated guard's head: the function name and the first
-// length comparison inside it. Elementwise guards clamp first -- `n :=
+// length comparison inside it. Guards are exported now -- the dispatch
+// tables name them in static composite literals -- so the head is an
+// uppercase name with no suffix. Elementwise guards clamp first -- `n :=
 // min(len(dst), len(a), ...)` -- so one such line is allowed before the if.
-var guardRe = regexp.MustCompile(`func (\w+)Guarded\([^)]*\)[^{]*\{\s*\n(?:\s*n := [^\n]*\n)?\s*if [^\n{<]*< (\d+)`)
+var guardRe = regexp.MustCompile(`func ([A-Z]\w+)\([^)]*\)[^{]*\{\s*\n(?:\s*n := [^\n]*\n)?\s*if [^\n{<]*< (\d+)`)
 
 func TestGuardsMatchTables(t *testing.T) {
 	root := repoRoot(t)
@@ -75,14 +78,15 @@ func TestGuardsMatchTables(t *testing.T) {
 			}
 			for _, m := range guardRe.FindAllStringSubmatch(string(src), -1) {
 				name, num := m[1], m[2]
+				name = strings.ToLower(name[:1]) + name[1:]
 				goName, want, ok := lookup(name, table)
 				if !ok {
-					t.Errorf("%s: guard %sGuarded matches no goName in the manifest fixture", filepath.Base(f), name)
+					t.Errorf("%s: guard %s matches no goName in the manifest fixture", filepath.Base(f), name)
 					continue
 				}
 				n, _ := strconv.Atoi(num)
 				if want != n {
-					t.Errorf("%s: guard %sGuarded uses %d; the manifest says %s = %d on %s",
+					t.Errorf("%s: guard %s uses %d; the manifest says %s = %d on %s",
 						filepath.Base(f), name, n, goName, want, arch)
 				}
 				totalGuards++

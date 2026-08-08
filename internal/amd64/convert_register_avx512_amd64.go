@@ -10,7 +10,7 @@ package amd64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "amd64": {}}
 
-func quantizeI8AVX512Guarded(dst []int8, a []float32, scale float32, zeroPoint int32) {
+func QuantizeI8AVX512(dst []int8, a []float32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.QuantizeI8(dst, a, scale, zeroPoint)
@@ -29,7 +29,7 @@ func quantizeI8AVX512Guarded(dst []int8, a []float32, scale float32, zeroPoint i
 	quantizeI8AVX512(dst[:n:n], a, scale, zeroPoint)
 }
 
-func dequantizeI8AVX512Guarded(dst []float32, a []int8, scale float32, zeroPoint int32) {
+func DequantizeI8AVX512(dst []float32, a []int8, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DequantizeI8(dst, a, scale, zeroPoint)
@@ -38,7 +38,7 @@ func dequantizeI8AVX512Guarded(dst []float32, a []int8, scale float32, zeroPoint
 	dequantizeI8AVX512(dst[:n:n], a, scale, zeroPoint)
 }
 
-func quantizeU8AVX512Guarded(dst []byte, a []float32, scale float32, zeroPoint int32) {
+func QuantizeU8AVX512(dst []byte, a []float32, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.QuantizeU8(dst, a, scale, zeroPoint)
@@ -47,7 +47,7 @@ func quantizeU8AVX512Guarded(dst []byte, a []float32, scale float32, zeroPoint i
 	quantizeU8AVX512(dst[:n:n], a, scale, zeroPoint)
 }
 
-func dequantizeU8AVX512Guarded(dst []float32, a []byte, scale float32, zeroPoint int32) {
+func DequantizeU8AVX512(dst []float32, a []byte, scale float32, zeroPoint int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.DequantizeU8(dst, a, scale, zeroPoint)
@@ -56,7 +56,7 @@ func dequantizeU8AVX512Guarded(dst []float32, a []byte, scale float32, zeroPoint
 	dequantizeU8AVX512(dst[:n:n], a, scale, zeroPoint)
 }
 
-func quantizePerChannelI8AVX512Guarded(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
+func QuantizePerChannelI8AVX512(dst []int8, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.QuantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -64,7 +64,7 @@ func quantizePerChannelI8AVX512Guarded(dst []int8, a []float32, scale []float32,
 	quantizePerChannelI8AVX512(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func quantizePerChannelU8AVX512Guarded(dst []byte, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
+func QuantizePerChannelU8AVX512(dst []byte, a []float32, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.QuantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -72,7 +72,7 @@ func quantizePerChannelU8AVX512Guarded(dst []byte, a []float32, scale []float32,
 	quantizePerChannelU8AVX512(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func dequantizePerChannelI8AVX512Guarded(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels int, inner int) {
+func DequantizePerChannelI8AVX512(dst []float32, a []int8, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.DequantizePerChannelI8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -80,7 +80,7 @@ func dequantizePerChannelI8AVX512Guarded(dst []float32, a []int8, scale []float3
 	dequantizePerChannelI8AVX512(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func dequantizePerChannelU8AVX512Guarded(dst []float32, a []byte, scale []float32, zeroPoint []int32, channels int, inner int) {
+func DequantizePerChannelU8AVX512(dst []float32, a []byte, scale []float32, zeroPoint []int32, channels int, inner int) {
 	if len(dst) < 16 || channels <= 0 || inner <= 0 || len(scale) < channels || len(zeroPoint) < channels || len(dst) < channels*inner || len(a) < channels*inner {
 		ref.DequantizePerChannelU8(dst, a, scale, zeroPoint, channels, inner)
 		return
@@ -88,7 +88,7 @@ func dequantizePerChannelU8AVX512Guarded(dst []float32, a []byte, scale []float3
 	dequantizePerChannelU8AVX512(dst, a, scale, zeroPoint, channels, inner)
 }
 
-func zigzagEncodeI8AVX512Guarded(dst []byte, a []int8) {
+func ZigzagEncodeI8AVX512(dst []byte, a []int8) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI8(dst, a)
@@ -97,7 +97,7 @@ func zigzagEncodeI8AVX512Guarded(dst []byte, a []int8) {
 	zigzagEncodeI8AVX512(dst[:n:n], a)
 }
 
-func zigzagDecodeI8AVX512Guarded(dst []int8, a []byte) {
+func ZigzagDecodeI8AVX512(dst []int8, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI8(dst, a)
@@ -106,7 +106,7 @@ func zigzagDecodeI8AVX512Guarded(dst []int8, a []byte) {
 	zigzagDecodeI8AVX512(dst[:n:n], a)
 }
 
-func zigzagEncodeI16AVX512Guarded(dst []uint16, a []int16) {
+func ZigzagEncodeI16AVX512(dst []uint16, a []int16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI16(dst, a)
@@ -115,7 +115,7 @@ func zigzagEncodeI16AVX512Guarded(dst []uint16, a []int16) {
 	zigzagEncodeI16AVX512(dst[:n:n], a)
 }
 
-func zigzagDecodeI16AVX512Guarded(dst []int16, a []uint16) {
+func ZigzagDecodeI16AVX512(dst []int16, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI16(dst, a)
@@ -124,7 +124,7 @@ func zigzagDecodeI16AVX512Guarded(dst []int16, a []uint16) {
 	zigzagDecodeI16AVX512(dst[:n:n], a)
 }
 
-func zigzagEncodeI32AVX512Guarded(dst []uint32, a []int32) {
+func ZigzagEncodeI32AVX512(dst []uint32, a []int32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI32(dst, a)
@@ -133,7 +133,7 @@ func zigzagEncodeI32AVX512Guarded(dst []uint32, a []int32) {
 	zigzagEncodeI32AVX512(dst[:n:n], a)
 }
 
-func zigzagDecodeI32AVX512Guarded(dst []int32, a []uint32) {
+func ZigzagDecodeI32AVX512(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI32(dst, a)
@@ -142,7 +142,7 @@ func zigzagDecodeI32AVX512Guarded(dst []int32, a []uint32) {
 	zigzagDecodeI32AVX512(dst[:n:n], a)
 }
 
-func zigzagEncodeI64AVX512Guarded(dst []uint64, a []int64) {
+func ZigzagEncodeI64AVX512(dst []uint64, a []int64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagEncodeI64(dst, a)
@@ -151,7 +151,7 @@ func zigzagEncodeI64AVX512Guarded(dst []uint64, a []int64) {
 	zigzagEncodeI64AVX512(dst[:n:n], a)
 }
 
-func zigzagDecodeI64AVX512Guarded(dst []int64, a []uint64) {
+func ZigzagDecodeI64AVX512(dst []int64, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.ZigzagDecodeI64(dst, a)
@@ -160,7 +160,7 @@ func zigzagDecodeI64AVX512Guarded(dst []int64, a []uint64) {
 	zigzagDecodeI64AVX512(dst[:n:n], a)
 }
 
-func varintLenU32AVX512Guarded(dst []int32, a []uint32) {
+func VarintLenU32AVX512(dst []int32, a []uint32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU32(dst, a)
@@ -169,7 +169,7 @@ func varintLenU32AVX512Guarded(dst []int32, a []uint32) {
 	varintLenU32AVX512(dst[:n:n], a)
 }
 
-func varintLenU64AVX512Guarded(dst []int32, a []uint64) {
+func VarintLenU64AVX512(dst []int32, a []uint64) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.VarintLenU64(dst, a)
@@ -178,21 +178,21 @@ func varintLenU64AVX512Guarded(dst []int32, a []uint64) {
 	varintLenU64AVX512(dst[:n:n], a)
 }
 
-func varintSizeU32AVX512Guarded(a []uint32) int {
+func VarintSizeU32AVX512(a []uint32) int {
 	if len(a) < 16 {
 		return ref.VarintSizeU32(a)
 	}
 	return varintSizeU32AVX512(a)
 }
 
-func varintSizeU64AVX512Guarded(a []uint64) int {
+func VarintSizeU64AVX512(a []uint64) int {
 	if len(a) < 16 {
 		return ref.VarintSizeU64(a)
 	}
 	return varintSizeU64AVX512(a)
 }
 
-func bitUnpackU32AVX512Guarded(dst []uint32, a []uint32, bits int32) {
+func BitUnpackU32AVX512(dst []uint32, a []uint32, bits int32) {
 	if len(dst) < 16 || bits <= 0 || bits > 32 || len(a) < (len(dst)*int(bits)+31)/32+1 {
 		ref.BitUnpackU32(dst, a, bits)
 		return
@@ -200,7 +200,7 @@ func bitUnpackU32AVX512Guarded(dst []uint32, a []uint32, bits int32) {
 	bitUnpackU32AVX512(dst, a, bits)
 }
 
-func f8e4m3ToF32AVX512Guarded(dst []float32, a []byte) {
+func F8e4m3ToF32AVX512(dst []float32, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F8E4M3ToF32(dst, a)
@@ -209,7 +209,7 @@ func f8e4m3ToF32AVX512Guarded(dst []float32, a []byte) {
 	f8e4m3ToF32AVX512(dst[:n:n], a)
 }
 
-func f32ToF8E4M3AVX512Guarded(dst []byte, a []float32) {
+func F32ToF8E4M3AVX512(dst []byte, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToF8E4M3(dst, a)
@@ -218,7 +218,7 @@ func f32ToF8E4M3AVX512Guarded(dst []byte, a []float32) {
 	f32ToF8E4M3AVX512(dst[:n:n], a)
 }
 
-func f8e5m2ToF32AVX512Guarded(dst []float32, a []byte) {
+func F8e5m2ToF32AVX512(dst []float32, a []byte) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F8E5M2ToF32(dst, a)
@@ -227,7 +227,7 @@ func f8e5m2ToF32AVX512Guarded(dst []float32, a []byte) {
 	f8e5m2ToF32AVX512(dst[:n:n], a)
 }
 
-func f32ToF8E5M2AVX512Guarded(dst []byte, a []float32) {
+func F32ToF8E5M2AVX512(dst []byte, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToF8E5M2(dst, a)
@@ -236,7 +236,7 @@ func f32ToF8E5M2AVX512Guarded(dst []byte, a []float32) {
 	f32ToF8E5M2AVX512(dst[:n:n], a)
 }
 
-func bf16ToF32AVX512Guarded(dst []float32, a []uint16) {
+func Bf16ToF32AVX512(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.BF16ToF32(dst, a)
@@ -245,7 +245,7 @@ func bf16ToF32AVX512Guarded(dst []float32, a []uint16) {
 	bf16ToF32AVX512(dst[:n:n], a)
 }
 
-func f32ToBF16AVX512Guarded(dst []uint16, a []float32) {
+func F32ToBF16AVX512(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToBF16(dst, a)
@@ -254,7 +254,7 @@ func f32ToBF16AVX512Guarded(dst []uint16, a []float32) {
 	f32ToBF16AVX512(dst[:n:n], a)
 }
 
-func f16ToF32AVX512Guarded(dst []float32, a []uint16) {
+func F16ToF32AVX512(dst []float32, a []uint16) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F16ToF32(dst, a)
@@ -263,7 +263,7 @@ func f16ToF32AVX512Guarded(dst []float32, a []uint16) {
 	f16ToF32AVX512(dst[:n:n], a)
 }
 
-func f32ToF16AVX512Guarded(dst []uint16, a []float32) {
+func F32ToF16AVX512(dst []uint16, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
 		ref.F32ToF16(dst, a)
@@ -272,37 +272,34 @@ func f32ToF16AVX512Guarded(dst []uint16, a []float32) {
 	f32ToF16AVX512(dst[:n:n], a)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("avx512")
-	s.Convert.QuantizeI8 = quantizeI8AVX512Guarded
-	s.Convert.DequantizeI8 = dequantizeI8AVX512Guarded
-	s.Convert.QuantizeU8 = quantizeU8AVX512Guarded
-	s.Convert.DequantizeU8 = dequantizeU8AVX512Guarded
-	s.Convert.QuantizePerChannelI8 = quantizePerChannelI8AVX512Guarded
-	s.Convert.QuantizePerChannelU8 = quantizePerChannelU8AVX512Guarded
-	s.Convert.DequantizePerChannelI8 = dequantizePerChannelI8AVX512Guarded
-	s.Convert.DequantizePerChannelU8 = dequantizePerChannelU8AVX512Guarded
-	s.Convert.ZigzagEncodeI8 = zigzagEncodeI8AVX512Guarded
-	s.Convert.ZigzagDecodeI8 = zigzagDecodeI8AVX512Guarded
-	s.Convert.ZigzagEncodeI16 = zigzagEncodeI16AVX512Guarded
-	s.Convert.ZigzagDecodeI16 = zigzagDecodeI16AVX512Guarded
-	s.Convert.ZigzagEncodeI32 = zigzagEncodeI32AVX512Guarded
-	s.Convert.ZigzagDecodeI32 = zigzagDecodeI32AVX512Guarded
-	s.Convert.ZigzagEncodeI64 = zigzagEncodeI64AVX512Guarded
-	s.Convert.ZigzagDecodeI64 = zigzagDecodeI64AVX512Guarded
-	s.Convert.VarintLenU32 = varintLenU32AVX512Guarded
-	s.Convert.VarintLenU64 = varintLenU64AVX512Guarded
-	s.Convert.VarintSizeU32 = varintSizeU32AVX512Guarded
-	s.Convert.VarintSizeU64 = varintSizeU64AVX512Guarded
-	s.Convert.BitUnpackU32 = bitUnpackU32AVX512Guarded
-	s.Convert.F8E4M3ToF32 = f8e4m3ToF32AVX512Guarded
-	s.Convert.F32ToF8E4M3 = f32ToF8E4M3AVX512Guarded
-	s.Convert.F8E5M2ToF32 = f8e5m2ToF32AVX512Guarded
-	s.Convert.F32ToF8E5M2 = f32ToF8E5M2AVX512Guarded
-	s.Convert.BF16ToF32 = bf16ToF32AVX512Guarded
-	s.Convert.F32ToBF16 = f32ToBF16AVX512Guarded
-	s.Convert.F16ToF32 = f16ToF32AVX512Guarded
-	s.Convert.F32ToF16 = f32ToF16AVX512Guarded
+func registerConvertAVX512(s *kernel.Set) {
+	s.Convert.QuantizeI8 = QuantizeI8AVX512
+	s.Convert.DequantizeI8 = DequantizeI8AVX512
+	s.Convert.QuantizeU8 = QuantizeU8AVX512
+	s.Convert.DequantizeU8 = DequantizeU8AVX512
+	s.Convert.QuantizePerChannelI8 = QuantizePerChannelI8AVX512
+	s.Convert.QuantizePerChannelU8 = QuantizePerChannelU8AVX512
+	s.Convert.DequantizePerChannelI8 = DequantizePerChannelI8AVX512
+	s.Convert.DequantizePerChannelU8 = DequantizePerChannelU8AVX512
+	s.Convert.ZigzagEncodeI8 = ZigzagEncodeI8AVX512
+	s.Convert.ZigzagDecodeI8 = ZigzagDecodeI8AVX512
+	s.Convert.ZigzagEncodeI16 = ZigzagEncodeI16AVX512
+	s.Convert.ZigzagDecodeI16 = ZigzagDecodeI16AVX512
+	s.Convert.ZigzagEncodeI32 = ZigzagEncodeI32AVX512
+	s.Convert.ZigzagDecodeI32 = ZigzagDecodeI32AVX512
+	s.Convert.ZigzagEncodeI64 = ZigzagEncodeI64AVX512
+	s.Convert.ZigzagDecodeI64 = ZigzagDecodeI64AVX512
+	s.Convert.VarintLenU32 = VarintLenU32AVX512
+	s.Convert.VarintLenU64 = VarintLenU64AVX512
+	s.Convert.VarintSizeU32 = VarintSizeU32AVX512
+	s.Convert.VarintSizeU64 = VarintSizeU64AVX512
+	s.Convert.BitUnpackU32 = BitUnpackU32AVX512
+	s.Convert.F8E4M3ToF32 = F8e4m3ToF32AVX512
+	s.Convert.F32ToF8E4M3 = F32ToF8E4M3AVX512
+	s.Convert.F8E5M2ToF32 = F8e5m2ToF32AVX512
+	s.Convert.F32ToF8E5M2 = F32ToF8E5M2AVX512
+	s.Convert.BF16ToF32 = Bf16ToF32AVX512
+	s.Convert.F32ToBF16 = F32ToBF16AVX512
+	s.Convert.F16ToF32 = F16ToF32AVX512
+	s.Convert.F32ToF16 = F32ToF16AVX512
 }

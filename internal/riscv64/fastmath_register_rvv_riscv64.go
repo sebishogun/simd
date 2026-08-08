@@ -10,7 +10,7 @@ package riscv64
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "riscv64": {}}
 
-func fastExpFloat32RVVGuarded(dst []float32, a []float32) {
+func FastExpFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp(dst, a)
@@ -29,7 +29,7 @@ func fastExpFloat32RVVGuarded(dst []float32, a []float32) {
 	fastExpFloat32RVV(dst[:n:n], a)
 }
 
-func fastExp2Float32RVVGuarded(dst []float32, a []float32) {
+func FastExp2Float32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp2(dst, a)
@@ -38,7 +38,7 @@ func fastExp2Float32RVVGuarded(dst []float32, a []float32) {
 	fastExp2Float32RVV(dst[:n:n], a)
 }
 
-func fastExpm1Float32RVVGuarded(dst []float32, a []float32) {
+func FastExpm1Float32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Expm1(dst, a)
@@ -47,7 +47,7 @@ func fastExpm1Float32RVVGuarded(dst []float32, a []float32) {
 	fastExpm1Float32RVV(dst[:n:n], a)
 }
 
-func fastLogFloat32RVVGuarded(dst []float32, a []float32) {
+func FastLogFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log(dst, a)
@@ -56,7 +56,7 @@ func fastLogFloat32RVVGuarded(dst []float32, a []float32) {
 	fastLogFloat32RVV(dst[:n:n], a)
 }
 
-func fastLog2Float32RVVGuarded(dst []float32, a []float32) {
+func FastLog2Float32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log2(dst, a)
@@ -65,7 +65,7 @@ func fastLog2Float32RVVGuarded(dst []float32, a []float32) {
 	fastLog2Float32RVV(dst[:n:n], a)
 }
 
-func fastLog10Float32RVVGuarded(dst []float32, a []float32) {
+func FastLog10Float32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log10(dst, a)
@@ -74,7 +74,7 @@ func fastLog10Float32RVVGuarded(dst []float32, a []float32) {
 	fastLog10Float32RVV(dst[:n:n], a)
 }
 
-func fastLog1pFloat32RVVGuarded(dst []float32, a []float32) {
+func FastLog1pFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log1p(dst, a)
@@ -83,7 +83,7 @@ func fastLog1pFloat32RVVGuarded(dst []float32, a []float32) {
 	fastLog1pFloat32RVV(dst[:n:n], a)
 }
 
-func fastCbrtFloat32RVVGuarded(dst []float32, a []float32) {
+func FastCbrtFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cbrt(dst, a)
@@ -92,7 +92,7 @@ func fastCbrtFloat32RVVGuarded(dst []float32, a []float32) {
 	fastCbrtFloat32RVV(dst[:n:n], a)
 }
 
-func fastSigmoidFloat32RVVGuarded(dst []float32, a []float32) {
+func FastSigmoidFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sigmoid(dst, a)
@@ -101,7 +101,7 @@ func fastSigmoidFloat32RVVGuarded(dst []float32, a []float32) {
 	fastSigmoidFloat32RVV(dst[:n:n], a)
 }
 
-func fastSinFloat32RVVGuarded(dst []float32, a []float32) {
+func FastSinFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sin(dst, a)
@@ -110,7 +110,7 @@ func fastSinFloat32RVVGuarded(dst []float32, a []float32) {
 	fastSinFloat32RVV(dst[:n:n], a)
 }
 
-func fastCosFloat32RVVGuarded(dst []float32, a []float32) {
+func FastCosFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cos(dst, a)
@@ -119,7 +119,7 @@ func fastCosFloat32RVVGuarded(dst []float32, a []float32) {
 	fastCosFloat32RVV(dst[:n:n], a)
 }
 
-func fastTanFloat32RVVGuarded(dst []float32, a []float32) {
+func FastTanFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tan(dst, a)
@@ -128,7 +128,7 @@ func fastTanFloat32RVVGuarded(dst []float32, a []float32) {
 	fastTanFloat32RVV(dst[:n:n], a)
 }
 
-func fastAsinFloat32RVVGuarded(dst []float32, a []float32) {
+func FastAsinFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -137,7 +137,7 @@ func fastAsinFloat32RVVGuarded(dst []float32, a []float32) {
 	fastAsinFloat32RVV(dst[:n:n], a)
 }
 
-func fastAcosFloat32RVVGuarded(dst []float32, a []float32) {
+func FastAcosFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -146,7 +146,7 @@ func fastAcosFloat32RVVGuarded(dst []float32, a []float32) {
 	fastAcosFloat32RVV(dst[:n:n], a)
 }
 
-func fastAtanFloat32RVVGuarded(dst []float32, a []float32) {
+func FastAtanFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atan(dst, a)
@@ -155,7 +155,7 @@ func fastAtanFloat32RVVGuarded(dst []float32, a []float32) {
 	fastAtanFloat32RVV(dst[:n:n], a)
 }
 
-func fastSinhFloat32RVVGuarded(dst []float32, a []float32) {
+func FastSinhFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sinh(dst, a)
@@ -164,7 +164,7 @@ func fastSinhFloat32RVVGuarded(dst []float32, a []float32) {
 	fastSinhFloat32RVV(dst[:n:n], a)
 }
 
-func fastCoshFloat32RVVGuarded(dst []float32, a []float32) {
+func FastCoshFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cosh(dst, a)
@@ -173,7 +173,7 @@ func fastCoshFloat32RVVGuarded(dst []float32, a []float32) {
 	fastCoshFloat32RVV(dst[:n:n], a)
 }
 
-func fastTanhFloat32RVVGuarded(dst []float32, a []float32) {
+func FastTanhFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tanh(dst, a)
@@ -182,7 +182,7 @@ func fastTanhFloat32RVVGuarded(dst []float32, a []float32) {
 	fastTanhFloat32RVV(dst[:n:n], a)
 }
 
-func fastAsinhFloat32RVVGuarded(dst []float32, a []float32) {
+func FastAsinhFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asinh(dst, a)
@@ -191,7 +191,7 @@ func fastAsinhFloat32RVVGuarded(dst []float32, a []float32) {
 	fastAsinhFloat32RVV(dst[:n:n], a)
 }
 
-func fastAcoshFloat32RVVGuarded(dst []float32, a []float32) {
+func FastAcoshFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acosh(dst, a)
@@ -200,7 +200,7 @@ func fastAcoshFloat32RVVGuarded(dst []float32, a []float32) {
 	fastAcoshFloat32RVV(dst[:n:n], a)
 }
 
-func fastAtanhFloat32RVVGuarded(dst []float32, a []float32) {
+func FastAtanhFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atanh(dst, a)
@@ -209,7 +209,7 @@ func fastAtanhFloat32RVVGuarded(dst []float32, a []float32) {
 	fastAtanhFloat32RVV(dst[:n:n], a)
 }
 
-func fastErfFloat32RVVGuarded(dst []float32, a []float32) {
+func FastErfFloat32RVV(dst []float32, a []float32) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Erf(dst, a)
@@ -218,7 +218,7 @@ func fastErfFloat32RVVGuarded(dst []float32, a []float32) {
 	fastErfFloat32RVV(dst[:n:n], a)
 }
 
-func fastPowFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
+func FastPowFloat32RVV(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Pow(dst, a, b)
@@ -227,7 +227,7 @@ func fastPowFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
 	fastPowFloat32RVV(dst[:n:n], a, b)
 }
 
-func fastAtan2Float32RVVGuarded(dst []float32, a []float32, b []float32) {
+func FastAtan2Float32RVV(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Atan2(dst, a, b)
@@ -236,7 +236,7 @@ func fastAtan2Float32RVVGuarded(dst []float32, a []float32, b []float32) {
 	fastAtan2Float32RVV(dst[:n:n], a, b)
 }
 
-func fastHypotFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
+func FastHypotFloat32RVV(dst []float32, a []float32, b []float32) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -245,7 +245,7 @@ func fastHypotFloat32RVVGuarded(dst []float32, a []float32, b []float32) {
 	fastHypotFloat32RVV(dst[:n:n], a, b)
 }
 
-func fastExpFloat64RVVGuarded(dst []float64, a []float64) {
+func FastExpFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp(dst, a)
@@ -254,7 +254,7 @@ func fastExpFloat64RVVGuarded(dst []float64, a []float64) {
 	fastExpFloat64RVV(dst[:n:n], a)
 }
 
-func fastExp2Float64RVVGuarded(dst []float64, a []float64) {
+func FastExp2Float64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Exp2(dst, a)
@@ -263,7 +263,7 @@ func fastExp2Float64RVVGuarded(dst []float64, a []float64) {
 	fastExp2Float64RVV(dst[:n:n], a)
 }
 
-func fastExpm1Float64RVVGuarded(dst []float64, a []float64) {
+func FastExpm1Float64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Expm1(dst, a)
@@ -272,7 +272,7 @@ func fastExpm1Float64RVVGuarded(dst []float64, a []float64) {
 	fastExpm1Float64RVV(dst[:n:n], a)
 }
 
-func fastLogFloat64RVVGuarded(dst []float64, a []float64) {
+func FastLogFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log(dst, a)
@@ -281,7 +281,7 @@ func fastLogFloat64RVVGuarded(dst []float64, a []float64) {
 	fastLogFloat64RVV(dst[:n:n], a)
 }
 
-func fastLog2Float64RVVGuarded(dst []float64, a []float64) {
+func FastLog2Float64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log2(dst, a)
@@ -290,7 +290,7 @@ func fastLog2Float64RVVGuarded(dst []float64, a []float64) {
 	fastLog2Float64RVV(dst[:n:n], a)
 }
 
-func fastLog10Float64RVVGuarded(dst []float64, a []float64) {
+func FastLog10Float64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log10(dst, a)
@@ -299,7 +299,7 @@ func fastLog10Float64RVVGuarded(dst []float64, a []float64) {
 	fastLog10Float64RVV(dst[:n:n], a)
 }
 
-func fastLog1pFloat64RVVGuarded(dst []float64, a []float64) {
+func FastLog1pFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Log1p(dst, a)
@@ -308,7 +308,7 @@ func fastLog1pFloat64RVVGuarded(dst []float64, a []float64) {
 	fastLog1pFloat64RVV(dst[:n:n], a)
 }
 
-func fastCbrtFloat64RVVGuarded(dst []float64, a []float64) {
+func FastCbrtFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cbrt(dst, a)
@@ -317,7 +317,7 @@ func fastCbrtFloat64RVVGuarded(dst []float64, a []float64) {
 	fastCbrtFloat64RVV(dst[:n:n], a)
 }
 
-func fastSigmoidFloat64RVVGuarded(dst []float64, a []float64) {
+func FastSigmoidFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sigmoid(dst, a)
@@ -326,7 +326,7 @@ func fastSigmoidFloat64RVVGuarded(dst []float64, a []float64) {
 	fastSigmoidFloat64RVV(dst[:n:n], a)
 }
 
-func fastSinFloat64RVVGuarded(dst []float64, a []float64) {
+func FastSinFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sin(dst, a)
@@ -335,7 +335,7 @@ func fastSinFloat64RVVGuarded(dst []float64, a []float64) {
 	fastSinFloat64RVV(dst[:n:n], a)
 }
 
-func fastCosFloat64RVVGuarded(dst []float64, a []float64) {
+func FastCosFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cos(dst, a)
@@ -344,7 +344,7 @@ func fastCosFloat64RVVGuarded(dst []float64, a []float64) {
 	fastCosFloat64RVV(dst[:n:n], a)
 }
 
-func fastTanFloat64RVVGuarded(dst []float64, a []float64) {
+func FastTanFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tan(dst, a)
@@ -353,7 +353,7 @@ func fastTanFloat64RVVGuarded(dst []float64, a []float64) {
 	fastTanFloat64RVV(dst[:n:n], a)
 }
 
-func fastAsinFloat64RVVGuarded(dst []float64, a []float64) {
+func FastAsinFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asin(dst, a)
@@ -362,7 +362,7 @@ func fastAsinFloat64RVVGuarded(dst []float64, a []float64) {
 	fastAsinFloat64RVV(dst[:n:n], a)
 }
 
-func fastAcosFloat64RVVGuarded(dst []float64, a []float64) {
+func FastAcosFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acos(dst, a)
@@ -371,7 +371,7 @@ func fastAcosFloat64RVVGuarded(dst []float64, a []float64) {
 	fastAcosFloat64RVV(dst[:n:n], a)
 }
 
-func fastAtanFloat64RVVGuarded(dst []float64, a []float64) {
+func FastAtanFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atan(dst, a)
@@ -380,7 +380,7 @@ func fastAtanFloat64RVVGuarded(dst []float64, a []float64) {
 	fastAtanFloat64RVV(dst[:n:n], a)
 }
 
-func fastSinhFloat64RVVGuarded(dst []float64, a []float64) {
+func FastSinhFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Sinh(dst, a)
@@ -389,7 +389,7 @@ func fastSinhFloat64RVVGuarded(dst []float64, a []float64) {
 	fastSinhFloat64RVV(dst[:n:n], a)
 }
 
-func fastCoshFloat64RVVGuarded(dst []float64, a []float64) {
+func FastCoshFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Cosh(dst, a)
@@ -398,7 +398,7 @@ func fastCoshFloat64RVVGuarded(dst []float64, a []float64) {
 	fastCoshFloat64RVV(dst[:n:n], a)
 }
 
-func fastTanhFloat64RVVGuarded(dst []float64, a []float64) {
+func FastTanhFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Tanh(dst, a)
@@ -407,7 +407,7 @@ func fastTanhFloat64RVVGuarded(dst []float64, a []float64) {
 	fastTanhFloat64RVV(dst[:n:n], a)
 }
 
-func fastAsinhFloat64RVVGuarded(dst []float64, a []float64) {
+func FastAsinhFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Asinh(dst, a)
@@ -416,7 +416,7 @@ func fastAsinhFloat64RVVGuarded(dst []float64, a []float64) {
 	fastAsinhFloat64RVV(dst[:n:n], a)
 }
 
-func fastAcoshFloat64RVVGuarded(dst []float64, a []float64) {
+func FastAcoshFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Acosh(dst, a)
@@ -425,7 +425,7 @@ func fastAcoshFloat64RVVGuarded(dst []float64, a []float64) {
 	fastAcoshFloat64RVV(dst[:n:n], a)
 }
 
-func fastAtanhFloat64RVVGuarded(dst []float64, a []float64) {
+func FastAtanhFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Atanh(dst, a)
@@ -434,7 +434,7 @@ func fastAtanhFloat64RVVGuarded(dst []float64, a []float64) {
 	fastAtanhFloat64RVV(dst[:n:n], a)
 }
 
-func fastErfFloat64RVVGuarded(dst []float64, a []float64) {
+func FastErfFloat64RVV(dst []float64, a []float64) {
 	n := min(len(dst), len(a))
 	if n < 4 {
 		ref.Erf(dst, a)
@@ -443,7 +443,7 @@ func fastErfFloat64RVVGuarded(dst []float64, a []float64) {
 	fastErfFloat64RVV(dst[:n:n], a)
 }
 
-func fastPowFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
+func FastPowFloat64RVV(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Pow(dst, a, b)
@@ -452,7 +452,7 @@ func fastPowFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
 	fastPowFloat64RVV(dst[:n:n], a, b)
 }
 
-func fastAtan2Float64RVVGuarded(dst []float64, a []float64, b []float64) {
+func FastAtan2Float64RVV(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Atan2(dst, a, b)
@@ -461,7 +461,7 @@ func fastAtan2Float64RVVGuarded(dst []float64, a []float64, b []float64) {
 	fastAtan2Float64RVV(dst[:n:n], a, b)
 }
 
-func fastHypotFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
+func FastHypotFloat64RVV(dst []float64, a []float64, b []float64) {
 	n := min(len(dst), len(a), len(b))
 	if n < 4 {
 		ref.Hypot(dst, a, b)
@@ -470,58 +470,55 @@ func fastHypotFloat64RVVGuarded(dst []float64, a []float64, b []float64) {
 	fastHypotFloat64RVV(dst[:n:n], a, b)
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("rvv")
-	s.F32.FastExp = fastExpFloat32RVVGuarded
-	s.F32.FastExp2 = fastExp2Float32RVVGuarded
-	s.F32.FastExpm1 = fastExpm1Float32RVVGuarded
-	s.F32.FastLog = fastLogFloat32RVVGuarded
-	s.F32.FastLog2 = fastLog2Float32RVVGuarded
-	s.F32.FastLog10 = fastLog10Float32RVVGuarded
-	s.F32.FastLog1p = fastLog1pFloat32RVVGuarded
-	s.F32.FastCbrt = fastCbrtFloat32RVVGuarded
-	s.F32.FastSigmoid = fastSigmoidFloat32RVVGuarded
-	s.F32.FastSin = fastSinFloat32RVVGuarded
-	s.F32.FastCos = fastCosFloat32RVVGuarded
-	s.F32.FastTan = fastTanFloat32RVVGuarded
-	s.F32.FastAsin = fastAsinFloat32RVVGuarded
-	s.F32.FastAcos = fastAcosFloat32RVVGuarded
-	s.F32.FastAtan = fastAtanFloat32RVVGuarded
-	s.F32.FastSinh = fastSinhFloat32RVVGuarded
-	s.F32.FastCosh = fastCoshFloat32RVVGuarded
-	s.F32.FastTanh = fastTanhFloat32RVVGuarded
-	s.F32.FastAsinh = fastAsinhFloat32RVVGuarded
-	s.F32.FastAcosh = fastAcoshFloat32RVVGuarded
-	s.F32.FastAtanh = fastAtanhFloat32RVVGuarded
-	s.F32.FastErf = fastErfFloat32RVVGuarded
-	s.F32.FastPow = fastPowFloat32RVVGuarded
-	s.F32.FastAtan2 = fastAtan2Float32RVVGuarded
-	s.F32.FastHypot = fastHypotFloat32RVVGuarded
-	s.F64.FastExp = fastExpFloat64RVVGuarded
-	s.F64.FastExp2 = fastExp2Float64RVVGuarded
-	s.F64.FastExpm1 = fastExpm1Float64RVVGuarded
-	s.F64.FastLog = fastLogFloat64RVVGuarded
-	s.F64.FastLog2 = fastLog2Float64RVVGuarded
-	s.F64.FastLog10 = fastLog10Float64RVVGuarded
-	s.F64.FastLog1p = fastLog1pFloat64RVVGuarded
-	s.F64.FastCbrt = fastCbrtFloat64RVVGuarded
-	s.F64.FastSigmoid = fastSigmoidFloat64RVVGuarded
-	s.F64.FastSin = fastSinFloat64RVVGuarded
-	s.F64.FastCos = fastCosFloat64RVVGuarded
-	s.F64.FastTan = fastTanFloat64RVVGuarded
-	s.F64.FastAsin = fastAsinFloat64RVVGuarded
-	s.F64.FastAcos = fastAcosFloat64RVVGuarded
-	s.F64.FastAtan = fastAtanFloat64RVVGuarded
-	s.F64.FastSinh = fastSinhFloat64RVVGuarded
-	s.F64.FastCosh = fastCoshFloat64RVVGuarded
-	s.F64.FastTanh = fastTanhFloat64RVVGuarded
-	s.F64.FastAsinh = fastAsinhFloat64RVVGuarded
-	s.F64.FastAcosh = fastAcoshFloat64RVVGuarded
-	s.F64.FastAtanh = fastAtanhFloat64RVVGuarded
-	s.F64.FastErf = fastErfFloat64RVVGuarded
-	s.F64.FastPow = fastPowFloat64RVVGuarded
-	s.F64.FastAtan2 = fastAtan2Float64RVVGuarded
-	s.F64.FastHypot = fastHypotFloat64RVVGuarded
+func registerFastmathRVV(s *kernel.Set) {
+	s.F32.FastExp = FastExpFloat32RVV
+	s.F32.FastExp2 = FastExp2Float32RVV
+	s.F32.FastExpm1 = FastExpm1Float32RVV
+	s.F32.FastLog = FastLogFloat32RVV
+	s.F32.FastLog2 = FastLog2Float32RVV
+	s.F32.FastLog10 = FastLog10Float32RVV
+	s.F32.FastLog1p = FastLog1pFloat32RVV
+	s.F32.FastCbrt = FastCbrtFloat32RVV
+	s.F32.FastSigmoid = FastSigmoidFloat32RVV
+	s.F32.FastSin = FastSinFloat32RVV
+	s.F32.FastCos = FastCosFloat32RVV
+	s.F32.FastTan = FastTanFloat32RVV
+	s.F32.FastAsin = FastAsinFloat32RVV
+	s.F32.FastAcos = FastAcosFloat32RVV
+	s.F32.FastAtan = FastAtanFloat32RVV
+	s.F32.FastSinh = FastSinhFloat32RVV
+	s.F32.FastCosh = FastCoshFloat32RVV
+	s.F32.FastTanh = FastTanhFloat32RVV
+	s.F32.FastAsinh = FastAsinhFloat32RVV
+	s.F32.FastAcosh = FastAcoshFloat32RVV
+	s.F32.FastAtanh = FastAtanhFloat32RVV
+	s.F32.FastErf = FastErfFloat32RVV
+	s.F32.FastPow = FastPowFloat32RVV
+	s.F32.FastAtan2 = FastAtan2Float32RVV
+	s.F32.FastHypot = FastHypotFloat32RVV
+	s.F64.FastExp = FastExpFloat64RVV
+	s.F64.FastExp2 = FastExp2Float64RVV
+	s.F64.FastExpm1 = FastExpm1Float64RVV
+	s.F64.FastLog = FastLogFloat64RVV
+	s.F64.FastLog2 = FastLog2Float64RVV
+	s.F64.FastLog10 = FastLog10Float64RVV
+	s.F64.FastLog1p = FastLog1pFloat64RVV
+	s.F64.FastCbrt = FastCbrtFloat64RVV
+	s.F64.FastSigmoid = FastSigmoidFloat64RVV
+	s.F64.FastSin = FastSinFloat64RVV
+	s.F64.FastCos = FastCosFloat64RVV
+	s.F64.FastTan = FastTanFloat64RVV
+	s.F64.FastAsin = FastAsinFloat64RVV
+	s.F64.FastAcos = FastAcosFloat64RVV
+	s.F64.FastAtan = FastAtanFloat64RVV
+	s.F64.FastSinh = FastSinhFloat64RVV
+	s.F64.FastCosh = FastCoshFloat64RVV
+	s.F64.FastTanh = FastTanhFloat64RVV
+	s.F64.FastAsinh = FastAsinhFloat64RVV
+	s.F64.FastAcosh = FastAcoshFloat64RVV
+	s.F64.FastAtanh = FastAtanhFloat64RVV
+	s.F64.FastErf = FastErfFloat64RVV
+	s.F64.FastPow = FastPowFloat64RVV
+	s.F64.FastAtan2 = FastAtan2Float64RVV
+	s.F64.FastHypot = FastHypotFloat64RVV
 }

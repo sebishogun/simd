@@ -10,7 +10,7 @@ package s390x
 import (
 	"runtime"
 
-	"github.com/sebishogun/simd/internal/backend"
+	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
 )
 
@@ -20,7 +20,7 @@ import (
 // which is a compile error rather than a SIGILL on someone else's machine.
 var _ = map[bool]struct{}{false: {}, runtime.GOARCH == "s390x": {}}
 
-func runStartsU8VXGuarded(dst []bool, a []byte) {
+func RunStartsU8VX(dst []bool, a []byte) {
 	n := min(len(a), len(dst))
 	if n < 64 {
 		ref.RunStartsU8(dst, a)
@@ -29,9 +29,6 @@ func runStartsU8VXGuarded(dst []bool, a []byte) {
 	runStartsU8VX(dst, a[:n:n])
 }
 
-func init() {
-	// Add to the tier's set rather than installing a whole one: other
-	// generated files contribute their own kernels to the same tier.
-	s := backend.For("vx")
-	s.Bytes.RunStartsU8 = runStartsU8VXGuarded
+func registerCompressVX(s *kernel.Set) {
+	s.Bytes.RunStartsU8 = RunStartsU8VX
 }

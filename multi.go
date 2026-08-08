@@ -201,7 +201,7 @@ func (m *MultiSearcher) index(h []byte) (pos, which int) {
 	best, bestWhich := -1, -1
 	at := 0
 	for at < len(h) {
-		rel := active.Bytes.IndexAny(h[at:], m.set)
+		rel := tblBytesIndexAny[tierIdx](h[at:], m.set)
 		if rel < 0 {
 			break
 		}
