@@ -518,6 +518,7 @@ var tblConvertF32ToF16 = [...]func([]uint16, []float32){
 var opsF32LASX = kernel.Ops[float32]{
 	Rotate:                 loong64.RotFloat32LASX,
 	Swap:                   loong64.SwapFloat32LASX,
+	SumValid:               loong64.SumValidFloat32LASX,
 	Add3:                   loong64.Add3Float32LASX,
 	Mul3:                   loong64.Mul3Float32LASX,
 	Add4:                   loong64.Add4Float32LASX,
@@ -593,6 +594,7 @@ var opsF64LASX = kernel.Ops[float64]{
 	RankOne:                loong64.GerFloat64LASX,
 	Rotate:                 loong64.RotFloat64LASX,
 	Swap:                   loong64.SwapFloat64LASX,
+	SumValid:               loong64.SumValidFloat64LASX,
 	Add3:                   loong64.Add3Float64LASX,
 	Mul3:                   loong64.Mul3Float64LASX,
 	Add4:                   loong64.Add4Float64LASX,
@@ -770,6 +772,7 @@ var opsI16ByTier = [...]*kernel.Ops[int16]{
 
 var opsI32LASX = kernel.Ops[int32]{
 	Swap:                   loong64.SwapInt32LASX,
+	SumValid:               loong64.SumValidInt32LASX,
 	Intersect:              loong64.IntersectInt32LASX,
 	Add3:                   loong64.Add3Int32LASX,
 	Mul3:                   loong64.Mul3Int32LASX,
@@ -843,6 +846,7 @@ var opsI32ByTier = [...]*kernel.Ops[int32]{
 
 var opsI64LASX = kernel.Ops[int64]{
 	Swap:                   loong64.SwapInt64LASX,
+	SumValid:               loong64.SumValidInt64LASX,
 	Intersect:              loong64.IntersectInt64LASX,
 	Add3:                   loong64.Add3Int64LASX,
 	Mul3:                   loong64.Mul3Int64LASX,

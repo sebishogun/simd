@@ -2257,6 +2257,45 @@ var noCompress = []string{
 	"s390x", "loong64", "ppc64le",
 }
 
+// compressBitsK is the columnar filter: compressK's contract with the mask
+// arriving as an Arrow validity bitmap, one bit per row, LSB-first. The
+// bitmap is in different units than the values, so the guard must not clamp
+// them together (UnclampedDst), and a bitmap too short for the rows takes
+// the portable path.
+func compressBitsK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_compress_bits_" + e.c, GoName: "compressBits" + e.goName,
+		Group: e.group, Field: "CompressBits", RefFunc: "CompressBits" + e.goName,
+		Params: []spec.Param{
+			sl("dst", e.slice), sl("src", e.slice), sl("bm", spec.SliceU8),
+		},
+		Result:       &spec.Param{Name: "ret", Type: spec.Int},
+		CArgs:        []spec.CArg{out(), base("dst"), base("src"), base("bm"), lenOf("src")},
+		RefWhen:      "len(dst) < len(src) || len(bm) < (len(src)+7)/8",
+		UnclampedDst: true,
+		Threshold:    192,
+		SkipOn:       noCompress,
+	}
+}
+
+// sumValidK is the null-aware sum: Sum's exact accumulation tree with a
+// select at each lane, so the result is bit-identical to Sum over a masked
+// copy -- which is what the reference literally is.
+func sumValidK(e elem) spec.Kernel {
+	return spec.Kernel{
+		CName: "simd_sum_valid_" + e.c, GoName: "sumValid" + e.goName,
+		Group: e.group, Field: "SumValid", RefFunc: "SumValid" + e.goName,
+		Params: []spec.Param{
+			sl("a", e.slice), sl("bm", spec.SliceU8),
+		},
+		Result:       &spec.Param{Name: "ret", Type: e.scalar},
+		CArgs:        []spec.CArg{out(), base("a"), base("bm"), lenOf("a")},
+		RefWhen:      "len(bm) < (len(a)+7)/8",
+		UnclampedDst: true,
+		Threshold:    thReduction,
+	}
+}
+
 // compressK is the packing kernel for one element type.
 //
 // The contract is that dst has room for the whole of src. The kernel cannot
@@ -2467,9 +2506,24 @@ func swapK(e elem) spec.Kernel {
 }
 
 // All is every source file the generator processes.
+
+// Columnar is the Arrow-style validity-bitmap family: the columnar filter
+// and the null-aware reductions. csrc/columnar.c.
+func Columnar() []spec.Kernel {
+	var ks []spec.Kernel
+	for _, e := range elems {
+		switch e.group {
+		case "F32", "F64", "I32", "I64":
+			ks = append(ks, compressBitsK(e), sumValidK(e))
+		}
+	}
+	return ks
+}
+
 var All = []Source{
 	{Path: "csrc/blas.c", Kernels: Blas()},
 	{Path: "csrc/compress.c", Kernels: Compress()},
+	{Path: "csrc/columnar.c", Kernels: Columnar()},
 	{Path: "csrc/sets.c", Kernels: Sets()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},

@@ -717,6 +717,7 @@ var opsF32SSE2 = kernel.Ops[float32]{
 	RankOne:                amd64.GerFloat32SSE2,
 	Rotate:                 amd64.RotFloat32SSE2,
 	Swap:                   amd64.SwapFloat32SSE2,
+	SumValid:               amd64.SumValidFloat32SSE2,
 	MatMul:                 amd64.MatMulFloat32SSE2,
 	Gemv:                   amd64.GemvFloat32SSE2,
 	GemmPackB:              amd64.GemmPackBFloat32SSE2,
@@ -846,6 +847,7 @@ var opsF32AVX2 = kernel.Ops[float32]{
 	RankOne:                amd64.GerFloat32AVX2,
 	Rotate:                 amd64.RotFloat32AVX2,
 	Swap:                   amd64.SwapFloat32AVX2,
+	SumValid:               amd64.SumValidFloat32AVX2,
 	MatMul:                 amd64.MatMulFloat32AVX2,
 	Gemv:                   amd64.GemvFloat32AVX2,
 	GemmPackB:              amd64.GemmPackBFloat32AVX2,
@@ -981,6 +983,8 @@ var opsF32AVX512 = kernel.Ops[float32]{
 	Rotate:                 amd64.RotFloat32AVX512,
 	Swap:                   amd64.SwapFloat32AVX512,
 	Compress:               amd64.CompressFloat32AVX512,
+	CompressBits:           amd64.CompressBitsFloat32AVX512,
+	SumValid:               amd64.SumValidFloat32AVX512,
 	MatMul:                 amd64.MatMulFloat32AVX512,
 	Gemv:                   amd64.GemvFloat32AVX512,
 	GemmPackB:              amd64.GemmPackBFloat32AVX512,
@@ -1123,6 +1127,7 @@ var opsF64SSE2 = kernel.Ops[float64]{
 	RankOne:                amd64.GerFloat64SSE2,
 	Rotate:                 amd64.RotFloat64SSE2,
 	Swap:                   amd64.SwapFloat64SSE2,
+	SumValid:               amd64.SumValidFloat64SSE2,
 	MatMul:                 amd64.MatMulFloat64SSE2,
 	Gemv:                   amd64.GemvFloat64SSE2,
 	GemmPackB:              amd64.GemmPackBFloat64SSE2,
@@ -1251,6 +1256,7 @@ var opsF64AVX2 = kernel.Ops[float64]{
 	RankOne:                amd64.GerFloat64AVX2,
 	Rotate:                 amd64.RotFloat64AVX2,
 	Swap:                   amd64.SwapFloat64AVX2,
+	SumValid:               amd64.SumValidFloat64AVX2,
 	MatMul:                 amd64.MatMulFloat64AVX2,
 	Gemv:                   amd64.GemvFloat64AVX2,
 	GemmPackB:              amd64.GemmPackBFloat64AVX2,
@@ -1385,6 +1391,8 @@ var opsF64AVX512 = kernel.Ops[float64]{
 	Rotate:                 amd64.RotFloat64AVX512,
 	Swap:                   amd64.SwapFloat64AVX512,
 	Compress:               amd64.CompressFloat64AVX512,
+	CompressBits:           amd64.CompressBitsFloat64AVX512,
+	SumValid:               amd64.SumValidFloat64AVX512,
 	MatMul:                 amd64.MatMulFloat64AVX512,
 	Gemv:                   amd64.GemvFloat64AVX512,
 	GemmPackB:              amd64.GemmPackBFloat64AVX512,
@@ -1711,6 +1719,7 @@ var opsI16ByTier = [...]*kernel.Ops[int16]{
 
 var opsI32SSE2 = kernel.Ops[int32]{
 	Swap:                   amd64.SwapInt32SSE2,
+	SumValid:               amd64.SumValidInt32SSE2,
 	Intersect:              amd64.IntersectInt32SSE2,
 	Difference:             amd64.DifferenceInt32SSE2,
 	Transpose:              amd64.TransposeInt32SSE2,
@@ -1781,6 +1790,7 @@ var opsI32SSE2 = kernel.Ops[int32]{
 
 var opsI32AVX2 = kernel.Ops[int32]{
 	Swap:                   amd64.SwapInt32AVX2,
+	SumValid:               amd64.SumValidInt32AVX2,
 	Intersect:              amd64.IntersectInt32AVX2,
 	Difference:             amd64.DifferenceInt32AVX2,
 	Transpose:              amd64.TransposeInt32AVX2,
@@ -1855,6 +1865,8 @@ var opsI32AVX2 = kernel.Ops[int32]{
 var opsI32AVX512 = kernel.Ops[int32]{
 	Swap:                   amd64.SwapInt32AVX512,
 	Compress:               amd64.CompressInt32AVX512,
+	CompressBits:           amd64.CompressBitsInt32AVX512,
+	SumValid:               amd64.SumValidInt32AVX512,
 	Intersect:              amd64.IntersectInt32AVX512,
 	Difference:             amd64.DifferenceInt32AVX512,
 	Transpose:              amd64.TransposeInt32AVX512,
@@ -1936,6 +1948,7 @@ var opsI32ByTier = [...]*kernel.Ops[int32]{
 
 var opsI64SSE2 = kernel.Ops[int64]{
 	Swap:              amd64.SwapInt64SSE2,
+	SumValid:          amd64.SumValidInt64SSE2,
 	Transpose:         amd64.TransposeInt64SSE2,
 	Add3:              amd64.Add3Int64SSE2,
 	Add4:              amd64.Add4Int64SSE2,
@@ -1993,6 +2006,7 @@ var opsI64SSE2 = kernel.Ops[int64]{
 
 var opsI64AVX2 = kernel.Ops[int64]{
 	Swap:                   amd64.SwapInt64AVX2,
+	SumValid:               amd64.SumValidInt64AVX2,
 	Intersect:              amd64.IntersectInt64AVX2,
 	Difference:             amd64.DifferenceInt64AVX2,
 	Transpose:              amd64.TransposeInt64AVX2,
@@ -2064,6 +2078,8 @@ var opsI64AVX2 = kernel.Ops[int64]{
 var opsI64AVX512 = kernel.Ops[int64]{
 	Swap:                   amd64.SwapInt64AVX512,
 	Compress:               amd64.CompressInt64AVX512,
+	CompressBits:           amd64.CompressBitsInt64AVX512,
+	SumValid:               amd64.SumValidInt64AVX512,
 	Intersect:              amd64.IntersectInt64AVX512,
 	Difference:             amd64.DifferenceInt64AVX512,
 	Transpose:              amd64.TransposeInt64AVX512,

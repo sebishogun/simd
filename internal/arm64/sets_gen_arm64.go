@@ -23,6 +23,7 @@ func Sets() map[string]kernel.Set {
 		s.Name = "neon"
 		registerBlasNEON(&s)
 		registerCompressNEON(&s)
+		registerColumnarNEON(&s)
 		registerSetsNEON(&s)
 		registerGemmNEON(&s)
 		registerNaryNEON(&s)
@@ -45,6 +46,7 @@ func Sets() map[string]kernel.Set {
 		s.Name = "sve2"
 		registerBlasSVE2(&s)
 		registerCompressSVE2(&s)
+		registerColumnarSVE2(&s)
 		registerSetsSVE2(&s)
 		registerGemmSVE2(&s)
 		registerNarySVE2(&s)

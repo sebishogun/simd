@@ -86,6 +86,8 @@ Organised by task rather than by operation name.
 | make a vector unit length | `Normalize` |
 | smallest and largest in one pass | `MinMax`, or `ArgMin`/`ArgMax` for positions |
 | **keep only the elements that pass a test** | a comparison → `[]bool`, then `CompressInto` |
+| **filter a column by an Arrow validity bitmap** | `CompressBitsInto` — packed bits, LSB-first; take is `GatherInto` |
+| **null-aware sum and non-null count** | `SumValid` `CountValid` — never read a null slot, bit-identical to `Sum` |
 | apply an arbitrary Go predicate | `FilterInto` (convenient, not fast — see its doc) |
 | running totals / differences | `CumSum` `DiffInto` |
 | exp/log/trig over a slice | `Exp` `Log` `Sin` … and the `Fast*` twins |
@@ -318,7 +320,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-477 exported functions and 6,807 generated kernels across nine targets. The
+480 exported functions and 6,850 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over
@@ -327,12 +329,12 @@ counts once in each.
 
 | | kernels | skipped | dominant reason for skips |
 |---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2553 | 91 | LLVM declined to vectorize |
-| arm64 (neon/sve2) | 1647 | 117 | LLVM declined to vectorize |
-| riscv64 (rvv) | 870 | 14 | LLVM declined to vectorize |
-| loong64 (lasx) | 719 | 161 | `$fp`, then `.L0` references |
-| ppc64le (vsx) | 599 | 281 | `r30`, then LLVM refusals |
-| s390x (vx) | 419 | 461 | `r13` — an ABI wall, see below |
+| amd64 (sse2/avx2/avx512) | 2569 | 99 | LLVM declined to vectorize |
+| arm64 (neon/sve2) | 1659 | 121 | LLVM declined to vectorize |
+| riscv64 (rvv) | 878 | 14 | LLVM declined to vectorize |
+| loong64 (lasx) | 723 | 165 | `$fp`, then `.L0` references |
+| ppc64le (vsx) | 602 | 286 | `r30`, then LLVM refusals |
+| s390x (vx) | 419 | 469 | `r13` — an ABI wall, see below |
 
 Most remaining skips are in the `Fast*` tier, which is the newest and least
 portable. Where a target declines a `Fast*` kernel the accurate kernel stands
@@ -554,7 +556,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.14.0.** The API is stable: every exported function keeps its name,
+**v1.15.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.

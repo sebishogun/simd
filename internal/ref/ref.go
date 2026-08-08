@@ -1159,6 +1159,18 @@ func satRange[T satInteger]() (lo, hi int64) {
 
 // Set returns the reference backend: every kernel, portable Go.
 func Set() kernel.Set {
+	s := setBase()
+	// The columnar family exists for exactly the four full-width types the
+	// compress instruction covers; the generic constructors cannot know
+	// that, so the fields are set here.
+	s.F32.CompressBits, s.F32.SumValid = CompressBitsFloat32, SumValidFloat32
+	s.F64.CompressBits, s.F64.SumValid = CompressBitsFloat64, SumValidFloat64
+	s.I32.CompressBits, s.I32.SumValid = CompressBitsInt32, SumValidInt32
+	s.I64.CompressBits, s.I64.SumValid = CompressBitsInt64, SumValidInt64
+	return s
+}
+
+func setBase() kernel.Set {
 	return kernel.Set{
 		Name: "scalar",
 		F32:  floatOps[float32](),

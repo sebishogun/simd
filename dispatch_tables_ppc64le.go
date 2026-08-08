@@ -518,6 +518,7 @@ var tblConvertF32ToF16 = [...]func([]uint16, []float32){
 var opsF32VSX = kernel.Ops[float32]{
 	Rotate:                 ppc64le.RotFloat32VSX,
 	Swap:                   ppc64le.SwapFloat32VSX,
+	SumValid:               ppc64le.SumValidFloat32VSX,
 	Add4:                   ppc64le.Add4Float32VSX,
 	Mul4:                   ppc64le.Mul4Float32VSX,
 	MinMax:                 ppc64le.MinMaxFloat32VSX,
@@ -778,6 +779,7 @@ var opsI16ByTier = [...]*kernel.Ops[int16]{
 
 var opsI32VSX = kernel.Ops[int32]{
 	Swap:                   ppc64le.SwapInt32VSX,
+	SumValid:               ppc64le.SumValidInt32VSX,
 	ArgMin:                 ppc64le.ArgMinInt32VSX,
 	ArgMax:                 ppc64le.ArgMaxInt32VSX,
 	CumMin:                 ppc64le.CumMinInt32VSX,
@@ -840,6 +842,7 @@ var opsI32ByTier = [...]*kernel.Ops[int32]{
 
 var opsI64VSX = kernel.Ops[int64]{
 	Swap:          ppc64le.SwapInt64VSX,
+	SumValid:      ppc64le.SumValidInt64VSX,
 	ArgMin:        ppc64le.ArgMinInt64VSX,
 	ArgMax:        ppc64le.ArgMaxInt64VSX,
 	CumMin:        ppc64le.CumMinInt64VSX,

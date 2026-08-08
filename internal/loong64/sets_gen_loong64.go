@@ -23,6 +23,7 @@ func Sets() map[string]kernel.Set {
 		s.Name = "lasx"
 		registerBlasLASX(&s)
 		registerCompressLASX(&s)
+		registerColumnarLASX(&s)
 		registerSetsLASX(&s)
 		registerGemmLASX(&s)
 		registerNaryLASX(&s)

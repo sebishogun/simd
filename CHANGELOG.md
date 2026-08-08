@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.15.0
+
+**The columnar family** -- Arrow-style validity bitmaps driving typed value
+buffers, one bit per row, LSB-first, with no arrow-go dependency: raw
+slices and a []byte bitmap, so arrow users hand over an Array's buffers
+and everyone else gets the same toolkit on plain Go data.
+**`CompressBitsInto`** is the columnar filter: compressK's contract with
+the mask arriving as packed bits, which is the shape the compress
+instructions' predicate registers want anyway. **`SumValid`** is the
+null-aware sum, a select at each lane inside Sum's exact sixteen-lane
+accumulation tree -- bit-identical to `Sum` over a masked copy (which is
+literally the reference), and it never reads the value under a clear bit,
+so Arrow's undefined null slots may hold NaN. **`CountValid`** is the
+non-null count through the PopCount kernel; take is [GatherInto],
+unchanged. Four full-width element types (float32/64, int32/64), the same
+compress-instruction boundary the Compress family documents; 43 new
+kernels across the targets. First consumers: the columnar/arrow compute
+layer this release opens, and any Go analytics on nullable columns.
+
 ## v1.14.0
 
 **Per-operation dispatch, and binaries a quarter the size.** The registry --

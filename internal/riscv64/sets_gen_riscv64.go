@@ -23,6 +23,7 @@ func Sets() map[string]kernel.Set {
 		s.Name = "rvv"
 		registerBlasRVV(&s)
 		registerCompressRVV(&s)
+		registerColumnarRVV(&s)
 		registerSetsRVV(&s)
 		registerGemmRVV(&s)
 		registerNaryRVV(&s)

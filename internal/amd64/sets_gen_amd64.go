@@ -23,6 +23,7 @@ func Sets() map[string]kernel.Set {
 		s.Name = "sse2"
 		registerBlasSSE2(&s)
 		registerCompressSSE2(&s)
+		registerColumnarSSE2(&s)
 		registerSetsSSE2(&s)
 		registerGemmSSE2(&s)
 		registerNarySSE2(&s)
@@ -45,6 +46,7 @@ func Sets() map[string]kernel.Set {
 		s.Name = "avx2"
 		registerBlasAVX2(&s)
 		registerCompressAVX2(&s)
+		registerColumnarAVX2(&s)
 		registerSetsAVX2(&s)
 		registerGemmAVX2(&s)
 		registerNaryAVX2(&s)
@@ -67,6 +69,7 @@ func Sets() map[string]kernel.Set {
 		s.Name = "avx512"
 		registerBlasAVX512(&s)
 		registerCompressAVX512(&s)
+		registerColumnarAVX512(&s)
 		registerSetsAVX512(&s)
 		registerGemmAVX512(&s)
 		registerNaryAVX512(&s)

@@ -293,6 +293,15 @@ type Ops[T any] struct {
 	// dispatcher keeps the portable loop, which is what the compiler would
 	// have produced anyway.
 	Compress func(dst, src []T, keep []bool) int
+	// CompressBits is Compress with the mask as an Arrow-style validity
+	// bitmap: one bit per row, LSB-first within a byte. The columnar
+	// filter. Same contract as Compress: dst must hold all of src.
+	CompressBits func(dst, src []T, bm []byte) int
+	// SumValid adds the elements whose validity bit is set, with Sum's
+	// exact accumulation tree -- the result is bit-identical to Sum over a
+	// copy with the invalid lanes zeroed, which is what the reference is.
+	// The value under a clear bit is never read.
+	SumValid func(a []T, bm []byte) T
 
 	// Partition splits src about a pivot into dst: everything strictly below
 	// the pivot first, everything else after, returning how many went first.

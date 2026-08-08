@@ -617,6 +617,7 @@ var tblConvertF32ToF16 = [...]func([]uint16, []float32){
 var opsF32NEON = kernel.Ops[float32]{
 	RankOne:                arm64.GerFloat32NEON,
 	Rotate:                 arm64.RotFloat32NEON,
+	SumValid:               arm64.SumValidFloat32NEON,
 	MatMul:                 arm64.MatMulFloat32NEON,
 	Gemv:                   arm64.GemvFloat32NEON,
 	GemmPackB:              arm64.GemmPackBFloat32NEON,
@@ -746,6 +747,8 @@ var opsF32SVE2 = kernel.Ops[float32]{
 	RankOne:                arm64.GerFloat32SVE2,
 	Rotate:                 arm64.RotFloat32SVE2,
 	Compress:               arm64.CompressFloat32SVE2,
+	CompressBits:           arm64.CompressBitsFloat32SVE2,
+	SumValid:               arm64.SumValidFloat32SVE2,
 	MatMul:                 arm64.MatMulFloat32SVE2,
 	Gemv:                   arm64.GemvFloat32SVE2,
 	GemmPackB:              arm64.GemmPackBFloat32SVE2,
@@ -883,6 +886,7 @@ var opsF32ByTier = [...]*kernel.Ops[float32]{
 var opsF64NEON = kernel.Ops[float64]{
 	RankOne:                arm64.GerFloat64NEON,
 	Rotate:                 arm64.RotFloat64NEON,
+	SumValid:               arm64.SumValidFloat64NEON,
 	MatMul:                 arm64.MatMulFloat64NEON,
 	Gemv:                   arm64.GemvFloat64NEON,
 	GemmPackB:              arm64.GemmPackBFloat64NEON,
@@ -1009,6 +1013,8 @@ var opsF64SVE2 = kernel.Ops[float64]{
 	RankOne:                arm64.GerFloat64SVE2,
 	Rotate:                 arm64.RotFloat64SVE2,
 	Compress:               arm64.CompressFloat64SVE2,
+	CompressBits:           arm64.CompressBitsFloat64SVE2,
+	SumValid:               arm64.SumValidFloat64SVE2,
 	MatMul:                 arm64.MatMulFloat64SVE2,
 	Gemv:                   arm64.GemvFloat64SVE2,
 	GemmPackB:              arm64.GemmPackBFloat64SVE2,
@@ -1266,6 +1272,7 @@ var opsI16ByTier = [...]*kernel.Ops[int16]{
 }
 
 var opsI32NEON = kernel.Ops[int32]{
+	SumValid:               arm64.SumValidInt32NEON,
 	Intersect:              arm64.IntersectInt32NEON,
 	Difference:             arm64.DifferenceInt32NEON,
 	Add3:                   arm64.Add3Int32NEON,
@@ -1335,6 +1342,8 @@ var opsI32NEON = kernel.Ops[int32]{
 
 var opsI32SVE2 = kernel.Ops[int32]{
 	Compress:               arm64.CompressInt32SVE2,
+	CompressBits:           arm64.CompressBitsInt32SVE2,
+	SumValid:               arm64.SumValidInt32SVE2,
 	Intersect:              arm64.IntersectInt32SVE2,
 	Difference:             arm64.DifferenceInt32SVE2,
 	Add3:                   arm64.Add3Int32SVE2,
@@ -1412,6 +1421,7 @@ var opsI32ByTier = [...]*kernel.Ops[int32]{
 }
 
 var opsI64NEON = kernel.Ops[int64]{
+	SumValid:               arm64.SumValidInt64NEON,
 	Intersect:              arm64.IntersectInt64NEON,
 	Difference:             arm64.DifferenceInt64NEON,
 	Add3:                   arm64.Add3Int64NEON,
@@ -1465,6 +1475,8 @@ var opsI64NEON = kernel.Ops[int64]{
 
 var opsI64SVE2 = kernel.Ops[int64]{
 	Compress:               arm64.CompressInt64SVE2,
+	CompressBits:           arm64.CompressBitsInt64SVE2,
+	SumValid:               arm64.SumValidInt64SVE2,
 	Intersect:              arm64.IntersectInt64SVE2,
 	Difference:             arm64.DifferenceInt64SVE2,
 	Add3:                   arm64.Add3Int64SVE2,

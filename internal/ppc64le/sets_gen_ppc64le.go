@@ -22,6 +22,7 @@ func Sets() map[string]kernel.Set {
 		s := ref.Set()
 		s.Name = "vsx"
 		registerBlasVSX(&s)
+		registerColumnarVSX(&s)
 		registerGemmVSX(&s)
 		registerNaryVSX(&s)
 		registerArgreduceVSX(&s)
