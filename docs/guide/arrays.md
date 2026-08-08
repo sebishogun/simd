@@ -189,3 +189,25 @@ regardless of how many elements match, while the equivalent scalar filter loop
 ranges from 12 GiB/s down to 1.3 GiB/s depending on how predictable the branch
 is. The vector version does not care what the data looks like. That is usually
 the more valuable property.
+
+## Columnar data and validity bitmaps
+
+Arrow-style columns — a typed value buffer beside a validity bitmap, one
+bit per row, LSB-first — get four operations. `CompressBitsInto` is the
+filter: build a predicate bitmap once, compress each column by it.
+`SumValid` and `CountValid` are the null-aware sum and the non-null
+count; `GatherInto` is take. Nothing imports arrow-go — the operations
+take raw slices and a `[]byte` bitmap, so an arrow `Array`'s buffers pass
+straight through and plain Go data works identically.
+
+`SumValid` never reads the value under a clear bit (Arrow leaves those
+slots undefined; they may hold NaN), and its accumulation order is
+`Sum`'s exactly: over an all-ones bitmap the two are bit-identical.
+
+Measured against the scalar bit-test loop at 50% random density, minimum
+of three (amd64/avx512): `SumValid` 5.0× at n=64 rising to 57× at one
+million elements; `CompressBitsInto` 3.9× at n=256, 4.7× at n=4096, 29×
+at one million. Density decides the scalar side: at 50% random bits its
+branch predictor loses every time, which is the kernel's best case, and
+at very predictable densities the gap narrows — the same economics as
+`CompressInto`, whose threshold note in the manifest tells the story.
