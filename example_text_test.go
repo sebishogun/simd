@@ -233,3 +233,91 @@ func ExampleMaskWords() {
 	// 100 bytes -> 16 per region, 80 for all five
 	// 1000 bytes -> 128 per region, 640 for all five
 }
+
+func ExampleJSONValid() {
+	stk := make([]uint64, 16)
+	for _, doc := range []string{
+		`{"a": [1, 2.5e3, "b\n", true]}`,
+		`{"a": }`,
+		`"unterminated`,
+	} {
+		fmt.Println(simd.JSONValid([]byte(doc), stk))
+	}
+	// Output:
+	// 1
+	// 0
+	// 0
+}
+
+func ExampleJSONStage1() {
+	doc := []byte(`{"a": "b\"c"}`)
+
+	// The five JSONMasks regions feed one pass that resolves escapes, runs
+	// quote parity, and writes three word regions: in-string, whitespace,
+	// and the escape-verification worklist.
+	nw := (len(doc) + 63) / 64
+	masks := make([]byte, 5*nw*8)
+	simd.JSONMasks(masks, doc, simd.JSONMaskAll)
+	out := make([]uint64, 3*nw)
+	carr := make([]uint64, 3)
+	res := []int64{0, 0, -1}
+	simd.JSONStage1(out, masks, nw, carr, res)
+
+	var inStr []int
+	for p := range doc {
+		if out[p/64]>>(p%64)&1 != 0 {
+			inStr = append(inStr, p)
+		}
+	}
+	fmt.Println("in-string bytes:", inStr)
+	fmt.Println("structural count:", res[0])
+	// Output:
+	// in-string bytes: [1 2 6 7 8 9 10]
+	// structural count: 2
+}
+
+func ExampleJSONValidTokens() {
+	doc := []byte(`[1, "two", {"three": null}]`)
+
+	// The grammar walk over the two stage-one mask regions: 1 well-formed,
+	// 0 not, -1 nesting outran the spill.
+	nw := (len(doc) + 63) / 64
+	masks := make([]byte, 5*nw*8)
+	simd.JSONMasks(masks, doc, simd.JSONMaskAll)
+	out := make([]uint64, 3*nw)
+	carr := make([]uint64, 3)
+	res := []int64{0, 0, -1}
+	simd.JSONStage1(out, masks, nw, carr, res)
+
+	stk := make([]uint64, 16)
+	fmt.Println(simd.JSONValidTokens(doc, out[:2*nw], stk))
+	// Output:
+	// 1
+}
+
+func ExampleJSONQuote() {
+	s := "tab\there \"quoted\" <tag>"
+	dst := make([]byte, 6*len(s)) // every byte as \u00XX, the worst case
+
+	n := simd.JSONQuote(dst, s, false)
+	fmt.Println(string(dst[:n]))
+	n = simd.JSONQuote(dst, s, true) // HTML-safe: <, > and & escape too
+	fmt.Println(string(dst[:n]))
+	// Output:
+	// tab\there \"quoted\" <tag>
+	// tab\there \"quoted\" \u003ctag\u003e
+}
+
+func ExampleJSONCopyValid() {
+	dst := make([]byte, 32)
+
+	// The verbatim-safe prefix, proved valid UTF-8 in the same pass: the
+	// copy stops where an escape is needed, and a negative result reports
+	// invalid bytes.
+	n := simd.JSONCopyValid(dst, []byte(`plain te"xt`), false)
+	fmt.Println(n, string(dst[:n]))
+	fmt.Println(simd.JSONCopyValid(dst, []byte("bad\xffutf8"), false) < 0)
+	// Output:
+	// 8 plain te
+	// true
+}

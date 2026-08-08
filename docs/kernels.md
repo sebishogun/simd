@@ -160,6 +160,28 @@ simd_rgb_to_yuv_u8 (needs more argument registers than amd64 has)
 Three in, three out and a length is seven. Splitting that kernel in two is what
 took it from zero amd64 tiers to three.
 
+**The rest of the manifest, each field a lesson already paid for:**
+
+- `Result` + `out()` — a scalar result comes back through a pointer the guard
+  passes as the first C argument, because the Plan 9 trampoline has nowhere
+  else to put a return value.
+- `RefWhen` — a boolean expression the guard checks before the kernel runs;
+  when true it takes the reference path. This is where size relations between
+  differently-shaped parameters live (`len(masks) < 2*((len(b)+63)/64)`).
+- `UnclampedDst: true` — turns off the guard's default clamp entirely, for
+  kernels whose slices are in different units (bytes against mask words).
+  The clamp once sheared a document to one sixty-fourth of its length,
+  silently; if your slices do not all measure the same thing, you need this.
+- `AllowScalar: true` — exempts the kernel from the vector-instruction check.
+  For kernels whose value is fused control flow — a grammar walk, a state
+  machine — where lanes are not the point. The check exists because a kernel
+  that compiles to scalar code is usually a vectorization failure; this field
+  is the declaration that here it is not.
+- `SkipOn: []string{"s390x"}` — architectures that must keep the reference
+  path. The one big-endian target skips every kernel whose correctness leans
+  on little-endian loads: movemask lane order, word-compare literals, mask
+  bytes read as words.
+
 ## 3. The dispatch field
 
 ```go

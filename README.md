@@ -100,6 +100,8 @@ Organised by task rather than by operation name.
 | **the next byte that is not plain text** | `IndexAnyOrLess` — a set and a threshold in one pass, the inner loop of an escape routine |
 | **copy text up to the byte that needs escaping** | `JSONCopyRun` — the scan and the copy in one pass, for a JSON encoder |
 | **classify a JSON document five ways at once** | `JSONMasks` `MaskWords` — quotes, backslashes, brackets, control bytes and whitespace from one pass; 2x five separate calls |
+| **validate a JSON document in one kernel call** | `JSONValid` — classification, quote parity, escape checks and the grammar walk fused, no mask buffers; `JSONStage1` + `JSONValidTokens` are its staged halves for callers that also need the masks |
+| **escape a string into a JSON encoder's buffer** | `JSONQuote` (assumes valid UTF-8) or `JSONCopyValid` (replaces invalid bytes), both with optional HTML-safe escaping |
 | trim, fold case, validate UTF-8 | `TrimAny` `TrimSpaceASCII` `EqualFoldASCII` `ValidUTF8` |
 | hex or base64 | `HexEncode` `Base64Encode` `Base64Decode` |
 | convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |

@@ -181,6 +181,42 @@ Note the name. `Hamming` on its own is the *window function*, from signal
 processing, and the two are unrelated. The collision is why one of them is
 spelled out.
 
+## The JSON kernel family
+
+Seven functions cover a JSON pipeline's text work, in three layers.
+
+**Classification.** `JSONMasks` writes five bitmask regions — quotes,
+backslashes, brackets, control bytes, whitespace — in one pass over the
+document; `MaskWords` sizes them. One call costs half of what five separate
+`MaskBits` calls do, because the loads are shared.
+
+**The staged pipeline.** `JSONStage1` consumes those five regions and
+resolves what they mean: which backslashes escape what, which bytes are
+inside a string (quote parity by carry-less multiply where the hardware has
+it), the whitespace and structural counts, and the escape-verification
+worklist. `JSONValidTokens` is the grammar walk over stage one's masks —
+the state machine that answers whether the significant bytes form one
+well-formed value. A parser keeps these stages separate because it needs
+the masks afterward: the same buffers that validated the document then
+drive its structural index.
+
+**The fused answer.** `JSONValid` is for the caller who wants only the
+verdict: classification, escape resolution, quote parity, control checks,
+escape validation and the grammar walk in a single kernel pass, per-block
+masks living in registers, nothing written to memory. On a megabyte
+document the staged pipeline's mask traffic is tens of megabytes; the
+fused pass's is none. All three of these return `-1` when container
+nesting outruns the caller-provided spill slice — 64 levels per word, plus
+64 more before the first word is needed — and the caller falls back to its
+own walk.
+
+**For encoders**, the mirror image: `JSONCopyRun` copies text up to the
+first byte needing an escape; `JSONCopyValid` does that while proving the
+copied bytes valid UTF-8 in the same pass; `JSONQuote` writes the whole
+string with escapes applied, given a destination of `6*len(s)` for the
+worst case. All three take an `html` flag matching `encoding/json`'s
+default escaping of `<`, `>`, `&`, U+2028 and U+2029.
+
 ## Where this does not win
 
 Where the standard library is already assembly doing the same work, there is no

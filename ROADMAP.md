@@ -245,10 +245,13 @@ and every architecture Go's intrinsics do not cover.
 
 ## Releases
 
-Tags so far are `v0.1.0`, `v0.1.1` and `v0.2.0`. Two later numbers are spoken
-for, and the reasons are different in kind.
+The line is at `v1.13.0`: the v1 series is API-stable and each minor adds
+kernels or verification without moving anything — CHANGELOG.md is the
+per-release record. The criteria below are kept as written because they say
+what `v1.0.0` *meant*; the items marked open inside them are ongoing watches,
+not gaps in the contract.
 
-### v1.0.0 — when the gaps close
+### ~~v1.0.0 — when the gaps close~~ — shipped; the criteria, as they stood
 
 Not a date and not a feature count. `v1.0.0` says the API is stable and the
 numerical contract is one you can build on, so the bar is the things that would
