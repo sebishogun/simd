@@ -103,3 +103,31 @@ PORT PLAN:
 - Goal hook active: all tasks, performant kernels, downstream benches when
   a consumer library can use a new kernel -- and WIRE the consumer when it
   makes it better, then bench it (user's addendum).
+
+
+## #205 project repos — progress
+
+The kernel backlog (#207-#213) is COMPLETE and released as simd v1.16.0
+through v1.20.0. Now working the standalone projects from
+[[simd-family-project-roadmap]], each its own repo consuming published
+simd, pure Go, benchmarked against the incumbent it replaces.
+
+- **simdhttp** DONE (local, ~/Work/Development/simdhttp, committed a60a44b,
+  NOT pushed to a remote -- no GitHub repo created yet; needs `gh repo
+  create` + push, or the user may want it under a different owner/name).
+  HTTP/1.1 request-head parse on IndexByte/IndexNotAny/IndexAnyOrLess.
+  1.22x net/http ReadRequest (1097 vs 1341 ns, 9-header browser req),
+  alloc-free, net/http contract + two smuggling-stricter rejections
+  (space-in-name, bare-LF). Tests vs net/http oracle + mutation; README
+  with the speed table.
+- NEXT Tier-1: **simdcbor / simdmsgpack** -- binary tokenizer, the
+  stage-one/index/walk shape directly (structural bytes -> index ->
+  grammar), the closest transfer of what simdjson proved. Then Tier-2
+  starts: simd-checksum is REDUNDANT now (Adler/CRC32C landed in simd
+  itself v1.16.0), so skip it; simd-image, simd-base64 (base64 already in
+  simd -- a thin std-compatible wrapper repo at most, likely skip),
+  simd-parquet (RLE decode + bitunpack + varint decode ALL now in simd
+  v1.19/v1.20 -- parquet is now mostly assembly of shipped kernels, high
+  payoff). Tier-3 (hyperscan-lite, simd-log, tsdb scan) last.
+- Downstream-bench rule: each repo benched vs its incumbent
+  (encoding/json for cbor into any, parquet-go for parquet, etc).
