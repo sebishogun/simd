@@ -1351,6 +1351,12 @@ different reason — there is no 64-bit vector multiply below AVX-512DQ, so the
 Only int32 product wins, because a 32-bit multiply has three-cycle latency and
 a real vector instruction.
 
+Re-confirmed 2026-08-08 when the columnar work made prefix sums tempting
+again: a standalone u64 log-shift scan on avx512 with the current clang,
+against the serial loop, four million elements, minimum of seven --
+1,559 against 1,389 us, 0.89x, outputs bit-identical. The one-cycle add
+still leaves nothing to fill. The scan kernel stays unwritten.
+
 **Fix**: ship the one that wins. The general lesson is that "this operation is
 associative" answers whether a scan is *correct* and says nothing about
 whether it is *faster*, and the second question has to be asked per operation
