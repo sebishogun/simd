@@ -15,6 +15,7 @@ var allFlatTables = map[string][]any{
 	"Bytes.Adler32":                  {tblBytesAdler32[0]},
 	"Bytes.CRC32C":                   {tblBytesCRC32C[0]},
 	"Bytes.DtoaF64":                  {tblBytesDtoaF64[0]},
+	"Bytes.LZ4BlockDecode":           {tblBytesLZ4BlockDecode[0]},
 	"Convert.QMatMulI8":              {tblConvertQMatMulI8[0]},
 	"Convert.RequantizeI8":           {tblConvertRequantizeI8[0]},
 	"Mask.All":                       {tblMaskAll[0]},

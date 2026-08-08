@@ -76,6 +76,13 @@ var tblBytesDtoaF64 = [...]func([]byte, float64) int{
 	amd64.DtoaF64AVX512,
 }
 
+var tblBytesLZ4BlockDecode = [...]func([]byte, []byte) int{
+	ref.LZ4BlockDecode,
+	amd64.Lz4BlockDecodeSSE2,
+	amd64.Lz4BlockDecodeAVX2,
+	amd64.Lz4BlockDecodeAVX512,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	amd64.QMatMulI8SSE2,

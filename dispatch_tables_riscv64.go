@@ -60,6 +60,11 @@ var tblBytesDtoaF64 = [...]func([]byte, float64) int{
 	riscv64.DtoaF64RVV,
 }
 
+var tblBytesLZ4BlockDecode = [...]func([]byte, []byte) int{
+	ref.LZ4BlockDecode,
+	riscv64.Lz4BlockDecodeRVV,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	riscv64.QMatMulI8RVV,

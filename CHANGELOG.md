@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.18.0
+
+**`LZ4BlockDecode`** -- one raw LZ4 block into a caller-sized buffer,
+the reference's byte-defined walk with the copies widened: sixteen-byte
+literal and long-offset match stores with slop checked against the true
+bounds, the short overlapping offsets that make LZ4 LZ4 replicated per
+byte exactly as the reference defines them. 5.3 GB/s against the
+portable walk's 3.45 on JSON-shaped data, 1.25x on a short-match worst
+case; malformed input -- truncation, zero or too-far offsets, output
+past the buffer -- returns -1, and a hermetic round-trip plus
+two-thousand-mutation differential holds kernel and reference to exact
+agreement, -1 for -1.
+
 ## v1.17.0
 
 **`FormatFloat64`** -- shortest-form float64, Schubfach with the render

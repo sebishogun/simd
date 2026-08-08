@@ -636,6 +636,9 @@ type Bytes struct {
 	// DtoaF64 renders a finite float64 shortest-form with encoding/json's
 	// format rule and returns the byte count; dst must hold 25 bytes.
 	DtoaF64 func(dst []byte, v float64) int
+	// LZ4BlockDecode decodes one LZ4 block into dst, returning the decoded
+	// length or -1 for malformed input.
+	LZ4BlockDecode func(dst, src []byte) int
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

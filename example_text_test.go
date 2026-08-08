@@ -346,3 +346,14 @@ func ExampleFormatFloat64() {
 	// 122.41629403378658
 	// 1e+21
 }
+
+func ExampleLZ4BlockDecode() {
+	// "aaaaaaaa" as one literal and one overlapping match: token 0x14 --
+	// one literal, match length 4+3 -- then 'a', then offset 1.
+	block := []byte{0x13, 'a', 0x01, 0x00, 0x50, 'b', 'c', 'd', 'e', 'f'}
+	dst := make([]byte, 32)
+	n := simd.LZ4BlockDecode(dst, block)
+	fmt.Println(n, string(dst[:n]))
+	// Output:
+	// 13 aaaaaaaabcdef
+}

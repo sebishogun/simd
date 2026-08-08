@@ -26,6 +26,7 @@ func Sets() map[string]kernel.Set {
 		registerColumnarRVV(&s)
 		registerChecksumRVV(&s)
 		registerDtoaRVV(&s)
+		registerLz4RVV(&s)
 		registerSetsRVV(&s)
 		registerGemmRVV(&s)
 		registerNaryRVV(&s)

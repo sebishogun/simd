@@ -2575,12 +2575,34 @@ func Dtoa() []spec.Kernel {
 	}
 }
 
+// LZ4 is block decompression. csrc/lz4.c.
+func LZ4() []spec.Kernel {
+	return []spec.Kernel{
+		{
+			// The reference's byte-defined walk with the copies widened;
+			// the value is fused control flow and wide stores, not lanes,
+			// so the scalar-only tiers keep the reference.
+			CName: "simd_lz4_block_decode", GoName: "lz4BlockDecode",
+			Group: "Bytes", Field: "LZ4BlockDecode", RefFunc: "LZ4BlockDecode",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("src", spec.SliceU8)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("dst"), lenOf("dst"),
+				base("src"), lenOf("src")},
+			RefWhen:      "len(src) == 0",
+			UnclampedDst: true,
+			AllowScalar:  true,
+			Threshold:    0,
+		},
+	}
+}
+
 var All = []Source{
 	{Path: "csrc/blas.c", Kernels: Blas()},
 	{Path: "csrc/compress.c", Kernels: Compress()},
 	{Path: "csrc/columnar.c", Kernels: Columnar()},
 	{Path: "csrc/checksum.c", Kernels: Checksum()},
 	{Path: "csrc/dtoa.c", Kernels: Dtoa()},
+	{Path: "csrc/lz4.c", Kernels: LZ4()},
 	{Path: "csrc/sets.c", Kernels: Sets()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},

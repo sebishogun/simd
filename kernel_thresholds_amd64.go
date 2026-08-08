@@ -140,6 +140,7 @@ var kernelThresholds = map[string]int{
 	"JSONValidTokens":        64,
 	"L1Diff":                 0,
 	"L1Norm":                 0,
+	"LZ4BlockDecode":         0,
 	"LastIndex":              64,
 	"LastIndexByte":          64,
 	"LastIndexNotAny":        64,
