@@ -65,6 +65,31 @@ var tblBytesLZ4BlockDecode = [...]func([]byte, []byte) int{
 	riscv64.Lz4BlockDecodeRVV,
 }
 
+var tblBytesRandFillU64 = [...]func([]uint64, uint64){
+	ref.RandFillU64,
+	riscv64.RandFillU64RVV,
+}
+
+var tblBytesMergeSortedU32 = [...]func([]uint32, []uint32, []uint32) int{
+	ref.MergeSortedU32,
+	riscv64.MergeSortedU32RVV,
+}
+
+var tblBytesInterleave2U8 = [...]func([]byte, []byte, []byte){
+	ref.Interleave2U8,
+	riscv64.Interleave2U8RVV,
+}
+
+var tblBytesDeinterleave2U8 = [...]func([]byte, []byte, []byte){
+	ref.Deinterleave2U8,
+	riscv64.Deinterleave2U8RVV,
+}
+
+var tblBytesTranspose8x8U8 = [...]func([]byte, []byte){
+	ref.Transpose8x8U8,
+	riscv64.Transpose8x8U8RVV,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	riscv64.QMatMulI8RVV,
@@ -73,6 +98,11 @@ var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 var tblConvertRequantizeI8 = [...]func([]int8, []int32, float32, int32){
 	ref.RequantizeI8,
 	riscv64.RequantizeI8RVV,
+}
+
+var tblBytesRLEDecodeInt32 = [...]func([]int32, []int32, []int32) int{
+	ref.RLEDecodeInt32,
+	riscv64.RleDecodeI32RVV,
 }
 
 var tblMaskAll = [...]func([]bool) bool{

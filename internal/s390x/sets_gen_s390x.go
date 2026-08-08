@@ -23,6 +23,7 @@ func Sets() map[string]kernel.Set {
 		s.Name = "vx"
 		registerBlasVX(&s)
 		registerCompressVX(&s)
+		registerShuffleVX(&s)
 		registerNaryVX(&s)
 		registerArgreduceVX(&s)
 		registerArithVX(&s)

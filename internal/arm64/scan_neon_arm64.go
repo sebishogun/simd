@@ -56,3 +56,6 @@ func cumMinInt64NEON(dst []int64, a []int64)
 
 //go:noescape
 func cumMaxInt64NEON(dst []int64, a []int64)
+
+//go:noescape
+func rleDecodeI32NEON(dst []int32, values []int32, counts []int32) int

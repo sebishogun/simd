@@ -62,3 +62,6 @@ func cumMinInt64AVX2(dst []int64, a []int64)
 
 //go:noescape
 func cumMaxInt64AVX2(dst []int64, a []int64)
+
+//go:noescape
+func rleDecodeI32AVX2(dst []int32, values []int32, counts []int32) int

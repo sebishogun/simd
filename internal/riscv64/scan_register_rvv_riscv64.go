@@ -156,6 +156,13 @@ func CumMaxInt64RVV(dst []int64, a []int64) {
 	cumMaxInt64RVV(dst[:n:n], a)
 }
 
+func RleDecodeI32RVV(dst []int32, values []int32, counts []int32) int {
+	if len(dst) < 0 || len(values) != len(counts) {
+		return ref.RLEDecodeInt32(dst, values, counts)
+	}
+	return rleDecodeI32RVV(dst, values, counts)
+}
+
 func registerScanRVV(s *kernel.Set) {
 	s.F32.RollingMin = RollingMinFloat32RVV
 	s.F32.RollingMax = RollingMaxFloat32RVV
@@ -173,4 +180,5 @@ func registerScanRVV(s *kernel.Set) {
 	s.I64.RollingMax = RollingMaxInt64RVV
 	s.I64.CumMin = CumMinInt64RVV
 	s.I64.CumMax = CumMaxInt64RVV
+	s.Bytes.RLEDecodeInt32 = RleDecodeI32RVV
 }

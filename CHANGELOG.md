@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.19.0
+
+**The data-movement tier.** **`RunLengthDecodeInt32`** goes kernel-backed
+-- the old comment argued expansion is a serial prefix like ExpandInto,
+which holds per element and not per run: one broadcast and wide stores to
+each run's end measure 28.4 against the byte walk's 11.0 GB/s.
+**`RandFillU64`** runs eight xoshiro256++ streams in lockstep lanes,
+60.4 GB/s against math/rand's 3.3 -- deterministic per seed, identical on
+every tier, not cryptographic. **`MergeSortedUint32`** replaces the
+two-pointer walk's data-dependent branch with a bitonic exchange ladder,
+2.6x at a million elements a side. **`Interleave2`**, **`Deinterleave2`**
+and **`Transpose8x8Bytes`** are the byte data-movement primitives under
+AoS/SoA conversion and small-tile columnar layouts. The audit half of the
+work confirmed the existing surface: ToUpperASCII at 73x bytes.ToUpper,
+Base64 at 9-11x encoding/base64, no gaps to close.
+
 ## v1.18.0
 
 **`LZ4BlockDecode`** -- one raw LZ4 block into a caller-sized buffer,

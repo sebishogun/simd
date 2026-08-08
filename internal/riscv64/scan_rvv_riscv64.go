@@ -62,3 +62,6 @@ func cumMinInt64RVV(dst []int64, a []int64)
 
 //go:noescape
 func cumMaxInt64RVV(dst []int64, a []int64)
+
+//go:noescape
+func rleDecodeI32RVV(dst []int32, values []int32, counts []int32) int

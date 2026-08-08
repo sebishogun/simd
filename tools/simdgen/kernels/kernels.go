@@ -455,6 +455,21 @@ func Scan() []spec.Kernel {
 			}
 		}
 	}
+	ks = append(ks, spec.Kernel{
+		// The splat-store inverse of RunLengthEncodeInt32: one broadcast
+		// per run, wide stores to the run's own end. A run of one is a
+		// scalar store; a long run moves at store bandwidth.
+		CName: "simd_rle_decode_i32", GoName: "rleDecodeI32",
+		Group: "Bytes", Field: "RLEDecodeInt32", RefFunc: "RLEDecodeInt32",
+		Params: []spec.Param{sl("dst", spec.SliceI32), sl("values", spec.SliceI32),
+			sl("counts", spec.SliceI32)},
+		Result: &spec.Param{Name: "ret", Type: spec.Int},
+		CArgs: []spec.CArg{out(), base("dst"), lenOf("dst"),
+			base("values"), base("counts"), lenOf("values")},
+		RefWhen:      "len(values) != len(counts)",
+		UnclampedDst: true,
+		Threshold:    0,
+	})
 	return ks
 }
 
@@ -2596,6 +2611,77 @@ func LZ4() []spec.Kernel {
 	}
 }
 
+// Random is the bulk PRNG fill. csrc/random.c.
+func Random() []spec.Kernel {
+	return []spec.Kernel{
+		{
+			// Eight xoshiro256++ streams in lockstep lanes; the reference
+			// defines the stream and the kernel reproduces it exactly.
+			CName: "simd_rand_fill_u64", GoName: "randFillU64",
+			Group: "Bytes", Field: "RandFillU64", RefFunc: "RandFillU64",
+			Params: []spec.Param{sl("dst", spec.SliceU64),
+				{Name: "seed", Type: spec.U64}},
+			CArgs:     []spec.CArg{base("dst"), lenOf("dst"), val("seed")},
+			Threshold: 0,
+		},
+	}
+}
+
+// Merge is the sorted-merge family. csrc/merge.c.
+func Merge() []spec.Kernel {
+	return []spec.Kernel{
+		{
+			// The bitonic 8x8 network against the two-pointer walk's
+			// data-dependent branch: 2.6x at a million a side.
+			CName: "simd_merge_sorted_u32", GoName: "mergeSortedU32",
+			Group: "Bytes", Field: "MergeSortedU32", RefFunc: "MergeSortedU32",
+			Params: []spec.Param{sl("dst", spec.SliceU32), sl("a", spec.SliceU32),
+				sl("b", spec.SliceU32)},
+			Result: &spec.Param{Name: "ret", Type: spec.Int},
+			CArgs: []spec.CArg{out(), base("dst"), base("a"), lenOf("a"),
+				base("b"), lenOf("b")},
+			RefWhen:      "len(dst) < len(a)+len(b)",
+			UnclampedDst: true,
+			Threshold:    64,
+		},
+	}
+}
+
+// Shuffle is the byte data-movement family. csrc/shuffle.c.
+func Shuffle() []spec.Kernel {
+	return []spec.Kernel{
+		{
+			CName: "simd_interleave2_u8", GoName: "interleave2U8",
+			Group: "Bytes", Field: "Interleave2U8", RefFunc: "Interleave2U8",
+			Params: []spec.Param{sl("dst", spec.SliceU8), sl("a", spec.SliceU8),
+				sl("b", spec.SliceU8)},
+			CArgs:        []spec.CArg{base("dst"), base("a"), base("b"), lenOf("a")},
+			RefWhen:      "len(a) != len(b) || len(dst) < 2*len(a)",
+			UnclampedDst: true,
+			Threshold:    64,
+		},
+		{
+			CName: "simd_deinterleave2_u8", GoName: "deinterleave2U8",
+			Group: "Bytes", Field: "Deinterleave2U8", RefFunc: "Deinterleave2U8",
+			Params: []spec.Param{sl("a", spec.SliceU8), sl("b", spec.SliceU8),
+				sl("src", spec.SliceU8)},
+			CArgs:        []spec.CArg{base("a"), base("b"), base("src"), lenOf("a")},
+			RefWhen:      "len(src) < 2*min(len(a), len(b)) || len(a) != len(b)",
+			UnclampedDst: true,
+			Threshold:    64,
+		},
+		{
+			CName: "simd_transpose8x8_u8", GoName: "transpose8x8U8",
+			Group: "Bytes", Field: "Transpose8x8U8", RefFunc: "Transpose8x8U8",
+			Params:       []spec.Param{sl("dst", spec.SliceU8), sl("src", spec.SliceU8)},
+			CArgs:        []spec.CArg{base("dst"), base("src"), lenOf("dst")},
+			RefWhen:      "len(dst) != len(src) || len(dst)%64 != 0",
+			UnclampedDst: true,
+			Threshold:    0,
+		},
+	}
+}
+
 var All = []Source{
 	{Path: "csrc/blas.c", Kernels: Blas()},
 	{Path: "csrc/compress.c", Kernels: Compress()},
@@ -2603,6 +2689,9 @@ var All = []Source{
 	{Path: "csrc/checksum.c", Kernels: Checksum()},
 	{Path: "csrc/dtoa.c", Kernels: Dtoa()},
 	{Path: "csrc/lz4.c", Kernels: LZ4()},
+	{Path: "csrc/random.c", Kernels: Random()},
+	{Path: "csrc/merge.c", Kernels: Merge()},
+	{Path: "csrc/shuffle.c", Kernels: Shuffle()},
 	{Path: "csrc/sets.c", Kernels: Sets()},
 	{Path: "csrc/gemm.c", Kernels: Gemm()},
 	{Path: "csrc/nary.c", Kernels: Nary()},

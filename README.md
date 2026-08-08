@@ -111,6 +111,10 @@ Organised by task rather than by operation name.
 | checksum a buffer | `Adler32` — vectorized where stdlib is scalar; `CRC32C` matches hash/crc32 Castagnoli |
 | format a float shortest-form | `FormatFloat64` — Schubfach with the render attached, 1.65× strconv, encoding/json's format rule |
 | decode an LZ4 block | `LZ4BlockDecode` — widened copies, 1.25–1.54× the byte walk, -1 on malformed input |
+| expand run-length pairs | `RunLengthDecodeInt32` — splat-store, 2.6× the byte walk |
+| **fill a slice with random values** | `RandFillU64` — eight xoshiro256++ lanes, 18× math/rand; not cryptographic |
+| merge two sorted arrays | `MergeSortedUint32` — a min/max exchange ladder, 2.6× the two-pointer walk |
+| weave or unweave two byte planes | `Interleave2` `Deinterleave2`; `Transpose8x8Bytes` for 64-byte tiles |
 | convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |
 | median / percentile without sorting | `Median` `Quantile`, `MedianInto` for zero-alloc |
 | the k largest or smallest | `TopK` `BottomK` — selects, does not sort |
@@ -323,7 +327,7 @@ entire OS-dependent surface is `x/sys/cpu` feature detection.
 
 ## Kernel coverage
 
-484 exported functions and 6,858 generated kernels across nine targets. The
+489 exported functions and 6,858 generated kernels across nine targets. The
 function count is for an ordinary build; the `goexperiment.simd` vector type
 adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
 declined with a stated reason, not kernels nobody wrote. Both columns sum over
@@ -559,7 +563,7 @@ have assumed that turned out false, and what each cost. Among them:
 
 ## Status
 
-**v1.18.0.** The API is stable: every exported function keeps its name,
+**v1.19.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.

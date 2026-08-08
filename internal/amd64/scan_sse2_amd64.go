@@ -62,3 +62,6 @@ func cumMinInt64SSE2(dst []int64, a []int64)
 
 //go:noescape
 func cumMaxInt64SSE2(dst []int64, a []int64)
+
+//go:noescape
+func rleDecodeI32SSE2(dst []int32, values []int32, counts []int32) int

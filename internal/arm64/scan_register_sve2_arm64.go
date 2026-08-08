@@ -156,6 +156,13 @@ func CumMaxInt64SVE2(dst []int64, a []int64) {
 	cumMaxInt64SVE2(dst[:n:n], a)
 }
 
+func RleDecodeI32SVE2(dst []int32, values []int32, counts []int32) int {
+	if len(dst) < 0 || len(values) != len(counts) {
+		return ref.RLEDecodeInt32(dst, values, counts)
+	}
+	return rleDecodeI32SVE2(dst, values, counts)
+}
+
 func registerScanSVE2(s *kernel.Set) {
 	s.F32.RollingMin = RollingMinFloat32SVE2
 	s.F32.RollingMax = RollingMaxFloat32SVE2
@@ -173,4 +180,5 @@ func registerScanSVE2(s *kernel.Set) {
 	s.I64.RollingMax = RollingMaxInt64SVE2
 	s.I64.CumMin = CumMinInt64SVE2
 	s.I64.CumMax = CumMaxInt64SVE2
+	s.Bytes.RLEDecodeInt32 = RleDecodeI32SVE2
 }

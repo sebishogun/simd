@@ -156,6 +156,13 @@ func CumMaxInt64AVX512(dst []int64, a []int64) {
 	cumMaxInt64AVX512(dst[:n:n], a)
 }
 
+func RleDecodeI32AVX512(dst []int32, values []int32, counts []int32) int {
+	if len(dst) < 0 || len(values) != len(counts) {
+		return ref.RLEDecodeInt32(dst, values, counts)
+	}
+	return rleDecodeI32AVX512(dst, values, counts)
+}
+
 func registerScanAVX512(s *kernel.Set) {
 	s.F32.RollingMin = RollingMinFloat32AVX512
 	s.F32.RollingMax = RollingMaxFloat32AVX512
@@ -173,4 +180,5 @@ func registerScanAVX512(s *kernel.Set) {
 	s.I64.RollingMax = RollingMaxInt64AVX512
 	s.I64.CumMin = CumMinInt64AVX512
 	s.I64.CumMax = CumMaxInt64AVX512
+	s.Bytes.RLEDecodeInt32 = RleDecodeI32AVX512
 }

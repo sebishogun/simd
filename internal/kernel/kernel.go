@@ -639,6 +639,19 @@ type Bytes struct {
 	// LZ4BlockDecode decodes one LZ4 block into dst, returning the decoded
 	// length or -1 for malformed input.
 	LZ4BlockDecode func(dst, src []byte) int
+	// RLEDecodeInt32 expands run-length (value, count) pairs; -1 when the
+	// total passes len(dst) or a count is negative.
+	RLEDecodeInt32 func(dst, values, counts []int32) int
+	// RandFillU64 fills dst with the eight-stream xoshiro256++ sequence
+	// for seed; kernel and reference emit the identical stream.
+	RandFillU64 func(dst []uint64, seed uint64)
+	// MergeSortedU32 merges two ascending arrays; ties from a first.
+	MergeSortedU32 func(dst, a, b []uint32) int
+	// Interleave2U8/Deinterleave2U8 weave two byte planes; Transpose8x8U8
+	// transposes independent 64-byte tiles.
+	Interleave2U8   func(dst, a, b []byte)
+	Deinterleave2U8 func(a, b, src []byte)
+	Transpose8x8U8  func(dst, src []byte)
 	// IndexNotAny is the complement: the first byte that is *not* in the set.
 	// It is the primitive under trimming and under skipping a run of
 	// whitespace, which is where a tokenizer spends the time it is not

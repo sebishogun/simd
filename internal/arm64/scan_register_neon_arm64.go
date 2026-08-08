@@ -140,6 +140,13 @@ func CumMaxInt64NEON(dst []int64, a []int64) {
 	cumMaxInt64NEON(dst[:n:n], a)
 }
 
+func RleDecodeI32NEON(dst []int32, values []int32, counts []int32) int {
+	if len(dst) < 0 || len(values) != len(counts) {
+		return ref.RLEDecodeInt32(dst, values, counts)
+	}
+	return rleDecodeI32NEON(dst, values, counts)
+}
+
 func registerScanNEON(s *kernel.Set) {
 	s.F32.RollingMin = RollingMinFloat32NEON
 	s.F32.RollingMax = RollingMaxFloat32NEON
@@ -155,4 +162,5 @@ func registerScanNEON(s *kernel.Set) {
 	s.I64.RollingMax = RollingMaxInt64NEON
 	s.I64.CumMin = CumMinInt64NEON
 	s.I64.CumMax = CumMaxInt64NEON
+	s.Bytes.RLEDecodeInt32 = RleDecodeI32NEON
 }

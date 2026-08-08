@@ -83,6 +83,41 @@ var tblBytesLZ4BlockDecode = [...]func([]byte, []byte) int{
 	amd64.Lz4BlockDecodeAVX512,
 }
 
+var tblBytesRandFillU64 = [...]func([]uint64, uint64){
+	ref.RandFillU64,
+	amd64.RandFillU64SSE2,
+	amd64.RandFillU64AVX2,
+	amd64.RandFillU64AVX512,
+}
+
+var tblBytesMergeSortedU32 = [...]func([]uint32, []uint32, []uint32) int{
+	ref.MergeSortedU32,
+	amd64.MergeSortedU32SSE2,
+	amd64.MergeSortedU32AVX2,
+	amd64.MergeSortedU32AVX512,
+}
+
+var tblBytesInterleave2U8 = [...]func([]byte, []byte, []byte){
+	ref.Interleave2U8,
+	amd64.Interleave2U8SSE2,
+	amd64.Interleave2U8AVX2,
+	amd64.Interleave2U8AVX512,
+}
+
+var tblBytesDeinterleave2U8 = [...]func([]byte, []byte, []byte){
+	ref.Deinterleave2U8,
+	amd64.Deinterleave2U8SSE2,
+	amd64.Deinterleave2U8AVX2,
+	amd64.Deinterleave2U8AVX512,
+}
+
+var tblBytesTranspose8x8U8 = [...]func([]byte, []byte){
+	ref.Transpose8x8U8,
+	ref.Transpose8x8U8,
+	amd64.Transpose8x8U8AVX2,
+	amd64.Transpose8x8U8AVX512,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	amd64.QMatMulI8SSE2,
@@ -95,6 +130,13 @@ var tblConvertRequantizeI8 = [...]func([]int8, []int32, float32, int32){
 	amd64.RequantizeI8SSE2,
 	amd64.RequantizeI8AVX2,
 	amd64.RequantizeI8AVX512,
+}
+
+var tblBytesRLEDecodeInt32 = [...]func([]int32, []int32, []int32) int{
+	ref.RLEDecodeInt32,
+	amd64.RleDecodeI32SSE2,
+	amd64.RleDecodeI32AVX2,
+	amd64.RleDecodeI32AVX512,
 }
 
 var tblMaskAll = [...]func([]bool) bool{

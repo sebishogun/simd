@@ -74,6 +74,36 @@ var tblBytesLZ4BlockDecode = [...]func([]byte, []byte) int{
 	arm64.Lz4BlockDecodeSVE2,
 }
 
+var tblBytesRandFillU64 = [...]func([]uint64, uint64){
+	ref.RandFillU64,
+	arm64.RandFillU64NEON,
+	arm64.RandFillU64SVE2,
+}
+
+var tblBytesMergeSortedU32 = [...]func([]uint32, []uint32, []uint32) int{
+	ref.MergeSortedU32,
+	arm64.MergeSortedU32NEON,
+	arm64.MergeSortedU32SVE2,
+}
+
+var tblBytesInterleave2U8 = [...]func([]byte, []byte, []byte){
+	ref.Interleave2U8,
+	arm64.Interleave2U8NEON,
+	arm64.Interleave2U8SVE2,
+}
+
+var tblBytesDeinterleave2U8 = [...]func([]byte, []byte, []byte){
+	ref.Deinterleave2U8,
+	arm64.Deinterleave2U8NEON,
+	arm64.Deinterleave2U8SVE2,
+}
+
+var tblBytesTranspose8x8U8 = [...]func([]byte, []byte){
+	ref.Transpose8x8U8,
+	ref.Transpose8x8U8,
+	ref.Transpose8x8U8,
+}
+
 var tblConvertQMatMulI8 = [...]func([]int32, []int8, []int8, int, int, int){
 	ref.QMatMulI8,
 	arm64.QMatMulI8NEON,
@@ -84,6 +114,12 @@ var tblConvertRequantizeI8 = [...]func([]int8, []int32, float32, int32){
 	ref.RequantizeI8,
 	arm64.RequantizeI8NEON,
 	arm64.RequantizeI8SVE2,
+}
+
+var tblBytesRLEDecodeInt32 = [...]func([]int32, []int32, []int32) int{
+	ref.RLEDecodeInt32,
+	arm64.RleDecodeI32NEON,
+	arm64.RleDecodeI32SVE2,
 }
 
 var tblMaskAll = [...]func([]bool) bool{

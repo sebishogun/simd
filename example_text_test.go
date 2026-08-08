@@ -357,3 +357,58 @@ func ExampleLZ4BlockDecode() {
 	// Output:
 	// 13 aaaaaaaabcdef
 }
+
+func ExampleRunLengthDecodeInt32() {
+	dst := make([]int32, 7)
+	n := simd.RunLengthDecodeInt32(dst, []int32{5, 9}, []int32{3, 4})
+	fmt.Println(dst[:n])
+	// Output:
+	// [5 5 5 9 9 9 9]
+}
+
+func ExampleRandFillU64() {
+	a := make([]uint64, 4)
+	b := make([]uint64, 4)
+	simd.RandFillU64(a, 42)
+	simd.RandFillU64(b, 42)
+	fmt.Println(a[0] == b[0], a[1] == b[1]) // same seed, same stream
+	// Output:
+	// true true
+}
+
+func ExampleMergeSortedUint32() {
+	dst := make([]uint32, 7)
+	simd.MergeSortedUint32(dst, []uint32{1, 4, 9}, []uint32{2, 3, 5, 9})
+	fmt.Println(dst)
+	// Output:
+	// [1 2 3 4 5 9 9]
+}
+
+func ExampleInterleave2() {
+	dst := make([]byte, 8)
+	simd.Interleave2(dst, []byte("ABCD"), []byte("abcd"))
+	fmt.Println(string(dst))
+	// Output:
+	// AaBbCcDd
+}
+
+func ExampleDeinterleave2() {
+	a := make([]byte, 4)
+	b := make([]byte, 4)
+	simd.Deinterleave2(a, b, []byte("AaBbCcDd"))
+	fmt.Println(string(a), string(b))
+	// Output:
+	// ABCD abcd
+}
+
+func ExampleTranspose8x8Bytes() {
+	src := make([]byte, 64)
+	for i := range src {
+		src[i] = byte(i)
+	}
+	dst := make([]byte, 64)
+	simd.Transpose8x8Bytes(dst, src)
+	fmt.Println(dst[:8]) // the first output row is the first input column
+	// Output:
+	// [0 8 16 24 32 40 48 56]
+}

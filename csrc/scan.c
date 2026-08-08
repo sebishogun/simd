@@ -332,3 +332,28 @@ ROLLING(int, min_i32, min_i32)
 ROLLING(int, max_i32, max_i32)
 ROLLING(long long, min_i64, min_i64)
 ROLLING(long long, max_i64, max_i64)
+
+// simd_rle_decode_i32 expands (values[k], counts[k]) pairs: each value is
+// written counts[k] times. The splat-store shape: one broadcast per run,
+// then wide stores with the slop bounded by the run's own end -- a run of
+// one costs a scalar store, a run of a thousand runs at store bandwidth.
+// Returns the total written, or -1 when the total would pass dcap.
+typedef int rlei32x8 __attribute__((ext_vector_type(8), aligned(1)));
+
+void simd_rle_decode_i32(isize *__restrict out, int *__restrict dst,
+                         isize dcap, const int *__restrict values,
+                         const int *__restrict counts, isize n) {
+  isize d = 0;
+  for (isize k = 0; k < n && d < dcap; k++) {
+    isize c = (isize)counts[k];
+    if (c <= 0) continue;
+    if (c > dcap - d) c = dcap - d;
+    int v = values[k];
+    rlei32x8 splat = (rlei32x8)v;
+    isize j = 0;
+    for (; j + 8 <= c; j += 8) *(rlei32x8 *)(dst + d + j) = splat;
+    for (; j < c; j++) dst[d + j] = v;
+    d += c;
+  }
+  *out = d;
+}
