@@ -27,3 +27,6 @@ core.*
 *.swp
 .idea/
 .vscode/
+
+# Isolated implementation worktrees.
+/.worktrees/
