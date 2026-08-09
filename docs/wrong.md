@@ -2990,3 +2990,34 @@ Kept, documented as losing: the function is the portable specification
 and the small-input path, and the doc comment sends bulk hashing to the
 standard library by name. Adler-32 from the same file ships the other
 verdict -- 1.8x stdlib everywhere past a kilobyte.
+
+## CRC32C multi-stream / wider fold: attempted, and why it stays a non-battle
+
+The question after Adler's 7.2x win: could a wider fold beat stdlib's 37
+GB/s on bulk CRC32C, the way explicit multi-lane beat autovectorized
+Adler? Attempted fold-by-8 (eight 128-bit PCLMUL accumulators, 128
+bytes/iteration, twice fold-by-4's parallel chains). It failed the
+correctness check: the fold constants for a 128-byte distance are derived
+values (x^1024 and x^1088 mod the reflected Castagnoli poly), not
+guessable, and a self-calibrating reflected mod-pow to recover them did
+not reproduce even the known-good fold-by-4 constants -- the exact
+bit-reflection convention is the classic GF(2) rabbit hole.
+
+But the deciding fact is hardware, not the constants. The crc32
+instruction runs on a single execution port at 1/cycle -- 8 bytes/cycle,
+about 40 GB/s at this clock. stdlib's three independent crc32 streams
+already saturate that port, which is precisely why it uses three and
+stops; more crc32 streams cannot beat a saturated port. So the entire
+crc32-instruction avenue is capped at stdlib's level -- there is no win
+there by out-streaming. The only ceiling-breaker is VPCLMULQDQ (AVX-512
+carry-less multiply on the separate vector ports), which adds AVX-512
+constant derivation on top of the fold-constant problem for an upside
+bounded by stdlib already sitting at ~37 of ~40 GB/s.
+
+Verdict unchanged and now understood at the port level: bulk CRC32C on
+amd64 goes to the standard library (the doc comment says so by name), our
+kernel wins small inputs and is the portable spec. Same shape as the
+integer prefix-sums (0.67x, not shipped) -- attempted, measured, the
+instruction economics settle it, and the entry is the deliverable.
+Adler-32 shipped the opposite verdict from the same file only because
+stdlib's Adler is scalar Go with no hardware instruction to lose to.
