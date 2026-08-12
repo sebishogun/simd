@@ -3021,3 +3021,25 @@ integer prefix-sums (0.67x, not shipped) -- attempted, measured, the
 instruction economics settle it, and the entry is the deliverable.
 Adler-32 shipped the opposite verdict from the same file only because
 stdlib's Adler is scalar Go with no hardware instruction to lose to.
+
+## SortInto's scratch does not cover duplicate extraction
+
+`SortInto` was documented as allocating nothing, but its allocation test used
+one random slice and did not reach the duplicate-skew recovery path. Rebuilding
+a 4,096-element float64 input from three distinct values before every measured
+call reports exactly two allocations per run. The existing random case reports
+zero.
+
+The instructions identify both allocations. `extractEqual` contains:
+
+	CALL runtime.makeslice(SB)
+
+That call creates the `[]bool` mask used to find and compress elements unequal
+to the pivot. The three-value input reaches `extractEqual` twice. The caller's
+`[]T` scratch stores partition output; it does not provide storage for the mask.
+
+The resulting contract is narrower: `SortInto` avoids `Sort`'s unconditional
+element-scratch allocation, but duplicate-skew recovery can allocate one mask
+for each equal run it extracts. The active API documentation now states that
+exception. Historical changelog text remains a record of the implementation at
+the time of each release.

@@ -130,7 +130,8 @@ many there were.
 simd.Sort(a) // in place, allocates a scratch slice internally
 ```
 
-In a loop, hand the scratch in so it happens once:
+In a loop, supply the element scratch once instead of making `Sort` allocate it
+for every call:
 
 ```go
 scratch := make([]float64, len(batch))
@@ -141,7 +142,8 @@ for _, batch := range batches {
 
 Note that `SortInto` does *not* mean "sort from src into dst" — it is `Sort`
 with the workspace supplied. The contents of `scratch` afterwards are
-unspecified.
+unspecified. A duplicate-heavy, badly skewed partition can still allocate a
+temporary boolean mask while extracting an equal run.
 
 When several columns share one ordering, sort the keys and permute the rest:
 

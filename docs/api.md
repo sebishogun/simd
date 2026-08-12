@@ -26,15 +26,16 @@ malformed input matters.
 
 ## Allocation and workspace
 
-Kernel calls and `Into` forms are designed for hot paths: supply output and
-workspace once, then reuse them. Convenience APIs can allocate when returning a
-new slice, constructing a plan or workspace, or growing an append destination.
+Kernel calls and most `Into` forms are designed for hot paths: supply output
+and workspace once, then reuse them. Convenience APIs can allocate when
+returning a new slice, constructing a plan or workspace, or growing an append
+destination.
 Representative allocating calls include `Sort`, `Median`, `Quantile`, `TopK`,
 `BottomK`, `Histogram`, `Bincount`, `FFT`, `RFFT`, and plan or workspace
 constructors. Append-style functions reuse capacity when it is sufficient and
 grow otherwise.
 
-The allocation-free variant is normally explicit in the signature:
+Caller-owned workspace is normally explicit in the signature:
 
 ```go
 scratch := make([]float64, len(batch))
@@ -42,6 +43,10 @@ for _, values := range batches {
     simd.SortInto(values, scratch)
 }
 ```
+
+`SortInto` avoids `Sort`'s unconditional element-scratch allocation. Its
+duplicate-recovery path can still allocate temporary boolean masks when a
+partition is badly skewed by many copies of its pivot.
 
 ## Lengths, overlap, and malformed input
 
@@ -71,7 +76,7 @@ render beside the API on [pkg.go.dev](https://pkg.go.dev/github.com/sebishogun/s
 | …without destroying the input | the same name with `Into` |
 | do `y += a*x` in one pass (axpy) | `AddScaled` |
 | **sum or multiply many slices at once** | `AddAll` `MulAll` — one pass, not one per slice |
-| sort a slice | `Sort` `SortInto` (allocation-free) |
+| sort a slice | `Sort` `SortInto` (caller-supplied element scratch) |
 | **sort one slice by another's values** | `Argsort` + `GatherInto` |
 | split a slice about a threshold | `PartitionInto` — stable on both sides |
 | total / average / spread of a slice | `Sum` `Mean` `StdDev` `Variance` |

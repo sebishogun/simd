@@ -101,8 +101,8 @@ func TestSort(t *testing.T) {
 	}
 }
 
-// TestSortInto is the allocation-free form, and also checks that a scratch
-// slice that is too short falls back rather than corrupting anything.
+// TestSortInto checks the caller-supplied scratch form and that a scratch slice
+// that is too short falls back rather than corrupting anything.
 func TestSortInto(t *testing.T) {
 	for _, n := range []int{600, 4096} {
 		a := sortInputs(n, "random", 5)

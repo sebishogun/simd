@@ -131,10 +131,13 @@ func Sort[T Number](a []T) {
 	SortInto(a, make([]T, len(a)))
 }
 
-// SortInto sorts a in place using scratch as working space, allocating nothing.
+// SortInto sorts a in place using scratch as working space. It avoids [Sort]'s
+// unconditional element-scratch allocation. If a partition is badly skewed by
+// many copies of its pivot, the duplicate-recovery path allocates a temporary
+// boolean mask for each equal run it extracts.
 //
 // scratch must be at least as long as a. Its contents afterwards are
-// unspecified. This is the form to use in a loop or on a hot path:
+// unspecified. Reuse it to keep the element scratch out of a loop:
 //
 //	scratch := make([]T, len(a))   // once
 //	for _, batch := range batches {
