@@ -68,87 +68,18 @@ precisely so they do not have to allocate one.
 - **[docs/kernels.md](docs/kernels.md)** — how to add a kernel.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to verify one.
 
-## Function index
+## API guide
 
-Organised by task rather than by operation name.
+The complete task-oriented operation catalog now lives in
+**[docs/api.md](docs/api.md)**. The main paths through the API are:
 
-| I want to… | Call |
+| Workload | Guide |
 |---|---|
-| add/scale/clamp a slice in place | `Add` `Scale` `AddScalar` `Clamp` |
-| …without destroying the input | the same name with `Into` |
-| do `y += a*x` in one pass (axpy) | `AddScaled` |
-| **sum or multiply many slices at once** | `AddAll` `MulAll` — one pass, not one per slice |
-| sort a slice | `Sort` `SortInto` (allocation-free) |
-| **sort one slice by another's values** | `Argsort` + `GatherInto` |
-| split a slice about a threshold | `PartitionInto` — stable on both sides |
-| total / average / spread of a slice | `Sum` `Mean` `StdDev` `Variance` |
-| length of a vector, distance between two | `Norm` `Distance` `CosineSimilarity` |
-| make a vector unit length | `Normalize` |
-| smallest and largest in one pass | `MinMax`, or `ArgMin`/`ArgMax` for positions |
-| **keep only the elements that pass a test** | a comparison → `[]bool`, then `CompressInto` |
-| **filter a column by an Arrow validity bitmap** | `CompressBitsInto` — packed bits, LSB-first; take is `GatherInto` |
-| **null-aware sum and non-null count** | `SumValid` `CountValid` — never read a null slot, bit-identical to `Sum` |
-| apply an arbitrary Go predicate | `FilterInto` (convenient, not fast — see its doc) |
-| running totals / differences | `CumSum` `DiffInto` |
-| exp/log/trig over a slice | `Exp` `Log` `Sin` … and the `Fast*` twins |
-| pick between two slices per element | `SelectInto` |
-| **apply a matrix to a vector** | `GemvInto`, or `GemvParallelInto` for a large one |
-| multiply two matrices | `MatMulInto`, or `MatMulParallelInto` when the multiply is the whole job |
-| **add an outer product to a matrix** | `RankOneInto` — BLAS ger, the inner loop of an LU |
-| apply a Givens rotation | `Rotate` — what QR and the SVD are made of |
-| exchange two slices | `Swap` — pivoting a decomposition |
-| find a byte or substring | `IndexByte` `Index` `LastIndex` |
-| **find every occurrence at once** | `IndexAll`, or `IndexAllAny` for a set of delimiters in one pass |
-| **the same, as a bitmask** | `MaskBits` `MaskBitsAny` `MaskBitsLess` — a bit per byte, 22–37× the offset list when matches are dense |
-| find any of a set of bytes | `IndexAny` `IndexNotAny` `CountAny` |
-| **the next byte that is not plain text** | `IndexAnyOrLess` — a set and a threshold in one pass, the inner loop of an escape routine |
-| **copy text up to the byte that needs escaping** | `JSONCopyRun` — the scan and the copy in one pass, for a JSON encoder |
-| **classify a JSON document five ways at once** | `JSONMasks` `MaskWords` — quotes, backslashes, brackets, control bytes and whitespace from one pass; 2x five separate calls |
-| **validate a JSON document in one kernel call** | `JSONValid` — classification, quote parity, escape checks and the grammar walk fused, no mask buffers; `JSONStage1` + `JSONValidTokens` are its staged halves for callers that also need the masks |
-| **escape a string into a JSON encoder's buffer** | `JSONQuote` (assumes valid UTF-8) or `JSONCopyValid` (replaces invalid bytes), both with optional HTML-safe escaping |
-| trim, fold case, validate UTF-8 | `TrimAny` `TrimSpaceASCII` `EqualFoldASCII` `ValidUTF8` |
-| hex or base64 | `HexEncode` `Base64Encode` `Base64Decode` |
-| checksum a buffer | `Adler32` — vectorized where stdlib is scalar; `CRC32C` matches hash/crc32 Castagnoli |
-| format a float shortest-form | `FormatFloat64` — Schubfach with the render attached, 1.65× strconv, encoding/json's format rule |
-| decode an LZ4 block | `LZ4BlockDecode` — widened copies, 1.25–1.54× the byte walk, -1 on malformed input |
-| expand run-length pairs | `RunLengthDecodeInt32` — splat-store, 2.6× the byte walk |
-| **fill a slice with random values** | `RandFillU64` — eight xoshiro256++ lanes, 18× math/rand; not cryptographic |
-| merge two sorted arrays | `MergeSortedUint32` — a min/max exchange ladder, 2.6× the two-pointer walk |
-| weave or unweave two byte planes | `Interleave2` `Deinterleave2`; `Transpose8x8Bytes` for 64-byte tiles |
-| decode a varint stream | `VarintDecode` — one wide load per value; encode-side sizing above |
-| **hash a column of keys** | `HashUint64` — seeded splitmix64 lanes, 7.6× the loop; bloom filters and partitioning |
-| bit-transpose for compression | `Bitshuffle` `Unbitshuffle` — Blosc-style planes over 64-byte tiles |
-| convert to/from float16 or bfloat16 | `Float16ToFloat32Into` and friends |
-| median / percentile without sorting | `Median` `Quantile`, `MedianInto` for zero-alloc |
-| the k largest or smallest | `TopK` `BottomK` — selects, does not sort |
-| histogram / count occurrences | `Histogram` `Bincount` |
-| find the NaNs, sum around them | `IsNaNInto` `CountNaN` `NanSum` `NanMean` |
-| shifts, rotates, popcount per element | `Shl` `Rotl` `OnesCountInto` `LeadingZerosInto` `ByteSwapInto` |
-| a Fourier transform | `FFTInto` with a reusable plan; `RFFT` for real input |
-| envelope / analytic signal | `HilbertInto`, then `AbsComplexInto` |
-| window a signal | `Hann` `Hamming` `Blackman`, then `ApplyWindowInto` |
-| convolve or correlate | `ConvolveFullInto` — picks direct or FFT by a measured crossover |
-| interpolate a table | `InterpInto` — numpy's interp, clamping |
-| transpose a matrix | `TransposeInto` — blocked, 3.6× the naive loop |
-| parse a CSV of integers | `IndexAll` + `ParseInts` — 5× strconv |
-| **quantize a tensor to int8** | `QuantizeInt8`, or `QuantizePerChannelInt8` for weights |
-| **multiply int8 tensors** | `QMatMulInt8Into` → int32, then `RequantizeInt8Into` |
-| normalize a transformer layer | `LayerNorm`, or `LayerNormInto` with gamma and beta |
-| **look up many keys in a sorted table** | `LowerBoundInto` — one binary search per query, batched |
-| how much two byte slices share | `CommonPrefixLen` — the LCP step of a suffix array |
-| rolling minimum or maximum | `RollingMinInto` `RollingMaxInto` — see the window note in its doc |
-| **intersect or subtract sorted sets** | `IntersectInto` `DifferenceInto` — posting lists |
-| rank/select over a bit vector | `RankTableInto`, then `Rank` and `Select` |
-| size a varint stream before writing it | `VarintSize` `VarintLenInto` `AppendVarints` |
-| **multiply a sparse matrix by a vector** | `SpMVInto`, or `SparseDot` for one CSR row |
-| convert to/from fp8 | `Float32ToFloat8E4M3Into` and the e5m2 pair |
-| make negative deltas small | `ZigzagEncodeInt32Into`, before varint |
-| pack a column densely | `DiffInto` → `ZigzagEncodeInt32Into` → `BitPackInto` |
-| run-length encode a column | `RunLengthEncodeInt32`, or `RunStartsInto` for the mask alone |
-| compare two bit vectors | `HammingDistance` — fused, not `Xor` then `PopCount` |
-| convert planar RGB | `GrayscaleInto`, `RGBToUVInto` |
-| **sum data arriving in chunks** | `Accumulator[T]` — bit-identical to `Sum` of the whole |
-| fill a slice with random values | `RandomInto` — reproducible, splittable, same everywhere |
+| arithmetic, reductions, sorting, filtering, nullable columns | [arrays and reductions](docs/guide/arrays.md) |
+| text search, parsing, UTF-8, JSON, hex, base64 | [text and bytes](docs/guide/text.md) |
+| batched search, sorted sets, sparse data, bit vectors | [search, sets and bit vectors](docs/guide/search.md) |
+| quantization, packed columns, varints, shuffles | [encodings](docs/guide/encoding.md) |
+| matrices, FFTs, windows, convolution | [signal and matrices](docs/guide/signal.md) |
 
 ## What is included
 
