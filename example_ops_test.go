@@ -7,13 +7,13 @@ import (
 	"github.com/sebishogun/simd"
 )
 
-// Runnable examples for every operation the README's "which function do I
-// want" table names.
+// Runnable examples for every operation the "which function do I want" table
+// — the operation catalog in docs/api.md — names.
 //
 // That table has always claimed each entry has one. It did not: 100 of its 109
 // entries had no example at all, which is the kind of promise that is worth
-// less than no promise. TestReadmeTableHasExamples now checks the claim on
-// every build, so it cannot drift again.
+// less than no promise. TestOperationCatalogHasExamples now checks the claim
+// on every build, so it cannot drift again.
 //
 // Each of these is deliberately small enough to read the answer off the page.
 // An example whose output you have to trust is documentation of the wrong kind.

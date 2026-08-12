@@ -52,6 +52,17 @@ func TestChangelogCoversReleaseTags(t *testing.T) {
 		tags = append(tags, v)
 	}
 	if len(tags) == 0 {
+		// CI checkouts are shallow by default, and a shallow clone answers
+		// `git tag --list` successfully while holding no tags at all. That is
+		// missing metadata, so it skips like any other tag-less environment;
+		// an ordinary checkout with zero stable tags means the parse broke and
+		// stays fatal.
+		shallow, shErr := exec.Command(git, "-C", root, "rev-parse",
+			"--is-shallow-repository").Output()
+		if shErr == nil && strings.TrimSpace(string(shallow)) == "true" {
+			t.Skip("git tag metadata is unavailable in this shallow checkout; " +
+				"cannot enumerate release tags")
+		}
 		t.Fatal("git returned no stable release tags; the tag parse has broken " +
 			"rather than the repository having no releases")
 	}

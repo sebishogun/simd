@@ -45,6 +45,10 @@ func TestLocalLinksResolve(t *testing.T) {
 		}
 	}
 
+	// This is intentionally not a CommonMark parser: the active documents
+	// only use inline [text](target) links, and reference-style links are out
+	// of scope. If a document ever adopts them, extend this rather than
+	// pulling in a Markdown library.
 	link := regexp.MustCompile(`\[([^\]]*)\]\(([^)]+)\)`)
 	// Code is not prose: fenced blocks and inline spans can contain text that
 	// only looks like a link, such as Go's `simd.F[T](args)` signatures.

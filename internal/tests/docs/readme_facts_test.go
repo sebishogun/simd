@@ -73,17 +73,17 @@ func TestDocumentedCountsAreCurrent(t *testing.T) {
 	})
 
 	// The table's kernel counts are written by hand; the assembly they
-	// describe is not. Each generated kernel body is one TEXT declaration, so
-	// every documented count has to equal the number of TEXT declarations
-	// across the architecture's .s files.
+	// describe is not. The generator marks every logical kernel in the .s
+	// files, so every documented count has to equal the number of markers
+	// across the architecture's sources.
 	t.Run("documented kernels match the sources", func(t *testing.T) {
 		platforms := readDoc(t, "docs/platforms.md")
 
 		for _, row := range coverageRows(t, platforms) {
-			actual := textDeclarations(t, row.arch)
+			actual := generatedKernels(t, row.arch)
 			if row.kernels != actual {
 				t.Errorf("docs/platforms.md documents %d kernels for %s; "+
-					"internal/%s/*.s declares %d TEXT routines.\nRegenerate the "+
+					"internal/%s/*.s declares %d.\nRegenerate the "+
 					"platform numbers from the sources rather than copying them "+
 					"forward.", row.kernels, row.arch, row.arch, actual)
 			}
@@ -122,7 +122,7 @@ type archKernels struct {
 // docs/platforms.md.
 func coverageRows(t *testing.T, platforms string) []archKernels {
 	t.Helper()
-	rows := regexp.MustCompile(`(?m)^\| ([a-z0-9]+) \([a-z0-9/]+\) \| (\d+) \| (\d+) \|`)
+	rows := regexp.MustCompile(`(?m)^\| ([a-z0-9]+) \([a-z0-9/]+\) \| (\d+) \| (?:\d+) \|`)
 	matches := rows.FindAllStringSubmatch(platforms, -1)
 	if len(matches) < 6 {
 		t.Fatalf("parsed %d rows out of the coverage table, expected one per "+
@@ -140,16 +140,25 @@ func coverageRows(t *testing.T, platforms string) []archKernels {
 	return out
 }
 
-// textDeclarations counts the TEXT declarations across internal/<arch>/*.s —
-// one per generated kernel body.
-func textDeclarations(t *testing.T, arch string) int {
+// generatedKernels counts the logical kernels across internal/<arch>/*.s.
+// The generator precedes every exported assembly declaration with a
+// `// func name(args)` marker, one per logical kernel, which is what the
+// documentation's kernel counts mean. Counting TEXT declarations instead
+// would double on s390x, where every logical kernel pairs its callable entry
+// with a *Body TEXT helper.
+//
+// The files are read at the top level of each architecture directory: the
+// generator lays them out flat and os.ReadDir does not descend. If a future
+// layout change moves the assembly into subdirectories, the missing-files
+// failure below is what reports it.
+func generatedKernels(t *testing.T, arch string) int {
 	t.Helper()
 	dir := path(filepath.Join("internal", arch))
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatalf("reading %s: %v", dir, err)
 	}
-	decl := regexp.MustCompile(`(?m)^TEXT `)
+	marker := regexp.MustCompile(`(?m)^// func `)
 	files, n := 0, 0
 	for _, e := range entries {
 		if !strings.HasSuffix(e.Name(), ".s") {
@@ -160,7 +169,7 @@ func textDeclarations(t *testing.T, arch string) int {
 		if err != nil {
 			t.Fatalf("reading %s: %v", filepath.Join(dir, e.Name()), err)
 		}
-		n += len(decl.FindAllString(string(src), -1))
+		n += len(marker.FindAllString(string(src), -1))
 	}
 	if files == 0 {
 		t.Fatalf("no .s files found in %s; the architecture layout has changed "+
