@@ -313,24 +313,38 @@ make codegen       # regenerate every backend (needs clang)
 
 ## Built on this
 
-Four libraries use these kernels. Each is a case where the vector unit changes
-what the code can do, rather than a wrapper around the API.
+These projects use the kernels as components of a larger algorithm rather than
+re-exporting the slice API. Performance figures are from each project's own
+amd64 benchmark record; follow the link for corpus, configuration, and losing
+cases.
 
-| | | |
-|---|---|---|
-| [**simdblas**](https://github.com/sebishogun/simdblas) | A BLAS backend for [gonum](https://github.com/gonum/gonum) | One `blas64.Use` call and `mat`, `stat` and `optimize` run on it. Covariance plus Cholesky 4.4×, QR 2.0×, `mat.Mul` 4.3×. |
-| [**simdjson**](https://github.com/sebishogun/simdjson) | Structural-index JSON parsing | 6.6× `encoding/json` for field extraction, and 1.4–1.7× [minio/simdjson-go](https://github.com/minio/simdjson-go) — which is amd64-only. Its structural pass is built on `MaskBits`. |
-| [**simdcsv**](https://github.com/sebishogun/simdcsv) | CSV reading | 1.7–2.1× `encoding/csv` on unquoted data, with fields as subslices rather than copies. |
-| [**simdvec**](https://github.com/sebishogun/simdvec) | Embedding search | 18–38× a hand-written loop; the whole index scan is one matrix-vector product. |
+### Released libraries
 
-simdjson is the one worth reading if you are deciding whether any of this is
-real. It was 1.3–1.8× *slower* than minio until benchmarking against it named
-the missing primitive — `IndexAll` took a single byte, so six JSON delimiters
-meant six reads of the document. `IndexAllAny` closed it in one release, and
-profiling the result named the next one: on input where matches are common, a
-list of offsets is larger than the input and the store is most of the work. The
-`MaskBits` family in v1.5.0 came from that, and took simdjson's structural pass
-from 1.76 ms to 370 µs.
+| Project | Workload | How `simd` is used | Measured scope |
+|---|---|---|---|
+| [**simdblas**](https://github.com/sebishogun/simdblas) | BLAS backend for [gonum](https://github.com/gonum/gonum) | Whole-slice reductions and matrix kernels under `blas32.Use` / `blas64.Use` | Dense routines and end-to-end gonum decompositions; covariance plus Cholesky 4.36× and QR up to 1.98× in its recorded workloads |
+| [**simdjson**](https://github.com/sebishogun/simdjson) | Indexed JSON parsing and an `encoding/json`-compatible surface | JSON classification, validation, mask, string, and number kernels | Corpus results vary by shape; it publishes wins, ties, and cases where goccy, sonic, gjson, or the standard library is the better choice |
+| [**simdcsv**](https://github.com/sebishogun/simdcsv) | CSV reading with byte-slice fields | One delimiter scan per unquoted record | 1.49–1.92× `encoding/csv` on recorded unquoted shapes; all-quoted four-column input is 0.81× |
+| [**simdvec**](https://github.com/sebishogun/simdvec) | Exact embedding search | The entire index scan is one `GemvParallelInto`, followed by selection | 18.0–38.4× the recorded `[][]float32` dot-and-sort loop; intentionally not an approximate index |
+
+### Active projects
+
+These repositories are public and use `simd` v1.20.0, but do not yet have a
+GitHub release.
+
+| Project | Workload | Kernel pipeline | Recorded result |
+|---|---|---|---|
+| [**simdhttp**](https://github.com/sebishogun/simdhttp) | HTTP/1.1 request-head parsing | One structural scan, then boundary validation and zero-copy fields | Near level with `net/http` on a typical nine-header request; 4.7× on the 100-header shape |
+| [**simdcbor**](https://github.com/sebishogun/simdcbor) | RFC 8949 CBOR decode, skip, and canonical encode | Two-stage item indexing plus UTF-8 and bulk-copy kernels | 1.35–1.84× fxamacker decode on its four recorded shapes |
+| [**simdparquet**](https://github.com/sebishogun/simdparquet) | Parquet RLE/bit-packed hybrid decode | `BitUnpackInto`, `RunLengthDecodeInt32`, and `VarintDecode` behind format-aware thresholds | 1.11–1.18× its byte-at-a-time reference on recorded level/index pages |
+| [**simdimage**](https://github.com/sebishogun/simdimage) | Planar image grayscale and separable box blur | `GrayscaleInto`; row-wise `Add`/`Sub` for the vertical blur | 19.4× scalar grayscale and 1.45× scalar vertical blur at 1920×1080 |
+| [**simdlogs**](https://github.com/sebishogun/simdlogs) | Columnar log storage and query execution | Bit packing, RLE, varints, hashing, bitshuffle, JSON ingest, and vector predicate scans | Its 3-million-row VictoriaLogs comparison reports wins on every measured query class; exact ratios and engine/wire separation are maintained in that repository |
+
+`simdjson` also feeds requirements back into this package. Multi-delimiter JSON
+scanning produced `IndexAllAny`; dense structural matches produced the
+`MaskBits` family; staged validation produced `JSONStage1`, `JSONValidTokens`,
+and finally the fused `JSONValid`. The dependent was measured first, and the
+missing primitive was added here only after the profile named it.
 
 ## Why this exists
 
