@@ -1,16 +1,16 @@
 # Writing code a vector unit can help with
 
-This library has no vector type. You call ordinary functions on ordinary Go
-slices, and the instruction set is chosen for you. That is deliberate — a
-public `Vec4` costs a function call per operation and would lose to plain Go —
-but it moves the interesting decisions somewhere else.
+The ordinary API has no vector value. You call functions on Go slices, and the
+instruction set is chosen for you. An amd64-only experimental vector escape
+hatch exists for expressions missing from the catalog, but the whole-slice API
+is the portable path and the one this tutorial teaches.
 
 **The library cannot vectorize your program. It can only vectorize the loops
 you hand it.** How you shape your data decides whether there is anything to
 hand over.
 
-Everything below is measured on this machine (Zen 5, AVX-512) and every
-snippet compiles. The complete programs are in [`examples/`](examples/).
+Performance figures below were measured on a Zen 5 with AVX-512. The complete
+compilable programs are in [`examples/`](examples/).
 
 ---
 
@@ -94,8 +94,9 @@ simd.Add(a, b)          // a[i] += b[i]
 simd.AddInto(dst, a, b) // dst[i] = a[i] + b[i]
 ```
 
-**This package never allocates.** No function returns a freshly made slice. So
-a loop over batches allocates once, outside it:
+The hot-path forms take caller-owned output or workspace. Convenience functions
+that return a slice or build a plan can allocate; use the `Into` or workspace
+form in a loop so allocation stays outside it:
 
 ```go
 dst := make([]float64, batchSize)   // once

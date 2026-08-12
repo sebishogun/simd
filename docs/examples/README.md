@@ -15,6 +15,9 @@ Start with **[the tutorial](../tutorial.md)** if you have not written against
 this library before. It is about shaping data rather than about the API — which
 is the part that decides whether any of this helps you.
 
+Use the **[API guide](../api.md)** to find an operation by task and the
+**[task guides](../guide/)** for sizing, workspace, and crossover details.
+
 Shorter examples live in [`example_test.go`](../../example_test.go) at the
 repository root. Those are `Example` functions with `// Output:` comments, so
 `go test` checks them on every build and pkg.go.dev renders each one beside the

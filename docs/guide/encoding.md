@@ -142,6 +142,12 @@ That extra word is the thing to get right. `BitPackInto` will happily write
 into a tightly-sized slice, and `BitUnpackInto` will then silently do nothing
 because its guard refuses — no panic, just zeros. Size for the reader.
 
+In v1.20, complete 32-value blocks at widths 1 through 31 automatically use a
+width-specialized unpack kernel. The width switch happens once outside the
+block loop, so each generated case contains literal shifts instead of the
+runtime shift count that prevented vectorization. The API and packed format did
+not change; width 32 and the tail keep the general path.
+
 This is the representation Parquet, Arrow and Lucene use for an integer column,
 and the three steps are separate because real formats mix and match them.
 
@@ -160,6 +166,18 @@ The scratch `[]bool` is where the run boundaries go, and handing it in is what
 keeps this allocation-free. `RunStartsInto` gives you just that mask if you
 want to drive the compaction yourself — it is the vectorizable half; walking
 the boundaries to emit pairs is not.
+
+Decode takes the values and lengths directly and stops when the destination is
+full:
+
+```go
+dst := make([]int32, 6)
+n = simd.RunLengthDecodeInt32(dst, values[:n], lengths[:n])
+// dst[:n] is [7 7 7 9 9 4]
+```
+
+Expansion is kernel-backed: each run is one broadcast followed by wide stores.
+The dependency is one output-position update per run, not one per element.
 
 ## Varints
 
@@ -199,11 +217,78 @@ It sizes the buffer exactly, grows at most once, and then runs the serial emit
 loop it has to. About 1.7× an append-and-grow encoder — all of it from the
 allocation, none from the emit.
 
+Decode reports both output and input progress:
+
+```go
+encoded := []byte{0x01, 0xac, 0x02, 0x80} // final value is incomplete
+decoded := make([]uint64, 4)
+
+n, consumed := simd.VarintDecode(decoded, encoded)
+// decoded[:n] is [1 300], consumed is 3
+
+encoded = encoded[consumed:] // retain the incomplete suffix for the next chunk
+```
+
+It stops before a truncated value or one that does not terminate within ten
+bytes. Complete values remain usable, and `consumed` is the safe resume point.
+The fast path loads one eight-byte word per value where a byte loop branches on
+every encoded byte; the stream remains serial through each value's width.
+
 The widths are computed as a sum of four unsigned comparisons rather than from
 a leading-zero count. Both are correct; only one vectorizes everywhere.
 `bits.Len` lowers to an intrinsic that has no vector form on SSE2 or AVX2,
 where LLVM scalarizes it lane by lane and hands back something slower than the
 loop it replaced.
+
+## Bulk hashing for numeric keys
+
+`HashUint64` applies a seeded splitmix64 finalizer to a whole key column:
+
+```go
+keys := []uint64{42, 99, 1234}
+hashes := make([]uint64, len(keys))
+simd.HashUint64(hashes, keys, 7)
+```
+
+This is the shape bloom filters, hash partitioning, and dictionary probes need:
+many independent integer keys and one seed. It is not a replacement for
+`hash/maphash` when hashing one string; maphash's AES path is built for that
+case. `dst` and `keys` should have the same length.
+
+## Byte planes and bitshuffle
+
+Two-plane layouts convert without building structs:
+
+```go
+lo := []byte{1, 2, 3}
+hi := []byte{10, 20, 30}
+interleaved := make([]byte, 2*len(lo))
+simd.Interleave2(interleaved, lo, hi)
+
+backLo := make([]byte, len(lo))
+backHi := make([]byte, len(hi))
+simd.Deinterleave2(backLo, backHi, interleaved)
+```
+
+`Transpose8x8Bytes` transposes independent 64-byte byte matrices. `Bitshuffle`
+goes one level lower: for each 64-byte tile it gathers equal-significance bits
+into planes. Mostly small values then produce long zero runs for the compressor
+that follows:
+
+```go
+src := make([]byte, 64) // one complete tile
+shuffled := make([]byte, len(src))
+simd.Bitshuffle(shuffled, src)
+
+// Compress shuffled here, then decompress before the inverse.
+back := make([]byte, len(src))
+simd.Unbitshuffle(back, shuffled)
+```
+
+For `Transpose8x8Bytes`, `Bitshuffle`, and `Unbitshuffle`, source and
+destination lengths must match and be a multiple of 64. They do not compress by
+themselves; they reshape bytes so a general-purpose compressor sees simpler
+planes.
 
 ## Colour
 

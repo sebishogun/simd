@@ -466,14 +466,14 @@ func CumMaxInto[T Number](dst, a []T) { ops[T]().CumMax(dst, a) }
 // The crossover is just above 32, which is four times the eight float64 lanes
 // an AVX-512 register holds. Above roughly 48, write the deque.
 //
-// This function does not switch to a deque itself, and that is a decision
-// rather than an omission. A deque needs an index ring proportional to the
-// window, which would be the only allocating operation in this library; and
+// This function does not switch to a deque itself. A deque needs an index ring
+// proportional to the window, which would add hidden workspace to this
+// caller-owned-output operation; and
 // getting IEEE minimum out of one is subtle in a way that would not show up in
 // testing — "pop the back while it is worse" does nothing when neither operand
 // orders, so a plain deque holds a NaN without ever reporting it. A third
-// implementation of these semantics is a liability, and the honest thing is to
-// say where this one stops paying. See docs/wrong.md entry 64.
+// implementation of these semantics is a liability, so the function states
+// where this implementation stops paying. See docs/wrong.md entry 64.
 func RollingMinInto[T Number](dst, a []T, window int) { ops[T]().RollingMin(dst, a, window) }
 
 // RollingMaxInto writes the maximum of every window of the given size into dst.

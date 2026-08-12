@@ -23,25 +23,26 @@ set intersection, rank and select, sliding-window extremes. The operations whose
 output is not one element per input.
 
 **[Encodings](encoding.md)** — int8 and fp8 quantization, bit packing,
-run-length, zigzag, varint widths. What a column store and an inference runtime
-spend their time in.
+run-length, zigzag, varint encode/decode, byte shuffles, and bitshuffle. What a
+column store and an inference runtime spend their time in.
 
 **[Signal and matrices](signal.md)** — Fourier transforms and plans, windows,
 convolution, the analytic signal, Gemv and a register-blocked matrix multiply.
 Several of these pick an algorithm for you; this says which and why.
 
-## Two things that apply to every page
+## Two patterns used across the guides
 
-**The plain name works in place. The `Into` name writes somewhere else.**
+**Arithmetic usually uses a plain in-place name and an `Into` destination.**
 
 ```go
 simd.Add(a, b)          // a[i] += b[i]
 simd.AddInto(dst, a, b) // dst[i] = a[i] + b[i], a and b untouched
 ```
 
-That is the whole convention. There is no third form and no options struct.
-Nothing in this library allocates unless its name says so — `Into` functions
-take the destination from you precisely so they do not have to make one.
+Reductions, decoders, plans, append functions, and workspace-taking algorithms
+have shapes specific to their output. `Into` forms and generated kernels are
+the usual allocation-free path; convenience functions can allocate a result or
+reusable state and document it.
 
 **Below roughly 16 to 64 elements you get a plain Go loop, on purpose.**
 

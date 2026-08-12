@@ -88,16 +88,32 @@ The gain depends on how the two sets interleave, so here is the honest spread
 rather than one number: it is ahead at 1% and 10% overlap, ahead again at 100%,
 and a tie at 50% where no block ever gets to skip.
 
-### There is no Union
+## Merging sorted streams
 
-Intersection and difference emit a *subset* of one input, so the tile's answer
-is a mask and compacting it touches at most eight elements. A union emits
-everything, in order — that is a merge, and merging two sorted vectors needs a
-bitonic network, the same machinery a vectorized sort needs. That is a separate
-project and it has not been built.
+`MergeSortedUint32` merges two ascending `[]uint32` streams into one ascending
+destination:
 
-Composing a union from these two would need a merge as well, so there is no way
-around it from here. A two-cursor merge in Go is what a union costs today.
+```go
+a := []uint32{1, 3, 3, 8}
+b := []uint32{2, 3, 9}
+
+dst := make([]uint32, len(a)+len(b))
+n := simd.MergeSortedUint32(dst, a, b)
+// dst[:n] is [1 2 3 3 3 8 9]
+```
+
+`dst` must hold `len(a)+len(b)` elements. Equal keys from `a` are emitted
+first, and duplicates are preserved. The kernel replaces the two-pointer
+walk's data-dependent branch with a fixed min/max exchange ladder. It is the
+merge half of merge sort and the ordered-input step in compaction and joins.
+
+### There is still no set Union
+
+Intersection and difference assume duplicate-free set inputs and emit a subset.
+A set union must merge **and deduplicate**. `MergeSortedUint32` supplies the
+ordered merge for uint32, but deliberately preserves every duplicate, including
+equal values repeated within one input. If you need set semantics, merge into
+scratch and compact adjacent duplicates in a second pass.
 
 ## Rank and select
 
@@ -172,9 +188,9 @@ turns on the *window*, not on `n`. Measured on a Zen 5 at a million float64:
 The deque's column barely moves — that is the point of it. Above a window of
 about 48, write the deque; it is fifteen lines.
 
-This function does not switch to one itself, and that is a decision rather than
-an omission. A deque needs an index ring proportional to the window, which
-would make this the only allocating operation in the library, and getting IEEE
+This function does not switch to one itself. A deque needs an index ring
+proportional to the window, which would add hidden workspace to an otherwise
+caller-owned-output operation, and getting IEEE
 minimum out of one is subtle in a way that would not show up in testing:
 "pop the back while it is worse" does nothing when neither operand orders, so a
 plain deque holds a NaN without ever reporting it. Three implementations of one

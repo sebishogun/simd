@@ -1,8 +1,8 @@
 # Arrays and reductions
 
 The bread and butter: arithmetic over a whole slice, and turning a whole slice
-into one number. If you only read one guide, read this one — the conventions
-here apply to all four hundred and fifty operations.
+into one number. If you only read one task guide, read this one: batching,
+caller-owned output, and fixed-order reductions recur across the package.
 
 ## In place, or into somewhere else
 
