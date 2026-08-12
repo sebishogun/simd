@@ -64,7 +64,8 @@ here.
 
 ### ~~ppc64le: repoint the TOC prologue at an appended pool~~ — done
 
-**Shipped.** 281 kernels became 468, and 592 as the kernel set grew. The
+**Shipped.** 281 kernels became 468, 592 as the kernel set grew, and 602 in the
+v1.20.0 tree. The
 approach is the one sketched here before it was written: emit the pool as a Go
 `DATA`/`GLOBL` symbol, put `MOVD $pool<>(SB), R2` in the generator's prologue,
 overwrite clang's two global-entry instructions with NOPs — length-preserving,
@@ -85,7 +86,7 @@ is the `RET`. That decision is recorded at `target.go`.
 
 ### s390x
 
-413 kernels, and the missing ones are missing because clang uses `r13`,
+420 kernels in the v1.20.0 tree, and the missing ones are missing because clang uses `r13`,
 which is where Go keeps the current goroutine. There is no `-ffixed-r13` for
 SystemZ; the global register variable is accepted and silently ignored. Four
 routes were probed and all four are dead, so this is upstream — recorded here
@@ -94,7 +95,7 @@ so that its absence is not mistaken for an oversight.
 An earlier version of this file said 614 and the README said 650. Both were
 wrong: 614 was the count before the r13 rule was enforced, and 650 double-
 counted registrations and their wrappers. The number has in fact risen
-monotonically, 325 to 413, and never fell.
+monotonically, 325 to 420, and never fell.
 
 ### amd64 sse2: closed — 673 kernels became 789
 
@@ -245,7 +246,7 @@ and every architecture Go's intrinsics do not cover.
 
 ## Releases
 
-The line is at `v1.13.0`: the v1 series is API-stable and each minor adds
+The line is at `v1.20.0`: the v1 series is API-stable and each minor adds
 kernels or verification without moving anything — CHANGELOG.md is the
 per-release record. The criteria below are kept as written because they say
 what `v1.0.0` *meant*; the items marked open inside them are ongoing watches,

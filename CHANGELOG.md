@@ -233,6 +233,89 @@ bytes already known clean, which is cheaper than stepping over half of them:
 **Committed benchmark baselines no longer name the recording machine's CPU
 model.**
 
+## v1.9.1
+
+**`JSONMasks` regions are word-aligned, and `MaskWords` is public.** The five
+mask regions were originally spaced `(n+7)/8` bytes apart, which stores one bit
+per input byte but is not enough for the 64-bit word loads used by every
+consumer. For an input whose length was not a multiple of 64, the final word of
+one region read into the next. Regions now occupy `MaskWords(n)*8` bytes, their
+padding is zeroed, and callers use `MaskWords` rather than duplicating the
+stride expression.
+
+This is a layout correction for the v1.9.0 API. It was found by the first real
+consumer rather than by a mask producer that never read its own output in
+words.
+
+## v1.9.0
+
+**`JSONMasks` classifies a JSON document five ways in one pass.** Quotes,
+backslashes, brackets, control bytes, and JSON whitespace share each input load
+and write separate bitmask regions. A `want` bitset selects which regions are
+computed without changing their offsets, so an index-only pass can ask for
+three and a validating pass for five.
+
+At 1 MiB, five separate mask calls took 45.4 us and the fused call 23.5 us
+(1.93x); at 2 MiB, 102.2 us became 46.2 us (2.21x). The output is one buffer
+rather than five slice arguments because the amd64 SysV ABI has six integer
+argument registers and the kernel also needs the input length.
+
+## v1.8.0
+
+**`JSONCopyRun` fuses the encoder's scan and copy.** It copies the longest run
+that needs no JSON escape and returns its length, so each byte is loaded once
+instead of once to find the boundary and again by `copy`. The escape set is
+compiled into the kernel; the `html` argument adds `<`, `>`, `&`, and the lead
+byte for U+2028/U+2029 to match `encoding/json`'s default mode.
+
+The input must already be valid UTF-8. Bytes above ASCII are copied unchanged,
+which is correct for valid sequences and not a validator. In simdjson the fused
+operation removed 18% from `MarshalTo` and 12% from its non-validating mode;
+nine earlier scan-only attempts had all lost because none removed the second
+pass.
+
+## v1.7.1
+
+**Portable bitmask builders process eight bytes at a time, with per-byte masks
+fixed.** Below a generated kernel's threshold, and on targets without that
+kernel, the old reference path performed a compare, shift, and read-modify-write
+for every byte. Gathering eight one-byte flags with a multiply reduced a
+64-byte JSON parse from 193 ns to 123 ns.
+
+The first word-at-a-time implementation used the usual zero-byte detector as a
+per-byte answer. Borrow propagation makes that expression valid for "does this
+word contain a zero" and invalid for "which bytes are zero". Tiered and pure-Go
+tests now enumerate every byte value at short lengths, exactly where the
+portable path runs, and pin bit positions around word boundaries.
+
+## v1.7.0
+
+**`IndexAnyOrLess` finds either a byte from a set or one below a threshold in a
+single scan.** That is the inner question in an encoder: find the next quote,
+backslash, or control byte, whichever comes first. Asking the set and threshold
+questions separately reads the same run twice.
+
+Against the eight-byte word loop on an all-clean input, the kernel is slower at
+32 bytes, crosses at its 64-byte dispatch threshold, and reaches 7.0x at 256
+bytes and 8.7x at 4096. The set still determines whether it pays: common stop
+bytes produce runs too short to cover a call, so short strings and broad escape
+sets can belong on a caller's word-at-a-time path.
+
+## v1.6.0
+
+**`ValidUTF8` checks the complete UTF-8 grammar without first locating sequence
+starts.** Every validity rule relates a byte to one of its three predecessors.
+The kernel aligns each block with those predecessors, checks that continuation
+bytes appear exactly where a leader demands them, and applies the overlong,
+surrogate, and U+10FFFF boundary rules as elementwise comparisons.
+
+The previous accelerated path skipped ASCII blocks and checked every non-ASCII
+byte serially, making it slower than `unicode/utf8` on text that needed
+validation. At 256 bytes of non-ASCII text it moved from 203 ns to 27.3 ns,
+against 115 ns for the standard library. Boundary tests enumerate the prefixes
+whose required continuations cross a vector block; random input does not cover
+that failure shape reliably.
+
 
 ## v1.5.0
 
