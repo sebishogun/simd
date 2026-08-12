@@ -1,8 +1,8 @@
 # Hardware reports
 
 One directory per machine that has run this library on real silicon, so that
-the verification table in the README is a record of what happened rather than
-an assertion.
+the [platform verification table](../../docs/platforms.md#runtime-tiers) is a
+record of what happened rather than an assertion.
 
 Every architecture here is tested under emulation on every change, which proves
 semantics and nothing about timing. qemu does not model a pipeline. So a single

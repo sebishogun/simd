@@ -175,9 +175,9 @@ memory-corruption bugs in this library's history were invisible on amd64; the
 next one is likelier to be found by a stranger's board than by any test here.
 
 **"Tests pass" on its own is a complete report.** It moves a row of the
-verification table in the README from *emulation* to *real hardware*. Two rows
-have moved that way so far and five have not; none of them will move without
-evidence.
+[platform verification table](docs/platforms.md#runtime-tiers) from
+*emulation* to *real hardware*. Two rows have moved that way so far and five
+have not; none of them will move without evidence.
 
 **Benchmarks are optional and have rules.** If you send timing, the machine has
 to be quiet and it has to be `-count 6` or more, because the minimum is what

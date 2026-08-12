@@ -237,73 +237,19 @@ vendored in `cmd/site/assets/`; nothing contacts a CDN.
 | s390x | vx | emulation | unmeasured |
 | loong64 | lasx | emulation | unmeasured |
 
-Every kernel is differential-tested against the portable implementation on
-every architecture on every change, which is what catches a wrong answer.
-Emulation proves nothing about timing, because qemu does not model a pipeline.
-Where the table says *unmeasured*, no performance claim in this repository
-applies.
+Every generated tier is differential-tested against the portable
+implementation. Emulation proves execution and semantics, not timing; where the
+table says *unmeasured*, no wall-clock claim in this repository applies.
 
-Throughput off amd64 is modelled rather than measured: `make perf-model` runs
-llvm-mca over each kernel's inner loop for arm64, ppc64le and s390x. Nothing
-models below 1.2×, and the model agrees with measured amd64 to within 5–12% on
-the avx512-versus-avx2 comparison. No model gives wall-clock under a real
-memory system, which is what dominates a whole-slice kernel at large n.
+The source-backed inventory is **493 exported functions and 6,931 generated
+kernels across nine accelerated tier targets**. See
+**[docs/platforms.md](docs/platforms.md)** for per-architecture counts,
+fallback behavior, ABI limits, OS support, and the amd64-only experimental Go
+vector type.
 
-**Have one of these machines?** A single real run is worth more than any amount
-of emulation, and it takes two commands. Failures are as useful as passes. See
-[Reporting a hardware run](CONTRIBUTING.md#reporting-a-hardware-run). No
-knowledge of the internals is needed, and the table above moves as reports
-arrive.
-
-The library has no OS-specific source. It builds and vets clean for
-darwin/amd64, darwin/arm64, windows/amd64, windows/arm64 and freebsd/amd64; the
-entire OS-dependent surface is `x/sys/cpu` feature detection.
-
-## Kernel coverage
-
-493 exported functions and 6,858 generated kernels across nine targets. The
-function count is for an ordinary build; the `goexperiment.simd` vector type
-adds four more. Kernel counts come from `make check-emission`. The skip column is kernels the generator
-declined with a stated reason, not kernels nobody wrote. Both columns sum over
-an architecture's tiers, so a kernel declined on sse2 and emitted on avx2
-counts once in each.
-
-| | kernels | skipped | dominant reason for skips |
-|---|---|---|---|
-| amd64 (sse2/avx2/avx512) | 2574 | 100 | LLVM declined to vectorize |
-| arm64 (neon/sve2) | 1661 | 123 | LLVM declined to vectorize |
-| riscv64 (rvv) | 879 | 15 | LLVM declined to vectorize |
-| loong64 (lasx) | 723 | 167 | `$fp`, then `.L0` references |
-| ppc64le (vsx) | 602 | 288 | `r30`, then LLVM refusals |
-| s390x (vx) | 419 | 471 | `r13` — an ABI wall, see below |
-
-Most remaining skips are in the `Fast*` tier, which is the newest and least
-portable. Where a target declines a `Fast*` kernel the accurate kernel stands
-in, which still satisfies the promise because 3.5 ULP is an upper bound.
-
-The ABI walls, in order of how much they cost:
-
-- **s390x** loses 405 of its 446 skips to `r13`. clang allocates it; Go keeps
-  the current goroutine there. SystemZ has no `-ffixed` equivalent — the global
-  register variable is accepted and silently ignored.
-- **ppc64le** loses most of its skips to `r30`, which Go uses for `g`, plus a
-  smaller group where clang writes a nonzero value to `r0`. The ppc64le ABI
-  defines `r0` as constant zero, so a signal arriving before the epilogue would
-  run the runtime with a poisoned zero register. The TOC pointer (`r2`) used to
-  cost 184 kernels and now costs 8: the constant pool became a standalone
-  symbol addressed in two instructions, and clang's global-entry prologue is
-  replaced in place. That took ppc64le from 281 kernels to 592.
-- **loong64** loses 92 to `$fp` and 28 to `.L0` references, where clang points
-  at a label that is not a constant pool and so cannot be lifted the way a pool
-  can. A further group emits branches with a displacement of zero for the
-  linker to fill in, which the generator would have to compute and patch —
-  bounded work nobody has done. Copying them verbatim, which is correct on
-  AArch64 and RISC-V, produces branches to themselves.
-
-None of this is a correctness hole. A kernel that cannot be generated is not
-registered and the portable implementation runs instead. The differential suite
-compares whatever a tier actually ended up with against that reference, so a
-skipped kernel is slower and never wrong.
+Have one of the unverified machines? See
+[Reporting a hardware run](CONTRIBUTING.md#reporting-a-hardware-run). One real
+run is more useful than any amount of emulation, and failures are useful data.
 
 ## Testing
 
