@@ -54,6 +54,15 @@ func TestDocumentedCountsAreCurrent(t *testing.T) {
 		}
 	})
 
+	t.Run("Go requirement matches go.mod", func(t *testing.T) {
+		claimed := singleString(t, readme, `Go ([0-9]+\.[0-9]+(?:\.[0-9]+)?) or later`)
+		module := readDoc(t, "go.mod")
+		required := singleString(t, module, `(?m)^go ([0-9]+\.[0-9]+(?:\.[0-9]+)?)$`)
+		if claimed != required {
+			t.Errorf("README requires Go %s; go.mod requires Go %s.", claimed, required)
+		}
+	})
+
 	// The coverage table in docs/platforms.md lists kernels per architecture
 	// and a total in the paragraph near it. They are written at different
 	// times and drifted apart before; adding a row is exactly when the total

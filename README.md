@@ -18,7 +18,7 @@ every operation and every unsupported target.
 go get github.com/sebishogun/simd
 ```
 
-Go 1.25 or later. No cgo, no C toolchain, no build tags, no `GOEXPERIMENT`. The
+Go 1.26.5 or later. No cgo, no C toolchain, no build tags, no `GOEXPERIMENT`. The
 kernels are compiled ahead of time and committed as assembly, so this is an
 ordinary Go dependency with one transitive import (`golang.org/x/sys`, for CPU
 feature detection). Dispatch is one static table per operation, so the linker
