@@ -6,24 +6,27 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"testing"
 )
 
-// The README carries counts: how many functions are exported, how many kernels
-// are generated, how many entries docs/wrong.md has, which version is current.
-// Every one of them had drifted. The function count said 461 against an actual
-// 457, the wrong.md count said twenty-three against an actual 70, the status
-// section said v1.0.0 two releases after v1.0.0, and the coverage table's own
-// rows disagreed with the ppc64le figure quoted three paragraphs below it.
+// The documentation carries counts: how many functions are exported, how many
+// kernels are generated, how many entries docs/wrong.md has, which version is
+// current. Every one of them had drifted. The function count said 461 against
+// an actual 457, the wrong.md count said twenty-three against an actual 70,
+// the status section said v1.0.0 two releases after v1.0.0, and the coverage
+// table's own rows disagreed with the ppc64le figure quoted three paragraphs
+// below it.
 //
 // None of that is discoverable by reading, which is the problem: a number in
 // prose looks equally true whether or not anyone has checked it since it was
 // written. So the numbers are checked here, against the tree rather than
-// against a copy of themselves.
-func TestReadmeCountsAreCurrent(t *testing.T) {
+// against a copy of themselves. The function count, wrong.md count and status
+// version live in the README; the kernel counts live in docs/platforms.md.
+func TestDocumentedCountsAreCurrent(t *testing.T) {
 	readme := readReadme(t)
 
 	t.Run("exported functions", func(t *testing.T) {
@@ -51,30 +54,39 @@ func TestReadmeCountsAreCurrent(t *testing.T) {
 		}
 	})
 
-	// The coverage table lists kernels per architecture and a total in the
-	// paragraph above it. They are written at different times and drifted
-	// apart before; adding a row is exactly when the total is forgotten.
+	// The coverage table in docs/platforms.md lists kernels per architecture
+	// and a total in the paragraph near it. They are written at different
+	// times and drifted apart before; adding a row is exactly when the total
+	// is forgotten.
 	t.Run("kernel total matches the table", func(t *testing.T) {
-		claimed := singleInt(t, readme, `and ([\d,]+) generated kernels`)
+		platforms := readDoc(t, "docs/platforms.md")
+		claimed := singleInt(t, platforms, `([\d,]+) generated kernels`)
 
-		rows := regexp.MustCompile(`(?m)^\| [a-z0-9]+ \([a-z0-9/]+\) \| (\d+) \| (\d+) \|`)
-		matches := rows.FindAllStringSubmatch(readme, -1)
-		if len(matches) < 6 {
-			t.Fatalf("parsed %d rows out of the coverage table, expected one per "+
-				"architecture; the table format has changed and this check no "+
-				"longer verifies anything", len(matches))
-		}
 		sum := 0
-		for _, m := range matches {
-			n, err := strconv.Atoi(m[1])
-			if err != nil {
-				t.Fatalf("kernel count %q is not a number: %v", m[1], err)
-			}
-			sum += n
+		for _, row := range coverageRows(t, platforms) {
+			sum += row.kernels
 		}
 		if claimed != sum {
-			t.Errorf("README states %d kernels in total; its own table sums to %d.",
-				claimed, sum)
+			t.Errorf("docs/platforms.md states %d kernels in total; its own table "+
+				"sums to %d.", claimed, sum)
+		}
+	})
+
+	// The table's kernel counts are written by hand; the assembly they
+	// describe is not. Each generated kernel body is one TEXT declaration, so
+	// every documented count has to equal the number of TEXT declarations
+	// across the architecture's .s files.
+	t.Run("documented kernels match the sources", func(t *testing.T) {
+		platforms := readDoc(t, "docs/platforms.md")
+
+		for _, row := range coverageRows(t, platforms) {
+			actual := textDeclarations(t, row.arch)
+			if row.kernels != actual {
+				t.Errorf("docs/platforms.md documents %d kernels for %s; "+
+					"internal/%s/*.s declares %d TEXT routines.\nRegenerate the "+
+					"platform numbers from the sources rather than copying them "+
+					"forward.", row.kernels, row.arch, row.arch, actual)
+			}
 		}
 	})
 
@@ -99,21 +111,80 @@ func TestReadmeCountsAreCurrent(t *testing.T) {
 	})
 }
 
+// archKernels is one row of the coverage table: an architecture and the
+// kernel count the documentation claims for it.
+type archKernels struct {
+	arch    string
+	kernels int
+}
+
+// coverageRows parses the per-architecture kernel table out of
+// docs/platforms.md.
+func coverageRows(t *testing.T, platforms string) []archKernels {
+	t.Helper()
+	rows := regexp.MustCompile(`(?m)^\| ([a-z0-9]+) \([a-z0-9/]+\) \| (\d+) \| (\d+) \|`)
+	matches := rows.FindAllStringSubmatch(platforms, -1)
+	if len(matches) < 6 {
+		t.Fatalf("parsed %d rows out of the coverage table, expected one per "+
+			"architecture; the table format has changed and this check no "+
+			"longer verifies anything", len(matches))
+	}
+	out := make([]archKernels, 0, len(matches))
+	for _, m := range matches {
+		n, err := strconv.Atoi(m[2])
+		if err != nil {
+			t.Fatalf("kernel count %q is not a number: %v", m[2], err)
+		}
+		out = append(out, archKernels{arch: m[1], kernels: n})
+	}
+	return out
+}
+
+// textDeclarations counts the TEXT declarations across internal/<arch>/*.s —
+// one per generated kernel body.
+func textDeclarations(t *testing.T, arch string) int {
+	t.Helper()
+	dir := path(filepath.Join("internal", arch))
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("reading %s: %v", dir, err)
+	}
+	decl := regexp.MustCompile(`(?m)^TEXT `)
+	files, n := 0, 0
+	for _, e := range entries {
+		if !strings.HasSuffix(e.Name(), ".s") {
+			continue
+		}
+		files++
+		src, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		if err != nil {
+			t.Fatalf("reading %s: %v", filepath.Join(dir, e.Name()), err)
+		}
+		n += len(decl.FindAllString(string(src), -1))
+	}
+	if files == 0 {
+		t.Fatalf("no .s files found in %s; the architecture layout has changed "+
+			"and this check no longer verifies anything", dir)
+	}
+	return n
+}
+
 // CONTRIBUTING asks strangers for runs on the tiers that have never executed on
-// real silicon, and names them. That list is the README's verification table
-// restated in prose, so it drifts the moment the table moves — and it had:
-// correcting the arm64 NEON row left CONTRIBUTING still saying five tiers and
-// still omitting NEON from the list, which would have told someone with the one
-// machine most likely to be reading that their run was not wanted.
+// real silicon, and names them. That list is the verification table in
+// docs/platforms.md restated in prose, so it drifts the moment the table moves
+// — and it had: correcting the arm64 NEON row left CONTRIBUTING still saying
+// five tiers and still omitting NEON from the list, which would have told
+// someone with the one machine most likely to be reading that their run was
+// not wanted.
 //
 // A report landing is exactly when both change, so they are tied together here.
 func TestContributingMatchesVerificationTable(t *testing.T) {
-	readme := readReadme(t)
+	platforms := readDoc(t, "docs/platforms.md")
 
 	// Rows of the platform table whose correctness column is not real hardware.
 	// Each row may list several tiers for one architecture.
 	rows := regexp.MustCompile(`(?m)^\| ([a-z0-9]+) \| ([a-z0-9, ]+) \| ([^|]+) \|`)
-	matches := rows.FindAllStringSubmatch(readme, -1)
+	matches := rows.FindAllStringSubmatch(platforms, -1)
 	if len(matches) < 6 {
 		t.Fatalf("parsed %d rows out of the platform table, expected one per "+
 			"architecture; the table format has changed and this check no longer "+
@@ -150,13 +221,13 @@ func TestContributingMatchesVerificationTable(t *testing.T) {
 		`(\w+) tiers have never run on real silicon`))
 	if want := numberWord(len(unverified)); claimed != want {
 		t.Errorf("CONTRIBUTING says %q tiers have never run on real silicon; the "+
-			"README's table lists %d.", claimed, len(unverified))
+			"docs/platforms.md table lists %d.", claimed, len(unverified))
 	}
 
 	for tier := range unverified {
 		if !strings.Contains(contributing, "**"+tier+"**") {
-			t.Errorf("the README lists %q as unverified, but CONTRIBUTING does not "+
-				"name it among the tiers it asks for runs on.", tier)
+			t.Errorf("docs/platforms.md lists %q as unverified, but CONTRIBUTING "+
+				"does not name it among the tiers it asks for runs on.", tier)
 		}
 	}
 
@@ -171,7 +242,7 @@ func TestContributingMatchesVerificationTable(t *testing.T) {
 		`for\s+(\w+) of the seven tiers, nobody has done one`))
 	if want := numberWord(len(unverified)); stated != want {
 		t.Errorf("testdata/hardware/README.md says %q of the seven tiers have no "+
-			"report; the README's table lists %d.", stated, len(unverified))
+			"report; the docs/platforms.md table lists %d.", stated, len(unverified))
 	}
 }
 
@@ -247,19 +318,15 @@ func withoutGoexperiments(tags []string) []string {
 
 func readReadme(t *testing.T) string {
 	t.Helper()
-	src, err := os.ReadFile(path("README.md"))
-	if err != nil {
-		t.Fatalf("reading README.md: %v", err)
-	}
-	return string(src)
+	return readDoc(t, "README.md")
 }
 
-// singleInt pulls one number out of the README, failing if the pattern does
+// singleInt pulls one number out of a document, failing if the pattern does
 // not match exactly once — a pattern that stops matching would otherwise turn
 // the assertion into a no-op.
-func singleInt(t *testing.T, readme, pattern string) int {
+func singleInt(t *testing.T, doc, pattern string) int {
 	t.Helper()
-	s := singleString(t, readme, pattern)
+	s := singleString(t, doc, pattern)
 	n, err := strconv.Atoi(strings.ReplaceAll(s, ",", ""))
 	if err != nil {
 		t.Fatalf("%q is not a number: %v", s, err)
@@ -267,9 +334,9 @@ func singleInt(t *testing.T, readme, pattern string) int {
 	return n
 }
 
-func singleString(t *testing.T, readme, pattern string) string {
+func singleString(t *testing.T, doc, pattern string) string {
 	t.Helper()
-	m := regexp.MustCompile(pattern).FindAllStringSubmatch(readme, -1)
+	m := regexp.MustCompile(pattern).FindAllStringSubmatch(doc, -1)
 	if len(m) != 1 {
 		t.Fatalf("pattern %q matched %d times, want exactly 1; the sentence it "+
 			"checks has been reworded and the check no longer verifies anything",

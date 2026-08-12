@@ -7,7 +7,8 @@ import (
 	"testing"
 )
 
-// The README's "which function do I want" table says of its entries:
+// The operation catalog in docs/api.md — the "which function do I want"
+// table — says of its entries:
 //
 //	Every one of these has a runnable example in example_test.go, checked on
 //	every build.
@@ -19,18 +20,15 @@ import (
 //
 // So this fails instead. Add a row to the table and you have to write the
 // example; rename an operation and the table has to follow.
-func TestReadmeTableHasExamples(t *testing.T) {
-	readme, err := os.ReadFile(path("README.md"))
-	if err != nil {
-		t.Fatalf("reading README.md: %v", err)
-	}
+func TestOperationCatalogHasExamples(t *testing.T) {
+	catalog := readDoc(t, "docs/api.md")
 
-	named := readmeTableFunctions(string(readme))
+	named := operationTableFunctions(catalog)
 	if len(named) < 50 {
 		// The table is the point of the test. If the parse stops finding it —
 		// because the heading moved, say — every assertion below becomes
 		// vacuous and the test would go on passing while checking nothing.
-		t.Fatalf("only %d operations parsed out of the README table; the parse "+
+		t.Fatalf("only %d operations parsed out of the operation catalog; the parse "+
 			"has probably lost track of the table rather than the table having "+
 			"shrunk", len(named))
 	}
@@ -43,25 +41,25 @@ func TestReadmeTableHasExamples(t *testing.T) {
 		}
 	}
 	if len(missing) > 0 {
-		t.Errorf("the README table names %d operations with no runnable example: %s\n"+
+		t.Errorf("the operation catalog names %d operations with no runnable example: %s\n"+
 			"Either write Example%s, or take the row out of the table — the claim "+
 			"under it says every entry has one.",
 			len(missing), strings.Join(missing, ", "), missing[0])
 	}
 }
 
-// readmeTableFunctions returns the operations named in backticks in the
+// operationTableFunctions returns the operations named in backticks in the
 // "which function do I want" table, skipping the `Into` in its prose row.
-func readmeTableFunctions(readme string) []string {
-	start := strings.Index(readme, "| I want to…")
+func operationTableFunctions(catalog string) []string {
+	start := strings.Index(catalog, "| I want to…")
 	if start < 0 {
 		return nil
 	}
-	end := strings.Index(readme[start:], "\n\n")
+	end := strings.Index(catalog[start:], "\n\n")
 	if end < 0 {
-		end = len(readme) - start
+		end = len(catalog) - start
 	}
-	table := readme[start : start+end]
+	table := catalog[start : start+end]
 
 	re := regexp.MustCompile("`([A-Z][A-Za-z0-9]*)`")
 	seen := map[string]bool{}
