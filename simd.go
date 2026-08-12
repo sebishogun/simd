@@ -1,36 +1,40 @@
-// Package simd provides SIMD-accelerated operations over slices, on every
-// architecture that has a vector unit, without cgo.
+// Package simd provides runtime-dispatched SIMD operations over ordinary Go
+// slices, without cgo.
 //
-// You call ordinary Go functions on ordinary Go slices. There is no vector
-// type, no lane count, no target selection, and nothing to initialize.
+// The package detects the current CPU once at startup and selects generated
+// assembly for the available instruction-set tier. Operations without a
+// generated kernel on that tier use the portable Go implementation.
 //
-// # In place by default
+// # Common call shapes
 //
-// The plain name operates in place on its first argument, which allocates
-// nothing and reuses memory you already have:
+// Arithmetic operations commonly use a plain name for an in-place update:
 //
 //	simd.Add(a, b)        // a[i] += b[i]
 //	simd.Scale(a, 2.5)    // a[i] *= 2.5
 //	simd.Abs(a)           // a[i] = |a[i]|
 //
-// When the result belongs somewhere else, the same name with an Into suffix
-// takes a destination first:
+// The corresponding Into form commonly takes a destination first:
 //
 //	simd.AddInto(dst, a, b)      // dst[i] = a[i] + b[i]
 //	simd.ScaleInto(dst, a, 2.5)
 //
-// Reductions return a single value and write nothing:
+// Reductions return a value and write nothing:
 //
 //	total := simd.Sum(a)
 //	d := simd.Dot(a, b)
 //	lo, hi := simd.MinMax(a)
 //
-// This package never allocates. Every function writes only into memory the
-// caller supplied, and no variant returns a freshly made slice. If you want
-// one, make it yourself and use the Into form.
+// These are conventions, not a grammar for the entire package. Decoders return
+// progress counts, append-style functions may grow a destination, and some
+// Into functions take workspace while modifying another argument. Each
+// function documents its output length and overlap rules.
 //
-// The functions are generic over float32, float64, int32 and int64, so the
-// element type is inferred and there are no per-type name suffixes.
+// Generated kernels do not allocate. Into forms let hot paths supply and reuse
+// output or workspace. Convenience functions that return slices or construct
+// plans and workspaces can allocate and say so in their documentation.
+//
+// Generic constraints cover the numeric types supported by each operation, so
+// element types are inferred and names do not carry per-type suffixes.
 //
 // # The right instructions are chosen for you
 //
@@ -40,29 +44,30 @@
 // architecture with no backend it uses portable Go. Nothing to configure,
 // nothing to build twice.
 //
-// # Results do not depend on the hardware
+// # Numerical contracts
 //
-// Every operation returns bit-identical results on every instruction set,
-// including for NaN, ±Inf, ±0 and denormals. Reductions such as [Sum] and
-// [Dot] use a fixed accumulation order that a 128-bit and a 512-bit machine
-// both reproduce exactly, so a computation cannot change answer because it
-// moved to a different server. Operations that trade this away for speed are
-// named Fast* and say so.
+// Core operations agree bit for bit across generated tiers and the portable
+// path. Reductions such as [Sum] and [Dot] use a fixed accumulation order that
+// a 128-bit and a 512-bit machine both reproduce; Dot does not contract into
+// fused multiply-add.
 //
-// This costs some throughput and is deliberate: the alternative is a library
-// where results shift with slice length or CPU model, which is the most common
-// bug in this class of package.
+// Transcendentals instead document an error bound against the standard
+// library. Fast* transcendental functions allow a wider bound and may vary by
+// architecture. Sort and order-statistic functions treat -0 and +0 as equal,
+// so their order inside that tie may differ. Function comments state narrower
+// exceptions.
 //
 // # Sizing
 //
-// Lengths need not match. Every operation processes the minimum length of its
-// slice arguments, so slicing is how you bound work:
+// Elementwise operations generally process the minimum length of their slice
+// arguments, so slicing is how you bound that work:
 //
 //	simd.AddInto(dst[:n], a, b)
 //
-// Small inputs use an inlined scalar path rather than a call into assembly,
-// because below roughly sixteen elements the call costs more than the
-// arithmetic saves. You do not need to check for this.
+// Decoders, matrices, compaction, packed layouts, and other output-shaped
+// operations have their own sizing contracts. Small inputs generally use a Go
+// path because below roughly 16 to 64 elements the assembly call can cost more
+// than the work it saves.
 //
 // # Environment
 //

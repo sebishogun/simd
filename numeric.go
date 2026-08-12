@@ -10,9 +10,8 @@ import "math"
 // and therefore gets faster for free as backends land. Routines that are
 // inherently sequential are marked as such, so you know what you are getting.
 //
-// Like the rest of the package, none of these allocate. Where a routine needs
-// scratch space across many calls — [RK4Step] is the case — it takes a
-// workspace you allocate once and reuse.
+// The Into and step routines take caller-owned output or workspace. Constructors
+// and convenience functions may allocate the reusable state they return.
 
 // ---------- polynomials and signals ----------
 
@@ -138,8 +137,8 @@ type RK4Workspace[T Float] struct {
 }
 
 // NewRK4Workspace allocates the scratch for integrating a system of n
-// equations. This is the only function in the package that allocates, and it
-// is called once per system rather than once per step.
+// equations. Call it once per system and reuse the result so [RK4Step] does not
+// allocate per step.
 func NewRK4Workspace[T Float](n int) *RK4Workspace[T] {
 	buf := make([]T, 5*n)
 	return &RK4Workspace[T]{

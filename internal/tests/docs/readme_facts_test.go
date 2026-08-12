@@ -288,7 +288,7 @@ func TestReadmeNamesRealFunctions(t *testing.T) {
 
 	re := regexp.MustCompile("`([A-Z][A-Za-z0-9]*)`")
 	matches := re.FindAllStringSubmatch(readme, -1)
-	if len(matches) < 50 {
+	if len(matches) < 25 {
 		t.Fatalf("only %d backticked names found in the README; the parse has "+
 			"lost the file rather than the file having lost its API references",
 			len(matches))

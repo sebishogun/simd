@@ -7,12 +7,14 @@
 **Fast slice math and text scanning for Go, using the vector unit your CPU
 already has — without cgo.**
 
-The project is *simd.go*. The import path is `github.com/sebishogun/simd` and
-the package is `simd`.
+`simd` applies runtime-selected SIMD kernels to ordinary Go slices. The v1.20.0
+tree contains 493 exported functions and 6,931 generated kernels for SSE2,
+AVX2, AVX-512, NEON, SVE2, RVV, VSX, VX, and LASX. A portable Go path covers
+every operation and every unsupported target.
 
 ## Install
 
-```
+```sh
 go get github.com/sebishogun/simd
 ```
 
@@ -21,133 +23,131 @@ kernels are compiled ahead of time and committed as assembly, so this is an
 ordinary Go dependency with one transitive import (`golang.org/x/sys`, for CPU
 feature detection). Dispatch is one static table per operation, so the linker
 keeps only the operations a program actually calls: a binary using three
-functions carries three functions' kernels, not the library.
+operation families does not retain all 6,931 kernels.
 
 ## Quick start
 
 ```go
-import "github.com/sebishogun/simd"
+package main
 
-simd.Add(a, b)                     // a[i] += b[i]      — in place, no allocation
-simd.AddScaled(a, b, 0.5)          // a[i] += b[i]*0.5  — one pass over memory
-total := simd.Sum(a)               // fixed accumulation order, same bits everywhere
-i     := simd.Index(line, ",")     // takes string or []byte, no copy
-simd.GemvInto(y, matrix, x, m, k)  // matrix times vector
+import (
+    "fmt"
+
+    "github.com/sebishogun/simd"
+)
+
+func main() {
+    a := []float32{1, 2, 3, 4}
+    b := []float32{10, 20, 30, 40}
+
+    simd.Add(a, b) // a[i] += b[i]
+
+    fmt.Println(a)
+    fmt.Println(simd.Sum(a))
+    fmt.Println(simd.Index("alpha,beta", ","))
+}
 ```
 
-Generic functions over ordinary Go slices. There is no vector type, no lane
-count, no target to select, and nothing to initialize. The best available
-instruction set is detected once at startup.
+There is no vector width to select and nothing to initialize. CPU features are
+detected once during package initialization.
 
-**Two conventions cover the whole API:**
+## API model
+
+Arithmetic calls commonly come in an in-place form and an `Into` form:
 
 ```go
-simd.Add(a, b)          // plain name: in place, a[i] += b[i]
-simd.AddInto(dst, a, b) // Into suffix: dst[i] = a[i] + b[i], inputs untouched
+simd.Add(a, b)          // a[i] += b[i]
+simd.AddInto(dst, a, b) // dst[i] = a[i] + b[i]
 ```
 
-Nothing allocates. `Into` functions take the destination from the caller
-precisely so they do not have to allocate one.
+This is the dominant convention, not a rule for every function. Reductions
+return a scalar. Decoders return progress counts. `SortInto` takes workspace
+while sorting its first argument. Matrix, tile, and packed-codec operations
+have explicit sizing rules.
+
+Generated kernels do not allocate. Most `Into` forms let a hot path provide and
+reuse output or workspace. Convenience functions that return a slice, build a
+plan, or grow an append destination can allocate; examples include `Sort`,
+`TopK`, `Histogram`, `FFT`, and plan constructors. See
+[allocation and workspace](docs/api.md#allocation-and-workspace).
+
+Elementwise operations generally stop at the shortest slice. That rule does not
+apply to every decoder, matrix, compaction, or overlapping-slice operation; the
+function comment is the contract. The [API guide](docs/api.md) documents the
+cross-cutting rules and lists operations by task.
 
 ## Documentation
 
-- **[docs/tutorial.md](docs/tutorial.md)** — start here. Covers
-  struct-of-arrays layout, buffer reuse, fusing instead of chaining, and the
-  operations that will not vectorize at all. Data layout decides whether there
-  is anything to vectorize, and it matters more than which function you call.
-- **[docs/guide/](docs/guide/)** — task-oriented pages:
-  [arrays and reductions](docs/guide/arrays.md),
-  [text and bytes](docs/guide/text.md),
-  [search, sets and bit vectors](docs/guide/search.md),
-  [encodings](docs/guide/encoding.md),
-  [signal and matrices](docs/guide/signal.md).
-- **[Runnable examples](https://pkg.go.dev/github.com/sebishogun/simd#pkg-examples)**
-  for every operation in the index below, in `example_*_test.go`, compiled and
-  checked by `go test`.
-- **[docs/examples/](docs/examples/)** — complete programs.
-- **[docs/kernels.md](docs/kernels.md)** — how to add a kernel.
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to verify one.
-
-## API guide
-
-The complete task-oriented operation catalog now lives in
-**[docs/api.md](docs/api.md)**. The main paths through the API are:
-
 | Workload | Guide |
 |---|---|
+| data layout, batching, buffer reuse, and fusion | [tutorial](docs/tutorial.md) |
 | arithmetic, reductions, sorting, filtering, nullable columns | [arrays and reductions](docs/guide/arrays.md) |
 | text search, parsing, UTF-8, JSON, hex, base64 | [text and bytes](docs/guide/text.md) |
 | batched search, sorted sets, sparse data, bit vectors | [search, sets and bit vectors](docs/guide/search.md) |
 | quantization, packed columns, varints, shuffles | [encodings](docs/guide/encoding.md) |
 | matrices, FFTs, windows, convolution | [signal and matrices](docs/guide/signal.md) |
+| every operation by task | [API guide](docs/api.md) |
+| architecture tiers and generated coverage | [platforms](docs/platforms.md) |
+| complete programs | [examples](docs/examples/) |
+| adding and verifying a kernel | [kernel guide](docs/kernels.md) |
 
 ## What is included
 
-Any operation a vector unit can do faster than a scalar loop. An operation is
-absent only because it was measured and lost, or because nobody has built it
-yet; both are recorded rather than implied.
-
-- **Array math** — elementwise and saturating arithmetic, scalar operations,
-  rounding, comparisons to masks, prefix scans.
-- **Reductions** — sum, dot, min/max, argmin/argmax, norms, mean, variance.
-- **Transcendentals** — exp, log, sin, tan, tanh, sigmoid and the rest, each
-  with a stated ULP bound and a `Fast*` twin.
-- **Text and bytes** — index, count, trim, UTF-8 validation, case folding, hex,
-  base64, accepting `string` or `[]byte` without copying.
-- **Linear algebra** — dot, `Gemv`, a register-blocked `MatMul` with an
-  opt-in parallel variant, CSR sparse matrix-vector, and the pieces a
-  decomposition is made of: rank-1 update, Givens rotation, swap.
-- **Search and sets** — batched binary search, sorted-set intersection and
-  difference, rank/select over a bit vector, longest common prefix.
-- **Encodings** — int8 and fp8 quantization, zigzag, bit packing, run-length,
-  varint widths.
+| Area | Representative work |
+|---|---|
+| arrays and reductions | arithmetic, masks, scans, sums, norms, statistics, sorting |
+| text and structured data | byte search, UTF-8, JSON stages, CSV conversion, hex, base64 |
+| linear algebra and DSP | dot products, GEMV/GEMM, sparse rows, FFT, windows, convolution |
+| search and succinct data | batched lower bounds, sorted sets, rank/select, common prefixes |
+| columnar and ML codecs | validity bitmaps, quantization, narrow floats, bit packing, varints, RLE, bitshuffle |
 
 Element types: `float32` `float64` `int8` `int16` `int32` `int64` `uint8`
 `uint16` `uint32` `uint64` `complex64` `complex128`, plus bytes, text and the
 narrow float formats.
 
-**Not** a BLAS, a tensor library, or an autodiff framework. It has no opinion
-about your data layout beyond "it is a slice" and does not own your control
-flow.
+This package is not a BLAS, tensor library, dataframe, or autodiff framework.
+It supplies whole-slice primitives and leaves ownership, data models, and
+control flow to the caller. Higher-level projects built on it are listed below.
 
-### Where the win is
+## When it pays
 
 The crossover is roughly 16 to 64 elements depending on the operation. Below it
 the library runs a plain Go loop, because crossing into assembly costs about
-1.4 ns and cannot be inlined. Reach for this when slices are thousands of
-elements, not tens. Calling a vector operation once per element in a loop is
-slower than not using the library at all — see the tutorial.
+1.4 ns and cannot be inlined. Batches of hundreds or thousands of elements are
+the intended shape. Calling a whole-slice operation once per element is slower
+than writing the loop; [hand over batches](docs/tutorial.md#1-hand-over-batches-not-elements).
 
-Most operations take and return whole slices. Exposing a vector value that
-callers combine themselves costs a non-inlinable call per operation and loses
-to a plain loop; that is measured, not stylistic. Whole-slice is the default
-shape rather than a hard boundary — `HexDecode` and `CompressInto` already have
-data-dependent output lengths. For operations too small for the call boundary,
-there is a `goexperiment.simd` vector type on amd64 and arm64.
+At large sizes, memory traffic matters more than arithmetic. Prefer one fused
+call such as `AddScaled` or `AddAll` to multiple passes. Data layout matters
+more still: a struct-of-arrays gives the vector unit contiguous lanes; an
+array-of-structs often does not.
+
+An optional vector-type escape hatch exists under Go's SIMD experiment on
+amd64 only. It is for expressions absent from the whole-slice catalog, not a
+replacement for the generated kernels. See
+[the platform reference](docs/platforms.md#optional-go-vector-type).
 
 ## Accuracy
 
-**Every operation is bit-identical across instruction sets**, including NaN
-payloads, ±Inf, ±0 and denormals. Reductions use a fixed sixteen-accumulator
-tree that a 128-bit and a 512-bit machine both reproduce exactly, so a result
-cannot change because the computation moved to a different server. `Dot` never
-contracts into FMA on any architecture, including those where Go's compiler
-would.
+Core elementwise operations, integer codecs, text operations, checksums, and
+fixed-order reductions return the same bits on every generated tier and on the
+portable path. Floating-point reductions use sixteen accumulators and the same
+combine tree at every vector width. `Dot` does not contract into FMA.
 
-This costs throughput deliberately. The alternative is what
-[vek does](https://github.com/viterin/vek/issues/11): its vectorized body and
-scalar remainder disagree on NaN, so the answer depends on input length.
+The exceptions are explicit:
 
-Two exceptions, both opt-in by name:
+- Transcendentals state an error bound against the standard library rather than
+  promising identical bits.
+- `Fast*` transcendental functions permit up to 3.5 ULP and may vary by
+  architecture because they use fused multiply-add. They do not use
+  `-ffast-math` and retain documented IEEE behavior.
+- Sort and order-statistic functions treat `-0` and `+0` as equal; their order
+  within that tie can differ while the sorted values remain equal under Go's
+  comparison.
 
-- **Transcendentals** guarantee a ULP bound rather than bit identity, because
-  the polynomial correct to 1 ULP in float32 is not the one correct to 1 ULP in
-  float64. The bound is measured against the standard library, not asserted
-  from theory.
-- **`Fast*`** promises 3.5 ULP and gives up agreement between architectures,
-  because it compiles with fused multiply-add. It keeps IEEE 754 semantics: NaN
-  in gives NaN out, infinities go where the standard says, signed zeros
-  survive. `-ffast-math` is not used.
+Function comments define any narrower exception. The conformance suite checks
+generated kernels against the portable reference at every tier rather than
+assuming the compiler preserved the contract.
 
 ## Performance
 
@@ -241,11 +241,9 @@ Every generated tier is differential-tested against the portable
 implementation. Emulation proves execution and semantics, not timing; where the
 table says *unmeasured*, no wall-clock claim in this repository applies.
 
-The source-backed inventory is **493 exported functions and 6,931 generated
-kernels across nine accelerated tier targets**. See
-**[docs/platforms.md](docs/platforms.md)** for per-architecture counts,
-fallback behavior, ABI limits, OS support, and the amd64-only experimental Go
-vector type.
+The **[platform reference](docs/platforms.md)** gives the source-backed
+per-architecture inventory, fallback behavior, ABI limits, OS support, and the
+amd64-only experimental Go vector type.
 
 Have one of the unverified machines? See
 [Reporting a hardware run](CONTRIBUTING.md#reporting-a-hardware-run). One real
@@ -253,51 +251,16 @@ run is more useful than any amount of emulation, and failures are useful data.
 
 ## Testing
 
-`make menu` lists every verification target and marks the ones the current
-machine can run:
+`make verify` runs formatting, vet, the public tests, the pure-Go build, and
+every native tier the current CPU can execute. `make menu` lists the remaining
+verification targets and says which tools or host capabilities they need.
 
-```
-$ make menu
-gosimd  make targets on darwin/arm64
-        arm64 tier=neon available=[scalar neon]
-        go clang llvm-mca llvm-objdump docker benchstat qemu-riscv64 …
-
-● test-tiers      Run the suite once per instruction-set tier this CPU has
-● perf-model      Model kernel throughput on architectures this machine …
-○ test-riscv64    Full suite on riscv64 RVV under qemu
-○ test-loong64    Full suite on loong64 LASX under qemu
-```
-
-Roughly a third of the targets cannot run on any given machine — the qemu lanes
-need a Linux host, the cross lane needs docker with binfmt, codegen needs clang
-and llvm-objdump. The preview says which, why, and what to install. `make
-targets` prints the same list plainly. Neither requires fzf; it is used when
-present.
-
-What runs:
-
-- **Differential testing** of every generated kernel against the portable
-  reference, at every length from 0 to 70 and at block boundaries beyond, with
-  adversarial inputs: NaN, ±Inf, ±0, denormals, the extremes of every integer
-  type.
-- **Tier against tier**, so the promise that results do not vary with vector
-  width is checked directly rather than inferred.
-- **Fuzzing** across the kernel set, millions of executions per run.
-- **Gate-versus-emission**: every generated `.s` is disassembled and checked
-  against the CPU feature its file is gated on, so an EVEX instruction cannot
-  reach an AVX2 path. This prevents the SIGILL class of bug mechanically.
-- **ABI checks**: no kernel may use a register the Go runtime owns, write
-  outside its frame, or leave a reserved register modified.
-- **Execution on every architecture** under emulation, with `simdinfo
-  -require-accelerated` asserting that an accelerated tier was actually
-  selected before a green run is believed.
-
-That last check exists because its absence cost two backends. The riscv64 and
-loong64 lanes were green for months while executing nothing: the emulator in
-the image predated the vector extension, so every tier was skipped as
-unexecutable and the suite passed having tested none of it. The first run that
-actually executed them found a segfault in one and wrong answers from every
-constant-reading kernel in the other.
+The deeper gates differentially test generated kernels against the portable
+reference, compare tiers directly, fuzz adversarial values, inspect stack and
+reserved-register use, and disassemble every kernel to ensure its instructions
+match the CPU feature that gates it. Emulated lanes run `simdinfo
+-require-accelerated` before accepting a pass, so a lane cannot report green
+after silently selecting scalar code.
 
 ## Repository layout
 
@@ -317,7 +280,7 @@ internal/
 cmd/simdinfo/        prints the tier actually selected on this machine
 cmd/site/            local benchmark site
 tools/               the code generator — a separate module, never your dependency
-docs/                tutorial, guide, kernels.md, wrong.md, examples
+docs/                tutorial, API/platform references, guides, examples, records
 testdata/bench/      recorded benchmark baseline, per GOARCH
 testdata/hardware/   one report per machine that has run on real silicon
 ```
@@ -329,13 +292,9 @@ toolchain. Every generated `.s` names the C file it came from and the target it
 was built for, and none of them should be edited by hand — `make codegen`
 regenerates them.
 
-**Tests live next to what they can reach.** Anything that only calls the public
-API is in `internal/tests/<topic>/`; what stays in the root directory is what
-Go requires to be there — tests of unexported behaviour, the `export_test.go`
-hooks and the files using them, and the runnable examples, which have to sit
-beside the package to appear on pkg.go.dev.
-
-Every directory above has a README explaining what is in it.
+Public-API suites live under `internal/tests/<topic>/`. Tests of unexported
+behavior, `export_test.go` hooks, and runnable pkg.go.dev examples remain beside
+the package because Go requires that placement.
 
 ## Development
 
@@ -382,15 +341,13 @@ The existing Go options leave most machines unserved.
 | [gonum](https://github.com/gonum/gonum) `internal/asm` | **SSE2 only** — zero `V*` instructions in the whole repo | linear algebra | — |
 | [viterin/vek](https://github.com/viterin/vek) | AVX2 only, disabled entirely on macOS, arm64 is pure Go [and never will not be](https://github.com/viterin/vek/issues/12) | broad | [no](https://github.com/viterin/vek/issues/11) |
 | [kelindar/simd](https://github.com/kelindar/simd) | AVX2, NEON | 7 | no |
-| **this** | sse2, avx2, avx512, neon, sve2, rvv, vx, lasx, vsx | 457 | yes |
+| **this** | sse2, avx2, avx512, neon, sve2, rvv, vx, lasx, vsx | 493 | yes |
 
-[kelindar/simd](https://github.com/kelindar/simd) deserves singling out,
-because it is the closest relative: it reaches its two instruction sets the
-same way this does, by auto-vectorizing C with clang and translating the result
-into Plan 9 assembly, and it dispatches on a runtime CPU check rather than a
-build tag. If AVX2 and NEON are all you need and `Add`, `Sub`, `Mul`, `Div`,
-`Sum`, `Min` and `Max` are all you want, it is a smaller dependency with a
-lower Go floor, and there is nothing wrong with it.
+[kelindar/simd](https://github.com/kelindar/simd) is the closest relative: it
+also auto-vectorizes C with clang, translates the result into Plan 9 assembly,
+and dispatches at runtime. If AVX2 and NEON cover your deployment and its seven
+operations cover your workload, it is the smaller dependency and has a lower Go
+floor.
 
 The difference beyond scope is what the answer is allowed to do. Summing a
 float32 slice of one large value and a thousand small ones:
@@ -404,39 +361,28 @@ this library            0x4cbebc98    =      0x4cbebc98
 Reproduce it with [`docs/comparison`](docs/comparison), a separate module so
 that nothing you import pulls in a second SIMD library.
 
-That is not a defect in kelindar — it never promises otherwise, and an
-auto-vectorized reduction naturally accumulates in whatever order the vector
-width implies. It does mean a result computed there can change when the binary
-moves to a machine with different SIMD support. This library fixes the
-accumulation order instead, which is what the [accuracy contract](#accuracy)
-above costs throughput to buy.
+kelindar does not promise tier-independent reduction bits. An auto-vectorized
+reduction naturally accumulates in the order implied by its vector width. This
+library fixes that order instead, which is the throughput cost behind the
+[accuracy contract](#accuracy).
 
-There is also a structural reason nobody covers the rest: **Go's assembler
-cannot spell SVE2 or RVV.** It has no `Z` or `P` registers at all, and upstream
-has deferred scalable vectors with no design. Compiling C per target and
-lifting the encoded bytes into Plan 9 assembly is the only route that reaches
-them, and it is why this is the only Go library with arm64 SVE2 and riscv64 RVV
-numeric kernels.
+Go's assembler cannot spell SVE2 or RVV vector registers. This project compiles
+one C source per target and lifts the encoded instruction bytes into Plan 9
+assembly, which is how the ordinary Go dependency reaches those tiers without
+cgo.
 
-## Where the obvious answer was wrong
+## Engineering record
 
-[**docs/wrong.md**](docs/wrong.md) records 78 things a competent person would
-have assumed that turned out false, and what each cost. Among them:
+[**docs/wrong.md**](docs/wrong.md) records 78 things that measurement disproved,
+including changes that were deleted rather than shipped. Examples:
 
-- A register can be reserved by *value* rather than by name, which makes it
-  invisible to every compiler flag. The symptom is Go's allocator dying several
-  calls later.
-- A compiler builtin that silently compiles to nothing at `-O1` and above, and
-  is correct at `-O0`.
-- Green test lanes that had been executing no accelerated code for months.
-- Four loops that were slower *after* being vectorized, one by 1700×.
-- `--mattr=+sve2` removing NEON rather than adding SVE2.
-- Go's own SIMD intrinsics being 4.4× *slower* than the generated assembly.
-- A closure comparator costing a sort 2.5×, and the wrong fix making it worse.
-- A scripted edit that silently did not apply, and would have crashed most CPUs.
-- A failing test naming a kernel that was not the one with the bug.
-- A test lane that was hung, not slow — thirty-two minutes at 0.1% CPU.
-- `ENOSPC` with 40 GB free.
+- Green test lanes had executed no accelerated code for months.
+- Four loops became slower after vectorization; one regressed by 1700×.
+- A closure comparator cost a sort 2.5×, and the first attempted fix was slower.
+- Go's experimental SIMD intrinsics lost to generated assembly in the public
+  call path they were intended to replace.
+- Reserved registers, caller-frame writes, and constant-pool rewrites produced
+  failures that only appeared on one backend.
 
 `docs/research/` carries the longer reasoning behind design decisions;
 `05-decisions.md` is the decision record.
