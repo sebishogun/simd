@@ -18,6 +18,25 @@
 | [`runner.md`](runner.md) | Verification runner and cross-architecture execution details. |
 | [`comparison/`](comparison) | Reproduce the reduction comparison without adding another SIMD library to the main module. |
 
+## Production and engineering
+
+For anyone changing the library or auditing how it is built:
+
+| Read | Purpose |
+|---|---|
+| [`architecture.md`](architecture.md) | Component map, call path, generator source of truth, package and module boundaries. |
+| [`lld/api-and-memory.md`](lld/api-and-memory.md) | LLD: operation families, allocation, sizing, aliasing, and length contracts. |
+| [`lld/kernels-and-dispatch.md`](lld/kernels-and-dispatch.md) | LLD: CPU detection, tier selection, dispatch, linking, and hot-loop rules. |
+| [`lld/generation-and-platforms.md`](lld/generation-and-platforms.md) | LLD: the C-to-assembly pipeline, tier support, and what each platform claim means. |
+| [`verification.md`](verification.md) | Every gate, what it runs, when it applies, and the measurement discipline. |
+| [`plans/2026-08-13-simd-production-design.md`](plans/2026-08-13-simd-production-design.md) | Production design record: the shipped contract and the evidence bar for new kernels. |
+| [`plans/2026-08-13-simd-production.md`](plans/2026-08-13-simd-production.md) | Staged implementation plan for the remaining roadmap work. |
+| [`../AGENTS.md`](../AGENTS.md) | Agent and contributor rules: boundaries, gates, and records. |
+
+Suggested order for someone changing the library: README, architecture, the
+three LLDs, ROADMAP, verification, wrong.md, then the production design
+record and plan.
+
 ## Engineering record
 
 These files preserve decisions and measurements from the time they were made;

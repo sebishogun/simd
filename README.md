@@ -90,6 +90,8 @@ cross-cutting rules and lists operations by task.
 | architecture tiers and generated coverage | [platforms](docs/platforms.md) |
 | complete programs | [examples](docs/examples/) |
 | adding and verifying a kernel | [kernel guide](docs/kernels.md) |
+| how the library is built and verified | [architecture](docs/architecture.md), [verification](docs/verification.md) |
+| working rules for agents and contributors | [AGENTS.md](AGENTS.md) |
 
 ## What is included
 
@@ -407,6 +409,12 @@ including changes that were deleted rather than shipped. Examples:
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.
+
+The [production design record](docs/plans/2026-08-13-simd-production-design.md)
+states the architecture and the evidence bar for new work, and
+[verification.md](docs/verification.md) lists the gates the shipped library
+is checked against. [AGENTS.md](AGENTS.md) carries the working rules for
+agents and contributors.
 
 ## License
 
