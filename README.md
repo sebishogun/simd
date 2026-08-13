@@ -357,7 +357,7 @@ The existing Go options leave most machines unserved.
 | [gonum](https://github.com/gonum/gonum) `internal/asm` | **SSE2 only** — zero `V*` instructions in the whole repo | linear algebra | — |
 | [viterin/vek](https://github.com/viterin/vek) | AVX2 only, disabled entirely on macOS, arm64 is pure Go [and never will not be](https://github.com/viterin/vek/issues/12) | broad | [no](https://github.com/viterin/vek/issues/11) |
 | [kelindar/simd](https://github.com/kelindar/simd) | AVX2, NEON | 7 | no |
-| **this** | sse2, avx2, avx512, neon, sve2, rvv, vx, lasx, vsx | 493 | yes |
+| **this** | sse2, avx2, avx512, neon, sve2, rvv, vsx, vx, lasx | 493 | yes |
 
 [kelindar/simd](https://github.com/kelindar/simd) is the closest relative: it
 also auto-vectorizes C with clang, translates the result into Plan 9 assembly,

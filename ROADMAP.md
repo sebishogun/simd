@@ -286,7 +286,7 @@ otherwise force a breaking change or a correction later:
    its object for writing a nonzero value to `r0`, which Go's ABI defines as
    constant zero. The old attribution to `countAnyVSX` failed — the crash was
    the r0-by-value class, fifteen kernels, and the rule was the fix. See
-   [docs/wrong.md](docs/wrong.md#42).
+   entry 42 of [docs/wrong.md](docs/wrong.md).
 4. ~~A threshold meta-test.~~ **Done**, and it found four more uncovered
    kernels on its first run, which now have tests.
 5. **Verified on real hardware** — now for *wall-clock only*, and the list has
