@@ -339,8 +339,8 @@ GitHub release.
 | [**simdhttp**](https://github.com/sebishogun/simdhttp) | HTTP/1.1 request-head parsing | One structural scan, then boundary validation and zero-copy fields | Near level with `net/http` on a typical nine-header request; 4.7× on the 100-header shape |
 | [**simdcbor**](https://github.com/sebishogun/simdcbor) | RFC 8949 CBOR decode, skip, and canonical encode | Two-stage item indexing plus UTF-8 and bulk-copy kernels | 1.35–1.84× fxamacker decode on its four recorded shapes |
 | [**simdparquet**](https://github.com/sebishogun/simdparquet) | Parquet RLE/bit-packed hybrid decode | `BitUnpackInto`, `RunLengthDecodeInt32`, and `VarintDecode` behind format-aware thresholds | 1.11–1.18× its byte-at-a-time reference on recorded level/index pages |
-| [**simdimage**](https://github.com/sebishogun/simdimage) | Planar image grayscale and separable box blur | `GrayscaleInto`; row-wise `Add`/`Sub` for the vertical blur | 19.4× scalar grayscale and 1.45× scalar vertical blur at 1920×1080 |
-| [**simdlogs**](https://github.com/sebishogun/simdlogs) | Columnar log storage and query execution | Bit packing, RLE, varints, hashing, bitshuffle, JSON ingest, and vector predicate scans | Its 3-million-row VictoriaLogs comparison reports wins on every measured query class; exact ratios and engine/wire separation are maintained in that repository |
+| [**simdimage**](https://github.com/sebishogun/simdimage) | Planar image grayscale and separable box blur | `GrayscaleInto`; row-wise `Add`/`Sub` for the vertical blur | 19.3× scalar grayscale and 1.45× scalar vertical blur at 1920×1080 |
+| [**simdlogs**](https://github.com/sebishogun/simdlogs) | Columnar log storage and query execution | Bit packing, RLE, varints, hashing, bitshuffle, JSON ingest, and vector predicate scans | VictoriaLogs comparisons show strong needle, aggregation, and ingest wins at larger scale; the [recorded curve](https://github.com/sebishogun/simdlogs/blob/main/docs/scale-curve.md) keeps the 1M selective-window 0.8× loss, and the [arc](https://github.com/sebishogun/simdlogs/blob/main/docs/wrong.md) holds the historical 3M rare-value 6.4× loss before the posting-index rewrite |
 
 `simdjson` also feeds requirements back into this package. Multi-delimiter JSON
 scanning produced `IndexAllAny`; dense structural matches produced the
@@ -411,10 +411,11 @@ above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.
 
 The [production design record](docs/plans/2026-08-13-simd-production-design.md)
-states the architecture and the evidence bar for new work, and
-[verification.md](docs/verification.md) lists the gates the shipped library
-is checked against. [AGENTS.md](AGENTS.md) carries the working rules for
-agents and contributors.
+states the architecture and the evidence bar for new work, the
+[production implementation plan](docs/plans/2026-08-13-simd-production.md)
+stages the remaining roadmap work, and [verification.md](docs/verification.md)
+lists the gates the shipped library is checked against. [AGENTS.md](AGENTS.md)
+carries the working rules for agents and contributors.
 
 ## License
 

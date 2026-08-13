@@ -90,7 +90,8 @@ For a task in this repository, read in this order before touching anything:
 10. `docs/plans/2026-08-13-simd-production.md`
 
 Then `docs/api.md` before touching the public API, `docs/kernels.md` before
-adding a kernel, `docs/runner.md` before touching CI. The rules in this file
+adding a kernel, `docs/runner.md` before touching CI, and `docs/platforms.md`
+before making a platform claim. The rules in this file
 and `AGENTS.md` agree; when they conflict, the stricter one wins.
 
 ## Package, ownership, and compatibility rules
