@@ -280,9 +280,13 @@ otherwise force a breaking change or a correction later:
    riscv64 kernels shipping over budget.
 3. **The two corruptions explained** — the riscv64 compress family is done: a
    stack overflow, 640–2032 bytes against the 512-byte NOSPLIT budget, fixed
-   by per-target lane counts and back in service. `countAnyVSX` on ppc64le
-   remains open; with the budget check now working there, re-bisecting it is
-   the next step.
+   by per-target lane counts and back in service. The ppc64le corruption is
+   resolved too, and its end state is the safety rule rather than a fix:
+   `countAny` stays on the portable reference because the verifier rejects
+   its object for writing a nonzero value to `r0`, which Go's ABI defines as
+   constant zero. The old attribution to `countAnyVSX` failed — the crash was
+   the r0-by-value class, fifteen kernels, and the rule was the fix. See
+   [docs/wrong.md](docs/wrong.md#42).
 4. ~~A threshold meta-test.~~ **Done**, and it found four more uncovered
    kernels on its first run, which now have tests.
 5. **Verified on real hardware** — now for *wall-clock only*, and the list has

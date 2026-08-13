@@ -67,8 +67,9 @@ live in their own repositories.
 
 ## Current shipped status
 
-The current release is **v1.20.0**: 493 exported functions, 6,931 generated
-kernels across nine tier targets. The v1 API is stable — every exported
+The current release is **v1.20.0**; the exported-function and
+generated-kernel counts are the machine-checked ones in README.md and
+docs/platforms.md. The v1 API is stable — every exported
 function keeps its name, signature, and meaning, and so does the numerical
 contract in `internal/kernel/kernel.go`. The README describes shipped v1
 behavior only.

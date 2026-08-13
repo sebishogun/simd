@@ -20,11 +20,13 @@ library live in their own repositories.
 
 ## Current shipped status
 
-The tip describes the shipped v1 line. The current release is **v1.20.0**:
-493 exported functions, 6,931 generated kernels across nine tier targets
-(sse2, avx2, avx512, neon, sve2, rvv, vx, lasx, vsx). The API is stable for
-the life of v1: every exported function keeps its name, signature, and
-meaning, and so does the numerical contract in `internal/kernel/kernel.go`.
+The tip describes the shipped v1 line. The current release is **v1.20.0**;
+the exported-function and generated-kernel counts are the machine-checked
+ones in README.md and docs/platforms.md, held to the sources by
+`internal/tests/docs`. The tier targets are sse2, avx2, avx512, neon, sve2,
+rvv, vsx, vx, lasx. The API is stable for the life of v1: every exported
+function keeps its name, signature, and meaning, and so does the numerical
+contract in `internal/kernel/kernel.go`.
 
 Anything not shipped yet belongs in ROADMAP.md and in plans under
 `docs/plans/` — see the roadmap-not-shipped rule below. Never describe future

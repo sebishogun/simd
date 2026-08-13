@@ -7,10 +7,12 @@ holds the low-level details this page points at.
 ## What ships
 
 One Go module, `github.com/sebishogun/simd`, containing one package `simd`:
-the public slice API. At the v1.20.0 tip it exports 493 functions over
-6,931 generated kernels for nine tier targets, plus a portable Go path that
-covers every operation on every target. The current state of the shipped
-library is the design record in
+the public slice API. At the v1.20.0 tip it exports the function and
+generated-kernel counts that [README.md](../README.md) and
+[`docs/platforms.md`](platforms.md) state — the documentation tests hold
+those numbers to the sources — over the nine tier targets listed there,
+plus a portable Go path that covers every operation on every target. The
+current state of the shipped library is the design record in
 [`docs/plans/2026-08-13-simd-production-design.md`](plans/2026-08-13-simd-production-design.md).
 
 Consumers `go get` the module and nothing else: no cgo, no C toolchain, no
@@ -51,7 +53,8 @@ caller
   once and read without synchronization.
 - Each exported function indexes its own static table, so the linker keeps
   only the operations a program actually calls — assembly included. A binary
-  using three operation families does not retain all 6,931 kernels.
+  using three operation families does not retain the repository's full
+  kernel set.
 - The guard is generated per operation. Below the per-kernel element
   threshold it calls the portable reference directly, because crossing into
   assembly costs about 1.4 ns and cannot be inlined. It also clamps to the

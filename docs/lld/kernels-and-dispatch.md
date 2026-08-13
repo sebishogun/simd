@@ -73,7 +73,7 @@ iterating `simdinfo -tiers`.
   init is linked into every binary that imports the package. Static
   per-operation tables let the linker drop every operation a program never
   calls, assembly included: a consumer using three operations carries three
-  operations' kernels, not all 6,931.
+  operations' kernels, not every kernel in the repository.
 - The reference is ordinary Go linked into every consumer regardless (a few
   hundred kilobytes); the per-tier assembly is what the tables keep out.
 - Per-element-type partials keep liveness scoped: the float32 partials are

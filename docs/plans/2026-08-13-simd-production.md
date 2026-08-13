@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Close the remaining open items recorded in ROADMAP.md — the sort three-way partition, the ppc64le `countAnyVSX` corruption, the measured `GOEXPERIMENT=simd` small-n tier, real-hardware thresholds away from amd64, and the general n-ary closure combinator — each as a TDD task with evidence, without changing the shipped v1.20.0 contract.
+**Goal:** Close the remaining open items recorded in ROADMAP.md — the sort three-way partition, the measured `GOEXPERIMENT=simd` small-n tier, real-hardware thresholds away from amd64, and the general n-ary closure combinator — each as a TDD task with evidence, without changing the shipped v1.20.0 contract.
 
 **Architecture:** Every task follows the repository's existing pipeline: C kernel in `csrc/` → manifest in `tools/simdgen/kernels/` → generated Plan 9 assembly and dispatch tables → portable reference in `internal/ref/` → differential conformance. Each task starts with a failing test or failing measurement gate, ships only with the five forms of evidence (source, disassembly, correctness, cross-tier, benchmark) required by the production design record, and records what measurement rejects in `docs/wrong.md`.
 
@@ -24,6 +24,7 @@ The sort section of ROADMAP.md names the one remaining sort gap: few distinct va
 - Modify: `sort.go` (public wrapper; the exact name/signature follows the `PartitionInto` conventions and is decided in Step 1, not assumed)
 - Modify: `sort_test.go`, `internal/conformance/` (differential)
 - Create: `bench_sort3_test.go` or extend `bench_*_test.go` (benchmark including the few-distinct corpus)
+- Modify: `docs/platforms.md` (per-architecture kernel counts change wherever the new kernel emits; the docs tests hold them to the sources)
 - Test: `internal/tests/docs` counts and API-table rows stay in sync
 
 **Step 1: Write the failing differential and benchmark tests**
@@ -50,8 +51,8 @@ portable reference, public wrapper, conformance, benchmark.
 Run: `make codegen && make check-emission`
 
 Expected: PASS; the new kernel emitted on the tiers that can express the
-partition (AVX-512/SVE2 have compress; the portable path is the permanent
-answer elsewhere, as with `Compress`).
+partition (AVX-512, SVE2, and RVV have a compress instruction; the portable
+path is the permanent answer elsewhere, as with `Compress`).
 
 **Step 4: Wire it into the sort path and verify**
 
@@ -80,61 +81,7 @@ git commit -m "feat: three-way partition for few-distinct sorts"
 
 ---
 
-### Task 2: Re-bisect `countAnyVSX` on ppc64le
-
-ROADMAP.md records the riscv64 compress corruption as explained and fixed,
-and `countAnyVSX` on ppc64le as the remaining open corruption, with the
-stack-budget checks now working there. This task re-bisects it.
-
-**Files:**
-- Modify: `csrc/bytes.c` (the `countAny` family, if the fault is there)
-- Modify: `internal/conformance/` (regression test that reproduces on ppc64le)
-- Modify: `docs/wrong.md` (entry with the root cause, whatever it is)
-- Modify: `docs/plans/kernels-backlog.md` only if the fix changes what it says about #207–#213 (it should not)
-
-**Step 1: Reproduce under the ppc64le lane**
-
-Run: `make test-cross`
-
-Expected: FAIL on the ppc64le leg. If the lane is green, drive the
-conformance suite harder first — targeted `CountAny` shapes and the
-adversarial fuzz corpus — until it reproduces; a corruption that only shows
-under specific inputs needs the reproduction before the bisect.
-
-**Step 2: Write the failing regression test**
-
-Add a differential test over `CountAny`-adjacent shapes (byte sets at mask
-word boundaries, all lengths) that fails on ppc64le and passes on amd64.
-
-**Step 3: Bisect with the now-working checks**
-
-Run `go test ./internal/asmcheck` and the qemu ppc64le lane with
-`-require-accelerated`, narrowing to the kernel vs the reference, then read
-the generated assembly of the suspect kernel (disassemble first: `go test -c
--o /tmp/x.test . && go tool objdump -s 'pkg\.countAny' /tmp/x.test`).
-Use `gdb-multiarch` under qemu if a live register is needed.
-
-**Step 4: Fix, verify, record**
-
-Implement the fix (kernel or reference, whichever the bisect names), then:
-
-Run: `go test ./... && make verify && make test-cross && make test-gates`
-
-Expected: PASS on every lane, ppc64le included.
-
-Record the root cause and the fix in `docs/wrong.md` in the
-believed/true/how-it-surfaced form.
-
-**Step 5: Commit**
-
-```bash
-git add csrc/bytes.c internal/conformance docs/wrong.md
-git commit -m "fix: explain and fix countAnyVSX on ppc64le"
-```
-
----
-
-### Task 3: Measured `GOEXPERIMENT=simd` small-n tier
+### Task 2: Measured `GOEXPERIMENT=simd` small-n tier
 
 ROADMAP.md's Tiers section records both halves of the history: the vector
 type shipped (`vec.go`, amd64-only), and the small-n fast path through it
@@ -198,7 +145,7 @@ If no size wins, commit only the differential coverage and the `docs/wrong.md` e
 
 ---
 
-### Task 4: Real-hardware thresholds away from amd64
+### Task 3: Real-hardware thresholds away from amd64
 
 ROADMAP.md's Verification section states that every per-architecture
 threshold outside amd64 is a guess carried over from a machine that does not
@@ -246,7 +193,7 @@ git commit -m "feat: measured thresholds for <arch>"
 
 ---
 
-### Task 5: General n-ary closure combinator
+### Task 4: General n-ary closure combinator
 
 ROADMAP.md's n-ary section records the shipped half (`AddAll`, `MulAll`,
 arity 3–4 kernels, folding beyond) and the open half: a general combinator

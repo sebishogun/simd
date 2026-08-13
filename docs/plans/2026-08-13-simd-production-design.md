@@ -16,8 +16,10 @@ or a contract change must clear.
 The module is `github.com/sebishogun/simd`, one package `simd` of
 whole-slice primitives: arithmetic, reductions, text and byte scanning,
 sorting and sets, columnar codecs, matrix/DSP, and random fills. The v1.20.0
-tree exports 493 functions and 6,931 generated kernels over nine tier
-targets, with a portable Go path covering every operation.
+tree exports the function and generated-kernel counts that
+[`docs/platforms.md`](../platforms.md) states — the documentation tests hold
+them to the sources — over the nine tier targets, with a portable Go path
+covering every operation.
 
 Non-goals, stated in the README and enforced by the layout: not a BLAS,
 tensor library, dataframe, or autodiff framework; no ownership of data
