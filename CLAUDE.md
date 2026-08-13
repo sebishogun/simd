@@ -103,8 +103,11 @@ and `AGENTS.md` agree; when they conflict, the stricter one wins.
   generated `dispatch_tables_<arch>.go` / `kernel_thresholds_<arch>.go` are
   output of `make codegen`, never hand-edited. `tools/` is a separate module
   that must never become a consumer dependency.
-- Documentation counts and local links are test-enforced
-  (`internal/tests/docs`); keep them true.
+- Documentation counts are test-enforced, and local links are test-enforced
+  for the active document set listed in `internal/tests/docs/links_test.go`
+  (README, CONTRIBUTING, ROADMAP, and the main references/guides). Links in
+  other documents — the LLDs, plans, and records — are not machine-gated:
+  check them by hand. Keep every count and every local link true either way.
 
 ## Verification and release gates
 

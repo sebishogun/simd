@@ -50,10 +50,10 @@ iterating `simdinfo -tiers`.
   to agreement), clamps to the minimum slice length, evaluates `RefWhen`,
   and otherwise calls the kernel or the named `ref` function.
 - Where an operation has no kernel on a tier — declined at generation time
-  (`make check-emission` prints the reason) or nil by design (`Compress` is
-  nil everywhere but AVX-512 and SVE2, `ExpandInto` is portable everywhere)
-  — the guard calls the portable implementation. A missing kernel is slower,
-  never a correctness gap.
+  (`make check-emission` prints the reason) or nil by design (`Compress`
+  kernels exist on AVX-512, SVE2, and RVV and are nil on the remaining
+  tiers; `ExpandInto` is portable everywhere) — the guard calls the portable
+  implementation. A missing kernel is slower, never a correctness gap.
 
 ## Scalar fallback and thresholds
 
@@ -120,8 +120,8 @@ is the how-to, this is the list:
   trampoline; the coverage tables count the pair once.
 - Every accepted kernel is statically checked (instructions within the tier
   that gates its file — no EVEX in an `_avx2.s`; stack and reserved
-  registers; the respelled-encodings test holds forty mnemonics byte-for-byte
-  against clang), then differentially executed by the conformance suite on
+  registers; the respelled-encodings table is held byte-for-byte against
+  clang), then differentially executed by the conformance suite on
   every tier the host can run.
 
 ## Bounds checks and disassembly checks
