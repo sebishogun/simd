@@ -91,7 +91,7 @@ cross-cutting rules and lists operations by task.
 | complete programs | [examples](docs/examples/) |
 | adding and verifying a kernel | [kernel guide](docs/kernels.md) |
 | how the library is built and verified | [architecture](docs/architecture.md), [verification](docs/verification.md) |
-| working rules for agents and contributors | [AGENTS.md](AGENTS.md) |
+| working rules for agents and contributors | [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md) |
 
 ## What is included
 
@@ -340,7 +340,7 @@ GitHub release.
 | [**simdcbor**](https://github.com/sebishogun/simdcbor) | RFC 8949 CBOR decode, skip, and canonical encode | Two-stage item indexing plus UTF-8 and bulk-copy kernels | 1.35–1.84× fxamacker decode on its four recorded shapes |
 | [**simdparquet**](https://github.com/sebishogun/simdparquet) | Parquet RLE/bit-packed hybrid decode | `BitUnpackInto`, `RunLengthDecodeInt32`, and `VarintDecode` behind format-aware thresholds | 1.11–1.18× its byte-at-a-time reference on recorded level/index pages |
 | [**simdimage**](https://github.com/sebishogun/simdimage) | Planar image grayscale and separable box blur | `GrayscaleInto`; row-wise `Add`/`Sub` for the vertical blur | 19.3× scalar grayscale and 1.45× scalar vertical blur at 1920×1080 |
-| [**simdlogs**](https://github.com/sebishogun/simdlogs) | Columnar log storage and query execution | Bit packing, RLE, varints, hashing, bitshuffle, JSON ingest, and vector predicate scans | VictoriaLogs comparisons show strong needle, aggregation, and ingest wins at larger scale; the [recorded curve](https://github.com/sebishogun/simdlogs/blob/main/docs/scale-curve.md) keeps the 1M selective-window 0.8× loss, and the [arc](https://github.com/sebishogun/simdlogs/blob/main/docs/wrong.md) holds the historical 3M rare-value 6.4× loss before the posting-index rewrite |
+| [**simdlogs**](https://github.com/sebishogun/simdlogs) | Columnar log storage and query execution | Bit packing, RLE, varints, hashing, bitshuffle, JSON ingest, and vector predicate scans | VictoriaLogs comparisons: needle 12.3–25×, aggregation 5.1–19.2× (3.4× at 1B), ingest 1.1–8.2× narrowing with scale; the [recorded curve](https://github.com/sebishogun/simdlogs/blob/main/docs/scale-curve.md) keeps the 1M selective-window 0.8× loss, and the [arc](https://github.com/sebishogun/simdlogs/blob/main/docs/wrong.md) holds the historical 3M rare-value 6.4× loss before the posting-index rewrite |
 
 `simdjson` also feeds requirements back into this package. Multi-delimiter JSON
 scanning produced `IndexAllAny`; dense structural matches produced the

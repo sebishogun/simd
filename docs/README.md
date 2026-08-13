@@ -32,6 +32,7 @@ For anyone changing the library or auditing how it is built:
 | [`plans/2026-08-13-simd-production-design.md`](plans/2026-08-13-simd-production-design.md) | Production design record: the shipped contract and the evidence bar for new kernels. |
 | [`plans/2026-08-13-simd-production.md`](plans/2026-08-13-simd-production.md) | Staged implementation plan for the remaining roadmap work. |
 | [`../AGENTS.md`](../AGENTS.md) | Agent and contributor rules: boundaries, gates, and records. |
+| [`../CLAUDE.md`](../CLAUDE.md) | The same rules for Claude sessions; they agree with AGENTS.md. |
 
 Suggested order for someone changing the library: README, architecture, the
 three LLDs, ROADMAP, verification, wrong.md, then the production design
