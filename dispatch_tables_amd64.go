@@ -3175,3 +3175,151 @@ var opsU8ByTier = [...]*kernel.Ops[uint8]{
 	&opsU8AVX2,
 	&opsU8AVX512,
 }
+
+var cplxC128SSE2 = kernel.Complex[complex128]{
+	Add:     amd64.CaddComplex128SSE2,
+	Sub:     amd64.CsubComplex128SSE2,
+	Mul:     amd64.CmulComplex128SSE2,
+	Div:     amd64.CdivComplex128SSE2,
+	Neg:     amd64.CnegComplex128SSE2,
+	Conj:    amd64.CconjComplex128SSE2,
+	Sum:     amd64.CsumComplex128SSE2,
+	Dot:     amd64.CdotComplex128SSE2,
+	DotConj: amd64.CdotconjComplex128SSE2,
+}
+
+var cplxC128AVX2 = kernel.Complex[complex128]{
+	Add:     amd64.CaddComplex128AVX2,
+	Sub:     amd64.CsubComplex128AVX2,
+	Mul:     amd64.CmulComplex128AVX2,
+	Div:     amd64.CdivComplex128AVX2,
+	Neg:     amd64.CnegComplex128AVX2,
+	Conj:    amd64.CconjComplex128AVX2,
+	Sum:     amd64.CsumComplex128AVX2,
+	Dot:     amd64.CdotComplex128AVX2,
+	DotConj: amd64.CdotconjComplex128AVX2,
+}
+
+var cplxC128AVX512 = kernel.Complex[complex128]{
+	Add:     amd64.CaddComplex128AVX512,
+	Sub:     amd64.CsubComplex128AVX512,
+	Mul:     amd64.CmulComplex128AVX512,
+	Div:     amd64.CdivComplex128AVX512,
+	Neg:     amd64.CnegComplex128AVX512,
+	Conj:    amd64.CconjComplex128AVX512,
+	Sum:     amd64.CsumComplex128AVX512,
+	Dot:     amd64.CdotComplex128AVX512,
+	DotConj: amd64.CdotconjComplex128AVX512,
+}
+
+var cplxC128ByTier = [...]*kernel.Complex[complex128]{
+	nil,
+	&cplxC128SSE2,
+	&cplxC128AVX2,
+	&cplxC128AVX512,
+}
+
+var cplxC64SSE2 = kernel.Complex[complex64]{
+	Add:     amd64.CaddComplex64SSE2,
+	Sub:     amd64.CsubComplex64SSE2,
+	Mul:     amd64.CmulComplex64SSE2,
+	Div:     amd64.CdivComplex64SSE2,
+	Neg:     amd64.CnegComplex64SSE2,
+	Conj:    amd64.CconjComplex64SSE2,
+	Sum:     amd64.CsumComplex64SSE2,
+	Dot:     amd64.CdotComplex64SSE2,
+	DotConj: amd64.CdotconjComplex64SSE2,
+}
+
+var cplxC64AVX2 = kernel.Complex[complex64]{
+	Add:     amd64.CaddComplex64AVX2,
+	Sub:     amd64.CsubComplex64AVX2,
+	Mul:     amd64.CmulComplex64AVX2,
+	Div:     amd64.CdivComplex64AVX2,
+	Neg:     amd64.CnegComplex64AVX2,
+	Conj:    amd64.CconjComplex64AVX2,
+	Sum:     amd64.CsumComplex64AVX2,
+	Dot:     amd64.CdotComplex64AVX2,
+	DotConj: amd64.CdotconjComplex64AVX2,
+}
+
+var cplxC64AVX512 = kernel.Complex[complex64]{
+	Add:     amd64.CaddComplex64AVX512,
+	Sub:     amd64.CsubComplex64AVX512,
+	Mul:     amd64.CmulComplex64AVX512,
+	Div:     amd64.CdivComplex64AVX512,
+	Neg:     amd64.CnegComplex64AVX512,
+	Conj:    amd64.CconjComplex64AVX512,
+	Sum:     amd64.CsumComplex64AVX512,
+	Dot:     amd64.CdotComplex64AVX512,
+	DotConj: amd64.CdotconjComplex64AVX512,
+}
+
+var cplxC64ByTier = [...]*kernel.Complex[complex64]{
+	nil,
+	&cplxC64SSE2,
+	&cplxC64AVX2,
+	&cplxC64AVX512,
+}
+
+var partsC128PartsSSE2 = kernel.ComplexParts[complex128, float64]{
+	Abs:       amd64.CabsComplex128SSE2,
+	Real:      amd64.CrealComplex128SSE2,
+	Imag:      amd64.CimagComplex128SSE2,
+	Scale:     amd64.CscaleComplex128SSE2,
+	FromParts: amd64.CfromPartsComplex128SSE2,
+}
+
+var partsC128PartsAVX2 = kernel.ComplexParts[complex128, float64]{
+	Abs:       amd64.CabsComplex128AVX2,
+	Real:      amd64.CrealComplex128AVX2,
+	Imag:      amd64.CimagComplex128AVX2,
+	Scale:     amd64.CscaleComplex128AVX2,
+	FromParts: amd64.CfromPartsComplex128AVX2,
+}
+
+var partsC128PartsAVX512 = kernel.ComplexParts[complex128, float64]{
+	Abs:       amd64.CabsComplex128AVX512,
+	Real:      amd64.CrealComplex128AVX512,
+	Imag:      amd64.CimagComplex128AVX512,
+	Scale:     amd64.CscaleComplex128AVX512,
+	FromParts: amd64.CfromPartsComplex128AVX512,
+}
+
+var partsC128PartsByTier = [...]*kernel.ComplexParts[complex128, float64]{
+	nil,
+	&partsC128PartsSSE2,
+	&partsC128PartsAVX2,
+	&partsC128PartsAVX512,
+}
+
+var partsC64PartsSSE2 = kernel.ComplexParts[complex64, float32]{
+	Abs:       amd64.CabsComplex64SSE2,
+	Real:      amd64.CrealComplex64SSE2,
+	Imag:      amd64.CimagComplex64SSE2,
+	Scale:     amd64.CscaleComplex64SSE2,
+	FromParts: amd64.CfromPartsComplex64SSE2,
+}
+
+var partsC64PartsAVX2 = kernel.ComplexParts[complex64, float32]{
+	Abs:       amd64.CabsComplex64AVX2,
+	Real:      amd64.CrealComplex64AVX2,
+	Imag:      amd64.CimagComplex64AVX2,
+	Scale:     amd64.CscaleComplex64AVX2,
+	FromParts: amd64.CfromPartsComplex64AVX2,
+}
+
+var partsC64PartsAVX512 = kernel.ComplexParts[complex64, float32]{
+	Abs:       amd64.CabsComplex64AVX512,
+	Real:      amd64.CrealComplex64AVX512,
+	Imag:      amd64.CimagComplex64AVX512,
+	Scale:     amd64.CscaleComplex64AVX512,
+	FromParts: amd64.CfromPartsComplex64AVX512,
+}
+
+var partsC64PartsByTier = [...]*kernel.ComplexParts[complex64, float32]{
+	nil,
+	&partsC64PartsSSE2,
+	&partsC64PartsAVX2,
+	&partsC64PartsAVX512,
+}

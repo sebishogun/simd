@@ -3043,3 +3043,146 @@ element-scratch allocation, but duplicate-skew recovery can allocate one mask
 for each equal run it extracts. The active API documentation now states that
 exception. Historical changelog text remains a record of the implementation at
 the time of each release.
+
+## Every complex kernel was generated, tested, and dispatched to by nothing
+
+**Believed.** The complex surface -- `DotComplex`, `DotComplexConj`,
+`ScaleComplex`, `SumComplex`, the arithmetic set, and the ComplexParts half
+that produces real slices -- runs on the generated assembly like the rest of
+the library. nine `internal/<arch>/complex_*.s` files exist -- sse2, avx2, avx512, neon,
+sve2, rvv, vsx, vx, lasx, across six architectures -- `registerComplex<TIER>`
+installs them, and `TestInventoryCoversEveryGroup` asserts that `C64`,
+`C128`, `C64Parts` and `C128Parts` all carry declared kernels. All of that
+was true.
+
+**Actually.** None of it was reachable from a consumer. `complexOps[C]()`
+returned `&refBase.C64` / `&refBase.C128` *directly*, with no per-tier
+overlay, and `complexParts` did the same:
+
+```go
+case complex128:
+    return any(&refBase.C128).(*kernel.Complex[C])   // complex.go:33, before
+```
+
+The dispatch tables the runtime indexes carried no complex entry at all --
+`grep -c Complex dispatch_tables_amd64.go` was **0**, against ten
+`opsXXByTier` tables for the real element types -- because
+`tools/simdgen/emit/dispatch_gen.go` had a `numericElem` map and no complex
+equivalent, so `numericGroupsIn` skipped every complex group and emitted
+nothing for them. The generated complex assembly was reachable only from
+`internal/<arch>/sets_gen_<arch>.go`, whose own generated header says "Tests
+call this; consumers never do".
+
+The test that should have caught it is `TestDeclaredKernelsAreWired`, not
+`TestInventoryCoversEveryGroup` -- the first version of this entry named the
+wrong one. `TestDeclaredKernelsAreWired` checks the runtime tables
+(`allFlatTables`) for exactly three groups, `Bytes`, `Convert` and `Mask`,
+and sends everything else -- numeric AND complex -- through `archSets()`,
+the test-only aggregator. So the numeric groups have the same nominal hole;
+they were saved by having real tables, not by being checked. Nothing walked
+the tables the runtime actually uses for a non-flat group.
+
+Confirmed by disassembly, which is the only thing that would have shown it.
+The symbol survives only where the call is not inlined -- the root package's
+own test binary inlines it and prints nothing, so this is the
+`internal/benchmarks` binary:
+
+```
+$ go test -c -o /tmp/bench.test ./internal/benchmarks
+$ go tool objdump -s 'simd\.DotComplex\[' /tmp/bench.test
+  complex.go:31  LEAQ github.com/sebishogun/simd.refBase+13560(SB), AX
+```
+
+Empirically, from a consumer module calling `simd.DotComplex`: 0 complex
+kernel symbols linked before, 24 after. A consumer calling only `simd.Sum`
+links 0 in both, so the per-operation dead-code elimination survives.
+
+**How it surfaced.** Not from this repository. A downstream evaluation
+(simdblas Task 4, complex Level 1 against gonum) measured `Zdotu`/`Zdotc`
+2.2x-3.1x slower than gonum at n <= 100000, 1.65x-1.86x at n = 1e6. Not
+against "a plain Go loop", as the first version of this entry said: gonum's
+unit-increment complex dot calls `c128.DotuUnitary`/`DotcUnitary`, which are
+hand-written AVX assembly on amd64. Losing to it is not by itself proof of
+anything. The tell was that `GOSIMD=scalar` and the detected tier gave
+identical timings.
+
+**Cost, measured.** `GOSIMD=scalar` against `avx512` in one binary --
+one build, so the 8.3% layout floor does not apply; there is no second
+layout to differ. Complete grid, minimum of six alternating passes,
+reproduced twice. **amd64/avx512 only**: no other architecture was measured,
+and the per-tier ratios elsewhere are not these.
+
+The machine was at load 5-12 for this, against the project rule of load
+under 1. The wall-clock column is therefore the weaker evidence; the
+instruction column below it is layout- and load-independent and is what the
+conclusion rests on.
+
+| operation | scalar ns/op | avx512 ns/op | ratio |
+|---|---|---|---|
+| Dot c128 n=1024 | 749.7 | 101.5 | 7.39x |
+| Dot c128 n=65536 | 47156 | 15459 | 3.05x |
+| Dot c128 n=1048576 | 805434 | 408702 | 1.97x |
+| DotConj c128 n=1024 | 890.1 | 102.5 | 8.68x |
+| DotConj c128 n=65536 | 55570 | 15488 | 3.59x |
+| DotConj c64 n=1024 | 1249 | 97.31 | 12.8x |
+| DotConj c64 n=65536 | 83114 | 6614 | 12.6x |
+| DotConj c64 n=1048576 | 1276125 | 158120 | 8.07x |
+| Sum c128 n=1024 | 470.1 | 43.43 | 10.8x |
+| Sum c128 n=65536 | 29002 | 5611 | 5.17x |
+| Sum c128 n=1048576 | 480519 | 115280 | 4.17x |
+| DotConj c128 n=1048576 | 918445 | 420455 | 2.18x |
+
+Instructions retired per element, two-point slope so setup cancels, which
+is the number that does not move with load:
+
+| operation | scalar | avx512 | ratio |
+|---|---|---|---|
+| Sum c128 n=1048576 | 12577259 | 1040671 | 12.1x |
+| Dot c128 n=1048576 | 32070536 | 2627180 | 12.2x |
+| DotConj c64 n=1048576 | 44563734 | 2030498 | 22.0x |
+
+(The three `DotConj/c128` cells have no instruction row: `go test -bench`
+cannot exclude the deeper `impl=naive` sub-benchmark, so selecting them
+also runs it and its instructions scale with `-benchtime` too.)
+
+**When, exactly.** Not "since the kernels were written" -- the first version
+of this entry said that and it is wrong. The kernels landed in `ba09d24` and
+dispatched correctly through `active.C64`/`active.C128`. The break came with
+`02c258a`, "Per-operation dispatch: the linker keeps only what a program
+calls", which replaced `active` with `refBase` plus per-tier tables and
+emitted no complex tables:
+
+```
+$ git show v1.13.0:complex.go | grep 'active\.C64'   -> return any(&active.C64)...
+$ git show v1.14.0:complex.go | grep 'refBase\.C64'  -> return any(&refBase.C64)...
+$ git tag --contains 02c258a --sort=creatordate | head -1
+v1.14.0
+```
+
+So the affected releases are **v1.14.0 through v1.20.0** -- seven tags. A
+consumer pinned to v1.13.0 or earlier was never affected. The table
+mechanism itself arrived in that commit, so the missing `complexElem` was
+never an omission from an older design; it was a group the new design did
+not carry over.
+
+**The repository's own baseline held the evidence.** `testdata/bench/amd64.txt`
+was recorded at `f6c72f9`, before the regression, with
+`BenchmarkComplexReduce/Dot/c128/n=1024-8` at 101.2-101.9 ns/op -- a
+benchmark that calls the public `simd.DotComplex`. The portable path for
+that shape is 749.7 ns/op, 7x against `make bench-check`'s 25% threshold.
+Whether the gate was run at `02c258a` is not recoverable from here; the
+baseline was never updated, which is why it is still pre-regression and
+still a working detector.
+
+**Fix.** `dispatch_gen.go` gained `complexElem`/`partsElem` and an
+`emitTierTable` that writes `cplx<Group>ByTier` and `parts<Group>ByTier`
+alongside the existing `ops<Group>ByTier`; `dispatch.go` gained a
+`groupCache[G any]` (opsCache is constrained to `Number`, and neither
+`kernel.Complex` nor `kernel.ComplexParts` is `kernel.Ops`) with an
+`overlayAny`; `complexOps`/`complexParts` now route through it. The
+regenerated tables are **additive only** -- 0 deleted lines across all seven
+`dispatch_tables_*.go`, 479 added.
+
+`dispatch_complex_test.go` is the test that would have caught it: it compares
+the function pointer `DotComplex` actually reaches against the reference
+set's, which is the question a caller asks and the inventory walk does not.

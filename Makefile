@@ -71,7 +71,7 @@ test-vec: ## Run the suite with GOEXPERIMENT=simd, which compiles vec.go
 test-tiers: ## Run the suite once per instruction-set tier this CPU has
 	@for t in $(TIERS); do \
 		echo "--- GOSIMD=$$t"; \
-		GOSIMD=$$t $(GO) test $(PKG) || exit 1; \
+		GOSIMD=$$t $(GO) test -count=1 $(PKG) || exit 1; \
 	done
 
 .PHONY: test-race

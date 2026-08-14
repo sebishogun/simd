@@ -138,3 +138,7 @@ var opsU16ByTier = [...]*kernel.Ops[uint16]{nil}
 var opsU32ByTier = [...]*kernel.Ops[uint32]{nil}
 var opsU64ByTier = [...]*kernel.Ops[uint64]{nil}
 var opsU8ByTier = [...]*kernel.Ops[uint8]{nil}
+var cplxC128ByTier = [...]*kernel.Complex[complex128]{nil}
+var cplxC64ByTier = [...]*kernel.Complex[complex64]{nil}
+var partsC128PartsByTier = [...]*kernel.ComplexParts[complex128, float64]{nil}
+var partsC64PartsByTier = [...]*kernel.ComplexParts[complex64, float32]{nil}

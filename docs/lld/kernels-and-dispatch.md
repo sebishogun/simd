@@ -44,6 +44,15 @@ iterating `simdinfo -tiers`.
   selects the per-element-type cache, which overlays the reference with the
   tier's partial `Ops` struct lazily on first use (one `reflect` pass per
   element type, never on the hot path).
+- The **complex groups** use the same shape through `complexOps[C]()` and
+  `complexParts[C, R]()`, over `groupCache[G]` rather than `opsCache[T]`:
+  `opsCache` is constrained to `Number`, and neither `kernel.Complex` nor
+  `kernel.ComplexParts` is a `kernel.Ops`, so the cache is generic over the
+  struct instead of over the element type and merges with `overlayAny`. The
+  per-tier tables are `cplx<Group>ByTier` and `parts<Group>ByTier`. This
+  route did not exist until 2026-08-14: before it, every complex operation
+  ran the portable reference on every machine while the generated complex
+  assembly sat linked into the test-only aggregator (`docs/wrong.md`).
 - A **generated guard** sits between the table and the kernel. It checks the
   per-operation element threshold (`KernelThreshold` is the public view;
   the tables are generated from the same manifest and a test holds the two

@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+**Complex operations now run the generated assembly.** They never did:
+`complexOps` returned the portable reference set directly, and the
+generator emitted no complex entries into the per-tier dispatch tables, so
+`DotComplex`, `DotComplexConj`, `ScaleComplex`, `SumComplex` and the
+complex arithmetic set ran ordinary Go on every architecture while nine
+tiers of generated complex assembly sat linked into a test-only aggregator.
+Measured on amd64/avx512, scalar against the tier in one binary: 1.9x-12.9x
+depending on operation and length. Results are unchanged -- the numerical
+contract is the same fixed accumulation order, and the reference and every
+tier agree bit for bit. No API change. `docs/wrong.md` records the finding,
+the measurement, and the generator assertion that now refuses to emit a
+dispatch file for a kernel group it cannot route.
+
 ## v1.20.0
 
 **The columnar codec tier.** **`BitUnpackInto`** gains a width-

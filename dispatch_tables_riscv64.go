@@ -1420,3 +1420,63 @@ var opsU8ByTier = [...]*kernel.Ops[uint8]{
 	nil,
 	&opsU8RVV,
 }
+
+var cplxC128RVV = kernel.Complex[complex128]{
+	Add:     riscv64.CaddComplex128RVV,
+	Sub:     riscv64.CsubComplex128RVV,
+	Mul:     riscv64.CmulComplex128RVV,
+	Div:     riscv64.CdivComplex128RVV,
+	Neg:     riscv64.CnegComplex128RVV,
+	Conj:    riscv64.CconjComplex128RVV,
+	Sum:     riscv64.CsumComplex128RVV,
+	Dot:     riscv64.CdotComplex128RVV,
+	DotConj: riscv64.CdotconjComplex128RVV,
+}
+
+var cplxC128ByTier = [...]*kernel.Complex[complex128]{
+	nil,
+	&cplxC128RVV,
+}
+
+var cplxC64RVV = kernel.Complex[complex64]{
+	Add:     riscv64.CaddComplex64RVV,
+	Sub:     riscv64.CsubComplex64RVV,
+	Mul:     riscv64.CmulComplex64RVV,
+	Div:     riscv64.CdivComplex64RVV,
+	Neg:     riscv64.CnegComplex64RVV,
+	Conj:    riscv64.CconjComplex64RVV,
+	Sum:     riscv64.CsumComplex64RVV,
+	Dot:     riscv64.CdotComplex64RVV,
+	DotConj: riscv64.CdotconjComplex64RVV,
+}
+
+var cplxC64ByTier = [...]*kernel.Complex[complex64]{
+	nil,
+	&cplxC64RVV,
+}
+
+var partsC128PartsRVV = kernel.ComplexParts[complex128, float64]{
+	Abs:       riscv64.CabsComplex128RVV,
+	Real:      riscv64.CrealComplex128RVV,
+	Imag:      riscv64.CimagComplex128RVV,
+	Scale:     riscv64.CscaleComplex128RVV,
+	FromParts: riscv64.CfromPartsComplex128RVV,
+}
+
+var partsC128PartsByTier = [...]*kernel.ComplexParts[complex128, float64]{
+	nil,
+	&partsC128PartsRVV,
+}
+
+var partsC64PartsRVV = kernel.ComplexParts[complex64, float32]{
+	Abs:       riscv64.CabsComplex64RVV,
+	Real:      riscv64.CrealComplex64RVV,
+	Imag:      riscv64.CimagComplex64RVV,
+	Scale:     riscv64.CscaleComplex64RVV,
+	FromParts: riscv64.CfromPartsComplex64RVV,
+}
+
+var partsC64PartsByTier = [...]*kernel.ComplexParts[complex64, float32]{
+	nil,
+	&partsC64PartsRVV,
+}

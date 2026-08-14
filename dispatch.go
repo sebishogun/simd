@@ -96,8 +96,49 @@ func (c *opsCache[T]) get(base *kernel.Ops[T], partial []*kernel.Ops[T]) *kernel
 	return c.tiers[tierIdx]
 }
 
-// overlay copies every non-nil function field of src over dst.
-func overlay[T Number](dst, src *kernel.Ops[T]) {
+// groupCache is opsCache for the two complex groups. They are the same shape
+// -- a struct of function fields, a static per-tier partial, a lazy merge --
+// but kernel.Complex and kernel.ComplexParts are not kernel.Ops, and Go has
+// no constraint that spans the three. One generic type over the struct
+// itself, rather than over the element type, covers both.
+//
+// Until this existed, complexOps returned the reference set directly and
+// every complex operation ran portable Go on every machine while nine tiers
+// of generated complex assembly -- sse2, avx2, avx512, neon, sve2, rvv, vsx,
+// vx, lasx, across six architectures -- sat linked into the test-only
+// aggregator.
+type groupCache[G any] struct {
+	once  sync.Once
+	tiers [len(dispatchTiers)]*G
+}
+
+func (c *groupCache[G]) get(base *G, partial []*G) *G {
+	c.once.Do(func() {
+		for i := range c.tiers {
+			s := *base
+			if i < len(partial) && partial[i] != nil {
+				overlayAny(&s, partial[i])
+			}
+			c.tiers[i] = &s
+		}
+	})
+	return c.tiers[tierIdx]
+}
+
+var (
+	cacheC64       groupCache[kernel.Complex[complex64]]
+	cacheC128      groupCache[kernel.Complex[complex128]]
+	cacheC64Parts  groupCache[kernel.ComplexParts[complex64, float32]]
+	cacheC128Parts groupCache[kernel.ComplexParts[complex128, float64]]
+)
+
+// overlay copies every non-nil function field of src over dst. It is
+// overlayAny at kernel.Ops[T], kept as a named function because that is what
+// opsCache reads and the constraint documents the intent.
+func overlay[T Number](dst, src *kernel.Ops[T]) { overlayAny(dst, src) }
+
+// overlayAny is overlay for any struct of function fields.
+func overlayAny[G any](dst, src *G) {
 	d := reflect.ValueOf(dst).Elem()
 	s := reflect.ValueOf(src).Elem()
 	for i := 0; i < d.NumField(); i++ {

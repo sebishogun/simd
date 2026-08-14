@@ -65,6 +65,30 @@ func TestDeclaredKernelsAreWired(t *testing.T) {
 			}
 			continue
 		}
+		// The struct groups now have real per-tier tables, so walk those --
+		// the runtime indexes them, and archSets() does not. Four whole
+		// complex groups were missing from the runtime tables for seven
+		// releases with this test green, because everything that was not a
+		// flat group went through the test-only aggregator instead.
+		if slots, ok := allGroupTables[d.Group]; ok {
+			for i, partial := range slots {
+				if i == 0 || partial == nil {
+					continue // slot 0 is the reference; no overlay
+				}
+				f := reflect.ValueOf(partial).FieldByName(d.Field)
+				if !f.IsValid() {
+					t.Errorf("%s: per-tier table for %s has no field %q",
+						d.CName, d.Group, d.Field)
+					break
+				}
+				if f.Kind() == reflect.Func && f.IsNil() && present(sets, dispatchTiers[i], d) {
+					t.Errorf("tier %q: %s.%s is nil in the dispatch table, but the "+
+						"kernel is generated for that tier -- it will never run",
+						dispatchTiers[i], d.Group, d.Field)
+				}
+			}
+			continue
+		}
 		for tier, set := range sets {
 			g := reflect.ValueOf(set).FieldByName(d.Group)
 			if !g.IsValid() {
@@ -104,4 +128,29 @@ func TestInventoryCoversEveryGroup(t *testing.T) {
 				"source file or the inventory is stale — run make codegen", g)
 		}
 	}
+}
+
+// present reports whether the generator emitted a kernel for d on tier.
+//
+// Comparing against the REFERENCE, not against nil: archSets() builds each
+// tier from ref.Set() and overlays what was generated, so every field is
+// non-nil there and a nil test would call every operation "generated" on
+// every tier. A tier the generator declined keeps the reference by design
+// (docs/lld/kernels-and-dispatch.md), and only a kernel that exists and is
+// missing from the dispatch table is a defect.
+func present(sets map[string]kernel.Set, tier string, d backend.Declared) bool {
+	set, ok := sets[tier]
+	if !ok {
+		return false
+	}
+	g := reflect.ValueOf(set).FieldByName(d.Group)
+	r := reflect.ValueOf(refBase).FieldByName(d.Group)
+	if !g.IsValid() || !r.IsValid() {
+		return false
+	}
+	f, rf := g.FieldByName(d.Field), r.FieldByName(d.Field)
+	if !f.IsValid() || !rf.IsValid() || f.Kind() != reflect.Func || f.IsNil() {
+		return false
+	}
+	return rf.IsNil() || f.Pointer() != rf.Pointer()
 }

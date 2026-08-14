@@ -1022,3 +1022,58 @@ var opsU8ByTier = [...]*kernel.Ops[uint8]{
 	nil,
 	&opsU8VX,
 }
+
+var cplxC128VX = kernel.Complex[complex128]{
+	Add:     s390x.CaddComplex128VX,
+	Sub:     s390x.CsubComplex128VX,
+	Mul:     s390x.CmulComplex128VX,
+	Div:     s390x.CdivComplex128VX,
+	Neg:     s390x.CnegComplex128VX,
+	Sum:     s390x.CsumComplex128VX,
+	Dot:     s390x.CdotComplex128VX,
+	DotConj: s390x.CdotconjComplex128VX,
+}
+
+var cplxC128ByTier = [...]*kernel.Complex[complex128]{
+	nil,
+	&cplxC128VX,
+}
+
+var cplxC64VX = kernel.Complex[complex64]{
+	Add:  s390x.CaddComplex64VX,
+	Sub:  s390x.CsubComplex64VX,
+	Mul:  s390x.CmulComplex64VX,
+	Div:  s390x.CdivComplex64VX,
+	Neg:  s390x.CnegComplex64VX,
+	Conj: s390x.CconjComplex64VX,
+	Sum:  s390x.CsumComplex64VX,
+}
+
+var cplxC64ByTier = [...]*kernel.Complex[complex64]{
+	nil,
+	&cplxC64VX,
+}
+
+var partsC128PartsVX = kernel.ComplexParts[complex128, float64]{
+	Abs:   s390x.CabsComplex128VX,
+	Real:  s390x.CrealComplex128VX,
+	Imag:  s390x.CimagComplex128VX,
+	Scale: s390x.CscaleComplex128VX,
+}
+
+var partsC128PartsByTier = [...]*kernel.ComplexParts[complex128, float64]{
+	nil,
+	&partsC128PartsVX,
+}
+
+var partsC64PartsVX = kernel.ComplexParts[complex64, float32]{
+	Abs:   s390x.CabsComplex64VX,
+	Real:  s390x.CrealComplex64VX,
+	Imag:  s390x.CimagComplex64VX,
+	Scale: s390x.CscaleComplex64VX,
+}
+
+var partsC64PartsByTier = [...]*kernel.ComplexParts[complex64, float32]{
+	nil,
+	&partsC64PartsVX,
+}
