@@ -3186,3 +3186,36 @@ regenerated tables are **additive only** -- 0 deleted lines across all seven
 `dispatch_complex_test.go` is the test that would have caught it: it compares
 the function pointer `DotComplex` actually reaches against the reference
 set's, which is the question a caller asks and the inventory walk does not.
+
+## The three-way partition may already be built, and the 34% has not been re-measured
+
+ROADMAP.md records one losing case for `Sort`: few distinct values at 16384,
+by 34% against `slices.Sort`, with "**the fix is a three-way partition**" and a
+note that it "needs a second kernel". `docs/plans/2026-08-13-simd-production.md`
+Task 1 carries the same plan.
+
+Reading `sort.go` before writing the kernel: `extractEqual` already does the
+three-way split. When the split comes back skewed past `sortSkewLimit`, it
+takes the run equal to the pivot out of the recursion entirely — which is what
+a below/equal/above partition buys — and it does so with kernels this package
+already ships (`EqualScalarInto`, `CountTrue`, `NotMask`, `CompressInto`), so
+no second kernel was needed for that part. Its own comment says so.
+
+That does not close the task, and the reason is that nothing here has been
+measured on a quiet machine. Two attempts:
+
+    load 2.2-2.5, min of 3 x 300:   simd 28,531 ns   slices 23,000 ns   1.24x
+    load 12.0,    min of 5 x 400:   simd 117,359 ns  slices 79,546 ns   noise
+
+The second set is unusable — the same benchmark moved by 4x between them, and
+three review agents were running. The first set is not quiet either. What can
+be said: the gap at that shape is real and still there, and 1.24x is not 1.34x.
+What cannot be said: whether it is 24%, whether the difference from 34% is the
+`extractEqual` work landing, or whether either number survives a quiet machine.
+
+So no number in ROADMAP.md was changed. Overwriting a measured claim with a
+worse-conditioned one is not a correction. What the task needs first is the
+measurement under load average below 1, and then a profile — because if the
+residual is the `copy(a, scratch[:len(a)])` after every partition rather than
+the split itself, a three-way kernel does not address it and would be built for
+a cause nobody checked.
