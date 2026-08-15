@@ -684,6 +684,8 @@ stops paying.
 The README's function table claimed every entry had a runnable example. It was
 false for 100 of 109 rows. All 109 have one now, and
 `TestReadmeTableHasExamples` fails the build if a row appears without one.
+(It is `TestOperationCatalogHasExamples` now; the guarantee did not change,
+the name did, and this entry is left as it was written.)
 `TestGuidesNameRealFunctions` does the same for the prose.
 
 Writing them found three documentation bugs that only executing catches: the
