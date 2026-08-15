@@ -3219,3 +3219,48 @@ measurement under load average below 1, and then a profile — because if the
 residual is the `copy(a, scratch[:len(a)])` after every partition rather than
 the split itself, a three-way kernel does not address it and would be built for
 a cause nobody checked.
+
+## A forgotten reference wiring shipped past the whole normal-lane suite
+
+**Probed, 2026-08-15.** `Sqrt: sqrt[T]` deleted from `floatOps` in
+`internal/ref/ref.go` — one entry, the shape of a wiring somebody forgets when
+adding a kernel.
+
+| lane | result |
+|---|---|
+| `TestDeclaredKernelsAreWired`, normal | **PASS** (verified with `-v` that it ran) |
+| `TestDeclaredKernelsAreWired`, purego | **PASS** |
+| whole suite, normal — all 14 packages | **PASS** |
+| whole suite, purego | FAIL, `TestInPlaceMatchesInto` |
+
+So the completeness gate that exists for exactly this did not see it, and the
+only thing that did was a functional test in a lane nobody runs by default.
+
+The cause is scope. `TestDeclaredKernelsAreWired` walks `backend.Inventory`
+against the dispatch tables and `archSets()` — the GENERATED side. `ref.Set()`
+is never in the subject, and its doc comment says so plainly: "The subject is
+`active` ... and not `ref.Set()`. That is not a shortcut, it is the only
+correct choice", because ref leaves every Fast slot nil until a backend
+registers. That reasoning is right about Fast slots and was taken to cover the
+whole reference.
+
+The reference is not optional. It is the live fallback on architectures with
+no backend, in `purego` builds, and below every kernel's element threshold —
+so a nil there is a nil call in the small-n path of an operation that works on
+a big slice.
+
+`TestDeclaredKernelsAreWiredInTheReference` is the other half: every
+non-`Fast` entry in `backend.Inventory` must be non-nil in `refBase`. 853
+today. The `Fast` exclusion is the same one the older test's comment describes,
+for the same reason.
+
+**Also settled, and against a plan.** `docs/plans/…-simd-production.md`'s item
+1 proposes generating the `internal/ref` ops-table entry and the
+`kernel.Ops` struct field from the manifest, and justifies it as removing "the
+two easiest things to forget — one of which caused the `-tags purego` panic
+that `TestDispatchTableComplete` now guards". Half of that is wrong: a
+forgotten `kernel.Ops` FIELD cannot ship, because the generator emits code
+referencing it and the build fails; a forgotten `ref` WIRING shipped past
+fourteen packages, as above. The gate is the fix; codegen would be
+convenience, and it would move the numerical contract — which lives in the
+`kernel.Ops` field comments — into a manifest.

@@ -32,6 +32,7 @@ package simd
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/sebishogun/simd/internal/backend"
@@ -153,4 +154,67 @@ func present(sets map[string]kernel.Set, tier string, d backend.Declared) bool {
 		return false
 	}
 	return rf.IsNil() || f.Pointer() != rf.Pointer()
+}
+
+// Every declared kernel is wired in the REFERENCE too, not only in the
+// generated tables.
+//
+// TestDeclaredKernelsAreWired above walks backend.Inventory against the
+// dispatch tables and archSets(), which are the GENERATED side. It never looks
+// at ref.Set(), so a forgotten entry in internal/ref's ops table is invisible
+// to it.
+//
+// Measured 2026-08-15: `Sqrt: sqrt[T]` deleted from floatOps in
+// internal/ref/ref.go. TestDeclaredKernelsAreWired PASSED in both the normal
+// and the purego lane, and the WHOLE normal-lane suite -- all fourteen
+// packages -- passed. Only the whole purego suite caught it, through
+// TestInPlaceMatchesInto, a functional test rather than the completeness gate
+// that exists for exactly this. So a forgotten reference wiring shipped unless
+// somebody happened to run -tags purego.
+//
+// The reference is not optional: it is the live fallback on architectures with
+// no backend, in purego builds, and below every kernel's element threshold. A
+// nil there is a nil pointer dereference in the small-n path of an operation
+// that works fine on a big slice.
+//
+// Fast slots are excluded because ref.Set() leaves them nil ON PURPOSE --
+// until a backend has registered, "no Fast kernel here" and "the accurate
+// kernel" cannot be told apart, and dispatch.go fills them with
+// FillFastFallbacks afterwards. That is the same exclusion the doc comment on
+// TestDeclaredKernelsAreWired describes.
+func TestDeclaredKernelsAreWiredInTheReference(t *testing.T) {
+	if len(backend.Inventory) == 0 {
+		t.Fatal("backend.Inventory is empty; run make codegen")
+	}
+	checked := 0
+	for _, d := range backend.Inventory {
+		if strings.HasPrefix(d.Field, "Fast") {
+			continue
+		}
+		g := reflect.ValueOf(refBase).FieldByName(d.Group)
+		if !g.IsValid() {
+			t.Errorf("%s: kernel.Set has no group %q", d.CName, d.Group)
+			continue
+		}
+		f := g.FieldByName(d.Field)
+		if !f.IsValid() {
+			t.Errorf("%s: kernel.Set.%s has no field %q", d.CName, d.Group, d.Field)
+			continue
+		}
+		if f.Kind() != reflect.Func {
+			continue
+		}
+		checked++
+		if f.IsNil() {
+			t.Errorf("%s.%s is nil in the REFERENCE, and the manifest declares %s "+
+				"for that group: internal/ref is the live fallback below the "+
+				"element threshold, in purego builds, and on every architecture "+
+				"with no backend, so this is a nil call rather than a slow one",
+				d.Group, d.Field, d.CName)
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no reference slots were checked, so this gate measures nothing")
+	}
+	t.Logf("%d declared non-Fast kernels checked against the reference", checked)
 }
