@@ -285,6 +285,19 @@ func build(cc *compile.Clang, src kernels.Source, tgt target.Target, root, outDi
 		if verbose {
 			fmt.Printf("      %s\n", r.Summary())
 		}
+		// A kernel that does arithmetic and none of it in lanes is printed
+		// whether or not the run is verbose, because it is exactly what
+		// RequireVector exists to catch and exactly what it cannot see: on
+		// amd64 every scalar float instruction lives in %xmm, so the "does any
+		// instruction touch a vector register" test passes for scalar code.
+		// Eight kernels ship this way today -- convolve, correlate, movavg and
+		// polyeval in both precisions -- and docs/wrong.md entry 76 has the
+		// disassembly. Not fatal and not dropped: falling back to internal/ref
+		// instead is a behaviour change that wants a benchmark first.
+		if r.ScalarOnly() {
+			fmt.Printf("      SCALAR-ONLY %s: %d scalar arithmetic instructions, "+
+				"no packed ones\n", r.Func, r.ScalarArith)
+		}
 		for _, p := range r.Problems {
 			problems = append(problems, fmt.Sprintf("%s: %s", r.Func, p))
 		}

@@ -66,6 +66,26 @@ type Report struct {
 	TotalInstrs int
 	// WidestVector is the widest vector register class seen, in bits.
 	WidestVector int
+	// PackedArith and ScalarArith count ARITHMETIC instructions by form.
+	//
+	// VectorInstrs above answers "does any instruction touch a vector
+	// register", which on amd64 every float instruction does: scalar SSE
+	// arithmetic lives in %xmm, so `vmulss %xmm0, %xmm1, %xmm2` counts.
+	// RequireVector therefore cannot see a scalar float kernel on the one
+	// architecture that runs natively here, and eight do ship that way --
+	// convolve, correlate, movavg and polyeval, in both precisions, with zero
+	// packed arithmetic at sse2, avx2 and avx512 alike. See docs/wrong.md
+	// entry 76.
+	//
+	// These two count the arithmetic itself, so "does work, none of it in
+	// lanes" is a question that can be asked. A permute kernel does no
+	// arithmetic at all and has both at zero, which is why the question is
+	// not "is PackedArith > 0".
+	//
+	// ArithKnown is false on architectures whose mnemonics this does not
+	// classify, so a zero there reads as "not measured" rather than "none".
+	PackedArith, ScalarArith int
+	ArithKnown               bool
 	// BodyEnd is the byte offset of the function's return instruction, which
 	// is where the copied body must stop.
 	//
@@ -163,7 +183,7 @@ func ObjectWithDisasm(objPath string, tgt target.Target, funcs []string, opt Opt
 }
 
 func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Report {
-	r := Report{Func: name, TotalInstrs: len(instrs)}
+	r := Report{Func: name, TotalInstrs: len(instrs), ArithKnown: arithClassified(tgt.Arch)}
 
 	for _, in := range instrs {
 		if f, w := featureOf(in, tgt.Arch); f > r.MaxFeature {
@@ -175,6 +195,12 @@ func checkFunc(name string, instrs []Instr, tgt target.Target, opt Options) Repo
 			if bits > r.WidestVector {
 				r.WidestVector = bits
 			}
+		}
+		switch kind := arithKind(in, tgt.Arch); kind {
+		case arithPacked:
+			r.PackedArith++
+		case arithScalar:
+			r.ScalarArith++
 		}
 		if n := stackAdjust(in, tgt.Arch); n > r.StackBytes {
 			r.StackBytes = n
@@ -715,6 +741,107 @@ func vectorWidth(in Instr, arch target.Arch) int {
 	return 0
 }
 
+// ---------- arithmetic form ----------
+
+type arithForm int
+
+const (
+	arithNone arithForm = iota
+	arithPacked
+	arithScalar
+)
+
+// arithClassified reports whether arithKind understands this architecture.
+//
+// amd64 and arm64 only, deliberately. Both spell the difference in the
+// mnemonic or the operand and both are checkable here: amd64 is the only
+// architecture this repository runs natively, and arm64 is the one with real
+// hardware in the cross lane. On the rest, a count of zero would mean "this
+// function did not look", and reporting that as "no scalar arithmetic" is the
+// shape of a check that cannot fail.
+func arithClassified(arch target.Arch) bool {
+	return arch == target.AMD64 || arch == target.ARM64
+}
+
+var (
+	// amd64: the operation, then the form suffix. `ss`/`sd` are scalar single
+	// and scalar double -- one lane, in an %xmm register, which is why
+	// vectorWidth sees them as vector. `ps`/`pd` are packed. The integer
+	// family (`p*`) is packed by construction.
+	reX86FloatOp   = regexp.MustCompile(`^v?(add|sub|mul|div|max|min|sqrt|rsqrt|rcp|cmp|fmadd|fmsub|fnmadd|fnmsub|and|andn|or|xor|round|scalef|getexp|getmant|range|reduce)[0-9a-z]*?(ss|sd|ps|pd)$`)
+	reX86PackedInt = regexp.MustCompile(`^v?p(add|sub|mul|mad|max|min|avg|abs|sad|and|or|xor|sll|srl|sra|cmp)`)
+
+	// The zeroing idiom. `xorps %xmm0, %xmm0` is how every x86 compiler
+	// produces a zero register, and it is not work -- simd_convolve_f32
+	// contains two of them at sse2 and three at avx2, and those, with the
+	// moves, are the entirety of what made it look vectorized. The bitwise
+	// family stays in the arithmetic set otherwise, because a mask-and-blend
+	// kernel does its work with `andps`/`orps` and counting that is right.
+	reX86Xor = regexp.MustCompile(`^v?p?xor(ps|pd)?$`)
+	reX86Reg = regexp.MustCompile(`%[a-z0-9]+`)
+
+	// arm64: the operand tells the form. `v0.4s` is a vector arrangement,
+	// `s0`/`d0` a single lane. The mnemonic alone cannot decide -- `fmul`
+	// spells both.
+	reA64Arith  = regexp.MustCompile(`^(f?(add|sub|mul|div|max|min|abs|neg|sqrt|cmp|mla|mls|madd|msub|nmul)|s(add|mul|max|min)|u(add|mul|max|min)|and|orr|eor|bic|shl|ushr|sshr)`)
+	reA64Vector = regexp.MustCompile(`\bv[0-9]+\.[0-9]*[bhsdq]|\bz[0-9]+\.[bhsdq]`)
+	reA64Scalar = regexp.MustCompile(`\b[sdhq][0-9]+\b`)
+)
+
+// arithKind classifies one instruction as packed arithmetic, scalar
+// arithmetic, or neither.
+//
+// MOVES AND ZEROING ARE NEITHER, which is the whole point: simd_convolve_f32
+// at sse2 contains two `movups` and two `xorps` and no packed arithmetic at
+// all, and counting the moves is what let it pass as vectorized. A register
+// zero is not work.
+func arithKind(in Instr, arch target.Arch) arithForm {
+	m := in.Mnemonic
+	switch arch {
+	case target.AMD64:
+		if reX86Xor.MatchString(m) && sameRegisters(in.Operands) {
+			return arithNone
+		}
+		if reX86PackedInt.MatchString(m) {
+			return arithPacked
+		}
+		if g := reX86FloatOp.FindStringSubmatch(m); g != nil {
+			switch g[2] {
+			case "ss", "sd":
+				return arithScalar
+			default:
+				return arithPacked
+			}
+		}
+	case target.ARM64:
+		if !reA64Arith.MatchString(m) {
+			return arithNone
+		}
+		if reA64Vector.MatchString(in.Operands) {
+			return arithPacked
+		}
+		if reA64Scalar.MatchString(in.Operands) {
+			return arithScalar
+		}
+	}
+	return arithNone
+}
+
+// sameRegisters reports whether every register operand names the same
+// register, which for a xor means the instruction produces a zero.
+func sameRegisters(operands string) bool {
+	regs := reX86Reg.FindAllString(operands, -1)
+	if len(regs) < 2 {
+		return false
+	}
+	for _, r := range regs[1:] {
+		if r != regs[0] {
+			return false
+		}
+	}
+	return true
+}
+
 // ---------- frame pointer ----------
 
 var (
@@ -998,6 +1125,21 @@ func disassemble(objPath string, tgt target.Target, objdump string) (map[string]
 
 // Summary renders a one-line description of a report, for the generator's log.
 func (r Report) Summary() string {
-	return fmt.Sprintf("%-28s %3d instrs, %3d vector (%d-bit), feature=%s, stack=%dB",
-		r.Func, r.TotalInstrs, r.VectorInstrs, r.WidestVector, r.MaxFeature, r.StackBytes)
+	arith := ""
+	if r.ArithKnown {
+		arith = fmt.Sprintf(", arith=%d packed/%d scalar", r.PackedArith, r.ScalarArith)
+	}
+	return fmt.Sprintf("%-28s %3d instrs, %3d vector (%d-bit)%s, feature=%s, stack=%dB",
+		r.Func, r.TotalInstrs, r.VectorInstrs, r.WidestVector, arith, r.MaxFeature, r.StackBytes)
+}
+
+// ScalarOnly reports that this kernel does arithmetic and none of it is in
+// lanes -- a kernel that would be dispatched to as an acceleration and run one
+// element at a time.
+//
+// False when the architecture's mnemonics are not classified, because "no
+// packed arithmetic counted" and "no packed arithmetic present" are not the
+// same statement and only one of them is a finding.
+func (r Report) ScalarOnly() bool {
+	return r.ArithKnown && r.ScalarArith > 0 && r.PackedArith == 0
 }

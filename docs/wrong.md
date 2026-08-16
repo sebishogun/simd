@@ -3448,18 +3448,34 @@ because "dispatching to it would run scalar code under a name promising
 otherwise", cannot report a scalar float kernel on amd64 at all. Its 69 amd64
 refusals are integer kernels, necessarily.
 
-Scanning every `simd_*` symbol for "does float arithmetic, none of it packed":
+**Counted properly, by the generator.** The first pass here was a shell scan
+over every symbol in each object, which included helpers that are not kernels
+and used a cruder mnemonic match; it reported 26 at sse2 and 8 at avx2. Those
+numbers are superseded. `verify.arithKind` now classifies each instruction as
+packed arithmetic, scalar arithmetic or neither — moves and the `xorps
+%xmm0,%xmm0` zeroing idiom are neither, which is the point — and `make
+check-emission` prints `SCALAR-ONLY` for any kernel that does arithmetic with
+none of it in lanes:
 
-| tier | scalar-only kernels | of |
-|---|---|---|
-| sse2 | 26 | 913 |
-| avx2 | **8** | 913 |
+| tier | instances |
+|---|---|
+| amd64/avx512 | 9 |
+| amd64/sse2 | 8 |
+| amd64/avx2 | 8 |
+| arm64/sve2 | 8 |
+| arm64/neon | 5 |
 
-The avx2 eight are the finding, because the widest tier is where an excuse runs
-out: `polyeval_f32/f64`, `convolve_f32/f64`, `correlate_f32/f64`,
-`movavg_f32/f64`. The sse2 extras are the f64 transcendentals (`log1p`, `cbrt`,
-`asin`, `sinh`, `asinh`, `acosh`, `atanh`, `atan2`, `hypot`, plain and `fast_`),
-which do vectorize on avx2 — a real SSE2 limit, not a defect.
+**38 instances over 13 distinct kernels**: `polyeval`, `convolve`, `correlate`,
+`movavg`, `minr` (f32 and f64 each), `rolling_min_f64`, `rolling_max_f64`,
+`dtoa_f64`. It is **not an x86 quirk** — arm64 has 13 of the 38, and there the
+gate is blind for the same reason in a different spelling: `fmul s0, s1, s2` is
+scalar and `fmul v0.4s, v1.4s, v2.4s` is packed, and `vectorWidth` reads the
+register file, not the arrangement.
+
+The classifier runs on amd64 and arm64 only, and `Report.ArithKnown` says so:
+on the other four architectures a zero count means "not measured", and
+`ScalarOnly()` returns false there rather than reporting a finding it did not
+make.
 
 **What this leaves.** Not a pragma sweep. Two separate things:
 
