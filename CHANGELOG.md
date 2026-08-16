@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+**`PolyEval`, `Convolve`, `Correlate` and `MovingAverage` now vectorize.**
+Their kernels accumulate per output, so the innermost loop carried a
+dependence LLVM cannot break without reassociating -- which the numerical
+contract forbids -- and all eight symbols emitted zero packed arithmetic
+instructions on every amd64 tier. Blocking the *outer* loop by 16 makes the
+innermost loop independent while each output still evaluates the same terms
+in the same order, so the results are bit-identical rather than close: 8-40
+packed instructions per symbol now, and loong64 gains `simd_movavg_f32/f64`,
+6,931 -> 6,933 kernels. Verified over 3.29M cases per tier on all nine tiers
+including catastrophic cancellation and mid-accumulation overflow, where any
+regrouping would show. Speed is not measured, and on arm64 the vectorizer
+takes a different shape that costs stack frames -- `docs/wrong.md` entry 77
+records both.
+
 **Complex operations now run the generated assembly.** They never did:
 `complexOps` returned the portable reference set directly, and the
 generator emitted no complex entries into the per-tier dispatch tables, so

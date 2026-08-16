@@ -3536,16 +3536,31 @@ is exactly what `#pragma clang loop vectorize(enable)` would have done and what
 the numerical contract forbids. Nothing is allocated — 16 doubles is 128 bytes
 against the 512-byte kernel frame budget — and the tail runs the original nest.
 
-| | packed arithmetic before | after (sse2) | after (avx2) |
-|---|---|---|---|
-| `simd_polyeval_f32` | 0 | 24 | 12 |
-| `simd_polyeval_f64` | 0 | 16 | 24 |
-| `simd_convolve_f32` | 0 | 8 | 12 |
-| `simd_correlate_f64` | 0 | 16 | 8 |
-| `simd_movavg_f32` | 0 | 16 | 12 |
-| `simd_movavg_f64` | 0 | 16 | 16 |
+Packed arithmetic instructions per symbol, from `go run ./simdgen -n -v -only
+csrc/numeric.c` in `tools/`, run twice: once against `git show
+c1d08c4:csrc/numeric.c` and once against the blocked file.
 
-The ten scalar instructions that remain in each are the tail loop.
+| | before, every amd64 tier | sse2 | avx2 | avx512 |
+|---|---|---|---|---|
+| `simd_polyeval_f32` | 0 | 24 | 20 | 18 |
+| `simd_polyeval_f64` | 0 | 16 | 40 | 20 |
+| `simd_convolve_f32` | 0 | 8 | 20 | 12 |
+| `simd_convolve_f64` | 0 | 16 | 24 | 21 |
+| `simd_correlate_f32` | 0 | 8 | 20 | 20 |
+| `simd_correlate_f64` | 0 | 16 | 24 | 21 |
+| `simd_movavg_f32` | 0 | 16 | 20 | 10 |
+| `simd_movavg_f64` | 0 | 16 | 24 | 20 |
+
+The scalar count does **not** move: 10 at sse2 and 18 at avx2/avx512, identical
+before and after on all eight symbols. So those instructions are not a tail the
+blocking introduced — they were already there, and blocking added packed work
+beside them rather than converting scalar work into it. `movavg` at avx512 f32
+gets only 10 packed against 20 at avx2 because a 16-element f32 block is exactly
+one zmm.
+
+A first version of this entry gave an avx2 column that was wrong in all six rows
+it listed and called the scalar remainder a tail. Both came from reading one
+tier's numbers and generalising.
 
 `SCALAR-ONLY` went from **13 kernels to 5** (`dtoa_f64`, `minr_f32/f64`,
 `rolling_min_f64`, `rolling_max_f64`). And loong64 gained two kernels, 728 →
@@ -3554,7 +3569,8 @@ not vectorize it for lasx" and now emit, so the total moved 6,931 → 6,933.
 
 **The bit-identity claim is tested, and the test was checked for being
 vacuous.** `internal/conformance` compares each tier against `ref` at eighteen
-length pairs, eleven of which are at or above the guard's threshold of 16 — so
+length pairs (`lenPairs`, `internal/conformance/numeric_test.go:23`), eight of
+which have a destination at or above the guard's threshold of 16 — so
 the SIMD path is genuinely reached. Poisoning the blocked path only
 (`acc[b] = acc[b]*x[i+b] + ck + 1`) reddens it at `dst=16 x=16 coeffs=2 i=0`,
 the first blocked case, which is what says the comparison sees the new code
@@ -3566,6 +3582,44 @@ average 2.27, two review agents building) and no wall-clock or counter number
 is offered. What is established is that the kernels now do their arithmetic in
 lanes and produce the same bits, which is the precondition for the speed
 question rather than an answer to it.
+
+**A review sweep put the bit-identity claim far past what those eighteen pairs
+reach.** Every `nd` in 0..200 crossed with 22 other lengths and with `nd±1` and
+`nd+15/16/17`; `nc`/`nk`/`w` in `{-1,0,1,2,3,4,15,16,17,31,33}`; seven value
+generators per precision including catastrophic cancellation (`1e16, 1, -1e16,
+1`), mid-accumulation overflow (`MaxFloat, MaxFloat, -MaxFloat`, where
+left-to-right gives +Inf and any other grouping gives a finite number),
+magnitudes switching at every 16-element block boundary, ±0 and subnormals, and
+NaN payloads. **3,286,542 cases per tier, 3,027,710 of them reaching the kernel
+rather than `ref`, on all nine tiers — sse2/avx2/avx512 native and
+neon/sve2/rvv/lasx/vsx/vx under qemu-user. Zero differing bits.** Perturbing
+`ref` by +1 only at output index ≥ 16 reddens every comparison site
+(197k–291k mismatches per operation), so the sweep is not vacuous. A separate
+`PROT_NONE` guard-page probe placing dst, signal and kernel each so its last
+element ends on the last accessible byte — ~88k kernel calls per tier — faulted
+nowhere, and the mechanism was checked by reading one element past the page.
+
+**arm64 pays for this, and the cost is not measured.** LLVM did not vectorize
+the block loop there; it unrolled over `b` and vectorized over `j` instead, so
+each accumulator gets a packed multiply of 4 taps and then an in-order scalar
+horizontal reduction. That needs 16 live scalar accumulators plus vector
+temporaries, and the tap loop of `simd_correlate_f32` at neon carries 18 spill
+stores and 18 reloads per iteration:
+
+| tier | kernel | stack | scalar float arith |
+|---|---|---|---|
+| neon | `simd_correlate_f32` | 0B → **320B** | 10 → **82** |
+| neon | `simd_convolve_f32` | 0B → **272B** | 10 → **82** |
+| neon | `simd_convolve_f64` | 0B → 80B | 6 → **70** |
+| neon | `simd_correlate_f64` | 0B → 80B | 6 → **70** |
+| sve2 | `simd_movavg_f64` | 0B → 144B | 2 → **34** |
+
+All are inside the 512-byte frame budget so nothing is dropped, and the results
+are bit-identical — the reduction stays strictly in order. But six arm64 kernels
+went from a zero frame to 80–320 bytes with 7–13x the scalar float arithmetic,
+and this repository has no arm64 hardware lane. Whether the packed tap multiply
+pays for the spill traffic is unknown on the only architecture where the
+question is open.
 
 `movavg` also rules out the obvious alternative: a sliding window (subtract the
 element leaving, add the one arriving) is O(n) instead of O(n·w) and gives a
