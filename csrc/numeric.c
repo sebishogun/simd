@@ -69,15 +69,44 @@ void simd_norm_f64(double *__restrict out, const double *__restrict a,
 // what vectorizes; the inner loop over coefficients is a fixed dependency
 // chain per element, exactly like the transcendentals in math.c.
 //
-// The accumulator is per element rather than per coefficient, so the whole
-// polynomial is evaluated for a register's worth of x at a time.
+// BLOCKED over elements, so the INNERMOST loop is the independent one.
+//
+// The obvious nesting -- outer over elements, inner over coefficients -- does
+// not vectorize, and the reason is structural rather than a cost model: LLVM's
+// loop vectorizer only ever vectorizes the innermost loop, and here that is
+// the Horner recurrence, a serial dependency it cannot break without
+// reassociating. Measured: simd_polyeval_f32 contained ten scalar float
+// instructions and no packed arithmetic at sse2, avx2 and avx512 alike, while
+// passing the "contains a vector instruction" check on the strength of a
+// movups and an xorps. See docs/wrong.md entry 76.
+//
+// Blocking swaps which loop is innermost without changing any element's
+// arithmetic: every output still evaluates the same coefficients in the same
+// order, so the result is bit-identical, not merely close. The accumulator is
+// a fixed-size array so nothing is allocated and the frame stays far under the
+// 512-byte kernel budget -- POLY_BLOCK doubles is 128 bytes.
+//
+// The tail runs the original nesting: it is at most POLY_BLOCK-1 elements and
+// vectorizing it is not worth a second code path to get wrong.
+#define POLY_BLOCK 16
 #define POLY_EVAL(T)                                                     \
   isize n = nd < nx ? nd : nx;                                           \
   if (nc == 0) {                                                         \
     for (isize i = 0; i < n; i++) d[i] = 0;                              \
     return;                                                              \
   }                                                                      \
-  for (isize i = 0; i < n; i++) {                                        \
+  isize i = 0;                                                           \
+  for (; i + POLY_BLOCK <= n; i += POLY_BLOCK) {                         \
+    T acc[POLY_BLOCK];                                                   \
+    for (isize b = 0; b < POLY_BLOCK; b++) acc[b] = c[nc - 1];           \
+    for (isize k = nc - 2; k >= 0; k--) {                                \
+      T ck = c[k];                                                       \
+      for (isize b = 0; b < POLY_BLOCK; b++)                             \
+        acc[b] = acc[b] * x[i + b] + ck;                                 \
+    }                                                                    \
+    for (isize b = 0; b < POLY_BLOCK; b++) d[i + b] = acc[b];            \
+  }                                                                      \
+  for (; i < n; i++) {                                                   \
     T xv = x[i];                                                         \
     T acc = c[nc - 1];                                                   \
     for (isize k = nc - 2; k >= 0; k--) acc = acc * xv + c[k];           \
@@ -104,12 +133,36 @@ void simd_polyeval_f64(double *__restrict d, const double *__restrict x,
 //
 // An FFT would be asymptotically better and is a different kernel; this is
 // the form that wins for the short kernels callers actually convolve with.
+// BLOCKED over outputs, for the reason POLY_EVAL is: the tap loop is the
+// innermost one and it is a serial float reduction, so LLVM -- which
+// vectorizes only innermost loops -- had nothing to work with, and the kernel
+// shipped scalar on every tier while passing the "contains a vector
+// instruction" check. Blocking makes the innermost loop the independent one
+// over outputs.
+//
+// Each output still accumulates its taps in the same order, so this is
+// bit-identical to the direct form rather than close to it. That matters here
+// more than elsewhere: reassociating a dot product is exactly what
+// `#pragma clang loop vectorize(enable)` would have done, and what the
+// numerical contract forbids.
+#define CONV_BLOCK 16
 #define CONVOLVE(T, IDX)                                                 \
   isize m = nk;                                                          \
   if (m == 0 || n < m) return;                                           \
   isize outn = n - m + 1;                                                \
   if (nd < outn) outn = nd;                                              \
-  for (isize i = 0; i < outn; i++) {                                     \
+  isize i = 0;                                                           \
+  for (; i + CONV_BLOCK <= outn; i += CONV_BLOCK) {                      \
+    T acc[CONV_BLOCK];                                                   \
+    for (isize b = 0; b < CONV_BLOCK; b++) acc[b] = 0;                   \
+    for (isize j = 0; j < m; j++) {                                      \
+      T kv = k[IDX];                                                     \
+      for (isize b = 0; b < CONV_BLOCK; b++)                             \
+        acc[b] += s[i + b + j] * kv;                                     \
+    }                                                                    \
+    for (isize b = 0; b < CONV_BLOCK; b++) d[i + b] = acc[b];            \
+  }                                                                      \
+  for (; i < outn; i++) {                                                \
     T acc = 0;                                                           \
     for (isize j = 0; j < m; j++) acc += s[i + j] * k[IDX];              \
     d[i] = acc;                                                          \
@@ -384,11 +437,27 @@ void simd_scatter_u64(unsigned long long *__restrict d, const int *__restrict id
 // rounding error than summing the window afresh. The reference sums each
 // window, so this does too, and the outer loop over windows is what
 // vectorizes.
+// BLOCKED over outputs, exactly as CONVOLVE is and for the same reason: the
+// window loop was innermost and is a serial float sum, so nothing vectorized.
+// Each output sums its window in the same order, so the result is
+// bit-identical -- which rules out the sliding-window form (subtract the
+// element leaving, add the one arriving), which is O(n) instead of O(n*w) and
+// gives a DIFFERENT number, because floating-point addition does not cancel.
+#define MOVAVG_BLOCK 16
 #define MOVING_AVERAGE(T)                                                \
   if (w <= 0 || na < w) return;                                          \
   isize outn = na - w + 1;                                               \
   if (nd < outn) outn = nd;                                              \
-  for (isize i = 0; i < outn; i++) {                                     \
+  isize i = 0;                                                           \
+  for (; i + MOVAVG_BLOCK <= outn; i += MOVAVG_BLOCK) {                  \
+    T acc[MOVAVG_BLOCK];                                                 \
+    for (isize b = 0; b < MOVAVG_BLOCK; b++) acc[b] = 0;                 \
+    for (isize j = 0; j < w; j++) {                                      \
+      for (isize b = 0; b < MOVAVG_BLOCK; b++) acc[b] += a[i + b + j];   \
+    }                                                                    \
+    for (isize b = 0; b < MOVAVG_BLOCK; b++) d[i + b] = acc[b] / (T)w;   \
+  }                                                                      \
+  for (; i < outn; i++) {                                                \
     T acc = 0;                                                           \
     for (isize j = 0; j < w; j++) acc += a[i + j];                       \
     d[i] = acc / (T)w;                                                   \

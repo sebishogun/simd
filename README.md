@@ -8,7 +8,7 @@
 already has — without cgo.**
 
 `simd` applies runtime-selected SIMD kernels to ordinary Go slices. The v1.20.0
-tree contains 493 exported functions and 6,931 generated kernels for SSE2,
+tree contains 493 exported functions and 6,933 generated kernels for SSE2,
 AVX2, AVX-512, NEON, SVE2, RVV, VSX, VX, and LASX. A portable Go path covers
 every operation and every unsupported target.
 
@@ -23,7 +23,7 @@ kernels are compiled ahead of time and committed as assembly, so this is an
 ordinary Go dependency with one transitive import (`golang.org/x/sys`, for CPU
 feature detection). Dispatch is one static table per operation, so the linker
 keeps only the operations a program actually calls: a binary using three
-operation families does not retain all 6,931 kernels.
+operation families does not retain all 6,933 kernels.
 
 ## Quick start
 

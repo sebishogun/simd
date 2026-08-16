@@ -3493,3 +3493,80 @@ The transferable part is the same one as entry 25: a gate that asks a proxy
 question answers the proxy question. "Contains an instruction that touches a
 vector register" is not "vectorized", and on the one architecture that runs
 natively here the two are never the same for float code.
+
+## 77. Blocking the outer loop is what vectorizes a reduction kernel, and it is bit-identical
+
+Entry 76 found `polyeval`, `convolve`, `correlate` and `movavg` shipping scalar
+on every tier while passing the emission gate, and left the question of what to
+do about it open. The answer is not a pragma and not a fallback: it is the loop
+nest.
+
+**LLVM's loop vectorizer only ever vectorizes the INNERMOST loop.** Every one of
+these kernels is an outer loop over independent outputs wrapped around an inner
+reduction with a runtime trip count:
+
+```c
+for (isize i = 0; i < n; i++) {         // independent — but not innermost
+  T acc = c[nc - 1];
+  for (isize k = nc - 2; k >= 0; k--)   // innermost — a serial dependency
+    acc = acc * xv + c[k];
+  d[i] = acc;
+}
+```
+
+So the vectorizer looked at the Horner recurrence, could not break it without
+reassociating, and gave up — and `polyeval`'s own comment claimed the opposite:
+"The outer loop over elements is independent, which is what vectorizes."
+
+**Blocking swaps which loop is innermost without touching any element's
+arithmetic.** A fixed-size accumulator array, elements in tiles of 16:
+
+```c
+for (; i + 16 <= n; i += 16) {
+  T acc[16];
+  for (b) acc[b] = c[nc - 1];
+  for (k) { T ck = c[k]; for (b) acc[b] = acc[b] * x[i + b] + ck; }
+  for (b) d[i + b] = acc[b];
+}
+```
+
+Every output still evaluates the same coefficients in the same order, so this is
+**bit-identical**, not close. That distinction is the whole point: reassociating
+is exactly what `#pragma clang loop vectorize(enable)` would have done and what
+the numerical contract forbids. Nothing is allocated — 16 doubles is 128 bytes
+against the 512-byte kernel frame budget — and the tail runs the original nest.
+
+| | packed arithmetic before | after (sse2) | after (avx2) |
+|---|---|---|---|
+| `simd_polyeval_f32` | 0 | 24 | 12 |
+| `simd_polyeval_f64` | 0 | 16 | 24 |
+| `simd_convolve_f32` | 0 | 8 | 12 |
+| `simd_correlate_f64` | 0 | 16 | 8 |
+| `simd_movavg_f32` | 0 | 16 | 12 |
+| `simd_movavg_f64` | 0 | 16 | 16 |
+
+The ten scalar instructions that remain in each are the tail loop.
+
+`SCALAR-ONLY` went from **13 kernels to 5** (`dtoa_f64`, `minr_f32/f64`,
+`rolling_min_f64`, `rolling_max_f64`). And loong64 gained two kernels, 728 →
+730: `simd_movavg_f32` and `simd_movavg_f64` were refused there with "LLVM did
+not vectorize it for lasx" and now emit, so the total moved 6,931 → 6,933.
+
+**The bit-identity claim is tested, and the test was checked for being
+vacuous.** `internal/conformance` compares each tier against `ref` at eighteen
+length pairs, eleven of which are at or above the guard's threshold of 16 — so
+the SIMD path is genuinely reached. Poisoning the blocked path only
+(`acc[b] = acc[b]*x[i+b] + ck + 1`) reddens it at `dst=16 x=16 coeffs=2 i=0`,
+the first blocked case, which is what says the comparison sees the new code
+rather than the fallback.
+
+**Not measured: whether it is faster.** It executes fewer instructions per
+element and the arithmetic is in lanes, but the machine was not quiet (load
+average 2.27, two review agents building) and no wall-clock or counter number
+is offered. What is established is that the kernels now do their arithmetic in
+lanes and produce the same bits, which is the precondition for the speed
+question rather than an answer to it.
+
+`movavg` also rules out the obvious alternative: a sliding window (subtract the
+element leaving, add the one arriving) is O(n) instead of O(n·w) and gives a
+DIFFERENT number, because floating-point addition does not cancel.
