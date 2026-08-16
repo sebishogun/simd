@@ -1,6 +1,19 @@
 # `GOEXPERIMENT=simd` for the small-n band
 
-**Status: measured, favourable, not implemented.** This record exists so the
+**Status: measured favourable in isolation, then measured AGAIN as built and
+found NEGATIVE. See docs/wrong.md entry 75 before using anything below.**
+
+The table in this document is a direct, inlinable loop. Put behind a package
+boundary -- which is what a shared fallback for every generated guard has to be
+-- the same arithmetic costs **+25.6%** instructions at n=8, **+111.6%** at
+n=9, and **+83.7%** for float64 at n=8, because the loop cannot be inlined into
+the guard while the one-line `ref` forward can. The sizes below are all exact
+multiples of the vector width, which hides the tail cost entirely.
+
+What survives: the bit-identity claim, which was re-verified at every length
+0-40 over IEEE specials for add, sub, mul and div, on both lanes.
+
+**Original status: measured, favourable, not implemented.** This record exists so the
 implementation step has a number behind it rather than a table copied from a
 plan. Nothing in it is shipped; the open item lives in ROADMAP.md's tiers
 section.

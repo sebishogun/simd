@@ -3310,3 +3310,64 @@ of 14. Those are recorded here and not yet fixed.
 and every instance so far has been a test or an assertion. This is the same
 thing at the build level: a Makefile recipe whose command succeeds while doing
 nothing, in the repository the others depend on.
+
+## 75. The archsimd small-n win depends on inlining, and a package cannot inline
+
+`docs/research/08-goexperiment-simd-small-n.md` measured `GOEXPERIMENT=simd`
+intrinsics against the portable loop at −19.2% (n=8), −26.8% (16) and −31.7%
+(32) instructions, and concluded: build it, elementwise first. The plan put the
+implementation in a new `internal/fastpath` package that every generated guard
+would call below its threshold.
+
+Built, bit-identity-gated, and measured. `perf stat -e instructions:u`,
+2,000,000 iterations, interleaved, three rounds at n=8 and two at the rest,
+disjoint ranges throughout:
+
+| | ref | archsimd | |
+|---|---|---|---|
+| f32 n=8 | 124.06M | 155.85M | **+25.6%** |
+| f32 n=9 | 136.12M | 288.08M | **+111.6%** |
+| f32 n=16 | 220.20M | 228.13M | **+3.6%** |
+| f32 n=17 | 232.14M | 360.57M | **+55.3%** |
+| f32 n=32 | 412.03M | 371.91M | −9.7% |
+| f64 n=8 | 124.17M | 228.07M | **+83.7%** |
+| f64 n=16 | 220.05M | 372.34M | **+69.2%** |
+
+It loses across the whole band the guards actually use, and wins only at f32
+n≥32 — above where any guard falls back.
+
+**The cause is inlining, and the research document had already named the risk
+without measuring it.** `-gcflags=-m`:
+
+```
+fastpath_ref.go:16:6:  can inline AddFloat32          <- the one-line forward to ref
+fastpath_simd.go:38:36: inlining call to archsimd.LoadFloat32x8Slice
+                        (no "can inline AddFloat32")  <- the loop cannot
+```
+
+The portable fallback is a one-line forward, so the guard inlines it and pays
+nothing to reach it. The archsimd version is a loop, and Go does not inline a
+function containing one — so it is a real call, and at n=8 that call is most of
+the work. The record's reproducer was a direct inlined loop and said so: *"It is
+a direct call, not the guarded one … the end-to-end figure will be smaller than
+19–32%."* Smaller was the wrong word. It is negative.
+
+**The record's table measured only exact multiples of the vector width, and that
+hid the worst of it.** n=9 and n=17 — one full vector plus a one-element tail,
+which is the shape the guard band mostly sees — cost +111.6% and +55.3%. A table
+of 8/16/32 cannot show a tail cost.
+
+**float64 loses everywhere in the band**, and for a structural reason: 4 lanes
+means n=8 is two vectors and n=16 is four, so the call is amortised over half as
+much arithmetic as f32 at the same length. The research document measured f32
+only.
+
+Reverted. What the next attempt has to do differently is emit the intrinsics
+**inside the generated backend**, in the same package as the guard, where they
+can inline into it — not behind a package boundary. Until something does that,
+the measured answer for the guard band is that `internal/ref` is the faster
+fallback.
+
+The bit-identity gate that came with it did pass, at every length 0–40 over
+IEEE specials, on both lanes: elementwise archsimd IS bit-identical to `ref`,
+which was the other thing that had to be true. That half of the record stands.
