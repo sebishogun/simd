@@ -3264,3 +3264,49 @@ referencing it and the build fails; a forgotten `ref` WIRING shipped past
 fourteen packages, as above. The gate is the fix; codegen would be
 convenience, and it would move the numerical contract — which lives in the
 `kernel.Ops` field comments — into a manifest.
+
+## `make fuzz` fuzzed one of its three targets and exited 0
+
+Measured 2026-08-16, by sweeping the family for fuzz targets nothing runs.
+
+The recipe named two targets and the comment above it opened "Two fuzz
+targets". There are three, and only ONE of them was being fuzzed:
+
+| target | what happened |
+|---|---|
+| `FuzzKernelsAgainstReference` | fuzzed, correctly |
+| `FuzzDifferential` | named, and run in the ROOT package while the target lives in `internal/tests/arrays` |
+| `FuzzJSONMasksMatchesSeparateCalls` | never named; only its seed corpus ever ran, under `go test` |
+
+The middle row is the one worth the entry:
+
+```
+$ go test -run '^$' -fuzz FuzzDifferential -fuzztime 3s .
+PASS
+ok  	github.com/sebishogun/simd	0.002s
+EXIT=0
+```
+
+**`go test -fuzz X` in a package with no target called X exits 0.** It does not
+error, it does not warn, it prints `PASS`. So half of `make fuzz` had been
+reporting success for a step that fuzzed nothing, and the only tell was a
+duration of two milliseconds where sixty seconds were asked for.
+
+Targets are discovered per package now — `go test -list '^Fuzz'` asks the
+compiler, and a target can only be fuzzed in the package it was found in, so
+the wrong-package shape is unreachable rather than merely fixed. The recipe
+also fails outright if it ends up running nothing at all, because a discovery
+loop over an empty list is the same silent green one level up.
+
+**The same sweep, across the family.** Ten repositories. `simdlogs` already
+discovered its targets and its workflow says why: "A hand-maintained list is
+how a new target gets written and never run." `simdhttp` hand-listed three of
+four and is fixed (its own entries 15 and 16 — the missing one had been named
+in a verification document since v1.2.0 and never written). `simdcsv` (3
+targets) and `simdparquet` (13) have no fuzz recipe at all; `simdjson` names 11
+of 14. Those are recorded here and not yet fixed.
+
+**The shape.** A gate that cannot fail is this family's most persistent defect,
+and every instance so far has been a test or an assertion. This is the same
+thing at the build level: a Makefile recipe whose command succeeds while doing
+nothing, in the repository the others depend on.
