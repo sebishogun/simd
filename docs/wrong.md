@@ -3371,3 +3371,109 @@ fallback.
 The bit-identity gate that came with it did pass, at every length 0–40 over
 IEEE specials, on both lanes: elementwise archsimd IS bit-identical to `ref`,
 which was the other thing that had to be true. That half of the record stands.
+
+## 76. Forced vectorization: the bucket the pragma is for is the bucket the contract forbids
+
+The plan's item 5 proposed trying `#pragma clang loop vectorize(enable)` per
+(kernel, target) and keeping measured winners, over "346 refusals: ~60
+`scatter_*`, ~30 `reverse_*`, 114 float/`fast_*` — the plausible wins".
+Measured, before writing any pragma. Every number in that sentence is wrong,
+and the investigation ends somewhere else.
+
+**The inventory.** `make check-emission`, clang 22.1.8: **336** (kernel, tier)
+refusals over **132** distinct kernels, not 346.
+
+| tier | vsx | neon | sse2 | vx | sve2 | lasx | rvv | avx2 | avx512 |
+|---|---|---|---|---|---|---|---|---|---|
+| refusals | 81 | 80 | 56 | 36 | 33 | 23 | 14 | 10 | 3 |
+
+By operation, as (kernel, tier) pairs: `scatter` 65, `gather` 31, `reverse` 30,
+`tile` 10, `reversebits` 10 — the permute/scatter family is **162 of 336, 48%**,
+and each needs an instruction the target does not have. `gather` at 31 pairs is
+larger than `reverse` and the plan did not mention it.
+
+**There is no float bucket.** `fast_*` refusals: **zero**. Float-typed
+refusals: 59 of 336, and on the three amd64 tiers only **2** — both
+`f8e*_to_f32`, which are integer bit manipulation. The refused
+`prod`/`dot`/`sumsq*`/`sumsqdev`/`sumsqdiff` entries are all `i64`/`u64`:
+64-bit integer reductions, blocked by a missing multiply (SSE2 has no
+`pmullq`), not by anything a pragma reaches.
+
+**The pragma's own bucket is ten loops.** `-Rpass-analysis=loop-vectorize` over
+all of `csrc` at sse2, by reason:
+
+| reason | loops |
+|---|---|
+| instruction return type cannot be vectorized | 1929 |
+| loop control flow is not understood | 186 |
+| value that could not be identified as reduction is used outside the loop | 128 |
+| potentially faulting load | 58 |
+| store instruction cannot be vectorized | 47 |
+| **cannot prove it is safe to reorder floating-point operations** | **10** |
+
+Ten. And clang's own remark names the remedy: *"allow reordering by specifying
+'#pragma clang loop vectorize(enable)' before the loop or by providing the
+compiler option '-ffast-math'"*. The pragma there is not a cost-model override,
+it is **permission to reassociate** — which changes the answer. The numerical
+contract in `internal/kernel/kernel.go` is the reason `-ffp-contract=off` is in
+`commonFlags` at all, and the repository already has the correct home for a
+kernel that trades it: the `simd_fast_*` prefix. So the one bucket the pragma is
+designed for is the one bucket that cannot take it without becoming a different
+operation.
+
+The ten are `csrc/numeric.c:121,127,133,139` (the `CONVOLVE` accumulation, four
+instantiations), `csrc/numeric.c:399,404`, and `csrc/gemm.c:142` (`GEMM`, four).
+
+**And those same kernels ship scalar today.** `simd_convolve_f32`,
+`simd_correlate_f64` and their siblings are refused on **zero** tiers — they
+pass the emission gate — yet:
+
+| tier | simd_convolve_f32 | packed arithmetic | scalar arithmetic |
+|---|---|---|---|
+| sse2 | 119 instrs | **0** | 10 (`mulss`, `addss`) |
+| avx2 | 140 instrs | **0** | 10 (`vmulss`, `vaddss`) |
+| avx512 | 141 instrs | **0** | 10 |
+
+Its only vector instructions on sse2 are 2 `movups` and 2 `xorps` — a move and
+a register zero. `dispatch_tables_amd64.go` carries
+`Convolve: amd64.ConvolveFloat32SSE2` and `ConvolveFloat32AVX2`, so a caller on
+amd64 dispatches into an assembly kernel that multiplies one element at a time,
+paying the dispatch and threshold machinery for it.
+
+**The gate cannot see this, structurally.** `verify.vectorWidth` returns >0 for
+any amd64 instruction whose operands mention `%xmm`/`%ymm`/`%zmm` — and every
+scalar float instruction on x86-64 uses those registers. `vmulss %xmm0, %xmm1,
+%xmm2` counts as vectorized. So `RequireVector`, whose comment says it exists
+because "dispatching to it would run scalar code under a name promising
+otherwise", cannot report a scalar float kernel on amd64 at all. Its 69 amd64
+refusals are integer kernels, necessarily.
+
+Scanning every `simd_*` symbol for "does float arithmetic, none of it packed":
+
+| tier | scalar-only kernels | of |
+|---|---|---|
+| sse2 | 26 | 913 |
+| avx2 | **8** | 913 |
+
+The avx2 eight are the finding, because the widest tier is where an excuse runs
+out: `polyeval_f32/f64`, `convolve_f32/f64`, `correlate_f32/f64`,
+`movavg_f32/f64`. The sse2 extras are the f64 transcendentals (`log1p`, `cbrt`,
+`asin`, `sinh`, `asinh`, `acosh`, `atanh`, `atan2`, `hypot`, plain and `fast_`),
+which do vectorize on avx2 — a real SSE2 limit, not a defect.
+
+**What this leaves.** Not a pragma sweep. Two separate things:
+
+1. `vectorWidth` on amd64 should not count a scalar-form instruction (`*ss`,
+   `*sd`) as vector, and `RequireVector` should ask "does this kernel do
+   arithmetic, and is none of it packed" rather than "is any register wide".
+   A permute kernel does no arithmetic and must still pass.
+2. Fixing the gate DROPS the eight, falling back to `internal/ref`. Whether
+   that is faster than the scalar assembly is unmeasured: both are scalar, and
+   the assembly costs a call the guard would otherwise inline. That is the
+   benchmark this needs, and the machine was not quiet (load average 1.17, two
+   review agents building) when this was written, so no number is offered.
+
+The transferable part is the same one as entry 25: a gate that asks a proxy
+question answers the proxy question. "Contains an instruction that touches a
+vector register" is not "vectorized", and on the one architecture that runs
+natively here the two are never the same for float code.
