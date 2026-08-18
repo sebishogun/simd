@@ -3624,3 +3624,40 @@ question is open.
 `movavg` also rules out the obvious alternative: a sliding window (subtract the
 element leaving, add the one arriving) is O(n) instead of O(n·w) and gives a
 DIFFERENT number, because floating-point addition does not cancel.
+
+## 78. Generating the ref/kernel wiring is now maintainability, not correctness
+
+The plan's extensibility item proposed generating two of the eight files a new
+kernel touches -- `internal/ref/ref.go`'s ops-table entry and
+`internal/kernel/kernel.go`'s struct field -- on the argument that they are
+"the two easiest things to forget, one of which caused the `-tags purego` panic
+that `TestDispatchTableComplete` now guards".
+
+Both halves of that failure are now caught by a gate, in both lanes. Measured,
+`Sqrt: sqrt[T]` deleted from `floatOps`:
+
+	                                        normal   purego
+	before TestDeclaredKernelsAreWiredInTheReference   green    red
+	  (and red only through TestInPlaceMatchesInto,
+	   a functional test, not a completeness gate)
+	after                                    RED      RED
+
+`TestDeclaredKernelsAreWiredInTheReference` walks `backend.Inventory` and, for
+every declared kernel, asserts `kernel.Set` has the group AND the field AND
+that the field is non-nil in `ref.Set()`. That is exactly the three-way
+relation generation was proposed to enforce: manifest -> struct field ->
+reference wiring. A forgotten entry cannot ship past the ordinary `go test`
+lane any more.
+
+So the item is not dropped, it is REPRICED. What generation still buys is two
+fewer files to edit per kernel and one less place for a rename to go stale;
+what it no longer buys is protection against a class of defect that has
+already shipped once. That matters for ordering: it is a refactor of a stable
+v1 contract across six architectures, needing `make codegen`, `make verify` and
+the whole cross-architecture matrix to land safely, and its remaining value is
+ergonomic. It goes behind anything that fixes an answer.
+
+The mutation is recorded here rather than left implicit because the plan's own
+justification for the item no longer holds, and the next person to read that
+plan would otherwise re-derive the priority from a sentence that was true when
+it was written.

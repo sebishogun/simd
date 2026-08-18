@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+**The kernel guide's worked example is now checked against the tree.**
+`docs/kernels.md` is the answer to "the operation I need isn't in the 403",
+and its centre is one `spec.Kernel` literal whose eight annotated fields a
+reader copies. Nothing looked inside it: the link gate checks its links and
+the test-name gate checks the tests it cites, and neither reads a code block.
+A renamed manifest field would leave the guide teaching a literal that does
+not compile, in generated code the reader did not write. The gate reads the
+field list out of the document rather than restating it, parses `spec.Kernel`
+from source (`tools/` is a separate module and must never become a consumer
+dependency), and also resolves the example's `RefFunc` against
+`internal/ref` and its `Field` against `internal/kernel` -- the two wirings
+that are easiest to forget, one of which once shipped past the whole normal
+lane. Four mutations, all red: a field renamed in the guide, the same field
+renamed in the struct, an unexported `RefFunc`, an unwired `Field`.
+
 **`PolyEval`, `Convolve`, `Correlate` and `MovingAverage` now vectorize.**
 Their kernels accumulate per output, so the innermost loop carried a
 dependence LLVM cannot break without reassociating -- which the numerical
