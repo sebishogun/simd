@@ -62,6 +62,21 @@ func sigTypes(k spec.Kernel) string {
 	return sig
 }
 
+// complexElem maps a complex group name to its Go element type, and
+// partsElem the split groups that pair a complex type with its real one.
+//
+// These were absent, and their absence was the whole defect: numericGroupsIn
+// skipped every complex group, so no per-tier table was emitted for them and
+// complexOps had nothing to overlay from. Nine tiers of generated complex
+// assembly across six architectures were linked into the test-only Sets()
+// aggregator and reachable from nothing a consumer calls.
+var complexElem = map[string]string{"C64": "complex64", "C128": "complex128"}
+
+var partsElem = map[string][2]string{
+	"C64Parts":  {"complex64", "float32"},
+	"C128Parts": {"complex128", "float64"},
+}
+
 // numericElem maps a numeric group name to its Go element type.
 var numericElem = map[string]string{
 	"F32": "float32", "F64": "float64",
@@ -142,6 +157,34 @@ func RootDispatch(arch string, tiers []string, present map[string]map[string]boo
 		fmt.Fprintf(&b, "}\n\n")
 	}
 
+	// Complex groups, the same shape over kernel.Complex and
+	// kernel.ComplexParts. Kept separate from the numeric loop because the
+	// struct type differs and ComplexParts carries two type parameters.
+	for _, g := range groupsIn(all, func(name string) bool { _, ok := complexElem[name]; return ok }) {
+		emitTierTable(&b, arch, tiers, present, all, g,
+			"kernel.Complex["+complexElem[g]+"]", "cplx"+g)
+	}
+	for _, g := range groupsIn(all, func(name string) bool { _, ok := partsElem[name]; return ok }) {
+		e := partsElem[g]
+		emitTierTable(&b, arch, tiers, present, all, g,
+			"kernel.ComplexParts["+e[0]+", "+e[1]+"]", "parts"+g)
+	}
+
+	// Every group in the manifest must have produced a table. A group this
+	// file does not know about silently falls back to the reference on every
+	// machine, with every test green -- which is exactly what happened to
+	// C64/C128/C64Parts/C128Parts for the whole life of the complex kernels.
+	// The allowlists above are the same shape that let it happen, so the
+	// check is here rather than in a test: a generator that cannot dispatch
+	// a group must fail loudly instead of emitting a working-looking file.
+	if missing := ungrouped(all); len(missing) > 0 {
+		panic(fmt.Sprintf("simdgen: no dispatch table for kernel group(s) %v.\n"+
+			"Add the group to numericElem, complexElem, partsElem or flatGroups in "+
+			"dispatch_gen.go. Without an entry the group compiles, passes every "+
+			"test, and runs the portable reference on every architecture.",
+			missing))
+	}
+
 	out := b.String()
 	if formatted, err := format.Source([]byte(out)); err == nil {
 		return string(formatted)
@@ -149,9 +192,76 @@ func RootDispatch(arch string, tiers []string, present map[string]map[string]boo
 	return out
 }
 
+// ungrouped returns the manifest groups no table is emitted for, sorted.
+func ungrouped(all []spec.Kernel) []string {
+	bad := map[string]bool{}
+	for _, k := range all {
+		if flatGroups[k.Group] {
+			continue
+		}
+		if _, ok := numericElem[k.Group]; ok {
+			continue
+		}
+		if _, ok := complexElem[k.Group]; ok {
+			continue
+		}
+		if _, ok := partsElem[k.Group]; ok {
+			continue
+		}
+		bad[k.Group] = true
+	}
+	out := make([]string, 0, len(bad))
+	for g := range bad {
+		out = append(out, g)
+	}
+	sort.Strings(out)
+	return out
+}
+
 // exportedGuard mirrors guardName: the exported threshold wrapper.
 func exportedGuard(k spec.Kernel) string {
 	return strings.ToUpper(k.GoName[:1]) + k.GoName[1:]
+}
+
+// emitTierTable writes one partial struct per tier plus the tier-indexed
+// pointer array the dispatcher overlays from, for any group whose kernel.Set
+// field is a struct of function fields. Slot 0 is nil: the reference base
+// needs no overlay.
+func emitTierTable(b *strings.Builder, arch string, tiers []string,
+	present map[string]map[string]bool, all []spec.Kernel, group, typ, prefix string) {
+
+	for _, t := range tiers {
+		suffix := strings.ToUpper(t)
+		fmt.Fprintf(b, "var %s%s = %s{\n", prefix, suffix, typ)
+		for _, k := range all {
+			if k.Group != group || !present[t][k.CName] {
+				continue
+			}
+			fmt.Fprintf(b, "\t%s: %s.%s%s,\n", k.Field, arch, exportedGuard(k), suffix)
+		}
+		fmt.Fprintf(b, "}\n\n")
+	}
+	fmt.Fprintf(b, "var %sByTier = [...]*%s{\n\tnil,\n", prefix, typ)
+	for _, t := range tiers {
+		fmt.Fprintf(b, "\t&%s%s,\n", prefix, strings.ToUpper(t))
+	}
+	fmt.Fprintf(b, "}\n\n")
+}
+
+// groupsIn returns the sorted group names in all that keep matches true.
+func groupsIn(all []spec.Kernel, keep func(string) bool) []string {
+	seen := map[string]bool{}
+	for _, k := range all {
+		if keep(k.Group) {
+			seen[k.Group] = true
+		}
+	}
+	out := make([]string, 0, len(seen))
+	for g := range seen {
+		out = append(out, g)
+	}
+	sort.Strings(out)
+	return out
 }
 
 func numericGroupsIn(all []spec.Kernel) []string {
@@ -196,6 +306,13 @@ func RootDispatchFallback(arches []string, all []spec.Kernel, prov Provenance) s
 	fmt.Fprintf(&b, "\n")
 	for _, g := range numericGroupsIn(all) {
 		fmt.Fprintf(&b, "var ops%sByTier = [...]*kernel.Ops[%s]{nil}\n", g, numericElem[g])
+	}
+	for _, g := range groupsIn(all, func(n string) bool { _, ok := complexElem[n]; return ok }) {
+		fmt.Fprintf(&b, "var cplx%sByTier = [...]*kernel.Complex[%s]{nil}\n", g, complexElem[g])
+	}
+	for _, g := range groupsIn(all, func(n string) bool { _, ok := partsElem[n]; return ok }) {
+		e := partsElem[g]
+		fmt.Fprintf(&b, "var parts%sByTier = [...]*kernel.ComplexParts[%s, %s]{nil}\n", g, e[0], e[1])
 	}
 
 	out := b.String()
@@ -284,6 +401,35 @@ func RootDispatchTest(arch string, tiers []string, all []spec.Kernel, prov Prove
 		fmt.Fprintf(&b, "},\n")
 	}
 	fmt.Fprintf(&b, "}\n\n")
+
+	// The struct groups -- numeric and complex -- reach the runtime through
+	// per-tier partials, not per-operation tables, so allFlatTables cannot
+	// name them and the inventory walk fell back to archSets(), the test-only
+	// aggregator. That is why four whole complex groups could be absent from
+	// the runtime tables with the suite green. These expose the partials the
+	// runtime actually indexes, keyed by group, so a test can walk them.
+	fmt.Fprintf(&b, "// allGroupTables enumerates the per-tier partial structs the runtime\n")
+	fmt.Fprintf(&b, "// overlays from, keyed by kernel.Set group. Slot 0 is the reference\n")
+	fmt.Fprintf(&b, "// and is nil; the rest are one per accelerated tier, in tier order.\n")
+	fmt.Fprintf(&b, "var allGroupTables = map[string][]any{\n")
+	emitGroupRow := func(group, prefix string) {
+		fmt.Fprintf(&b, "\t%q: {nil", group)
+		for _, t := range tiers {
+			fmt.Fprintf(&b, ", %s%s", prefix, strings.ToUpper(t))
+		}
+		fmt.Fprintf(&b, "},\n")
+	}
+	for _, g := range numericGroupsIn(all) {
+		emitGroupRow(g, "ops"+g)
+	}
+	for _, g := range groupsIn(all, func(n string) bool { _, ok := complexElem[n]; return ok }) {
+		emitGroupRow(g, "cplx"+g)
+	}
+	for _, g := range groupsIn(all, func(n string) bool { _, ok := partsElem[n]; return ok }) {
+		emitGroupRow(g, "parts"+g)
+	}
+	fmt.Fprintf(&b, "}\n\n")
+
 	fmt.Fprintf(&b, "// archSets hands the tests every tier's complete kernel set.\n")
 	fmt.Fprintf(&b, "var archSets func() map[string]kernel.Set = %s.Sets\n", arch)
 
@@ -315,6 +461,9 @@ func RootDispatchFallbackTest(arches []string, all []spec.Kernel, prov Provenanc
 		fmt.Fprintf(&b, "\t%q: {%s[0]},\n", k.Group+"."+k.Field, TableName(k))
 	}
 	fmt.Fprintf(&b, "}\n\n")
+	fmt.Fprintf(&b, "// No generated backend here: every group table is the reference slot\n")
+	fmt.Fprintf(&b, "// alone, so the walk has nothing to check.\n")
+	fmt.Fprintf(&b, "var allGroupTables = map[string][]any{}\n\n")
 	fmt.Fprintf(&b, "// No generated backend here: the numeric half of the inventory walk\n")
 	fmt.Fprintf(&b, "// has nothing to check and skips on nil.\n")
 	fmt.Fprintf(&b, "var archSets func() map[string]kernel.Set\n")

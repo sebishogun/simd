@@ -63,7 +63,9 @@ caller
   reference with a tier's partial `Ops`, built lazily on first use
   (`opsCache` in `dispatch.go`). The only type switch lives there, so the
   public wrappers stay one-liners and a caller that never touches a type
-  never links its kernels.
+  never links its kernels. The complex groups take the same route through
+  `groupCache[G]`, which is generic over the struct because `kernel.Complex`
+  and `kernel.ComplexParts` are not `kernel.Ops`.
 - The reference itself (`refBase`) is a few hundred kilobytes of ordinary Go
   and is linked into every consumer regardless; the per-tier assembly is what
   the tables keep out.

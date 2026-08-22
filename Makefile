@@ -71,24 +71,53 @@ test-vec: ## Run the suite with GOEXPERIMENT=simd, which compiles vec.go
 test-tiers: ## Run the suite once per instruction-set tier this CPU has
 	@for t in $(TIERS); do \
 		echo "--- GOSIMD=$$t"; \
-		GOSIMD=$$t $(GO) test $(PKG) || exit 1; \
+		GOSIMD=$$t $(GO) test -count=1 $(PKG) || exit 1; \
 	done
 
 .PHONY: test-race
 test-race: ## Full suite under the race detector
 	$(GO) test -race $(PKG)
 
-# Two fuzz targets. FuzzDifferential drives the public API; the one under
-# internal/conformance drives every generated kernel of every tier against the
-# portable implementation, with the fuzzer choosing the bit patterns rather
-# than a table choosing the values. For floating point that distinction is the
-# whole point: the inputs that break a kernel are not large or small, they are
-# a signalling NaN or a denormal at the exact exponent boundary.
+# Every fuzz target in the tree, DISCOVERED rather than listed.
+#
+# FuzzDifferential drives the public API; the one under internal/conformance
+# drives every generated kernel of every tier against the portable
+# implementation, with the fuzzer choosing the bit patterns rather than a table
+# choosing the values. For floating point that distinction is the whole point:
+# the inputs that break a kernel are not large or small, they are a signalling
+# NaN or a denormal at the exact exponent boundary.
+#
+# This comment used to open "Two fuzz targets" and the recipe named two. There
+# are three, and TWO of them had never been fuzzed by this target:
+#
+#   FuzzJSONMasksMatchesSeparateCalls  never named; only its seed corpus ever
+#                                      ran, under `go test`
+#   FuzzDifferential                   named, and pointed at the ROOT package
+#                                      while the target lives in
+#                                      internal/tests/arrays
+#
+# The second is the dangerous one, because `go test -run '^$$' -fuzz X .` in a
+# package with NO target called X exits 0 and prints `PASS ... 0.002s`. It does
+# not error, so `make fuzz` had been reporting success for a step that fuzzed
+# nothing. A gate that finishes in two milliseconds is not a fast gate.
+#
+# Discovery makes that unreachable: a target is only fuzzed in the package
+# `go test -list` found it in. The counter below fails the target outright if
+# it ends up running nothing at all.
 .PHONY: fuzz
-fuzz: ## Fuzz the public API and the tier-vs-reference differential
-	$(GO) test -run '^$$' -fuzz FuzzDifferential -fuzztime $(or $(FUZZTIME),60s) .
-	$(GO) test -run '^$$' -fuzz FuzzKernelsAgainstReference \
-		-fuzztime $(or $(FUZZTIME),60s) ./internal/conformance/
+fuzz: ## Fuzz every target in the tree
+	@set -e; n=0; \
+	for pkg in $$($(GO) list ./...); do \
+		for t in $$($(GO) test -list '^Fuzz' $$pkg 2>/dev/null | grep '^Fuzz' || true); do \
+			echo "fuzz $$pkg $$t"; \
+			$(GO) test -run '^$$$$' -fuzz "^$$t$$" -fuzztime $(or $(FUZZTIME),60s) $$pkg; \
+			n=$$((n+1)); \
+		done; \
+	done; \
+	if [ "$$n" -eq 0 ]; then \
+		echo "make fuzz ran no targets" >&2; exit 1; \
+	fi; \
+	echo "fuzzed $$n target(s)"
 
 # Every architecture with a backend, under emulation.
 #

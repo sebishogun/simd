@@ -1,5 +1,50 @@
 # Changelog
 
+## v1.21.0
+
+
+**The kernel guide's worked example is now checked against the tree.**
+`docs/kernels.md` is the answer to "the operation I need isn't in the 403",
+and its centre is one `spec.Kernel` literal whose eight annotated fields a
+reader copies. Nothing looked inside it: the link gate checks its links and
+the test-name gate checks the tests it cites, and neither reads a code block.
+A renamed manifest field would leave the guide teaching a literal that does
+not compile, in generated code the reader did not write. The gate reads the
+field list out of the document rather than restating it, parses `spec.Kernel`
+from source (`tools/` is a separate module and must never become a consumer
+dependency), and also resolves the example's `RefFunc` against
+`internal/ref` and its `Field` against `internal/kernel` -- the two wirings
+that are easiest to forget, one of which once shipped past the whole normal
+lane. Four mutations, all red: a field renamed in the guide, the same field
+renamed in the struct, an unexported `RefFunc`, an unwired `Field`.
+
+**`PolyEval`, `Convolve`, `Correlate` and `MovingAverage` now vectorize.**
+Their kernels accumulate per output, so the innermost loop carried a
+dependence LLVM cannot break without reassociating -- which the numerical
+contract forbids -- and all eight symbols emitted zero packed arithmetic
+instructions on every amd64 tier. Blocking the *outer* loop by 16 makes the
+innermost loop independent while each output still evaluates the same terms
+in the same order, so the results are bit-identical rather than close: 8-40
+packed instructions per symbol now, and loong64 gains `simd_movavg_f32/f64`,
+6,931 -> 6,933 kernels. Verified over 3.29M cases per tier on all nine tiers
+including catastrophic cancellation and mid-accumulation overflow, where any
+regrouping would show. Speed is not measured, and on arm64 the vectorizer
+takes a different shape that costs stack frames -- `docs/wrong.md` entry 77
+records both.
+
+**Complex operations now run the generated assembly.** They never did:
+`complexOps` returned the portable reference set directly, and the
+generator emitted no complex entries into the per-tier dispatch tables, so
+`DotComplex`, `DotComplexConj`, `ScaleComplex`, `SumComplex` and the
+complex arithmetic set ran ordinary Go on every architecture while nine
+tiers of generated complex assembly sat linked into a test-only aggregator.
+Measured on amd64/avx512, scalar against the tier in one binary: 1.9x-12.9x
+depending on operation and length. Results are unchanged -- the numerical
+contract is the same fixed accumulation order, and the reference and every
+tier agree bit for bit. No API change. `docs/wrong.md` records the finding,
+the measurement, and the generator assertion that now refuses to emit a
+dispatch file for a kernel group it cannot route.
+
 ## v1.20.0
 
 **The columnar codec tier.** **`BitUnpackInto`** gains a width-
@@ -669,6 +714,8 @@ stops paying.
 The README's function table claimed every entry had a runnable example. It was
 false for 100 of 109 rows. All 109 have one now, and
 `TestReadmeTableHasExamples` fails the build if a row appears without one.
+(It is `TestOperationCatalogHasExamples` now; the guarantee did not change,
+the name did, and this entry is left as it was written.)
 `TestGuidesNameRealFunctions` does the same for the prose.
 
 Writing them found three documentation bugs that only executing catches: the

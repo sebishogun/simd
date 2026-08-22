@@ -650,6 +650,7 @@ var opsF32LASX = kernel.Ops[float32]{
 	Correlate:              loong64.CorrelateFloat32LASX,
 	Tile:                   loong64.TileFloat32LASX,
 	Gather:                 loong64.GatherFloat32LASX,
+	MovingAverage:          loong64.MovingAverageFloat32LASX,
 	ShiftDiv:               loong64.ShiftDivFloat32LASX,
 	LayerNorm:              loong64.LayerNormFloat32LASX,
 	Random:                 loong64.RandomF32LASX,
@@ -746,6 +747,7 @@ var opsF64LASX = kernel.Ops[float64]{
 	Correlate:              loong64.CorrelateFloat64LASX,
 	Tile:                   loong64.TileFloat64LASX,
 	Gather:                 loong64.GatherFloat64LASX,
+	MovingAverage:          loong64.MovingAverageFloat64LASX,
 	ShiftDiv:               loong64.ShiftDivFloat64LASX,
 	LayerNorm:              loong64.LayerNormFloat64LASX,
 	Random:                 loong64.RandomF64LASX,
@@ -1307,4 +1309,56 @@ var opsU8LASX = kernel.Ops[uint8]{
 var opsU8ByTier = [...]*kernel.Ops[uint8]{
 	nil,
 	&opsU8LASX,
+}
+
+var cplxC128LASX = kernel.Complex[complex128]{
+	Add:     loong64.CaddComplex128LASX,
+	Sub:     loong64.CsubComplex128LASX,
+	Neg:     loong64.CnegComplex128LASX,
+	Sum:     loong64.CsumComplex128LASX,
+	Dot:     loong64.CdotComplex128LASX,
+	DotConj: loong64.CdotconjComplex128LASX,
+}
+
+var cplxC128ByTier = [...]*kernel.Complex[complex128]{
+	nil,
+	&cplxC128LASX,
+}
+
+var cplxC64LASX = kernel.Complex[complex64]{
+	Add:     loong64.CaddComplex64LASX,
+	Sub:     loong64.CsubComplex64LASX,
+	Neg:     loong64.CnegComplex64LASX,
+	Sum:     loong64.CsumComplex64LASX,
+	Dot:     loong64.CdotComplex64LASX,
+	DotConj: loong64.CdotconjComplex64LASX,
+}
+
+var cplxC64ByTier = [...]*kernel.Complex[complex64]{
+	nil,
+	&cplxC64LASX,
+}
+
+var partsC128PartsLASX = kernel.ComplexParts[complex128, float64]{
+	Abs:       loong64.CabsComplex128LASX,
+	Real:      loong64.CrealComplex128LASX,
+	Imag:      loong64.CimagComplex128LASX,
+	Scale:     loong64.CscaleComplex128LASX,
+	FromParts: loong64.CfromPartsComplex128LASX,
+}
+
+var partsC128PartsByTier = [...]*kernel.ComplexParts[complex128, float64]{
+	nil,
+	&partsC128PartsLASX,
+}
+
+var partsC64PartsLASX = kernel.ComplexParts[complex64, float32]{
+	Real:  loong64.CrealComplex64LASX,
+	Imag:  loong64.CimagComplex64LASX,
+	Scale: loong64.CscaleComplex64LASX,
+}
+
+var partsC64PartsByTier = [...]*kernel.ComplexParts[complex64, float32]{
+	nil,
+	&partsC64PartsLASX,
 }

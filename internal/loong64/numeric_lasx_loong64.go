@@ -100,10 +100,16 @@ func tileUint64LASX(dst []uint64, pattern []uint64)
 func gatherUint64LASX(dst []uint64, src []uint64, idx []int32)
 
 //go:noescape
+func movingAverageFloat32LASX(dst []float32, a []float32, width int)
+
+//go:noescape
 func shiftDivFloat32LASX(dst []float32, a []float32, shift float32, denom float32)
 
 //go:noescape
 func layerNormFloat32LASX(dst []float32, a []float32, gamma []float32, beta []float32, shift float32, denom float32)
+
+//go:noescape
+func movingAverageFloat64LASX(dst []float64, a []float64, width int)
 
 //go:noescape
 func shiftDivFloat64LASX(dst []float64, a []float64, shift float64, denom float64)

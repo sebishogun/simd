@@ -122,6 +122,10 @@ var allFlatTables = map[string][]any{
 	"Bytes.VarintDecodeU64":          {tblBytesVarintDecodeU64[0]},
 }
 
+// No generated backend here: every group table is the reference slot
+// alone, so the walk has nothing to check.
+var allGroupTables = map[string][]any{}
+
 // No generated backend here: the numeric half of the inventory walk
 // has nothing to check and skips on nil.
 var archSets func() map[string]kernel.Set

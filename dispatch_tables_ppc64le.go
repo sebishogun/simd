@@ -1201,3 +1201,59 @@ var opsU8ByTier = [...]*kernel.Ops[uint8]{
 	nil,
 	&opsU8VSX,
 }
+
+var cplxC128VSX = kernel.Complex[complex128]{
+	Add:     ppc64le.CaddComplex128VSX,
+	Sub:     ppc64le.CsubComplex128VSX,
+	Mul:     ppc64le.CmulComplex128VSX,
+	Neg:     ppc64le.CnegComplex128VSX,
+	Conj:    ppc64le.CconjComplex128VSX,
+	Sum:     ppc64le.CsumComplex128VSX,
+	Dot:     ppc64le.CdotComplex128VSX,
+	DotConj: ppc64le.CdotconjComplex128VSX,
+}
+
+var cplxC128ByTier = [...]*kernel.Complex[complex128]{
+	nil,
+	&cplxC128VSX,
+}
+
+var cplxC64VSX = kernel.Complex[complex64]{
+	Add:  ppc64le.CaddComplex64VSX,
+	Sub:  ppc64le.CsubComplex64VSX,
+	Mul:  ppc64le.CmulComplex64VSX,
+	Div:  ppc64le.CdivComplex64VSX,
+	Neg:  ppc64le.CnegComplex64VSX,
+	Conj: ppc64le.CconjComplex64VSX,
+}
+
+var cplxC64ByTier = [...]*kernel.Complex[complex64]{
+	nil,
+	&cplxC64VSX,
+}
+
+var partsC128PartsVSX = kernel.ComplexParts[complex128, float64]{
+	Abs:       ppc64le.CabsComplex128VSX,
+	Real:      ppc64le.CrealComplex128VSX,
+	Imag:      ppc64le.CimagComplex128VSX,
+	Scale:     ppc64le.CscaleComplex128VSX,
+	FromParts: ppc64le.CfromPartsComplex128VSX,
+}
+
+var partsC128PartsByTier = [...]*kernel.ComplexParts[complex128, float64]{
+	nil,
+	&partsC128PartsVSX,
+}
+
+var partsC64PartsVSX = kernel.ComplexParts[complex64, float32]{
+	Abs:       ppc64le.CabsComplex64VSX,
+	Real:      ppc64le.CrealComplex64VSX,
+	Imag:      ppc64le.CimagComplex64VSX,
+	Scale:     ppc64le.CscaleComplex64VSX,
+	FromParts: ppc64le.CfromPartsComplex64VSX,
+}
+
+var partsC64PartsByTier = [...]*kernel.ComplexParts[complex64, float32]{
+	nil,
+	&partsC64PartsVSX,
+}

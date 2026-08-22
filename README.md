@@ -1,14 +1,13 @@
-# simd.go
+# simd.go — Fast Whole-Slice SIMD Vector Primitives & Text Scanning for Go (AVX-512, AVX2, NEON, SVE2, RVV)
 
 [![Latest Release](docs/assets/badges/release.svg)](https://github.com/sebishogun/simd/releases/latest)
 [![Go Reference](https://pkg.go.dev/badge/github.com/sebishogun/simd.svg)](https://pkg.go.dev/github.com/sebishogun/simd)
 [![CI](https://github.com/sebishogun/simd/actions/workflows/ci-local.yml/badge.svg)](https://github.com/sebishogun/simd/actions/workflows/ci-local.yml)
 
-**Fast slice math and text scanning for Go, using the vector unit your CPU
-already has — without cgo.**
+**Hardware-accelerated SIMD vector math, text scanning, matrix operations, and columnar codecs for Go — using the vector unit your CPU already has, without cgo.**
 
-`simd` applies runtime-selected SIMD kernels to ordinary Go slices. The v1.20.0
-tree contains 493 exported functions and 6,931 generated kernels for SSE2,
+`simd` applies runtime-selected SIMD kernels to ordinary Go slices. The v1.21.0
+tree contains 493 exported functions and 6,933 generated kernels for SSE2,
 AVX2, AVX-512, NEON, SVE2, RVV, VSX, VX, and LASX. A portable Go path covers
 every operation and every unsupported target.
 
@@ -23,7 +22,7 @@ kernels are compiled ahead of time and committed as assembly, so this is an
 ordinary Go dependency with one transitive import (`golang.org/x/sys`, for CPU
 feature detection). Dispatch is one static table per operation, so the linker
 keeps only the operations a program actually calls: a binary using three
-operation families does not retain all 6,931 kernels.
+operation families does not retain all 6,933 kernels.
 
 ## Quick start
 
@@ -389,7 +388,7 @@ cgo.
 
 ## Engineering record
 
-[**docs/wrong.md**](docs/wrong.md) records 79 things that measurement disproved,
+[**docs/wrong.md**](docs/wrong.md) records 87 things that measurement disproved,
 including changes that were deleted rather than shipped. Examples:
 
 - Green test lanes had executed no accelerated code for months.
@@ -403,9 +402,26 @@ including changes that were deleted rather than shipped. Examples:
 `docs/research/` carries the longer reasoning behind design decisions;
 `05-decisions.md` is the decision record.
 
+## Frequently asked questions
+
+- **Does Go support SIMD vectorization natively without cgo?**  
+  Yes. `simd` provides whole-slice SIMD vector acceleration in pure Go without cgo, C toolchains, or custom build tags. Ahead-of-time generated Plan 9 assembly kernels execute directly under Go's internal register ABI (ABIInternal).
+
+- **Which SIMD instruction sets and CPU architectures are supported?**  
+  `simd` ships 6,933 generated kernels across 10 ISA tiers: x86-64 (SSE2, AVX2, AVX-512), ARM64 (NEON, SVE2), RISC-V (RVV 1.0), PowerPC (VSX), SystemZ (VX), and LoongArch (LASX), with a portable Go fallback for all unsupported targets.
+
+- **How does `simd.go` compare to `GOEXPERIMENT=simd` intrinsics in Go 1.26 and Go 1.27?**  
+  Go 1.26 introduced experimental intrinsics (`simd/archsimd` on `amd64`), and Go 1.27 expanded it to `arm64` NEON and `wasm`. However, `GOEXPERIMENT=simd` requires consumers to set a build-time flag, does not support scalable vector units (ARM SVE2, RISC-V RVV 1.0), and lacks Clang unrolling optimizations ($4.4\times$ slower on whole-slice loops at $N=256$). `simd.go` requires zero build flags, supports 10 ISA tiers, and delivers optimal whole-slice throughput.
+
+- **Does `simd.go` support WebAssembly (WASM)?**  
+  On `GOARCH=wasm`, `simd` automatically executes the portable Go fallback path. Go's WASM assembler (`cmd/internal/obj/wasm`) lacks SIMD128 opcodes and raw byte lifting breaks WebAssembly stack validation, so WebAssembly SIMD is left to Go 1.27's internal compiler intrinsics.
+
+- **What is the minimum slice length (crossover threshold) for SIMD in Go?**  
+  The assembly call overhead is roughly 0.45 ns to 1.4 ns. For slice sizes under 16 to 64 elements, scalar Go is faster; for batches of hundreds to millions of elements, `simd` delivers up to $109\times$ speedups.
+
 ## Status
 
-**v1.20.0.** The API is stable: every exported function keeps its name,
+**v1.21.0.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.

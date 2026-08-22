@@ -127,5 +127,25 @@ var allFlatTables = map[string][]any{
 	"Bytes.VarintDecodeU64":          {tblBytesVarintDecodeU64[0], tblBytesVarintDecodeU64[1], tblBytesVarintDecodeU64[2], tblBytesVarintDecodeU64[3]},
 }
 
+// allGroupTables enumerates the per-tier partial structs the runtime
+// overlays from, keyed by kernel.Set group. Slot 0 is the reference
+// and is nil; the rest are one per accelerated tier, in tier order.
+var allGroupTables = map[string][]any{
+	"F32":       {nil, opsF32SSE2, opsF32AVX2, opsF32AVX512},
+	"F64":       {nil, opsF64SSE2, opsF64AVX2, opsF64AVX512},
+	"I16":       {nil, opsI16SSE2, opsI16AVX2, opsI16AVX512},
+	"I32":       {nil, opsI32SSE2, opsI32AVX2, opsI32AVX512},
+	"I64":       {nil, opsI64SSE2, opsI64AVX2, opsI64AVX512},
+	"I8":        {nil, opsI8SSE2, opsI8AVX2, opsI8AVX512},
+	"U16":       {nil, opsU16SSE2, opsU16AVX2, opsU16AVX512},
+	"U32":       {nil, opsU32SSE2, opsU32AVX2, opsU32AVX512},
+	"U64":       {nil, opsU64SSE2, opsU64AVX2, opsU64AVX512},
+	"U8":        {nil, opsU8SSE2, opsU8AVX2, opsU8AVX512},
+	"C128":      {nil, cplxC128SSE2, cplxC128AVX2, cplxC128AVX512},
+	"C64":       {nil, cplxC64SSE2, cplxC64AVX2, cplxC64AVX512},
+	"C128Parts": {nil, partsC128PartsSSE2, partsC128PartsAVX2, partsC128PartsAVX512},
+	"C64Parts":  {nil, partsC64PartsSSE2, partsC64PartsAVX2, partsC64PartsAVX512},
+}
+
 // archSets hands the tests every tier's complete kernel set.
 var archSets func() map[string]kernel.Set = amd64.Sets

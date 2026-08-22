@@ -3043,3 +3043,621 @@ element-scratch allocation, but duplicate-skew recovery can allocate one mask
 for each equal run it extracts. The active API documentation now states that
 exception. Historical changelog text remains a record of the implementation at
 the time of each release.
+
+## Every complex kernel was generated, tested, and dispatched to by nothing
+
+**Believed.** The complex surface -- `DotComplex`, `DotComplexConj`,
+`ScaleComplex`, `SumComplex`, the arithmetic set, and the ComplexParts half
+that produces real slices -- runs on the generated assembly like the rest of
+the library. nine `internal/<arch>/complex_*.s` files exist -- sse2, avx2, avx512, neon,
+sve2, rvv, vsx, vx, lasx, across six architectures -- `registerComplex<TIER>`
+installs them, and `TestInventoryCoversEveryGroup` asserts that `C64`,
+`C128`, `C64Parts` and `C128Parts` all carry declared kernels. All of that
+was true.
+
+**Actually.** None of it was reachable from a consumer. `complexOps[C]()`
+returned `&refBase.C64` / `&refBase.C128` *directly*, with no per-tier
+overlay, and `complexParts` did the same:
+
+```go
+case complex128:
+    return any(&refBase.C128).(*kernel.Complex[C])   // complex.go:33, before
+```
+
+The dispatch tables the runtime indexes carried no complex entry at all --
+`grep -c Complex dispatch_tables_amd64.go` was **0**, against ten
+`opsXXByTier` tables for the real element types -- because
+`tools/simdgen/emit/dispatch_gen.go` had a `numericElem` map and no complex
+equivalent, so `numericGroupsIn` skipped every complex group and emitted
+nothing for them. The generated complex assembly was reachable only from
+`internal/<arch>/sets_gen_<arch>.go`, whose own generated header says "Tests
+call this; consumers never do".
+
+The test that should have caught it is `TestDeclaredKernelsAreWired`, not
+`TestInventoryCoversEveryGroup` -- the first version of this entry named the
+wrong one. `TestDeclaredKernelsAreWired` checks the runtime tables
+(`allFlatTables`) for exactly three groups, `Bytes`, `Convert` and `Mask`,
+and sends everything else -- numeric AND complex -- through `archSets()`,
+the test-only aggregator. So the numeric groups have the same nominal hole;
+they were saved by having real tables, not by being checked. Nothing walked
+the tables the runtime actually uses for a non-flat group.
+
+Confirmed by disassembly, which is the only thing that would have shown it.
+The symbol survives only where the call is not inlined -- the root package's
+own test binary inlines it and prints nothing, so this is the
+`internal/benchmarks` binary:
+
+```
+$ go test -c -o /tmp/bench.test ./internal/benchmarks
+$ go tool objdump -s 'simd\.DotComplex\[' /tmp/bench.test
+  complex.go:31  LEAQ github.com/sebishogun/simd.refBase+13560(SB), AX
+```
+
+Empirically, from a consumer module calling `simd.DotComplex`: 0 complex
+kernel symbols linked before, 24 after. A consumer calling only `simd.Sum`
+links 0 in both, so the per-operation dead-code elimination survives.
+
+**How it surfaced.** Not from this repository. A downstream evaluation
+(simdblas Task 4, complex Level 1 against gonum) measured `Zdotu`/`Zdotc`
+2.2x-3.1x slower than gonum at n <= 100000, 1.65x-1.86x at n = 1e6. Not
+against "a plain Go loop", as the first version of this entry said: gonum's
+unit-increment complex dot calls `c128.DotuUnitary`/`DotcUnitary`, which are
+hand-written AVX assembly on amd64. Losing to it is not by itself proof of
+anything. The tell was that `GOSIMD=scalar` and the detected tier gave
+identical timings.
+
+**Cost, measured.** `GOSIMD=scalar` against `avx512` in one binary --
+one build, so the 8.3% layout floor does not apply; there is no second
+layout to differ. Complete grid, minimum of six alternating passes,
+reproduced twice. **amd64/avx512 only**: no other architecture was measured,
+and the per-tier ratios elsewhere are not these.
+
+The machine was at load 5-12 for this, against the project rule of load
+under 1. The wall-clock column is therefore the weaker evidence; the
+instruction column below it is layout- and load-independent and is what the
+conclusion rests on.
+
+| operation | scalar ns/op | avx512 ns/op | ratio |
+|---|---|---|---|
+| Dot c128 n=1024 | 749.7 | 101.5 | 7.39x |
+| Dot c128 n=65536 | 47156 | 15459 | 3.05x |
+| Dot c128 n=1048576 | 805434 | 408702 | 1.97x |
+| DotConj c128 n=1024 | 890.1 | 102.5 | 8.68x |
+| DotConj c128 n=65536 | 55570 | 15488 | 3.59x |
+| DotConj c64 n=1024 | 1249 | 97.31 | 12.8x |
+| DotConj c64 n=65536 | 83114 | 6614 | 12.6x |
+| DotConj c64 n=1048576 | 1276125 | 158120 | 8.07x |
+| Sum c128 n=1024 | 470.1 | 43.43 | 10.8x |
+| Sum c128 n=65536 | 29002 | 5611 | 5.17x |
+| Sum c128 n=1048576 | 480519 | 115280 | 4.17x |
+| DotConj c128 n=1048576 | 918445 | 420455 | 2.18x |
+
+Instructions retired per element, two-point slope so setup cancels, which
+is the number that does not move with load:
+
+| operation | scalar | avx512 | ratio |
+|---|---|---|---|
+| Sum c128 n=1048576 | 12577259 | 1040671 | 12.1x |
+| Dot c128 n=1048576 | 32070536 | 2627180 | 12.2x |
+| DotConj c64 n=1048576 | 44563734 | 2030498 | 22.0x |
+
+(The three `DotConj/c128` cells have no instruction row: `go test -bench`
+cannot exclude the deeper `impl=naive` sub-benchmark, so selecting them
+also runs it and its instructions scale with `-benchtime` too.)
+
+**When, exactly.** Not "since the kernels were written" -- the first version
+of this entry said that and it is wrong. The kernels landed in `ba09d24` and
+dispatched correctly through `active.C64`/`active.C128`. The break came with
+`02c258a`, "Per-operation dispatch: the linker keeps only what a program
+calls", which replaced `active` with `refBase` plus per-tier tables and
+emitted no complex tables:
+
+```
+$ git show v1.13.0:complex.go | grep 'active\.C64'   -> return any(&active.C64)...
+$ git show v1.14.0:complex.go | grep 'refBase\.C64'  -> return any(&refBase.C64)...
+$ git tag --contains 02c258a --sort=creatordate | head -1
+v1.14.0
+```
+
+So the affected releases are **v1.14.0 through v1.20.0** -- seven tags. A
+consumer pinned to v1.13.0 or earlier was never affected. The table
+mechanism itself arrived in that commit, so the missing `complexElem` was
+never an omission from an older design; it was a group the new design did
+not carry over.
+
+**The repository's own baseline held the evidence.** `testdata/bench/amd64.txt`
+was recorded at `f6c72f9`, before the regression, with
+`BenchmarkComplexReduce/Dot/c128/n=1024-8` at 101.2-101.9 ns/op -- a
+benchmark that calls the public `simd.DotComplex`. The portable path for
+that shape is 749.7 ns/op, 7x against `make bench-check`'s 25% threshold.
+Whether the gate was run at `02c258a` is not recoverable from here; the
+baseline was never updated, which is why it is still pre-regression and
+still a working detector.
+
+**Fix.** `dispatch_gen.go` gained `complexElem`/`partsElem` and an
+`emitTierTable` that writes `cplx<Group>ByTier` and `parts<Group>ByTier`
+alongside the existing `ops<Group>ByTier`; `dispatch.go` gained a
+`groupCache[G any]` (opsCache is constrained to `Number`, and neither
+`kernel.Complex` nor `kernel.ComplexParts` is `kernel.Ops`) with an
+`overlayAny`; `complexOps`/`complexParts` now route through it. The
+regenerated tables are **additive only** -- 0 deleted lines across all seven
+`dispatch_tables_*.go`, 479 added.
+
+`dispatch_complex_test.go` is the test that would have caught it: it compares
+the function pointer `DotComplex` actually reaches against the reference
+set's, which is the question a caller asks and the inventory walk does not.
+
+## The three-way partition may already be built, and the 34% has not been re-measured
+
+ROADMAP.md records one losing case for `Sort`: few distinct values at 16384,
+by 34% against `slices.Sort`, with "**the fix is a three-way partition**" and a
+note that it "needs a second kernel". `docs/plans/2026-08-13-simd-production.md`
+Task 1 carries the same plan.
+
+Reading `sort.go` before writing the kernel: `extractEqual` already does the
+three-way split. When the split comes back skewed past `sortSkewLimit`, it
+takes the run equal to the pivot out of the recursion entirely — which is what
+a below/equal/above partition buys — and it does so with kernels this package
+already ships (`EqualScalarInto`, `CountTrue`, `NotMask`, `CompressInto`), so
+no second kernel was needed for that part. Its own comment says so.
+
+That does not close the task, and the reason is that nothing here has been
+measured on a quiet machine. Two attempts:
+
+    load 2.2-2.5, min of 3 x 300:   simd 28,531 ns   slices 23,000 ns   1.24x
+    load 12.0,    min of 5 x 400:   simd 117,359 ns  slices 79,546 ns   noise
+
+The second set is unusable — the same benchmark moved by 4x between them, and
+three review agents were running. The first set is not quiet either. What can
+be said: the gap at that shape is real and still there, and 1.24x is not 1.34x.
+What cannot be said: whether it is 24%, whether the difference from 34% is the
+`extractEqual` work landing, or whether either number survives a quiet machine.
+
+So no number in ROADMAP.md was changed. Overwriting a measured claim with a
+worse-conditioned one is not a correction. What the task needs first is the
+measurement under load average below 1, and then a profile — because if the
+residual is the `copy(a, scratch[:len(a)])` after every partition rather than
+the split itself, a three-way kernel does not address it and would be built for
+a cause nobody checked.
+
+## A forgotten reference wiring shipped past the whole normal-lane suite
+
+**Probed, 2026-08-15.** `Sqrt: sqrt[T]` deleted from `floatOps` in
+`internal/ref/ref.go` — one entry, the shape of a wiring somebody forgets when
+adding a kernel.
+
+| lane | result |
+|---|---|
+| `TestDeclaredKernelsAreWired`, normal | **PASS** (verified with `-v` that it ran) |
+| `TestDeclaredKernelsAreWired`, purego | **PASS** |
+| whole suite, normal — all 14 packages | **PASS** |
+| whole suite, purego | FAIL, `TestInPlaceMatchesInto` |
+
+So the completeness gate that exists for exactly this did not see it, and the
+only thing that did was a functional test in a lane nobody runs by default.
+
+The cause is scope. `TestDeclaredKernelsAreWired` walks `backend.Inventory`
+against the dispatch tables and `archSets()` — the GENERATED side. `ref.Set()`
+is never in the subject, and its doc comment says so plainly: "The subject is
+`active` ... and not `ref.Set()`. That is not a shortcut, it is the only
+correct choice", because ref leaves every Fast slot nil until a backend
+registers. That reasoning is right about Fast slots and was taken to cover the
+whole reference.
+
+The reference is not optional. It is the live fallback on architectures with
+no backend, in `purego` builds, and below every kernel's element threshold —
+so a nil there is a nil call in the small-n path of an operation that works on
+a big slice.
+
+`TestDeclaredKernelsAreWiredInTheReference` is the other half: every
+non-`Fast` entry in `backend.Inventory` must be non-nil in `refBase`. 853
+today. The `Fast` exclusion is the same one the older test's comment describes,
+for the same reason.
+
+**Also settled, and against a plan.** `docs/plans/…-simd-production.md`'s item
+1 proposes generating the `internal/ref` ops-table entry and the
+`kernel.Ops` struct field from the manifest, and justifies it as removing "the
+two easiest things to forget — one of which caused the `-tags purego` panic
+that `TestDispatchTableComplete` now guards". Half of that is wrong: a
+forgotten `kernel.Ops` FIELD cannot ship, because the generator emits code
+referencing it and the build fails; a forgotten `ref` WIRING shipped past
+fourteen packages, as above. The gate is the fix; codegen would be
+convenience, and it would move the numerical contract — which lives in the
+`kernel.Ops` field comments — into a manifest.
+
+## `make fuzz` fuzzed one of its three targets and exited 0
+
+Measured 2026-08-16, by sweeping the family for fuzz targets nothing runs.
+
+The recipe named two targets and the comment above it opened "Two fuzz
+targets". There are three, and only ONE of them was being fuzzed:
+
+| target | what happened |
+|---|---|
+| `FuzzKernelsAgainstReference` | fuzzed, correctly |
+| `FuzzDifferential` | named, and run in the ROOT package while the target lives in `internal/tests/arrays` |
+| `FuzzJSONMasksMatchesSeparateCalls` | never named; only its seed corpus ever ran, under `go test` |
+
+The middle row is the one worth the entry:
+
+```
+$ go test -run '^$' -fuzz FuzzDifferential -fuzztime 3s .
+PASS
+ok  	github.com/sebishogun/simd	0.002s
+EXIT=0
+```
+
+**`go test -fuzz X` in a package with no target called X exits 0.** It does not
+error, it does not warn, it prints `PASS`. So half of `make fuzz` had been
+reporting success for a step that fuzzed nothing, and the only tell was a
+duration of two milliseconds where sixty seconds were asked for.
+
+Targets are discovered per package now — `go test -list '^Fuzz'` asks the
+compiler, and a target can only be fuzzed in the package it was found in, so
+the wrong-package shape is unreachable rather than merely fixed. The recipe
+also fails outright if it ends up running nothing at all, because a discovery
+loop over an empty list is the same silent green one level up.
+
+**The same sweep, across the family.** Ten repositories. `simdlogs` already
+discovered its targets and its workflow says why: "A hand-maintained list is
+how a new target gets written and never run." `simdhttp` hand-listed three of
+four and is fixed (its own entries 15 and 16 — the missing one had been named
+in a verification document since v1.2.0 and never written). `simdcsv` (3
+targets) and `simdparquet` (13) have no fuzz recipe at all; `simdjson` names 11
+of 14. Those are recorded here and not yet fixed.
+
+**The shape.** A gate that cannot fail is this family's most persistent defect,
+and every instance so far has been a test or an assertion. This is the same
+thing at the build level: a Makefile recipe whose command succeeds while doing
+nothing, in the repository the others depend on.
+
+## 75. The archsimd small-n win depends on inlining, and a package cannot inline
+
+`docs/research/08-goexperiment-simd-small-n.md` measured `GOEXPERIMENT=simd`
+intrinsics against the portable loop at −19.2% (n=8), −26.8% (16) and −31.7%
+(32) instructions, and concluded: build it, elementwise first. The plan put the
+implementation in a new `internal/fastpath` package that every generated guard
+would call below its threshold.
+
+Built, bit-identity-gated, and measured. `perf stat -e instructions:u`,
+2,000,000 iterations, interleaved, three rounds at n=8 and two at the rest,
+disjoint ranges throughout:
+
+| | ref | archsimd | |
+|---|---|---|---|
+| f32 n=8 | 124.06M | 155.85M | **+25.6%** |
+| f32 n=9 | 136.12M | 288.08M | **+111.6%** |
+| f32 n=16 | 220.20M | 228.13M | **+3.6%** |
+| f32 n=17 | 232.14M | 360.57M | **+55.3%** |
+| f32 n=32 | 412.03M | 371.91M | −9.7% |
+| f64 n=8 | 124.17M | 228.07M | **+83.7%** |
+| f64 n=16 | 220.05M | 372.34M | **+69.2%** |
+
+It loses across the whole band the guards actually use, and wins only at f32
+n≥32 — above where any guard falls back.
+
+**The cause is inlining, and the research document had already named the risk
+without measuring it.** `-gcflags=-m`:
+
+```
+fastpath_ref.go:16:6:  can inline AddFloat32          <- the one-line forward to ref
+fastpath_simd.go:38:36: inlining call to archsimd.LoadFloat32x8Slice
+                        (no "can inline AddFloat32")  <- the loop cannot
+```
+
+The portable fallback is a one-line forward, so the guard inlines it and pays
+nothing to reach it. The archsimd version is a loop, and Go does not inline a
+function containing one — so it is a real call, and at n=8 that call is most of
+the work. The record's reproducer was a direct inlined loop and said so: *"It is
+a direct call, not the guarded one … the end-to-end figure will be smaller than
+19–32%."* Smaller was the wrong word. It is negative.
+
+**The record's table measured only exact multiples of the vector width, and that
+hid the worst of it.** n=9 and n=17 — one full vector plus a one-element tail,
+which is the shape the guard band mostly sees — cost +111.6% and +55.3%. A table
+of 8/16/32 cannot show a tail cost.
+
+**float64 loses everywhere in the band**, and for a structural reason: 4 lanes
+means n=8 is two vectors and n=16 is four, so the call is amortised over half as
+much arithmetic as f32 at the same length. The research document measured f32
+only.
+
+Reverted. What the next attempt has to do differently is emit the intrinsics
+**inside the generated backend**, in the same package as the guard, where they
+can inline into it — not behind a package boundary. Until something does that,
+the measured answer for the guard band is that `internal/ref` is the faster
+fallback.
+
+The bit-identity gate that came with it did pass, at every length 0–40 over
+IEEE specials, on both lanes: elementwise archsimd IS bit-identical to `ref`,
+which was the other thing that had to be true. That half of the record stands.
+
+## 76. Forced vectorization: the bucket the pragma is for is the bucket the contract forbids
+
+The plan's item 5 proposed trying `#pragma clang loop vectorize(enable)` per
+(kernel, target) and keeping measured winners, over "346 refusals: ~60
+`scatter_*`, ~30 `reverse_*`, 114 float/`fast_*` — the plausible wins".
+Measured, before writing any pragma. Every number in that sentence is wrong,
+and the investigation ends somewhere else.
+
+**The inventory.** `make check-emission`, clang 22.1.8: **336** (kernel, tier)
+refusals over **132** distinct kernels, not 346.
+
+| tier | vsx | neon | sse2 | vx | sve2 | lasx | rvv | avx2 | avx512 |
+|---|---|---|---|---|---|---|---|---|---|
+| refusals | 81 | 80 | 56 | 36 | 33 | 23 | 14 | 10 | 3 |
+
+By operation, as (kernel, tier) pairs: `scatter` 65, `gather` 31, `reverse` 30,
+`tile` 10, `reversebits` 10 — the permute/scatter family is **162 of 336, 48%**,
+and each needs an instruction the target does not have. `gather` at 31 pairs is
+larger than `reverse` and the plan did not mention it.
+
+**There is no float bucket.** `fast_*` refusals: **zero**. Float-typed
+refusals: 59 of 336, and on the three amd64 tiers only **2** — both
+`f8e*_to_f32`, which are integer bit manipulation. The refused
+`prod`/`dot`/`sumsq*`/`sumsqdev`/`sumsqdiff` entries are all `i64`/`u64`:
+64-bit integer reductions, blocked by a missing multiply (SSE2 has no
+`pmullq`), not by anything a pragma reaches.
+
+**The pragma's own bucket is ten loops.** `-Rpass-analysis=loop-vectorize` over
+all of `csrc` at sse2, by reason:
+
+| reason | loops |
+|---|---|
+| instruction return type cannot be vectorized | 1929 |
+| loop control flow is not understood | 186 |
+| value that could not be identified as reduction is used outside the loop | 128 |
+| potentially faulting load | 58 |
+| store instruction cannot be vectorized | 47 |
+| **cannot prove it is safe to reorder floating-point operations** | **10** |
+
+Ten. And clang's own remark names the remedy: *"allow reordering by specifying
+'#pragma clang loop vectorize(enable)' before the loop or by providing the
+compiler option '-ffast-math'"*. The pragma there is not a cost-model override,
+it is **permission to reassociate** — which changes the answer. The numerical
+contract in `internal/kernel/kernel.go` is the reason `-ffp-contract=off` is in
+`commonFlags` at all, and the repository already has the correct home for a
+kernel that trades it: the `simd_fast_*` prefix. So the one bucket the pragma is
+designed for is the one bucket that cannot take it without becoming a different
+operation.
+
+The ten are `csrc/numeric.c:121,127,133,139` (the `CONVOLVE` accumulation, four
+instantiations), `csrc/numeric.c:399,404`, and `csrc/gemm.c:142` (`GEMM`, four).
+
+**And those same kernels ship scalar today.** `simd_convolve_f32`,
+`simd_correlate_f64` and their siblings are refused on **zero** tiers — they
+pass the emission gate — yet:
+
+| tier | simd_convolve_f32 | packed arithmetic | scalar arithmetic |
+|---|---|---|---|
+| sse2 | 119 instrs | **0** | 10 (`mulss`, `addss`) |
+| avx2 | 140 instrs | **0** | 10 (`vmulss`, `vaddss`) |
+| avx512 | 141 instrs | **0** | 10 |
+
+Its only vector instructions on sse2 are 2 `movups` and 2 `xorps` — a move and
+a register zero. `dispatch_tables_amd64.go` carries
+`Convolve: amd64.ConvolveFloat32SSE2` and `ConvolveFloat32AVX2`, so a caller on
+amd64 dispatches into an assembly kernel that multiplies one element at a time,
+paying the dispatch and threshold machinery for it.
+
+**The gate cannot see this, structurally.** `verify.vectorWidth` returns >0 for
+any amd64 instruction whose operands mention `%xmm`/`%ymm`/`%zmm` — and every
+scalar float instruction on x86-64 uses those registers. `vmulss %xmm0, %xmm1,
+%xmm2` counts as vectorized. So `RequireVector`, whose comment says it exists
+because "dispatching to it would run scalar code under a name promising
+otherwise", cannot report a scalar float kernel on amd64 at all. Its 69 amd64
+refusals are integer kernels, necessarily.
+
+**Counted properly, by the generator.** The first pass here was a shell scan
+over every symbol in each object, which included helpers that are not kernels
+and used a cruder mnemonic match; it reported 26 at sse2 and 8 at avx2. Those
+numbers are superseded. `verify.arithKind` now classifies each instruction as
+packed arithmetic, scalar arithmetic or neither — moves and the `xorps
+%xmm0,%xmm0` zeroing idiom are neither, which is the point — and `make
+check-emission` prints `SCALAR-ONLY` for any kernel that does arithmetic with
+none of it in lanes:
+
+| tier | instances |
+|---|---|
+| amd64/avx512 | 9 |
+| amd64/sse2 | 8 |
+| amd64/avx2 | 8 |
+| arm64/sve2 | 8 |
+| arm64/neon | 5 |
+
+**38 instances over 13 distinct kernels**: `polyeval`, `convolve`, `correlate`,
+`movavg`, `minr` (f32 and f64 each), `rolling_min_f64`, `rolling_max_f64`,
+`dtoa_f64`. It is **not an x86 quirk** — arm64 has 13 of the 38, and there the
+gate is blind for the same reason in a different spelling: `fmul s0, s1, s2` is
+scalar and `fmul v0.4s, v1.4s, v2.4s` is packed, and `vectorWidth` reads the
+register file, not the arrangement.
+
+The classifier runs on amd64 and arm64 only, and `Report.ArithKnown` says so:
+on the other four architectures a zero count means "not measured", and
+`ScalarOnly()` returns false there rather than reporting a finding it did not
+make.
+
+**What this leaves.** Not a pragma sweep. Two separate things:
+
+1. `vectorWidth` on amd64 should not count a scalar-form instruction (`*ss`,
+   `*sd`) as vector, and `RequireVector` should ask "does this kernel do
+   arithmetic, and is none of it packed" rather than "is any register wide".
+   A permute kernel does no arithmetic and must still pass.
+2. Fixing the gate DROPS the eight, falling back to `internal/ref`. Whether
+   that is faster than the scalar assembly is unmeasured: both are scalar, and
+   the assembly costs a call the guard would otherwise inline. That is the
+   benchmark this needs, and the machine was not quiet (load average 1.17, two
+   review agents building) when this was written, so no number is offered.
+
+The transferable part is the same one as entry 25: a gate that asks a proxy
+question answers the proxy question. "Contains an instruction that touches a
+vector register" is not "vectorized", and on the one architecture that runs
+natively here the two are never the same for float code.
+
+## 77. Blocking the outer loop is what vectorizes a reduction kernel, and it is bit-identical
+
+Entry 76 found `polyeval`, `convolve`, `correlate` and `movavg` shipping scalar
+on every tier while passing the emission gate, and left the question of what to
+do about it open. The answer is not a pragma and not a fallback: it is the loop
+nest.
+
+**LLVM's loop vectorizer only ever vectorizes the INNERMOST loop.** Every one of
+these kernels is an outer loop over independent outputs wrapped around an inner
+reduction with a runtime trip count:
+
+```c
+for (isize i = 0; i < n; i++) {         // independent — but not innermost
+  T acc = c[nc - 1];
+  for (isize k = nc - 2; k >= 0; k--)   // innermost — a serial dependency
+    acc = acc * xv + c[k];
+  d[i] = acc;
+}
+```
+
+So the vectorizer looked at the Horner recurrence, could not break it without
+reassociating, and gave up — and `polyeval`'s own comment claimed the opposite:
+"The outer loop over elements is independent, which is what vectorizes."
+
+**Blocking swaps which loop is innermost without touching any element's
+arithmetic.** A fixed-size accumulator array, elements in tiles of 16:
+
+```c
+for (; i + 16 <= n; i += 16) {
+  T acc[16];
+  for (b) acc[b] = c[nc - 1];
+  for (k) { T ck = c[k]; for (b) acc[b] = acc[b] * x[i + b] + ck; }
+  for (b) d[i + b] = acc[b];
+}
+```
+
+Every output still evaluates the same coefficients in the same order, so this is
+**bit-identical**, not close. That distinction is the whole point: reassociating
+is exactly what `#pragma clang loop vectorize(enable)` would have done and what
+the numerical contract forbids. Nothing is allocated — 16 doubles is 128 bytes
+against the 512-byte kernel frame budget — and the tail runs the original nest.
+
+Packed arithmetic instructions per symbol, from `go run ./simdgen -n -v -only
+csrc/numeric.c` in `tools/`, run twice: once against `git show
+c1d08c4:csrc/numeric.c` and once against the blocked file.
+
+| | before, every amd64 tier | sse2 | avx2 | avx512 |
+|---|---|---|---|---|
+| `simd_polyeval_f32` | 0 | 24 | 20 | 18 |
+| `simd_polyeval_f64` | 0 | 16 | 40 | 20 |
+| `simd_convolve_f32` | 0 | 8 | 20 | 12 |
+| `simd_convolve_f64` | 0 | 16 | 24 | 21 |
+| `simd_correlate_f32` | 0 | 8 | 20 | 20 |
+| `simd_correlate_f64` | 0 | 16 | 24 | 21 |
+| `simd_movavg_f32` | 0 | 16 | 20 | 10 |
+| `simd_movavg_f64` | 0 | 16 | 24 | 20 |
+
+The scalar count does **not** move: 10 at sse2 and 18 at avx2/avx512, identical
+before and after on all eight symbols. So those instructions are not a tail the
+blocking introduced — they were already there, and blocking added packed work
+beside them rather than converting scalar work into it. `movavg` at avx512 f32
+gets only 10 packed against 20 at avx2 because a 16-element f32 block is exactly
+one zmm.
+
+A first version of this entry gave an avx2 column that was wrong in all six rows
+it listed and called the scalar remainder a tail. Both came from reading one
+tier's numbers and generalising.
+
+`SCALAR-ONLY` went from **13 kernels to 5** (`dtoa_f64`, `minr_f32/f64`,
+`rolling_min_f64`, `rolling_max_f64`). And loong64 gained two kernels, 728 →
+730: `simd_movavg_f32` and `simd_movavg_f64` were refused there with "LLVM did
+not vectorize it for lasx" and now emit, so the total moved 6,931 → 6,933.
+
+**The bit-identity claim is tested, and the test was checked for being
+vacuous.** `internal/conformance` compares each tier against `ref` at eighteen
+length pairs (`lenPairs`, `internal/conformance/numeric_test.go:23`), eight of
+which have a destination at or above the guard's threshold of 16 — so
+the SIMD path is genuinely reached. Poisoning the blocked path only
+(`acc[b] = acc[b]*x[i+b] + ck + 1`) reddens it at `dst=16 x=16 coeffs=2 i=0`,
+the first blocked case, which is what says the comparison sees the new code
+rather than the fallback.
+
+**Not measured: whether it is faster.** It executes fewer instructions per
+element and the arithmetic is in lanes, but the machine was not quiet (load
+average 2.27, two review agents building) and no wall-clock or counter number
+is offered. What is established is that the kernels now do their arithmetic in
+lanes and produce the same bits, which is the precondition for the speed
+question rather than an answer to it.
+
+**A review sweep put the bit-identity claim far past what those eighteen pairs
+reach.** Every `nd` in 0..200 crossed with 22 other lengths and with `nd±1` and
+`nd+15/16/17`; `nc`/`nk`/`w` in `{-1,0,1,2,3,4,15,16,17,31,33}`; seven value
+generators per precision including catastrophic cancellation (`1e16, 1, -1e16,
+1`), mid-accumulation overflow (`MaxFloat, MaxFloat, -MaxFloat`, where
+left-to-right gives +Inf and any other grouping gives a finite number),
+magnitudes switching at every 16-element block boundary, ±0 and subnormals, and
+NaN payloads. **3,286,542 cases per tier, 3,027,710 of them reaching the kernel
+rather than `ref`, on all nine tiers — sse2/avx2/avx512 native and
+neon/sve2/rvv/lasx/vsx/vx under qemu-user. Zero differing bits.** Perturbing
+`ref` by +1 only at output index ≥ 16 reddens every comparison site
+(197k–291k mismatches per operation), so the sweep is not vacuous. A separate
+`PROT_NONE` guard-page probe placing dst, signal and kernel each so its last
+element ends on the last accessible byte — ~88k kernel calls per tier — faulted
+nowhere, and the mechanism was checked by reading one element past the page.
+
+**arm64 pays for this, and the cost is not measured.** LLVM did not vectorize
+the block loop there; it unrolled over `b` and vectorized over `j` instead, so
+each accumulator gets a packed multiply of 4 taps and then an in-order scalar
+horizontal reduction. That needs 16 live scalar accumulators plus vector
+temporaries, and the tap loop of `simd_correlate_f32` at neon carries 18 spill
+stores and 18 reloads per iteration:
+
+| tier | kernel | stack | scalar float arith |
+|---|---|---|---|
+| neon | `simd_correlate_f32` | 0B → **320B** | 10 → **82** |
+| neon | `simd_convolve_f32` | 0B → **272B** | 10 → **82** |
+| neon | `simd_convolve_f64` | 0B → 80B | 6 → **70** |
+| neon | `simd_correlate_f64` | 0B → 80B | 6 → **70** |
+| sve2 | `simd_movavg_f64` | 0B → 144B | 2 → **34** |
+
+All are inside the 512-byte frame budget so nothing is dropped, and the results
+are bit-identical — the reduction stays strictly in order. But six arm64 kernels
+went from a zero frame to 80–320 bytes with 7–13x the scalar float arithmetic,
+and this repository has no arm64 hardware lane. Whether the packed tap multiply
+pays for the spill traffic is unknown on the only architecture where the
+question is open.
+
+`movavg` also rules out the obvious alternative: a sliding window (subtract the
+element leaving, add the one arriving) is O(n) instead of O(n·w) and gives a
+DIFFERENT number, because floating-point addition does not cancel.
+
+## 78. Generating the ref/kernel wiring is now maintainability, not correctness
+
+The plan's extensibility item proposed generating two of the eight files a new
+kernel touches -- `internal/ref/ref.go`'s ops-table entry and
+`internal/kernel/kernel.go`'s struct field -- on the argument that they are
+"the two easiest things to forget, one of which caused the `-tags purego` panic
+that `TestDispatchTableComplete` now guards".
+
+Both halves of that failure are now caught by a gate, in both lanes. Measured,
+`Sqrt: sqrt[T]` deleted from `floatOps`:
+
+	                                        normal   purego
+	before TestDeclaredKernelsAreWiredInTheReference   green    red
+	  (and red only through TestInPlaceMatchesInto,
+	   a functional test, not a completeness gate)
+	after                                    RED      RED
+
+`TestDeclaredKernelsAreWiredInTheReference` walks `backend.Inventory` and, for
+every declared kernel, asserts `kernel.Set` has the group AND the field AND
+that the field is non-nil in `ref.Set()`. That is exactly the three-way
+relation generation was proposed to enforce: manifest -> struct field ->
+reference wiring. A forgotten entry cannot ship past the ordinary `go test`
+lane any more.
+
+So the item is not dropped, it is REPRICED. What generation still buys is two
+fewer files to edit per kernel and one less place for a rename to go stale;
+what it no longer buys is protection against a class of defect that has
+already shipped once. That matters for ordering: it is a refactor of a stable
+v1 contract across six architectures, needing `make codegen`, `make verify` and
+the whole cross-architecture matrix to land safely, and its remaining value is
+ergonomic. It goes behind anything that fixes an answer.
+
+The mutation is recorded here rather than left implicit because the plan's own
+justification for the item no longer holds, and the next person to read that
+plan would otherwise re-derive the priority from a sentence that was true when
+it was written.

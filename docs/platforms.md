@@ -48,7 +48,7 @@ same portable implementations used for per-operation fallback.
 ## Kernel coverage
 
 The default build exposes 493 exported functions and the repository contains
-6,931 generated kernels across nine accelerated tier targets. Counts below are
+6,933 generated kernels across nine accelerated tier targets. Counts below are
 logical callable kernels, not the extra `Body` trampolines required by the
 s390x ABI. `make check-emission` regenerates the inventory as a dry run.
 
@@ -61,7 +61,7 @@ emitted for AVX2 and declined for SSE2 appears once in each column.
 | amd64 (sse2/avx2/avx512) | 2609 | 101 | LLVM declined to vectorize for a tier |
 | arm64 (neon/sve2) | 1681 | 127 | LLVM declined to vectorize for a tier |
 | riscv64 (rvv) | 891 | 15 | LLVM declined to vectorize |
-| loong64 (lasx) | 728 | 174 | `$fp` ownership and unresolved `.L0` references |
+| loong64 (lasx) | 730 | 172 | `$fp` ownership and unresolved `.L0` references |
 | ppc64le (vsx) | 602 | 300 | `r30`/`r2`, `r0`, frame writes, then LLVM refusals |
 | s390x (vx) | 420 | 482 | `r13`, which the Go runtime owns |
 

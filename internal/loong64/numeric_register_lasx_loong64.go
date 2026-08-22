@@ -242,6 +242,14 @@ func GatherUint64LASX(dst []uint64, src []uint64, idx []int32) {
 	gatherUint64LASX(dst, src, idx)
 }
 
+func MovingAverageFloat32LASX(dst []float32, a []float32, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat32LASX(dst, a, width)
+}
+
 func ShiftDivFloat32LASX(dst []float32, a []float32, shift float32, denom float32) {
 	n := min(len(dst), len(a))
 	if n < 16 {
@@ -258,6 +266,14 @@ func LayerNormFloat32LASX(dst []float32, a []float32, gamma []float32, beta []fl
 		return
 	}
 	layerNormFloat32LASX(dst[:n:n], a, gamma, beta, shift, denom)
+}
+
+func MovingAverageFloat64LASX(dst []float64, a []float64, width int) {
+	if len(dst) < 16 {
+		ref.MovingAverage(dst, a, width)
+		return
+	}
+	movingAverageFloat64LASX(dst, a, width)
 }
 
 func ShiftDivFloat64LASX(dst []float64, a []float64, shift float64, denom float64) {
@@ -331,8 +347,10 @@ func registerNumericLASX(s *kernel.Set) {
 	s.U32.Gather = GatherUint32LASX
 	s.U64.Tile = TileUint64LASX
 	s.U64.Gather = GatherUint64LASX
+	s.F32.MovingAverage = MovingAverageFloat32LASX
 	s.F32.ShiftDiv = ShiftDivFloat32LASX
 	s.F32.LayerNorm = LayerNormFloat32LASX
+	s.F64.MovingAverage = MovingAverageFloat64LASX
 	s.F64.ShiftDiv = ShiftDivFloat64LASX
 	s.F64.LayerNorm = LayerNormFloat64LASX
 	s.U64.Random = RandomU64LASX

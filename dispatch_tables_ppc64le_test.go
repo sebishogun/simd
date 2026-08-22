@@ -127,5 +127,25 @@ var allFlatTables = map[string][]any{
 	"Bytes.VarintDecodeU64":          {tblBytesVarintDecodeU64[0], tblBytesVarintDecodeU64[1]},
 }
 
+// allGroupTables enumerates the per-tier partial structs the runtime
+// overlays from, keyed by kernel.Set group. Slot 0 is the reference
+// and is nil; the rest are one per accelerated tier, in tier order.
+var allGroupTables = map[string][]any{
+	"F32":       {nil, opsF32VSX},
+	"F64":       {nil, opsF64VSX},
+	"I16":       {nil, opsI16VSX},
+	"I32":       {nil, opsI32VSX},
+	"I64":       {nil, opsI64VSX},
+	"I8":        {nil, opsI8VSX},
+	"U16":       {nil, opsU16VSX},
+	"U32":       {nil, opsU32VSX},
+	"U64":       {nil, opsU64VSX},
+	"U8":        {nil, opsU8VSX},
+	"C128":      {nil, cplxC128VSX},
+	"C64":       {nil, cplxC64VSX},
+	"C128Parts": {nil, partsC128PartsVSX},
+	"C64Parts":  {nil, partsC64PartsVSX},
+}
+
 // archSets hands the tests every tier's complete kernel set.
 var archSets func() map[string]kernel.Set = ppc64le.Sets

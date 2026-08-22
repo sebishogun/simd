@@ -2232,3 +2232,107 @@ var opsU8ByTier = [...]*kernel.Ops[uint8]{
 	&opsU8NEON,
 	&opsU8SVE2,
 }
+
+var cplxC128NEON = kernel.Complex[complex128]{
+	Add:     arm64.CaddComplex128NEON,
+	Sub:     arm64.CsubComplex128NEON,
+	Mul:     arm64.CmulComplex128NEON,
+	Div:     arm64.CdivComplex128NEON,
+	Neg:     arm64.CnegComplex128NEON,
+	Conj:    arm64.CconjComplex128NEON,
+	Sum:     arm64.CsumComplex128NEON,
+	Dot:     arm64.CdotComplex128NEON,
+	DotConj: arm64.CdotconjComplex128NEON,
+}
+
+var cplxC128SVE2 = kernel.Complex[complex128]{
+	Add:     arm64.CaddComplex128SVE2,
+	Sub:     arm64.CsubComplex128SVE2,
+	Mul:     arm64.CmulComplex128SVE2,
+	Div:     arm64.CdivComplex128SVE2,
+	Neg:     arm64.CnegComplex128SVE2,
+	Conj:    arm64.CconjComplex128SVE2,
+	Sum:     arm64.CsumComplex128SVE2,
+	Dot:     arm64.CdotComplex128SVE2,
+	DotConj: arm64.CdotconjComplex128SVE2,
+}
+
+var cplxC128ByTier = [...]*kernel.Complex[complex128]{
+	nil,
+	&cplxC128NEON,
+	&cplxC128SVE2,
+}
+
+var cplxC64NEON = kernel.Complex[complex64]{
+	Add:     arm64.CaddComplex64NEON,
+	Sub:     arm64.CsubComplex64NEON,
+	Mul:     arm64.CmulComplex64NEON,
+	Div:     arm64.CdivComplex64NEON,
+	Neg:     arm64.CnegComplex64NEON,
+	Conj:    arm64.CconjComplex64NEON,
+	Sum:     arm64.CsumComplex64NEON,
+	Dot:     arm64.CdotComplex64NEON,
+	DotConj: arm64.CdotconjComplex64NEON,
+}
+
+var cplxC64SVE2 = kernel.Complex[complex64]{
+	Add:     arm64.CaddComplex64SVE2,
+	Sub:     arm64.CsubComplex64SVE2,
+	Mul:     arm64.CmulComplex64SVE2,
+	Div:     arm64.CdivComplex64SVE2,
+	Neg:     arm64.CnegComplex64SVE2,
+	Conj:    arm64.CconjComplex64SVE2,
+	Sum:     arm64.CsumComplex64SVE2,
+	Dot:     arm64.CdotComplex64SVE2,
+	DotConj: arm64.CdotconjComplex64SVE2,
+}
+
+var cplxC64ByTier = [...]*kernel.Complex[complex64]{
+	nil,
+	&cplxC64NEON,
+	&cplxC64SVE2,
+}
+
+var partsC128PartsNEON = kernel.ComplexParts[complex128, float64]{
+	Abs:       arm64.CabsComplex128NEON,
+	Real:      arm64.CrealComplex128NEON,
+	Imag:      arm64.CimagComplex128NEON,
+	Scale:     arm64.CscaleComplex128NEON,
+	FromParts: arm64.CfromPartsComplex128NEON,
+}
+
+var partsC128PartsSVE2 = kernel.ComplexParts[complex128, float64]{
+	Abs:       arm64.CabsComplex128SVE2,
+	Real:      arm64.CrealComplex128SVE2,
+	Imag:      arm64.CimagComplex128SVE2,
+	Scale:     arm64.CscaleComplex128SVE2,
+	FromParts: arm64.CfromPartsComplex128SVE2,
+}
+
+var partsC128PartsByTier = [...]*kernel.ComplexParts[complex128, float64]{
+	nil,
+	&partsC128PartsNEON,
+	&partsC128PartsSVE2,
+}
+
+var partsC64PartsNEON = kernel.ComplexParts[complex64, float32]{
+	Abs:       arm64.CabsComplex64NEON,
+	Real:      arm64.CrealComplex64NEON,
+	Imag:      arm64.CimagComplex64NEON,
+	Scale:     arm64.CscaleComplex64NEON,
+	FromParts: arm64.CfromPartsComplex64NEON,
+}
+
+var partsC64PartsSVE2 = kernel.ComplexParts[complex64, float32]{
+	Abs:       arm64.CabsComplex64SVE2,
+	Real:      arm64.CrealComplex64SVE2,
+	Imag:      arm64.CimagComplex64SVE2,
+	Scale:     arm64.CscaleComplex64SVE2,
+	FromParts: arm64.CfromPartsComplex64SVE2,
+}
+
+var partsC64PartsByTier = [...]*kernel.ComplexParts[complex64, float32]{
+	nil,
+	&partsC64PartsNEON,
+	&partsC64PartsSVE2,
+}
