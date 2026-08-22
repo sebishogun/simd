@@ -67,7 +67,7 @@ live in their own repositories.
 
 ## Current shipped status
 
-The current release is **v1.20.0**; the exported-function and
+The current release is **v1.21.0**; the exported-function and
 generated-kernel counts are the machine-checked ones in README.md and
 docs/platforms.md. The v1 API is stable — every exported
 function keeps its name, signature, and meaning, and so does the numerical
