@@ -6,7 +6,7 @@
 
 **Hardware-accelerated SIMD vector math, text scanning, matrix operations, and columnar codecs for Go — using the vector unit your CPU already has, without cgo.**
 
-`simd` applies runtime-selected SIMD kernels to ordinary Go slices. The v1.21.0
+`simd` applies runtime-selected SIMD kernels to ordinary Go slices. The v1.21.1
 tree contains 493 exported functions and 6,933 generated kernels for SSE2,
 AVX2, AVX-512, NEON, SVE2, RVV, VSX, VX, and LASX. A portable Go path covers
 every operation and every unsupported target.
@@ -421,7 +421,7 @@ including changes that were deleted rather than shipped. Examples:
 
 ## Status
 
-**v1.21.0.** The API is stable: every exported function keeps its name,
+**v1.21.1.** The API is stable: every exported function keeps its name,
 signature and meaning for the life of v1, and so does the numerical contract
 above. [CHANGELOG.md](CHANGELOG.md) states exactly what compatibility covers
 and what it excludes. [ROADMAP.md](ROADMAP.md) lists what is still open.

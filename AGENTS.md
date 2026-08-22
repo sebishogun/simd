@@ -20,7 +20,7 @@ library live in their own repositories.
 
 ## Current shipped status
 
-The tip describes the shipped v1 line. The current release is **v1.21.0**;
+The tip describes the shipped v1 line. The current release is **v1.21.1**;
 the exported-function and generated-kernel counts are the machine-checked
 ones in README.md and docs/platforms.md, held to the sources by
 `internal/tests/docs`. The tier targets are sse2, avx2, avx512, neon, sve2,

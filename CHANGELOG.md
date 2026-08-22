@@ -1,6 +1,11 @@
 # Changelog
 
+## v1.21.1
+
+- Updated `README.md` with SEO search indexing optimization, search keywords, and a structured FAQ section for Go developer queries.
+
 ## v1.21.0
+
 
 
 **The kernel guide's worked example is now checked against the tree.**
