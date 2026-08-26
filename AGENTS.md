@@ -147,3 +147,24 @@ and nothing in it is shipped until it is in the code, the tests, and the
 changelog. Do not create a parallel roadmap; do not write prose that makes an
 open item sound built. Future work lives in `docs/plans/` and is executed
 task-by-task with the executing-plans workflow when it is actually taken on.
+
+## Production task management
+
+- **Local authority.** ROADMAP.md is canonical; the follow-on ledger appended
+  to `docs/plans/2026-08-13-simd-production.md` is the only staging area for
+  production-readiness tasks; `docs/wrong.md` is the only record of
+  rejections. The family index at
+  `docs/plans/2026-08-24-simd-family-production-readiness.md` is a link
+  collection, non-canonical, and never duplicates per-task status.
+- **One task ID at a time.** Work executes one task at a time by its ID from
+  the ledger (for example `SIMD-CORR-01`). A session touching implementation
+  work names its task ID in its first message; without one it touches no
+  implementation files.
+- **State transitions.** Seven states: `open`, `staged`, `in-progress`,
+  `blocked`, `evidence-complete`, `shipped`, `rejected`. A transition is an
+  edit in the ledger (plus the changelog or `docs/wrong.md` for
+  `shipped`/`rejected`); `rejected` is terminal without a documented reopen
+  condition; historical task text and IDs are never edited for status.
+- **Gate rule.** Before any commit: the gate set from `docs/verification.md`,
+  run bare (no `tail` without `pipefail`), with explicit timeouts; a hung
+  test binary is a leak alarm, not a retry candidate.

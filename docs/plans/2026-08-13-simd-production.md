@@ -258,3 +258,68 @@ generated file matches its source (no hand-edited assembly), every count in
 argued against a change is in `docs/wrong.md`.
 
 **Step 4:** Commit any verification-only corrections and report.
+
+---
+
+## Follow-on: production-readiness ledger (appended 2026-08-24)
+
+The tasks above are historical records: their IDs and text are preserved and
+never renumbered or rewritten for status. Follow-on production-readiness work
+is recorded here, one task ID at a time, with the seven-state vocabulary
+(`open`, `staged`, `in-progress`, `blocked`, `evidence-complete`, `shipped`,
+`rejected`). Every row below starts `open`. A transition is an edit to this
+table (plus the changelog or `docs/wrong.md` for `shipped`/`rejected`);
+`rejected` is terminal without a documented reopen condition.
+
+| ID | state | work | evidence | exit |
+|---|---|---|---|---|
+| `SIMD-CORR-01` | open | fuzz differential corrective: review the fuzz targets in `internal/conformance/` against the differential contract (NaN payloads, IEEE specials, adversarial lengths); fix or record | bare fuzz run with timeout, green, or a `docs/wrong.md` entry | corrective slice green |
+| `SIMD-CORR-02` | open | timeout corrective: every test and fuzz invocation in the verification set carries an explicit timeout | `docs/verification.md` lists each command with its timeout; one bare green run | corrective slice green |
+| `SIMD-CORR-03` | open | docs/count/claim corrective: reconcile `docs/platforms.md` counts, README claims, and ROADMAP status against sources; resolve ROADMAP's "door closed twice" sentence against `docs/wrong.md` entry 80; reconstruct or correct entry 80's unexplained 1,080-case denominator, then correct the dependent arithmetic (388,352 minus 1,080 leaves 387,272, not 387,271) and its attribution of the four-line objdump excerpt (the `src1 = a` / `src1 = b` operand-order annotations in the masked-tail listing); reconcile entry 81 and the fuzz source comment's historical "11 seeds" label against the current three `f.Add` seeds; resolve entry 81's stale `f.Fatalf` wording against the final `f.Skip` guard | docs tests green; each named contradiction corrected against code or its owning record; historical measurements explicitly labeled with their measurement-time corpus | corrective slice green |
+| `SIMD-R5-01` | open | real-silicon threshold evidence: thresholds away from amd64 measured on real hardware; emulated lanes are not real-silicon evidence | recorded measurements with provenance | R5 maintained-production evidence |
+| `SIMD-R5-02` | open | patch/upgrade cycle and observed release automation: one patch cycle with the regression suite green and the release automation observed end to end | patch release plus green suite | R5 |
+| `SIMD-R5-03` | open | remaining roadmap kernel work: the sort three-way partition and the general n-ary closure combinator, each with its evidence bar from Tasks 1 and 4 above | per-task gates or `docs/wrong.md` rejections | roadmap items closed or rejected |
+| `SIMD-R5-04` | open | C++/Rust workload-gap decisions: compare supported whole-slice workloads with the named C++ and Rust peers; classify material gaps as in-boundary work, future work, or rejected with evidence | the workload matrix below plus the decision record | gaps classified without feature-count parity |
+
+**Not a task row, by design:** the measured `GOEXPERIMENT=simd` small-n tier.
+Entries 58, 75, and 79 close it on measured speed; the ROADMAP records the
+condition for re-running it. Entry 80 records a source-level bit-identity limit
+and adds no speed rejection. It is not reopened or listed as open here.
+
+### v1/R5 exit
+
+The existing production release remains current: the shipped v1 line
+(v1.21.1) is the supported release and nothing in this ledger changes that.
+R5 requires real-silicon/current evidence (SIMD-R5-01), an observed
+patch/upgrade cycle with release automation (SIMD-R5-02), and the open
+roadmap work closed or rejected (SIMD-R5-03, SIMD-R5-04), with the
+corrective slice (SIMD-CORR-01..03) shipped.
+
+### Workload matrix (competitive work)
+
+Columns: `workload | this repo | peer | oracle-or-basis | gate`.
+
+No external library is an oracle in this repository. The differential
+contract binds to `internal/ref` and the numerical contract in
+`internal/kernel/kernel.go`; the plain Go loop in `docs/kernels.md` is the
+local performance reference. C++ and Rust SIMD libraries are
+workload and performance peers, never behavioral oracles, named only where
+this repository's own research docs name them: Google Highway, xsimd,
+SIMDe, and Rust portable-simd (`docs/research/02-codegen-pipelines.md`).
+Figures are quoted from sources
+with provenance, never invented; a gap is a workload, an allocation, a
+dispatch, or a measurement, never a feature count.
+
+Every comparison is gated on the five forms of the production design
+record: workload stated before measurement, compatibility promise,
+zero-allocation path, runtime dispatch engagement, and interleaved-A/B
+benchmark discipline on a quiet host (minimum compared, bench-check
+baseline, `-benchmem`, `perf stat` below the 8.3% layout floor).
+
+| workload | this repo | peer | oracle-or-basis | gate |
+|---|---|---|---|---|
+| elementwise float add/mul, whole slice, n above the dispatch threshold | `internal/ref` and the scalar loop | Google Highway, xsimd, Rust portable-simd elementwise loops | none - `internal/ref` differential | quiet-host interleaved A/B; bench-check baseline; dispatch-engagement assertion |
+| whole-slice reductions (Sum) | `internal/ref` | Google Highway, Rust portable-simd reduce | none - `internal/ref` differential | same |
+| compress/expand/filter (CompressInto, ExpandInto, FilterInto) | `internal/ref` | Google Highway compress, SIMDe | none - `internal/ref` differential | same; per-tier correctness differential |
+| byte scanning (IndexByte, Equal, HammingDistance, mask scans) | `internal/ref` | Google Highway, SIMDe | none - `internal/ref` differential | same |
+| sort/argsort/partition at 16K+ (few-distinct corpus included) | `internal/ref` | none named in this repo's docs; chosen under SIMD-R5-04 and recorded with the workload | none - `internal/ref` differential | same; few-distinct corpus per Task 1 |

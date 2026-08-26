@@ -23,7 +23,6 @@ import (
 	"math"
 	"testing"
 
-	"github.com/sebishogun/simd/internal/backend"
 	"github.com/sebishogun/simd/internal/cpu"
 	"github.com/sebishogun/simd/internal/kernel"
 	"github.com/sebishogun/simd/internal/ref"
@@ -237,11 +236,74 @@ func FuzzKernelsAgainstReference(f *testing.F) {
 	for _, tr := range cpu.Detail().Available {
 		runnable[tr.String()] = true
 	}
+	// `archSetsFn`, NOT `backend.Tiers()`. THIS FUZZ RAN ZERO TIERS FOR ITS
+	// WHOLE LIFE.
+	//
+	// `backend.Tiers()` reads a registry that `backend.For` fills, and
+	// `backend.For` HAS NO CALLERS -- a grep for it across every .go file in
+	// the repository returns nothing. So the registry is empty, `Tiers()`
+	// returns a zero-length slice, and the loop below iterated nothing.
+	// Measured in this binary:
+	//
+	//	backend.Tiers()          []          (len 0)
+	//	cpu.Detail().Available   [scalar sse2 avx2 avx512]
+	//	archSetsFn() keys        [sse2 avx2 avx512]
+	//
+	// The cost, with `ref.add` mutated to `a[i] + b[i] + 1` -- which makes the
+	// shipped library answer 6 for 2+3 below every threshold:
+	//
+	//	FuzzKernelsAgainstReference, 11 seeds    PASS  0.002s
+	//	FuzzKernelsAgainstReference, -fuzztime   PASS  5,915,181 execs
+	//	TestEveryTierMatchesTheReference         FAIL  0.002s
+	//
+	// `make fuzz` runs this target and exits 0. It is the third vacuously-green
+	// lane in this repository and the shape docs/wrong.md entry 41 is about.
+	//
+	// `archSetsFn` is what the table test's `tiers()` already uses; it is set
+	// by the per-architecture `init()` in import_<arch>_test.go, a mechanism
+	// that cannot be empty by accident on a supported target.
+	// NIL-CHECKED BEFORE IT IS CALLED. `archSetsFn` is a package variable set
+	// by the per-architecture import file, so it is nil under `-tags purego`
+	// and on an architecture with no generated backend -- calling it there is
+	// a nil-func panic, which is how the first version of this failed the
+	// purego lane.
+	if archSetsFn == nil {
+		f.Skip("no generated backend in this build")
+	}
 	all := map[string]kernel.Set{}
-	for _, n := range backend.Tiers() {
-		if s, ok := backend.Lookup(n); ok && runnable[n] {
-			all[n] = s
+	for n, set := range archSetsFn() {
+		if runnable[n] {
+			all[n] = set
 		}
+	}
+	// AND A GUARD, so this can never again do nothing quietly. `tiers()` skips
+	// and `dispatch_inventory_test.go` fatals; this had neither, which is why
+	// an empty registry read as "every tier agrees" rather than as "no tier was
+	// compared".
+	//
+	// SKIP, NOT FATAL, and the distinction is the whole point of the guard.
+	// There are two ways to arrive here with nothing to compare and only one of
+	// them is a defect:
+	//
+	//	no generated backend in this build   `-tags purego`, or an
+	//	                                     architecture with no kernels --
+	//	                                     legitimate, nothing exists to
+	//	                                     compare against
+	//	backend present, none runnable       this CPU lacks the instructions;
+	//	                                     running one is a SIGILL, not a
+	//	                                     finding
+	//
+	// The defect this replaced was neither: `archSetsFn()` held three tiers
+	// while the registry the loop read held none. That cannot happen silently
+	// now, because the loop and the skip read the same source. A Fatal here
+	// would redden the purego lane, which is `make verify`'s way of checking
+	// the reference against itself and has no backend by design -- the first
+	// version of this guard did exactly that.
+	if n := len(archSetsFn()); n == 0 {
+		f.Skip("the generated backend for this architecture is empty")
+	} else if len(all) == 0 {
+		f.Skipf("none of the %d generated tiers run on this CPU (%s)",
+			n, cpu.Describe())
 	}
 
 	f.Fuzz(func(t *testing.T, ab, bb []byte) {

@@ -8,6 +8,24 @@ GO      ?= go
 PKG     ?= ./...
 DOCKER  ?= docker
 
+# Every `go test` here carries an explicit timeout. A hung test binary never
+# exits by itself, and a test binary executed directly — which is how the qemu
+# lanes run them — has NO default timeout at all: the familiar 10-minute limit
+# belongs to `go test`, not to the binary. One unbounded loop once left ~2038
+# hung binaries holding ~44 GiB and the OOM killer took the desktop with it.
+# The race detector and the benchmarks get longer bounds because they are
+# legitimately slower, not because they are allowed to hang.
+#
+# A virtual-memory cap (ulimit -v) was considered for these recipes and left
+# out: the race detector's shadow mappings and qemu-user's guest address-space
+# reservations both allocate virtual space far beyond real use, so a cap tight
+# enough to matter false-kills those lanes. Cap memory at the caller when the
+# machine is at risk.
+TEST_TIMEOUT  ?= 540s
+RACE_TIMEOUT  ?= 1800s
+BENCH_TIMEOUT ?= 3600s
+QEMU_TIMEOUT  ?= 1500s
+
 # Tiers this host can actually execute, discovered at runtime rather than
 # assumed, so `make test-tiers` does the right thing on any machine.
 TIERS := $(shell $(GO) run ./cmd/simdinfo -tiers 2>/dev/null || echo scalar)
@@ -43,12 +61,12 @@ verify: fmt-check vet test test-purego test-vec test-tiers ## fmt-check, vet, te
 
 .PHONY: test
 test: ## Run the test suite on the host
-	$(GO) test $(PKG)
+	$(GO) test -timeout $(TEST_TIMEOUT) $(PKG)
 
 # The reference must be self-consistent before anything is compared against it.
 .PHONY: test-purego
 test-purego: ## Run the suite against the portable reference (-tags purego)
-	$(GO) test -tags purego $(PKG)
+	$(GO) test -tags purego -timeout $(TEST_TIMEOUT) $(PKG)
 
 # The vector type in vec.go is behind GOEXPERIMENT=simd, so the default build
 # never compiles it. A build tag nothing exercises is the vacuously-green lane
@@ -60,7 +78,7 @@ test-purego: ## Run the suite against the portable reference (-tags purego)
 .PHONY: test-vec
 test-vec: ## Run the suite with GOEXPERIMENT=simd, which compiles vec.go
 	@if GOEXPERIMENT=simd $(GO) list ./... >/dev/null 2>&1; then \
-		GOEXPERIMENT=simd $(GO) test $(PKG); \
+		GOEXPERIMENT=simd $(GO) test -timeout $(TEST_TIMEOUT) $(PKG); \
 	else \
 		echo "  skipping: this toolchain has no simd experiment"; \
 	fi
@@ -71,12 +89,12 @@ test-vec: ## Run the suite with GOEXPERIMENT=simd, which compiles vec.go
 test-tiers: ## Run the suite once per instruction-set tier this CPU has
 	@for t in $(TIERS); do \
 		echo "--- GOSIMD=$$t"; \
-		GOSIMD=$$t $(GO) test -count=1 $(PKG) || exit 1; \
+		GOSIMD=$$t $(GO) test -count=1 -timeout $(TEST_TIMEOUT) $(PKG) || exit 1; \
 	done
 
 .PHONY: test-race
 test-race: ## Full suite under the race detector
-	$(GO) test -race $(PKG)
+	$(GO) test -race -timeout $(RACE_TIMEOUT) $(PKG)
 
 # Every fuzz target in the tree, DISCOVERED rather than listed.
 #
@@ -108,9 +126,9 @@ test-race: ## Full suite under the race detector
 fuzz: ## Fuzz every target in the tree
 	@set -e; n=0; \
 	for pkg in $$($(GO) list ./...); do \
-		for t in $$($(GO) test -list '^Fuzz' $$pkg 2>/dev/null | grep '^Fuzz' || true); do \
+		for t in $$($(GO) test -list '^Fuzz' -timeout $(TEST_TIMEOUT) $$pkg 2>/dev/null | grep '^Fuzz' || true); do \
 			echo "fuzz $$pkg $$t"; \
-			$(GO) test -run '^$$$$' -fuzz "^$$t$$" -fuzztime $(or $(FUZZTIME),60s) $$pkg; \
+			$(GO) test -run '^$$$$' -fuzz "^$$t$$" -timeout $(TEST_TIMEOUT) -fuzztime $(or $(FUZZTIME),60s) $$pkg; \
 			n=$$((n+1)); \
 		done; \
 	done; \
@@ -278,7 +296,7 @@ qemu-run-plain:
 		bin=$$(mktemp); \
 		GOARCH=$(ARCH) GOOS=linux $(GO) test -c -o $$bin $$p || exit 1; \
 		printf "%-9s %-28s " $(ARCH) $$p; \
-		out=$$(QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short) || { \
+		out=$$(QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short -test.timeout=$(QEMU_TIMEOUT)) || { \
 			echo "$$out" | tail -5; exit 1; }; \
 		echo "$$out" | tail -1; \
 		rm -f $$bin; \
@@ -321,7 +339,7 @@ qemu-run:
 		bin=$$(mktemp); \
 		GOARCH=$(ARCH) GOOS=linux $(GO) test -c -o $$bin $$p || exit 1; \
 		printf "%-9s %-28s " $(ARCH) $$p; \
-		out=$$(QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short) || { \
+		out=$$(QEMU_CPU=$(CPU) $(QEMU) $$bin $$bin -test.short -test.timeout=$(QEMU_TIMEOUT)) || { \
 			echo "$$out" | tail -5; exit 1; }; \
 		echo "$$out" | tail -1; \
 		rm -f $$bin; \
@@ -413,7 +431,7 @@ endif
 
 .PHONY: bench-run
 bench-run: ## Run the benchmarks and write the raw output
-	$(BENCH_PIN) $(GO) test -run '^$$' -bench . -count $(BENCH_COUNT) -shuffle=on $(PKG) > $(BENCH_OUT)
+	$(BENCH_PIN) $(GO) test -run '^$$' -bench . -count $(BENCH_COUNT) -shuffle=on -timeout $(BENCH_TIMEOUT) $(PKG) > $(BENCH_OUT)
 	@echo "wrote $(BENCH_OUT)"
 
 .PHONY: bench-check
@@ -428,14 +446,14 @@ bench-update: bench-run ## Re-record the baseline (read the warning first)
 
 .PHONY: bench
 bench: ## Run every benchmark once, with allocation counts
-	$(GO) test -run '^$$' -bench . -benchmem $(PKG)
+	$(GO) test -run '^$$' -bench . -benchmem -timeout $(BENCH_TIMEOUT) $(PKG)
 
 # Accelerated versus portable Go, same benchmarks, compared properly.
 # Requires: go install golang.org/x/perf/cmd/benchstat@latest
 .PHONY: benchcmp
 benchcmp: ## Accelerated vs portable Go, through benchstat
-	$(GO) test -run '^$$' -bench . -count 10 $(PKG) > /tmp/simd-asm.txt
-	$(GO) test -run '^$$' -bench . -count 10 -tags purego $(PKG) > /tmp/simd-pure.txt
+	$(GO) test -run '^$$' -bench . -count 10 -timeout $(BENCH_TIMEOUT) $(PKG) > /tmp/simd-asm.txt
+	$(GO) test -run '^$$' -bench . -count 10 -tags purego -timeout $(BENCH_TIMEOUT) $(PKG) > /tmp/simd-pure.txt
 	benchstat /tmp/simd-pure.txt /tmp/simd-asm.txt
 
 # ---------------------------------------------------------------------- hygiene
@@ -487,8 +505,8 @@ hardware-report: ## Run the suite and write testdata/hardware/<goos>-<goarch>-<t
 	out=testdata/hardware/$$goos-$$goarch-$$tier.md; \
 	mkdir -p testdata/hardware; \
 	echo "running the suite on $$goos/$$goarch, tier=$$tier — this takes a few minutes"; \
-	acc=$$($(GO) test $(PKG) 2>&1) && accres=Passed || accres=FAILED; \
-	sca=$$(GOSIMD=scalar $(GO) test $(PKG) 2>&1) && scares=Passed || scares=FAILED; \
+	acc=$$($(GO) test -timeout $(TEST_TIMEOUT) $(PKG) 2>&1) && accres=Passed || accres=FAILED; \
+	sca=$$(GOSIMD=scalar $(GO) test -timeout $(TEST_TIMEOUT) $(PKG) 2>&1) && scares=Passed || scares=FAILED; \
 	{ \
 	  echo "# $$goos/$$goarch, tier=$$tier"; echo; \
 	  echo "## Machine"; echo; \
@@ -532,7 +550,7 @@ hardware-bench: ## Append benchmarks to the hardware report (quiet machine only)
 	out=testdata/hardware/$$goos-$$goarch-$$tier.md; \
 	[ -f $$out ] || { echo "run 'make hardware-report' first"; exit 1; }; \
 	echo "benchmarking — close everything else; this takes a while"; \
-	bench=$$($(GO) test -run '^$$' -bench . -count 6 $(PKG) 2>&1) || true; \
+	bench=$$($(GO) test -run '^$$' -bench . -count 6 -timeout $(BENCH_TIMEOUT) $(PKG) 2>&1) || true; \
 	{ echo; echo "## Wall-clock"; echo; \
 	  echo '```'; echo "$$bench"; echo '```'; } >> $$out; \
 	echo "appended benchmarks to $$out"

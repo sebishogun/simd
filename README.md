@@ -388,7 +388,7 @@ cgo.
 
 ## Engineering record
 
-[**docs/wrong.md**](docs/wrong.md) records 87 things that measurement disproved,
+[**docs/wrong.md**](docs/wrong.md) records 90 things that measurement disproved,
 including changes that were deleted rather than shipped. Examples:
 
 - Green test lanes had executed no accelerated code for months.

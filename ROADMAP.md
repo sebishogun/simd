@@ -226,27 +226,50 @@ At n = 32 it is most of the runtime — which is why the dispatcher currently
 gives up below its threshold and runs a scalar Go loop instead. An inlined
 intrinsic pays none of it.
 
-So the plan is additive and measured:
+The plan was additive and measured — build behind the build tag, benchmark
+against both the assembly tier and the scalar fallback, wire only the sizes
+that win — and it has now been executed a second time, with the measurement
+saying no again. The second attempt measured the intrinsics in isolation
+first
+([docs/research/08-goexperiment-simd-small-n.md](docs/research/08-goexperiment-simd-small-n.md),
+−19% to −32% instructions against the portable loop), then rebuilt
+`internal/fastpath` with bit-identity as the gate — which passed on that
+corpus, at every length 0–40 over IEEE specials, on both lanes. Through the
+generated guards it loses the band anyway: the guard inlines the one-line
+`ref` forward and cannot inline an archsimd loop, so the intrinsics pay a
+real call exactly where a call is most of the work. Entries 75 and 79 of
+[docs/wrong.md](docs/wrong.md) hold the numbers, including a re-probe that
+charged the dispatch context to both sides and still found wins only at
+exact lane multiples — none of which survives the public-API wall clock
+entry 58 recorded.
 
-- Build the tier now, behind the build tag, against the same `kernel.Ops`
-  contract every other backend implements, so dispatch selects it the same way.
-- Benchmark it against **both** the assembly tier and the scalar fallback at
-  n = 4, 8, 16, 32, 64, 128, 256. Only the sizes where it wins get wired up.
-  The same rule as every other tier in this library: a measurement decides.
-- The bit-identity contract still binds. Go's intrinsics have their own
-  rounding and NaN behaviour, and they get differentially tested against the
-  portable reference like everything else.
+And the gate itself has since failed on a corpus no earlier attempt ran:
+two NaNs with distinct payloads at one index. gc commutes float add and mul
+per compilation context, x86 propagates the first operand's payload, and
+the probed binary demonstrably returns the other NaN in its masked tail —
+1,080 of 1,080 such cases — while sub and div stay pinned by the ISA. Add
+and mul, the operations the band exists for, cannot be promised
+bit-identical through archsimd at source level. Entry 80. So the door is
+closed twice over, and the second closure does not depend on the first.
 
-When the intrinsics are in the language and need no flag, re-run that
-benchmark and move every operation where the intrinsic wins — keeping assembly
-everywhere it does not, which on current evidence is everywhere above n ≈ 64
-and every architecture Go's intrinsics do not cover.
+What is left of the idea is not a package. An attempt that could work has to
+emit the intrinsics inside the generated backend, in the same package as the
+guard, where they can inline into it — a generator and architecture change
+that starts in the production design record if it starts anywhere. Until
+something does that, the measured answer is that `internal/ref` is the
+faster fallback below every threshold.
+
+When the intrinsics are in the language and need no flag, re-run the
+benchmark through the public API and move every operation where the
+intrinsic wins — keeping assembly everywhere it does not, which on current
+evidence is everywhere above n ≈ 64 and every architecture Go's intrinsics
+do not cover.
 
 ---
 
 ## Releases
 
-The line is at `v1.20.0`: the v1 series is API-stable and each minor adds
+The line is at `v1.21.1`: the v1 series is API-stable and each minor adds
 kernels or verification without moving anything — CHANGELOG.md is the
 per-release record. The criteria below are kept as written because they say
 what `v1.0.0` *meant*; the items marked open inside them are ongoing watches,
@@ -356,3 +379,25 @@ is currently a guess carried over from a machine that does not resemble it.
 The thresholds are the part that is actually wrong without this — a kernel that
 is correct under qemu is correct on the metal, but a crossover measured on
 nothing is a number with no evidence behind it.
+
+---
+
+## Production readiness
+
+Maturity snapshot dated 2026-08-24: **R4**, released at v1.21.1. The current
+dirty workspace is assessed **R3**: the corrective fuzz/timeout/docs changes
+exist in the working tree but are uncommitted. The existing production release
+remains current.
+
+Open high-level work:
+
+- Corrective streams: the fuzz differential, explicit timeouts on every test
+  and fuzz invocation, and the docs/count/claim reconciliation.
+- R5 evidence streams: real-silicon thresholds away from amd64, an observed
+  patch/upgrade cycle with release automation, the remaining roadmap kernels
+  (sort three-way partition, n-ary closure combinator), and the C++/Rust
+  workload-gap decisions.
+
+Per-task status lives in the follow-on ledger appended to
+[docs/plans/2026-08-13-simd-production.md](docs/plans/2026-08-13-simd-production.md),
+not here.

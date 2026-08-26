@@ -3661,3 +3661,233 @@ The mutation is recorded here rather than left implicit because the plan's own
 justification for the item no longer holds, and the next person to read that
 plan would otherwise re-derive the priority from a sentence that was true when
 it was written.
+
+## 79. Instructions retired can rank the two fallbacks
+
+**Assumed**, when a task arrived to build `internal/fastpath` as the one
+workstream that had not landed. It has landed twice — entry 58 (wired, A/B'd
+through the public API, 46% wall-clock regression at n=8, deleted) and entry
+75 (rebuilt per docs/research/08, bit-identity passed, lost the band on
+instructions retired, reverted) — so before taking the records on faith, a
+probe re-measured the load-bearing facts on the same go1.26.5 toolchain, with
+the call context made explicit: both fallbacks reached from a guard that is
+itself called through a table of function values, the way the dispatch tables
+reach real guards, so the indirect call is charged to both sides equally.
+
+**What reproduces exactly.** `-gcflags=-m` says "can inline" for the scalar
+loop and for its one-line forward, and nothing for the archsimd loop — behind
+any package boundary the intrinsics are a real call, as entry 75 found. And
+the archsimd side's cost reproduces to 0.6%: 78.4 instructions per call at
+f32 n=8 against entry 75's 77.9.
+
+**What does not reproduce is the ref side, and the spread is the finding.**
+The same scalar arithmetic at f32 n=8, per call:
+
+| harness | insn/call |
+|---|---|
+| research/08's direct loop, no guard | 113.9 |
+| this probe: guard behind a function-value table | 101.4 |
+| entry 75's table | 62.0 |
+
+1.84× between extremes for identical arithmetic. The scalar side's cost is
+set by what its caller inlines and hoists — the degree of freedom the
+archsimd side does not have. Charged the same guard context as the call it
+competes with, the comparison flips sign at the lane multiples
+(`perf stat -e instructions:u`, 2,000,000 calls, interleaved, minimum of
+2–3 rounds, spread under 0.1%; insn/call):
+
+| f32 | n=4 | n=5 | n=8 | n=9 | n=12 | n=16 | n=17 |
+|---|---|---|---|---|---|---|---|
+| ref | 72.4 | 79.4 | 101.4 | 108.4 | 128.4 | 157.4 | 164.4 |
+| archsimd | 127.4 | 127.4 | **78.4** | 144.4 | 143.4 | **94.4** | 160.4 |
+
+| f64 | n=4 | n=8 | n=9 | n=16 |
+|---|---|---|---|---|
+| ref | 72.4 | 100.4 | 107.4 | 156.4 |
+| archsimd | 77.4 | **93.4** | 159.4 | **125.4** |
+
+Wins at exactly the lane multiples, losses everywhere else, worst below one
+vector: f32 n=4 costs +76%.
+
+**And the sign flip reopens nothing.** The band for the elementwise
+arithmetic is n < 16. Inside it f32 wins at n=8 (−23%) and, because the
+masked tail block is flat at ~143 insn while ref grows 7 per element, again
+barely at the very top: n=13 +6%, n=14 ±0, n=15 −4%. Everything else loses,
+up to +148% at n=1 (51.4 against a flat 127.4). And n=8 — the best length
+the probe found — is precisely the length entry 58 measured through the
+public API on a quiet machine: 5.50 ns before, 8.04 after — a 46%
+wall-clock loss for the variant this probe scores at 23% fewer
+instructions. Both are true: the call's serialization and the
+masked-load latency that make it slow are invisible to instructions:u,
+which is the counter that survives a loaded machine (load average was 6.6
+here, so cycles were unusable) and cannot see what loses.
+
+**The rule this sharpens** is the one entries 55, 57 and 58 each paid for
+once: below ~10 ns a component benchmark is not noisy, it is
+harness-determined. The two numbers that mean anything are the `-m` output,
+which says what is a call, and the public-API wall clock, which says what
+the call costs. Both are on record, on this toolchain, and they say no.
+`internal/fastpath` stays deleted.
+
+## 80. Elementwise intrinsics are bit-identical by construction
+
+**Assumed** — by the fastpath plan, by docs/research/08, by entry 75 (whose
+gate passed at every length 0–40 over IEEE specials), and by the task brief
+that ordered the rebuild: elementwise operations cannot reassociate, so
+archsimd add/sub/mul/div are safe by construction and reductions are where a
+bit-identity bug would hide.
+
+**One check in 388,352 said otherwise.** A differential of the archsimd
+shapes against the scalar reference shape — lengths 0–40, add/sub/mul/div,
+f32 and f64, IEEE specials at every index, denormal-heavy random bit
+patterns, canaries past n — failed exactly once: f32 add, n=30, i=26, inputs
+`a=0x7fa631c4` and `b=0x7fa38ca7`, two signalling NaNs with *different*
+payloads. The scalar loop produced `0x7fe631c4` (a's payload, quieted); the
+intrinsics produced `0x7fe38ca7` (b's).
+
+**The cause is operand order, and the compiler owns it.** x86 two-NaN rule:
+the result is src1's payload, quieted. llvm-objdump on the very binary that
+failed (Go's objdump misrenders VEX — it printed `VPMASKMOVD` as
+`MOVW CS, 0(SI)`):
+
+    full blocks:  vaddps ymm1, ymm1, ymm2      src1 = a
+    masked tail:  vaddps ymm0, ymm2, ymm1      src1 = b   <- commuted
+                  vsubps ymm0, ymm1, ymm2      src1 = a   (pinned: a-b)
+                  vmulps ymm0, ymm2, ymm1      src1 = b   <- commuted
+                  vdivps ymm0, ymm1, ymm2      src1 = a   (pinned: a/b)
+
+The order-pinned sub and div prove which register held which input: in the
+tail block the compiler commuted add and mul — legal, since Go's spec does
+not define NaN payload propagation — while the full-block path kept source
+order. Same source expression, same binary, different NaN answer depending
+on which side of a block boundary the index falls.
+
+**Made deterministic**, two NaNs with distinct payloads at every index, every
+length 1–40, every op: 1,080 of 1,080 such cases mismatch in the masked tail
+for add and mul (f32 and f64, sNaN and qNaN pairs alike); zero for sub and
+div; zero in full blocks. Every one of the remaining 387,271 checks —
+single NaNs, signed zeros, infinities, denormals, exponent boundaries,
+zero divisors, write-past-n canaries — passes.
+
+**Why every earlier corpus missed it.** A single special at one index gives
+one NaN operand, and one NaN propagates identically whatever the operand
+order. A same-value pair gives two NaNs with the same payload, and
+quiet(a) = quiet(b). Only two NaNs with *distinct* payloads at the same
+index observe operand order — a shape neither research/08's
+cancellation-prone corpus nor entry 75's specials placed, and one the random
+corpus hits at roughly the square of the NaN density. An isolated
+reproduction of the same expressions compiles un-commuted and passes, so the
+defect cannot be pinned by a repro test: it is a per-context compiler
+choice, free to move with any recompilation.
+
+**WHAT THIS CLOSES: NOTHING. The contract already permits it, and this entry
+was written without reading the contract it claims to invoke.**
+
+`internal/kernel/kernel.go`, rule 1, the paragraph immediately after the
+sentence this entry set out to defend:
+
+> The single exception is the payload of a NaN result. IEEE 754 does not say
+> which NaN survives an operation whose operands are NaN, and hardware
+> genuinely differs — x86 returns the first source operand, other
+> architectures choose otherwise. Promising identical payloads would be
+> promising something no implementation can deliver. What is promised is that
+> a NaN in yields a NaN out, on every tier, which is what callers actually
+> depend on.
+
+So the commutation is not a contract violation. It is the exact case the
+contract carved out, for the exact reason the contract gives, and the
+carve-out names x86's first-source-operand rule by name.
+
+The conformance comparison implements that carve-out and always has —
+`sameScalar` in `internal/conformance/conformance_test.go`:
+
+	if math.IsNaN(x) || math.IsNaN(y) {
+		return math.IsNaN(x) && math.IsNaN(y)
+	}
+	return math.Float32bits(x) == math.Float32bits(y)
+
+NaN in, NaN out; payload never compared. So the two follow-on claims are also
+wrong. The differential fuzz is not what "holds this shut" — it deliberately
+does not look, because there is nothing to hold shut. And a seed of two
+distinct-payload NaNs, added to `FuzzKernelsAgainstReference` on the strength
+of this entry, could not fail by construction and was removed again.
+
+**What survives.** The measurement: gc commutes `vaddps`/`vmulps` in archsimd's
+masked tail and not in its full blocks, deterministically, 1,080 of 1,080, on
+go1.26.5, and an isolated repro compiles un-commuted so it is a per-context
+compiler choice. That is a real property of the toolchain and worth knowing —
+it means any future rule that DID promise payload stability could not be met
+through archsimd at source level. It is not a reason not to ship fastpath.
+
+**The door is closed once, not twice.** Entries 58, 75 and 79 close it on
+speed, three independent measurements. This entry adds nothing to that, and
+the "second closure does not depend on the first" sentence was the tell: a
+closure that does not depend on the measurement should have been checked
+against the document that defines the contract before being written down.
+Reading `kernel.go` would have taken one minute and the file is named in
+CLAUDE.md as the contract every backend implements.
+
+## 81. The differential fuzz ran zero tiers, for its whole life
+
+**Assumed**, by entry 80's own closing paragraph and by every release that ran
+`make fuzz`: `FuzzKernelsAgainstReference` feeds arbitrary bit patterns to every
+kernel of every tier against the reference, so a compiler upgrade that flips
+either side's operand order shows up as a red fuzz run.
+
+**It compared nothing.** The loop was
+
+	for _, n := range backend.Tiers() {
+		if s, ok := backend.Lookup(n); ok && runnable[n] {
+			all[n] = s
+		}
+	}
+
+`backend.Tiers()` reads a registry that `backend.For` fills. **`backend.For` has
+no callers** -- a grep for it across every `.go` file in the repository returns
+nothing. Only three files import `internal/backend` and two of them are the
+readers in `conformance`. Measured in that test binary:
+
+	backend.Tiers()          []          len 0
+	cpu.Detail().Available   [scalar sse2 avx2 avx512]
+	archSetsFn() keys        [sse2 avx2 avx512]
+
+So `all` was empty, `for tier, got := range all` iterated nothing, and every
+input passed.
+
+**What it costs, measured.** `internal/ref/ref.go`'s `add` mutated to
+`dst[i] = a[i] + b[i] + 1` -- which makes the shipped library answer **6** for
+2+3 at any length below a threshold, and 5 above it:
+
+	FuzzKernelsAgainstReference, 11 seeds       PASS   0.002s
+	FuzzKernelsAgainstReference, -fuzztime 90s  PASS   5,915,181 execs
+	TestEveryTierMatchesTheReference            FAIL   0.002s
+	  sse2/F32.Add n=16 i=1: got 94.724014 want 95.724014
+
+`make fuzz` runs this target and exits 0.
+
+**The fix is one word and the guard is the point.** `archSetsFn` is what the
+table test's `tiers()` already uses, set by the per-architecture `init()` in
+`import_<arch>_test.go` -- a mechanism that cannot be empty by accident on a
+supported target. With it, the same mutation reddens the fuzz **in its seeds**,
+before any generated input.
+
+The second half matters more than the first. `tiers()` has a `len(out) == 0 ->
+t.Skip`, `dispatch_inventory_test.go` has a `len(...) == 0 -> Fatal`, and this
+had neither, so an empty registry read as "every tier agrees" rather than as
+"no tier was compared". It has an `f.Fatalf` now. **A differential with nothing
+on one side passes every input and proves nothing**, and the only thing that
+separates that from success is a count nobody was taking.
+
+**Third time in this file.** Entry 41 named the shape -- a lane that looks
+covered and is not -- and it has now appeared as a build-tagged path nothing
+ran, as a bounds test fed only malformed input, and here as a registry nothing
+populated. The pattern across all three is that the *absence* was the pass:
+nothing asserted that the thing under test had been reached.
+
+**What this does NOT change.** The library is not wrong. Entry 80's scan found
+one payload per operation per tier, identical on scalar/sse2/avx2/avx512 across
+361,800 checks, and the table test -- which does run the tiers -- has been green
+throughout. What was missing was the fuzz's contribution to that assurance, and
+entry 80's claim that the fuzz is what holds the operand-order exposure shut was
+wrong twice over: the contract does not require it to be held shut, and the fuzz
+was not holding anything.
